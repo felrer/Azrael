@@ -1,0 +1,13 @@
+{
+  "lifecycleId": "run:ET-01-cold-build-cache-audit:monitor-decoder-r1",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1",
+  "revision": 1,
+  "status": "prepared-not-started",
+  "paths": {
+    "inputs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\inputs",
+    "temporary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\temporary",
+    "outputs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\outputs",
+    "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\logs",
+    "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\reports"
+  }
+}

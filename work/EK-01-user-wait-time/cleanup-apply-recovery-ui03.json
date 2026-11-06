@@ -1,0 +1,25 @@
+{
+  "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-03",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "20dca95e4d3fe94ec353bbfde89302f27bc60e9af8f4a72955157c7da35caeb7",
+  "lease_owner": {
+    "acquired_at_ms": 1793244261393,
+    "operation": "group_reservation",
+    "pid": 52384,
+    "schema": 2,
+    "token": "52384-1793244261393-9fdabc93beefc8d8"
+  },
+  "originalOutcome": {
+    "rootExecSession": 50925,
+    "rootWaitCell": 122,
+    "exitCode": 1,
+    "ownerExitCode": 1,
+    "reason": "Prior apply returned OS33 catalog lock failure; no per-item terminal deletion result was returned"
+  },
+  "terminationEvidence": {
+    "parentDecisionRequest": "01a185de-c6f2-7d51-8be7-1a415f40f825",
+    "parentStatement": "Root Node script cp.spawnSync verified standalone owner with project-root/request args, awaited terminal status then threw on nonzero. No detached launch, background wrapper or parallel child; finally unlinked request. Native apply path has no spawned descendants.",
+    "supplement": "Supported native recover_reservation independently validates exact owner absence/non-live lease; original failed outcome remains unchanged."
+  }
+}

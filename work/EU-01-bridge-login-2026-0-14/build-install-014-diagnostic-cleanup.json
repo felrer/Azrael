@@ -1,0 +1,297 @@
+{
+  "actualExitCode": 0,
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:EU01-install-014:checker-release-r",
+        "status": "deleted"
+      },
+      {
+        "id": "run:EU01-install-014:checker-release-s",
+        "status": "deferred"
+      },
+      {
+        "id": "run:EU01-install-014:checker-release-t",
+        "status": "deferred"
+      },
+      {
+        "id": "run:EU01-install-014:extension-regression-o",
+        "status": "deferred"
+      },
+      {
+        "id": "run:EU01-install-014:instruction-service-m",
+        "status": "deleted"
+      },
+      {
+        "id": "run:EU01-install-014:instruction-service-n",
+        "status": "deferred"
+      },
+      {
+        "id": "run:EU01-install-014:native-validator-l",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "decision": "defer",
+        "decision_id": "7c8de5e7757c50e84255d993aa800566159d3a2931f78b9c86f56216c4b36917",
+        "group_status": "deferred",
+        "id": "39b6e7c28dfd702e9f4e1f5bab06170a1ac812e1db95a079c0a4b67d6662332d",
+        "lifecycle_group_id": "run:EU01-install-014:checker-release-s",
+        "reason": "Protected external temporary root is outside configured managed roots; no boundary bypass authorized",
+        "remaining": true,
+        "revisit_condition": "Complete the owning managed-root registration/retirement authorization and fresh group review before deletion; installation task remains incomplete",
+        "status": "deferred",
+        "token": "8fdd1f1f47d01128f5dcb3c571024fc34aa3d143942a6f84e045064816118b0c"
+      },
+      {
+        "decision": "defer",
+        "decision_id": "095663888fa0421a12681fd819167da1759f506d15da3dc5d1251ea4d7da1ad5",
+        "group_status": "deferred",
+        "id": "5abd2cfa7f68ca5daed36f03e70ea745617ce67c6b9590bc3f4b92fa226dc5fb",
+        "lifecycle_group_id": "run:EU01-install-014:checker-release-s",
+        "reason": "Protected external temporary root is outside configured managed roots; no boundary bypass authorized",
+        "remaining": true,
+        "revisit_condition": "Complete the owning managed-root registration/retirement authorization and fresh group review before deletion; installation task remains incomplete",
+        "status": "deferred",
+        "token": "58f91bfff6731cdab6ff8fe42693da7e374ff55949acbdf1ac60ac0bef1e1fff"
+      },
+      {
+        "decision": "defer",
+        "decision_id": "4b83c16c9b4930ba519aed8c95d8fe01a2cf298edb5a39add90b272a8e498ee6",
+        "group_status": "deferred",
+        "id": "3bd0622986a4208655be0779ea7d65b94826935c9f60d0bc2b68d734b0bd0b67",
+        "lifecycle_group_id": "run:EU01-install-014:instruction-service-n",
+        "reason": "Protected external temporary root is outside configured managed roots; no boundary bypass authorized",
+        "remaining": true,
+        "revisit_condition": "Complete the owning managed-root registration/retirement authorization and fresh group review before deletion; installation task remains incomplete",
+        "status": "deferred",
+        "token": "74c677d5a20e945dc64adfc0eb31a9f0852b3e130b9227c37a064cc6ccbc5b40"
+      },
+      {
+        "decision": "defer",
+        "decision_id": "a2cd1c7b4856257b96867038d21295cc72bda7a6a2426a7d3a512fc055b54029",
+        "group_status": "deferred",
+        "id": "ea20cc69ce6827b635bb8822042a7e3f4b70d391de9c582ae1aa505ae8f60dbf",
+        "lifecycle_group_id": "run:EU01-install-014:instruction-service-n",
+        "reason": "Protected external temporary root is outside configured managed roots; no boundary bypass authorized",
+        "remaining": true,
+        "revisit_condition": "Complete the owning managed-root registration/retirement authorization and fresh group review before deletion; installation task remains incomplete",
+        "status": "deferred",
+        "token": "a6c367f620759298e02d45335492be8180fa5e99e1e682671fb124b2bbd24e67"
+      },
+      {
+        "attempt_id": "attempt-37192-4475-1793477540130",
+        "decision": "delete",
+        "decision_id": "c9d17de4723aa465c3ad1c04be38072190970556d86abdf94fbc2204c07271f4",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "5c435da66738d538b6fad10e740c21d87fe4f57fe5bfcef8dacbd3c89d7437fe",
+        "lifecycle_group_id": "run:EU01-install-014:checker-release-r",
+        "reason": "Superseded diagnostics; independent outcomes preserved in work/EU-01-bridge-login-2026-0-14/build-install-014-diagnostic-results.json",
+        "remaining": false,
+        "status": "deleted",
+        "token": "1889caf1e359337ee793caaebee3f6f96162a9dba28acc4479ed67df5fd11f1b"
+      },
+      {
+        "decision": "defer",
+        "decision_id": "eaa68530d2fefbc917cc6d9e484583db3d1f2526d4e30581451fdcf1200ff575",
+        "group_status": "deferred",
+        "id": "91c1118ecf072305f62a5f77e645c175fbd5d31774b56ef191e0d2a876e7b12c",
+        "lifecycle_group_id": "run:EU01-install-014:checker-release-t",
+        "reason": "Protected external temporary root is outside configured managed roots; no boundary bypass authorized",
+        "remaining": true,
+        "revisit_condition": "Complete the owning managed-root registration/retirement authorization and fresh group review before deletion; installation task remains incomplete",
+        "status": "deferred",
+        "token": "7578229949fdba310b916412ec4d145b31f8c7247fc290375910e7414f869153"
+      },
+      {
+        "decision": "defer",
+        "decision_id": "b646f97c2cab05bc73136aee055faee47f309c08db56724521ad525a9e1946d3",
+        "group_status": "deferred",
+        "id": "a2f8d9061437dbcf785a26f54e68cd82c876b5c5dc31e927c3a311548335c581",
+        "lifecycle_group_id": "run:EU01-install-014:checker-release-t",
+        "reason": "Protected external temporary root is outside configured managed roots; no boundary bypass authorized",
+        "remaining": true,
+        "revisit_condition": "Complete the owning managed-root registration/retirement authorization and fresh group review before deletion; installation task remains incomplete",
+        "status": "deferred",
+        "token": "9f0cc7d6945bc76682959e9ea360673ea2c1b22a7d7c761e73053997852fdea9"
+      },
+      {
+        "decision": "defer",
+        "decision_id": "38c116f1c1484de6d31be5b95d0da4c3eb74fa42937e29e90dc46a07a14c67eb",
+        "group_status": "deferred",
+        "id": "9dbd686645d0827a2ed2736ed1d6d9bf26ae3ba36dfe180fab05fd2b61bd2ef3",
+        "lifecycle_group_id": "run:EU01-install-014:extension-regression-o",
+        "reason": "Protected external temporary root is outside configured managed roots; no boundary bypass authorized",
+        "remaining": true,
+        "revisit_condition": "Complete the owning managed-root registration/retirement authorization and fresh group review before deletion; installation task remains incomplete",
+        "status": "deferred",
+        "token": "8e755992ee431b53fb6c9f272b71d02e7a5ab2f3ea73af5bf87476fbe11c68e3"
+      },
+      {
+        "decision": "defer",
+        "decision_id": "8c0ec5dc6b0cb67e72a20d2fe41b4d8340bb5cdfc049dedb1f2736cb6c2cf0e5",
+        "group_status": "deferred",
+        "id": "e674605320d364e535d7434d4e7ae7d76007501384c6f423d54985ea3ea76fc2",
+        "lifecycle_group_id": "run:EU01-install-014:extension-regression-o",
+        "reason": "Protected external temporary root is outside configured managed roots; no boundary bypass authorized",
+        "remaining": true,
+        "revisit_condition": "Complete the owning managed-root registration/retirement authorization and fresh group review before deletion; installation task remains incomplete",
+        "status": "deferred",
+        "token": "fe363f4b342854784f42cd5f31008a9d52608096c9ec21e9cd1f02408f1e05ba"
+      },
+      {
+        "attempt_id": "attempt-37192-4481-1793477677720",
+        "decision": "delete",
+        "decision_id": "94c88e744c6b12cff273335c0008c88f7ab0a410c32c04255b09242554da4cdb",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "a39cd91e873949ed3234bb384165470eb94c1ae2b0725e727c9b01dc10620009",
+        "lifecycle_group_id": "run:EU01-install-014:instruction-service-m",
+        "reason": "Superseded diagnostics; independent outcomes preserved in work/EU-01-bridge-login-2026-0-14/build-install-014-diagnostic-results.json",
+        "remaining": false,
+        "status": "deleted",
+        "token": "fab07026adec985cb3bea4a32f1835634f8fe42e5996710f6bde7d15224be318"
+      },
+      {
+        "attempt_id": "attempt-37192-4483-1793477731837",
+        "decision": "delete",
+        "decision_id": "cae3705b131c1fdf353e98165910e1a66453288b097e39fe4cbdd13b451202aa",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "a8807d8dd5242e49355ed5f01bf201b5539c63f9941b54e1c0353cd3336ea0ba",
+        "lifecycle_group_id": "run:EU01-install-014:native-validator-l",
+        "reason": "Superseded diagnostics; independent outcomes preserved in work/EU-01-bridge-login-2026-0-14/build-install-014-diagnostic-results.json",
+        "remaining": false,
+        "status": "deleted",
+        "token": "43eade48cd179dbe14ab759324c6cabf5eac44ef36daa06fed22276b66461cf1"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "group": "run:EU01-install-014:checker-release-s",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14s",
+      "decision": "defer",
+      "exists": true,
+      "measuredBytes": 0
+    },
+    {
+      "group": "run:EU01-install-014:instruction-service-n",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\instruction-service-n",
+      "decision": "defer",
+      "exists": true,
+      "measuredBytes": 15686
+    },
+    {
+      "group": "run:EU01-install-014:checker-release-s",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-s",
+      "decision": "defer",
+      "exists": true,
+      "measuredBytes": 1052211
+    },
+    {
+      "group": "run:EU01-install-014:checker-release-r",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-r",
+      "decision": "delete",
+      "exists": false,
+      "measuredBytes": 9646
+    },
+    {
+      "group": "run:EU01-install-014:checker-release-t",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-t",
+      "decision": "defer",
+      "exists": true,
+      "measuredBytes": 1941171
+    },
+    {
+      "group": "run:EU01-install-014:extension-regression-o",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\extension-regression-o",
+      "decision": "defer",
+      "exists": true,
+      "measuredBytes": 32193
+    },
+    {
+      "group": "run:EU01-install-014:checker-release-t",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t",
+      "decision": "defer",
+      "exists": true,
+      "measuredBytes": 0
+    },
+    {
+      "group": "run:EU01-install-014:instruction-service-m",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\instruction-service-m",
+      "decision": "delete",
+      "exists": false,
+      "measuredBytes": 8400
+    },
+    {
+      "group": "run:EU01-install-014:native-validator-l",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\native-validator-l",
+      "decision": "delete",
+      "exists": false,
+      "measuredBytes": 1287303
+    },
+    {
+      "group": "run:EU01-install-014:extension-regression-o",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\so",
+      "decision": "defer",
+      "exists": true,
+      "measuredBytes": 0
+    },
+    {
+      "group": "run:EU01-install-014:instruction-service-n",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sn",
+      "decision": "defer",
+      "exists": true,
+      "measuredBytes": 0
+    }
+  ],
+  "finalized": [
+    {
+      "id": "run:EU01-install-014:native-validator-l",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c172c416142d318b48a6ef23d87d1065d762d60b1398ce92e6d72eb779d9c8df.json"
+    },
+    {
+      "id": "run:EU01-install-014:instruction-service-m",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c136d7efe2f58984aa3543fa8628663a5ff33e56313f5622d991e4a29c4760d7.json"
+    },
+    {
+      "id": "run:EU01-install-014:checker-release-r",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\005b949f84fa2529dedb586fd4c80f7f83938d8d62b89788e375215fc8e03ed5.json"
+    }
+  ]
+}

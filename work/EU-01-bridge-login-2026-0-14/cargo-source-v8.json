@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "startedUtc": "2026-10-31T12:06:40.833Z",
+  "steps": [
+    {
+      "label": "git-dir",
+      "durationMs": 48.88610000000335,
+      "exitCode": 0
+    },
+    {
+      "label": "git-head",
+      "durationMs": 55.54149999999936,
+      "exitCode": 0
+    },
+    {
+      "label": "git-init",
+      "durationMs": 89.12389999999868,
+      "exitCode": 0
+    },
+    {
+      "label": "git-head-bind",
+      "durationMs": 61.886300000005576,
+      "exitCode": 0
+    },
+    {
+      "label": "receipt-delta",
+      "durationMs": 74483.4252,
+      "exitCode": 0
+    },
+    {
+      "label": "record-frozen-source",
+      "durationMs": 87797.2778,
+      "exitCode": 0
+    },
+    {
+      "label": "verify-frozen-source",
+      "durationMs": 11184.6538,
+      "exitCode": 0
+    }
+  ],
+  "originalPrimaryLockSha256": "ddae2e76bff1b29cf223c4c74563e864d7173d20900b51c59213e96d69e858f9",
+  "sourceDelta": [
+    "codex-rs/app-server-daemon/src/session_handoff.rs",
+    "codex-rs/app-server/src/azrael_shared_server.rs",
+    "codex-rs/app-server/src/azrael_shared_server/tests.rs",
+    "codex-rs/app-server/src/azrael_thread_engines.rs",
+    "codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+    "codex-rs/project-maintenance/src/lease.rs",
+    "codex-rs/project-maintenance/src/lib.rs",
+    "codex-rs/project-maintenance/src/registry.rs",
+    "codex-rs/project-maintenance/tests/registry.rs"
+  ],
+  "sourceIdentity": {
+    "schema": 2,
+    "sourceKind": "imported-snapshot",
+    "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+    "importedInventorySha256": "4bdb40255d2997dbbbf72f17df66f941902554c0e6838bbf01fe8d5cf85d561a",
+    "importedReceiptSha256": "0b2d999c9e2293b6f1def4bd200d827ba88008889399253fb06d8176305c6719",
+    "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+    "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sourceSha256": "7b9e772871c318bb9d4847ee44d2694fcbcf7015fda54191839e57a8ca4e9eb3",
+    "fileCount": 9342,
+    "target": "x86_64-pc-windows-msvc",
+    "buildEnvironment": {
+      "RUSTFLAGS": "",
+      "CARGO_ENCODED_RUSTFLAGS": "",
+      "RUSTC_WRAPPER": "",
+      "RUSTUP_TOOLCHAIN": "",
+      "V8_FROM_SOURCE": "",
+      "V8_FORCE_DEBUG": "",
+      "RUSTY_V8_ARCHIVE": "",
+      "RUSTY_V8_MIRROR": "",
+      "RUSTY_V8_SRC_BINDING_PATH": "",
+      "GN": "",
+      "GN_ARGS": "",
+      "EXTRA_GN_ARGS": "",
+      "NINJA": "",
+      "CLANG_BASE_PATH": "",
+      "PYTHON": "",
+      "LIBCLANG_PATH": ""
+    }
+  },
+  "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\inputs\\engine",
+  "frozenScripts": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\inputs\\scripts",
+  "status": "frozen-source-ready",
+  "completedUtc": "2026-10-31T12:10:23.542Z"
+}

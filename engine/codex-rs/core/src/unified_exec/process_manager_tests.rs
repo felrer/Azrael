@@ -10,6 +10,133 @@ use tokio::sync::Notify;
 use tokio::time::Duration;
 use tokio::time::Instant;
 
+#[tokio::test]
+async fn host_completion_yielded_process_survives_call_and_shutdown_observes_exit() {
+    use crate::session::work_completion::{WorkCompletionState, WorkCompletionStore};
+    let home = tempfile::tempdir().unwrap();
+    let store = WorkCompletionStore::for_test(home.path(), "manager-host");
+    let work = store.create("yielded executor".into(), 0).await.unwrap();
+    let completion = store
+        .bind_execution(&work.work_id, "yielded-shutdown".into())
+        .unwrap();
+    let (session, turn) = crate::session::tests::make_session_and_context().await;
+    let session = Arc::new(session);
+    #[cfg(windows)]
+    let script = "Start-Sleep -Seconds 20; exit 0";
+    #[cfg(not(windows))]
+    let script = "sleep 20; exit 0";
+    let process = crate::unified_exec::process_tests::host_completion_process(script).await;
+    process.attach_work_completion(completion);
+    let manager = UnifiedExecProcessManager::default();
+    let process_id = manager.allocate_process_id().await;
+    manager.process_store.lock().await.processes.insert(
+        process_id,
+        ProcessEntry {
+            process: Arc::clone(&process),
+            plugin_metrics_sidecar: None,
+            call_id: "host-shutdown".into(),
+            process_id,
+            cwd: turn.cwd.clone().into(),
+            initial_exec_command_active: Arc::new(AtomicBool::new(false)),
+            hook_command: script.into(),
+            tty: false,
+            environment_id: codex_exec_server::LOCAL_ENVIRONMENT_ID.into(),
+            permissions: super::super::TerminalPermissions::for_launch(
+                turn.initial_environments.primary().unwrap(),
+                &turn,
+                super::super::TerminalSandboxSource::Native,
+                crate::sandboxing::SandboxPermissions::UseDefault,
+                None,
+                None,
+            ),
+            network_approval: None,
+            session: Arc::downgrade(&session),
+            last_used: Instant::now(),
+        },
+    );
+    let _yielded_output = UnifiedExecProcessManager::collect_output_until_deadline(
+        process.output_handles(),
+        None,
+        Instant::now() + Duration::from_millis(20),
+    )
+    .await;
+    assert_eq!(
+        store.status(work.work_id.clone()).await.unwrap().state,
+        WorkCompletionState::Running
+    );
+    manager.terminate_all_processes().await;
+    let receipt =
+        crate::unified_exec::process_tests::await_host_receipt(&store, &work.work_id).await;
+    assert_eq!(receipt.state, WorkCompletionState::Cancelled);
+    assert!(
+        receipt.exit_code.is_some(),
+        "local shutdown must observe the executor's raw exit"
+    );
+    assert_ne!(receipt.exit_code, Some(124));
+    assert!(manager.process_store.lock().await.processes.is_empty());
+}
+
+#[tokio::test]
+async fn host_completion_oneshot_timeout_overflow_fails_without_launching() {
+    use crate::session::work_completion::{WorkCompletionState, WorkCompletionStore};
+    let home = tempfile::tempdir().unwrap();
+    let store = WorkCompletionStore::for_test(home.path(), "manager-host");
+    let work = store.create("prelaunch rejection".into(), 0).await.unwrap();
+    let completion = store
+        .bind_execution(&work.work_id, "timeout-overflow".into())
+        .unwrap();
+    let (session, turn) = crate::session::tests::make_session_and_context().await;
+    let session = Arc::new(session);
+    let turn = Arc::new(turn);
+    let manager = &session.services.unified_exec_manager;
+    let process_id = manager.allocate_process_id().await;
+    let mut context = UnifiedExecContext::new(
+        Arc::clone(&session),
+        crate::session::step_context::StepContext::for_test(Arc::clone(&turn)),
+        CancellationToken::new(),
+        "overflow-before-spawn".into(),
+    );
+    context.work_completion = Some(completion);
+    let request = ExecCommandRequest {
+        command: vec!["must-not-launch-invalid-executable".into()],
+        shell: ShellInvocation {
+            shell: Shell {
+                shell_type: ShellType::Sh,
+                shell_path: "must-not-launch-invalid-executable".into(),
+            },
+            use_login_shell: false,
+        },
+        hook_command: "must not launch".into(),
+        process_id,
+        yield_time_ms: 1,
+        max_output_tokens: None,
+        #[allow(deprecated)]
+        cwd: turn.cwd.clone().into(),
+        #[allow(deprecated)]
+        sandbox_cwd: turn.cwd.clone().into(),
+        turn_environment: turn.initial_environments.primary().cloned().unwrap(),
+        shell_mode: codex_tools::UnifiedExecShellMode::Direct,
+        network: None,
+        tty: false,
+        sandbox_permissions: crate::sandboxing::SandboxPermissions::UseDefault,
+        additional_permissions: None,
+        additional_permissions_preapproved: false,
+        justification: None,
+        prefix_rule: None,
+    };
+    let error =
+        UnifiedExecProcessManager::exec_command_to_completion(request, &context, Duration::MAX)
+            .await
+            .unwrap_err();
+    assert!(error.to_string().contains("timeout_ms is too large"));
+    // Keep context/lease alive: a missing explicit rejection receipt would still
+    // be Running here, rather than being hidden by its eventual Drop fallback.
+    let receipt = store.status(work.work_id).await.unwrap();
+    assert_eq!(receipt.state, WorkCompletionState::Failed);
+    assert_eq!(receipt.exit_code, None);
+    assert!(manager.process_store.lock().await.processes.is_empty());
+}
+
 #[test]
 fn unified_exec_env_injects_defaults() {
     let env = apply_unified_exec_env(HashMap::new());

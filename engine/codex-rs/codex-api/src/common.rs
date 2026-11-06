@@ -101,6 +101,8 @@ pub enum ResponseEvent {
     ServerReasoningIncluded(bool),
     Completed {
         response_id: String,
+        /// Actual service tier reported by the server, independent of the requested tier.
+        service_tier: Option<String>,
         token_usage: Option<TokenUsage>,
         usage_metadata: Option<ResponseUsageMetadata>,
         /// Did the model affirmatively end its turn? Some providers do not set this,

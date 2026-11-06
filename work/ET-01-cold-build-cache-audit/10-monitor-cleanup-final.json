@@ -1,0 +1,53 @@
+{
+  "completedUtc": "2026-10-30T01:59:23.459Z",
+  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\09-monitor-cleanup-receipt.json",
+  "evidence_sha256": "cbac2391e500a5fa0cafa007b43be9c9d69f8abea3981731acb6c004ce4e8195",
+  "finalized": [
+    {
+      "id": "run:ET-01-cold-build-cache-audit:fileio-probe-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\768dc80fa12c47f9308fbe2e01e3ea027e6621ce4710874ca8a7a8a098e49421.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\09-monitor-cleanup-receipt.json",
+        "sha256": "cbac2391e500a5fa0cafa007b43be9c9d69f8abea3981731acb6c004ce4e8195",
+        "reason": "Actual removal and exact owned producer shutdown verified",
+        "original_state": "failed",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:monitor-decoder-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d45e132009ceab0e45a895a2d65103f1103b4900424aaceeadf4bc5a05f20717.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\09-monitor-cleanup-receipt.json",
+        "sha256": "cbac2391e500a5fa0cafa007b43be9c9d69f8abea3981731acb6c004ce4e8195",
+        "reason": "Actual removal and exact owned producer shutdown verified",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "work:ET-01:decoder-nuget-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d5e4968f2b7c15ce080b027fa27c8dabbee22aec51d3f6ea4800f227ec69bcd3.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\09-monitor-cleanup-receipt.json",
+        "sha256": "cbac2391e500a5fa0cafa007b43be9c9d69f8abea3981731acb6c004ce4e8195",
+        "reason": "Actual removal and exact owned producer shutdown verified",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    }
+  ],
+  "remainingDisposable": []
+}

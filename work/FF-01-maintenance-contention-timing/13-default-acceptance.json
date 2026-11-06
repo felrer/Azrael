@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "scope": "Windows x64 local; actual current default selection without environment overrides",
+  "started": "2026-11-02T07:31:34.624Z",
+  "status": "passed",
+  "executions": [
+    {
+      "name": "set-attributes",
+      "executable": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "$item=Get-Item -LiteralPath 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture\\generated\\check'; $item.Attributes=$item.Attributes -bor [IO.FileAttributes]::ReadOnly -bor [IO.FileAttributes]::Hidden; [int]$item.Attributes"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-set-attributes.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-set-attributes.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 27352,
+      "signal": null
+    },
+    {
+      "name": "register",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-register.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-register.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 24412,
+      "signal": null
+    },
+    {
+      "name": "review",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-review.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-review.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 27984,
+      "signal": null
+    },
+    {
+      "name": "apply",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-apply.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-apply.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 55460,
+      "signal": null
+    },
+    {
+      "name": "holder",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [
+        "--lease",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture\\artifacts\\maintenance\\lifecycles\\catalog.lock",
+        "--operation",
+        "default.smoke.holder",
+        "--wait-ms",
+        "0",
+        "--parent-pid",
+        "1864"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-holder.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-holder.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 32976,
+      "signal": null
+    },
+    {
+      "name": "queue-client",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\smoke.cjs",
+        "queue-client",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture\\artifacts\\maintenance\\lifecycles\\catalog.lock"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-queue-client.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-queue-client.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 20004,
+      "signal": null
+    }
+  ],
+  "checks": {
+    "default_command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    },
+    "expected_sha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+    "actual_sha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+    "pin_paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\owner-installation.json",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\deployments\\maintenance-owner-dw16\\installation.json"
+    ],
+    "pin_receipt_bytes_equal": true,
+    "initial_attributes": 35,
+    "register_review_apply": {
+      "registration_items": 1,
+      "review_items": 1,
+      "apply_results": [
+        {
+          "attempt_id": "attempt-55460-1-1793604720848",
+          "decision": "delete",
+          "decision_id": "492aba12b64a1b78b11320a49e52f208c3b352632868c3c98dd49b52d2259905",
+          "deletion": {
+            "attributes": [
+              {
+                "after": 32,
+                "before": 35,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture\\generated\\check"
+              }
+            ],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "check",
+          "lifecycle_group_id": "default-check",
+          "reason": "Isolated default acceptance completed",
+          "remaining": false,
+          "status": "deleted",
+          "token": "c1dafbcb7d0cf57731549f745a2751b39303df7b16cbc5252976afdaebdf6cb9"
+        }
+      ],
+      "target_absent": true,
+      "attributes_before_readonly_hidden": true
+    },
+    "native_holder_initial_packet": {
+      "id": 0,
+      "ok": true,
+      "result": {
+        "acquired_at_ms": 1793604731569,
+        "operation": "default.smoke.holder",
+        "parent_pid": 1864,
+        "pid": 32976,
+        "schema": 2,
+        "token": "32976-1793604731569-314cb8a2c93eeb90"
+      }
+    },
+    "queue": {
+      "total_queue_sequence_ms": 8765.801599999999,
+      "hold_planned_ms": 6200,
+      "client": {
+        "owner": {
+          "acquired_at_ms": 1793604740161,
+          "operation": "default.smoke.queue",
+          "parent_pid": 20004,
+          "pid": 32488,
+          "schema": 2,
+          "token": "32488-1793604740161-a28e0509338ae6e8"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": []
+        },
+        "wait_ms": 8660.5479,
+        "explicit_wait": false
+      },
+      "native_holder_packets": [
+        {
+          "id": 0,
+          "ok": true,
+          "result": {
+            "acquired_at_ms": 1793604731569,
+            "operation": "default.smoke.holder",
+            "parent_pid": 1864,
+            "pid": 32976,
+            "schema": 2,
+            "token": "32976-1793604731569-314cb8a2c93eeb90"
+          }
+        },
+        {
+          "id": 1,
+          "ok": true,
+          "result": {
+            "released": true,
+            "reservations_retained": []
+          }
+        }
+      ],
+      "native_holder_actual_close_exit0": true,
+      "node_client_actual_close_exit0": true,
+      "private_worker_native_close_observed": false
+    }
+  },
+  "limitations": [
+    "Private native child close inside maintenance-lock-worker is not directly observable; native release acknowledgement and external Node client close are recorded separately."
+  ],
+  "fixture": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture",
+  "default_codex_home": "C:\\Users\\felre\\.azrael-ex",
+  "finished": "2026-11-02T07:32:22.708Z"
+}

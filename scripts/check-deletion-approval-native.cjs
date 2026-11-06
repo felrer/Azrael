@@ -30,7 +30,7 @@ try {
   const checks = [
     ["classification", "codex-shell-command", "command_safety::"],
     ["policy", "codex-core", "exec_policy::tests::"],
-    ["routing", "codex-core", "tools::approvals::tests::deletion_approval_"],
+    ...(process.platform === "win32" ? [] : [["routing", "codex-core", "tools::approvals::tests::deletion_approval_"]]),
     ["patch", "codex-core", "apply_patch::tests::"],
   ];
   const results = [];

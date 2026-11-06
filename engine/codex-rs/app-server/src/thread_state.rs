@@ -104,6 +104,7 @@ pub(crate) struct ThreadState {
     pub(crate) turn_summary: TurnSummary,
     pub(crate) last_turn_attribution: Option<codex_protocol::turn_input::TurnAttribution>,
     pub(crate) last_terminal_turn_id: Option<String>,
+    pub(crate) user_wait_timing: HashMap<String, codex_protocol::user_wait::UserWaitTiming>,
     pub(crate) root_resume_wait: Option<codex_protocol::protocol::RootResumeWaitUpdatedEvent>,
     /// Lets an internal runtime replacement wait until the old listener has processed Core's
     /// `ShutdownComplete` event before that listener is superseded.
@@ -212,6 +213,15 @@ impl ThreadState {
         {
             self.turn_summary.last_agent_message =
                 Some(ThreadItem::from(CoreTurnItem::AgentMessage(item.clone())));
+        }
+        if let EventMsg::UserWaitTimingUpdated(update) = event
+            && self
+                .user_wait_timing
+                .get(&update.turn_id)
+                .is_none_or(|old| old.revision < update.timing.revision)
+        {
+            self.user_wait_timing
+                .insert(update.turn_id.clone(), update.timing.clone());
         }
         if let EventMsg::RootResumeWaitUpdated(update) = event
             && self.root_resume_wait.as_ref().is_none_or(|old| {
@@ -683,5 +693,48 @@ impl ThreadStateManager {
             .threads
             .get(&thread_id)
             .map(|thread_entry| thread_entry.has_connections_watcher.subscribe())
+    }
+}
+
+#[cfg(test)]
+mod user_wait_timing_tests {
+    use super::*;
+
+    #[test]
+    fn live_timing_accepts_only_newer_revisions_for_the_same_turn() {
+        let mut state = ThreadState::default();
+        for revision in [2, 1, 2] {
+            state.track_current_turn_event(
+                "turn",
+                &EventMsg::UserWaitTimingUpdated(
+                    codex_protocol::protocol::UserWaitTimingUpdatedEvent {
+                        turn_id: "turn".into(),
+                        timing: codex_protocol::user_wait::UserWaitTiming {
+                            started_at_ms: None,
+                            revision,
+                            requests: Vec::new(),
+                            blocked_intervals: Vec::new(),
+                        },
+                    },
+                ),
+            );
+        }
+        assert_eq!(state.user_wait_timing.get("turn").unwrap().revision, 2);
+        state.track_current_turn_event(
+            "next",
+            &EventMsg::UserWaitTimingUpdated(
+                codex_protocol::protocol::UserWaitTimingUpdatedEvent {
+                    turn_id: "next".into(),
+                    timing: codex_protocol::user_wait::UserWaitTiming {
+                        started_at_ms: None,
+                        revision: 1,
+                        requests: Vec::new(),
+                        blocked_intervals: Vec::new(),
+                    },
+                },
+            ),
+        );
+        assert_eq!(state.user_wait_timing.get("turn").unwrap().revision, 2);
+        assert_eq!(state.user_wait_timing.get("next").unwrap().revision, 1);
     }
 }

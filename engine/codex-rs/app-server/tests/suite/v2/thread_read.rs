@@ -141,6 +141,7 @@ async fn thread_read_returns_summary_without_turns() -> Result<()> {
         .await?;
     let response: Value = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
     assert_eq!(response["thread"].get("model"), Some(&Value::Null));
+    assert_eq!(response.get("agentProfileMode"), Some(&serde_json::json!("direct")));
     assert_eq!(
         response["thread"].get("reasoningEffort"),
         Some(&Value::Null)
@@ -290,8 +291,7 @@ async fn thread_read_preserves_file_id_and_root_from_completed_turn(
         })
         .await?;
     let ThreadReadResponse {
-        thread: loaded_thread,
-    } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
+        thread: loaded_thread, .. } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
     let ThreadItem::UserMessage { content, .. } = &loaded_thread.turns[0].items[0] else {
         panic!("expected completed turn to start with a user message");
     };
@@ -315,8 +315,7 @@ async fn thread_read_preserves_file_id_and_root_from_completed_turn(
         })
         .await?;
     let ThreadReadResponse {
-        thread: restarted_thread,
-    } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
+        thread: restarted_thread, .. } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
     let ThreadItem::UserMessage { content, .. } = &restarted_thread.turns[0].items[0] else {
         panic!("expected persisted turn to start with a user message");
     };
@@ -370,7 +369,7 @@ async fn paginated_stored_thread_routes_projected_turns() -> Result<()> {
             include_turns: false,
         })
         .await?;
-    let ThreadReadResponse { thread } =
+    let ThreadReadResponse { thread, .. } =
         timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
     assert_eq!(thread.history_mode, ThreadHistoryMode::Paginated);
     assert!(thread.turns.is_empty());
@@ -622,6 +621,7 @@ async fn thread_search_occurrences_reads_paginated_projection() -> Result<()> {
     );
     store
         .create_thread(CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -1201,7 +1201,7 @@ async fn thread_read_can_return_archived_threads_by_id() -> Result<()> {
             include_turns: false,
         })
         .await?;
-    let ThreadReadResponse { thread } =
+    let ThreadReadResponse { thread, .. } =
         timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
 
     assert_eq!(thread.id, conversation_id);
@@ -1720,6 +1720,7 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
     );
     store
         .create_thread(CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -1820,6 +1821,7 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
 
     let expected_turn_1_full = Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: "turn-1".to_string(),
         root_turn_id: None,
@@ -1854,6 +1856,7 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
     };
     let expected_turn_2_full = Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: "turn-2".to_string(),
         root_turn_id: None,
@@ -1880,8 +1883,7 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
         })
         .await?;
     let ThreadReadResponse {
-        thread: unloaded_thread,
-    } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
+        thread: unloaded_thread, .. } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
     assert_eq!(unloaded_thread.turns, expected_full_turns);
 
     let legacy_resume_id = mcp
@@ -2022,6 +2024,7 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
         first_page.data,
         vec![Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: "turn-1".to_string(),
             root_turn_id: None,
@@ -2064,6 +2067,7 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
         second_page.data,
         vec![Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: "turn-2".to_string(),
             root_turn_id: None,
@@ -2243,8 +2247,7 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
         })
         .await?;
     let ThreadReadResponse {
-        thread: loaded_thread,
-    } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
+        thread: loaded_thread, .. } = timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
     assert_eq!(&loaded_thread.turns[..2], expected_full_turns);
     assert_eq!(
         turn_user_texts(&loaded_thread.turns),
@@ -2561,6 +2564,7 @@ async fn seed_pathless_store_thread(
 ) -> Result<()> {
     store
         .create_thread(CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WindowsPerformanceRecorder Version="1.0" Author="Azrael"><Profiles>
+<SystemCollector Id="CacheSystemCollector" Name="ET01 Cache File IO"><BufferSize Value="1024"/><Buffers Value="128"/></SystemCollector>
+<SystemProvider Id="CacheSystemProvider"><Keywords><Keyword Value="ProcessThread"/><Keyword Value="Loader"/><Keyword Value="FileIO"/><Keyword Value="FileIOInit"/></Keywords></SystemProvider>
+<Profile Id="CacheIO.Verbose.File" Name="CacheIO" Description="Process lineage and file operations without stack collection" LoggingMode="File" DetailLevel="Verbose"><Collectors><SystemCollectorId Value="CacheSystemCollector"><SystemProviderId Value="CacheSystemProvider"/></SystemCollectorId></Collectors></Profile>
+</Profiles></WindowsPerformanceRecorder>

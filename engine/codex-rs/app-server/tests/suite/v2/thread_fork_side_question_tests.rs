@@ -184,7 +184,7 @@ async fn side_question_snapshots_active_parent_without_interrupting_or_steering_
             include_turns: false,
         })
         .await?;
-    let ThreadReadResponse { thread } = app.read_response(id).await?;
+    let ThreadReadResponse { thread, .. } = app.read_response(id).await?;
     assert!(matches!(thread.status, ThreadStatus::Active { .. }));
     let parent_body: Value = serde_json::from_slice(&requests[0].body)?;
     assert!(

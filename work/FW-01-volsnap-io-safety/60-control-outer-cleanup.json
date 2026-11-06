@@ -1,0 +1,394 @@
+{
+  "schema": 1,
+  "status": "failed-protected",
+  "id": "run:fw03r:control-01",
+  "owner": "control-retirement-test",
+  "plan": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\final-cleanup-control\\outer60-execution-plan-v2.json",
+    "sha256": "9de49466ed9421d4a220288c3591245ae0d8bff3077d09e1faa5223b90fa5198"
+  },
+  "controller": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\final-cleanup-control\\outer60-controller-v2.cjs",
+    "sha256": "10a59b1d2d98d5a8793b3639c4395928896f6897484e56cf02f9d52dde20e231"
+  },
+  "originalAggregateOutcome": "unrecorded/unknown; no aggregate exit invented",
+  "historicalFailuresUnchanged": true,
+  "calls": [],
+  "leases": [
+    {
+      "lock": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\catalog.lock",
+      "operation": "lifecycle.reconcile",
+      "owner": {
+        "acquired_at_ms": 1793947292464,
+        "operation": "lifecycle.reconcile",
+        "parent_pid": 11544,
+        "pid": 45004,
+        "schema": 2,
+        "token": "45004-1793947292464-447dc9f9bf9373dc"
+      },
+      "release": {
+        "released": true,
+        "reservations_retained": [],
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true
+      }
+    }
+  ],
+  "limitations": [
+    "Historical outer executor terminal is not a newly observed close event or global OS tree observation",
+    "Verification environment: Windows x64 local only"
+  ],
+  "foreignBefore": [
+    {
+      "name": "03aaaee8dd537e62a5cc33078b3bea756d3ce0112df0838d0a7eaf96545199a4.json",
+      "id": "run:deploy-checks:d0c2bf309a4647188efac2d9fdd9ee6e",
+      "sha256": "90e9c239e2b039b6346ed20a51bdf0f0dd4b03b931890c38c75d88adbedd8d05",
+      "dev": "3057815611",
+      "ino": "110338190870636711",
+      "mode": "33206"
+    },
+    {
+      "name": "07d8496b9450897ee9bd1e86fa193413127526ce870aaae25d866d4fef53c70d.json",
+      "id": "run:ec01-test-policy:r5",
+      "sha256": "8d6968074ba1718cb4777789aba1072fe61dd235a206119e66a55b22fed45a2f",
+      "dev": "3057815611",
+      "ino": "2533274804570070",
+      "mode": "33206"
+    },
+    {
+      "name": "0b44007b925796bd286286c979afb2fea163786ae0097944acaf203f8b4b164b.json",
+      "id": "run:ec01-test-policy:r9",
+      "sha256": "4c4e7d3f14fabc9e41ab05c676b45fdff55999948d67e3b683b734c03dbffa64",
+      "dev": "3057815611",
+      "ino": "6755399454781291",
+      "mode": "33206"
+    },
+    {
+      "name": "0b75b4dd77883b86e56edfa50c4ad27a0d28b1f6c17f03727f5e90ca688daf8e.json",
+      "id": "run:FA-01-packaging-fixture-closure:fix02",
+      "sha256": "896cc5e3fb499c20eb2ba80f0d0a8fd693162f64d5874c8ac97d7c166f1b3e0b",
+      "dev": "3057815611",
+      "ino": "1970324852576562",
+      "mode": "33206"
+    },
+    {
+      "name": "229f929f90cae52368d0dd293b2f867ba28c2eb38a0b9f43bf951842f5b8a344.json",
+      "id": "run:deploy-checks:5f13399635f546f5a3ac1f1a7d3f72de",
+      "sha256": "07d46783f6f17d752762ce4f14fb5587bb9dd680d0b69914f3f49b55ddb2e7bf",
+      "dev": "3057815611",
+      "ino": "9288674245403642",
+      "mode": "33206"
+    },
+    {
+      "name": "27912f101b0c931d439c87e00bc1be4bbabcb5331f9d75883a1dd6f9374dec53.json",
+      "id": "run:EN-02-actual-tps-render-command:20261029T055926481Z-db175798-9fbe-44be-86fa-ceccfee619d0",
+      "sha256": "447da8b18f2fe2420e1637f3894b1370776befc045b2c3ad6af1589d48936ee0",
+      "dev": "3057815611",
+      "ino": "5066549593116693",
+      "mode": "33206"
+    },
+    {
+      "name": "2a40f1b6c6699b085f4bbd5e5d26ba5ad73b2acf076673e6fce69a1b9f51dd9b.json",
+      "id": "run:verify-context-compaction-render:20261029T055812010Z-bd7afc5e-2d00-4ea3-ba85-36272c8d2899",
+      "sha256": "07766b54ffeb41a2c6bbe12f0cca6e28d4c2201a8a68ad0c1b3cd60de42b413e",
+      "dev": "3057815611",
+      "ino": "10133099162380325",
+      "mode": "33206"
+    },
+    {
+      "name": "2fb3b130c83bec13a6ecf0ebbc0f1f29b4d365fc9430fd874c3e599e1d873f0d.json",
+      "id": "run:ec01-test-policy:r2",
+      "sha256": "964fdfdc6e31da1fda4e20b1d5707bf1ec1a988ad2dc5cd1435130e587fb538e",
+      "dev": "3057815611",
+      "ino": "7881299362072373",
+      "mode": "33206"
+    },
+    {
+      "name": "31586b7b4040bc55ef89ce9f39dff991cb4f8b72af42c9281af55ce8e35551b4.json",
+      "id": "run:bt-deletion-native:20261028T233938231Z-eb055dfb-77af-477f-a87c-739075162927",
+      "sha256": "3865bfa3c05d4490301e319ea884ebc370ad1e6b1e956fca954fc15affdc4385",
+      "dev": "3057815611",
+      "ino": "2814749778990117",
+      "mode": "33206"
+    },
+    {
+      "name": "3660be0f814c189748177475425b2ccba93d7542cfae364bc7a3fc7d7225963b.json",
+      "id": "run:ec01-test-policy:r1",
+      "sha256": "74a60fed19ea5c138e20f250bf1c8a1edb1d894b31deb435088ceea406ba84e3",
+      "dev": "3057815611",
+      "ino": "9007199268466538",
+      "mode": "33206"
+    },
+    {
+      "name": "4ce23bc1ee0e5d7103b52cee4b1699d56d0c012ce1bd916292083310586f8827.json",
+      "id": "run:ec01-delete-profile:r1",
+      "sha256": "e993d043da7f8130e340b183395861b151bf2fc0f70d71d90050581ef7af9c1d",
+      "dev": "3057815611",
+      "ino": "2533274802395618",
+      "mode": "33206"
+    },
+    {
+      "name": "570fa92cb20b192dc628f752cb3ec6b045510d566b4d039c2a13da3cb436c105.json",
+      "id": "run:deploy-checks:366ea780dc494462b10c7840695c518c",
+      "sha256": "932e77ae06b0b7ccc197840197e7a5d3eea313d9c7f271743c39235b2e0f26fe",
+      "dev": "3057815611",
+      "ino": "5348024571676613",
+      "mode": "33206"
+    },
+    {
+      "name": "5c8b7bd5d5e12a7ccd516b5922576ad256bda4b2e404643e818c125a04fc58f7.json",
+      "id": "run:EN-02-actual-tps-render-command:20261029T060132135Z-3e128c19-153e-4b3c-a323-cfc873b68466",
+      "sha256": "6e95f0a4857e4e0f681618b49df6fb6105ce3850d90abc2148424928157d6f9e",
+      "dev": "3057815611",
+      "ino": "18014398510681748",
+      "mode": "33206"
+    },
+    {
+      "name": "61379d639dd8c0feb292b1f324aac2dd8e721202981a8e8dd84623c825690df7.json",
+      "id": "run:verify-provider-context-render:20261029T155313556Z-486639be-ab8b-4e4d-9c13-4b3fa22be7b0",
+      "sha256": "5d62ecb765d05c5ab01248ea36b25648617cca2ae65c336431e24efb7a7c3fc2",
+      "dev": "3057815611",
+      "ino": "1125899921026047",
+      "mode": "33206"
+    },
+    {
+      "name": "646f9174a3e167a092ccda9c15f5254ee19075a56834ab26f607bf2a205ecbb3.json",
+      "id": "run:verify-context-compaction-render:20261029T062100464Z-6015f8a5-e962-4864-a8cb-9d133506823e",
+      "sha256": "e31542fb4b15953d528d1c00801546d93efc034d26863a08d16b67065c86b098",
+      "dev": "3057815611",
+      "ino": "7036874430064262",
+      "mode": "33206"
+    },
+    {
+      "name": "6549f13f0de3222891b4c66a6c4ba584d21b913c865ec7b031e2393cd3dc9d63.json",
+      "id": "run:eb01-latest-install:deploy-f",
+      "sha256": "b2c4e90cbbf5ca64b6da2e05e856fc97b8330a3be406a8b0e9160cdce01cbafe",
+      "dev": "3057815611",
+      "ino": "3096224750976572",
+      "mode": "33206"
+    },
+    {
+      "name": "67668072caae47be2dda62d33a975a871df020470722a39979f380f12be4b5f8.json",
+      "id": "run:deploy-checks:bf460df08a2b485d877168fead01696b",
+      "sha256": "4ae4c83611e017d81dc3405a0b8b8699a43f3160e50d15251bd1ec9e7790698f",
+      "dev": "3057815611",
+      "ino": "10133099162811707",
+      "mode": "33206"
+    },
+    {
+      "name": "7cd1958958d5089d043b4837bf1d516662b424cd711de55805e97b3f63157041.json",
+      "id": "run:deploy-checks:32f99df50c3a472883a31a31921414fb",
+      "sha256": "295855cd23307ae6f4f8673011853ce5d9d30d09b0731e77b7dd50424c1b3d11",
+      "dev": "3057815611",
+      "ino": "3096224757991270",
+      "mode": "33206"
+    },
+    {
+      "name": "7f1ddc40a3f0531807d7950d1b3d3bb1779c064d972acd71ccd7e2a765ca740c.json",
+      "id": "run:verify-context-compaction-render:20261029T154838052Z-433c1dc2-efeb-4163-a041-90ede9e80c23",
+      "sha256": "b659eb501b87bef717d5fb1136cd74b9d7a790e448aa6edbbacded22fb295195",
+      "dev": "3057815611",
+      "ino": "3659174711420049",
+      "mode": "33206"
+    },
+    {
+      "name": "80b918bd82a3ba3f1724228a4074ca81b948d59d7318f3354224b7f5fa7c47ac.json",
+      "id": "run:verify-context-compaction-render:20261029T055937998Z-3cbd59c7-f99f-4c43-934a-144236cb6948",
+      "sha256": "75033cc37669385732859befa937d2a5a77820b3d34f69e14671219e67c5f846",
+      "dev": "3057815611",
+      "ino": "4503599639695336",
+      "mode": "33206"
+    },
+    {
+      "name": "85144f337c7a19614311feda2d7340b3f694c39fc62aec4542deb5a4dedaa691.json",
+      "id": "run:ec01-test-policy:r7",
+      "sha256": "983681af5112be33f97dc285d1147de8f4a21c33a02229fa72a2836f927eeb97",
+      "dev": "3057815611",
+      "ino": "4785074607411785",
+      "mode": "33206"
+    },
+    {
+      "name": "895e93f8b8759c45adf942b1d11fbaf3e03996c78e3116fa2f2cb43988384f74.json",
+      "id": "run:ec01-test-policy:r6",
+      "sha256": "9766f031d9bdcf3dd49c0bb10ccc1e196c36200b57c2de3d18780c97fa25b1e8",
+      "dev": "3057815611",
+      "ino": "844424944306216",
+      "mode": "33206"
+    },
+    {
+      "name": "8f28ec6850d3a3479eb3cc2d0abee7c22a7065fade1faaebfffa8f78c82c1fd1.json",
+      "id": "input:eb01:generation-b",
+      "sha256": "cb544082cb47c17741f10e150268169944a6cc3cf0eab4ae0d90564d6cfde41d",
+      "dev": "3057815611",
+      "ino": "5066549582641034",
+      "mode": "33206"
+    },
+    {
+      "name": "98ed2be8227e114cf6b08aefe24196c52f51ef0311d98d6b466f2ac4875da0e3.json",
+      "id": "run:EU01-install-014:freeze-readonly-ac",
+      "sha256": "531ddc6b910b3c192f3180ab39fb33237e04d0ca2b7c778e759a009838c479dc",
+      "dev": "3057815611",
+      "ino": "4222124665067426",
+      "mode": "33206"
+    },
+    {
+      "name": "994dcd14096fb033ed3a859a698bba0129e2525d606974d12228d23da63c03f0.json",
+      "id": "run:ec01-test-policy:r3",
+      "sha256": "90fe8bb98d42443016b3087f3d425816f66d57ba1981e242bbe343fcd3e4ba53",
+      "dev": "3057815611",
+      "ino": "2533274804569350",
+      "mode": "33206"
+    },
+    {
+      "name": "9b7ab3403fac4e180107337b822f954a0d49a1513bf725f301974e084cb0886f.json",
+      "id": "run:mode-averages-native:20261029T154942964Z-801c6fb4-6327-4579-a609-5dc40200a872",
+      "sha256": "81b3c9e70bd82d223e952ac3c9491ccc747f6b5d474514de69bed1c141a708e2",
+      "dev": "3057815611",
+      "ino": "7036874431945551",
+      "mode": "33206"
+    },
+    {
+      "name": "bae7df7938146ba4e0c21b7fa8f5252abec47210ea1d99db0ebc2bf8b64a21fb.json",
+      "id": "run:ec01-test-policy:r8",
+      "sha256": "e62696fb1f782b6d06e6eddc6e424cc15b30ff93f04dc25f323fdbb5ba4d025e",
+      "dev": "3057815611",
+      "ino": "18577348472697653",
+      "mode": "33206"
+    },
+    {
+      "name": "c151a07ab6e1f70338fadbdf39a67b51c1d4ddeaf878d708dee09fae73b815d7.json",
+      "id": "run:deploy-checks:d336daff067f41a7a7d2d86c158bb90c",
+      "sha256": "d5c74d986d366cece7c6b35d5b08f29e77bfadd535fd95f82696a7cdf3f3e16f",
+      "dev": "3057815611",
+      "ino": "9851624186100749",
+      "mode": "33206"
+    },
+    {
+      "name": "c3bdc69c91fb3e73df7f2f045d33682199428991a53111affa8c3d941d53493b.json",
+      "id": "run:verify-context-compaction-render:20261029T155013712Z-e8766ebf-43fd-4b82-a467-a76b18d04abf",
+      "sha256": "4c3ed47899ceb42ac49d3fab87bf02b321c14ce8a60d36dab6e0a001a66d5be5",
+      "dev": "3057815611",
+      "ino": "7881299362077531",
+      "mode": "33206"
+    },
+    {
+      "name": "c73113c606ce468860f434632915b52f72ea05eed73c516a925c71756b12ef05.json",
+      "id": "run:eb01-latest-install:deploy-h",
+      "sha256": "d1578e445970dc6f7fa0b28a2720e2da7a11f1b674d623a18a43cfcebfd4d944",
+      "dev": "3057815611",
+      "ino": "5629499541372493",
+      "mode": "33206"
+    },
+    {
+      "name": "d01f33162454ce0847923819e2e96c30a614b2b70e7d4a56cfe2f93212c05ed0.json",
+      "id": "run:bt-deletion-native:20261028T235911552Z-f1ef5c5f-d3de-4b35-98d0-b999c4686cec",
+      "sha256": "2bd60c2ad5a8eeaa502ed8a312400d0bbe5fe2da5bf66b9ccbccfe976abb3c92",
+      "dev": "3057815611",
+      "ino": "2814749779299105",
+      "mode": "33206"
+    },
+    {
+      "name": "d1ffa6d7d810c95f1d0c9800046cf221c11a27470ec7ebe21a7547809bde4783.json",
+      "id": "run:EN-02-actual-tps-final-native:20261029T063739889Z-74989138-d773-470b-b1be-35ed22772729",
+      "sha256": "bb4a0ee0fd98ccd727bc8dba571f622f6279bf177055b8da347e19e5c9d19974",
+      "dev": "3057815611",
+      "ino": "22236523162649845",
+      "mode": "33206"
+    },
+    {
+      "name": "d2890cb28eae0d4676768cc2519cb6f7edc290f9411391f4b13ee439d856c89b.json",
+      "id": "run:deploy-checks:63860c036cb547bca70b36267ae1f51e",
+      "sha256": "5d43b2a8f96cc1aa709dad7929fff114faf467427c6856bb90c1c31c959c2a22",
+      "dev": "3057815611",
+      "ino": "2533274804121420",
+      "mode": "33206"
+    },
+    {
+      "name": "d5270b7911c2468f1070671d28c180bc337a9eb352a87f96b0b3a295ef27496c.json",
+      "id": "run:deploy-checks:23df0e1691ee470abd9391735b3daeb8",
+      "sha256": "62b97bb87c1cea74bc53002155dc60e4f7ea3bd065109f68be53c6442092fe45",
+      "dev": "3057815611",
+      "ino": "18858823453765219",
+      "mode": "33206"
+    },
+    {
+      "name": "d690e5d1c1bf2e7c2a5e399db5512c02bb5ff7d15c4c5a6ade180c9e93006969.json",
+      "id": "run:ec01-delete-opt:r1",
+      "sha256": "5aaa6ed31a6d98cc89b8950194c73951b1e5982c1c761d4124e71aa9e33211a6",
+      "dev": "3057815611",
+      "ino": "3940649685866019",
+      "mode": "33206"
+    },
+    {
+      "name": "de99195fdaf0abf7c71982dfa72ded90d8d3d886857a38cf161fa0e8185cb717.json",
+      "id": "run:EN-02-actual-tps-native:20261029T055702611Z-1140999b-c3fc-442f-9bf0-11172277aeec",
+      "sha256": "3d7544be87f9251d8f536f5c2bdb5bf260056c61e8da00106693e735309b803e",
+      "dev": "3057815611",
+      "ino": "14636698790686940",
+      "mode": "33206"
+    },
+    {
+      "name": "deb7c09ba75563861c9d3f36af99cef2d179e91a8bb55e26a748d3d9ffe699fc.json",
+      "id": "run:eb01-latest-install:deploy-g",
+      "sha256": "13c201159f9a2db8b376ed1e268c1c1ede409c396b7f2d49416bb9098a417a25",
+      "dev": "3057815611",
+      "ino": "2251799820844503",
+      "mode": "33206"
+    },
+    {
+      "name": "e2ff643704ab98dc8ececf1cb6b3d6e7363a5f6a61935f11305f7f2c460880bb.json",
+      "id": "run:verify-context-compaction-render:20261029T154919312Z-8c66b671-9fa0-495e-9339-440d921a9c82",
+      "sha256": "410b45331f2f3ea2699f09be537cb67e6ce03e27319d241ded4b63fe6ee6c227",
+      "dev": "3057815611",
+      "ino": "4503599641549658",
+      "mode": "33206"
+    },
+    {
+      "name": "e358c016984b8195beefd73fb98d0247a750ee4111edbb1762cef46e60ff0986.json",
+      "id": "run:EN-02-actual-tps-render-command:20261029T055803022Z-7ce3f550-d6a4-4802-8bf3-0557745f9815",
+      "sha256": "d7eb5f4f424f7f40113138d0a38d0c7cc22544bb7b7ad0bb572a8a22b8dd5437",
+      "dev": "3057815611",
+      "ino": "4222124662984726",
+      "mode": "33206"
+    },
+    {
+      "name": "ea0f590147a711371ce884ab5223941d82a1180e4850a1c01480ee0253371bfc.json",
+      "id": "run:EN-02-actual-tps-ui:20261029T055556323Z-7b1f25a3-1c0a-4ac2-816a-81fb2e1cd78b",
+      "sha256": "9bed327c36e5d3c1de846f505875ce2167b0310b8422365a58293db18ddf1930",
+      "dev": "3057815611",
+      "ino": "11540474057461647",
+      "mode": "33206"
+    },
+    {
+      "name": "eaf5754ad65a416234a79b34b2764f4b62c1067750cb867233f228579c1c00c4.json",
+      "id": "run:ec01-test-policy:r4",
+      "sha256": "e37e6621bf132eff78cd2f7b276209ba3f0ef8645da488a649978cbd1d0f6c8e",
+      "dev": "3057815611",
+      "ino": "2251799827859254",
+      "mode": "33206"
+    },
+    {
+      "name": "efb25f1e767d7f36cb4f88db120be78ca979e6e5efc05890be83fec806113fa9.json",
+      "id": "run:ec01-delete-profile:r2",
+      "sha256": "7d1f90b8994d36a120b43bf2ee97d94f77ed13a96013c7dcf2e779b062ab21a1",
+      "dev": "3057815611",
+      "ino": "6755399453108881",
+      "mode": "33206"
+    },
+    {
+      "name": "f5cb6053c518ca13b80fc748b4c7d01ab9c291e0985337ed931285258d43bb10.json",
+      "id": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+      "sha256": "5c313ff5becda4c4a73cb15ba901ce6024d91b078977c3538419e0d3d702e8db",
+      "dev": "3057815611",
+      "ino": "12384898977640710",
+      "mode": "33206"
+    }
+  ],
+  "error": {
+    "message": "Invalid cleanup recovery evidence",
+    "stack": "Error: Invalid cleanup recovery evidence\n    at validateCleanupRecovery (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:201:95)\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:341:5\n    at withCatalogLock.operation (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:291:7)\n    at withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:133:18)\n    at mutateLifecycle (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:274:10)\n    at Object.recoverCleanup (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:330:10)\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\final-cleanup-control\\outer60-controller-v2.cjs:43:285\n    at Object.withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:141:16)\n    at catalog (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\final-cleanup-control\\outer60-controller-v2.cjs:27:33)\n    at execute (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\final-cleanup-control\\outer60-controller-v2.cjs:43:20)"
+  },
+  "payloadAbsent": false
+}

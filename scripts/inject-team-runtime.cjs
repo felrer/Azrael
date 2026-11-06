@@ -18,13 +18,13 @@ function appendLeadInstructions(existing, guidance, leadId = null) {
 }
 function normalizeRegistry(value) {
   const teams = value?.version === 1 && Array.isArray(value.teams) ? value.teams : [];
-  return { version: 1, teams: teams.filter(t => t && typeof t.id === "string" && typeof t.hostId === "string" && typeof t.leadId === "string" && Array.isArray(t.memberIds)).map(t => ({ id: t.id, hostId: t.hostId, leadId: t.leadId, memberIds: [...new Set([t.leadId, ...t.memberIds.filter(x => typeof x === "string")])] })) };
+  return { version: 1, teams: teams.filter(t => t && typeof t.id === "string" && typeof t.hostId === "string" && typeof t.leadId === "string" && Array.isArray(t.memberIds)).map(t => ({ id: t.id, hostId: t.hostId, leadId: t.leadId, memberIds: [...new Set([t.leadId, ...t.memberIds.filter(x => typeof x === "string")])], ...(t.profileConfiguration == null ? {} : { profileConfiguration: t.profileConfiguration }) })) };
 }
 function teamId(hostId, leadId) { return "azrael-team:" + JSON.stringify([hostId, leadId]); }
-function registerLead(value, hostId, leadId) {
+function registerLead(value, hostId, leadId, profileConfiguration) {
   if (typeof hostId !== "string" || !hostId || typeof leadId !== "string" || !leadId) throw new Error("Native host and Lead IDs are required");
   const registry = normalizeRegistry(value), id = teamId(hostId, leadId);
-  if (!registry.teams.some(t => t.id === id)) registry.teams.push({ id, hostId, leadId, memberIds: [leadId] });
+  if (!registry.teams.some(t => t.id === id)) registry.teams.push({ id, hostId, leadId, memberIds: [leadId], ...(profileConfiguration == null ? {} : { profileConfiguration }) });
   return registry;
 }
 function descendantQuery(params, leadId, cursor = null) {
@@ -38,7 +38,7 @@ function mergeDescendants(value, hostId, leadId, threads) {
 }
 const CREATE_ANCHOR = "m={response:await this.params.requestClient.sendRequest(h.method,h.request,{...h.options,onOutcomeUnknown:n})";
 const CREATE_PATCH = "m={response:await azraelSendLeadDraft(this.params.requestClient,h.method,h.request,this.params.hostId,{...h.options,onOutcomeUnknown:n},e)";
-const BRIDGE_HELPER = `globalThis.__azraelBeginTeamLeadDraft=async function(){const draft=await mg(\`azrael-team-lead-draft\`,{params:{action:\`begin\`}});if(typeof draft?.token!==\`string\`)throw Error(\`Lead draft was not established\`);globalThis.__azraelPendingTeamLeadDraft={...draft,awaitingNativeNewChat:true}};globalThis.__azraelCancelTeamLeadDraft=async function(){globalThis.__azraelPendingTeamLeadDraft=null;await mg(\`azrael-team-lead-draft\`,{params:{action:\`cancel\`}})};function azraelLeadNewChatTransition(){const draft=globalThis.__azraelPendingTeamLeadDraft;if(draft==null)return;if(draft.awaitingNativeNewChat){draft.awaitingNativeNewChat=false;draft.nativeDraft=true}else globalThis.__azraelPendingTeamLeadDraft=null}function azraelLeadProject(scope,activeProject){const draft=globalThis.__azraelPendingTeamLeadDraft;if(draft?.nativeDraft&&!draft.transferred){draft.project=activeProject===void 0?scope.get(jy):dP(activeProject)}}function azraelLeadCommandArgs(){const draft=globalThis.__azraelPendingTeamLeadDraft;if(draft?.nativeDraft&&!draft.transferred){draft.transferred=true;return[{__azraelTeamLeadDraft:draft.token,project:draft.project??null}]}return[]}globalThis.addEventListener?.(\`message\`,event=>{const data=event.data;if(data?.type!==\`persisted-atom-sync\`)return;const draft=data.state?.__azraelTeamLeadDraft;if(typeof draft?.token===\`string\`){const current=globalThis.__azraelPendingTeamLeadDraft;if(current==null||current.token===draft.token)globalThis.__azraelPendingTeamLeadDraft={...draft,nativeDraft:true}}});`;
+const BRIDGE_HELPER = `globalThis.__azraelRoleProfileSettings=async()=>mg(\`azrael-team-lead-draft\`,{params:{action:\`settings\`}});globalThis.__azraelBeginTeamLeadDraft=async function(presetId){const draft=await mg(\`azrael-team-lead-draft\`,{params:{action:\`begin\`,presetId}});if(typeof draft?.token!==\`string\`)throw Error(\`Lead draft was not established\`);globalThis.__azraelPendingTeamLeadDraft={...draft,awaitingNativeNewChat:true}};globalThis.__azraelCancelTeamLeadDraft=async function(){globalThis.__azraelPendingTeamLeadDraft=null;await mg(\`azrael-team-lead-draft\`,{params:{action:\`cancel\`}})};function azraelLeadNewChatTransition(){const draft=globalThis.__azraelPendingTeamLeadDraft;if(draft==null)return;if(draft.awaitingNativeNewChat){draft.awaitingNativeNewChat=false;draft.nativeDraft=true}else globalThis.__azraelPendingTeamLeadDraft=null}function azraelLeadProject(scope,activeProject){const draft=globalThis.__azraelPendingTeamLeadDraft;if(draft?.nativeDraft&&!draft.transferred){draft.project=activeProject===void 0?scope.get(jy):dP(activeProject)}}function azraelLeadCommandArgs(){const draft=globalThis.__azraelPendingTeamLeadDraft;if(draft?.nativeDraft&&!draft.transferred){draft.transferred=true;return[{__azraelTeamLeadDraft:draft.token,project:draft.project??null}]}return[]}globalThis.addEventListener?.(\`message\`,event=>{const data=event.data;if(data?.type!==\`persisted-atom-sync\`)return;const draft=data.state?.__azraelTeamLeadDraft;if(typeof draft?.token===\`string\`){const current=globalThis.__azraelPendingTeamLeadDraft;if(current==null||current.token===draft.token)globalThis.__azraelPendingTeamLeadDraft={...draft,nativeDraft:true}}});`;
 const APP_HELPER = `function azraelClaimLeadDraft(method,request,hostId,input){const draft=globalThis.__azraelPendingTeamLeadDraft;if(draft?.nativeDraft!==true)return request;if(draft.claimed||draft.failed||draft.transferred)throw Error(\`Lead draft requires New Lead to be selected again after the previous submission or transfer\`);if(method!==\`thread/start\`||hostId!==\`local\`)throw Error(\`Team Lead transport is unavailable for this native start\`);const assignment=input?.projectAssignment,project=assignment==null?null:{type:assignment.projectKind,projectId:assignment.projectId};if(JSON.stringify(project)!==JSON.stringify(draft.project??null))throw Error(\`Lead draft belongs to another native project\`);draft.claimed=true;return{...request,__azraelTeamLeadDraft:{token:draft.token,project,cwd:request.cwd,workspaceRoots:input?.workspaceRoots}}}async function azraelSendLeadDraft(client,method,request,hostId,options,input){const draft=globalThis.__azraelPendingTeamLeadDraft;try{const response=await client.sendRequest(method,azraelClaimLeadDraft(method,request,hostId,input),options);if(draft?.claimed&&globalThis.__azraelPendingTeamLeadDraft===draft)globalThis.__azraelPendingTeamLeadDraft=null;return response}catch(error){if(draft?.nativeDraft)draft.failed=true;throw error}}`;
 function hostHelpers(guidance) {
   const modules = ["team-change-service.cjs", "team-observability.cjs", "team-runtime-host.cjs"];
@@ -67,10 +67,13 @@ async function azraelTeamLeadDraft(params, view) {
   if (view == null) throw Error("Lead draft requires its origin view");
   this.azraelLeadDrafts ??= new WeakMap;
   if (params?.action === "cancel") { this.azraelDiscardLeadDraft(view); return { success: true }; }
+  if (params?.action === "settings") return Mt.commands.executeCommand("azrael.roleProfileSettings");
   if (params?.action !== "begin") throw Error("Unknown Lead draft action");
   this.azraelDiscardLeadDraft(view);
   const project = await this.getWorkspaceProject(), token = require("node:crypto").randomUUID();
-  this.azraelLeadDrafts.set(view, { token, projectId: project?.id ?? null });
+  const profileConfiguration = await Mt.commands.executeCommand("azrael.captureRoleProfile", { mode: "team", presetId: params.presetId });
+  if (profileConfiguration?.mode !== "team") throw Error("Team profile configuration unavailable");
+  this.azraelLeadDrafts.set(view, { token, projectId: project?.id ?? null, profileConfiguration });
   return { token };
 }
 async function azraelTransferLeadDraft(token, view, project) {
@@ -111,6 +114,7 @@ async function azraelConsumeLeadDraft(marker, view, params) {
   if (draft == null || draft.token !== marker?.token || draft.transferred || draft.projectId !== (project?.id ?? null)) throw Error("Lead draft no longer belongs to this project and view");
   if (JSON.stringify(marker.project ?? null) !== JSON.stringify(draft.project ?? null) || marker.cwd !== params.cwd) throw Error("Lead submission changed its native project or directory");
   this.azraelDiscardLeadDraft(view);
+  return draft.profileConfiguration;
 }
 const FETCH_METHODS = [azraelTeamLeadDraft, azraelDiscardLeadDraft, azraelDiscardLeadTransfer, azraelTransferLeadDraft, azraelBindLeadPanel, azraelLeadDraftBootstrap, azraelConsumeLeadDraft].map(fn => fn.toString().replace(/^(async )?function /, (_, asyncPart) => asyncPart ?? "")).join("\n");
 
@@ -131,30 +135,33 @@ const RESPONSE_ANCHOR = "deliverMcpResponseToOrigin(e){let r=String(e.id),n=this
 const RESPONSE_PATCH = "async deliverMcpResponseToOrigin(e){try{e=await this.azraelFinishTeamRequest(e)}catch(error){e={id:e.id,error:{code:-32603,message:error instanceof Error?error.message:String(error)}}}let r=String(e.id),n=this.pendingMcpRequests.get(r);";
 async function azraelPrepareTeamRequest(view, hostId, id, method, params) {
   if (params?.__azraelTeamLeadDraft == null && method !== "thread/resume" && !(method === "thread/list" && params?.__azraelWorkspaceThreadList)) return params;
-  let registry = null, lead = false;
+  let registry = null, lead = false, profileConfiguration;
   if (method === "thread/resume") registry = normalizeRegistry((await this.readPersistedAtomState())[AZRAEL_TEAM_REGISTRY_KEY]);
   if (params?.__azraelTeamLeadDraft != null) {
     if (method !== "thread/start" || hostId !== "local") throw Error("Invalid native Lead request");
-    await this.fetchWrapper.extensionFetchHandler.azraelConsumeLeadDraft(params.__azraelTeamLeadDraft, view, params);
+    profileConfiguration = await this.fetchWrapper.extensionFetchHandler.azraelConsumeLeadDraft(params.__azraelTeamLeadDraft, view, params);
     const { __azraelTeamLeadDraft: _, ...native } = params;
-    params = AZRAEL_TEAM_HOST.addTeamTools({ ...native, developerInstructions: appendLeadInstructions(native.developerInstructions, AZRAEL_LEAD_GUIDANCE) });
+    params = AZRAEL_TEAM_HOST.addTeamTools(profileConfiguration == null ? { ...native, developerInstructions: appendLeadInstructions(native.developerInstructions, AZRAEL_LEAD_GUIDANCE) } : native);
     lead = true;
   } else if (method === "thread/resume") {
-    if (registry.teams.some(team => team.hostId === hostId && team.leadId === params?.threadId)) params = { ...params, developerInstructions: appendLeadInstructions(params.developerInstructions, AZRAEL_LEAD_GUIDANCE, params.threadId) };
+    if (registry.teams.some(team => team.hostId === hostId && team.leadId === params?.threadId && team.profileConfiguration == null)) params = { ...params, developerInstructions: appendLeadInstructions(params.developerInstructions, AZRAEL_LEAD_GUIDANCE, params.threadId) };
     if (hostId === "local" && registry.teams.some(team => team.hostId === hostId && team.memberIds.includes(params?.threadId))) params = AZRAEL_TEAM_HOST.addTeamTools(params);
   }
   if (lead || method === "thread/list" && params?.__azraelWorkspaceThreadList) {
     this.azraelTeamRequests ??= new Map;
-    this.azraelTeamRequests.set(String(id), { hostId, lead, params, method });
+    this.azraelTeamRequests.set(String(id), { hostId, lead, params, method, profileConfiguration });
   }
   return params;
 }
 function azraelGetTeamHost() {
-  return this.azraelTeamHost ??= AZRAEL_TEAM_HOST.createTeamRuntimeHost({
+  if (this.azraelTeamHost) return this.azraelTeamHost;
+  const host = this.azraelTeamHost = AZRAEL_TEAM_HOST.createTeamRuntimeHost({
     readRegistry: async () => normalizeRegistry((await this.readPersistedAtomState())[AZRAEL_TEAM_REGISTRY_KEY]),
     readThread: threadId => this.fetchWrapper.extensionFetchHandler.sendInternalAppServerRequest("thread/read", { threadId, includeTurns: false }),
     logger: this.logger,
   });
+  if (process.platform === "win32") require("./window-control-host.cjs").setApprovalOwnerResolver(({ threadId, hostId }) => host.resolveApprovalOwner(threadId, hostId));
+  return host;
 }
 function azraelHandleTeamTool(request) {
   if (!AZRAEL_TEAM_HOST.isTeamRequest(request)) return false;
@@ -164,8 +171,16 @@ function azraelHandleTeamTool(request) {
 function azraelObserveTeamNotification(message) {
   if (["turn/started", "turn/completed", "item/started", "item/completed", "thread/tokenUsage/updated"].includes(message?.method)) this.azraelGetTeamHost().observeNotification(message);
 }
-const TEAM_HOST_METHODS = [azraelPrepareTeamRequest, azraelGetTeamHost, azraelHandleTeamTool, azraelObserveTeamNotification].map(fn => fn.toString().replace(/^(async )?function /, (_, asyncPart) => asyncPart ?? "")).join("\n");
-const HOST_METHODS = TEAM_HOST_METHODS + `async azraelFinishTeamRequest(response){const pending=this.azraelTeamRequests?.get(String(response.id));if(pending==null)return response;this.azraelTeamRequests.delete(String(response.id));if(response.error||response.result==null)return response;const nativeResponse=response;this.azraelTeamWriteQueue??=Promise.resolve();const operation=this.azraelTeamWriteQueue.then(async()=>{let registry=normalizeRegistry((await this.readPersistedAtomState())[AZRAEL_TEAM_REGISTRY_KEY]);if(pending.lead){registry=registerLead(registry,pending.hostId,response.result.thread.id)}else{const data=[...response.result.data],ids=new Set(data.map(t=>t.id));for(const team of registry.teams.filter(t=>t.hostId===pending.hostId)){let cursor=null;const cursors=new Set,descendants=[];do{const query=descendantQuery(pending.params,team.leadId,cursor);delete query.__azraelWorkspaceThreadList;const roots=await this.fetchWrapper.extensionFetchHandler.getWorkspaceRoots();if(roots.length)query.cwd=roots;const page=await this.fetchWrapper.extensionFetchHandler.sendInternalAppServerRequest("thread/list",query);descendants.push(...page.data);cursor=page.nextCursor;if(cursor!=null&&cursors.has(cursor))throw Error("Repeated native descendant cursor");cursors.add(cursor)}while(cursor!=null);registry=mergeDescendants(registry,pending.hostId,team.leadId,descendants);for(const thread of descendants)if(!ids.has(thread.id)){ids.add(thread.id);data.push(thread)}}response={...response,result:{...response.result,data,__azraelTeamMemberIds:registry.teams.filter(t=>t.hostId===pending.hostId).flatMap(t=>t.memberIds)}}}await this.globalState.updatePersistedAtomValue(AZRAEL_TEAM_REGISTRY_KEY,registry);return response});this.azraelTeamWriteQueue=operation.then(()=>{},()=>{});return operation.catch(error=>{if(pending.lead)throw error;this.logger.warning("Team descendants could not be loaded",{safe:{hostId:pending.hostId},sensitive:{error:error instanceof Error?error.message:String(error)}});return nativeResponse})}`;
+// Only callers that have not dispatched the native creation may use this path.
+// Error/null native responses do not prove that a session was never created.
+async function azraelDiscardPreparedTeamRequest(id) {
+  const pending = this.azraelTeamRequests?.get(String(id));
+  if (!pending?.lead) return;
+  if (pending.configurationPath) await Mt.commands.executeCommand("azrael.discardTeamProfile", pending.configurationPath);
+  this.azraelTeamRequests.delete(String(id));
+}
+const TEAM_HOST_METHODS = [azraelPrepareTeamRequest, azraelGetTeamHost, azraelHandleTeamTool, azraelObserveTeamNotification, azraelDiscardPreparedTeamRequest].map(fn => fn.toString().replace(/^(async )?function /, (_, asyncPart) => asyncPart ?? "")).join("\n");
+const HOST_METHODS = TEAM_HOST_METHODS + `async azraelFinishTeamRequest(response){const pending=this.azraelTeamRequests?.get(String(response.id));if(pending==null)return response;this.azraelTeamRequests.delete(String(response.id));if(response.error||response.result==null)return response;const nativeResponse=response;this.azraelTeamWriteQueue??=Promise.resolve();const operation=this.azraelTeamWriteQueue.then(async()=>{let registry=normalizeRegistry((await this.readPersistedAtomState())[AZRAEL_TEAM_REGISTRY_KEY]);if(pending.lead){if(pending.configurationPath)await Mt.commands.executeCommand("azrael.attachTeamProfile",pending.configurationPath,response.result.thread.id);registry=registerLead(registry,pending.hostId,response.result.thread.id,pending.profileConfiguration)}else{const data=[...response.result.data],ids=new Set(data.map(t=>t.id));for(const team of registry.teams.filter(t=>t.hostId===pending.hostId)){let cursor=null;const cursors=new Set,descendants=[];do{const query=descendantQuery(pending.params,team.leadId,cursor);delete query.__azraelWorkspaceThreadList;const roots=await this.fetchWrapper.extensionFetchHandler.getWorkspaceRoots();if(roots.length)query.cwd=roots;const page=await this.fetchWrapper.extensionFetchHandler.sendInternalAppServerRequest("thread/list",query);descendants.push(...page.data);cursor=page.nextCursor;if(cursor!=null&&cursors.has(cursor))throw Error("Repeated native descendant cursor");cursors.add(cursor)}while(cursor!=null);registry=mergeDescendants(registry,pending.hostId,team.leadId,descendants);for(const thread of descendants)if(!ids.has(thread.id)){ids.add(thread.id);data.push(thread)}}response={...response,result:{...response.result,data,__azraelTeamMemberIds:registry.teams.filter(t=>t.hostId===pending.hostId).flatMap(t=>t.memberIds)}}}await this.globalState.updatePersistedAtomValue(AZRAEL_TEAM_REGISTRY_KEY,registry);return response});this.azraelTeamWriteQueue=operation.then(()=>{},()=>{});return operation.catch(error=>{if(pending.lead)throw error;this.logger.warning("Team descendants could not be loaded",{safe:{hostId:pending.hostId},sensitive:{error:error instanceof Error?error.message:String(error)}});return nativeResponse})}`;
 
 function injectTeamRuntime(text, asset) {
   if (!TEAM_RUNTIME_ASSETS.includes(asset)) return { text, count: 0 };

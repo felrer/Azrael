@@ -1,0 +1,2255 @@
+{
+  "runId": "run:EZ01:auto-approval-r8-mw0mte9l",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l",
+  "frozen": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l\\temporary\\source",
+  "startedAt": "2026-11-03T11:56:19.018Z",
+  "endedAt": "2026-11-03T11:56:48.775Z",
+  "steps": [
+    {
+      "name": "injection",
+      "args": [
+        "--test",
+        "scripts/test-computer-use-injection.cjs",
+        "scripts/test-window-control-injection.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l\\logs\\injection.log"
+    },
+    {
+      "name": "approval-render",
+      "args": [
+        "scripts/verify-window-native-approval-render.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l\\logs\\approval-render.log"
+    }
+  ],
+  "sourceInputsSha256": "034b80dc5e7df7e6bd717225472c40f2c71ab011a09997eedf7981f36f9031d3",
+  "approval": {
+    "scope": "Actual pinned native card render functions, React, native buttons/layout/CSS, native elicitation parser/classifier/serverRequest-resolved reducer and production cancel/classifier transforms; fixture adapters for localization/store/host replies. No installed VS Code acceptance.",
+    "checks": [
+      "light 900 native Window Use control app and scopes",
+      "light 900 no horizontal overflow",
+      "light 900 individual control settings links stay within native content padding",
+      "light 900 individual control 화이트리스트 설정 repeated trusted navigation stays pending",
+      "light 900 individual control 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "light 900 individual control Enter keyboard settings retains native actions",
+      "light 900 individual control Space keyboard settings retains native actions",
+      "light 900 Always allow native reply",
+      "native pending card retained",
+      "light 900 Allow this conversation native reply",
+      "native pending card retained",
+      "light 900 Deny native reply",
+      "native pending card retained",
+      "light 900 Cancel request native reply",
+      "native pending card retained",
+      "light 900 Security App observation settings links stay within native content padding",
+      "light 900 Security App observation 화이트리스트 설정 repeated trusted navigation stays pending",
+      "light 900 Security App observation 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "light 900 Security App observation Enter keyboard settings retains native actions",
+      "light 900 Security App observation Space keyboard settings retains native actions",
+      "light 900 native observation session-only classifier/parser",
+      "light 900 native observation permission and literal reason",
+      "light 900 native observation no always or overflow",
+      "light 900 native observation Allow this conversation",
+      "light 900 native observation Deny",
+      "light 900 native observation Cancel request",
+      "light 900 native desktop session-only classifier/parser",
+      "light 900 native global desktop has no fake application",
+      "light 900 native whole-desktop purpose and scope",
+      "light 900 global desktop settings links stay within native content padding",
+      "light 900 global desktop 화이트리스트 설정 repeated trusted navigation stays pending",
+      "light 900 global desktop 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "light 900 global desktop Enter keyboard settings retains native actions",
+      "light 900 global desktop Space keyboard settings retains native actions",
+      "light 900 native desktop no render error or overflow",
+      "light 900 native desktop session reply",
+      "light 900 native completed turn retains same pending observation request",
+      "light 900 native late accept replies exactly once",
+      "light 900 native serverRequest/resolved removal",
+      "light 900 Team native card identifies source session",
+      "light 900 Team source request settings links stay within native content padding",
+      "light 900 Team source request 화이트리스트 설정 repeated trusted navigation stays pending",
+      "light 900 Team source request 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "light 900 Team source request Enter keyboard settings retains native actions",
+      "light 900 Team source request Space keyboard settings retains native actions",
+      "light 900 Team native response retains original thread/request",
+      "light 900 native queue 승인 응답 대기",
+      "light 900 native queue 사용자 답변 대기 중",
+      "light 900 native queue 사용자 응답 대기",
+      "light 360 native Window Use control app and scopes",
+      "light 360 no horizontal overflow",
+      "light 360 individual control settings links stay within native content padding",
+      "light 360 individual control 화이트리스트 설정 repeated trusted navigation stays pending",
+      "light 360 individual control 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "light 360 individual control Enter keyboard settings retains native actions",
+      "light 360 individual control Space keyboard settings retains native actions",
+      "light 360 Always allow native reply",
+      "native pending card retained",
+      "light 360 Allow this conversation native reply",
+      "native pending card retained",
+      "light 360 Deny native reply",
+      "native pending card retained",
+      "light 360 Cancel request native reply",
+      "native pending card retained",
+      "light 360 Security App observation settings links stay within native content padding",
+      "light 360 Security App observation 화이트리스트 설정 repeated trusted navigation stays pending",
+      "light 360 Security App observation 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "light 360 Security App observation Enter keyboard settings retains native actions",
+      "light 360 Security App observation Space keyboard settings retains native actions",
+      "light 360 native observation session-only classifier/parser",
+      "light 360 native observation permission and literal reason",
+      "light 360 native observation no always or overflow",
+      "light 360 native observation Allow this conversation",
+      "light 360 native observation Deny",
+      "light 360 native observation Cancel request",
+      "light 360 native desktop session-only classifier/parser",
+      "light 360 native global desktop has no fake application",
+      "light 360 native whole-desktop purpose and scope",
+      "light 360 global desktop settings links stay within native content padding",
+      "light 360 global desktop 화이트리스트 설정 repeated trusted navigation stays pending",
+      "light 360 global desktop 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "light 360 global desktop Enter keyboard settings retains native actions",
+      "light 360 global desktop Space keyboard settings retains native actions",
+      "light 360 native desktop no render error or overflow",
+      "light 360 native desktop session reply",
+      "light 360 native completed turn retains same pending observation request",
+      "light 360 native late accept replies exactly once",
+      "light 360 native serverRequest/resolved removal",
+      "light 360 Team native card identifies source session",
+      "light 360 Team source request settings links stay within native content padding",
+      "light 360 Team source request 화이트리스트 설정 repeated trusted navigation stays pending",
+      "light 360 Team source request 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "light 360 Team source request Enter keyboard settings retains native actions",
+      "light 360 Team source request Space keyboard settings retains native actions",
+      "light 360 Team native response retains original thread/request",
+      "light 360 native queue 승인 응답 대기",
+      "light 360 native queue 사용자 답변 대기 중",
+      "light 360 native queue 사용자 응답 대기",
+      "dark 900 native Window Use control app and scopes",
+      "dark 900 no horizontal overflow",
+      "native theme foreground changes",
+      "dark 900 individual control settings links stay within native content padding",
+      "dark 900 individual control 화이트리스트 설정 repeated trusted navigation stays pending",
+      "dark 900 individual control 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "dark 900 individual control Enter keyboard settings retains native actions",
+      "dark 900 individual control Space keyboard settings retains native actions",
+      "dark 900 Always allow native reply",
+      "native pending card retained",
+      "dark 900 Allow this conversation native reply",
+      "native pending card retained",
+      "dark 900 Deny native reply",
+      "native pending card retained",
+      "dark 900 Cancel request native reply",
+      "native pending card retained",
+      "dark 900 Security App observation settings links stay within native content padding",
+      "dark 900 Security App observation 화이트리스트 설정 repeated trusted navigation stays pending",
+      "dark 900 Security App observation 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "dark 900 Security App observation Enter keyboard settings retains native actions",
+      "dark 900 Security App observation Space keyboard settings retains native actions",
+      "dark 900 native observation session-only classifier/parser",
+      "dark 900 native observation permission and literal reason",
+      "dark 900 native observation no always or overflow",
+      "dark 900 native observation Allow this conversation",
+      "dark 900 native observation Deny",
+      "dark 900 native observation Cancel request",
+      "dark 900 native desktop session-only classifier/parser",
+      "dark 900 native global desktop has no fake application",
+      "dark 900 native whole-desktop purpose and scope",
+      "dark 900 global desktop settings links stay within native content padding",
+      "dark 900 global desktop 화이트리스트 설정 repeated trusted navigation stays pending",
+      "dark 900 global desktop 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "dark 900 global desktop Enter keyboard settings retains native actions",
+      "dark 900 global desktop Space keyboard settings retains native actions",
+      "dark 900 native desktop no render error or overflow",
+      "dark 900 native desktop session reply",
+      "dark 900 native completed turn retains same pending observation request",
+      "dark 900 native late accept replies exactly once",
+      "dark 900 native serverRequest/resolved removal",
+      "dark 900 Team native card identifies source session",
+      "dark 900 Team source request settings links stay within native content padding",
+      "dark 900 Team source request 화이트리스트 설정 repeated trusted navigation stays pending",
+      "dark 900 Team source request 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "dark 900 Team source request Enter keyboard settings retains native actions",
+      "dark 900 Team source request Space keyboard settings retains native actions",
+      "dark 900 Team native response retains original thread/request",
+      "dark 900 native queue 승인 응답 대기",
+      "dark 900 native queue 사용자 답변 대기 중",
+      "dark 900 native queue 사용자 응답 대기",
+      "dark 360 native Window Use control app and scopes",
+      "dark 360 no horizontal overflow",
+      "native theme foreground changes",
+      "dark 360 individual control settings links stay within native content padding",
+      "dark 360 individual control 화이트리스트 설정 repeated trusted navigation stays pending",
+      "dark 360 individual control 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "dark 360 individual control Enter keyboard settings retains native actions",
+      "dark 360 individual control Space keyboard settings retains native actions",
+      "dark 360 Always allow native reply",
+      "native pending card retained",
+      "dark 360 Allow this conversation native reply",
+      "native pending card retained",
+      "dark 360 Deny native reply",
+      "native pending card retained",
+      "dark 360 Cancel request native reply",
+      "native pending card retained",
+      "dark 360 Security App observation settings links stay within native content padding",
+      "dark 360 Security App observation 화이트리스트 설정 repeated trusted navigation stays pending",
+      "dark 360 Security App observation 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "dark 360 Security App observation Enter keyboard settings retains native actions",
+      "dark 360 Security App observation Space keyboard settings retains native actions",
+      "dark 360 native observation session-only classifier/parser",
+      "dark 360 native observation permission and literal reason",
+      "dark 360 native observation no always or overflow",
+      "dark 360 native observation Allow this conversation",
+      "dark 360 native observation Deny",
+      "dark 360 native observation Cancel request",
+      "dark 360 native desktop session-only classifier/parser",
+      "dark 360 native global desktop has no fake application",
+      "dark 360 native whole-desktop purpose and scope",
+      "dark 360 global desktop settings links stay within native content padding",
+      "dark 360 global desktop 화이트리스트 설정 repeated trusted navigation stays pending",
+      "dark 360 global desktop 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "dark 360 global desktop Enter keyboard settings retains native actions",
+      "dark 360 global desktop Space keyboard settings retains native actions",
+      "dark 360 native desktop no render error or overflow",
+      "dark 360 native desktop session reply",
+      "dark 360 native completed turn retains same pending observation request",
+      "dark 360 native late accept replies exactly once",
+      "dark 360 native serverRequest/resolved removal",
+      "dark 360 Team native card identifies source session",
+      "dark 360 Team source request settings links stay within native content padding",
+      "dark 360 Team source request 화이트리스트 설정 repeated trusted navigation stays pending",
+      "dark 360 Team source request 시큐리티 앱 설정 repeated trusted navigation stays pending",
+      "dark 360 Team source request Enter keyboard settings retains native actions",
+      "dark 360 Team source request Space keyboard settings retains native actions",
+      "dark 360 Team native response retains original thread/request",
+      "dark 360 native queue 승인 응답 대기",
+      "dark 360 native queue 사용자 답변 대기 중",
+      "dark 360 native queue 사용자 응답 대기"
+    ],
+    "themeColors": {
+      "light": "rgb(26, 28, 31)",
+      "dark": "rgb(223, 223, 223)"
+    },
+    "settingsLayout": [
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "individual control",
+        "contentLeft": 94,
+        "contentRight": 796,
+        "nativePadding": 16,
+        "groupLeft": 78,
+        "groupRight": 812,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 94,
+            "right": 185.609375,
+            "top": 185,
+            "bottom": 202.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 201.609375,
+            "right": 285.46875,
+            "top": 185,
+            "bottom": 202.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 301.46875,
+            "right": 379.546875,
+            "top": 185,
+            "bottom": 202.140625
+          }
+        ]
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "Security App observation",
+        "contentLeft": 94,
+        "contentRight": 796,
+        "nativePadding": 16,
+        "groupLeft": 78,
+        "groupRight": 812,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 94,
+            "right": 185.609375,
+            "top": 185,
+            "bottom": 202.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 201.609375,
+            "right": 285.46875,
+            "top": 185,
+            "bottom": 202.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 301.46875,
+            "right": 379.546875,
+            "top": 185,
+            "bottom": 202.140625
+          }
+        ]
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "global desktop",
+        "contentLeft": 94,
+        "contentRight": 796,
+        "nativePadding": 16,
+        "groupLeft": 78,
+        "groupRight": 812,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 94,
+            "right": 185.609375,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 201.609375,
+            "right": 285.46875,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 301.46875,
+            "right": 379.546875,
+            "top": 221,
+            "bottom": 238.140625
+          }
+        ]
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "Team source request",
+        "contentLeft": 94,
+        "contentRight": 796,
+        "nativePadding": 16,
+        "groupLeft": 78,
+        "groupRight": 812,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 94,
+            "right": 185.609375,
+            "top": 203,
+            "bottom": 220.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 201.609375,
+            "right": 285.46875,
+            "top": 203,
+            "bottom": 220.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 301.46875,
+            "right": 379.546875,
+            "top": 203,
+            "bottom": 220.140625
+          }
+        ]
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "individual control",
+        "contentLeft": 33,
+        "contentRight": 317,
+        "nativePadding": 16,
+        "groupLeft": 17,
+        "groupRight": 333,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 33,
+            "right": 124.609375,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 140.609375,
+            "right": 224.46875,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 33,
+            "right": 111.078125,
+            "top": 246.140625,
+            "bottom": 263.28125
+          }
+        ]
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "Security App observation",
+        "contentLeft": 33,
+        "contentRight": 317,
+        "nativePadding": 16,
+        "groupLeft": 17,
+        "groupRight": 333,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 33,
+            "right": 124.609375,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 140.609375,
+            "right": 224.46875,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 33,
+            "right": 111.078125,
+            "top": 246.140625,
+            "bottom": 263.28125
+          }
+        ]
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "global desktop",
+        "contentLeft": 33,
+        "contentRight": 317,
+        "nativePadding": 16,
+        "groupLeft": 17,
+        "groupRight": 333,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 33,
+            "right": 124.609375,
+            "top": 257,
+            "bottom": 274.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 140.609375,
+            "right": 224.46875,
+            "top": 257,
+            "bottom": 274.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 33,
+            "right": 111.078125,
+            "top": 282.140625,
+            "bottom": 299.28125
+          }
+        ]
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "Team source request",
+        "contentLeft": 33,
+        "contentRight": 317,
+        "nativePadding": 16,
+        "groupLeft": 17,
+        "groupRight": 333,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 33,
+            "right": 124.609375,
+            "top": 259,
+            "bottom": 276.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 140.609375,
+            "right": 224.46875,
+            "top": 259,
+            "bottom": 276.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 33,
+            "right": 111.078125,
+            "top": 284.140625,
+            "bottom": 301.28125
+          }
+        ]
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "individual control",
+        "contentLeft": 94,
+        "contentRight": 796,
+        "nativePadding": 16,
+        "groupLeft": 78,
+        "groupRight": 812,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 94,
+            "right": 185.609375,
+            "top": 185,
+            "bottom": 202.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 201.609375,
+            "right": 285.46875,
+            "top": 185,
+            "bottom": 202.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 301.46875,
+            "right": 379.546875,
+            "top": 185,
+            "bottom": 202.140625
+          }
+        ]
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "Security App observation",
+        "contentLeft": 94,
+        "contentRight": 796,
+        "nativePadding": 16,
+        "groupLeft": 78,
+        "groupRight": 812,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 94,
+            "right": 185.609375,
+            "top": 185,
+            "bottom": 202.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 201.609375,
+            "right": 285.46875,
+            "top": 185,
+            "bottom": 202.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 301.46875,
+            "right": 379.546875,
+            "top": 185,
+            "bottom": 202.140625
+          }
+        ]
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "global desktop",
+        "contentLeft": 94,
+        "contentRight": 796,
+        "nativePadding": 16,
+        "groupLeft": 78,
+        "groupRight": 812,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 94,
+            "right": 185.609375,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 201.609375,
+            "right": 285.46875,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 301.46875,
+            "right": 379.546875,
+            "top": 221,
+            "bottom": 238.140625
+          }
+        ]
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "Team source request",
+        "contentLeft": 94,
+        "contentRight": 796,
+        "nativePadding": 16,
+        "groupLeft": 78,
+        "groupRight": 812,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 94,
+            "right": 185.609375,
+            "top": 203,
+            "bottom": 220.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 201.609375,
+            "right": 285.46875,
+            "top": 203,
+            "bottom": 220.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 301.46875,
+            "right": 379.546875,
+            "top": 203,
+            "bottom": 220.140625
+          }
+        ]
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "individual control",
+        "contentLeft": 33,
+        "contentRight": 317,
+        "nativePadding": 16,
+        "groupLeft": 17,
+        "groupRight": 333,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 33,
+            "right": 124.609375,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 140.609375,
+            "right": 224.46875,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 33,
+            "right": 111.078125,
+            "top": 246.140625,
+            "bottom": 263.28125
+          }
+        ]
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "Security App observation",
+        "contentLeft": 33,
+        "contentRight": 317,
+        "nativePadding": 16,
+        "groupLeft": 17,
+        "groupRight": 333,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 33,
+            "right": 124.609375,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 140.609375,
+            "right": 224.46875,
+            "top": 221,
+            "bottom": 238.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 33,
+            "right": 111.078125,
+            "top": 246.140625,
+            "bottom": 263.28125
+          }
+        ]
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "global desktop",
+        "contentLeft": 33,
+        "contentRight": 317,
+        "nativePadding": 16,
+        "groupLeft": 17,
+        "groupRight": 333,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 33,
+            "right": 124.609375,
+            "top": 257,
+            "bottom": 274.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 140.609375,
+            "right": 224.46875,
+            "top": 257,
+            "bottom": 274.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 33,
+            "right": 111.078125,
+            "top": 282.140625,
+            "bottom": 299.28125
+          }
+        ]
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "Team source request",
+        "contentLeft": 33,
+        "contentRight": 317,
+        "nativePadding": 16,
+        "groupLeft": 17,
+        "groupRight": 333,
+        "buttons": [
+          {
+            "text": "화이트리스트 설정",
+            "left": 33,
+            "right": 124.609375,
+            "top": 259,
+            "bottom": 276.140625
+          },
+          {
+            "text": "시큐리티 앱 설정",
+            "left": 140.609375,
+            "right": 224.46875,
+            "top": 259,
+            "bottom": 276.140625
+          },
+          {
+            "text": "Cancel request",
+            "left": 33,
+            "right": 111.078125,
+            "top": 284.140625,
+            "bottom": 301.28125
+          }
+        ]
+      }
+    ],
+    "keyboardSettings": [
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "individual control",
+        "key": "Enter",
+        "expectedSettings": 5,
+        "expectedReplies": 0,
+        "settings": 5,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707004880",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 0,
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "individual control",
+        "key": " ",
+        "expectedSettings": 6,
+        "expectedReplies": 0,
+        "settings": 6,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707004880",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 0,
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "Security App observation",
+        "key": "Enter",
+        "expectedSettings": 11,
+        "expectedReplies": 4,
+        "settings": 11,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005050",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 4,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005040",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "Security App observation",
+        "key": " ",
+        "expectedSettings": 12,
+        "expectedReplies": 4,
+        "settings": 12,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005050",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 4,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005040",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "global desktop",
+        "key": "Enter",
+        "expectedSettings": 17,
+        "expectedReplies": 7,
+        "settings": 17,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005163",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 7,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005154",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "global desktop",
+        "key": " ",
+        "expectedSettings": 18,
+        "expectedReplies": 7,
+        "settings": 18,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005163",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 7,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005154",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "Team source request",
+        "key": "Enter",
+        "expectedSettings": 23,
+        "expectedReplies": 9,
+        "settings": 23,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005283",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 9,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005254",
+          "result": {
+            "action": "accept",
+            "content": {},
+            "_meta": {
+              "persist": "session"
+            }
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 900,
+        "scope": "Team source request",
+        "key": " ",
+        "expectedSettings": 24,
+        "expectedReplies": 9,
+        "settings": 24,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005283",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 9,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005254",
+          "result": {
+            "action": "accept",
+            "content": {},
+            "_meta": {
+              "persist": "session"
+            }
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "individual control",
+        "key": "Enter",
+        "expectedSettings": 29,
+        "expectedReplies": 10,
+        "settings": 29,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005609",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 10,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005283",
+          "result": {
+            "action": "decline",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "individual control",
+        "key": " ",
+        "expectedSettings": 30,
+        "expectedReplies": 10,
+        "settings": 30,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005609",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 10,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005283",
+          "result": {
+            "action": "decline",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "Security App observation",
+        "key": "Enter",
+        "expectedSettings": 35,
+        "expectedReplies": 14,
+        "settings": 35,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005724",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 14,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005714",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "Security App observation",
+        "key": " ",
+        "expectedSettings": 36,
+        "expectedReplies": 14,
+        "settings": 36,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005724",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 14,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005714",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "global desktop",
+        "key": "Enter",
+        "expectedSettings": 41,
+        "expectedReplies": 17,
+        "settings": 41,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005796",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 17,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005791",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "global desktop",
+        "key": " ",
+        "expectedSettings": 42,
+        "expectedReplies": 17,
+        "settings": 42,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005796",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 17,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005791",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "Team source request",
+        "key": "Enter",
+        "expectedSettings": 47,
+        "expectedReplies": 19,
+        "settings": 47,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005877",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 19,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005866",
+          "result": {
+            "action": "accept",
+            "content": {},
+            "_meta": {
+              "persist": "session"
+            }
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "light",
+        "width": 360,
+        "scope": "Team source request",
+        "key": " ",
+        "expectedSettings": 48,
+        "expectedReplies": 19,
+        "settings": 48,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707005877",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 19,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005866",
+          "result": {
+            "action": "accept",
+            "content": {},
+            "_meta": {
+              "persist": "session"
+            }
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "individual control",
+        "key": "Enter",
+        "expectedSettings": 53,
+        "expectedReplies": 20,
+        "settings": 53,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006097",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 20,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005877",
+          "result": {
+            "action": "decline",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "individual control",
+        "key": " ",
+        "expectedSettings": 54,
+        "expectedReplies": 20,
+        "settings": 54,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006097",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 20,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707005877",
+          "result": {
+            "action": "decline",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "Security App observation",
+        "key": "Enter",
+        "expectedSettings": 59,
+        "expectedReplies": 24,
+        "settings": 59,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006175",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 24,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006171",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "Security App observation",
+        "key": " ",
+        "expectedSettings": 60,
+        "expectedReplies": 24,
+        "settings": 60,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006175",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 24,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006171",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "global desktop",
+        "key": "Enter",
+        "expectedSettings": 65,
+        "expectedReplies": 27,
+        "settings": 65,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006246",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 27,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006242",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "global desktop",
+        "key": " ",
+        "expectedSettings": 66,
+        "expectedReplies": 27,
+        "settings": 66,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006246",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 27,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006242",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "Team source request",
+        "key": "Enter",
+        "expectedSettings": 71,
+        "expectedReplies": 29,
+        "settings": 71,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006328",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 29,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006320",
+          "result": {
+            "action": "accept",
+            "content": {},
+            "_meta": {
+              "persist": "session"
+            }
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 900,
+        "scope": "Team source request",
+        "key": " ",
+        "expectedSettings": 72,
+        "expectedReplies": 29,
+        "settings": 72,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006328",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 29,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006320",
+          "result": {
+            "action": "accept",
+            "content": {},
+            "_meta": {
+              "persist": "session"
+            }
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "individual control",
+        "key": "Enter",
+        "expectedSettings": 77,
+        "expectedReplies": 30,
+        "settings": 77,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006606",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 30,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006328",
+          "result": {
+            "action": "decline",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "individual control",
+        "key": " ",
+        "expectedSettings": 78,
+        "expectedReplies": 30,
+        "settings": 78,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006606",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 30,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006328",
+          "result": {
+            "action": "decline",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "Security App observation",
+        "key": "Enter",
+        "expectedSettings": 83,
+        "expectedReplies": 34,
+        "settings": 83,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006691",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 34,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006681",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "Security App observation",
+        "key": " ",
+        "expectedSettings": 84,
+        "expectedReplies": 34,
+        "settings": 84,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006691",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 34,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006681",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "global desktop",
+        "key": "Enter",
+        "expectedSettings": 89,
+        "expectedReplies": 37,
+        "settings": 89,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006788",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 37,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006778",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "global desktop",
+        "key": " ",
+        "expectedSettings": 90,
+        "expectedReplies": 37,
+        "settings": 90,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006788",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 37,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006778",
+          "result": {
+            "action": "cancel",
+            "content": null,
+            "_meta": null
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "Team source request",
+        "key": "Enter",
+        "expectedSettings": 95,
+        "expectedReplies": 39,
+        "settings": 95,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006883",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 39,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006871",
+          "result": {
+            "action": "accept",
+            "content": {},
+            "_meta": {
+              "persist": "session"
+            }
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      },
+      {
+        "theme": "dark",
+        "width": 360,
+        "scope": "Team source request",
+        "key": " ",
+        "expectedSettings": 96,
+        "expectedReplies": 39,
+        "settings": 96,
+        "lastSettings": {
+          "type": "mcp-response",
+          "hostId": "local",
+          "response": {
+            "id": "azrael-window-consent-fixture-1793707006883",
+            "result": {
+              "action": "settings",
+              "content": {
+                "list": "observationBlockedApps"
+              }
+            }
+          }
+        },
+        "replies": 39,
+        "lastReply": {
+          "thread": "thread-fixture",
+          "id": "azrael-window-consent-fixture-1793707006871",
+          "result": {
+            "action": "accept",
+            "content": {},
+            "_meta": {
+              "persist": "session"
+            }
+          }
+        },
+        "pending": true,
+        "denyDisabled": false,
+        "activeTag": "BUTTON",
+        "activeText": "시큐리티 앱 설정",
+        "errors": []
+      }
+    ],
+    "observationParsed": {
+      "appDisplayName": "Synthetic Editor",
+      "connectorName": "Window Use",
+      "persistModes": [
+        "session"
+      ],
+      "subtitle": "Window Use: Allow observation of this application window?\n\nPermission: observation\n\nReason: <img src=x onerror=alert(1)> application work"
+    },
+    "outcome": "passed",
+    "browserExit": {
+      "confirmed": true,
+      "exitCode": 0,
+      "signalCode": null,
+      "processInspectionExitCode": 0,
+      "processIds": []
+    },
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l\\temporary\\source\\artifacts\\tasks\\verify-window-native-approval-render\\runs\\20261103T115636354Z-e46bbb0b-7984-4630-810a-1ef6b9cba3ff",
+    "lifecycleId": "run:verify-window-native-approval-render:20261103T115636354Z-e46bbb0b-7984-4630-810a-1ef6b9cba3ff",
+    "fixtureRemoved": false,
+    "retentionReason": "Retained fixture, profile and raw results for lifecycle review",
+    "exitCode": 0
+  },
+  "sourceInputs": [
+    {
+      "path": "scripts/check-multiwindow-accounts.mjs",
+      "sha256": "80582cf610f8fa040e25f817db0eb081421857990d9d306a827631fec209afba"
+    },
+    {
+      "path": "scripts/check-usage-window.cjs",
+      "sha256": "b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd"
+    },
+    {
+      "path": "scripts/check-window-approval-native.cjs",
+      "sha256": "525b897176b1c4ca2bd8c91fff09cd61b5f6c211ac874ea0aa02d5397c963325"
+    },
+    {
+      "path": "scripts/check-window-virtual-input-native.cjs",
+      "sha256": "d347dc8400982b93733f5b47cad4ccc0b2cde81699183ef5ae55cd4e1c0e6f58"
+    },
+    {
+      "path": "scripts/inject-computer-use.cjs",
+      "sha256": "ea7a72af8087d844d174ae0dcfd5b1fd559cca04006745040fd03d9a93eeb99f"
+    },
+    {
+      "path": "scripts/inject-team-approvals.cjs",
+      "sha256": "f0ab12140afdb0b7d9706b85e8e8145223287458f22dd071db63f5e06073afff"
+    },
+    {
+      "path": "scripts/inject-window-control.cjs",
+      "sha256": "9812584872cb6f22f6445750e737bfe4c9c30502344b66adf21e045fa408633e"
+    },
+    {
+      "path": "scripts/namespace-azrael-host.cjs",
+      "sha256": "c36185b9885ef4be81c64cb3d49829a6762d79105983ba4a65ca0d0d83eb3eff"
+    },
+    {
+      "path": "scripts/namespace-cache-owner.cjs",
+      "sha256": "822e107d8f9d378e5207d142d8ec7a1ed2ab6645731f1c9eeb9b3ac35b366fc0"
+    },
+    {
+      "path": "scripts/team-approval-routing.cjs",
+      "sha256": "50504464abb66c26ee48fd5f810ca8e432e79a655b7a192c5114355d3310aa43"
+    },
+    {
+      "path": "scripts/test-independent-namespace.cjs",
+      "sha256": "d726c161b409c7447dce2cc566e282812c34794be0f33aeefef13b329e809c4a"
+    },
+    {
+      "path": "scripts/test-namespace-cache-owner.cjs",
+      "sha256": "b91ab9375730bde04f80507246b627af65cedaec544ae31dd85fea90c0f0d892"
+    },
+    {
+      "path": "scripts/test-namespace-performance.cjs",
+      "sha256": "6a0108957597595bacc75c5b70526cc734a7d1e8b6e1a348af116e1fdb07b5cb"
+    },
+    {
+      "path": "scripts/test-namespace-source.cjs",
+      "sha256": "880f3c7bd37be7dcf1cc789eb555a8d86a5a645fcb846ca95385432ee85cfa93"
+    },
+    {
+      "path": "scripts/test-selected-window-authority-engine.mjs",
+      "sha256": "09c1944ea7558dde553e26a31af104ce4b40ba129ce40bd93fc642ddabde74bb"
+    },
+    {
+      "path": "scripts/test-selected-window-native.cjs",
+      "sha256": "2f8a8e02b9427d9330def84898a638a59d82525a86e03a531134bdd2cba3bb61"
+    },
+    {
+      "path": "scripts/test-usage-window-ui.cjs",
+      "sha256": "b8486068cbba97906c3f7297181578ae7fe0d8cb3413af21b0298bbbf5dbf497"
+    },
+    {
+      "path": "scripts/test-use-control-settings.cjs",
+      "sha256": "f2dfa593d0c915a593f6c37abc9d5be13538d9d9161ae7d4f6b26eb6a007f86f"
+    },
+    {
+      "path": "scripts/test-use-settings-host.cjs",
+      "sha256": "1f6236a9390cf7b5fa96f58f3020bf30ea80656e84d3db53f9fec244cf3f7d39"
+    },
+    {
+      "path": "scripts/test-use-settings-ui.cjs",
+      "sha256": "044c8a097946968a6d6d8255f5778603a1066f912c5039169047866085dde73d"
+    },
+    {
+      "path": "scripts/test-window-approval-notifications.cjs",
+      "sha256": "f24b317c29c7d50650d491dacd3f7b7dde27f094d2e713e0e63574b998381de5"
+    },
+    {
+      "path": "scripts/test-window-approval-ui-integration.cjs",
+      "sha256": "4638e934d7397126205e6fdf67a553c473251d8d7b6a15b2551f415be3b707de"
+    },
+    {
+      "path": "scripts/test-window-async-approval-host.cjs",
+      "sha256": "0509dfee32c4ba1f3785a91a4be1c2c38397bf954e150bf626d79d75480569e8"
+    },
+    {
+      "path": "scripts/test-window-control-approval.cjs",
+      "sha256": "99772eeb136f9d302bb6fedfdd741dbc4cd6437fe4f4ea4688bb5d2ecb550571"
+    },
+    {
+      "path": "scripts/test-window-control-backend.cjs",
+      "sha256": "9871c3eab5b49a3f63e59fc546a750a518c356bb8ffc034b495f04ee7ff05e87"
+    },
+    {
+      "path": "scripts/test-window-control-errors.cjs",
+      "sha256": "ddca1d9ad2a96ff51f08c1b9edd17d1ec4216d05c2104d80988ce77a294820e2"
+    },
+    {
+      "path": "scripts/test-window-control-host-errors.cjs",
+      "sha256": "1f4dbe3f3c7a32d69a753a193a398881a550ae1334a0ad6d6807572af9c907f6"
+    },
+    {
+      "path": "scripts/test-window-control-host.cjs",
+      "sha256": "527df28248d45b1d039d6c4417e5eb47e53060e8c59a1a27b01fc3e87ba08231"
+    },
+    {
+      "path": "scripts/test-window-control-injection.cjs",
+      "sha256": "df594abdafca693feeb37f9d115df4b8d481ee5efd2dec88f74fbda36b4ee107"
+    },
+    {
+      "path": "scripts/test-window-control-mcp.cjs",
+      "sha256": "9669fd420c5b59e5a0b1911d4613171ed56e08ed659d97da6c8f49cf33654361"
+    },
+    {
+      "path": "scripts/test-window-control-minimized.cjs",
+      "sha256": "6b13b2a902fb7e8570b44f2c641582b485afc473e1c517f2f78e3d0e9d5b675e"
+    },
+    {
+      "path": "scripts/test-window-control-observation-recovery.cjs",
+      "sha256": "a9f03c1e3b2775142844572695ec1303ddcbfb576ea91f62e727382a71671754"
+    },
+    {
+      "path": "scripts/test-window-control-occupancy.cjs",
+      "sha256": "68028dea5f045afacd5516361114961b7be88d3b47a01565e9f4209c277f285d"
+    },
+    {
+      "path": "scripts/test-window-control-policy.cjs",
+      "sha256": "0f5f92d89741b60ca78ce93a7738272e245979747d7f078241a55e4ee3834a6b"
+    },
+    {
+      "path": "scripts/test-window-control-runtime.cjs",
+      "sha256": "159f69cf71eaa95e44b56fe03eae2b445c340fbf44c316a70c89308333556a12"
+    },
+    {
+      "path": "scripts/test-window-installed-launch.cjs",
+      "sha256": "6f357033c10976ddacb63fa9e654712f1700446afb3c5633aff3cc3fa69d26c7"
+    },
+    {
+      "path": "scripts/test-window-overlay.cjs",
+      "sha256": "5cc616b2798be3598ffcb19091d5f7d2716fe282eadb9871a3d2dbf2611c882d"
+    },
+    {
+      "path": "scripts/test-window-switched-input.cjs",
+      "sha256": "52f412df2d11200b4e4a52bfbf89934b346ccbf52cbc108a29442c9b6f288f67"
+    },
+    {
+      "path": "scripts/test-window-task-macros.cjs",
+      "sha256": "834daed4d25ba9572430a628b4acea86a9a73e07fba502f7814a746b1e5b10c2"
+    },
+    {
+      "path": "scripts/test-window-use-async-approvals.cjs",
+      "sha256": "adf10511a942c424c0a853cc909c7d955070f47329f775f86efa9829297a2b37"
+    },
+    {
+      "path": "scripts/test-window-use-host.cjs",
+      "sha256": "70825ee19e23cb4787fb7192127fcfcfad99086ff8c28dc76d12c7548ac11efb"
+    },
+    {
+      "path": "scripts/test-window-use-native.cjs",
+      "sha256": "526f88bd220afb5155bdc9abc13503970f55729a070b5d4cd556885f28286564"
+    },
+    {
+      "path": "scripts/test-window-virtual-input.cjs",
+      "sha256": "23a6c0a443097c819216786366a95de8c41494fccecf076940688bf933717fda"
+    },
+    {
+      "path": "scripts/test-window-virtual-policy.cjs",
+      "sha256": "b8085c7c09f39c1640d9af04007a663122353f5ce420d87d04f0671f86a99abe"
+    },
+    {
+      "path": "scripts/use-control-settings.cjs",
+      "sha256": "6724f4cb4a5011d620d9da4670a2456bc6851c691efda29530f2728169a1511b"
+    },
+    {
+      "path": "scripts/use-settings-host.cjs",
+      "sha256": "06fe9d8a99bd0eb37c036c2a721f241239f765b292df612d8e0bd8ce3721c527"
+    },
+    {
+      "path": "scripts/verify-use-settings-render.mjs",
+      "sha256": "053096e787cddb9a05fcc062983f5369d855c84e60fd37e5d7bd386d9e9ff208"
+    },
+    {
+      "path": "scripts/verify-window-approval-render.mjs",
+      "sha256": "9bc1b2ef590797e7c69601753cddd176b115e44c8e92ff6e5fc6e4f6b1b8635f"
+    },
+    {
+      "path": "scripts/verify-window-errors-render.mjs",
+      "sha256": "38bec89992746a90988a9e1f322827fff9d22e23dbe52e52f392cfd58e4c60f9"
+    },
+    {
+      "path": "scripts/verify-window-native-approval-render.mjs",
+      "sha256": "ad464137cae3967586044775a34cb778429dca26c1a0cf48b0567c96005b56ef"
+    },
+    {
+      "path": "scripts/window-approval-engine-fixture.cjs",
+      "sha256": "3c477faf10564551f36417772677a1c103d7a90e530a5f90be34b093d9398422"
+    },
+    {
+      "path": "scripts/window-control-backend.cjs",
+      "sha256": "89705e7c6dcd08920592d1a42a586d7e535b5e1b3e2ebe5ff2e38bab1dac3400"
+    },
+    {
+      "path": "scripts/window-control-errors.cjs",
+      "sha256": "20f2c532aae95b0d62338e3dc368ea53400d41b24c093e871d48ff0d5a4315ae"
+    },
+    {
+      "path": "scripts/window-control-host.cjs",
+      "sha256": "b285171ceed3ff04882bbbfddec1cad550afa8c3bead013ce16073afe07c6d3d"
+    },
+    {
+      "path": "scripts/window-control-mcp.cjs",
+      "sha256": "09f496a9fef3b94385449badcbf173f1598325805216fddef1a36200b60624fb"
+    },
+    {
+      "path": "scripts/window-control-occupancy.cjs",
+      "sha256": "10d8a163da3e6dc679eca984c3bbcfbd1c0175723292400433577f1ddd1b538b"
+    },
+    {
+      "path": "scripts/window-control-policy.cjs",
+      "sha256": "143e91c43938a6674ba94bf5f68d60931bdbe68377f3dd7aa08a89c245bec9eb"
+    },
+    {
+      "path": "scripts/window-control-runtime.cjs",
+      "sha256": "ffc052b005a1808f487ae5e616243fe06407b410a7dc07c323803491c2860531"
+    },
+    {
+      "path": "scripts/window-switched-input.cjs",
+      "sha256": "17d7b9ae9ec3795bdbd664cbd836f4d87dd3bb48625da97bdbdd3d6e2a841461"
+    },
+    {
+      "path": "scripts/window-task-macros.cjs",
+      "sha256": "72cdc1a97c18f33e7ddd65ce84c295b6b379fa7ba515eecc9afb064f90620ff2"
+    },
+    {
+      "path": "scripts/window-use-approvals.cjs",
+      "sha256": "ae7c9ef5f840c35f2ad29dbca1383408e0a32d89ce2639ee001d813bd1651ad2"
+    },
+    {
+      "path": "scripts/window-use-async-approvals.cjs",
+      "sha256": "b4f11d0594bb0764795e3bb7f421b0581ac6f2b7cf099f1bd3aa3c4fa8ec8b04"
+    },
+    {
+      "path": "scripts/window-virtual-input.cjs",
+      "sha256": "a0fd61e25584967bf2939cbbf91fd3a3f6c6672ef2857bfd7b89d4127b79d70e"
+    }
+  ],
+  "productionChangesSinceCoreSuite": [
+    "scripts/inject-computer-use.cjs"
+  ],
+  "visualInspection": "Native dark/narrow global approval and settings screenshot inspected; links inside native content inset, keyboard focus visible.",
+  "resultReuse": {
+    "core": {
+      "report": "automatic-approval-verification-04.json",
+      "pass": 204,
+      "skip": 1,
+      "oneFixtureFailureReplacedByCacheRun": true
+    },
+    "cache": {
+      "report": "automatic-approval-verification-06.json",
+      "pass": 7,
+      "exitCode": 0
+    },
+    "settings": {
+      "report": "automatic-approval-verification-05.json",
+      "checks": 30,
+      "exitCode": 0
+    },
+    "affectedInjection": {
+      "exitCode": 0
+    },
+    "approval": {
+      "checks": 198,
+      "exitCode": 0
+    }
+  }
+}

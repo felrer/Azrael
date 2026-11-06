@@ -1,0 +1,420 @@
+{
+  "schema": 1,
+  "status": "verified_candidate_not_deployed",
+  "platform": "windows",
+  "arch": "x64",
+  "binary_sha256": "eef3ec5aca86bd534469e04a5469d749edcb9bd21a015f1c34e9d092dd319b94",
+  "contract": "Reuse successful per-root/source catalog snapshot only under continuous OS catalog custody; invalidate on release/reacquisition and own writes/removal; preserve fresh selected-owner payload/recovery proofs, unlocked observations and existing deletion semantics",
+  "native_tests_passed": 216,
+  "node_lifecycle_tests_passed": 205,
+  "native": {
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "elapsed_ms": 133041.98770000003,
+    "preflight": {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-30T01:53:43.497Z",
+          "durationMs": 3327,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked",
+            "--",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-30T01:53:46.824Z",
+          "durationMs": 18255,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 216
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked"
+          ],
+          "startedUtc": "2026-10-30T01:54:05.079Z",
+          "durationMs": 111459,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "immutable_inputs_unchanged": true
+  },
+  "build": {
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "elapsed_ms": 24054.873499999998,
+    "preflight": null,
+    "immutable_inputs_unchanged": true
+  },
+  "node": {
+    "results": [
+      {
+        "script": "scripts/test-artifact-lifecycle.cjs",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 95927.7935,
+        "summary": [
+          "ℹ tests 205",
+          "ℹ suites 0",
+          "ℹ pass 205",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "ℹ todo 0",
+          "ℹ duration_ms 95828.3939",
+          ""
+        ]
+      },
+      {
+        "script": "scripts/test-maintenance-lock-owner.cjs",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 2833.357600000003,
+        "summary": [
+          "{\"status\":\"passed\",\"platform\":\"win32\",\"arch\":\"x64\",\"checks\":[\"top-level and encoded busy metadata survive worker packets; transport, permission and corrupt errors stay distinct\",\"real child contention, persistent metadata, reacquisition\",\"bounded wait expires without taking a held lock\",\"parent crash closes native stdin and releases OS exclusion\",\"idle native helper death reports terminal state and releases exclusion\",\"existing empty, malformed and schema1 markers require recovery\",\"replaced lock inode is preserved and release refuses replacement, or OS denies replacement\",\"symlink/reparse ancestors and non-file lock targets refused\",\"native >1 MiB UTF-8 record CAS/reserve/finish and oversized response preflight without durable fence creation\",\"native hashed-ID CAS, producer reservation/catalog handoff/pinned finish, unsafe member and wrong lock rejection\",\"default installation receipt resolves pinned owner; SHA/protocol/traversal/linked ancestors refuse without execution\",\"malformed protocol fails closed; unknown command refused\"]}",
+          ""
+        ]
+      }
+    ],
+    "immutable_inputs_unchanged": true
+  },
+  "comparison": {
+    "condition": {
+      "records": 100,
+      "payload_bytes": 1048576,
+      "unrelated_payloads": "absent",
+      "samples_each": 3,
+      "timing_diagnostics": false
+    },
+    "results": [
+      {
+        "name": "baseline-01",
+        "review_ms": 1921.0139,
+        "apply_ms": 8981.423900000002,
+        "total_ms": 10902.437800000002,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "improved-01",
+        "review_ms": 2025.5535,
+        "apply_ms": 6450.952399999998,
+        "total_ms": 8476.505899999998,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "improved-02",
+        "review_ms": 1732.8512999999984,
+        "apply_ms": 5339.970499999999,
+        "total_ms": 7072.821799999998,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "baseline-02",
+        "review_ms": 1783.9796999999999,
+        "apply_ms": 9343.617800000004,
+        "total_ms": 11127.597500000003,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "baseline-03",
+        "review_ms": 1674.4234999999971,
+        "apply_ms": 8225.743699999999,
+        "total_ms": 9900.167199999996,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "improved-03",
+        "review_ms": 1595.2204999999958,
+        "apply_ms": 4781.946099999994,
+        "total_ms": 6377.16659999999,
+        "exit_code": 0,
+        "target_absent": true
+      }
+    ]
+  },
+  "medians": {
+    "baseline": {
+      "review_ms": 1783.9796999999999,
+      "apply_ms": 8981.423900000002,
+      "total_ms": 10902.437800000002,
+      "range_ms": [
+        9900.167199999996,
+        11127.597500000003
+      ]
+    },
+    "improved": {
+      "review_ms": 1732.8512999999984,
+      "apply_ms": 5339.970499999999,
+      "total_ms": 7072.821799999998,
+      "range_ms": [
+        6377.16659999999,
+        8476.505899999998
+      ]
+    }
+  },
+  "profile": {
+    "nested_phases_do_not_sum": true,
+    "profiles": [
+      {
+        "name": "baseline-profile",
+        "review_ms": 1540.0859999999957,
+        "apply_ms": 8094.073499999999,
+        "total_ms": 9634.159499999994,
+        "exit_code": 0,
+        "target_absent": true,
+        "phases": {
+          "registry.catalog": {
+            "count": 9,
+            "total_ms": 6867.333999999999
+          },
+          "registry.observe": {
+            "count": 2,
+            "total_ms": 3099.424
+          },
+          "apply.initial_group_review": {
+            "count": 1,
+            "total_ms": 1438.179
+          },
+          "apply.reservation.acquire": {
+            "count": 1,
+            "total_ms": 1595.189
+          },
+          "apply.normalization_preflight": {
+            "count": 1,
+            "total_ms": 6.246
+          },
+          "reservation.verify_sources": {
+            "count": 3,
+            "total_ms": 2321.602
+          },
+          "apply.reservation.verify.before_item": {
+            "count": 1,
+            "total_ms": 804.465
+          },
+          "apply.current_review": {
+            "count": 1,
+            "total_ms": 1675.161
+          },
+          "apply.safe_entries.pre_intent": {
+            "count": 1,
+            "total_ms": 1684.245
+          },
+          "state.read": {
+            "count": 2,
+            "total_ms": 3.54
+          },
+          "state.commit": {
+            "count": 2,
+            "total_ms": 42.064
+          },
+          "apply.intent_save": {
+            "count": 1,
+            "total_ms": 47.109
+          },
+          "apply.physical_delete": {
+            "count": 1,
+            "total_ms": 730.724
+          },
+          "apply.actual_result_save": {
+            "count": 1,
+            "total_ms": 55.319
+          },
+          "apply.final_presence": {
+            "count": 1,
+            "total_ms": 1.609
+          },
+          "apply.reservation.finalize": {
+            "count": 1,
+            "total_ms": 1554.833
+          }
+        }
+      },
+      {
+        "name": "improved-profile",
+        "review_ms": 1584.7662999999957,
+        "apply_ms": 5280.478199999998,
+        "total_ms": 6865.244499999993,
+        "exit_code": 0,
+        "target_absent": true,
+        "phases": {
+          "registry.catalog_snapshot_load": {
+            "count": 5,
+            "total_ms": 3856.2900000000004
+          },
+          "registry.catalog": {
+            "count": 9,
+            "total_ms": 3862.482
+          },
+          "registry.catalog_snapshot_hit": {
+            "count": 4,
+            "total_ms": 5.957000000000001
+          },
+          "registry.observe": {
+            "count": 2,
+            "total_ms": 2365.49
+          },
+          "apply.initial_group_review": {
+            "count": 1,
+            "total_ms": 772.908
+          },
+          "apply.reservation.acquire": {
+            "count": 1,
+            "total_ms": 49.424
+          },
+          "apply.normalization_preflight": {
+            "count": 1,
+            "total_ms": 6.742
+          },
+          "reservation.verify_sources": {
+            "count": 3,
+            "total_ms": 1503.1549999999997
+          },
+          "apply.reservation.verify.before_item": {
+            "count": 1,
+            "total_ms": 791.425
+          },
+          "apply.current_review": {
+            "count": 1,
+            "total_ms": 1607.9
+          },
+          "apply.safe_entries.pre_intent": {
+            "count": 1,
+            "total_ms": 1616.9
+          },
+          "state.read": {
+            "count": 2,
+            "total_ms": 3.5860000000000003
+          },
+          "state.commit": {
+            "count": 2,
+            "total_ms": 40.735
+          },
+          "apply.intent_save": {
+            "count": 1,
+            "total_ms": 292.886
+          },
+          "apply.physical_delete": {
+            "count": 1,
+            "total_ms": 779.523
+          },
+          "apply.actual_result_save": {
+            "count": 1,
+            "total_ms": 52.165
+          },
+          "apply.final_presence": {
+            "count": 1,
+            "total_ms": 1.629
+          },
+          "apply.reservation.finalize": {
+            "count": 1,
+            "total_ms": 747.559
+          }
+        }
+      }
+    ]
+  },
+  "first_attempt": {
+    "work_id": "da53a3c8-33fc-4ce2-a569-6ae8b2483186",
+    "report": {
+      "exit_code": 101,
+      "signal": null,
+      "error": null,
+      "elapsed_ms": 11413.3915,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "azrael-project-maintenance",
+              "--offline",
+              "--locked",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-30T01:52:28.732Z",
+            "durationMs": 11411,
+            "exitCode": 101,
+            "signal": null
+          }
+        ]
+      },
+      "immutable_inputs_unchanged": true
+    },
+    "causes": [
+      "E0308 owner-proof wrapper returned bool instead of unit",
+      "E0505 test moved owner while callback retained borrow"
+    ],
+    "fixed_in_attempt": "r2"
+  },
+  "source_current_matches_frozen": true,
+  "producer_stopped_verified": true,
+  "stop_basis": [
+    {
+      "work_id": "4442f8cb-e2fb-4770-8501-8cf429188ac5",
+      "exit_code": 0
+    },
+    {
+      "work_id": "5b3ad2a0-7b97-4935-935d-2094e643871d",
+      "exit_code": 0
+    },
+    {
+      "work_id": "1b37ce96-e2be-4d64-86e4-7cfce21abae1",
+      "exit_code": 0
+    },
+    {
+      "work_id": "0244d149-efc1-4c88-91e1-9ae6f640932c",
+      "exit_code": 0
+    }
+  ],
+  "limits": [
+    "Three timing samples per binary, separate one-sample diagnostic profiles; nested phases must not be summed",
+    "Only isolated Windows x64 100-record 1MiB condition measured; other 99 payloads absent",
+    "No Linux/macOS runtime or embedded-engine acceptance and no installation change",
+    "Snapshot assumes supported writers honor catalog lock; bypassing external changes during held custody excluded"
+  ],
+  "run_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\locked-catalog-snapshot-r1",
+  "version_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eef3ec5a-win-x64-eq01-catalog-snapshot"
+}

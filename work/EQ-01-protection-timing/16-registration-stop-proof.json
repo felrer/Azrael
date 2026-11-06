@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "id": "version:maintenance-owner:eq01:delete-apply-r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "a3723acc442518a67f5a162fae308dda7daacc4e01c3c78b5bda5a7778e16a02",
+  "lease_owner": {
+    "acquired_at_ms": 1793323569163,
+    "operation": "group_reservation",
+    "pid": 41780,
+    "schema": 2,
+    "token": "41780-1793323569163-6f3344aa3447d812"
+  },
+  "reason": "Owned synchronous register child completed with observed exit 1; managed controller also terminated exit 1. Native registration performs filesystem work and launches no child deletion workers. Exact published reservation binds this request and native PID. Registration failure is preserved and does not imply success.",
+  "execution": {
+    "work_id": "b0712d58-6a42-4172-9cfd-bd2a5879555f",
+    "observed_exit_code": 1,
+    "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EQ-01-protection-timing\\16-superseded-candidate-register-request.json",
+    "request_sha256": "e445d6ebe305efec84a436c92a6d7ee314d26d26baec5de8d652bc87723aba62",
+    "native_pid": 41780
+  }
+}

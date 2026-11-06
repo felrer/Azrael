@@ -282,8 +282,12 @@ function injectDeferredWaitRenderer(text) {
 
 function injectDeferredHostNotification(text) {
   const admission = '"turn/deferred":!0,"turn/rootResumeWait/updated":!0,"turn/completed":!0';
+  // The later user-wait transform extends this same notification table.
+  const userWait = '"turn/userWaitTiming/updated":!0';
+  const composedAdmission = admission.replace('"turn/completed":!0', `${userWait},"turn/completed":!0`);
   if (text.includes('"turn/deferred":!0') || text.includes('"turn/rootResumeWait/updated":!0')) {
-    if (text.split(admission).length === 2 && text.split('"turn/deferred":!0').length === 2 &&
+    const completeAdmission = text.includes(userWait) ? composedAdmission : admission;
+    if (text.split(completeAdmission).length === 2 && text.split(userWait).length <= 2 && text.split('"turn/deferred":!0').length === 2 &&
         text.split('"turn/rootResumeWait/updated":!0').length === 2 && text.split('"turn/completed":!0').length === 2) {
       return { text, count: 0 };
     }

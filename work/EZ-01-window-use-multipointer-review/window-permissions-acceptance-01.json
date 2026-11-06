@@ -1,0 +1,275 @@
+{
+  "schema": 1,
+  "scope": "Source migration and bounded Windows-only verification; no installation",
+  "native": {
+    "exitCode": 0,
+    "passed": 35,
+    "ignored": 4,
+    "source": [
+      [
+        "approval_notification.rs",
+        "b124297c4de32a98ba96369d535d1862d11dd3cb6cfbc70446fc6e2e5d81cbb4"
+      ],
+      [
+        "capture.rs",
+        "8cd8b1ddb2dce5a074065d1147e85789dffe539c2b1f18cab1065a04538456df"
+      ],
+      [
+        "desktop_capture.rs",
+        "9208ff47a0b7dab6feea49e6e77d3f96e3f7c3569010e3d7ce64f4d2e2b37e36"
+      ],
+      [
+        "lifetime.rs",
+        "c4e486f5f464f75cc4f28e1bf852d1d647191e8c899e3be3d367a3ec76c7c740"
+      ],
+      [
+        "linux_backend.py",
+        "ebe789ea3e86dbae1d0509b81ded359411d8b569991f559430f23ac1ce84ee06"
+      ],
+      [
+        "main.rs",
+        "e957be0216283b8abce6214aad6e9f378ee24491e3e6d80505d8745973d83544"
+      ],
+      [
+        "overlay.rs",
+        "fd0f7deac61470b050502ccb26bdf4ba2980b0613059d6f3d7ab265cdbc20a09"
+      ],
+      [
+        "protocol.rs",
+        "6b8b4877329aa52446a5f6418b5b7ee0616524952f9a45b8411b1e981979cb22"
+      ],
+      [
+        "uia.rs",
+        "46af97e845cd79c3c11fdc0472b82c5a4a01842702efd402bc25c600ad8737de"
+      ],
+      [
+        "windows_backend.rs",
+        "707109c6ec39c60ec2ea24cbd00ef4a714200ef075c1b553adb7a0a0f41b87c7"
+      ]
+    ]
+  },
+  "source": {
+    "observedExit": 1,
+    "passed": 68,
+    "failed": 12,
+    "skipped": 1,
+    "causes": [
+      "11 Python PATH preparation failures",
+      "1 retired-resource test-fixture dependency"
+    ],
+    "replacedBy": "run:EZ01:permissions-runtime-mw0ansi9"
+  },
+  "runtime": {
+    "exitCode": 0,
+    "passed": 27,
+    "skipped": 1,
+    "skipReason": "Verified config-test engine not supplied; full sync CLI transaction remains unverified"
+  },
+  "desktop": {
+    "schema": 1,
+    "startedAt": "2026-11-03T06:16:28.430Z",
+    "scope": "Windows local desktop read-only; no app input or image files",
+    "previousAttempts": [
+      {
+        "status": "failed",
+        "error": {
+          "code": "test-error",
+          "message": "windows.find is not a function"
+        }
+      },
+      {
+        "status": "failed",
+        "error": {
+          "code": "desktop-capture-unavailable",
+          "message": "Desktop or window geometry exceeds capture bounds"
+        }
+      }
+    ],
+    "processes": [
+      {
+        "exitCode": 0,
+        "signal": null
+      },
+      {
+        "exitCode": 0,
+        "signal": null
+      }
+    ],
+    "result": {
+      "redacted": true,
+      "maskedWindowCount": 2,
+      "widthPx": 3840,
+      "heightPx": 2160,
+      "originX": 0,
+      "originY": 0,
+      "imageSha256": "2c3e376af24aceecb80966ce14b4c2785cacc3e9dbc41fb5d767eb9da4aa1782"
+    },
+    "status": "passed",
+    "endedAt": "2026-11-03T06:16:30.504Z"
+  },
+  "rendered": [
+    {
+      "id": "run:verify-use-settings-render:20261103T061309493Z-1ec9e51a-0c7e-4259-92fe-8d2606a647c4",
+      "outcome": "passed",
+      "checks": [
+        "initial schema3 Window Use on with independent empty app lists",
+        "native accessible switches",
+        "quiet background read leaves rendered controls enabled",
+        "rendered OFF click preempts quiet read with update request",
+        "save awaits host acknowledgement",
+        "real host persisted disabled Window Use before ack",
+        "unrelated request/error ignored",
+        "preempting update acknowledgement renders OFF",
+        "held quiet read contains previous ON policy",
+        "late quiet read cannot undo acknowledged OFF",
+        "master off keeps one master switch and preserves independent lists",
+        "native switch receives keyboard focus",
+        "keyboard Space toggles focused native switch",
+        "CAS rejection visible and preserves policy",
+        "retry clears server error",
+        "observation app picker persists blacklist without control grant",
+        "control app picker persists whitelist independently",
+        "long executable path wraps within page",
+        "light native page keeps added settings within normal section gap",
+        "dark native page keeps added settings within normal section gap",
+        "light and dark theme tokens differ",
+        "narrow layout has no horizontal overflow",
+        "dark-theme native master interaction persists",
+        "control whitelist removal leaves observation blacklist intact",
+        "observation blacklist removal leaves control unapproved",
+        "no browser console exceptions",
+        "unmount disposes production store bridge listener"
+      ],
+      "browserExit": {
+        "confirmed": true,
+        "exitCode": 0,
+        "signalCode": null,
+        "processInspectionExitCode": 0,
+        "processIds": []
+      },
+      "exitCode": 0
+    },
+    {
+      "id": "run:verify-window-native-approval-render:20261103T061720722Z-74d12e11-1244-4263-8b00-81d78a0ee241",
+      "outcome": "passed",
+      "checks": [
+        "light 900 native Window Use control app and scopes",
+        "light 900 no horizontal overflow",
+        "light 900 Always allow native reply",
+        "native pending card retained",
+        "light 900 Allow this conversation native reply",
+        "native pending card retained",
+        "light 900 Deny native reply",
+        "native pending card retained",
+        "light 900 Cancel request native reply",
+        "native pending card retained",
+        "light 900 native observation session-only classifier/parser",
+        "light 900 native observation permission and literal reason",
+        "light 900 native observation no always or overflow",
+        "light 900 native observation Allow this conversation",
+        "light 900 native observation Deny",
+        "light 900 native observation Cancel request",
+        "light 900 native completed turn retains same pending observation request",
+        "light 900 native late accept replies exactly once",
+        "light 900 native serverRequest/resolved removal",
+        "light 900 Team native card identifies source session",
+        "light 900 Team native response retains original thread/request",
+        "light 900 native queue 승인 응답 대기",
+        "light 900 native queue 사용자 답변 대기 중",
+        "light 900 native queue 사용자 응답 대기",
+        "light 360 native Window Use control app and scopes",
+        "light 360 no horizontal overflow",
+        "light 360 Always allow native reply",
+        "native pending card retained",
+        "light 360 Allow this conversation native reply",
+        "native pending card retained",
+        "light 360 Deny native reply",
+        "native pending card retained",
+        "light 360 Cancel request native reply",
+        "native pending card retained",
+        "light 360 native observation session-only classifier/parser",
+        "light 360 native observation permission and literal reason",
+        "light 360 native observation no always or overflow",
+        "light 360 native observation Allow this conversation",
+        "light 360 native observation Deny",
+        "light 360 native observation Cancel request",
+        "light 360 native completed turn retains same pending observation request",
+        "light 360 native late accept replies exactly once",
+        "light 360 native serverRequest/resolved removal",
+        "light 360 Team native card identifies source session",
+        "light 360 Team native response retains original thread/request",
+        "light 360 native queue 승인 응답 대기",
+        "light 360 native queue 사용자 답변 대기 중",
+        "light 360 native queue 사용자 응답 대기",
+        "dark 900 native Window Use control app and scopes",
+        "dark 900 no horizontal overflow",
+        "native theme foreground changes",
+        "dark 900 Always allow native reply",
+        "native pending card retained",
+        "dark 900 Allow this conversation native reply",
+        "native pending card retained",
+        "dark 900 Deny native reply",
+        "native pending card retained",
+        "dark 900 Cancel request native reply",
+        "native pending card retained",
+        "dark 900 native observation session-only classifier/parser",
+        "dark 900 native observation permission and literal reason",
+        "dark 900 native observation no always or overflow",
+        "dark 900 native observation Allow this conversation",
+        "dark 900 native observation Deny",
+        "dark 900 native observation Cancel request",
+        "dark 900 native completed turn retains same pending observation request",
+        "dark 900 native late accept replies exactly once",
+        "dark 900 native serverRequest/resolved removal",
+        "dark 900 Team native card identifies source session",
+        "dark 900 Team native response retains original thread/request",
+        "dark 900 native queue 승인 응답 대기",
+        "dark 900 native queue 사용자 답변 대기 중",
+        "dark 900 native queue 사용자 응답 대기",
+        "dark 360 native Window Use control app and scopes",
+        "dark 360 no horizontal overflow",
+        "native theme foreground changes",
+        "dark 360 Always allow native reply",
+        "native pending card retained",
+        "dark 360 Allow this conversation native reply",
+        "native pending card retained",
+        "dark 360 Deny native reply",
+        "native pending card retained",
+        "dark 360 Cancel request native reply",
+        "native pending card retained",
+        "dark 360 native observation session-only classifier/parser",
+        "dark 360 native observation permission and literal reason",
+        "dark 360 native observation no always or overflow",
+        "dark 360 native observation Allow this conversation",
+        "dark 360 native observation Deny",
+        "dark 360 native observation Cancel request",
+        "dark 360 native completed turn retains same pending observation request",
+        "dark 360 native late accept replies exactly once",
+        "dark 360 native serverRequest/resolved removal",
+        "dark 360 Team native card identifies source session",
+        "dark 360 Team native response retains original thread/request",
+        "dark 360 native queue 승인 응답 대기",
+        "dark 360 native queue 사용자 답변 대기 중",
+        "dark 360 native queue 사용자 응답 대기"
+      ],
+      "browserExit": {
+        "confirmed": true,
+        "exitCode": 0,
+        "signalCode": null,
+        "processInspectionExitCode": 0,
+        "processIds": []
+      },
+      "exitCode": 0
+    }
+  ],
+  "retiredAuthority": "No child session was logged off; no user app input or installed profile was changed",
+  "cleanupGroups": [
+    "run:EZ01:permissions-source-r2-mw0ael4e",
+    "run:EZ01:permissions-runtime-mw0ansi9",
+    "run:EZ01:permissions-native-mw0a3m76",
+    "run:EZ01:permissions-source-r3-mw0aif3c",
+    "run:EZ01:permissions-native-r2-mw0alid9",
+    "run:verify-use-settings-render:20261103T061309493Z-1ec9e51a-0c7e-4259-92fe-8d2606a647c4",
+    "run:verify-window-native-approval-render:20261103T061720722Z-74d12e11-1244-4263-8b00-81d78a0ee241"
+  ]
+}

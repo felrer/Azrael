@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "status": "deleted-and-finalized",
+  "verification": "registered",
+  "owner": "verified optimized standalone maintenance_owner",
+  "groups": 4,
+  "items": [
+    {
+      "id": "0b405c31a145395fe1e2021a223a2d4aa3ca99f1f22e89f7c5e9411cb1df1d3d",
+      "group": "run:FK-01-task-memory:20261103T010931276Z-fca68965-d85d-4db3-98c4-3477679d44d7",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FK-01-task-memory\\runs\\20261103T010931276Z-fca68965-d85d-4db3-98c4-3477679d44d7",
+      "logicalBytes": 2376,
+      "remaining": false
+    },
+    {
+      "id": "0fbc5e3d63d80d6260edac12d3c4dc3b24564320c0b1de244076182ecc518bb3",
+      "group": "run:FK-01-task-memory:20261103T010340427Z-06dd904b-d153-4be2-a713-7d160644e0f7",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FK-01-task-memory\\runs\\20261103T010340427Z-06dd904b-d153-4be2-a713-7d160644e0f7",
+      "logicalBytes": 1478,
+      "remaining": false
+    },
+    {
+      "id": "4f192b992a92420da963727e59f3bb7f86478b3462c0dc6f076af7700b8ce330",
+      "group": "run:FK-01-task-memory:20261103T011808001Z-f697d5c6-8cf9-40b8-96f8-ad555764df1e",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fk-f94f0dcd",
+      "logicalBytes": 192783393,
+      "remaining": false
+    },
+    {
+      "id": "4fd71a7280b85fac161eefdf1aa00e143e6612be37dc52b71f96ffa7b9d59c16",
+      "group": "run:FK-01-task-memory:20261103T010340427Z-06dd904b-d153-4be2-a713-7d160644e0f7",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fk-c7fdd4a8",
+      "logicalBytes": 0,
+      "remaining": false
+    },
+    {
+      "id": "6ffa5d5d039962c47cd64036cb89569c0c209f368b6f0518951ed290441156db",
+      "group": "run:FK-01-task-memory:20261103T011808001Z-f697d5c6-8cf9-40b8-96f8-ad555764df1e",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FK-01-task-memory\\runs\\20261103T011808001Z-f697d5c6-8cf9-40b8-96f8-ad555764df1e",
+      "logicalBytes": 1188,
+      "remaining": false
+    },
+    {
+      "id": "81e6c0265f55d4aedac04da5351539b4d7a4118ace7135005e09599b842e742f",
+      "group": "run:FK-01-task-memory:20261103T010552055Z-7fa6f294-001a-4770-89c2-c17ac7e1c187",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FK-01-task-memory\\runs\\20261103T010552055Z-7fa6f294-001a-4770-89c2-c17ac7e1c187",
+      "logicalBytes": 15561,
+      "remaining": false
+    },
+    {
+      "id": "caf66e96b69143ca526a9ff3906590ea78a0d813a7d1baf20102f0c81fbc74a7",
+      "group": "run:FK-01-task-memory:20261103T010552055Z-7fa6f294-001a-4770-89c2-c17ac7e1c187",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fk-0243d519",
+      "logicalBytes": 192780393,
+      "remaining": false
+    }
+  ],
+  "physicalBytesReclaimed": null,
+  "resultsRetained": "01-plan.md"
+}

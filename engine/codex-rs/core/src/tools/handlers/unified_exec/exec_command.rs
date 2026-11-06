@@ -1,11 +1,15 @@
 use std::path::Path;
 use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
 use std::time::Duration;
 
 use crate::exec::DEFAULT_EXEC_COMMAND_TIMEOUT_MS;
 use crate::exec_policy::prompt_is_rejected_by_policy;
 use crate::function_tool::FunctionCallError;
 use crate::maybe_emit_implicit_skill_invocation;
+use crate::session::work_completion::ExecutionCompletion;
+use crate::session::work_completion::WorkCompletionState;
 use crate::tools::context::ExecCommandToolOutput;
 use crate::tools::context::ToolInvocation;
 use crate::tools::context::ToolPayload;
@@ -55,6 +59,34 @@ use super::shell_mode_for_environment;
 
 // A byte limit is a conservative hard token bound even for byte-fallback tokenizers.
 const EXEC_COMMAND_REJECTION_MAX_BYTES: usize = 900;
+
+#[derive(serde::Deserialize)]
+struct ExecutionWorkArgs {
+    work_id: Option<String>,
+}
+
+// Dropping a preparation future is a known non-launch, not loss of a running producer.
+struct PreparationCompletionGuard {
+    completion: Option<ExecutionCompletion>,
+    dispatched: Arc<AtomicBool>,
+    returned: bool,
+}
+
+impl Drop for PreparationCompletionGuard {
+    fn drop(&mut self) {
+        if !self.returned
+            && !self.dispatched.load(Ordering::Acquire)
+            && let Some(completion) = &self.completion
+            && let Err(error) = completion.complete(
+                WorkCompletionState::Cancelled,
+                None,
+                "Command preparation cancelled before launch",
+            )
+        {
+            tracing::error!(%error, "failed to persist prelaunch cancellation");
+        }
+    }
+}
 
 #[derive(Clone, Copy)]
 pub(crate) struct ExecCommandHandlerOptions {
@@ -167,6 +199,62 @@ impl ExecCommandHandler {
         &self,
         invocation: ToolInvocation,
     ) -> Result<Box<dyn crate::tools::context::ToolOutput>, FunctionCallError> {
+        let completion = if let ToolPayload::Function { arguments } = &invocation.payload {
+            let args: ExecutionWorkArgs = parse_arguments(arguments)?;
+            if let Some(work_id) = args.work_id {
+                if !crate::agent::role_profile::has_root_authority(
+                    &invocation.turn.config,
+                    &invocation.turn.session_source,
+                ) || !invocation.turn.provider.info().is_openai()
+                {
+                    return Err(FunctionCallError::RespondToModel(
+                        "work_id requires the native OpenAI root execution path".to_string(),
+                    ));
+                }
+                Some(
+                    invocation
+                        .session
+                        .work_completion_store()
+                        .await
+                        .bind_execution(&work_id, invocation.call_id.clone())
+                        .map_err(|error| FunctionCallError::RespondToModel(error.to_string()))?,
+                )
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+        let dispatched = Arc::new(AtomicBool::new(false));
+        let mut preparation = PreparationCompletionGuard {
+            completion: completion.clone(),
+            dispatched: Arc::clone(&dispatched),
+            returned: false,
+        };
+        let result = self
+            .handle_command(invocation, completion.clone(), Arc::clone(&dispatched))
+            .await;
+        preparation.returned = true;
+        if !dispatched.load(Ordering::Acquire)
+            && let Some(completion) = completion
+        {
+            completion
+                .complete(
+                    WorkCompletionState::Failed,
+                    None,
+                    "Command preparation ended without launching an execution",
+                )
+                .map_err(|error| FunctionCallError::RespondToModel(error.to_string()))?;
+        }
+        result
+    }
+
+    async fn handle_command(
+        &self,
+        invocation: ToolInvocation,
+        completion: Option<ExecutionCompletion>,
+        dispatched: Arc<AtomicBool>,
+    ) -> Result<Box<dyn crate::tools::context::ToolOutput>, FunctionCallError> {
         let ToolInvocation {
             session,
             turn,
@@ -188,12 +276,13 @@ impl ExecCommandHandler {
         };
 
         let manager: &UnifiedExecProcessManager = &session.services.unified_exec_manager;
-        let context = UnifiedExecContext::new(
+        let mut context = UnifiedExecContext::new(
             session.clone(),
             step_context.clone(),
             cancellation_token,
             call_id.clone(),
         );
+        context.work_completion = completion;
         let environment_args: ExecCommandEnvironmentArgs = parse_arguments(&arguments)?;
         let turn_environment = resolve_tool_environment(
             &step_context,
@@ -444,6 +533,7 @@ impl ExecCommandHandler {
             justification,
             prefix_rule,
         };
+        dispatched.store(true, Ordering::Release);
         let result = match completion_timeout {
             Some(timeout) => {
                 UnifiedExecProcessManager::exec_command_to_completion(request, &context, timeout)
@@ -574,4 +664,46 @@ fn emit_unified_exec_tty_metric(session_telemetry: &SessionTelemetry, tty: bool)
         /*inc*/ 1,
         &[("tty", if tty { "true" } else { "false" })],
     );
+}
+
+#[cfg(test)]
+mod execution_completion_tests {
+    use super::*;
+    use crate::session::work_completion::WorkCompletionStore;
+
+    #[tokio::test]
+    async fn dropped_preparation_records_only_known_non_launch_cancellation() {
+        let home = tempfile::tempdir().unwrap();
+        let store = WorkCompletionStore::for_test(home.path(), "owner");
+        for dispatched in [false, true] {
+            let record = store.create("command".into(), 1).await.unwrap();
+            let completion = store
+                .bind_execution(&record.work_id, "execution".into())
+                .unwrap();
+            drop(PreparationCompletionGuard {
+                completion: Some(completion.clone()),
+                dispatched: Arc::new(AtomicBool::new(dispatched)),
+                returned: false,
+            });
+            let status = store.status(record.work_id.clone()).await.unwrap();
+            assert_eq!(
+                status.state,
+                if dispatched {
+                    WorkCompletionState::Running
+                } else {
+                    WorkCompletionState::Cancelled
+                }
+            );
+            assert_eq!(status.exit_code, None);
+            drop(completion);
+            assert_eq!(
+                store.status(record.work_id).await.unwrap().state,
+                if dispatched {
+                    WorkCompletionState::Unknown
+                } else {
+                    WorkCompletionState::Cancelled
+                }
+            );
+        }
+    }
 }

@@ -464,8 +464,9 @@ async fn guardian_answers_survive_compaction_and_eviction() -> Result<()> {
             sse(inspection),
             sse(vec![
                 ev_function_call("inspect-latest", "update_plan", plan),
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "confirm-publish",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({
                         "questions": [{

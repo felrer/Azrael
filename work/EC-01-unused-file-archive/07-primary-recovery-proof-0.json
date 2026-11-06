@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "action": "recover-cleanup",
+  "source": {
+    "id": "run:DC-01-queue-question-wait-diagnosis:native-2",
+    "kind": "run",
+    "owner": "question-supersession",
+    "version": null,
+    "generation": null,
+    "revision": 1,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": null,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-2",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-2\\temporary",
+        "role": "temporary",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-2\\logs",
+        "role": "logs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-2\\reports",
+        "role": "reports",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-2\\outputs",
+        "role": "outputs",
+        "generated": true,
+        "protection_known": true
+      }
+    ]
+  },
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "stop_basis": "Immutable lifecycle record predates the independently observed Windows kernel boot; no historical process tree survives reboot. Current matching process query returned zero; owner checks current incoming consumers and reservations.",
+  "membership_basis": "Original run owner already declares every generated member and its protection. Members are the single task run root and its nested role directories; no external destination is declared. Recovery preserves the original pending/unknown outcome and exact membership.",
+  "producer_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-primary-stop-proof.json",
+      "sha256": "16f7ac745a80544f31600bfd544fef37346293d81e37175545a58e7d2783556b"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-primary-original-0.json",
+      "sha256": "8e80b5877ea09cef3bd2ec4253f7cadac2f6051333355cc7a7ba1dd091f03521"
+    }
+  ]
+}

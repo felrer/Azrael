@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "controller_pid": 48160,
+  "parent_actual_exit_code": 1,
+  "parent_native_session": 19710,
+  "startedUtc": "2026-10-30T17:06:03.508Z",
+  "finishedUtc": "2026-10-30T17:06:22.935Z",
+  "terminal_observation": "Original execution session returned actual exit1; root independently confirmed parent terminal before approving resume1. Existing blocked acceptance records that actual result.",
+  "native_writer": {
+    "pid": 50388,
+    "parent_pid": 48160,
+    "observed_started_local": "2026-10-31T02:06:08+09:00",
+    "observed_command_line": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-duplicate-claims-win-x64/payload/maintenance_owner.exe --lease C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/lifecycles/catalog.lock --operation lifecycle.catalog --wait-ms 0 --parent-pid 48160",
+    "observation_basis": "Original live Win32_Process observation during failed request, preserved in task handoff; no original native terminal result was captured.",
+    "native_exit_code": null
+  },
+  "source_files": [
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-controller-failure.json",
+      "sha256": "aefcaf7107d0b9474cd536c18f61e3a9e67ff7b761049fa8153a135b66f89bd8"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/existing-blocked-acceptance.json",
+      "sha256": "bf212623ca855de70bc9f61316cda56fc24d264db7f2341873b0d55dc71e2274"
+    }
+  ],
+  "limitations": [
+    "Native child exit code, original native wire frame and acknowledgement were not retained.",
+    "PID absence alone is not used as termination proof."
+  ]
+}

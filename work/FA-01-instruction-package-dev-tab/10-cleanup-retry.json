@@ -1,0 +1,401 @@
+{
+  "schema": 1,
+  "owner": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+    "version_id": "version:maintenance-owner:fc02:stdin-20261102",
+    "version": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861-windows-x64-20261102",
+    "acceptance_sha256": "0e60cd03012ee4492b19ac6b32b0c32fd0db3612a82b941c6bd1d85e24302ba6"
+  },
+  "startedAt": "2026-11-02T04:29:46.293Z",
+  "priorAttempt": {
+    "exitCode": 1,
+    "cause": "Lifecycle ancestor identity changed during catalog observation",
+    "nativeCalls": 0
+  },
+  "independent": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\07-integration-source-verification.json",
+      "sha256": "8019dc9261035b36fa48e51317fcfcea6c49042a3b83eb05e06da7b8408c374d"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\08-account-scope-verification.json",
+      "sha256": "ce8040839c070a10e01bd5ebbc053ee35721f8ee48b32f622f21b871115f1599"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\09-integration-source-verification.json",
+      "sha256": "7c69daa2955b25ce7556385990534aa11f28c6fd74a1f18808beb40d40593c7c"
+    }
+  ],
+  "calls": [
+    {
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:FA-01-profile-account-scope:20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511",
+          "kind": "run",
+          "owner": "workbench_backend",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\014f31676b623a9781391faf618538af0588da4d985b037ce1f29592958398eb.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "9f25e395a74a4830f1f903b606173da06a157f525556c0af81dd267a22a7b910",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "workbench_backend",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\014f31676b623a9781391faf618538af0588da4d985b037ce1f29592958398eb.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 5000
+      },
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "{\"group\":{\"cleanup_status\":null,\"id\":\"run:FA-01-profile-account-scope:20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511\",\"kind\":\"run\",\"members\":[\"9f25e395a74a4830f1f903b606173da06a157f525556c0af81dd267a22a7b910\"],\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_format\":\"producer_registry_v1\",\"membership_source_identity\":\"bccb566c5a91ebd1fc4064c3d232c009d55b1fb87538fd1be456436bf3eebfef\",\"owner\":\"workbench_backend\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\014f31676b623a9781391faf618538af0588da4d985b037ce1f29592958398eb.json\",\"registered_at_ms\":1793593903619,\"version\":null},\"items\":[{\"cache_schema\":null,\"created_at_ms\":null,\"generated\":true,\"id\":\"9f25e395a74a4830f1f903b606173da06a157f525556c0af81dd267a22a7b910\",\"identity\":\"e43cf4bfdfd868c825e56f2bc8929789877a0ff673ad9718cc2b35a3b1f765c1\",\"kind\":\"run\",\"lifecycle_group_id\":\"run:FA-01-profile-account-scope:20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511\",\"lifecycle_role\":\"artifact\",\"logical_bytes\":11899,\"measured_at_ms\":1793593849944,\"owner\":\"workbench_backend\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-profile-account-scope\\\\runs\\\\20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511\",\"presence\":\"present\",\"protection_known\":true,\"provenance\":null,\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\014f31676b623a9781391faf618538af0588da4d985b037ce1f29592958398eb.json\",\"references\":[],\"registered_at_ms\":1793593849944,\"remaining\":true,\"role\":\"run\",\"source_path\":null,\"tool\":null,\"version\":null}]}\n",
+      "stderr": ""
+    },
+    {
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:FA-01-profile-account-scope:20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d",
+          "kind": "run",
+          "owner": "workbench_backend",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ce6bba54846938bd94f40f63070ead35c4722585bc9a1aefd0a1499e89ad4160.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "55a9d4eabdc04cd013876894177eda15d1c49ee352178478cbab7f1f49a15921",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "workbench_backend",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ce6bba54846938bd94f40f63070ead35c4722585bc9a1aefd0a1499e89ad4160.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 5000
+      },
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "",
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (check_available); lock wait exhausted after 5000 ms\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n"
+    }
+  ],
+  "finalized": false,
+  "targets": [
+    {
+      "id": "run:FA-01-profile-account-scope:20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511",
+      "owner": "workbench_backend",
+      "state": "failed",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511\\reports\\producer-08ee8d29f42f1c49d1e77964eb57a0e7fa635f32b82af4d40d3dd26d2c119d46.json",
+        "evidence_sha256": "08ee8d29f42f1c49d1e77964eb57a0e7fa635f32b82af4d40d3dd26d2c119d46",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-profile-account-scope:20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 45528,
+            "closed": true
+          },
+          {
+            "pid": 32876,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      }
+    },
+    {
+      "id": "run:FA-01-profile-account-scope:20261101T195630588Z-eb109be5-a3b9-448c-b437-0372b2fb8064",
+      "owner": "workbench_backend",
+      "state": "complete",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195630588Z-eb109be5-a3b9-448c-b437-0372b2fb8064",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195630588Z-eb109be5-a3b9-448c-b437-0372b2fb8064\\reports\\producer-f5282fadea17c0b84282d5422d9f347b7f353fe1c0126370d3771a79c658b0a0.json",
+        "evidence_sha256": "f5282fadea17c0b84282d5422d9f347b7f353fe1c0126370d3771a79c658b0a0",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-profile-account-scope:20261101T195630588Z-eb109be5-a3b9-448c-b437-0372b2fb8064",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195630588Z-eb109be5-a3b9-448c-b437-0372b2fb8064",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 28964,
+            "closed": true
+          }
+        ],
+        "state": "complete",
+        "membership_complete": true
+      }
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T195922546Z-b4c1f63f-710f-4534-bd5d-9f779b38b0f6",
+      "owner": "scripts/check-instruction-workbench.cjs",
+      "state": "complete",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T195922546Z-b4c1f63f-710f-4534-bd5d-9f779b38b0f6",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T195922546Z-b4c1f63f-710f-4534-bd5d-9f779b38b0f6\\reports\\producer-f87261dfdbc07f615a18615fcdcedd609340c50dc5397bdaee8c934c159f43c9.json",
+        "evidence_sha256": "f87261dfdbc07f615a18615fcdcedd609340c50dc5397bdaee8c934c159f43c9",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned test runner and tracked Node child completed",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261101T195922546Z-b4c1f63f-710f-4534-bd5d-9f779b38b0f6",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T195922546Z-b4c1f63f-710f-4534-bd5d-9f779b38b0f6",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-workbench.cjs"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned test runner and tracked Node child completed",
+        "children": [
+          {
+            "pid": 31440,
+            "closed": true
+          }
+        ],
+        "state": "complete",
+        "membership_complete": true
+      }
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T193845390Z-46201b29-18a5-4a37-b2a8-c823a72a236f",
+      "owner": "scripts/check-instruction-workbench.cjs",
+      "state": "complete",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T193845390Z-46201b29-18a5-4a37-b2a8-c823a72a236f",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T193845390Z-46201b29-18a5-4a37-b2a8-c823a72a236f\\reports\\producer-0c6536f507c94da88d6635d46341c449d2f1f0b980724f1fbd31191a55ea0038.json",
+        "evidence_sha256": "0c6536f507c94da88d6635d46341c449d2f1f0b980724f1fbd31191a55ea0038",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned test runner and tracked Node child completed",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261101T193845390Z-46201b29-18a5-4a37-b2a8-c823a72a236f",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T193845390Z-46201b29-18a5-4a37-b2a8-c823a72a236f",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-workbench.cjs"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned test runner and tracked Node child completed",
+        "children": [
+          {
+            "pid": 56044,
+            "closed": true
+          }
+        ],
+        "state": "complete",
+        "membership_complete": true
+      }
+    },
+    {
+      "id": "run:FA-01-account-scope-cleanup:20261101T201918333Z-a154a8e9-da15-4dbb-950f-0316586ac125",
+      "owner": "workbench_backend",
+      "state": "failed",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-account-scope-cleanup\\runs\\20261101T201918333Z-a154a8e9-da15-4dbb-950f-0316586ac125",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-account-scope-cleanup\\runs\\20261101T201918333Z-a154a8e9-da15-4dbb-950f-0316586ac125\\reports\\producer-d0a904990656dbd5cc88e68d4d25fe5ba0755e675a4c6a4f2e9e48f8cfd4eee4.json",
+        "evidence_sha256": "d0a904990656dbd5cc88e68d4d25fe5ba0755e675a4c6a4f2e9e48f8cfd4eee4",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-account-scope-cleanup:20261101T201918333Z-a154a8e9-da15-4dbb-950f-0316586ac125",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-account-scope-cleanup\\runs\\20261101T201918333Z-a154a8e9-da15-4dbb-950f-0316586ac125",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "Y29uc3QgZnM9cmVxdWlyZSgnbm9kZTpmcycpLHBhdGg9cmVxdWlyZSgnbm9kZTpwYXRoJyksY3J5cHRvPXJlcXVpcmUoJ25vZGU6Y3J5cHRvJyksY3A9cmVxdWlyZSgnbm9kZTpjaGlsZF9wcm9jZXNzJykscmVhZGxpbmU9cmVxdWlyZSgnbm9kZTpyZWFkbGluZScpOwpjb25zdCByb290PXByb2Nlc3MuY3dkKCksIHNoYT1kYXRhPT5jcnlwdG8uY3JlYXRlSGFzaCgnc2hhMjU2JykudXBkYXRlKGRhdGEpLmRpZ2VzdCgnaGV4Jyk7CmNvbnN0IHBpbj1KU09OLnBhcnNlKGZzLnJlYWRGaWxlU3luYygnYXJ0aWZhY3RzL21haW50ZW5hbmNlL293bmVyLWluc3RhbGxhdGlvbi5qc29uJywndXRmOCcpKTsKaWYocGluLnNjaGVtYSE9PTF8fHBpbi5wcm90b2NvbCE9PSdtYWludGVuYW5jZS1vd25lci1sZWFzZS12MSd8fHBpbi5zaGEyNTYhPT0nM2IxZjliZjQ4OGVhYzY3MzJhMWU5ZmFhOTA4ZGEyN2I1ZDlkNzlkMzk3MWY0NDY0ZWM5Yjk0NTQzM2FkMjYyNycpdGhyb3cgRXJyb3IoJ1VuZXhwZWN0ZWQgc3RhbmRhbG9uZSBvd25lciBpbnN0YWxsYXRpb24nKTsKY29uc3QgYmluYXJ5PXBhdGgucmVzb2x2ZShyb290LHBpbi5leGVjdXRhYmxlKTtpZihzaGEoZnMucmVhZEZpbGVTeW5jKGJpbmFyeSkpIT09cGluLnNoYTI1Nil0aHJvdyBFcnJvcignU3RhbmRhbG9uZSBvd25lciBTSEEyNTYgbWlzbWF0Y2gnKTsKcHJvY2Vzcy5lbnYuQVpSQUVMX01BSU5URU5BTkNFX09XTkVSPWJpbmFyeTtwcm9jZXNzLmVudi5BWlJBRUxfTUFJTlRFTkFOQ0VfT1dORVJfTU9ERT0nc3RhbmRhbG9uZSc7CmNvbnN0IGFydGlmYWN0cz1yZXF1aXJlKCcuL3NjcmlwdHMvYXJ0aWZhY3QtcnVuLmNqcycpLGxpZmU9cmVxdWlyZSgnLi9zY3JpcHRzL2FydGlmYWN0LWxpZmVjeWNsZS5janMnKTsKY29uc3QgcnVuPWFydGlmYWN0cy5iZWdpbkFydGlmYWN0UnVuKHJvb3Qse3dvcmtJZDonRkEtMDEtYWNjb3VudC1zY29wZS1jbGVhbnVwJyxvd25lcjond29ya2JlbmNoX2JhY2tlbmQnfSk7CmZzLndyaXRlRmlsZVN5bmMocGF0aC5qb2luKHJ1bi5pbnB1dHMsJ2NvbnRyb2xsZXIuY2pzJyksQnVmZmVyLmZyb20ocHJvY2Vzcy5hcmd2WzFdLCdiYXNlNjQnKSx7ZmxhZzond3gnfSk7CmNvbnNvbGUubG9nKEpTT04uc3RyaW5naWZ5KHtwaGFzZTonY29udHJvbGxlcl9yZWdpc3RlcmVkJyxpZDpydW4ubGlmZWN5Y2xlSWQscGF0aDpydW4ucnVuUm9vdCxvd25lclNoYTI1NjpwaW4uc2hhMjU2fSkpOwpjb25zdCBuYW1lcz1bJzIwMjYxMTAxVDE5NDk1NDMxNVotMDc0MjQ0ZjEtYTc0OS00M2RmLWFhMTQtMjdkZjIxOTU2NTExJywnMjAyNjExMDFUMTk1MzMxMDEwWi01MTM4YzdlYy1hMTQ1LTRjZjctYjY3NS1jOGJjYzE3MTVmNWQnLCcyMDI2MTEwMVQxOTU0NDE2OTRaLWM5ZWRmNmUyLTNjMzctNGVhNS05MmMwLTgyNzVmMmQ0YTAwMycsJzIwMjYxMTAxVDE5NTYzMDU4OFotZWIxMDliZTUtYTNiOS00NDhjLWI0MzctMDM3MmIyZmI4MDY0J107CmNvbnN0IGlkcz1uYW1lcy5tYXAobj0+J3J1bjpGQS0wMS1wcm9maWxlLWFjY291bnQtc2NvcGU6JytuKSxyZWNvcmRzPWxpZmUuY2F0YWxvZyhyb290KS5maWx0ZXIocj0+aWRzLmluY2x1ZGVzKHIuaWQpKTsKaWYocmVjb3Jkcy5sZW5ndGghPT00fHxyZWNvcmRzLnNvbWUocj0+ci5vd25lciE9PSd3b3JrYmVuY2hfYmFja2VuZCd8fHIucHJvZHVjZXI/LnN0YXR1cyE9PSdzdG9wcGVkJ3x8ci5tZW1iZXJzaGlwX2NvbXBsZXRlIT09dHJ1ZXx8ci5yZWZlcmVuY2VzLmxlbmd0aCkpdGhyb3cgRXJyb3IoJ093bmVkIHN0b3BwZWQgY29tcGxldGUgdW5yZWZlcmVuY2VkIHJ1bnMgcmVxdWlyZWQnKTsKY29uc3QgcmVhZEpzb249Zj0+SlNPTi5wYXJzZShmcy5yZWFkRmlsZVN5bmMoZiwndXRmOCcpKTsKY29uc3QgY2F1c2VzPVsnSW50ZXJydXB0ZWQgb3duZWQgQnVuIGRpc2NvdmVyeSBiZWZvcmUgdGVzdCByZXN1bHRzOyBtaXNzaW5nIC4vIGV4cGxpY2l0IHRlc3QgcGF0aCB3YXMgdGhlIHN1c3BlY3RlZCBoYXJuZXNzIGNhdXNlLiBDaGlsZCBzdG9wIGV4aXQgcHJlc2VydmVkLicsJ0xvYWRlciByZWplY3RlZCBtaXNzaW5nIGluaXRpYWwgaXNvbGF0ZWQgQ09ERVhfSE9NRSBkaXJlY3RvcnkgYmVmb3JlIHRlc3QgZXhlY3V0aW9uLicsJ0FsbCBiZWhhdmlvciBhc3NlcnRpb25zIGNvbXBsZXRlZDsgb3JkaW5hcnkgc3luY2hyb25vdXMgZml4dHVyZSBjbGVhbnVwIGZhaWxlZCB3aXRoIFdpbmRvd3MgRUJVU1kgYWZ0ZXIgU1FMaXRlIG93bmVyIGNsb3NlLicsJ0ZvY3VzZWQgYmVoYXZpb3IgdGVzdHMgYW5kIG9yZGluYXJ5IGFzeW5jaHJvbm91cyBmaXh0dXJlIGNsZWFudXAgY29tcGxldGVkIHN1Y2Nlc3NmdWxseS4nXTsKY29uc3QgY291bnRzPVt7cGFzc2VkOjAsZmFpbGVkOjAsZXhlY3V0ZWQ6MCxhc3NlcnRpb25zOm51bGx9LHtwYXNzZWQ6MCxmYWlsZWQ6MSxleGVjdXRlZDowLGxvYWRlckVycm9yczoxLGFzc2VydGlvbnM6bnVsbH0se3Bhc3NlZDo1LGZhaWxlZDoxLGV4ZWN1dGVkOjYsYXNzZXJ0aW9uczoyNH0se3Bhc3NlZDo2LGZhaWxlZDowLGV4ZWN1dGVkOjYsYXNzZXJ0aW9uczoyNH1dOwpjb25zdCByZXN1bHRzPW5hbWVzLm1hcCgobmFtZSxpKT0+ewogY29uc3QgZGlyPXBhdGguam9pbihyb290LCdhcnRpZmFjdHMvdGFza3MvRkEtMDEtcHJvZmlsZS1hY2NvdW50LXNjb3BlL3J1bnMnLG5hbWUpLHByb2R1Y2VyUGF0aD1wYXRoLmpvaW4oZGlyLCdyZXBvcnRzL3Byb2R1Y2VyLmpzb24nKSx2YWxpZGF0aW9uUGF0aD1wYXRoLmpvaW4oZGlyLCdyZXBvcnRzL3ZhbGlkYXRpb24uanNvbicpOwogY29uc3QgcHJvZHVjZXI9cmVhZEpzb24ocHJvZHVjZXJQYXRoKSx2YWxpZGF0aW9uPXJlYWRKc29uKHZhbGlkYXRpb25QYXRoKTsKIGlmKCFwcm9kdWNlci5wcm9kdWNlclN0b3BwZWR8fHByb2R1Y2VyLmNoaWxkcmVuLnNvbWUoYz0+IWMuY2xvc2VkKSl0aHJvdyBFcnJvcignUHJvZHVjZXIgdGVybWluYWwgZXZpZGVuY2UgaW5jb21wbGV0ZScpOwogY29uc3QgdHNjUGF0aD1wYXRoLmpvaW4oZGlyLCdsb2dzL3R5cGVzY3JpcHQtbm9lbWl0LnN0ZG91dC5sb2cnKTtsZXQgdHlwZWNoZWNrOwogaWYoZnMuZXhpc3RzU3luYyh0c2NQYXRoKSl7CiAgY29uc3QgbGluZXM9ZnMucmVhZEZpbGVTeW5jKHRzY1BhdGgsJ3V0ZjgnKS5zcGxpdCgvXHI/XG4vKS5maWx0ZXIobD0+L2Vycm9yIFRTLy50ZXN0KGwpKTsKICB0eXBlY2hlY2s9e2NvbXBpbGVyOmk9PT0wPyc3LjAuMic6JzUuOS4zJyxleGl0Q29kZTp2YWxpZGF0aW9uLnJlc3VsdHMuZmluZChyPT5yLm5hbWU9PT0ndHlwZXNjcmlwdC1ub2VtaXQnKS5leGl0Q29kZSxlcnJvckNvdW50OmxpbmVzLmxlbmd0aCxvd25lZFRocmVlRmlsZURpYWdub3N0aWNDb3VudDpsaW5lcy5maWx0ZXIobD0+L14oaW5mZXJlbmNlXC50c3xoZWxwZXJcLnRzfHRlc3RzXC9wcm9maWxlLWFjY291bnQtc2NvcGVcLnRlc3RcLnRzKS8udGVzdChsKSkubGVuZ3RoLGZpcnN0RGlhZ25vc3RpYzpsaW5lc1swXSxmaXJzdERpYWdub3N0aWNzOmxpbmVzLnNsaWNlKDAsMyksYmFzZWxpbmVDb21wYXJpc29uUGVyZm9ybWVkOmZhbHNlLHNjb3BlTm90ZTppPT09MT8nQWxsIDc2IGRpYWdub3N0aWNzIGFyZSBvdXRzaWRlIHRoZSB0aHJlZSBhc3NpZ25lZCBmaWxlcy4gTm8gZGVwZW5kZW5jeSBncmFwaCBlcnJvcnMgd2VyZSBhbHRlcmVkIG9yIHN1cHByZXNzZWQuJzonU3RyaWN0IGNvbXBpbGVyIGFsc28gZGlhZ25vc2VzIGltcG9ydGVkIHVudHlwZWQgbW9kdWxlcyBhbmQgZXhpc3RpbmcgaW5mZXJlbmNlIGZsb3c7IG5vIGJhc2VsaW5lIGVxdWl2YWxlbmNlIGlzIGFzc2VydGVkLid9OwogfQogcmV0dXJuIHtpZDppZHNbaV0sb3JpZ2luYWxQYXRoOmRpcixwcm9kdWNlcjp7ZXhpdENvZGU6cHJvZHVjZXIuZXhpdENvZGUsc2lnbmFsOnByb2R1Y2VyLnNpZ25hbCxzdGF0ZTpwcm9kdWNlci5zdGF0ZSxwcm9kdWNlclN0b3BwZWQ6cHJvZHVjZXIucHJvZHVjZXJTdG9wcGVkLG1lbWJlcnNoaXBDb21wbGV0ZTpwcm9kdWNlci5tZW1iZXJzaGlwX2NvbXBsZXRlLGNoaWxkcmVuOnByb2R1Y2VyLmNoaWxkcmVufSx2YWxpZGF0aW9uLGNoZWNrczpjb3VudHNbaV0sZmlyc3RDYXVzZTpjYXVzZXNbaV0sLi4uKHR5cGVjaGVjaz97dHlwZWNoZWNrfTp7fSksZXZpZGVuY2VTaGEyNTY6e3Byb2R1Y2VyOnNoYShmcy5yZWFkRmlsZVN5bmMocHJvZHVjZXJQYXRoKSksdmFsaWRhdGlvbjpzaGEoZnMucmVhZEZpbGVTeW5jKHZhbGlkYXRpb25QYXRoKSksdGVzdFN0ZGVycjpzaGEoZnMucmVhZEZpbGVTeW5jKHBhdGguam9pbihkaXIsJ2xvZ3MvcHJvZmlsZS1hY2NvdW50LXNjb3BlLnN0ZGVyci5sb2cnKSkpfX07Cn0pOwpjb25zdCBldmlkZW5jZVBhdGg9cGF0aC5qb2luKHJvb3QsJ3dvcmsvRkEtMDEtaW5zdHJ1Y3Rpb24tcGFja2FnZS1kZXYtdGFiLzA4LWFjY291bnQtc2NvcGUtdmVyaWZpY2F0aW9uLmpzb24nKTsKY29uc3QgZXZpZGVuY2U9e3NjaGVtYVZlcnNpb246MSxmaW5hbGl6ZWQ6dHJ1ZSxwdXJwb3NlOidJbmRlcGVuZGVudCB2ZXJpZmljYXRpb24gYW5kIHN0b3BwZWQtcHJvZHVjZXIgZXZpZGVuY2UgcmV0YWluZWQgYmVmb3JlIGRpc3Bvc2FibGUgcnVuIGRlbGV0aW9uJyxnZW5lcmF0ZWRBdDpuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCksc2NvcGU6e3BsYXRmb3JtOid3aW4zMicsYXJjaGl0ZWN0dXJlOid4NjQnLGZ1bGxQcm9kdWN0QnVpbGQ6ZmFsc2UsbGl2ZUluZmVyZW5jZTpmYWxzZSxhc3NpZ25lZEZpbGVzOlsncHJvdmlkZXJzL29wZW5jb2RleC9pbmZlcmVuY2UudHMnLCdwcm92aWRlcnMvb3BlbmNvZGV4L2hlbHBlci50cycsJ3Byb3ZpZGVycy9vcGVuY29kZXgvdGVzdHMvcHJvZmlsZS1hY2NvdW50LXNjb3BlLnRlc3QudHMnXX0sd2lyZTonb3B0aW9uYWwgcHJvdmlkZXJBY2NvdW50Ontwcm92aWRlcklkLGFjY291bnRJZH0nLGZpbmFsQWNjZXB0YW5jZTp7Zm9jdXNlZFRlc3RzOntwYXNzZWQ6NixmYWlsZWQ6MCxhc3NlcnRpb25zOjI0LGV4aXRDb2RlOjB9LHN5bnRheDp7Y29tcGlsZXI6J1R5cGVTY3JpcHQgNS45LjMgdHJhbnNwaWxlTW9kdWxlJyxmaWxlczozLGVycm9yRGlhZ25vc3RpY3M6MH0sZnVsbE5vRW1pdDp7cGFzc2VkOmZhbHNlLHR5cGVzY3JpcHQ1OUV4aXRDb2RlOjIsdHlwZXNjcmlwdDU5RGVwZW5kZW5jeURpYWdub3N0aWNzOjc2LHR5cGVzY3JpcHQ1OU93bmVkRmlsZURpYWdub3N0aWNzOjAsdHlwZXNjcmlwdDdFeGl0Q29kZToxfSxsaW1pdGF0aW9uczpbJ05vIHdob2xlIHByb2R1Y3QgYnVpbGQgb3IgbmF0aXZlIGVuZC10by1lbmQgYWNjZXB0YW5jZSBpbiB0aGlzIHdvcmtlcicsJ05vIGxpdmUgcHJvdmlkZXIgaW5mZXJlbmNlJywnTm8gc3VjY2Vzc2Z1bCBjb21wbGV0ZSBwcm92aWRlciBncmFwaCBub0VtaXQgcmVzdWx0J119LHJ1bnM6cmVzdWx0cyxzb3VyY2VNZWFzdXJlbWVudHM6e3RpbWluZzonQ3VycmVudCBzb3VyY2UgaWRlbnRpdHkgYXQgZXZpZGVuY2UgcHJlc2VydmF0aW9uLCBub3QgYSBwcmUtZXhlY3V0aW9uIGltbXV0YWJsZSBpbnB1dCBtZWFzdXJlbWVudCcsZmlsZXM6T2JqZWN0LmZyb21FbnRyaWVzKFsncHJvdmlkZXJzL29wZW5jb2RleC9pbmZlcmVuY2UudHMnLCdwcm92aWRlcnMvb3BlbmNvZGV4L2hlbHBlci50cycsJ3Byb3ZpZGVycy9vcGVuY29kZXgvdGVzdHMvcHJvZmlsZS1hY2NvdW50LXNjb3BlLnRlc3QudHMnXS5tYXAoZj0+W2Ysc2hhKGZzLnJlYWRGaWxlU3luYyhmKSldKSl9LGNsZWFudXBBdXRob3JpemF0aW9uOnt0YXJnZXRJZHM6aWRzLHJlYXNvbjonUm9vdCBleHBsaWNpdGx5IGF1dGhvcml6ZWQgZGlzcG9zYWwgYWZ0ZXIgaW5kZXBlbmRlbnRseSBwcmVzZXJ2aW5nIHZlcmlmaWNhdGlvbiBhbmQgc3RvcHBlZCBwcm9kdWNlciBvdXRjb21lcycsY2xlYW51cE93bmVyU2hhMjU2OnBpbi5zaGEyNTYsY29udHJvbGxlcklkOnJ1bi5saWZlY3ljbGVJZH19Owpmcy53cml0ZUZpbGVTeW5jKGV2aWRlbmNlUGF0aCxKU09OLnN0cmluZ2lmeShldmlkZW5jZSxudWxsLDIpKydcbicse2ZsYWc6J3d4J30pO2NvbnN0IGV2aWRlbmNlSGFzaD1zaGEoZnMucmVhZEZpbGVTeW5jKGV2aWRlbmNlUGF0aCkpOwpjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7cGhhc2U6J2luZGVwZW5kZW50X2V2aWRlbmNlX2ZpbmFsaXplZCcscGF0aDpldmlkZW5jZVBhdGgsc2hhMjU2OmV2aWRlbmNlSGFzaCxydW5Db3VudDo0fSkpOwpsZXQgc2VxdWVuY2U9MCxyZXZpZXc9bnVsbCxidXN5PWZhbHNlLGZpbmlzaGVkPWZhbHNlOwphc3luYyBmdW5jdGlvbiBpbnZva2Uob3BlcmF0aW9uLHJlcXVlc3QpewogY29uc3Qgc3RlbT1TdHJpbmcoKytzZXF1ZW5jZSkucGFkU3RhcnQoMiwnMCcpKyctJytvcGVyYXRpb24scmVxdWVzdFBhdGg9cGF0aC5qb2luKHJ1bi5pbnB1dHMsc3RlbSsnLmpzb24nKTsKIGZzLndyaXRlRmlsZVN5bmMocmVxdWVzdFBhdGgsSlNPTi5zdHJpbmdpZnkoey4uLnJlcXVlc3QsbG9ja193YWl0X21zOjUwMDB9LG51bGwsMikse2ZsYWc6J3d4J30pOwogY29uc3Qgb3V0UGF0aD1wYXRoLmpvaW4ocnVuLmxvZ3Msc3RlbSsnLnN0ZG91dC5qc29uJyksZXJyUGF0aD1wYXRoLmpvaW4ocnVuLmxvZ3Msc3RlbSsnLnN0ZGVyci5sb2cnKSxvdXQ9ZnMub3BlblN5bmMob3V0UGF0aCwnd3gnKSxlcnI9ZnMub3BlblN5bmMoZXJyUGF0aCwnd3gnKTsKIGNvbnNvbGUubG9nKEpTT04uc3RyaW5naWZ5KHtwaGFzZTonbmF0aXZlX3N0YXJ0JyxvcGVyYXRpb24sc2VxdWVuY2V9KSk7CiBjb25zdCByZXN1bHQ9YXdhaXQgbmV3IFByb21pc2UoKHJlc29sdmUscmVqZWN0KT0+e2NvbnN0IGNoaWxkPWFydGlmYWN0cy50cmFja0FydGlmYWN0Q2hpbGQocnVuLGNwLnNwYXduKGJpbmFyeSxbJy0tcHJvamVjdC1yb290Jyxyb290LCctLXJlcXVlc3QnLHJlcXVlc3RQYXRoXSx7Y3dkOnJvb3Qsd2luZG93c0hpZGU6dHJ1ZSxzdGRpbzpbJ2lnbm9yZScsb3V0LGVycl19KSk7Y2hpbGQub24oJ2Vycm9yJyxyZWplY3QpO2NoaWxkLm9uY2UoJ2Nsb3NlJywoZXhpdENvZGUsc2lnbmFsKT0+cmVzb2x2ZSh7ZXhpdENvZGUsc2lnbmFsfSkpO30pOwogZnMuY2xvc2VTeW5jKG91dCk7ZnMuY2xvc2VTeW5jKGVycik7CiBjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7cGhhc2U6J25hdGl2ZV90ZXJtaW5hbCcsb3BlcmF0aW9uLC4uLnJlc3VsdH0pKTsKIGlmKHJlc3VsdC5leGl0Q29kZSE9PTB8fHJlc3VsdC5zaWduYWwpdGhyb3cgRXJyb3IoJ05hdGl2ZSAnK29wZXJhdGlvbisnIGZhaWxlZDsgcHJlc2VydmUgbG9ja3MvcmVzZXJ2YXRpb25zIGFuZCBpbnNwZWN0ICcrZXJyUGF0aCk7CiByZXR1cm4gSlNPTi5wYXJzZShmcy5yZWFkRmlsZVN5bmMob3V0UGF0aCwndXRmOCcpKTsKfQpmdW5jdGlvbiBmaW5pc2goZXhpdENvZGUpe2lmKGZpbmlzaGVkKXJldHVybjtmaW5pc2hlZD10cnVlO2FydGlmYWN0cy5maW5pc2hBcnRpZmFjdFJ1bihydW4se2V4aXRDb2RlLHByb2R1Y2VyU3RvcHBlZDp0cnVlfSk7Y29uc29sZS5sb2coSlNPTi5zdHJpbmdpZnkoe3BoYXNlOidjb250cm9sbGVyX2Nsb3NlZCcsaWQ6cnVuLmxpZmVjeWNsZUlkLHBhdGg6cnVuLnJ1blJvb3QsZXhpdENvZGV9KSk7cHJvY2Vzcy5leGl0Q29kZT1leGl0Q29kZTtwcm9jZXNzLnN0ZGluLnBhdXNlKCk7fQphc3luYyBmdW5jdGlvbiBwcmVwYXJlKCl7CiBmb3IoY29uc3QgaWQgb2YgaWRzKXtjb25zdCByZXF1ZXN0PWxpZmUucmVnaXN0ZXJSZXF1ZXN0KHJvb3QsaWQpO2NvbnN0IHJlc3BvbnNlPWF3YWl0IGludm9rZSgncmVnaXN0ZXInLHJlcXVlc3QpO2NvbnNvbGUubG9nKEpTT04uc3RyaW5naWZ5KHtwaGFzZToncmVnaXN0ZXJlZCcsaWQsa2V5czpPYmplY3Qua2V5cyhyZXNwb25zZSl9KSk7fQogcmV2aWV3PWF3YWl0IGludm9rZSgncmV2aWV3Jyx7b3BlcmF0aW9uOidyZXZpZXcnLGdyb3VwX2lkczppZHMsdmVyaWZpY2F0aW9uOidyZWdpc3RlcmVkJ30pOwogaWYoIUFycmF5LmlzQXJyYXkocmV2aWV3Lml0ZW1zKXx8IXJldmlldy5pdGVtcy5sZW5ndGgpdGhyb3cgRXJyb3IoJ05vIHJldmlld2VkIGl0ZW1zJyk7CiBjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7cGhhc2U6J3Jldmlld19yZWFkeScsaXRlbXM6cmV2aWV3Lml0ZW1zLm1hcChpPT4oe2lkOmkuaWQscGF0aDppLnBhdGgsdG9rZW46aS50b2tlbixibG9ja2VyczppLmJsb2NrZXJzLHJlbWFpbmluZzppLnJlbWFpbmluZyxwcmVzZW5jZTppLnByZXNlbmNlfSkpfSkpOwp9CmNvbnN0IHJsPXJlYWRsaW5lLmNyZWF0ZUludGVyZmFjZSh7aW5wdXQ6cHJvY2Vzcy5zdGRpbn0pOwpybC5vbignbGluZScsYXN5bmMgbGluZT0+e2lmKGJ1c3l8fGZpbmlzaGVkKXJldHVybjtidXN5PXRydWU7dHJ5ewogY29uc3QgY29tbWFuZD1KU09OLnBhcnNlKGxpbmUpOwogaWYoY29tbWFuZC5hY3Rpb249PT0nYWJvcnQnKXtmaW5pc2goMSk7cmwuY2xvc2UoKTtyZXR1cm47fQogaWYoY29tbWFuZC5hY3Rpb24hPT0nZGVsZXRlJ3x8IXJldmlldyl0aHJvdyBFcnJvcignUmV2aWV3IGRlY2lzaW9uIHJlcXVpcmVkJyk7CiBjb25zdCBhcHByb3ZlZD1jb21tYW5kLmlkcztpZighQXJyYXkuaXNBcnJheShhcHByb3ZlZCl8fGFwcHJvdmVkLmxlbmd0aCE9PXJldmlldy5pdGVtcy5sZW5ndGh8fG5ldyBTZXQoYXBwcm92ZWQpLnNpemUhPT1hcHByb3ZlZC5sZW5ndGh8fHJldmlldy5pdGVtcy5zb21lKGk9PiFhcHByb3ZlZC5pbmNsdWRlcyhpLmlkKXx8aS5ibG9ja2Vycz8ubGVuZ3RoKSl0aHJvdyBFcnJvcignRXhhY3QgY2xlYXIgcmV2aWV3ZWQgaWRlbnRpdGllcyByZXF1aXJlZCcpOwogaWYoc2hhKGZzLnJlYWRGaWxlU3luYyhldmlkZW5jZVBhdGgpKSE9PWV2aWRlbmNlSGFzaCl0aHJvdyBFcnJvcignSW5kZXBlbmRlbnQgZmluYWxpemVkIGV2aWRlbmNlIGNoYW5nZWQnKTsKIGNvbnN0IGFwcGxpZWQ9YXdhaXQgaW52b2tlKCdhcHBseScse29wZXJhdGlvbjonYXBwbHknLHZlcmlmaWNhdGlvbjoncmVnaXN0ZXJlZCcsZGVjaXNpb25zOnJldmlldy5pdGVtcy5tYXAoaT0+KHtpZDppLmlkLHRva2VuOmkudG9rZW4sZGVjaXNpb246J2RlbGV0ZScscmVhc29uOidSb290IGF1dGhvcml6ZWQgZGlzcG9zYWw7IGluZGVwZW5kZW50IGZpbmFsaXplZCBldmlkZW5jZSBwcmVzZXJ2ZXMgZXhhY3Qgb3V0Y29tZXMsIGNhdXNlcyBhbmQgc3RvcHBlZCBjaGlsZCBvd25lcnNoaXAnfSkpfSk7CiBjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7cGhhc2U6J2FwcGx5X3Jlc3VsdHMnLHJlc3VsdHM6YXBwbGllZC5yZXN1bHRzfSkpOwogaWYoIUFycmF5LmlzQXJyYXkoYXBwbGllZC5yZXN1bHRzKXx8YXBwbGllZC5yZXN1bHRzLmxlbmd0aCE9PXJldmlldy5pdGVtcy5sZW5ndGh8fGFwcGxpZWQucmVzdWx0cy5zb21lKHI9PnIuc3RhdHVzIT09J2RlbGV0ZWQnfHxyLnJlbWFpbmluZyE9PWZhbHNlKSl0aHJvdyBFcnJvcignRGVsZXRpb24gaW5jb21wbGV0ZTsgbm8gcmV0cnkgb3IgYnlwYXNzJyk7CiBjb25zdCBhYnNlbmNlPW5hbWVzLm1hcChuYW1lPT4oe3BhdGg6cGF0aC5qb2luKHJvb3QsJ2FydGlmYWN0cy90YXNrcy9GQS0wMS1wcm9maWxlLWFjY291bnQtc2NvcGUvcnVucycsbmFtZSksYWJzZW50OiFmcy5leGlzdHNTeW5jKHBhdGguam9pbihyb290LCdhcnRpZmFjdHMvdGFza3MvRkEtMDEtcHJvZmlsZS1hY2NvdW50LXNjb3BlL3J1bnMnLG5hbWUpKX0pKTsKIGlmKGFic2VuY2Uuc29tZShyPT4hci5hYnNlbnQpKXRocm93IEVycm9yKCdBY3R1YWwgdGFyZ2V0IGFic2VuY2Ugbm90IGVzdGFibGlzaGVkJyk7CiBjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7cGhhc2U6J2FjdHVhbF9hYnNlbmNlJyx0YXJnZXRzOmFic2VuY2V9KSk7CiBjb25zdCBmaW5hbGl6ZWQ9W107Zm9yKGNvbnN0IGlkIG9mIGlkcyl7Y29uc3QgcmVzdWx0PWxpZmUuZmluYWxpemUocm9vdCxpZCx7cHJvZHVjZXJfc3RvcHBlZF92ZXJpZmllZDp0cnVlLHJlYXNvbjonSW5kZXBlbmRlbnQgd29yayBldmlkZW5jZSByZXRhaW5zIG9yaWdpbmFsIHRlcm1pbmFsIG91dGNvbWVzOyBuYXRpdmUgb3duZXIgZGVsZXRpb24gYW5kIGFjdHVhbCBhYnNlbmNlIHZlcmlmaWVkJyxldmlkZW5jZV9yZWY6ZXZpZGVuY2VQYXRoLGV2aWRlbmNlX3NoYTI1NjpldmlkZW5jZUhhc2h9KTtmaW5hbGl6ZWQucHVzaChyZXN1bHQpO2lmKHJlc3VsdC5zdGF0dXMhPT0nZmluYWxpemVkJyl0aHJvdyBFcnJvcignTGlmZWN5Y2xlIGZpbmFsaXphdGlvbiBibG9ja2VkJyk7fQogZnMud3JpdGVGaWxlU3luYyhwYXRoLmpvaW4ocnVuLnJlcG9ydHMsJ2NsZWFudXAtcmVzdWx0cy5qc29uJyksSlNPTi5zdHJpbmdpZnkoe2V2aWRlbmNlUGF0aCxldmlkZW5jZUhhc2gsYXBwbGllZCxhYnNlbmNlLGZpbmFsaXplZH0sbnVsbCwyKSk7Y29uc29sZS5sb2coSlNPTi5zdHJpbmdpZnkoe3BoYXNlOidsaWZlY3ljbGVfZmluYWxpemVkJyxpZHM6ZmluYWxpemVkLm1hcChyPT5yLmlkKX0pKTtmaW5pc2goMCk7cmwuY2xvc2UoKTsKIH1jYXRjaChlcnJvcil7Y29uc29sZS5lcnJvcihlcnJvci5zdGFjayk7ZmluaXNoKDEpO3JsLmNsb3NlKCk7fWZpbmFsbHl7YnVzeT1mYWxzZTt9fSk7CnByZXBhcmUoKS5jYXRjaChlcnJvcj0+e2NvbnNvbGUuZXJyb3IoZXJyb3Iuc3RhY2spO2ZpbmlzaCgxKTtybC5jbG9zZSgpO30pOw=="
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 38820,
+            "closed": true
+          },
+          {
+            "pid": 20500,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      }
+    },
+    {
+      "id": "run:FA-01-profile-account-scope:20261101T195441694Z-c9edf6e2-3c37-4ea5-92c0-8275f2d4a003",
+      "owner": "workbench_backend",
+      "state": "failed",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195441694Z-c9edf6e2-3c37-4ea5-92c0-8275f2d4a003",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195441694Z-c9edf6e2-3c37-4ea5-92c0-8275f2d4a003\\reports\\producer-a444bf660a5738a39ad1e13fe5c47e28dce92aee235fa37749de9c75ef407bff.json",
+        "evidence_sha256": "a444bf660a5738a39ad1e13fe5c47e28dce92aee235fa37749de9c75ef407bff",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-profile-account-scope:20261101T195441694Z-c9edf6e2-3c37-4ea5-92c0-8275f2d4a003",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195441694Z-c9edf6e2-3c37-4ea5-92c0-8275f2d4a003",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 57332,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      }
+    },
+    {
+      "id": "run:FA-01-profile-account-scope:20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d",
+      "owner": "workbench_backend",
+      "state": "failed",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d\\reports\\producer-f95c5a11c4f8dd541302ab9e090243dc0f35f580fa00d63e7eee84c0cffa17ca.json",
+        "evidence_sha256": "f95c5a11c4f8dd541302ab9e090243dc0f35f580fa00d63e7eee84c0cffa17ca",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-profile-account-scope:20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 52484,
+            "closed": true
+          },
+          {
+            "pid": 8896,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      }
+    }
+  ],
+  "error": "Error: Native failed; preserve and stop\n    at invoke (eval at <anonymous> ([eval]:1:1), <anonymous>:1:2827)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async prepare (eval at <anonymous> ([eval]:1:1), <anonymous>:2:513)"
+}

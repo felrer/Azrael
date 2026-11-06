@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "status": "current-exact-native-producer-scope-stopped",
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "independentPriorAssessment": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61b-native-stop-membership-assessment.json",
+    "bytes": 35178,
+    "sha256": "7835cccf64cd5c0187da41f357c7775a430762ee3a9b6ba55c70530783d7de6e"
+  },
+  "lastOwnedProducerActual": {
+    "schema": 1,
+    "status": "executor-terminal-and-independent-absence-verified",
+    "controllerPid": 42852,
+    "actualExecutor": {
+      "sessionId": 64861,
+      "terminalChunk": "ae43e6",
+      "exit_code": 0,
+      "scope": "Actual command terminal receipt; no separate historical closeevent invented"
+    },
+    "rootAbsent": true,
+    "canonicalAbsent": true,
+    "currentInboundReferences": [],
+    "catalogQuiet": true,
+    "result": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\60c-control-outer-cleanup.json",
+      "sha256": "c42bf4635a3d91f201104a278ee6fd7d2bf869fffcbb4bf1b67218c90f3a52dd"
+    },
+    "proof": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\60b-control-outer-recovery-proof.json",
+      "sha256": "1c3678667fa80165beeb8ce953ecb1d497180ec07f237283a3e800643d4eb9c4"
+    },
+    "nativeCli": [
+      {
+        "operation": "register",
+        "pid": 35788,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "error": null,
+        "overflow": false
+      },
+      {
+        "operation": "review",
+        "pid": 27908,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "error": null,
+        "overflow": false
+      },
+      {
+        "operation": "apply",
+        "pid": 30776,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "error": null,
+        "overflow": false
+      }
+    ],
+    "allCatalogLeaseRelease0Close": true,
+    "remainingOwnedExternalMaterial": {
+      "owner": "run:fw03v:native-613162bb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\final-cleanup-control",
+      "state": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\fw03r-cleanup-state-corrective1",
+      "cleanup": "Remaining NATIVE whole-owner material held for parent61; no direct fs deletion"
+    }
+  },
+  "outerResult": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\60c-control-outer-cleanup.json",
+    "bytes": 59342,
+    "sha256": "c42bf4635a3d91f201104a278ee6fd7d2bf869fffcbb4bf1b67218c90f3a52dd"
+  },
+  "rootConfirmed": "Parent final single gate: all prior native producers/owners terminal; no new native consumer planned; private index/source/object/log/recovery raw consumers ended. unit10 moved outside. Final bootstrap only prepares external cleaner then exits before external driver performs native retirement.",
+  "membership": "Existing sole native root formal generated/protection_known member includes all planned task-owned descendants; inside temporary/t/ch disposable confirmed in parent decision01a1af9d-044e-74c1-8de2-a133aeb21d7d. Outside persistent/shared cargo caches remain excluded.",
+  "originalUnknownsPreserved": true,
+  "globalOSObservation": false,
+  "newFutureNativeProducerAllowed": false
+}

@@ -3,40 +3,40 @@ import { createHash } from 'node:crypto';
 import { compileRequest, mapStream, restoreToolCall } from '../inference-mapping.mjs';
 import { projectRequest } from '../inference.ts';
 
-const names = ['Read', 'Edit', 'Write', 'Grep', 'Glob', 'Bash', 'Agent', 'Skill', 'ToolSearch', 'AskUserQuestion', 'TaskOutput', 'TaskStop'];
+const names = ['exec_command', 'spawn_agent'];
 const fn = (name: string) => ({ type: 'function', name, parameters: { type: 'object' } });
-const profile = { id: 'builtin/anthropic-default', fingerprint: 'profile-v1', tool_profile: 'builtin/claude-code-core', prompt_profile: 'builtin/claude-lean' };
+const profile = { id: 'azrael', fingerprint: 'profile-v1', tool_profile: 'builtin/azrael-default', prompt_profile: 'builtin/azrael-default', instruction_format: 'native' };
 const native = (changes: any = {}) => ({ protocol_version: 1, type: 'request', request_id: 'fixture',
   provider_id: 'anthropic', model: 'claude-fixture', thread_id: 'thread', turn_id: 'turn', credential_scope: 'account',
   harness_profile: profile, instructions: 'Azrael policy', tools: [{ type: 'namespace', name: 'functions', tools: names.map(fn) }], input: [], ...changes });
-const compile = (request: any) => compileRequest(request, { actualAdapter: 'anthropic', promptFormat: 'anthropic-xml' });
-const project = (request: any) => projectRequest(request, 'account', 'anthropic-xml', 'anthropic');
+const compile = (request: any) => compileRequest(request);
+const project = (request: any) => projectRequest(request, 'account');
 
-test('compatible native functions have exact wire names and return native durable identities', () => {
+test('native functions have stable wire aliases and return native durable identities', () => {
   const request = native();
   const before = JSON.stringify(request);
   const compiled = compile(request);
-  expect(compiled.tools.map((tool: any) => tool.name)).toEqual(names);
-  for (const name of names) expect(restoreToolCall({ id: name, name, arguments: '{}' }, compiled))
+  expect(compiled.tools.every((tool: any) => /^az_[a-f0-9]{40}$/.test(tool.name))).toBeTrue();
+  for (const [index, name] of names.entries()) expect(restoreToolCall({ id: name, name: compiled.tools[index].name, arguments: '{}' }, compiled))
     .toEqual({ type: 'function_call', call_id: name, namespace: 'functions', name, arguments: '{}' });
   expect(JSON.stringify(request)).toBe(before);
 });
 
-test('MCP and noncompatible tools keep deterministic hashes and collisions fail closed', () => {
-  const request = native({ tools: [fn('Read'), { type: 'namespace', name: 'mcp_server', tools: [fn('Read')] }, fn('other')] });
+test('MCP and native tools keep deterministic hashes and collisions fail closed', () => {
+  const request = native({ tools: [fn('exec_command'), { type: 'namespace', name: 'mcp_server', tools: [fn('exec_command')] }, fn('other')] });
   const compiled = compile(request);
   const hash = (namespace: string, name: string) => 'az_' + createHash('sha256').update(JSON.stringify([namespace, name, 'function'])).digest('hex').slice(0, 40);
-  expect(compiled.tools.map((tool: any) => tool.name)).toEqual(['Read', hash('mcp_server', 'Read'), hash('', 'other')]);
-  expect(() => restoreToolCall({ id: 'collision', name: 'Read', arguments: '{}' }, compiled)).toThrow('ambiguous_tool_name');
-  expect(restoreToolCall({ id: 'mcp', name: hash('mcp_server', 'Read'), arguments: '{}' }, compiled).namespace).toBe('mcp_server');
-  expect(() => compile(native({ tools: [fn('Read'), { type: 'namespace', name: 'functions', tools: [fn('Read')] }] }))).toThrow('tool_wire_name_collision');
+  expect(compiled.tools.map((tool: any) => tool.name)).toEqual([hash('', 'exec_command'), hash('mcp_server', 'exec_command'), hash('', 'other')]);
+  expect(() => restoreToolCall({ id: 'collision', name: 'exec_command', arguments: '{}' }, compiled)).toThrow('ambiguous_tool_name');
+  expect(restoreToolCall({ id: 'mcp', name: hash('mcp_server', 'exec_command'), arguments: '{}' }, compiled).namespace).toBe('mcp_server');
+  expect(compile(native({ tools: [fn('exec_command'), { type: 'namespace', name: 'functions', tools: [fn('exec_command')] }] })).tools).toHaveLength(2);
+  expect(() => compile(native({ tools: [fn('exec_command'), fn('exec_command')] }))).toThrow('duplicate_tool_identity');
 });
 
-test('profile requires actual Anthropic provider, model identity and adapter', () => {
-  for (const changes of [{ provider_id: 'google' }, { provider_id: 'openrouter' }, { model: 'managed/google/claude' }])
-    expect(() => compile(native(changes))).toThrow('harness_provider_mismatch');
-  for (const actualAdapter of [undefined, 'google']) expect(() => compileRequest(native(), { actualAdapter })).toThrow('harness_provider_mismatch');
-  for (const harness_profile of [null, {}, { ...profile, fingerprint: '' }, { ...profile, id: 1 }])
+test('profile validates resolved metadata without restricting provider or adapter', () => {
+  for (const changes of [{ provider_id: 'google' }, { provider_id: 'openrouter' }, { model: 'managed/google/fixture' }])
+    expect(compile(native(changes)).tools).toHaveLength(names.length);
+  for (const harness_profile of [null, {}, { ...profile, fingerprint: '' }, { ...profile, id: 1 }, { ...profile, instruction_format: 'bad' }])
     expect(() => compile(native({ harness_profile }))).toThrow('invalid_harness_profile');
 });
 
@@ -44,7 +44,7 @@ test('context preserves roles, ordered images, instructions and result IDs witho
   const request = native({ input: [
     { type: 'message', role: 'developer', content: 'project instructions and skill catalog' },
     { type: 'message', role: 'user', content: [{ type: 'input_text', text: 'task' }, { type: 'input_image', image_url: 'data:image/png;base64,YQ==' }] },
-    { type: 'function_call', namespace: 'functions', name: 'Read', call_id: 'read', arguments: '{}' },
+    { type: 'function_call', namespace: 'functions', name: 'exec_command', call_id: 'read', arguments: '{}' },
     { type: 'function_call_output', call_id: 'read', output: '1\tcontent' },
   ] });
   const projected = project(request);
@@ -53,10 +53,10 @@ test('context preserves roles, ordered images, instructions and result IDs witho
   expect(messages[0].role).toBe('user');
   expect(messages[0].content.map((part: any) => part.type)).toEqual(['text', 'image']);
   expect(messages[0].content[0].text).toBe('task');
-  expect(messages[1].content[0].name).toBe('Read');
-  expect(messages[2]).toMatchObject({ role: 'toolResult', toolCallId: 'read', toolName: 'Read', content: '1\tcontent' });
+  expect(messages[1].content[0].name).toBe(projected.compiled.tools[0].name);
+  expect(messages[2]).toMatchObject({ role: 'toolResult', toolCallId: 'read', toolName: projected.compiled.tools[0].name, content: '1\tcontent' });
   const retired = project(native({ tools: [], input: request.input }));
-  expect(() => restoreToolCall({ id: 'new', name: 'Read', arguments: '{}' }, retired.compiled)).toThrow('undeclared_tool');
+  expect(() => restoreToolCall({ id: 'new', name: 'exec_command', arguments: '{}' }, retired.compiled)).toThrow('undeclared_tool');
 });
 
 test('profile fingerprints isolate private replay while preserving visible history', async () => {
@@ -65,7 +65,7 @@ test('profile fingerprints isolate private replay while preserving visible histo
   await mapStream((async function* () {
     yield { kind: 'reasoning', text: 'visible reasoning' };
     yield { kind: 'reasoning_signature', signature: 'signed' };
-    yield { kind: 'tool_call_start', id: 'read', name: 'Read' };
+    yield { kind: 'tool_call_start', id: 'read', name: compile(request).tools[0].name };
     yield { kind: 'tool_call_args', argsDelta: '{}' };
     yield { kind: 'finish', reason: 'tool_calls' };
   })(), { ...compile(request), provider: request.provider_id, turn: request.turn_id, opaque: { details: [{ type: 'thinking', signature: 'signed' }] } }, frame => frames.push(frame), 'fixture');
@@ -84,12 +84,14 @@ test('profile fingerprints isolate private replay while preserving visible histo
   expect(project(native({ input: [legacy] })).replayDetails).toHaveLength(0);
 });
 
-test('absent or native profile preserves non-Anthropic hash aliases and existing XML formatting', () => {
-  const tools = [fn('Read')];
-  const expected = 'az_' + createHash('sha256').update(JSON.stringify(['', 'Read', 'function'])).digest('hex').slice(0, 40);
-  for (const provider_id of ['anthropic', 'google', 'openrouter', 'api-fixture']) for (const harness_profile of [undefined, { ...profile, tool_profile: 'builtin/native' }]) {
-    const compiled = compileRequest(native({ provider_id, tools, harness_profile }), { promptFormat: 'anthropic-xml' });
-    expect(compiled.tools[0].name).toBe(expected);
-    expect(compiled.messages[0].content).toContain('<common_instructions>');
+test('resolved instruction format alone selects XML across providers with identical tools', () => {
+  for (const provider_id of ['anthropic', 'google', 'openrouter', 'api-fixture']) {
+    const baseline = compile(native({ provider_id }));
+    for (const instruction_format of ['native', 'anthropic-xml']) {
+      const compiled = compile(native({ provider_id, harness_profile: { ...profile, id: 'anthropic', prompt_profile: 'builtin/anthropic', instruction_format } }));
+      expect(compiled.tools).toEqual(baseline.tools);
+      expect(compiled.messages[0].content.includes('<common_instructions>')).toBe(instruction_format === 'anthropic-xml');
+    }
+    expect(compile(native({ provider_id, harness_profile: undefined })).messages[0].content).toBe('Azrael policy');
   }
 });

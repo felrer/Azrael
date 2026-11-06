@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "scope": "Remaining Windows checks only; no product deployment or native compilation",
+  "ownerSha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c",
+  "wrapperExitCode": 0,
+  "inputsUnchanged": true,
+  "cases": [
+    {
+      "case": "verify only",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-File",
+        "scripts/test-deploy-azrael.ps1",
+        "-Case",
+        "verify only",
+        "-ArtifactProjectRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "-RunRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-verify-only-fbd33ae2"
+      ],
+      "childExitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-chain-796b38dc\\logs\\verify-only.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-verify-only-fbd33ae2",
+      "lifecycleId": "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df",
+      "lifecycleState": "complete",
+      "resultPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-verify-only-fbd33ae2\\reports\\results.json",
+      "observedCaseResults": {
+        "case": "verify only",
+        "exitCode": 0,
+        "passed": true,
+        "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-verify-only-fbd33ae2\\temporary\\fixtures spaces 한글\\verify only\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+      },
+      "logSha256": "5a56d9ad3bb6423d0fa85684d581eafccd1f7ad81bc00e9185c74b2e390c1e3e"
+    },
+    {
+      "case": "account-success",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-File",
+        "scripts/test-deploy-azrael.ps1",
+        "-Case",
+        "account-success",
+        "-ArtifactProjectRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "-RunRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-account-success-786485c7"
+      ],
+      "childExitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-chain-796b38dc\\logs\\account-success.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-account-success-786485c7",
+      "lifecycleId": "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9",
+      "lifecycleState": "complete",
+      "resultPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-account-success-786485c7\\reports\\results.json",
+      "observedCaseResults": {
+        "case": "account-success",
+        "exitCode": 0,
+        "passed": true,
+        "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-account-success-786485c7\\temporary\\fixtures spaces 한글\\account-success\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+      },
+      "logSha256": "963f1493ad17a231c3d6f9428b5c13cd92eaa2a13692a545b889287197f28130"
+    },
+    {
+      "case": "build-fail",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-File",
+        "scripts/test-deploy-azrael.ps1",
+        "-Case",
+        "build-fail",
+        "-ArtifactProjectRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "-RunRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-build-fail-d7c30d0d"
+      ],
+      "childExitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-chain-796b38dc\\logs\\build-fail.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-build-fail-d7c30d0d",
+      "lifecycleId": "run:deploy-checks:395416005861454cbd0cae3e9699df34",
+      "lifecycleState": "complete",
+      "resultPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-build-fail-d7c30d0d\\reports\\results.json",
+      "observedCaseResults": {
+        "case": "build-fail",
+        "exitCode": 1,
+        "passed": true,
+        "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-build-fail-d7c30d0d\\temporary\\fixtures spaces 한글\\build-fail\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+      },
+      "logSha256": "75d66ea692db86c3cf82df72650773356a02d33f19f1c8c7c0e4a6979f2122a5"
+    }
+  ],
+  "inputHashes": {
+    "scripts/test-clean-engine-caches.ps1": "dcb9f73bf4e26adc9d771c1496f62739d476aaa1e9a6410bcc033d4e58268d04",
+    "scripts/test-deploy-azrael.ps1": "5e4c2ccda791c5c312178f1e05df5d2d0b5060c54611db806a25038d59bec324",
+    "scripts/deploy-azrael.ps1": "7b38613e77167f2095649f2a10d2a809f07b0621319078358413832757930c8e",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c"
+  },
+  "additionalFullRun": "Cancelled by parent after correction: earlier corrected full already used registered explicit nested FixtureRoot; root separately validated new check-artifact-lifecycle argv routing"
+}

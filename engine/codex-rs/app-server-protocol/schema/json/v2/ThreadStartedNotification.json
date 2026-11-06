@@ -2709,6 +2709,17 @@
             "string",
             "null"
           ]
+        },
+        "userWaitTiming": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/UserWaitTiming"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -2996,6 +3007,102 @@
           "type": "object"
         }
       ]
+    },
+    "UserWaitInterval": {
+      "description": "A period with pending human input and no running leaf activity.",
+      "properties": {
+        "endedAtMs": {
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "startedAtMs": {
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "startedAtMs"
+      ],
+      "type": "object"
+    },
+    "UserWaitRequest": {
+      "description": "Raw request waiting time, independent of concurrent work.",
+      "properties": {
+        "callId": {
+          "type": "string"
+        },
+        "durationMs": {
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "endedAtMs": {
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "startedAtMs": {
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "callId",
+        "kind",
+        "requestId",
+        "startedAtMs"
+      ],
+      "type": "object"
+    },
+    "UserWaitTiming": {
+      "description": "Measured human-response waits and the union of intervals that blocked work. An absent timing value on an older turn is distinct from an empty measurement.",
+      "properties": {
+        "blockedIntervals": {
+          "items": {
+            "$ref": "#/definitions/UserWaitInterval"
+          },
+          "type": "array"
+        },
+        "requests": {
+          "items": {
+            "$ref": "#/definitions/UserWaitRequest"
+          },
+          "type": "array"
+        },
+        "revision": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "startedAtMs": {
+          "default": null,
+          "description": "Exact turn origin for subtracting millisecond intervals from coarse history timestamps.",
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "blockedIntervals",
+        "requests",
+        "revision"
+      ],
+      "type": "object"
     },
     "WebSearchAction": {
       "oneOf": [

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "verifiedPayloadFiles": 18,
+  "payloadBytes": 14312144,
+  "exitCode": 0,
+  "signal": null,
+  "durationMs": 309.915,
+  "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\11-decoded-promoted-probe.json",
+  "resultSha256": "22a4fbdde37844b7eaec0dba0e62ad88994dfbc272446379024d2f3145d40ca9",
+  "scope": "Actual promoted analyzer with exact preserved ETL fixture"
+}

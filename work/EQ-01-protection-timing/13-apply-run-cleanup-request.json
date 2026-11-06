@@ -1,0 +1,27 @@
+{
+  "operation": "register",
+  "group": {
+    "id": "run:EQ-01-protection-timing:delete-apply-profile-r1",
+    "kind": "run",
+    "owner": "delete-apply-improvement",
+    "version": null,
+    "membership_complete": true,
+    "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\011c58cb779d6b31dc166fde446b6609d39b8082559b0d9773938a2563603cf1.json",
+    "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "membership_source_format": "producer_registry_v1",
+    "members": [
+      {
+        "id": "4e8e64144f220f276eafd5d89bf0b80c7aa56e4bd036426c2e72e596633cf8ab",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1",
+        "role": "run",
+        "lifecycle_role": "artifact",
+        "kind": "run",
+        "owner": "delete-apply-improvement",
+        "generated": true,
+        "protection_known": true,
+        "references": [],
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\011c58cb779d6b31dc166fde446b6609d39b8082559b0d9773938a2563603cf1.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "commandExit": 0,
+  "deleted": [
+    {
+      "id": "c2cd1b60924577b9ca5422dca7ba36106d3218a83b1a50f72caf6537a2b0c51a",
+      "group": "run:FA-01-instruction-package-dev-tab:20261101T185642164Z-8ad36a20-2c04-4c4a-b836-ac70a2adf850",
+      "status": "deleted",
+      "remaining": false,
+      "error": null
+    }
+  ],
+  "finalization": {
+    "id": "run:FA-01-instruction-package-dev-tab:20261101T185642164Z-8ad36a20-2c04-4c4a-b836-ac70a2adf850",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ea833af3dbff7a5e7c57abffe4e9683fa8681cfacd4f220dd7101016bee93925.json",
+    "retirement": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\05-profile-options-verification.json",
+      "sha256": "8f2472e926eed7a15cf9a9aa6f52736cb6cc173c9fd3e1752808dbbe4e77945b",
+      "reason": "Prior native deletion result verified remaining false; shared owner parser now passes; independent verification remains",
+      "original_state": "complete",
+      "original_membership_complete": true
+    }
+  }
+}

@@ -34,6 +34,56 @@ fn decisions(review: &Value, fate: &str) -> Vec<Value> {
     review["items"].as_array().unwrap().iter().map(|item|json!({"id":item["id"],"token":item["token"],"decision":fate,"reason":"version review completed","revisit_condition":"consumer completes"})).collect()
 }
 
+#[cfg(unix)]
+#[test]
+fn unix_intent_added_child_stops_group_and_preserves_evidence() {
+    use std::cell::Cell;
+    let root = fixture();
+    let artifact = root.path().join("generated/artifact");
+    std::fs::create_dir(&artifact).unwrap();
+    std::fs::write(artifact.join("approved"), "approved").unwrap();
+    call(
+        &root,
+        registration(
+            "version",
+            vec![member("artifact", "artifact"), create(&root, "log", "log")],
+            true,
+        ),
+    );
+    let reviewed = reviews(&root, "version");
+    let writes = Cell::new(0usize);
+    let authorize = |path: &Path, mode| {
+        if mode == AccessMode::Write && path.file_name().is_some_and(|name| name == "manifest.json")
+        {
+            writes.set(writes.get() + 1);
+            // The durable intent save is after the approved entry list was
+            // captured. The physical Unix adapter must reject this addition.
+            if writes.get() == 2 {
+                std::fs::write(artifact.join("unapproved"), "new content")
+                    .map_err(|error| error.to_string())?;
+            }
+        }
+        Ok(())
+    };
+    let result = dispatch(
+        root.path(),
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        &authorize,
+    )
+    .unwrap();
+    assert!(writes.get() >= 2);
+    assert_eq!(result["results"][0]["status"], "failed", "{result}");
+    assert_eq!(
+        std::fs::read_to_string(artifact.join("approved")).unwrap(),
+        "approved"
+    );
+    assert_eq!(
+        std::fs::read_to_string(artifact.join("unapproved")).unwrap(),
+        "new content"
+    );
+    assert!(root.path().join("generated/log").exists());
+}
+
 #[test]
 fn cancellation_preserves_completed_results_and_stops_before_physical_delete() {
     use std::cell::Cell;
@@ -473,7 +523,7 @@ fn absent_member_updates_keep_unresolved_cleanup_intent_protected() {
 }
 
 #[test]
-fn denied_authorization_after_new_intent_records_known_blocked_result() {
+fn approved_authorization_is_not_repeated_after_durable_intent() {
     use std::cell::Cell;
     let root = fixture();
     call(
@@ -491,13 +541,18 @@ fn denied_authorization_after_new_intent_records_known_blocked_result() {
     let manifest = root.path().join("artifacts/maintenance/manifest.json");
     let reviewed = reviews(&root, "version");
     let manifest_writes = Cell::new(0usize);
+    let artifact_writes = Cell::new(0usize);
     let authorize = |path: &Path, mode| {
         if path == manifest && mode == AccessMode::Write {
             manifest_writes.set(manifest_writes.get() + 1);
         }
-        // The second manifest write authorization belongs to intent persistence.
-        if manifest_writes.get() >= 2 && path == artifact && mode == AccessMode::Write {
-            return Err("target write denied after intent".into());
+        if path == artifact && mode == AccessMode::Write {
+            artifact_writes.set(artifact_writes.get() + 1);
+            // The approved pre-intent authorization is the only target write
+            // callback. A policy change during intent is not queried again.
+            if manifest_writes.get() >= 2 {
+                return Err("target write denied after intent".into());
+            }
         }
         Ok(())
     };
@@ -508,29 +563,19 @@ fn denied_authorization_after_new_intent_records_known_blocked_result() {
     )
     .unwrap();
     assert!(manifest_writes.get() >= 2);
-    assert_eq!(result["results"][0]["status"], "blocked");
+    assert_eq!(artifact_writes.get(), 1);
+    assert_eq!(result["results"][0]["status"], "deleted");
     assert!(result["results"][0]["attempt_id"].is_string());
-    assert!(artifact.exists());
-    assert!(root.path().join("generated/log").exists());
+    assert!(!artifact.exists());
+    assert!(!root.path().join("generated/log").exists());
     let durable: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
-    assert_eq!(durable["items"]["artifact"]["cleanup_status"], "blocked");
-    let fresh = reviews(&root, "version");
-    assert!(
-        fresh["items"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .all(|item| item["blockers"].as_array().unwrap().is_empty())
-    );
-    let retry = call(
-        &root,
-        json!({"operation":"apply","decisions":decisions(&fresh,"delete")}),
-    );
-    assert_eq!(retry["groups"][0]["status"], "deleted");
+    assert_eq!(durable["items"]["artifact"]["cleanup_status"], "deleted");
+    assert_eq!(durable["decisions"], result["results"]);
+    assert_eq!(result["groups"][0]["status"], "deleted");
 }
 
 #[test]
-fn apply_observes_membership_once_per_preflight_and_intent_boundary() {
+fn apply_observes_membership_once_per_preflight_and_pre_intent_boundary() {
     use std::cell::Cell;
     let root = fixture();
     let source = root.path().join("generated/membership.json");
@@ -560,12 +605,13 @@ fn apply_observes_membership_once_per_preflight_and_intent_boundary() {
     )
     .unwrap();
     assert_eq!(result["groups"][0]["status"], "deleted");
-    // One group preflight and one fresh observation on each side of intent.
-    assert_eq!(reads.get(), one_observation * 3);
+    // One group preflight and one fresh pre-intent observation; no repeat
+    // between the durable intent and physical deletion.
+    assert_eq!(reads.get(), one_observation * 2);
 }
 
 #[test]
-fn authorization_and_intent_mutations_preserve_all_group_members() {
+fn pre_intent_mutations_block_and_intent_mutations_use_approved_entries() {
     use std::cell::Cell;
     for during_intent in [false, true] {
         for change_source in [false, true] {
@@ -619,16 +665,26 @@ fn authorization_and_intent_mutations_preserve_all_group_members() {
             )
             .unwrap();
             assert!(changed.get());
-            assert_eq!(result["results"][0]["status"], "blocked");
-            assert!(artifact.exists());
-            assert!(root.path().join("generated/log").exists());
             if during_intent {
+                assert_eq!(result["results"][0]["status"], "deleted");
+                assert!(!artifact.exists());
+                // Every later member still receives its own pre-intent check.
+                assert_eq!(
+                    result["results"][1]["status"],
+                    if change_source { "blocked" } else { "deleted" }
+                );
+                assert_eq!(root.path().join("generated/log").exists(), change_source);
                 let durable: Value = serde_json::from_slice(
                     &std::fs::read(root.path().join("artifacts/maintenance/manifest.json"))
                         .unwrap(),
                 )
                 .unwrap();
                 assert!(durable["decisions"][0]["attempt_id"].is_string());
+                assert_eq!(durable["decisions"][0]["status"], "deleted");
+            } else {
+                assert_eq!(result["results"][0]["status"], "blocked");
+                assert!(artifact.exists());
+                assert!(root.path().join("generated/log").exists());
             }
         }
     }

@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "id": "run:fw03v:final-cleaner-61-01",
+  "actualDriver": {
+    "session": 62124,
+    "chunk": "9b486b",
+    "exit_code": 1,
+    "terminalObserved": true
+  },
+  "nativeActors": [
+    {
+      "label": "vss1-register",
+      "pid": 16104,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss1-register.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss1-review",
+      "pid": 25120,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss1-review.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss1-apply",
+      "pid": 23684,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss1-apply.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss2-register",
+      "pid": 26888,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss2-register.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss2-review",
+      "pid": 22200,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss2-review.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss2-apply",
+      "pid": 25908,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss2-apply.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss3-register",
+      "pid": 54572,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss3-register.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss3-review",
+      "pid": 53164,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss3-review.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss3-apply",
+      "pid": 19432,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss3-apply.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "native-register",
+      "pid": 29568,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\native-register.request.json"
+      ],
+      "exit": {
+        "code": 1,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    }
+  ],
+  "sourceResult": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-targets-cleanup-result.json",
+    "sha256": "d4e40e7d65789a597e7850de2b92cfd44b413f5028e41b77fb9c5c94a03d22e7"
+  },
+  "stopBasis": "Outside driver actual terminal1 after all ten spawned native children close/drain; no detached producer creation in pinned driver. Last native register actual1. No retry or extra producer.",
+  "outcome": "failure",
+  "diagnosticRetention": "Native reparse System guard unresolved; cleaner and native preserved pending root decision; no build calls"
+}

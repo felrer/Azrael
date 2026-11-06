@@ -1,0 +1,19 @@
+{
+  "id": "run:EK01-user-wait-native:downstream01",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "7af7539c778d1d4947704305580e8dc69bea7fc1dda71776ee7bc859818319b5",
+  "lease_owner": {
+    "acquired_at_ms": 1793254831476,
+    "operation": "group_reservation",
+    "pid": 45224,
+    "schema": 2,
+    "token": "45224-1793254831476-a138db10af850248"
+  },
+  "originalOutcome": {
+    "session": 95428,
+    "exitCode": 1,
+    "stderr": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n"
+  },
+  "terminationEvidence": "Verified native standalone registration invoked synchronously with spawnSync; session95428 returned terminal exit1. No detached/background launch and native registration path has no spawned descendants. Original failed outcome unchanged."
+}

@@ -1,0 +1,22 @@
+{
+  "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-01",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "897cb6bb737828454ad21dd7d7292f47bc9a2d574844c867b0f7798a136a75ef",
+  "lease_owner": {
+    "acquired_at_ms": 1793251319395,
+    "operation": "group_reservation",
+    "pid": 54788,
+    "schema": 2,
+    "token": "54788-1793251319395-9cd8c616594e61ee"
+  },
+  "originalOutcome": {
+    "synchronousExecSession": 60915,
+    "ownerExitCode": 1,
+    "error": "OS error33",
+    "returnedPerItemResults": false,
+    "selectedRootAbsentAfterExit": true,
+    "reason": "Preserve failed apply status regardless of observed physical absence"
+  },
+  "terminationEvidence": "Own synchronous child_process.spawnSync returned terminal exit1; no detached launch/background wrapper. Native apply path has no spawned descendants per root/source inspection; exact full owned process tree stopped. Current native process snapshot had no maintenance_owner process; this is supplemental, not sole proof."
+}

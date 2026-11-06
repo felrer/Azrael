@@ -1,0 +1,547 @@
+{
+  "id": "run:CX-01:shutdown-r1",
+  "acceptance": "07-cx-shutdown-acceptance.json",
+  "started_at": "2026-11-01T14:29:51.490Z",
+  "review_exit_code": 0,
+  "items": [
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb",
+        "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385",
+        "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89",
+        "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985"
+      ],
+      "group_token": "fc504a22035cbe6db763031596faf86c719658f1938c7d63960e499a92427a5f",
+      "id": "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb",
+      "identity": "8ed15a291758d9d1b3d938859d2e71ab559299b1e45094aa10654d14131037fb",
+      "lifecycle_group_id": "run:CX-01:shutdown-r1",
+      "logical_bytes": 476162831,
+      "measured_at_ms": 1793537971494,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "066a58833b6c1cdecb5e0e43bc2237d3511447c9c8859a688e803343e3d6803d",
+        "member_references": {
+          "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb": [],
+          "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385": [],
+          "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89": [],
+          "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985": []
+        },
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1\\reports\\execution-closeout.json",
+            "evidence_sha256": "535093b2200c9202cabea29214ec641ea1b4a229b4dbd3ba621a5029a73a7fdc",
+            "reason": "All selected native and fixture producers ended; the actual owned-process fixture removed its isolated profile; preserve frozen inputs and diagnostics for version acceptance.",
+            "request_sha256": "65ee1af5cc5546ba7bbd289c1960ad6bbe7bca26fac7064457fbf43b42c6df7e"
+          },
+          "created_at": "2026-10-22T00:36:05.297Z",
+          "id": "run:CX-01:shutdown-r1",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1",
+              "protection_known": true,
+              "role": "verification"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22a",
+              "protection_known": true,
+              "role": "frozen-inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22b",
+              "protection_known": true,
+              "role": "final-frozen-inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cx22r",
+              "protection_known": true,
+              "role": "isolated-native-profile"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "CX-01-azrael-auth-recovery",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1\\reports\\execution-closeout.json",
+            "evidence_sha256": "535093b2200c9202cabea29214ec641ea1b4a229b4dbd3ba621a5029a73a7fdc",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All selected native and fixture producers ended; the actual owned-process fixture removed its isolated profile; preserve frozen inputs and diagnostics for version acceptance.",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 5,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-22T02:24:27.074Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1793543391766,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22a",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            248,
+            43,
+            178,
+            0,
+            0,
+            0,
+            7,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "0638fa9d8a689260422e56952eddcf19568637bcf040718923bf5f2d705e4ce8",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb",
+        "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385",
+        "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89",
+        "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985"
+      ],
+      "group_token": "fc504a22035cbe6db763031596faf86c719658f1938c7d63960e499a92427a5f",
+      "id": "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385",
+      "identity": "fec0350bde2426cb2e1a3c94ab1fbde01e28f7700f8932edfc1e35a80c55c567",
+      "lifecycle_group_id": "run:CX-01:shutdown-r1",
+      "logical_bytes": 521985369,
+      "measured_at_ms": 1793537714746,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "066a58833b6c1cdecb5e0e43bc2237d3511447c9c8859a688e803343e3d6803d",
+        "member_references": {
+          "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb": [],
+          "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385": [],
+          "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89": [],
+          "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985": []
+        },
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1\\reports\\execution-closeout.json",
+            "evidence_sha256": "535093b2200c9202cabea29214ec641ea1b4a229b4dbd3ba621a5029a73a7fdc",
+            "reason": "All selected native and fixture producers ended; the actual owned-process fixture removed its isolated profile; preserve frozen inputs and diagnostics for version acceptance.",
+            "request_sha256": "65ee1af5cc5546ba7bbd289c1960ad6bbe7bca26fac7064457fbf43b42c6df7e"
+          },
+          "created_at": "2026-10-22T00:36:05.297Z",
+          "id": "run:CX-01:shutdown-r1",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1",
+              "protection_known": true,
+              "role": "verification"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22a",
+              "protection_known": true,
+              "role": "frozen-inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22b",
+              "protection_known": true,
+              "role": "final-frozen-inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cx22r",
+              "protection_known": true,
+              "role": "isolated-native-profile"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "CX-01-azrael-auth-recovery",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1\\reports\\execution-closeout.json",
+            "evidence_sha256": "535093b2200c9202cabea29214ec641ea1b4a229b4dbd3ba621a5029a73a7fdc",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All selected native and fixture producers ended; the actual owned-process fixture removed its isolated profile; preserve frozen inputs and diagnostics for version acceptance.",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 5,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-22T02:24:27.074Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1793543391777,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            193,
+            231,
+            15,
+            0,
+            0,
+            0,
+            24,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "1392563ad91d8c585cb8263d1aff44de1959c05ddda31df8ca4f8cf1da65d7d4",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb",
+        "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385",
+        "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89",
+        "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985"
+      ],
+      "group_token": "fc504a22035cbe6db763031596faf86c719658f1938c7d63960e499a92427a5f",
+      "id": "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89",
+      "identity": "3a2dae7c08b3ef2b74b4189b9a15b6a68cf38c620d25d5e8713c75e0ccba5c5d",
+      "lifecycle_group_id": "run:CX-01:shutdown-r1",
+      "logical_bytes": 198961738,
+      "measured_at_ms": 1793538086847,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "066a58833b6c1cdecb5e0e43bc2237d3511447c9c8859a688e803343e3d6803d",
+        "member_references": {
+          "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb": [],
+          "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385": [],
+          "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89": [],
+          "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985": []
+        },
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1\\reports\\execution-closeout.json",
+            "evidence_sha256": "535093b2200c9202cabea29214ec641ea1b4a229b4dbd3ba621a5029a73a7fdc",
+            "reason": "All selected native and fixture producers ended; the actual owned-process fixture removed its isolated profile; preserve frozen inputs and diagnostics for version acceptance.",
+            "request_sha256": "65ee1af5cc5546ba7bbd289c1960ad6bbe7bca26fac7064457fbf43b42c6df7e"
+          },
+          "created_at": "2026-10-22T00:36:05.297Z",
+          "id": "run:CX-01:shutdown-r1",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1",
+              "protection_known": true,
+              "role": "verification"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22a",
+              "protection_known": true,
+              "role": "frozen-inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22b",
+              "protection_known": true,
+              "role": "final-frozen-inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cx22r",
+              "protection_known": true,
+              "role": "isolated-native-profile"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "CX-01-azrael-auth-recovery",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1\\reports\\execution-closeout.json",
+            "evidence_sha256": "535093b2200c9202cabea29214ec641ea1b4a229b4dbd3ba621a5029a73a7fdc",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All selected native and fixture producers ended; the actual owned-process fixture removed its isolated profile; preserve frozen inputs and diagnostics for version acceptance.",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 5,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-22T02:24:27.074Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1793543391787,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22b",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            162,
+            20,
+            16,
+            0,
+            0,
+            0,
+            26,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "5c8cf7e0cd7b52873e9657eadce77cdeb010e251b812db0e423609be6b0d87c1",
+      "verification": "registered"
+    },
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb",
+        "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385",
+        "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89",
+        "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985"
+      ],
+      "group_token": "fc504a22035cbe6db763031596faf86c719658f1938c7d63960e499a92427a5f",
+      "id": "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985",
+      "identity": null,
+      "lifecycle_group_id": "run:CX-01:shutdown-r1",
+      "logical_bytes": 0,
+      "measured_at_ms": null,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "066a58833b6c1cdecb5e0e43bc2237d3511447c9c8859a688e803343e3d6803d",
+        "member_references": {
+          "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb": [],
+          "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385": [],
+          "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89": [],
+          "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985": []
+        },
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1\\reports\\execution-closeout.json",
+            "evidence_sha256": "535093b2200c9202cabea29214ec641ea1b4a229b4dbd3ba621a5029a73a7fdc",
+            "reason": "All selected native and fixture producers ended; the actual owned-process fixture removed its isolated profile; preserve frozen inputs and diagnostics for version acceptance.",
+            "request_sha256": "65ee1af5cc5546ba7bbd289c1960ad6bbe7bca26fac7064457fbf43b42c6df7e"
+          },
+          "created_at": "2026-10-22T00:36:05.297Z",
+          "id": "run:CX-01:shutdown-r1",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1",
+              "protection_known": true,
+              "role": "verification"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22a",
+              "protection_known": true,
+              "role": "frozen-inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22b",
+              "protection_known": true,
+              "role": "final-frozen-inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cx22r",
+              "protection_known": true,
+              "role": "isolated-native-profile"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "CX-01-azrael-auth-recovery",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1\\reports\\execution-closeout.json",
+            "evidence_sha256": "535093b2200c9202cabea29214ec641ea1b4a229b4dbd3ba621a5029a73a7fdc",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "All selected native and fixture producers ended; the actual owned-process fixture removed its isolated profile; preserve frozen inputs and diagnostics for version acceptance.",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 5,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-22T02:24:27.074Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1793543391797,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cx22r",
+      "presence": "absent",
+      "related_items": [],
+      "remaining": false,
+      "root_observation": {
+        "presence": "absent"
+      },
+      "token": "9989212246ee00d051d0db441bc24e3f9d4893522c9e4f7774d6cdde1c3c9604",
+      "verification": "registered"
+    }
+  ],
+  "apply_exit_code": 0,
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:CX-01:shutdown-r1",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-55392-4625-1793543501251",
+        "decision": "delete",
+        "decision_id": "a141ec2daaad3891c6d96ed320b1d1381aee62598232fc166f7fd94ea21f116e",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb",
+        "lifecycle_group_id": "run:CX-01:shutdown-r1",
+        "reason": "Explicit user approval to add exactly artifacts/cx22r and delete this recovery group; independent acceptance handoff preserved.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "0638fa9d8a689260422e56952eddcf19568637bcf040718923bf5f2d705e4ce8"
+      },
+      {
+        "attempt_id": "attempt-55392-4627-1793543941382",
+        "decision": "delete",
+        "decision_id": "b1f8c82e7ab03e2766ff6b7146fe63081e71f54e9941f1625cc23cfccbff0416",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89",
+        "lifecycle_group_id": "run:CX-01:shutdown-r1",
+        "reason": "Explicit user approval to add exactly artifacts/cx22r and delete this recovery group; independent acceptance handoff preserved.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "5c8cf7e0cd7b52873e9657eadce77cdeb010e251b812db0e423609be6b0d87c1"
+      },
+      {
+        "attempted": false,
+        "decision": "delete",
+        "decision_id": "917916990f66cf42fa1f5a7441a243b8417f68ca536b320b70d63035670a6e0a",
+        "group_status": "deleting",
+        "id": "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985",
+        "lifecycle_group_id": "run:CX-01:shutdown-r1",
+        "reason": "Explicit user approval to add exactly artifacts/cx22r and delete this recovery group; independent acceptance handoff preserved.",
+        "remaining": false,
+        "retire_managed_roots": {
+          "evidence_ref": "artifacts/maintenance/evidence/EC-01-cx-root-retirement.json",
+          "ids": [
+            "86f7b991fb2a30460877fb1e08687c65018592628402d61c79dc61522bcf0985"
+          ],
+          "owner": "CX-01-azrael-auth-recovery",
+          "reason": "Explicit user-approved retirement of exact absent CX recovery profile root with independently preserved acceptance."
+        },
+        "retirement_evidence_identity": "1649ad5de68b5080831c2f5dbc9f5bd0c23cef4e6501031b622c78e9c5f051ec",
+        "status": "deleted",
+        "token": "9989212246ee00d051d0db441bc24e3f9d4893522c9e4f7774d6cdde1c3c9604"
+      },
+      {
+        "attempt_id": "attempt-55392-4630-1793544130077",
+        "decision": "delete",
+        "decision_id": "fad8d0a88e191875175e45dbd3ee7f8b769822d7300d8c933969868059751e59",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385",
+        "lifecycle_group_id": "run:CX-01:shutdown-r1",
+        "reason": "Explicit user approval to add exactly artifacts/cx22r and delete this recovery group; independent acceptance handoff preserved.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "1392563ad91d8c585cb8263d1aff44de1959c05ddda31df8ca4f8cf1da65d7d4"
+      }
+    ]
+  },
+  "finalize": {
+    "id": "run:CX-01:shutdown-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4f3c8bcd5240c4b578a834879b03a1ce19f82e2baaa33ac5adafd46b984c7ff4.json"
+  },
+  "status": "finalized",
+  "ended_at": "2026-11-01T14:42:36.119Z"
+}

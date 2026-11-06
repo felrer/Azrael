@@ -250,8 +250,9 @@ pub(super) async fn migration_scenario() -> Result<Vec<responses::ResponsesReque
                     "ordinary-question",
                     "May I publish after these checks?",
                 ),
-                responses::ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "ask",
+                    "legacy_codex_tools",
                     "request_user_input",
                     // Keep the transcript independent of serde_json's preserve_order feature.
                     concat!(

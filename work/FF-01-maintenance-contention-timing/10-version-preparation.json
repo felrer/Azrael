@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-02T07:27:21.251Z",
+  "id": "version:maintenance-owner:ff01:perf-20261102",
+  "version": "perf-20261102",
+  "directory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102",
+  "binary_sha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+  "binary_bytes": 2726912,
+  "copy_equal": true,
+  "producer_actual_exit_code": 0,
+  "producer_closed_observed_at": "2026-11-02T07:27:31.528Z"
+}

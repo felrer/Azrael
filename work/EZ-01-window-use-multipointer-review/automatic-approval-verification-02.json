@@ -1,0 +1,86 @@
+{
+  "runId": "run:EZ01:auto-approval-r2-mw0m09z1",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r2-mw0m09z1",
+  "frozen": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r2-mw0m09z1\\temporary\\source",
+  "startedAt": "2026-11-03T11:33:40.328Z",
+  "endedAt": "2026-11-03T11:34:05.905Z",
+  "steps": [
+    {
+      "name": "source",
+      "args": [
+        "--test",
+        "--test-concurrency=4",
+        "scripts/test-use-control-settings.cjs",
+        "scripts/test-use-settings-host.cjs",
+        "scripts/test-use-settings-ui.cjs",
+        "scripts/test-window-use-host.cjs",
+        "scripts/test-window-async-approval-host.cjs",
+        "scripts/test-window-approval-notifications.cjs",
+        "scripts/test-window-approval-ui-integration.cjs",
+        "scripts/test-window-control-host-errors.cjs",
+        "scripts/test-window-control-host.cjs",
+        "scripts/test-window-overlay.cjs",
+        "scripts/test-window-control-errors.cjs",
+        "scripts/test-computer-use-injection.cjs",
+        "scripts/test-window-control-approval.cjs",
+        "scripts/test-source-test-fixtures.cjs",
+        "scripts/test-window-control-runtime.cjs",
+        "scripts/test-window-control-mcp.cjs",
+        "scripts/test-window-control-injection.cjs",
+        "scripts/test-window-virtual-policy.cjs",
+        "scripts/test-window-switched-input.cjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r2-mw0m09z1\\logs\\source.log"
+    },
+    {
+      "name": "approval-render",
+      "args": [
+        "scripts/verify-window-native-approval-render.mjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r2-mw0m09z1\\logs\\approval-render.log"
+    },
+    {
+      "name": "settings-render",
+      "args": [
+        "scripts/verify-use-settings-render.mjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r2-mw0m09z1\\logs\\settings-render.log"
+    }
+  ],
+  "sourceInputsSha256": "168328a8f01b65540c3ba0689faa0e29b889a21cd85da28b7fcee878a5b177ad",
+  "sourceSummary": {
+    "tests": 186,
+    "pass": 170,
+    "fail": 15,
+    "skip": 1,
+    "failures": [
+      "scripts\\test-source-test-fixtures.cjs (129.9965ms)",
+      "control approvals never authorize Security App observation; session grants expire on settings and stop (25.4621ms)",
+      "persistent exact Window Use control grants survive and remain removable without changing observation (16.209ms)",
+      "observation blacklist and control whitelist remain independent and remove through their own list (46.1303ms)",
+      "native settings action preserves the pending card and never grants or settles consent (121.4268ms)",
+      "notification follows delivered card, only navigates pending approval, and rebinding does not duplicate it (81.843ms)",
+      "notification show failure leaves consent usable (61.35ms)",
+      "rebinding a live card does not duplicate its notification or settle the tool (60.2955ms)",
+      "actual Window Use host consumes transformed native approvals, scopes and expiry without engine passthrough (123.3347ms)",
+      "actual mutation waits for approval, accepts once, and continues without engine resume (253.6193ms)",
+      "이 대화에서 허용 grants only the chosen scope (81.8152ms)",
+      "항상 허용 grants only the chosen scope (99.8787ms)",
+      "native card persistence metadata retains session scope (53.5519ms)",
+      "replacing a UI registration preserves the pending consent until a valid response (94.6225ms)",
+      "ordinary threads select independently with app consent and reject stale candidates (125.2099ms)",
+      ""
+    ]
+  },
+  "failureCauses": [
+    "Five success-path host fixtures omitted observe packet fields after resize; corrected without changing production checks",
+    "Old Security App effective-control assertions contradicted newly approved hard block; corrected while preserving independent stored lists",
+    "Source-fixture helper and both renderers could not resolve pinned maintenance owner in frozen root; next preparation includes original receipt/executable"
+  ]
+}

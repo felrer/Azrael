@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "id": "run:FC01:os33-r1",
+  "producerPid": 30684,
+  "actualExitCode": 1,
+  "signal": null,
+  "nativeError": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance); pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock (maintenance)\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock\",\"owner\":null,\"retryable\":true}\n",
+  "stopBasis": "Direct spawnSync returned terminal exit1 with stdout/stderr drained. Registration path is synchronous in-process measurement and catalog mutation, not a subprocess launcher; this call never launched Cargo or deletion workers.",
+  "observedAt": "2026-11-02T00:57:29.121Z",
+  "reservationSha256": "fa37613347209a37382c72d53ea044c43adffff846f69bc4dff38ed3a2277758",
+  "leaseOwner": {
+    "acquired_at_ms": 1793580952172,
+    "operation": "group_reservation",
+    "pid": 30684,
+    "schema": 2,
+    "token": "30684-1793580952172-b3ff6ca7e69f00f5"
+  },
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "recoveryPreflight": {
+    "attempts": 2,
+    "exit_code": 1,
+    "cause": "Owner rejected missing snake_case proof fields before any recovery mutation"
+  },
+  "reservation_sha256": "fa37613347209a37382c72d53ea044c43adffff846f69bc4dff38ed3a2277758",
+  "lease_owner": {
+    "acquired_at_ms": 1793580952172,
+    "operation": "group_reservation",
+    "pid": 30684,
+    "schema": 2,
+    "token": "30684-1793580952172-b3ff6ca7e69f00f5"
+  }
+}

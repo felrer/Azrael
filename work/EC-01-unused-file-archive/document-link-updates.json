@@ -1,0 +1,32 @@
+[
+  {
+    "file": "work\\CO-01-design-preview-modules\\01-plan.md",
+    "links": 4,
+    "before_sha256": "fc8ade240764a75fa76f2a83b3bb0a367e3670dcb9bbbe6233868ab1caa9b1c4",
+    "after_sha256": "54dee80fe7420857a94012dcce29ca91132e810f5380ecc302f10b7339d82870"
+  },
+  {
+    "file": "work\\CN-01-catalog-modules\\01-plan.md",
+    "links": 13,
+    "before_sha256": "dc4934be708554926a20f695907ead3ea36a506a71119fb44a4a9c6250fd2e51",
+    "after_sha256": "a95effd7156e03c4a5ed788dfa075300cd03bfc038d4ee83ed8e70a2f4efb7fe"
+  },
+  {
+    "file": "work\\CF-01-window-use-admin-setup\\01-plan.md",
+    "links": 1,
+    "before_sha256": "bc47f69829f8cfe55237e55b2ab3a7ca14c8667a0336cc97f580aec130a1f4ab",
+    "after_sha256": "25f64331285c3865371a430514465a9ebd8523dbb94235f512ee6d8ea37d16f9"
+  },
+  {
+    "file": "work\\DN-01-disk-cleanup-candidates\\02-log-cleanup-result.md",
+    "links": 6,
+    "before_sha256": "ba52ab04a6b2976c938e71a2bc9527c4dc213281df4a5f87445b2c25e480621d",
+    "after_sha256": "54e34a448febf3d4935457a57d1700da63f36b9a3509d3d6f5cd09e23470339d"
+  },
+  {
+    "file": "work\\DN-01-disk-cleanup-candidates\\05-formal-cleanup-result.md",
+    "links": 1,
+    "before_sha256": "bd0813423a4896f474a41e918b1c376e4719918af9f78c9badc556f6c3d6908d",
+    "after_sha256": "8206811d678fd4ae47ea09d2575ecc5ea0233d665a1cff3596adddff6e23debb"
+  }
+]

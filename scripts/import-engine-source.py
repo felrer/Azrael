@@ -1134,7 +1134,7 @@ def validate_inventory(destination, receipt):
 
 def is_reviewed_source_addition(name):
     return (name.endswith(".rs") or
-            re.fullmatch(r"codex-rs/[A-Za-z0-9][A-Za-z0-9_-]*/Cargo\.toml", name) is not None or
+            re.fullmatch(r"codex-rs/[A-Za-z0-9][A-Za-z0-9_-]*/(?:Cargo\.toml|README\.md)", name) is not None or
             (name.startswith("codex-rs/prompts/templates/") and name.endswith(".md")) or
             (PurePosixPath(name).parent in (PurePosixPath("codex-rs/app-server-protocol/schema/typescript"),
                                          PurePosixPath("codex-rs/app-server-protocol/schema/typescript/v2")) and name.endswith(".ts")) or

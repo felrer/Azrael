@@ -1,0 +1,393 @@
+{
+  "schema": 1,
+  "status": "implementation_verified_release_acceptance_pending",
+  "at_utc": "2026-11-01T19:19:01.336Z",
+  "platform_verified": "windows-x64",
+  "native": {
+    "started": "2026-11-01T19:03:43.749Z",
+    "exit_code": 0,
+    "preflight": {
+      "schema": 2,
+      "compilation": "cargo-test",
+      "testExecution": "nonzero-passed",
+      "contract": "selected-tests-v2",
+      "cargoInvocations": 1,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 73,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 35,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 11,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 28,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 22,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 24,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 8,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          }
+        ],
+        "passed": 229,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0,
+        "executed": 229
+      },
+      "phases": [
+        {
+          "phase": "compilation-and-execution",
+          "args": [
+            "test",
+            "--offline",
+            "--locked",
+            "-p",
+            "azrael-project-maintenance"
+          ],
+          "startedUtc": "2026-11-01T19:03:43.752Z",
+          "durationMs": 110378,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    }
+  },
+  "build": {
+    "exit_code": 0,
+    "immutable_inputs_unchanged": true
+  },
+  "native_inputs": {
+    "files": {
+      "Cargo.lock": "48419500030bee42f2bfe2e9e055dc09bcd26560fac73461a5e55145c79e7dc8",
+      "Cargo.toml": "98760f034d44b20a752801c91d569877c1b8cb70aee87f05f96f216fa8863959",
+      "project-maintenance\\Cargo.toml": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b",
+      "project-maintenance\\examples\\maintenance_dispatch.rs": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8",
+      "project-maintenance\\src\\apply.rs": "33a4838706d04031392a70a446163c8906f1bb4c9a5bb84502e645752632b533",
+      "project-maintenance\\src\\cli.rs": "6bb9e67e7681c5a63b8904d5a3e78f6aed66afbde896e3107b2d5870716bd892",
+      "project-maintenance\\src\\duplicate_claims.rs": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709",
+      "project-maintenance\\src\\groups.rs": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca",
+      "project-maintenance\\src\\lease.rs": "7f75716ae534c0e5757002260db39e58369b0c54b298a1e13bd17f98e1c88301",
+      "project-maintenance\\src\\lib.rs": "612cda5ee530a6e7abd9a98b9d88c590db80d74a96fb6962c4394bb9a394b65e",
+      "project-maintenance\\src\\lock_recovery.rs": "5947c155dc25131758fc3496be9356df490d1c032b659ee098c4fc1872618519",
+      "project-maintenance\\src\\nested_retirement.rs": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06",
+      "project-maintenance\\src\\partitioned_storage.rs": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35",
+      "project-maintenance\\src\\paths.rs": "1c39690ad2c409cbe95f590fe689bf5973ab81151dd2bfe8b024e3f733bfc380",
+      "project-maintenance\\src\\planning.rs": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2",
+      "project-maintenance\\src\\registration.rs": "2748badd373a327ff883f31d95e942a5d7bd1c54f0024b1502ad5c7074983d21",
+      "project-maintenance\\src\\registry.rs": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104",
+      "project-maintenance\\src\\reservations.rs": "6ef5d28d0d8adc6d52ca8802be32c91bbd4f47f4be842dcc9e849f05faa8d6d9",
+      "project-maintenance\\src\\retirement.rs": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807",
+      "project-maintenance\\src\\storage.rs": "afb3f433c5405d0160f503e7b5c7ba13461456caefedbb9de8ccbc2053bc4a6f",
+      "project-maintenance\\src\\timing.rs": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692",
+      "project-maintenance\\src\\windows_delete.rs": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+      "project-maintenance\\tests\\absent_adoption.rs": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a",
+      "project-maintenance\\tests\\contention.rs": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d",
+      "project-maintenance\\tests\\contracts.rs": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df",
+      "project-maintenance\\tests\\duplicate_claims.rs": "0333ffd08a43b6d94b1537ca3905086af93d9b3a1a23a26bae6718106015f699",
+      "project-maintenance\\tests\\groups.rs": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e",
+      "project-maintenance\\tests\\hardlink_normalization.rs": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf",
+      "project-maintenance\\tests\\lock_recovery.rs": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab",
+      "project-maintenance\\tests\\nested_retirement.rs": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec",
+      "project-maintenance\\tests\\partitioned.rs": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031",
+      "project-maintenance\\tests\\registry.rs": "f2c9d230721ef11cd71645c391d956b04569ce16cf53184bd4e33318d3b3129c",
+      "project-maintenance\\tests\\root_retirement.rs": "e680a45636be409f186cf0e6d5e218ae7fc3ef47100b824a219520f3cce1740d",
+      "project-maintenance\\tests\\verified_junctions.rs": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2",
+      "project-maintenance\\src\\bin\\azrael_maintenance_probe.rs": "2062ffbda62438ce3b96502b133d58166064b9926b75846dd21a7e9bed11e9f0",
+      "project-maintenance\\src\\bin\\maintenance_owner.rs": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+      "utils\\process\\BUILD.bazel": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da",
+      "utils\\process\\Cargo.toml": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f",
+      "utils\\process\\src\\background_command_tests.rs": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6",
+      "utils\\process\\src\\lib.rs": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90"
+    },
+    "probe_only": true,
+    "actual_app_entry_built": false,
+    "lock_preparation": "offline selected workspace resolution before test input freeze"
+  },
+  "node": {
+    "executed": 208,
+    "passed": 207,
+    "failed": 1,
+    "combined_exit": 1,
+    "failing_target": "test-packaging-workspace.cjs launched without its required fixture argument",
+    "accepted_scope": "205 lifecycle checks, real integrated lease suite, resolver checks; failed packaging target rerun separately"
+  },
+  "checks": {
+    "results": [
+      {
+        "name": "packaging-r2",
+        "started": "2026-11-01T19:12:26.311Z",
+        "ended": "2026-11-01T19:13:11.973Z",
+        "elapsed_ms": 45659.0287,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "summary": "899},\"workingGitIo\":{\"reusedFileCount\":17,\"writtenObjectCount\":3},\"engineFreezeMs\":763.2222000000002,\"immutableInventoryMs\":70.22710000000006,\"immutableGitPreparationMs\":1019.2119000000002,\"workingGitPreparationMs\":947.0536999999995,\"preparationMs\":6270.037600000001},\"reuseTimings\":{\"verificationMs\":498.65400000000045,\"reuseMs\":809.3395},\"timings\":{\"copyMs\":694.2584999999999,\"preparationMs\":1824.3792999999987},\"nextReuseTimings\":{\"verificationMs\":467.2459999999992,\"reuseMs\":854.0314999999973},\"overrideCaptureTimings\":{\"copyMs\":616.2301999999981,\"preparationMs\":1637.824400000005},\"checks\":\"full capture/reuse/compact + real PS wrapper/Python package/installer PrepareOnly; successful license override through ZIP, confinement, provenance, closure, hashes, tampering and baseline dependencies\"}\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "package-final",
+        "started": "2026-11-01T19:12:26.332Z",
+        "ended": "2026-11-01T19:13:42.025Z",
+        "elapsed_ms": 75692.7606,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "summary": "",
+        "stderr_tail": "test_next_release_requires_management_acceptance_before_pointer_change (__main__.AppReleaseTests.test_next_release_requires_management_acceptance_before_pointer_change) ... ok\r\ntest_codepath_selection_uses_only_local_mock_cli (__main__.AppReleaseTests.test_codepath_selection_uses_only_local_mock_cli) ... ok\r\ntest_package_portable_closure_and_checksum_contract (__main__.AppReleaseTests.test_package_portable_closure_and_checksum_contract) ... ok\r\ntest_relocated_prepare_only_and_same_version_refusal (__main__.AppReleaseTests.test_relocated_prepare_only_and_same_version_refusal) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 4 tests in 75.255s\r\n\r\nOK\r\n"
+      },
+      {
+        "name": "invalidation-integrated",
+        "started": "2026-11-01T19:12:26.344Z",
+        "ended": "2026-11-01T19:13:17.396Z",
+        "elapsed_ms": 51052.3554,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "summary": "WindowControl shared ownership: stable target, native cleanup protection, physical lease, completed cross-copy selection, failed/active retry, marker and legacy guards passed; exit=0\r\nOwnership lifetime: A/B one generation, exact retirement, A absence/B hit, legacy hit/replacement separation passed; exit=0\r\nAbsent-project cache invalidation: explicit authority, default protection, lease, evidence/registry/absence/process/consumer guards, preview and immutable original registry receipt passed; exit=0\r\n",
+        "stderr_tail": ""
+      }
+    ],
+    "immutable_inputs_unchanged": true
+  },
+  "publish": {
+    "exit_code": 0,
+    "real_product_binary": false,
+    "shared_cli_probe": true,
+    "relocated_helpers": true,
+    "publication": {
+      "receipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\installer-final\\state\\maintenance-installation.json",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\installer-final\\runtime\\engine\\azrael.exe",
+      "sha256": "f5b5f6fcc04a35815e59dd9c4d60c81ee8f65f779701f761b0d86fef8b404714",
+      "args": [
+        "maintenance"
+      ]
+    },
+    "pointer": {
+      "schema": 2,
+      "product": "Azrael",
+      "version": "2026.0.15",
+      "protocol": "maintenance-owner-lease-v1",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\installer-final\\runtime\\engine\\azrael.exe",
+      "sha256": "f5b5f6fcc04a35815e59dd9c4d60c81ee8f65f779701f761b0d86fef8b404714",
+      "capabilities": {
+        "operations": [
+          "inventory",
+          "register",
+          "review",
+          "apply",
+          "recover_lock",
+          "recover_reservation",
+          "recover_refresh_pending",
+          "recover_lifecycle_pending",
+          "partition_storage",
+          "compact_storage",
+          "reconcile_duplicate_groups"
+        ],
+        "platform": {
+          "arch": "x64",
+          "os": "win32"
+        },
+        "protocol": "maintenance-owner-lease-v1",
+        "schema": 1,
+        "storage_formats": [
+          "legacy",
+          "partitioned-v1"
+        ]
+      },
+      "acceptance": {
+        "lease": true,
+        "register_review_apply": true,
+        "target_absent": true,
+        "fixture_absent": true
+      },
+      "installation_receipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\installer-final\\installer-receipt.json"
+    },
+    "selected": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\installer-final\\runtime\\engine\\azrael.exe",
+      "args": [
+        "maintenance"
+      ]
+    },
+    "lease_via_default_pointer": true,
+    "original_project_selector_sha256": "1adda000d896aba8a5b50983d7ed44354d1d5122a827b186ed37ab8fcd23c8b4"
+  },
+  "config_final": {
+    "exit_code": 0,
+    "stdout": "✔ installed Azrael selection, strict negotiation and legacy bootstrap (37.2219ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 135.6619\n",
+    "stderr": ""
+  },
+  "static": {
+    "node_parse_exit": 0,
+    "powershell_parse_files": 4,
+    "powershell_parse_exit": 0,
+    "diff_check_exit": 0
+  },
+  "source_sha256": {
+    "engine/codex-rs/project-maintenance/src/cli.rs": "6bb9e67e7681c5a63b8904d5a3e78f6aed66afbde896e3107b2d5870716bd892",
+    "engine/codex-rs/project-maintenance/src/lib.rs": "612cda5ee530a6e7abd9a98b9d88c590db80d74a96fb6962c4394bb9a394b65e",
+    "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+    "engine/codex-rs/app-server/src/main.rs": "0eac9f74e20490831d7f8a0fd38153c7faafcc3818e051fe4a2d36d52425cbfc",
+    "engine/codex-rs/app-server/Cargo.toml": "cb3899d365b510c7ae3e6487fd76d46ca1b2cce10722915ee0f527465f6fefc5",
+    "engine/codex-rs/Cargo.lock": "3cae87ba5eac910033bb34c926f315e594bcf8c7d1966f0a1a0b3e8a8191879c",
+    "scripts/maintenance-owner-config.cjs": "39aa5dd97f7679ee93fe8bc7dccdad94ed17cffa177f95310d6e931035930d7b",
+    "scripts/maintenance-lock-owner.cjs": "3d6b57b3ed709b3137f98554b1c8f1a8202727c402328674f22c2ad8846685b0",
+    "scripts/maintenance-lock-worker.cjs": "b0b3781fc349f6fbe26c318c7c4e2d0e98806a387468036cc1af3a353f1926ac",
+    "scripts/install-app-release.ps1": "7c079daa33c605f3f931c8f4f1bcfd9bdc0951a58ca9f8f8791e3ac4d57e3a49",
+    "scripts/install-independent-vscode.ps1": "37912ec0e025a40f9c474146789f7adba99f6ad1a19310a941ddf84f8345b25a",
+    "scripts/package-app-release.py": "45eb681630cec7ce2d50c61d8e724549a4131564481fd8154e67fd9341207cfb",
+    "scripts/packaging-workspace.cjs": "199875905dbab591562250fe96e898d832a18556c204a23f3dd7213a2ae5aeab",
+    "scripts/test-build-metrics.ps1": "e8005967eae49a26ad7382eee740c461c86e3fdbd04604d0f2c33e6551c2f2bc",
+    "scripts/test-build-module-cache.ps1": "27dd028d21e4047d0627fa8ff8c316c89f383a0683dc9fec3c884f03ae618a40",
+    "scripts/test-cargo-stable-source.cjs": "f194745409c092a73c7a146ca6438fdf87ace745c3d8273efe8412675c57aaa9",
+    "scripts/test-cargo-target-owner.cjs": "6a62ccb8a78e8b8b129f72e56f4ac7074fad79c88e85bdaa39742345e845ffad",
+    "scripts/test-maintenance-lock-owner.cjs": "03f5c43664ba79577e4eda6f94e885df3ec4d4f85c181a300c33ad0eca0a527c",
+    "scripts/test-maintenance-owner-config.cjs": "a90de62319322a64122f2f277312bc461e5b9186a3b963367fe39d68e40e76e8",
+    "scripts/tests/test_app_release.py": "138f45d9a3ba98931bf667bca8910f467440a40fdc473c01f5cf156c6a4b777c",
+    "scripts/azrael-feature-contracts.json": "3b9634e2c4be7ee4e192948ccc72eaa1fe613ed2617f822cc111196733112a2e"
+  },
+  "current_default": {
+    "selected": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\payload\\maintenance_owner.exe",
+      "args": []
+    },
+    "selector_sha256": "1adda000d896aba8a5b50983d7ed44354d1d5122a827b186ed37ab8fcd23c8b4",
+    "binary_sha256": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627",
+    "unchanged": true
+  },
+  "limitations": [
+    "Actual Azrael product executable not built or installed in this task; next release must pass its actual installation CLI acceptance",
+    "Linux/macOS native maintenance not accepted or switched",
+    "Initial 20 synthetic package tests passed but overlapped source edits and were excluded from final acceptance; 4 affected checks reran with frozen inputs"
+  ],
+  "prior_execution_errors": [
+    "Syntax duplicate variable before Cargo; fixed",
+    "Shared-cache owner env incompatible with task target before Cargo; fixed",
+    "Packaging test required explicit fixture argument; corrected",
+    "Packaging test environment lacked pwsh; rerun passed"
+  ],
+  "stop_evidence": {
+    "all_owned_children_terminal": true,
+    "basis": "Managed native controller and integrated Node controller terminal exits observed; final-check controller observed all child close events; synchronous Python and publisher commands returned and drained output; no persistent app/background producers launched"
+  },
+  "commit": {
+    "created": false,
+    "reason": "Interdependent uncommitted changes predate this follow-up in the same core, scripts and preservation inventory; task-only self-contained commit cannot be separated without including prior work"
+  }
+}

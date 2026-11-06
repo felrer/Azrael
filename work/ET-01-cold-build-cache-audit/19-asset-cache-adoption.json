@@ -1,0 +1,29 @@
+{
+  "observedUtc": "2026-10-30T03:17:47.518Z",
+  "results": [
+    {
+      "cache": "namespace",
+      "observation": "work:DM-01:preserved-nonlog-input-custody:20261024",
+      "revision": 5,
+      "target": "work:ET-01:asset-cache-invalidation:namespace"
+    },
+    {
+      "cache": "namespace",
+      "observation": "work:BI-01-legacy-custody:20261019",
+      "revision": 14,
+      "target": "work:ET-01:asset-cache-invalidation:namespace"
+    },
+    {
+      "cache": "ui-test-transform",
+      "observation": "work:DM-01:preserved-nonlog-input-custody:20261024",
+      "revision": 7,
+      "target": "work:ET-01:asset-cache-invalidation:ui-test-transform"
+    },
+    {
+      "cache": "ui-test-transform",
+      "observation": "work:BI-01-legacy-custody:20261019",
+      "revision": 16,
+      "target": "work:ET-01:asset-cache-invalidation:ui-test-transform"
+    }
+  ]
+}

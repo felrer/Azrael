@@ -1,0 +1,1390 @@
+{
+  "schema": 1,
+  "owner": "FA-01-instruction-package-dev-tab/source-preparation",
+  "recordedAtUtc": "2026-11-03T06:05:31.902Z",
+  "status": "preparation-only-product-build-pending",
+  "authority": {
+    "rootSelectedCandidate": true,
+    "deletionPerformed": false,
+    "referenceReleasePerformed": false,
+    "newRunCreated": false,
+    "nativeRegistrationPerformed": false,
+    "sourceGitFrozenRootsModified": false
+  },
+  "platformScope": "Windows x64 local source/schema preparation; product behavior and native acceptance remain parent pipeline work",
+  "anchors": {
+    "baselinePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\engine-original-import-12a1dbfc",
+    "baselineRawReceiptSha256": "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+    "baselineCanonicalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
+    "interimReceiptSha256": "75ddaa8f2a33425d0f8cfc24d87da2b2e2d611553efb865bc32aa56a8e6b02f2",
+    "finalReceiptSha256": "3af6c8560eabb1d7b94305f141ad38770124eb376875161ff053e94b5fcf7c7a",
+    "finalInventorySha256": "0d436716937747e28e29634a47ff8056392811697985bccfcd93328fda842ac2",
+    "finalLocalIntegrationRepositoryHead": "8a79e1249515b45500fe61644e1d5b3bc54ae46e",
+    "finalLocalIntegrationChangeCount": 722,
+    "importerSha256": "8b1ce6eaf40699cc28f775c05d5ea5446a18694a169ad57a69b67778a852dc8f"
+  },
+  "verification": {
+    "interim": {
+      "recorderActualExitCode": 0,
+      "ownerExitCode": 0,
+      "fullFreezePrepared": true
+    },
+    "schema": {
+      "ownerExitCode": 0,
+      "cache": {
+        "key": "96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+        "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target"
+      },
+      "environmentDigest": "864c92adb5dcc9df9c2a843c4846fbe2a03191774abfd9b6707bb6e171f2e802",
+      "wrappers": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification.cjs",
+          "sha256": "a734dae46f063a5fe3a996354094f6c4c03dd86690d638cb700d58cdb28ac31d"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-target-owner.cjs",
+          "sha256": "fc0b578c02787edb7530d49bbaf1f0eaf2db0a57620347fffaf732d5531cf1a3"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-shared-cache.cjs",
+          "sha256": "13c760941efec9b765d202d2a7111ebc9d7d1620210cfada46a68a2829b23ec3"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-stable-source.cjs",
+          "sha256": "f06e499d4edce9c8a6659941701784bb55613cce77510aabc29c9a9f4640ba56"
+        }
+      ],
+      "effectiveEnvironment": {
+        "CARGO_BUILD_JOBS": "2",
+        "RUST_MIN_STACK": "33554432",
+        "INSTA_UPDATE": "no",
+        "runtimeAccountEnvironmentRemoved": true
+      },
+      "phases": [
+        {
+          "name": "stable",
+          "argv": [
+            "cargo",
+            "test",
+            "-p",
+            "codex-app-server-protocol",
+            "--lib",
+            "--locked",
+            "--offline",
+            "schema_fixtures_tests::write_schema_fixtures_from_env",
+            "--",
+            "--exact",
+            "--ignored"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine\\codex-rs",
+          "actualExitCode": 0,
+          "signal": null,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 1,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 341
+              }
+            ],
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 341,
+            "executed": 1
+          },
+          "accepted": true
+        },
+        {
+          "name": "experimental",
+          "argv": [
+            "cargo",
+            "test",
+            "-p",
+            "codex-app-server-protocol",
+            "--lib",
+            "--locked",
+            "--offline",
+            "schema_fixtures_tests::write_schema_fixtures_from_env",
+            "--",
+            "--exact",
+            "--ignored"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine\\codex-rs",
+          "actualExitCode": 0,
+          "signal": null,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 1,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 341
+              }
+            ],
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 341,
+            "executed": 1
+          },
+          "accepted": true
+        },
+        {
+          "name": "config",
+          "argv": [
+            "cargo",
+            "run",
+            "-p",
+            "codex-config-schema",
+            "--bin",
+            "codex-write-config-schema",
+            "--locked",
+            "--offline",
+            "--",
+            "--out",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\outputs\\config.schema.json"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine\\codex-rs",
+          "actualExitCode": 0,
+          "signal": null,
+          "actualCounts": null,
+          "accepted": null
+        }
+      ],
+      "preLaunchHarnessFailure": {
+        "actualExitCode": 1,
+        "cargoLaunched": false,
+        "cause": "Scoped reference member mismatch before producer launch; corrected prior reports descendant scope to projected run root"
+      }
+    },
+    "sdk": {
+      "pathAttempt": {
+        "ownerExitCode": 1,
+        "generatorExitCode": 1,
+        "cause": "WinError2: datamodel formatter could not locate existing ruff executable on PATH"
+      },
+      "generatedAttempt": {
+        "ownerExitCode": 1,
+        "generatorExitCode": 0,
+        "cause": "Output review detected .ruff_cache3files in owned copy"
+      },
+      "applyAttempt": {
+        "ownerExitCode": 0,
+        "generatorRerun": false,
+        "reviewResolution": "Only cache-only extras beyond approved2generated sources; no api.py change",
+        "apiPyUnchanged": true
+      },
+      "dependencies": {
+        "python": "3.10",
+        "datamodelCodeGenerator": "0.31.2",
+        "pydantic": "2.13.4",
+        "ruff": "0.15.12"
+      },
+      "sourceSyntax": "Both generated files AST parsed without bytecode output"
+    },
+    "finalRecord": {
+      "recorderCommand": {
+        "executable": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+        "args": [
+          "-B",
+          "scripts/record-engine-local-changes.py",
+          "--destination",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine",
+          "--baseline",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\engine-original-import-12a1dbfc",
+          "--baseline-receipt-sha256",
+          "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+          "--current-receipt-sha256",
+          "75ddaa8f2a33425d0f8cfc24d87da2b2e2d611553efb865bc32aa56a8e6b02f2",
+          "--expected-path",
+          "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.schemas.json",
+          "--expected-path",
+          "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json",
+          "--expected-path",
+          "codex-rs/app-server-protocol/schema/json/v2/ThreadReadResponse.json",
+          "--expected-path",
+          "codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst",
+          "--expected-path",
+          "codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst",
+          "--expected-path",
+          "codex-rs/app-server-protocol/schema/typescript/v2/ThreadReadResponse.ts",
+          "--expected-path",
+          "codex-rs/core/config.schema.json",
+          "--expected-path",
+          "sdk/python/src/openai_codex/generated/notification_registry.py",
+          "--expected-path",
+          "sdk/python/src/openai_codex/generated/v2_all.py",
+          "--expected-path",
+          "codex-rs/core/src/session/agent_profile.rs"
+        ],
+        "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "exitCode": 0
+      },
+      "ownerExitCode": 1,
+      "cause": "Global index guard detected concurrent document-only commit78036337 after recorder actual0",
+      "successfulReceiptReusedWithoutRerecord": true
+    },
+    "finalFreeze": {
+      "ownerExitCode": 1,
+      "manifestPublished": true,
+      "immutableInputProducerExitCode": 0,
+      "insideVerifyStatus": "verified",
+      "cause": "HEAD/index changed during freeze; failure preserved",
+      "selectedHead": "78036337c95faff0d1979e67643146ec0bedf3d2",
+      "laterObservedHead": "4fd917cbacc9b997c6c3f4c99d572037f8f6cb12",
+      "laterSourceDifference": "docs/architecture/standalone-app.md; product code4/config/feature inventory already exact included before commit"
+    },
+    "independentCandidate": {
+      "ownerExitCode": 0,
+      "verificationExitCode": 0,
+      "status": "verified",
+      "parentDecisionRequest": "01a19ff5-6f5b-7193-8868-71d442515699",
+      "physicalIdentityInventorySOURCEAnd10PinsVerified": true,
+      "version": "2026.0.17"
+    }
+  },
+  "generatedChanges": [
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.schemas.json",
+      "beforeSha256": "944c48245d5919803822be44a21501bcb2569cbddc77b02d551311abae5e85f6",
+      "afterSha256": "65ef05b55a814881b46a5bb77495754dd618bb766d954f64c3485a3689795402"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json",
+      "beforeSha256": "7e03136af4383ca667041da2e1c809ababfd36b95312fcc140db1cf3946b810a",
+      "afterSha256": "f7849e6422acbf4c343f67464e6aab3208d73549c3e250dc206a3d7a3f9411f3"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadReadResponse.json",
+      "beforeSha256": "4a5ab4ad78373ffa5d58dd5224a2b3fa309b22a14ea91b346035de8e2c8178ed",
+      "afterSha256": "b577b63e64548988c028c937f0b2e305f8f70895da5db4dc4b14b3e97d91fb86"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst",
+      "beforeSha256": "7ef2ac1dc2c922dc9d023978ca7ff0a35dff55e80700268269125b8769741fb1",
+      "afterSha256": "5ddfaa9b2de1155783a358e5479f623428d7b339db40f750fcead61e3bb1ff5c"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst",
+      "beforeSha256": "f4cda3eefff3a0c68b34ac023cb056fe19b279db5fd517b10fefe508afe3d69a",
+      "afterSha256": "7c58ec1d0795bbc7ddce1cb5576118e085c6514b5df03b793ab33f272e4d3b0f"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/ThreadReadResponse.ts",
+      "beforeSha256": "09d84ab28738dd7f906f7adf4dc741e745d5ee826029653f4d7741c4953a7b42",
+      "afterSha256": "355c98a1276b7247e89f7706c9427e7222bae59303363380306feb011bc0647b"
+    },
+    {
+      "path": "engine/codex-rs/core/config.schema.json",
+      "beforeSha256": "c41aef38c9a0d353143d057492f913b7b510bac173bf2b5a742b2b490276a4c7",
+      "afterSha256": "201d598402ac7a0a5cdff3be137ebff1c7b730a6087a9dcb995b8f10952657f4"
+    },
+    {
+      "path": "engine/sdk/python/src/openai_codex/generated/notification_registry.py",
+      "beforeSha256": "c9ed4273fd7244af8f349efb99c1b65c48a30a162c752abfe075dd0a0ab59761",
+      "afterSha256": "60e592b8627184007ff3c6b4e4d299d7e37061be5f10b2da60dca7dd22208d4b"
+    },
+    {
+      "path": "engine/sdk/python/src/openai_codex/generated/v2_all.py",
+      "beforeSha256": "2a78e73676873c3cec183cc3e26a0f590212cb65487ac033962528f397dc41ff",
+      "afterSha256": "9c1c73f859418824b7b488458333a07d7ed22eb4727abd3dd204e179b32b69f9"
+    }
+  ],
+  "selectedResourceTest": {
+    "path": "engine/codex-rs/core/src/session/agent_profile.rs",
+    "sha256": "e61642cd6845aeb01faf4cb8bac2c26611f64c757853c6d34611617c0dd53b44",
+    "name": "role_profile_selected_resources_reach_skill_and_mcp_catalogs",
+    "behaviorExecutionByThisPhase": false
+  },
+  "selectedCandidate": {
+    "id": "run:FA-01-final-source-verification:20261103T055555080Z-1482cab1-1293-4bc2-8e0b-f64c71265b9b",
+    "reportPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-verification\\runs\\20261103T055555080Z-1482cab1-1293-4bc2-8e0b-f64c71265b9b\\reports\\candidate.json",
+    "reportSha256": "9f3ac5cb26a4bc17a6bca74ae829b2515968185f2742ae076a0427df92f6166a",
+    "manifestPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1\\reports\\workspace.json",
+    "manifestSha256": "9eb2ed959a088e853efaf15fc12787504c4cef8e7502324466faed1c2b51d1b0",
+    "inputRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\f17",
+    "workingRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17a",
+    "immutableEngineRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\f17\\project\\engine",
+    "workingEngineRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17a\\engine",
+    "moduleCacheProjectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+    "projectSha256": "4abf4691cb01ffbcdd38c1b8b6341f654a0eb88484df1686c812daeca1cdea24",
+    "immutableInventorySha256": "e55ea529d589e17bfb44c365fddc444a16322249f83081bcc3c56f79f472d9ea",
+    "engineFingerprint": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9357,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "0d436716937747e28e29634a47ff8056392811697985bccfcd93328fda842ac2",
+      "importedReceiptSha256": "3af6c8560eabb1d7b94305f141ad38770124eb376875161ff053e94b5fcf7c7a",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "7974b094b7e693dc2877a941d3bd8c6b44cec03a5851088bf4bf25dcc4072491",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "inputLifecycleId": "input:cb24953164d0ed626f34bffc",
+    "workingLifecycleId": "workspace:cb24953164d0ed626f34bffc",
+    "plannedFixture": {
+      "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17a\\artifacts\\v",
+      "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17a\\artifacts\\v\\s",
+      "socket": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17a\\artifacts\\v\\s\\ipc\\aaaaaaaaaaaaaaaaaaaa.sock",
+      "ipcBytes": 97,
+      "created": false
+    }
+  },
+  "cleanupPreparation": {
+    "deletionNotAuthorizedByThisDocument": true,
+    "observedCandidateGroupCount": 8,
+    "candidateGroups": [
+      {
+        "groupId": "workspace:5114eb368519fb60a994611f",
+        "kind": "run",
+        "owner": "FA-01-provenance-schema-owner",
+        "revision": 1,
+        "state": "pending",
+        "membershipComplete": false,
+        "producer": null,
+        "provenanceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0e9861b2f67ebf42f5ed1174cf9032ad664d7c5a0e1b19d755fb4972a587d3bd.json",
+        "membershipSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membershipSourceFormat": "producer_registry_v1",
+        "members": [
+          {
+            "id": "fd315197a7b09ce813c56abc1542282ead39a06fe79dd62d24adceedb8bb39a6",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\.agents",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "c3329cbc22bbfc4f056773dd12ae3c2aa9ecf04f5cd4352bd8041924cbd8d960",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\.gitattributes",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "1b6eb97342af5b1c09808b8a7ff3a7d0c1135b97381a55e6336610bbc5dcfe84",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\.github",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "859171b26075783ff28f1e03c0b91618f10e83d42bc14548a6ac2ce5ebdb7571",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\.gitignore",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "482489937ac16d1bca89f8349c9ffa9ce3fe624aef6d2c56af6e368e3e762cf8",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\.gitmodules",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "dea8693c722abd0a301b1965fc865c2c8fda6c6962cbced1f7090dcf72bd73ce",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\.vscode",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "4de05efffddd0d4fd221b0435febe0c83daf57df796dd493a656e2c9bac7a3e9",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\AGENTS.md",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "90d25cd564c5f1a1b16657e19543c3e8d978502a3bbd7bfd47304ff992f4fa6e",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\LICENSE",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "686a7fb874ec467b7b0428cf778a03d7537b774fd84c71bf2814c73e311672b6",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\README.ko.md",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "b2492ec0add2894d9aa988caa9bd73b13ac67414fd7d81183cf29d78bb96a41a",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\README.md",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "28f679208b020db4fe73adbadee14006f6faefcc0e16b34ed30f709e75486e18",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\THIRD_PARTY_NOTICES.md",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "34c4aa47f6e3ce97a82522342a948e0b6b367eab1fc7149684cf298d12c79d19",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\apps",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "c425ac4bf59a30655bf4ec75a07943fd824fb13d7f955428582a0006b7640562",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\control",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "5918c4295f4a5ebf068020bdf2b42002bf02f8877121d3e27d1469710b001f6a",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\docs",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "e2a261981d2a1df28bac9143b4aea3e6e9cda7fd0f6946bae8ebed06e9ec2fe5",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "c1a424e784b5aef9f65fea4185b955608314cb82e8a6ee473e67718b44f76b70",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\extensions",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "716b1b729f58020e804b586af26f03174ee2d6756ffe2b55a79f50f562346fa9",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\instructions",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "4146cedcaa1da07575779a07b79e98e0ae8cc587db10e858fb59a739f77251b1",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\native",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "35230e173268221746f7a460aff12192a0d7892d1e0113b2f358e3b8527ca0e7",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\plugins",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "0bcc97394593882dcf39f520780e4a426ae0e5342c82901afc8911d00b90f5c5",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\project-maintenance.json",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "b9826f28cd9b61f938bd72a092af2dfb026e3bf441905f762df7b830bfe014ec",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\providers",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "25404dc4a95a0fefc288c97e0cfeb96ab2420e041018778bbdb05b50cbdcb141",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\scripts",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "f3b999ca42e457ff5f9a06ce1a5625972455c681f87c75e88c9a21dc9249127b",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\upstream",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          },
+          {
+            "id": "6226683ba374fbeb6292a1b9be2d39334b7c8a7b37bb7b1c343d931546c4ee7d",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\work",
+            "role": "working-source",
+            "generated": true,
+            "protectionKnown": true
+          }
+        ],
+        "outgoingReferences": [
+          {
+            "id": "input:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\ii-efb4"
+            ],
+            "reason": "Working source consumes immutable deployment inputs",
+            "reference_id": "083a86aba642c65c789e9e9231eb3c974af2db3ecfed603286bacb446911a166"
+          }
+        ],
+        "incomingReferences": [
+          {
+            "consumerId": "run:FA-01-sdk-generation:20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "failed",
+            "id": "workspace:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine"
+            ],
+            "reason": "Execute frozen original Python generator",
+            "reference_id": "0d291a12a0a743abf3ba28dd5a52eb2450c35f7ca9a041394f388817c75567bd"
+          },
+          {
+            "consumerId": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "complete",
+            "id": "workspace:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine"
+            ],
+            "reason": "Managed Cargo compiles verified interim engine working source",
+            "reference_id": "c956bd2c2b80a7e8fd6eda29febf7bbd7c8fb59375c0112ad828e7cbccb64fdf"
+          },
+          {
+            "consumerId": "run:FA-01-sdk-generation:20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "failed",
+            "id": "workspace:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine"
+            ],
+            "reason": "Execute frozen original Python generator",
+            "reference_id": "0d291a12a0a743abf3ba28dd5a52eb2450c35f7ca9a041394f388817c75567bd"
+          }
+        ]
+      },
+      {
+        "groupId": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+        "kind": "run",
+        "owner": "FA-01-provenance-schema-owner",
+        "revision": 2,
+        "state": "failed",
+        "membershipComplete": true,
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\reports\\producer-15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa.json",
+          "evidence_sha256": "15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "provenanceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\30874d848b7abf0752548e5968fdbf2052421c4fb9dc62e4daf87b7f7db74502.json",
+        "membershipSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membershipSourceFormat": "producer_registry_v1",
+        "members": [
+          {
+            "id": "30c6750012e5d8f57d430dce9781d9286c2ae1bdc6b73f61bdf1412b747ff2a0",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+            "role": "run",
+            "generated": true,
+            "protectionKnown": true
+          }
+        ],
+        "outgoingReferences": [
+          {
+            "id": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377"
+            ],
+            "reason": "Canonical schema generation evidence and exact output hashes",
+            "reference_id": "36f8109e875e5d63ed207ce2c37f2b051af65c3d0a2ba1e193ffeca09910de13"
+          },
+          {
+            "id": "run:FA-01-sdk-generation:20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659"
+            ],
+            "reason": "Canonical SDK generation evidence and output hashes",
+            "reference_id": "20b3566d47ef5848510c1e01e1a3d8d37392135fe992ae9178045106a5929cbe"
+          }
+        ],
+        "incomingReferences": [
+          {
+            "consumerId": "run:FA-01-final-source-freeze:20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "failed",
+            "id": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+            "kind": "evidence",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde"
+            ],
+            "reason": "Successful SOURCE recorder actual0 plus diagnosed document-only concurrent commit; parent approved HEAD78036337 freeze",
+            "reference_id": "acc684ca49c5861fc6bad3b9a348f22335ccbdf84c7fa128b85a9da587996a89"
+          }
+        ]
+      },
+      {
+        "groupId": "input:5114eb368519fb60a994611f",
+        "kind": "work",
+        "owner": "FA-01-provenance-schema-owner",
+        "revision": 2,
+        "state": "complete",
+        "membershipComplete": true,
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca\\reports\\workspace.json",
+          "evidence_sha256": "2dda006571bfd421fc7f2d69fe77730d9f3efd359b1e45b4036c420920a77439",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Immutable deployment input preparation completed",
+          "status": "stopped"
+        },
+        "provenanceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5008acb10508303803c3b39162353f158358f41d15a8db480913eed3f52d9dd9.json",
+        "membershipSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membershipSourceFormat": "producer_registry_v1",
+        "members": [
+          {
+            "id": "b77b818cc9600337838322b0ad4f6b7d860c8997bd4f0fdd3d22629bc71e152f",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\ii-efb4",
+            "role": "immutable-input",
+            "generated": true,
+            "protectionKnown": true
+          }
+        ],
+        "outgoingReferences": [],
+        "incomingReferences": [
+          {
+            "consumerId": "workspace:5114eb368519fb60a994611f",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "pending",
+            "id": "input:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\ii-efb4"
+            ],
+            "reason": "Working source consumes immutable deployment inputs",
+            "reference_id": "083a86aba642c65c789e9e9231eb3c974af2db3ecfed603286bacb446911a166"
+          },
+          {
+            "consumerId": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "complete",
+            "id": "input:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\ii-efb4"
+            ],
+            "reason": "Schema writer consumes verified immutable interim deployment inputs",
+            "reference_id": "7f59693c5a4492952850b16c7cf8bb3cf1281895d562d4cec0dc87cc078eb0bb"
+          }
+        ]
+      },
+      {
+        "groupId": "run:FA-01-sdk-generation:20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c",
+        "kind": "run",
+        "owner": "FA-01-provenance-schema-owner",
+        "revision": 2,
+        "state": "failed",
+        "membershipComplete": true,
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c\\reports\\producer-37fc504e77d4043fe12235a2cfae8dbd4de7bc2a83645426e6b3c4818febfefc.json",
+          "evidence_sha256": "37fc504e77d4043fe12235a2cfae8dbd4de7bc2a83645426e6b3c4818febfefc",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "provenanceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5d459e9d5219c958437d3648254ce00a8bb7dabcfed52c19853676e89969c256.json",
+        "membershipSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membershipSourceFormat": "producer_registry_v1",
+        "members": [
+          {
+            "id": "2b66ead422e9d597377232d1c05f87a74ba1da14a2b3f969f033a9cedcad095e",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c",
+            "role": "run",
+            "generated": true,
+            "protectionKnown": true
+          }
+        ],
+        "outgoingReferences": [
+          {
+            "id": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377"
+            ],
+            "reason": "Generate Python SDK from canonical schema outputs",
+            "reference_id": "9151c97f29d85ca999516c217615ef6e10c0d8ed53779a8c66a5ab4e784133d3"
+          },
+          {
+            "id": "workspace:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine"
+            ],
+            "reason": "Execute frozen original Python generator",
+            "reference_id": "0d291a12a0a743abf3ba28dd5a52eb2450c35f7ca9a041394f388817c75567bd"
+          }
+        ],
+        "incomingReferences": [
+          {
+            "consumerId": "run:FA-01-sdk-generation:20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "complete",
+            "id": "run:FA-01-sdk-generation:20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c"
+            ],
+            "reason": "Review and apply completed generator outputs; generator exit0 and review cache guard resolved",
+            "reference_id": "e28b1f9337b70cfe8e7087239ce01855307dabcdaf1552b884ded6470812d1bb"
+          }
+        ]
+      },
+      {
+        "groupId": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+        "kind": "run",
+        "owner": "FA-01-provenance-schema-owner",
+        "revision": 2,
+        "state": "complete",
+        "membershipComplete": true,
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\reports\\producer-664aaead1dd244a0a4b79b9288ce25e5558c0a47ac21ebadfc87fe891f50c78a.json",
+          "evidence_sha256": "664aaead1dd244a0a4b79b9288ce25e5558c0a47ac21ebadfc87fe891f50c78a",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Canonical stable/experimental/config schema writers completed and reviewed outputs applied; final provenance is separate",
+          "status": "stopped"
+        },
+        "provenanceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c0d6605dc6ebd1c0cfb341acf3e6c47af17dd4776c8ec85901d72537505e0600.json",
+        "membershipSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membershipSourceFormat": "producer_registry_v1",
+        "members": [
+          {
+            "id": "2da01aa7cb7fb2f72880f2febfbe1a9d9a0fc9d42a0eaa24e4f51f8f60577240",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "role": "run",
+            "generated": true,
+            "protectionKnown": true
+          }
+        ],
+        "outgoingReferences": [
+          {
+            "id": "input:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\ii-efb4"
+            ],
+            "reason": "Schema writer consumes verified immutable interim deployment inputs",
+            "reference_id": "7f59693c5a4492952850b16c7cf8bb3cf1281895d562d4cec0dc87cc078eb0bb"
+          },
+          {
+            "id": "workspace:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine"
+            ],
+            "reason": "Managed Cargo compiles verified interim engine working source",
+            "reference_id": "c956bd2c2b80a7e8fd6eda29febf7bbd7c8fb59375c0112ad828e7cbccb64fdf"
+          },
+          {
+            "id": "run:FA-01-provenance-schema:20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca",
+            "kind": "evidence",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca"
+            ],
+            "reason": "Schema input identities consume prior preparation evidence",
+            "reference_id": "f1a26ef5c1254ca6e69f00abdab9ed9c24871e660cacba611b7d4705ede33481"
+          }
+        ],
+        "incomingReferences": [
+          {
+            "consumerId": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "failed",
+            "id": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377"
+            ],
+            "reason": "Canonical schema generation evidence and exact output hashes",
+            "reference_id": "36f8109e875e5d63ed207ce2c37f2b051af65c3d0a2ba1e193ffeca09910de13"
+          },
+          {
+            "consumerId": "run:FA-01-sdk-generation:20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "failed",
+            "id": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377"
+            ],
+            "reason": "Generate Python SDK from canonical schema outputs",
+            "reference_id": "9151c97f29d85ca999516c217615ef6e10c0d8ed53779a8c66a5ab4e784133d3"
+          },
+          {
+            "consumerId": "run:FA-01-sdk-generation:20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "failed",
+            "id": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377"
+            ],
+            "reason": "Generate Python SDK from canonical schema outputs",
+            "reference_id": "9151c97f29d85ca999516c217615ef6e10c0d8ed53779a8c66a5ab4e784133d3"
+          }
+        ]
+      },
+      {
+        "groupId": "run:FA-01-sdk-generation:20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd",
+        "kind": "run",
+        "owner": "FA-01-provenance-schema-owner",
+        "revision": 2,
+        "state": "failed",
+        "membershipComplete": true,
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd\\reports\\producer-74efd6cbfc3a5e6653bd7a35ad1353fa8991ae962ed8010153a5c0fd0bd78488.json",
+          "evidence_sha256": "74efd6cbfc3a5e6653bd7a35ad1353fa8991ae962ed8010153a5c0fd0bd78488",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "provenanceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c1b734c9be7628cd3a950ce277b9a363a690e0ddde19f0e65d22ebf4d00ca491.json",
+        "membershipSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membershipSourceFormat": "producer_registry_v1",
+        "members": [
+          {
+            "id": "907d0187a416bfda0e985ef9bef42feb5ac4b0fb47c4ad0742ebc1d863da1d63",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd",
+            "role": "run",
+            "generated": true,
+            "protectionKnown": true
+          }
+        ],
+        "outgoingReferences": [
+          {
+            "id": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377"
+            ],
+            "reason": "Generate Python SDK from canonical schema outputs",
+            "reference_id": "9151c97f29d85ca999516c217615ef6e10c0d8ed53779a8c66a5ab4e784133d3"
+          },
+          {
+            "id": "workspace:5114eb368519fb60a994611f",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\engine"
+            ],
+            "reason": "Execute frozen original Python generator",
+            "reference_id": "0d291a12a0a743abf3ba28dd5a52eb2450c35f7ca9a041394f388817c75567bd"
+          }
+        ],
+        "incomingReferences": []
+      },
+      {
+        "groupId": "run:FA-01-provenance-schema:20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca",
+        "kind": "run",
+        "owner": "FA-01-provenance-schema-owner",
+        "revision": 3,
+        "state": "complete",
+        "membershipComplete": true,
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca\\reports\\producer-5c54c346fee26a5dbb3c50160b39ba68fa6c04ac6577ca8ed433f3ef60492a03.json",
+          "evidence_sha256": "5c54c346fee26a5dbb3c50160b39ba68fa6c04ac6577ca8ed433f3ef60492a03",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Interim provenance recorder and immutable workspace preparation completed; schema generation not started",
+          "status": "stopped"
+        },
+        "provenanceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\eba31fc5aaff407b685e7b8a313f93dd87aaec14d15ccea218b9686ef894daf9.json",
+        "membershipSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membershipSourceFormat": "producer_registry_v1",
+        "members": [
+          {
+            "id": "66e7cd4c55c291ade4b009999d778f7ccf20a7854ebf43e26601f88089477b8e",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca",
+            "role": "run",
+            "generated": true,
+            "protectionKnown": true
+          }
+        ],
+        "outgoingReferences": [],
+        "incomingReferences": [
+          {
+            "consumerId": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "complete",
+            "id": "run:FA-01-provenance-schema:20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca",
+            "kind": "evidence",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca"
+            ],
+            "reason": "Schema input identities consume prior preparation evidence",
+            "reference_id": "f1a26ef5c1254ca6e69f00abdab9ed9c24871e660cacba611b7d4705ede33481"
+          }
+        ]
+      },
+      {
+        "groupId": "run:FA-01-sdk-generation:20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659",
+        "kind": "run",
+        "owner": "FA-01-provenance-schema-owner",
+        "revision": 2,
+        "state": "complete",
+        "membershipComplete": true,
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659\\reports\\producer-a1b4b3f713422673929bd2adfc9a834a7c95a64740cee38adcaf451fdcfc9e4c.json",
+          "evidence_sha256": "a1b4b3f713422673929bd2adfc9a834a7c95a64740cee38adcaf451fdcfc9e4c",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "provenanceRef": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ef836b684d9083ffdf865f7bc26c98a510ce329e58da50104427422c4466f4bd.json",
+        "membershipSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membershipSourceFormat": "producer_registry_v1",
+        "members": [
+          {
+            "id": "451e2a6fb557a3abbede306dbfec5348de73b9cbe205e88498fd0c04ebdaf05f",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659",
+            "role": "run",
+            "generated": true,
+            "protectionKnown": true
+          }
+        ],
+        "outgoingReferences": [
+          {
+            "id": "run:FA-01-sdk-generation:20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c"
+            ],
+            "reason": "Review and apply completed generator outputs; generator exit0 and review cache guard resolved",
+            "reference_id": "e28b1f9337b70cfe8e7087239ce01855307dabcdaf1552b884ded6470812d1bb"
+          }
+        ],
+        "incomingReferences": [
+          {
+            "consumerId": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+            "consumerOwner": "FA-01-provenance-schema-owner",
+            "consumerState": "failed",
+            "id": "run:FA-01-sdk-generation:20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659",
+            "kind": "dependency",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659"
+            ],
+            "reason": "Canonical SDK generation evidence and output hashes",
+            "reference_id": "20b3566d47ef5848510c1e01e1a3d8d37392135fe992ae9178045106a5929cbe"
+          }
+        ]
+      }
+    ],
+    "endOfUseBasis": "Interim/schema/SDK execution copies no longer have planned execution consumers after canonical outputs were applied to selected final inputs; evidence/dependency references remain and must be handled by their owners",
+    "protectedExclusions": {
+      "groups": [
+        {
+          "id": "run:FA-01-final-source-freeze:20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1",
+          "revision": 3,
+          "state": "failed",
+          "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1",
+          "outgoingReferences": [
+            {
+              "id": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+              "reference_id": "acc684ca49c5861fc6bad3b9a348f22335ccbdf84c7fa128b85a9da587996a89",
+              "kind": "evidence",
+              "reason": "Successful SOURCE recorder actual0 plus diagnosed document-only concurrent commit; parent approved HEAD78036337 freeze"
+            }
+          ]
+        },
+        {
+          "id": "input:cb24953164d0ed626f34bffc",
+          "revision": 2,
+          "state": "complete",
+          "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\f17",
+          "outgoingReferences": []
+        },
+        {
+          "id": "workspace:cb24953164d0ed626f34bffc",
+          "revision": 1,
+          "state": "pending",
+          "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17a",
+          "outgoingReferences": [
+            {
+              "id": "input:cb24953164d0ed626f34bffc",
+              "reference_id": "cf10f9fc1387fcaa5c424a29a9b2f6c3e7b2b414ffbc7c81fc78a7147d6e5ea9",
+              "kind": "dependency",
+              "reason": "Working source consumes immutable deployment inputs"
+            }
+          ]
+        },
+        {
+          "id": "run:FA-01-final-source-verification:20261103T055555080Z-1482cab1-1293-4bc2-8e0b-f64c71265b9b",
+          "revision": 2,
+          "state": "complete",
+          "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-verification\\runs\\20261103T055555080Z-1482cab1-1293-4bc2-8e0b-f64c71265b9b",
+          "outgoingReferences": [
+            {
+              "id": "run:FA-01-final-source-freeze:20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1",
+              "reference_id": "b627099e7f06939b23c0417d175b6082b22ce31e7f456df0b460f03752447cf4",
+              "kind": "evidence",
+              "reason": "Completed regular freeze manifest; original HEAD/index guard failure retained"
+            },
+            {
+              "id": "input:cb24953164d0ed626f34bffc",
+              "reference_id": "7f5c27e7debfb677aa7503a9b5bd85c08663d984ef2850f8d15863509f76f3a1",
+              "kind": "dependency",
+              "reason": "Independently verify selected immutable frozen inputs"
+            },
+            {
+              "id": "workspace:cb24953164d0ed626f34bffc",
+              "reference_id": "03387bc1de950508bcd942f2c087676c7bdb53df305e13c9204c7e5b62589543",
+              "kind": "dependency",
+              "reason": "Independently verify complete working input against immutable snapshot"
+            }
+          ]
+        }
+      ],
+      "originalBaseline": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\engine-original-import-12a1dbfc",
+        "groupIds": [
+          "run:engine-original-import:12a1dbfc"
+        ],
+        "excludeRegardlessOfRegistration": true
+      },
+      "sharedCargoCache": {
+        "key": "96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+        "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+        "exclude": true,
+        "reason": "Shared cache owner and current/future parent consumers"
+      }
+    },
+    "specialProtection": {
+      "interimWorkspace": {
+        "id": "workspace:5114eb368519fb60a994611f",
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4",
+        "state": "pending",
+        "producer": null,
+        "requiresVerifiedCloseBeforeCleanup": true,
+        "containerRootIsNotProjectedGroupMember": true,
+        "retainedControlEvidence": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\iw-efb4\\.git",
+          "text": "gitdir: C:/Users/felre/Desktop/pi-harness-init/artifacts/iw-efb4/control/git\n",
+          "sha256": "7f2713072d2c69a511770d9c7194d34d4843ea398ea9829e1efb28d616ff127f",
+          "reason": "Lifecycle member guards exclude .git; retain this small structural gitfile until a supported control-file retirement owner exists"
+        },
+        "handling": "Do not recursively delete container to bypass member ownership or protected .git sentinel; supported owner must resolve structural control evidence"
+      }
+    },
+    "protectedReferenceNeedingFutureEvidenceSwitch": {
+      "consumerId": "run:FA-01-final-source-freeze:20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1",
+      "references": [
+        {
+          "id": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde"
+          ],
+          "reason": "Successful SOURCE recorder actual0 plus diagnosed document-only concurrent commit; parent approved HEAD78036337 freeze",
+          "reference_id": "acc684ca49c5861fc6bad3b9a348f22335ccbdf84c7fa128b85a9da587996a89"
+        }
+      ],
+      "replacementEvidencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\26-build-source-preparation-verification.json",
+      "switchedOrReleased": false
+    },
+    "suggestedFutureProcedure": [
+      "Accept and independently preserve minimum verification in required version scope before retiring original logs; reference-to-soon-deleted-file alone is insufficient.",
+      "Recheck current revisions, membership, actual stop evidence and inbound consumers; do not infer process stop from PID absence.",
+      "Switch/release only satisfied reference identities through existing lifecycle owner; keep final manifest/candidate/input/workspace protected.",
+      "Close interim workspace only after verified end-of-use and preserve actual failure/success outcomes and structural Git control protections.",
+      "Use producer_registry_v1 registration/refresh and native cleanup review/apply with fresh tokens and exact authorized groups; verify removal before reconciliation."
+    ],
+    "deletionDependencyOrderAfterRequiredReferenceRelease": [
+      "recordFailure",
+      "sdkApply",
+      "sdkGenerated",
+      "sdkPathFailure",
+      "schema",
+      "interimWorkspace",
+      "interimInput",
+      "interim"
+    ],
+    "orderAliases": {
+      "interim": "run:FA-01-provenance-schema:20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca",
+      "schema": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+      "sdkPathFailure": "run:FA-01-sdk-generation:20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd",
+      "sdkGenerated": "run:FA-01-sdk-generation:20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c",
+      "sdkApply": "run:FA-01-sdk-generation:20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659",
+      "recordFailure": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+      "manifest": "run:FA-01-final-source-freeze:20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1",
+      "candidate": "run:FA-01-final-source-verification:20261103T055555080Z-1482cab1-1293-4bc2-8e0b-f64c71265b9b",
+      "interimWorkspace": "workspace:5114eb368519fb60a994611f",
+      "interimInput": "input:5114eb368519fb60a994611f"
+    },
+    "catalogReadCorrection": {
+      "firstRead": "Rejected by catalog membership-change guard during concurrent backend lifecycle registration; no evidence file written",
+      "correctedRead": "Existing withCatalogLock read-only consistent catalog snapshot; no lifecycle mutation"
+    }
+  },
+  "producerReceipts": {
+    "interim": {
+      "lifecycleId": "run:FA-01-provenance-schema:20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Interim provenance recorder and immutable workspace preparation completed; schema generation not started",
+      "children": [],
+      "state": "complete",
+      "membership_complete": true
+    },
+    "schema": {
+      "lifecycleId": "run:FA-01-provenance-schema:20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Canonical stable/experimental/config schema writers completed and reviewed outputs applied; final provenance is separate",
+      "children": [],
+      "state": "complete",
+      "membership_complete": true
+    },
+    "sdkPathFailure": {
+      "lifecycleId": "run:FA-01-sdk-generation:20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\reports\\generate-sdk.cjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [],
+      "state": "failed",
+      "membership_complete": true
+    },
+    "sdkGenerated": {
+      "lifecycleId": "run:FA-01-sdk-generation:20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\reports\\generate-sdk.cjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [],
+      "state": "failed",
+      "membership_complete": true
+    },
+    "sdkApply": {
+      "lifecycleId": "run:FA-01-sdk-generation:20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [],
+      "state": "complete",
+      "membership_complete": true
+    },
+    "recordFailure": {
+      "lifecycleId": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [],
+      "state": "failed",
+      "membership_complete": true
+    },
+    "manifest": {
+      "lifecycleId": "run:FA-01-final-source-freeze:20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [],
+      "state": "failed",
+      "membership_complete": true
+    },
+    "candidate": {
+      "lifecycleId": "run:FA-01-final-source-verification:20261103T055555080Z-1482cab1-1293-4bc2-8e0b-f64c71265b9b",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-verification\\runs\\20261103T055555080Z-1482cab1-1293-4bc2-8e0b-f64c71265b9b",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [],
+      "state": "complete",
+      "membership_complete": true
+    }
+  },
+  "evidenceFileIdentities": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca\\reports\\producer.json",
+      "sha256": "5c54c346fee26a5dbb3c50160b39ba68fa6c04ac6577ca8ed433f3ef60492a03",
+      "bytes": 587
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\reports\\producer.json",
+      "sha256": "664aaead1dd244a0a4b79b9288ce25e5558c0a47ac21ebadfc87fe891f50c78a",
+      "bytes": 603
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd\\reports\\producer.json",
+      "sha256": "74efd6cbfc3a5e6653bd7a35ad1353fa8991ae962ed8010153a5c0fd0bd78488",
+      "bytes": 702
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c\\reports\\producer.json",
+      "sha256": "37fc504e77d4043fe12235a2cfae8dbd4de7bc2a83645426e6b3c4818febfefc",
+      "bytes": 702
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T053014419Z-9d451fa2-7c85-42e7-bfa9-0aadac1f0659\\reports\\producer.json",
+      "sha256": "a1b4b3f713422673929bd2adfc9a834a7c95a64740cee38adcaf451fdcfc9e4c",
+      "bytes": 520
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\reports\\producer.json",
+      "sha256": "15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa",
+      "bytes": 528
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053956740Z-a0559b3e-55a2-43dc-9256-d66550e813b1\\reports\\producer.json",
+      "sha256": "0ccf60bb52a5d081803579174de26dd4c87914d3ce0d0ae0232b78c3e36a0cda",
+      "bytes": 528
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-verification\\runs\\20261103T055555080Z-1482cab1-1293-4bc2-8e0b-f64c71265b9b\\reports\\producer.json",
+      "sha256": "cb8b85127ebc972d307c134f72f332e5fd11af7d0ee026dcda92682822c8462c",
+      "bytes": 542
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\logs\\stable.stdout.log",
+      "sha256": "db6088cc2546afaa3d4aedd73270ea0b936a920ee6def435d976275447d62d27",
+      "bytes": 278
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\logs\\stable.stderr.log",
+      "sha256": "6a0a096e173f21b69f796f762a48419386b8dc5dc88a44aa7b686b3283d91533",
+      "bytes": 5029
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\logs\\experimental.stdout.log",
+      "sha256": "da0bbec665793d1c1774bb75f1ad34fb2bd4207596ff01558f0305e5487bf60c",
+      "bytes": 181
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\logs\\experimental.stderr.log",
+      "sha256": "b6871e1ef96cca1fcee79a330bd286f767da04bd355fdcc89165f8b9732f2c6b",
+      "bytes": 301
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\logs\\config.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T051526603Z-7b1322a6-2de3-456e-83b4-e0fac219f377\\logs\\config.stderr.log",
+      "sha256": "d8647dbb9b8f24267ea22f0849bbd72d79b01710f2cdddfe42b329c2b6aabdd7",
+      "bytes": 3921
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca\\logs\\record.stdout.json",
+      "sha256": "ed11308d14168ea49b768ba8b476a96c332f83b665b32e58ff4d0c6862298e84",
+      "bytes": 338604
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-provenance-schema\\runs\\20261103T044859624Z-8d0c17fa-e136-4265-8a4a-8e74fa0674ca\\logs\\record.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\logs\\record.stdout.json",
+      "sha256": "ca0bdb2af009f0da1adb653253e02546eb62376fdce8f9a82dcf80a8e6ca5e63",
+      "bytes": 339659
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\logs\\record.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd\\logs\\sdk.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052736384Z-504cc8ad-8d4a-4ba0-8036-4da3d50e2fdd\\logs\\sdk.stderr.log",
+      "sha256": "50dbaf24fe0f9f0294b0543379e855c8ce8088b74371988a4d063eff6c9b7a3e",
+      "bytes": 5891
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c\\logs\\sdk.stdout.log",
+      "sha256": "3d1c1f5cdf27f458578e1108b2fe98ca41866c685dea6aba919c039c430bb05f",
+      "bytes": 26
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-sdk-generation\\runs\\20261103T052835292Z-a0faf406-8b04-4e9d-b92c-77e937f5411c\\logs\\sdk.stderr.log",
+      "sha256": "6dc019309546b67cca111c92919204d0de93434a2f3cbb0c3a6e09d5253e2455",
+      "bytes": 962
+    }
+  ]
+}

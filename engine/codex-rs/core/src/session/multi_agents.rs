@@ -24,17 +24,25 @@ pub(super) fn usage_hint_text(step_context: &StepContext) -> Option<MultiAgentRo
         multi_agent_messages,
         !turn_context.config.update_plan_enabled && turn_context.config.model_catalog.is_none(),
     );
-    let selected = match &turn_context.session_source {
-        SessionSource::SubAgent(SubAgentSource::ThreadSpawn { .. }) => snapshot.subagent,
-        SessionSource::Cli
-        | SessionSource::VSCode
-        | SessionSource::Exec
-        | SessionSource::Mcp
-        | SessionSource::Custom(_)
-        | SessionSource::Unknown => snapshot.root,
-        SessionSource::Internal(_) | SessionSource::SubAgent(_) => None,
+    let selected = if let Some(policy) = &turn_context.config.role_profile {
+        match policy.role {
+            codex_protocol::protocol::AgentProfileRole::Root => snapshot.root,
+            codex_protocol::protocol::AgentProfileRole::Subagent => snapshot.subagent,
+            codex_protocol::protocol::AgentProfileRole::Lead => None,
+        }
+    } else {
+        match &turn_context.session_source {
+            SessionSource::SubAgent(SubAgentSource::ThreadSpawn { .. }) => snapshot.subagent,
+            SessionSource::Cli
+            | SessionSource::VSCode
+            | SessionSource::Exec
+            | SessionSource::Mcp
+            | SessionSource::Custom(_)
+            | SessionSource::Unknown => snapshot.root,
+            SessionSource::Internal(_) | SessionSource::SubAgent(_) => None,
+        }
     };
-    selected.map(|instructions| instructions.with_claude_tools(step_context.harness_profile.uses_claude_tools()))
+    selected
 }
 
 pub(crate) fn resolve_usage_hints(
@@ -60,7 +68,6 @@ pub(crate) fn resolve_usage_hints(
             max_concurrency: config.max_concurrent_threads_per_session,
             wait_agent_enabled: config.wait_agent_enabled,
             expose_model_overrides: config.expose_spawn_agent_model_overrides,
-            claude_tools: false,
         })
     };
 

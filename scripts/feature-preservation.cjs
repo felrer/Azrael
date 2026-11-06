@@ -13,8 +13,10 @@ const cargoCache = require('./cargo-verification-cache.cjs');
 const { validateCargoPreflight } = require('./cargo-verification.cjs');
 const { physicalPath } = require('./cargo-target-owner.cjs');
 const { planVerificationSchedule } = require('./verification-schedule.cjs');
+const reusePolicy = require('./verification-reuse-policy.cjs');
 const sourceCheckSelection = require('./source-check-selection.cjs');
 const { provenanceArguments } = require('./engine-source-handoff.cjs');
+const validatedReuse = new WeakMap();
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = async filename => hash(await fs.promises.readFile(filename));
 const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
@@ -84,9 +86,32 @@ function sourceTestPolicy(config) {
   }
   return { changedPaths: [...new Set(policy.changedPaths.map(file => file.replace(/\\/g, '/').replace(/^\.\//, '')))].sort(), exhaustive: policy.exhaustive };
 }
+function sourceTestConcurrency(config) {
+  const value = config.sourceTestConcurrency;
+  if (value !== undefined && (!Number.isInteger(value) || value < 1 || value > 16)) throw Error('sourceTestConcurrency must be an integer from 1 to 16');
+  return value;
+}
+function verifySourceTestConcurrency(config, receipt) {
+  sourceTestConcurrency(config);
+  sourceTestConcurrency({ sourceTestConcurrency: receipt.sourceTestConcurrency });
+}
 function sourceTestCommand(config, check, args) {
+  const concurrency = sourceTestConcurrency(config);
   const policy = sourceTestPolicy(config);
-  if (!policy || check.level !== 'source' || check.executable !== 'node' || !args.includes('--test')) return { args, omitted: [] };
+  if (check.level !== 'source' || check.executable !== 'node' || !args.includes('--test')) return { args, omitted: [] };
+  if (concurrency !== undefined) {
+    const selected = [];
+    for (let index = 0; index < args.length; index++) {
+      const arg = args[index];
+      if (arg === '--test-concurrency' || arg.startsWith('--test-concurrency=')) {
+        const value = arg === '--test-concurrency' ? args[++index] : arg.slice('--test-concurrency='.length);
+        if (value !== String(concurrency)) throw Error(`Conflicting source test concurrency: ${check.id}`);
+      } else selected.push(arg);
+    }
+    selected.splice(selected.indexOf('--test') + 1, 0, `--test-concurrency=${concurrency}`);
+    args = selected;
+  }
+  if (!policy) return { args, omitted: [] };
   const plan = require('./source-test-policy.cjs').planSourceTests({ files: checkSources(check), ...policy });
   if (plan.files.length !== checkSources(check).length) throw Error('A registered preservation check cannot be deferred as a whole');
   if (!plan.skipPattern) return { args, omitted: [] };
@@ -129,6 +154,16 @@ function validateManifest(manifest, projectRoot, transformRules = {}) {
       }
     }
   }
+  if (manifest.engineVerificationProfiles !== undefined) {
+    const profiles = manifest.engineVerificationProfiles;
+    if (!profiles || typeof profiles !== 'object' || Array.isArray(profiles)) throw Error('Invalid engine verification profiles');
+    const nativeIds = new Set(manifest.features.filter(feature => feature.area === 'engine').flatMap(feature => feature.checks.filter(check => check.level === 'native').map(check => check.id)));
+    for (const [name, profile] of Object.entries(profiles)) {
+      if (!/^[a-z][a-z0-9-]*$/.test(name) || !profile || !same(Object.keys(profile), ['nativeCheckIds']) ||
+          !Array.isArray(profile.nativeCheckIds) || !profile.nativeCheckIds.length || new Set(profile.nativeCheckIds).size !== profile.nativeCheckIds.length ||
+          profile.nativeCheckIds.some(id => !nativeIds.has(id))) throw Error(`Invalid engine verification profile: ${name}`);
+    }
+  }
   for (const key of Object.keys(transformRules).filter(key => /^inject-.*\.cjs$/.test(key))) if (!covered.has(key)) throw Error(`Unregistered UI injector: ${key}`);
   if (Object.hasOwn(manifest, 'verificationSchedule')) nativeSchedulePlan(manifestNativeGroups(manifest), manifest.verificationSchedule);
   return manifest;
@@ -142,6 +177,7 @@ function validateTransformReport(manifest, report) {
   return true;
 }
 async function execute(executable, args, options) {
+  await require('./build-resource-admission.cjs').waitForBuildMemory({ label: 'feature verification' });
   return new Promise(resolve => {
     const stdout = fs.createWriteStream(options.logPath), stderr = fs.createWriteStream(options.errorPath);
     let output = '', errorOutput = '';
@@ -155,10 +191,32 @@ async function execute(executable, args, options) {
     });
   });
 }
+function verificationSelection(manifest, config) {
+  if (config.engineVerificationProfile === undefined) {
+    if (config.sourceFeatureIds !== undefined || config.unmappedNativePaths !== undefined) throw Error('sourceFeatureIds and unmappedNativePaths require an engine verification profile');
+    return undefined;
+  }
+  if (config.area !== 'engine' || config.fullRegression || Object.hasOwn(config, 'featureIds')) throw Error('Engine verification profile conflicts with area, FullRegression or featureIds');
+  const name = config.engineVerificationProfile;
+  if (typeof name !== 'string' || !Object.hasOwn(manifest.engineVerificationProfiles ?? {}, name)) throw Error('Unknown engine verification profile');
+  const nativeCheckIds = manifest.engineVerificationProfiles[name].nativeCheckIds;
+  const engineFeatures = manifest.features.filter(feature => feature.area === 'engine');
+  const sourceIds = config.sourceFeatureIds === undefined ? engineFeatures.filter(feature => feature.checks.some(check => nativeCheckIds.includes(check.id))).map(feature => feature.id) : config.sourceFeatureIds;
+  if (!Array.isArray(sourceIds) || new Set(sourceIds).size !== sourceIds.length || sourceIds.some(id => !engineFeatures.some(feature => feature.id === id))) throw Error('Invalid profile sourceFeatureIds');
+  const unmappedNativePaths = config.unmappedNativePaths === undefined ? [] : config.unmappedNativePaths;
+  if (!Array.isArray(unmappedNativePaths) || new Set(unmappedNativePaths).size !== unmappedNativePaths.length || unmappedNativePaths.some(value => typeof value !== 'string' || !value || value.includes('\0'))) throw Error('Invalid profile unmappedNativePaths');
+  return { profile: name, sourceFeatureIds: engineFeatures.filter(feature => sourceIds.includes(feature.id)).map(feature => feature.id),
+    nativeCheckIds: [...nativeCheckIds], unmappedNativePaths: [...unmappedNativePaths],
+    omittedNative: engineFeatures.flatMap(feature => feature.checks.filter(check => check.level === 'native' && !nativeCheckIds.includes(check.id))
+      .map(check => ({ featureId: feature.id, checkId: check.id, reason: `outside explicit native profile ${name}; select its feature or FullRegression when required` }))) };
+}
 function selectedFeatures(manifest, area, config) {
   if (!['ui', 'engine', 'all'].includes(area)) throw Error('Explicit area ui, engine or all required');
   const features = manifest.features.filter(feature => area === 'all' || feature.area === area);
   for (const required of area === 'all' ? ['ui', 'engine'] : [area]) if (!features.some(feature => feature.area === required)) throw Error(`Missing mandatory area: ${required}`);
+  const selection = verificationSelection(manifest, config);
+  if (selection) return features.map(feature => ({ ...feature, checks: feature.checks.filter(check => check.level === 'native'
+    ? selection.nativeCheckIds.includes(check.id) : selection.sourceFeatureIds.includes(feature.id)) })).filter(feature => feature.checks.length);
   if (!Object.hasOwn(config, 'featureIds')) return features;
   const ids = config.featureIds;
   if (!Array.isArray(ids) || ids.some(id => typeof id !== 'string') || new Set(ids).size !== ids.length) throw Error('featureIds must be an array of unique feature IDs');
@@ -180,7 +238,8 @@ async function sourceUiIdentity(config) {
 }
 async function identity(config, manifest, rules, features, execution = execute) {
   const sourceStateArguments = provenanceArguments(config.sourceStatePath, config.sourceGeneration);
-  if (config.identityProvider) return config.identityProvider(config, manifest, rules, features);
+  const selection = verificationSelection(manifest, config);
+  if (config.identityProvider) return { ...await config.identityProvider(config, manifest, rules, features), ...(selection ? { verificationSelection: selection } : {}) };
   const references = new Set([manifestName, 'scripts/feature-preservation.cjs', 'scripts/directory-state.cjs', 'scripts/deployment-input-snapshot.cjs', 'scripts/project-source-state.cjs', 'scripts/source-observation.cjs', 'scripts/engine-source-metadata.cjs']);
   const testPolicy = sourceTestPolicy(config);
   if (testPolicy) references.add('scripts/source-test-policy.cjs');
@@ -189,7 +248,9 @@ async function identity(config, manifest, rules, features, execution = execute) 
   for (const key of Object.keys(rules).filter(key => !key.includes(':') && /\.(?:cjs|json)$/.test(key))) references.add(`scripts/${key}`);
   const input = { manifestSha256: hash(canonical(manifest)), projectSha256: (await getProjectSourceState(config.projectRoot, config.projectSourceObservation)).sha256,
     registered: await getDirectoryState(path.resolve(config.projectRoot), [...references].sort()), transformRules: rules };
+  if (selection) input.verificationSelection = selection;
   if (testPolicy) input.sourceTestPolicy = testPolicy;
+  if (sourceTestConcurrency(config) !== undefined) input.sourceTestConcurrency = config.sourceTestConcurrency;
   if (['ui', 'all'].includes(config.area)) {
     if (!config.uiRoot || !path.isAbsolute(config.uiRoot)) throw Error('Explicit absolute uiRoot required');
     input.ui = await require('./ui-source-state.cjs').getUiSourceState(config.uiRoot, config.uiSourceObservation);
@@ -200,7 +261,8 @@ async function identity(config, manifest, rules, features, execution = execute) 
   if (['engine', 'all'].includes(config.area)) {
     if (!config.engineSourceRoot || !path.isAbsolute(config.engineSourceRoot)) throw Error('Explicit absolute engine source root required');
     input.engineSource = { root: config.engineSourceRoot, sha256: (await snapshotProject(config.engineSourceRoot)).sha256 };
-    input.executionEnvironment = hash(canonical(checkEnvironment(config)));
+    const { AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH, ...environment } = checkEnvironment(config);
+    input.executionEnvironment = hash(canonical(environment));
     input.checkRuntime = await require('./pipeline-preflight.cjs').identity(config, features);
     if (config.checkPhase === 'source') return input;
     if (![config.engineSourceRoot, config.engineDirectory].every(value => value && path.isAbsolute(value))) throw Error('Explicit absolute engine source and binary roots required');
@@ -218,6 +280,7 @@ function phaseChecks(feature, phase) {
 function sourceInputs(inputs) { const { engine, ...source } = inputs; return source; }
 function expectedReceipt(manifest, features, receipt, config) {
   if (!same(receipt.sourceCheckSelection, features.sourceCheckSelection)) throw Error('Receipt source check selection differs');
+  if (!same(receipt.verificationSelection, verificationSelection(manifest, config))) throw Error('Receipt engine verification profile selection differs');
   if (receipt.schema !== 1 || receipt.status !== 'passed' || !same(receipt.featureIds, features.map(feature => feature.id))) throw Error('Receipt missing requested passing feature scope');
   const required = features.flatMap(feature => phaseChecks(feature, receipt.checkPhase).map(check => ({ featureId: feature.id, checkId: check.id, area: feature.area })));
   if (!Array.isArray(receipt.checks) || receipt.checks.length !== required.length) throw Error('Receipt mandatory checks missing');
@@ -236,9 +299,17 @@ async function verifyLogs(receipt) {
     if (!check.logPath || !check.errorPath || await fileHash(check.logPath) !== check.logSha256 || await fileHash(check.errorPath) !== check.errorSha256) throw Error(`Check evidence changed: ${check.checkId}`);
   }
 }
+function reviewReceiptReuse(config, receipt, current, scope = 'preservation-receipt') {
+  return reusePolicy.reviewReuse({ scope, previous: { inputs: receipt.inputs, sourceExecution: receipt.sourceExecution, sourceTestConcurrency: receipt.sourceTestConcurrency }, current,
+    evidence: { receiptPath: path.resolve(config.receiptPath), receiptSha256: hash(fs.readFileSync(config.receiptPath)),
+      checks: receipt.checks.map(({ featureId, checkId, logSha256, errorSha256, exitCode }) => ({ featureId, checkId, logSha256, errorSha256, exitCode })) },
+    decisions: reusePolicy.loadDecisions(config.reuseDecisionsPath) });
+}
+function validatedReceiptReuse(receipt) { return validatedReuse.get(receipt); }
 function checkEnvironment(config, preparation) {
   return { ...process.env, ...(config.cargoTargetDirectory ? { CARGO_TARGET_DIR: config.cargoTargetDirectory } : {}),
     ...(config.cargoCacheProjectRoot ? { AZRAEL_CARGO_CACHE_PROJECT_ROOT: config.cargoCacheProjectRoot } : {}), AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
+    ...(config.outputDirectory ? {AZRAEL_WINDOW_SETTINGS_TEST_ROOT:process.env.AZRAEL_WINDOW_SETTINGS_TEST_ROOT || path.join(config.outputDirectory,'window-use-settings-fixtures')} : {}),
     AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js'),
     ...(preparation?.sourceIdentity ? {
       AZRAEL_CARGO_PREPARATION_DIR: preparation.directory,
@@ -255,9 +326,10 @@ function cargoPreparationDirectory(config, runDirectory) {
   return path.join(physicalPath(target), '.azrael-test-preparation');
 }
 async function sourceExecutionIdentity(config) {
+  const { AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH, ...environment } = checkEnvironment(config);
   return { executable: process.execPath, sha256: await fileHash(process.execPath),
     version: process.version, platform: process.platform, arch: process.arch,
-    environmentSha256: hash(canonical(checkEnvironment(config))) };
+    environmentSha256: hash(canonical(environment)) };
 }
 async function sourceCacheRuntime(config, bindProjectTypeScript = false) {
   const typescriptPath = path.resolve(checkEnvironment(config).AZRAEL_PRESERVATION_TYPESCRIPT_PATH);
@@ -279,15 +351,16 @@ async function sourceCacheRuntime(config, bindProjectTypeScript = false) {
       packageSha256: await fileHash(packagePath),
       state: path.resolve(entry) === typescriptPath ? typescript.state : await getDirectoryState(root) };
   }
+  const { AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH, ...environment } = checkEnvironment(config);
   return { node: { executable: process.execPath, sha256: await fileHash(process.execPath), version: process.version,
     platform: process.platform, arch: process.arch }, typescript,
     ...(bindProjectTypeScript ? { projectTypeScript } : {}),
     ...(process.env.AZRAEL_PINNED_HOST_ROOT && path.resolve(process.env.AZRAEL_PINNED_HOST_ROOT) !== path.resolve(config.uiRoot)
       ? { pinnedHostOverride: await getDirectoryState(process.env.AZRAEL_PINNED_HOST_ROOT) } : {}),
-    environmentSha256: hash(canonical(checkEnvironment(config))) };
+    environmentSha256: hash(canonical(environment)) };
 }
 async function sourceCacheKey(config, group, inputs, runtime) {
-  const files = new Set(['scripts/feature-preservation.cjs', 'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
+  const files = new Set(['scripts/feature-preservation.cjs', 'scripts/verification-result-cache.cjs', 'scripts/verification-reuse-policy.cjs', 'scripts/directory-state.cjs']);
   for (const { feature, check } of group.entries) {
     feature.owners.forEach(file => files.add(file)); files.add(feature.contract);
     checkSources(check).forEach(file => files.add(file)); check.cacheInputs.files.forEach(file => files.add(file));
@@ -313,7 +386,7 @@ async function runPreservation(config) {
   let activeCacheCheckIds, activeNativeCheckIds, nativeRuntime, cargoRuntime, cargoGroups = [], activeCargoCheckIds, manifest, rules, features, sourceCacheBindsProjectTypeScript = false;
   const cacheSummary = kind => kind === 'native' ? receipt.nativeCache : kind === 'cargo' ? receipt.cargoCache : receipt.cache;
   const reopenCache = entry => {
-    const options = { checkId: entry.group.check.id, key: entry.key, runDirectory };
+    const options = { checkId: entry.group.check.id, key: entry.key, runDirectory, reuseDecisionsPath: config.reuseDecisionsPath };
     if (entry.kind === 'cargo') return cargoCache.begin({ ...cargoCache.options(config), ...options });
     if (entry.kind === 'native') return nativeCache.begin({ ...nativeCache.options(config), ...options });
     return verificationCache.begin({ projectRoot: config.projectRoot, ...options });
@@ -376,6 +449,7 @@ async function runPreservation(config) {
   try {
     const concurrency = config.sourceConcurrency ?? 4;
     if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw Error('sourceConcurrency must be an integer from 1 to 4');
+    if (sourceTestConcurrency(config) !== undefined) receipt.sourceTestConcurrency = config.sourceTestConcurrency;
     if (config.reuseSourceChecks !== undefined && typeof config.reuseSourceChecks !== 'boolean') throw Error('reuseSourceChecks must be boolean');
     if (config.reuseNativeChecks !== undefined && typeof config.reuseNativeChecks !== 'boolean') throw Error('reuseNativeChecks must be boolean');
     const testPolicy = sourceTestPolicy(config);
@@ -386,6 +460,8 @@ async function runPreservation(config) {
     nativeSchedulePlan(manifestNativeGroups(manifest), scheduleOptions);
     features = selected(manifest, config.area, config);
     receipt.sourceCheckSelection = features.sourceCheckSelection;
+    const selection = verificationSelection(manifest, config);
+    if (selection) receipt.verificationSelection = selection;
     receipt.featureIds = features.map(feature => feature.id);
     receipt.notApplicableFeatureIds = manifest.features.filter(feature =>
       (config.area === 'all' || feature.area === config.area) && !receipt.featureIds.includes(feature.id)).map(feature => feature.id);
@@ -396,13 +472,19 @@ async function runPreservation(config) {
     receipt.timings.identityBeforeMs = performance.now() - identityStarted;
     if (config.expectedInputs && !same(config.expectedInputs, receipt.inputs)) throw Error('Expected input identity differs');
     await persist();
-    let sourceReceipt;
+    let sourceReceipt, sourceReuse;
     if (config.sourceReceiptPath) {
       if (config.checkPhase !== 'all') throw Error('Source evidence can only be handed to a complete run');
       sourceReceipt = readJson(config.sourceReceiptPath);
       if (sourceReceipt.checkPhase !== 'source' || sourceReceipt.area !== config.area) throw Error('Invalid source preflight receipt');
+      verifySourceTestConcurrency(config, sourceReceipt);
       expectedReceipt(manifest, features, sourceReceipt, config); await verifyLogs(sourceReceipt);
-      if (!same(sourceInputs(sourceReceipt.inputs), sourceInputs(receipt.inputs))) throw Error('Source preflight input identity is stale');
+      if (!sourceReceipt.sourceExecution) throw Error('Source preflight execution evidence missing');
+      sourceReuse = config.reuseSourceChecks === false ? { action: 'rerun', mode: 'forced' } : reviewReceiptReuse(
+        { ...config, receiptPath: config.sourceReceiptPath },
+        { ...sourceReceipt, inputs: sourceInputs(sourceReceipt.inputs) },
+        { inputs: sourceInputs(receipt.inputs), sourceExecution: await sourceExecutionIdentity(config), sourceTestConcurrency: sourceTestConcurrency(config) }, 'source-preflight');
+      receipt.sourceReuse = sourceReuse;
     }
     const shared = new Map(), records = [];
     await fs.promises.mkdir(path.join(config.projectRoot, 'artifacts', 'verification'), { recursive: true });
@@ -493,33 +575,36 @@ async function runPreservation(config) {
         const logPath = path.join(runDirectory, `${check.id}.log`), errorPath = path.join(runDirectory, `${check.id}.stderr.log`);
         let handle, key, kind;
         const startedUtc = new Date().toISOString();
-        if (sourceReceipt && !group.native) {
+        if (sourceReceipt && sourceReuse.action === 'reuse' && !group.native) {
           for (const entry of group.entries) {
             const previous = sourceReceipt.checks.find(old => old.checkId === entry.check.id && old.featureId === entry.feature.id);
-            if (!previous || !same(previous.args, args) || previous.executable !== check.executable) throw Error('Source check command differs');
+            const normalize = require('./source-preflight-reuse.cjs').completeTestArgs;
+            const sameCoverage = previous && check.executable === 'node' && normalize(previous.args) && normalize(args) && same(normalize(previous.args), normalize(args));
+            if (!previous || previous.executable !== check.executable || (!same(previous.args, args) && !(sourceReuse.mode === 'reviewed' && sameCoverage))) throw Error('Source check command differs');
             const logPath = path.join(runDirectory, `${entry.check.id}.log`), errorPath = path.join(runDirectory, `${entry.check.id}.stderr.log`);
             await fs.promises.copyFile(previous.logPath, logPath); await fs.promises.copyFile(previous.errorPath, errorPath);
             records[entry.index] = { ...previous, logPath, errorPath, reused: true, evidenceKind: 'source',
               originalEvidence: { receiptPath: sourceReceipt.receiptPath || config.sourceReceiptPath, logPath: previous.logPath, errorPath: previous.errorPath },
-              executionStatus: 'reused', executionReason: 'passing source preflight with unchanged inputs', durationMs: 0, startedUtc, completedUtc: new Date().toISOString() };
+              ...(sourceReuse.mode === 'reviewed' ? { reuseReview: sourceReuse } : {}),
+              executionStatus: 'reused', executionReason: sourceReuse.decision?.reason || 'passing source preflight with unchanged inputs', durationMs: 0, startedUtc, completedUtc: new Date().toISOString() };
           }
           receipt.executionSummary.kinds.source.reused++;
           receipt.executionSummary.kinds.source.preflightReused++;
           receipt.checks = records.filter(Boolean); receipt.cache.reused++; await persist(); return;
         }
         const lookupStarted = performance.now();
-        if (cacheRuntime && eligibleGroups.includes(group)) {
+        if (cacheRuntime && eligibleGroups.includes(group) && sourceReuse?.action !== 'rerun') {
           try { key = await sourceCacheKey(config, group, receipt.inputs, cacheRuntime);
-            handle = await verificationCache.begin({ projectRoot: config.projectRoot, cacheRoot, checkId: check.id, key, runDirectory });
+            handle = await verificationCache.begin({ projectRoot: config.projectRoot, cacheRoot, checkId: check.id, key, runDirectory, reuseDecisionsPath: config.reuseDecisionsPath });
             kind = 'source'; cacheHandles.push({ handle, group, key, kind }); receipt.cache.deferred.push(...(handle.deferred || [])); }
-          catch (error) { receipt.cache.deferred.push({ checkId: check.id, reason: error.message }); }
+          catch (error) { if (['VERIFICATION_REVIEW_REQUIRED', 'VERIFICATION_EVIDENCE_INVALID', 'VERIFICATION_REUSE_DECISIONS_INVALID'].includes(error.code)) throw error; receipt.cache.deferred.push({ checkId: check.id, reason: error.message }); }
         }
         if (nativeRuntime && nativeGroups.includes(group)) {
           try { key = await nativeCache.key(config, group, nativeRuntime);
             handle = await nativeCache.begin({ ...nativeCache.options(config), checkId: check.id, key, runDirectory,
-              force: config.reuseNativeChecks === false });
+              force: config.reuseNativeChecks === false, reuseDecisionsPath: config.reuseDecisionsPath });
             kind = 'native'; cacheHandles.push({ handle, group, key, kind }); receipt.nativeCache.deferred.push(...(handle.deferred || [])); }
-          catch (error) { receipt.nativeCache.deferred.push({ checkId: check.id, reason: error.message }); }
+          catch (error) { if (['VERIFICATION_REVIEW_REQUIRED', 'VERIFICATION_EVIDENCE_INVALID', 'VERIFICATION_REUSE_DECISIONS_INVALID'].includes(error.code)) throw error; receipt.nativeCache.deferred.push({ checkId: check.id, reason: error.message }); }
         }
         if (cargoRuntime && cargoGroups.includes(group)) {
           key = await cargoCache.key(config, group, receipt.inputs, cargoRuntime);
@@ -556,9 +641,10 @@ async function runPreservation(config) {
           if (ownLog !== logPath) { await fs.promises.copyFile(logPath, ownLog); await fs.promises.copyFile(errorPath, ownError); }
           records[entry.index] = { featureId: entry.feature.id, checkId: entry.check.id, area: entry.feature.area,
             level: entry.check.level, executable: entry.check.executable, args, ...record, reused, evidenceKind,
-            ...(reused ? { originalEvidence: { cacheKind: kind, cacheKey: key, logSha256: record.logSha256, errorSha256: record.errorSha256 } } : {}),
+            ...(reused ? { originalEvidence: { cacheKind: kind, cacheKey: record.sourceKey || key, ...record.sourceEvidence, logSha256: record.logSha256, errorSha256: record.errorSha256 } } : {}),
+            ...(handle?.reuseReview ? { reuseReview: handle.reuseReview } : {}),
             executionStatus: reused ? 'reused' : 'executed',
-            executionReason: reused ? 'unchanged declared inputs and passing evidence' : handle?.reason ||
+            executionReason: reused ? handle?.reuseReview?.decision?.reason || 'unchanged declared inputs and passing evidence' : handle?.reason ||
               (group.native && config.reuseNativeChecks === false ? 'native reuse disabled' : 'no reusable passing evidence'),
             ...(key ? { cacheKey: key } : {}), durationMs: performance.now() - started, startedUtc, completedUtc: new Date().toISOString(), logPath: ownLog, errorPath: ownError };
         }
@@ -592,7 +678,8 @@ async function runPreservation(config) {
     expectedReceipt(manifest, features, receipt, config);
     await publishPassingCaches(false);
   } catch (error) {
-    receipt.status = 'failed'; receipt.error = error.message;
+    receipt.status = error.code === 'VERIFICATION_REVIEW_REQUIRED' ? 'review-required' : 'failed'; receipt.error = error.message;
+    if (receipt.status === 'review-required') receipt.review = error.review;
     // A failed overall run may retain independent passing check evidence, never a passing receipt.
     try { if (receipt.inputs) await publishPassingCaches(true); }
     catch (cacheError) { receipt.cachePublicationError = cacheError.message; }
@@ -617,7 +704,7 @@ async function runPreservation(config) {
     }
   }
   receipt.completedUtc = new Date().toISOString();
-  if (receipt.status === 'failed') {
+  if (receipt.status !== 'passed') {
     const done = new Set(receipt.checks.map(check => check.checkId));
     receipt.skipped = features ? features.flatMap(feature => phaseChecks(feature, config.checkPhase).filter(check => !done.has(check.id)).map(check => ({ checkId: check.id, reason: 'blocked by failed prerequisite' }))) : [];
   }
@@ -630,28 +717,40 @@ async function verifyReceipt(config) {
   const manifest = config.manifest ?? loadManifest(config.projectRoot), rules = rulesFor(config);
   validateManifest(manifest, config.projectRoot, rules);
   const receipt = readJson(config.receiptPath);
+  verifySourceTestConcurrency(config, receipt);
   if ((config.checkPhase ?? 'all') !== (receipt.checkPhase ?? 'all')) throw Error('Receipt check phase differs');
   if (config.area && config.area !== receipt.area) throw Error('Receipt selected area differs');
   config.area = config.area ?? receipt.area;
   const features = selected(manifest, config.area, config);
   expectedReceipt(manifest, features, receipt, config);
   await verifyLogs(receipt);
-  if (receipt.sourceExecution && !same(receipt.sourceExecution, await sourceExecutionIdentity(config))) throw Error('Source execution environment changed');
+  if (receipt.checkPhase === 'source' && !receipt.sourceExecution) throw Error('Source preflight execution evidence missing');
   await fs.promises.mkdir(config.outputDirectory, { recursive: true });
   const inputs = await identity(config, manifest, rules, features, config.execute ?? execute);
-  if (!same(receipt.inputs, inputs) || (config.expectedInputs && !same(config.expectedInputs, inputs))) throw Error('Preservation receipt input identity is stale');
-  return { ...receipt, receiptPath: path.resolve(config.receiptPath) };
+  if (config.expectedInputs && !same(config.expectedInputs, inputs)) throw Error('Expected input identity differs');
+  const current = { inputs, sourceExecution: receipt.sourceExecution ? await sourceExecutionIdentity(config) : undefined, sourceTestConcurrency: sourceTestConcurrency(config) };
+  const reuseReview = reviewReceiptReuse(config, receipt, current);
+  const result = { ...receipt, receiptPath: path.resolve(config.receiptPath), reuseReview,
+    ...(reuseReview.action === 'rerun' ? { status: 'rerun-required' } : {}) };
+  validatedReuse.set(result, { reuseReview, sourceExecution: current.sourceExecution, evidenceSourceExecution: canonical(receipt.sourceExecution) });
+  return result;
 }
 async function packageState(config) {
   const rawReceipt = readJson(config.receiptPath);
   if (!['ui', 'all'].includes(rawReceipt.area)) throw Error('UI passing receipt required for package binding');
   const receipt = await verifyReceipt(config);
+  if (receipt.status === 'rerun-required') throw new reusePolicy.ReuseReviewRequired(receipt.reuseReview.review);
   const manifest = config.manifest ?? loadManifest(config.projectRoot), report = readJson(config.reportPath);
   validateTransformReport(manifest, report);
-  if (!same(report.transformRules, rulesFor(config))) throw Error('Transformation report rules differ from verified inputs');
-  if (!same(report.sourceUi, await sourceUiIdentity(config))) throw Error('Transformation report pristine UI identity differs');
+  const reportReview = reusePolicy.reviewReuse({ scope: 'preservation-transform-report',
+    previous: { transformRules: report.transformRules, sourceUi: report.sourceUi },
+    current: { transformRules: rulesFor(config), sourceUi: await sourceUiIdentity(config) },
+    evidence: { reportSha256: await fileHash(config.reportPath), receiptSha256: await fileHash(config.receiptPath) },
+    decisions: reusePolicy.loadDecisions(config.reuseDecisionsPath) });
+  if (reportReview.action === 'rerun') throw new reusePolicy.ReuseReviewRequired(reportReview.review);
   return { schema: 1, receiptPath: path.resolve(config.receiptPath), reportPath: path.resolve(config.reportPath), packagePath: path.resolve(config.packagePath),
-    receiptSha256: await fileHash(config.receiptPath), reportSha256: await fileHash(config.reportPath), packageSha256: await fileHash(config.packagePath), inputs: receipt.inputs };
+    receiptSha256: await fileHash(config.receiptPath), reportSha256: await fileHash(config.reportPath), packageSha256: await fileHash(config.packagePath), inputs: receipt.inputs,
+    ...(receipt.reuseReview.mode === 'reviewed' || reportReview.mode === 'reviewed' ? { reuseReviews: [receipt.reuseReview, reportReview] } : {}) };
 }
 async function bindPackage(config) {
   const binding = await packageState(config);
@@ -661,17 +760,34 @@ async function bindPackage(config) {
 }
 async function verifyPackage(config) {
   const bindingPath = config.bindingPath ?? `${config.packagePath}.preservation.json`;
-  const binding = readJson(bindingPath), current = await packageState(config);
-  if (!same(binding, current)) throw Error('Package preservation binding is stale');
-  return { ...binding, bindingPath, status: 'passed' };
+  const binding = readJson(bindingPath);
+  // Immutable bytes must match before ordinary input changes may be reviewed.
+  for (const [field, filename] of [['receiptSha256', config.receiptPath], ['reportSha256', config.reportPath], ['packageSha256', config.packagePath]]) {
+    if (binding[field] !== await fileHash(filename)) throw Error('Package preservation binding is stale');
+  }
+  const current = await packageState(config);
+  const { reuseReviews: previousReviews, ...boundIdentity } = binding;
+  const { reuseReviews, ...currentIdentity } = current;
+  if (!same(boundIdentity, currentIdentity)) throw Error('Package preservation binding is stale');
+  return { ...binding, ...(reuseReviews ? { reuseReviews } : {}), bindingPath, status: 'passed' };
 }
-module.exports = { loadManifest, validateManifest, validateTransformReport, runPreservation, bindPackage, verifyPackage, verifyReceipt, scheduleNativeGroups, sourceExecutionIdentity, checkEnvironment };
+module.exports = { loadManifest, validateManifest, validateTransformReport, runPreservation, bindPackage, verifyPackage, verifyReceipt, validatedReceiptReuse, scheduleNativeGroups, sourceExecutionIdentity, checkEnvironment };
+let cliConfig;
 if (require.main === module) (async () => {
   const [action, flag, filename, ...extra] = process.argv.slice(2);
   if (!['run', 'bind', 'verify', 'verify-receipt'].includes(action) || flag !== '--config' || !filename || extra.length) throw Error('Usage: feature-preservation.cjs run|bind|verify|verify-receipt --config <JSON>');
-  const config = readJson(filename);
+  const config = cliConfig = readJson(filename);
   if (config.execute || config.identityProvider || config.manifest || config.transformRules) throw Error('Test injection is unavailable in CLI configuration');
   const result = await ({ run: runPreservation, bind: bindPackage, verify: verifyPackage, 'verify-receipt': verifyReceipt })[action](config);
   process.stdout.write(JSON.stringify(result) + '\n');
   if (result.status === 'failed') process.exitCode = 1;
-})().catch(error => { process.stderr.write(`${error.message}\n`); process.exitCode = 1; });
+  if (['review-required', 'rerun-required'].includes(result.status)) process.exitCode = 3;
+})().catch(async error => {
+  const report = reusePolicy.errorReport(error);
+  if (report && path.isAbsolute(cliConfig?.outputDirectory || '')) {
+    await fs.promises.mkdir(cliConfig.outputDirectory, { recursive: true });
+    report.reviewReportPath = path.join(cliConfig.outputDirectory, `reuse-review-${report.review.reviewId}.json`);
+    await fs.promises.writeFile(report.reviewReportPath, JSON.stringify(report, null, 2) + '\n');
+  }
+  process.stderr.write(`${report ? JSON.stringify(report) : error.message}\n`); process.exitCode = report ? 3 : 1;
+});

@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "action": "exact-q-managed-cargo-list-tree-stop",
+  "approved_by": "root accepted dedicated execution/log provenance plus Kill(true), WaitForExit, stream drain and actual controller closure; direct ParentProcessId snapshot not observed",
+  "attempt": 2,
+  "pid": 59220,
+  "observedUtc": "2026-10-30T20:19:42.708Z",
+  "lease": {
+    "exists": true,
+    "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g",
+    "targetStat": {
+      "dev": "3057815611",
+      "ino": "5066549582623693",
+      "birthtimeNs": "1793341976284028700"
+    },
+    "leasePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\.azrael-cargo-owner",
+    "leaseStat": {
+      "dev": "3057815611",
+      "ino": "1970324851193391",
+      "birthtimeNs": "1793390439299264600"
+    },
+    "ownerPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\.azrael-cargo-owner\\owner.json",
+    "ownerStat": {
+      "dev": "3057815611",
+      "ino": "1970324851193392",
+      "birthtimeNs": "1793390439300266300"
+    },
+    "token": "0b036062-7252-41c2-acf4-3f76256d3462",
+    "ownerSha256": "e6e7d295ae7e07835a5bfa6e4033b536f878d084093d09722f9ff3449bb96d2f",
+    "owner": {
+      "schema": 1,
+      "token": "0b036062-7252-41c2-acf4-3f76256d3462",
+      "run": "pid-6340",
+      "coordinatorPid": 6340,
+      "producerPid": null,
+      "startedUtc": "2026-10-30T20:00:39.299Z",
+      "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g",
+      "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g",
+      "command": "cargo",
+      "args": [
+        "test",
+        "-p",
+        "codex-core",
+        "--lib",
+        "context::world_state::model::tests",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--test-threads=1",
+        "--list",
+        "--format=terse"
+      ],
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\engine\\codex-rs",
+      "compilationSignature": "4aadc8d29b6b745fab6768d184561fc46c96ed511550ec94ddeb9c01a1b7fc3b",
+      "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\p",
+      "status": "running",
+      "phase": "spawn-attempted",
+      "lastProgressUtc": "2026-10-30T20:00:39.301Z",
+      "preparingUtc": "2026-10-30T20:00:39.299Z",
+      "spawnAttemptedUtc": "2026-10-30T20:00:39.301Z"
+    },
+    "ownerBytesBase64": "ewogICJzY2hlbWEiOiAxLAogICJ0b2tlbiI6ICIwYjAzNjA2Mi03MjUyLTQxYzItYWNmNC0zZjc2MjU2ZDM0NjIiLAogICJydW4iOiAicGlkLTYzNDAiLAogICJjb29yZGluYXRvclBpZCI6IDYzNDAsCiAgInByb2R1Y2VyUGlkIjogbnVsbCwKICAic3RhcnRlZFV0YyI6ICIyMDI2LTEwLTMwVDIwOjAwOjM5LjI5OVoiLAogICJ0YXJnZXREaXJlY3RvcnkiOiAiQzpcXFVzZXJzXFxmZWxyZVxcRGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGVcXGFydGlmYWN0c1xcZyIsCiAgInRhcmdldElkZW50aXR5IjogImM6XFx1c2Vyc1xcZmVscmVcXGRlc2t0b3BcXHBpLWhhcm5lc3MtaW5pdFxcYXJ0aWZhY3RzXFxlXFxhcnRpZmFjdHNcXGciLAogICJjb21tYW5kIjogImNhcmdvIiwKICAiYXJncyI6IFsKICAgICJ0ZXN0IiwKICAgICItcCIsCiAgICAiY29kZXgtY29yZSIsCiAgICAiLS1saWIiLAogICAgImNvbnRleHQ6OndvcmxkX3N0YXRlOjptb2RlbDo6dGVzdHMiLAogICAgIi0tbG9ja2VkIiwKICAgICItLW9mZmxpbmUiLAogICAgIi0tdGFyZ2V0IiwKICAgICJ4ODZfNjQtcGMtd2luZG93cy1tc3ZjIiwKICAgICItLSIsCiAgICAiLS10ZXN0LXRocmVhZHM9MSIsCiAgICAiLS1saXN0IiwKICAgICItLWZvcm1hdD10ZXJzZSIKICBdLAogICJjd2QiOiAiQzpcXFVzZXJzXFxmZWxyZVxcRGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGVcXGFydGlmYWN0c1xcd1xcZW5naW5lXFxjb2RleC1ycyIsCiAgImNvbXBpbGF0aW9uU2lnbmF0dXJlIjogIjRhYWRjOGQyOWI2Yjc0NWZhYjY3NjhkMTg0NTYxZmM0NmM5NmVkNTExNTUwZWM5NGRkZWI5YzAxYTFiN2ZjM2IiLAogICJwZW5kaW5nRGlyZWN0b3J5IjogIkM6XFxVc2Vyc1xcZmVscmVcXERlc2t0b3BcXHBpLWhhcm5lc3MtaW5pdFxcYXJ0aWZhY3RzXFxlXFxhcnRpZmFjdHNcXHAiLAogICJzdGF0dXMiOiAicnVubmluZyIsCiAgInBoYXNlIjogInNwYXduLWF0dGVtcHRlZCIsCiAgImxhc3RQcm9ncmVzc1V0YyI6ICIyMDI2LTEwLTMwVDIwOjAwOjM5LjMwMVoiLAogICJwcmVwYXJpbmdVdGMiOiAiMjAyNi0xMC0zMFQyMDowMDozOS4yOTlaIiwKICAic3Bhd25BdHRlbXB0ZWRVdGMiOiAiMjAyNi0xMC0zMFQyMDowMDozOS4zMDFaIgp9"
+  },
+  "sourceIdentity": {
+    "physicalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\engine\\codex-rs",
+    "dev": "3057815611",
+    "ino": "4222124652004005",
+    "birthtimeNs": "1793341479332266400"
+  },
+  "evidence": [
+    {
+      "kind": "context",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\logs\\deploy-et1-cold-20261030q\\engine-preservation\\preservation-VRzpAA\\engine.model-harness-profiles.context.stderr.log",
+      "sha256": "628c760e7b578c28269e47f7b381fd27db2c4f32b1667b97c15b71e4a783e31e"
+    },
+    {
+      "kind": "metrics",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\logs\\deploy-et1-cold-20261030q\\deployment-metrics.json",
+      "sha256": "398fb8a8865c1c2d0b1a97e10efd4837fe6174a75b0884b4767ae959ebf541d3"
+    },
+    {
+      "kind": "controller",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\deployment-20261030q\\reports\\deployment-controller.json",
+      "sha256": "e7aff2d370bee870ed09d7de01dd8f16926588a4f93e824d1801e1b99c4c98d4"
+    }
+  ],
+  "stage": {
+    "name": "engine-preservation",
+    "executable": "C:\\Program Files\\nodejs\\node.exe",
+    "arguments": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\scripts\\feature-preservation.cjs",
+      "run",
+      "--config",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\logs\\deploy-et1-cold-20261030q\\engine-preservation-inputs.json"
+    ],
+    "startedUtc": "2026-10-30T19:24:24.3370282Z",
+    "durationMs": 2613140.0398,
+    "exitCode": -1,
+    "terminated": true,
+    "completedUtc": "2026-10-30T20:07:57.4859551Z",
+    "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\logs\\deploy-et1-cold-20261030q\\engine-preservation.stdout.log",
+    "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\logs\\deploy-et1-cold-20261030q\\engine-preservation.stderr.log"
+  },
+  "controller": {
+    "controllerPid": 47228,
+    "deploymentPid": 51724,
+    "exitCode": 1,
+    "signal": null,
+    "status": "failed",
+    "finishedUtc": "2026-10-30T20:08:05.892Z"
+  },
+  "typeCheckLogLines": [
+    "[cargo-owner] {\"schema\":1,\"token\":\"05754ec4-c3cb-43e6-ad6b-3fd13e630bce\",\"run\":\"pid-6340\",\"coordinatorPid\":6340,\"producerPid\":54192,\"startedUtc\":\"2026-10-30T19:42:19.086Z\",\"targetDirectory\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\e\\\\artifacts\\\\g\",\"targetIdentity\":\"c:\\\\users\\\\felre\\\\desktop\\\\pi-harness-init\\\\artifacts\\\\e\\\\artifacts\\\\g\",\"command\":\"cargo\",\"args\":[\"check\",\"-p\",\"codex-core\",\"--lib\",\"--locked\",\"--offline\",\"--target\",\"x86_64-pc-windows-msvc\",\"--tests\",\"--profile\",\"test\"],\"cwd\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\e\\\\artifacts\\\\w\\\\engine\\\\codex-rs\",\"compilationSignature\":\"dba891bb979762147cb3e829cd78303500c2a1f136abb2353851db44e1beed8c\",\"pendingDirectory\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\e\\\\artifacts\\\\p\",\"status\":\"success\",\"phase\":\"observed-terminal\",\"lastProgressUtc\":\"2026-10-30T20:00:39.293Z\",\"preparingUtc\":\"2026-10-30T19:42:19.086Z\",\"spawnAttemptedUtc\":\"2026-10-30T19:42:19.090Z\",\"resultObservedUtc\":\"2026-10-30T20:00:39.293Z\",\"exitCode\":0,\"signal\":null,\"producerStarted\":true,\"durationMs\":1100213.2003}",
+    "[cargo-preflight] {\"schema\":1,\"typeCheck\":\"selected-tests\",\"testSelection\":\"nonzero\",\"phases\":[{\"phase\":\"typeCheck\",\"args\":[\"check\",\"-p\",\"codex-core\",\"--lib\",\"--locked\",\"--offline\",\"--target\",\"x86_64-pc-windows-msvc\",\"--tests\",\"--profile\",\"test\"],\"startedUtc\":\"2026-10-30T19:42:19.084Z\",\"durationMs\":1100213,\"exitCode\":0,\"signal\":null}],\"preparation\":{\"schema\":1,\"recommendation\":\"prepare-recommended\",\"action\":\"prepare\",\"mode\":\"auto\",\"key\":\"742501fbc86e723d08d689174ea7afd349563ad523758cbb93e373532cac9fd8\",\"reason\":\"No matching completed preparation\"}}"
+  ],
+  "callChain": [
+    "Q deploy Start-OwnedCommand181-203 and453 starts exact feature-preservation argv/config with redirected dedicated streams",
+    "Q feature-preservation309/317 unique run,501 check log paths,162-173 explicit child stderr stream,544-550 execute",
+    "manifest702 context?check-model-harness-profiles5/14-17/25-27?cargo-verification123?cargo-target-owner65 process.pid coordinator,294-301 spawnSync,341 owner stderr",
+    "Q deploy finally577-584 Kill(true);Complete-OwnedCommand205-214 WaitForExit then both stream copy task GetResult before metrics completedUtc;controller close actual1"
+  ],
+  "sources": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\scripts\\deploy-azrael.ps1",
+      "sha256": "7b38613e77167f2095649f2a10d2a809f07b0621319078358413832757930c8e"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\scripts\\feature-preservation.cjs",
+      "sha256": "0ca3643ffa5699d6a8fc36b9254ef982db9cc68f1399b31f56c5422a520a2a99"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\scripts\\check-model-harness-profiles.cjs",
+      "sha256": "02109c689b626b1fc1ca0d8296446ace4d65c51cd91527b233ac1e43b23f71ad"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\scripts\\cargo-verification.cjs",
+      "sha256": "854e124086453530bf0ca5cebddce73b9c0e9186f0b2879bf1ff93882490f4e3"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\scripts\\cargo-target-owner.cjs",
+      "sha256": "0564f8dd5bb324c524d38ef75739fd148aa4d5db7d19d5e85214567dbb60cb84"
+    }
+  ],
+  "pidAbsence": "Recorded6340/54192/47228/51724 not observed before recovery; veto only, not independent stop evidence",
+  "otherCompiler": "r4 mt3 excluded from q stop predicate",
+  "currentListOutcome": {
+    "status": "unknown",
+    "exitCode": null
+  },
+  "priorAttempt": {
+    "actualExit": 1,
+    "nodePid": null,
+    "nativeClaimPid": 31812,
+    "nativeCatalogPid": 40532,
+    "nativeExitObserved": false,
+    "nativeExitCode": null,
+    "primaryError": "beginArtifactRun did not return; .run-claim.lock release Native lease timeout/outcome unknown",
+    "runJsonPendingRootAbsent": true,
+    "retryBasis": "Root accepted actual Node1, absent exact metadata and new actual0 acquire/release on both OS leases as writer-stop boundary",
+    "quiescencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\q-recovery-catalog-quiescence-20261031a.json",
+    "quiescenceSha256": "28e70a3dc12eda5d4ab73c163e843570c1e8236455c71acd3d1c609abe36c0f6",
+    "quiescence": {
+      "schema": 1,
+      "startedUtc": "2026-10-30T20:19:01.7627191Z",
+      "parentPid": 22092,
+      "checks": [
+        {
+          "startedUtc": "2026-10-30T20:19:01.7657199Z",
+          "finishedUtc": "2026-10-30T20:19:01.9177973Z",
+          "name": ".run-claim.lock",
+          "frames": [
+            "{\"id\":0,\"ok\":true,\"result\":{\"acquired_at_ms\":1793391541882,\"operation\":\"audit.quiescence\",\"parent_pid\":22092,\"pid\":57544,\"schema\":2,\"token\":\"57544-1793391541882-26f468d6d0db3504\"}}",
+            "{\"id\":1,\"ok\":true,\"result\":{\"released\":true,\"reservations_retained\":[]}}"
+          ],
+          "actualExitCode": 0
+        },
+        {
+          "startedUtc": "2026-10-30T20:19:01.9213039Z",
+          "finishedUtc": "2026-10-30T20:19:01.9592503Z",
+          "name": "catalog.lock",
+          "frames": [
+            "{\"id\":0,\"ok\":true,\"result\":{\"acquired_at_ms\":1793391541934,\"operation\":\"audit.quiescence\",\"parent_pid\":22092,\"pid\":43776,\"schema\":2,\"token\":\"43776-1793391541934-62b966feafd7e0b5\"}}",
+            "{\"id\":1,\"ok\":true,\"result\":{\"released\":true,\"reservations_retained\":[]}}"
+          ],
+          "actualExitCode": 0
+        }
+      ],
+      "finishedUtc": "2026-10-30T20:19:01.9592503Z"
+    }
+  },
+  "payload": "No engine payload rehash/traversal, new Cargo, or cache validity attestation"
+}

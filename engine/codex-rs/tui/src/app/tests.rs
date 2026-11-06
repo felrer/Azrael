@@ -7227,6 +7227,7 @@ async fn resizing_empty_transcript_schedules_settled_size_recheck() {
 fn test_turn(turn_id: &str, status: TurnStatus, items: Vec<ThreadItem>) -> Turn {
     Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: turn_id.to_string(),
         root_turn_id: None,
@@ -7261,6 +7262,7 @@ fn turn_completed_notification(
         thread_id: thread_id.to_string(),
         turn: Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             completed_at: Some(0),
             duration_ms: Some(1),
@@ -8825,6 +8827,7 @@ async fn replay_thread_snapshot_replays_turn_history_in_order() {
             turns: vec![
                 Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: "turn-1".to_string(),
                     root_turn_id: None,
@@ -8847,6 +8850,7 @@ async fn replay_thread_snapshot_replays_turn_history_in_order() {
                 },
                 Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: "turn-2".to_string(),
                     root_turn_id: None,

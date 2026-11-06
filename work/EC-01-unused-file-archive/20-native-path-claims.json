@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "source": "standalone paginated inventory; metadata only",
+  "items_checked": 1188,
+  "overlapping_items": [
+    {
+      "cache_schema": null,
+      "cleanup_status": "deleted",
+      "created_at_ms": null,
+      "due_for_review": false,
+      "generated": true,
+      "id": "64ca36af8abeeb4137b9723b5a22de129b0d47ca60960cf3561ea63e9b936834",
+      "identity": "2287efb87aa73a833a9ce8da6ec4cb0582bc65f1894c726a6812592a9916b471",
+      "kind": "task-cargo-cache",
+      "lifecycle_group_id": "work:DW14:pty-unmanaged-cache-r3",
+      "lifecycle_role": "artifact",
+      "logical_bytes": 0,
+      "measured_at_ms": 1793044797460,
+      "owner": "DW14-pty-preflight",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "presence": "present",
+      "protection_known": true,
+      "provenance": null,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f28dee3e78ca6c5ba24bdcce43d7604b481585913649949606192a81fe9aec47.json",
+      "references": [],
+      "registered_at_ms": 1793044797460,
+      "remaining": false,
+      "review_reasons": [],
+      "role": "task-cargo-cache",
+      "source_path": null,
+      "tool": null,
+      "version": null
+    }
+  ]
+}

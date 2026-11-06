@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "scope": "Windows x64 pinned native React/Card/Row/Switch/Button/CSS fixture; synthetic host. Shared source intended Windows/Linux/macOS. No app installation or native drain integration claimed.",
+  "nodeTests": {
+    "command": "node --test scripts/test-maintenance-preferences.cjs",
+    "exitCode": 0,
+    "passed": 3
+  },
+  "typescript": {
+    "command": "node extensions/azrael-ex/node_modules/typescript/bin/tsc --noEmit --incremental false -p extensions/azrael-ex/tsconfig.json",
+    "exitCode": 0
+  },
+  "render": [
+    {
+      "lifecycleId": "run:verify-maintenance-preferences-render:20261102T022239374Z-8cfc1c6c-70aa-4b48-b590-9c71e82ff7a9",
+      "outcome": "failed",
+      "checks": [
+        "loading disables native switches",
+        "all defaults enabled",
+        "keyboard switch persisted with CAS",
+        "failed native write retains confirmed choice",
+        "light native switch geometry",
+        "dark native switch geometry"
+      ],
+      "error": "AssertionError [ERR_ASSERTION]: native themes differ\n    at check (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/verify-maintenance-preferences-render.mjs:50:36)\n    at file:///C:/Users/felre/Desktop/pi-harness-init/scripts/verify-maintenance-preferences-render.mjs:65:2",
+      "browserExit": {
+        "confirmed": true,
+        "exitCode": 0,
+        "signalCode": null,
+        "processInspectionExitCode": 0,
+        "processIds": []
+      },
+      "exitCode": 1
+    },
+    {
+      "lifecycleId": "run:verify-maintenance-preferences-render:20261102T022331738Z-597b7764-f44c-49ba-8e72-730824c13733",
+      "outcome": "failed",
+      "checks": [
+        "loading disables native switches",
+        "all defaults enabled",
+        "keyboard switch persisted with CAS",
+        "failed native write retains confirmed choice",
+        "light native switch geometry",
+        "dark native switch geometry",
+        "native themes differ",
+        "draining preserves requested groups and blocks changes"
+      ],
+      "error": "Error: Wait failed: document.body.innerText.includes('???? ????'); {\"errors\":[],\"body\":\"프로젝트 유지관리\\n산출물 그룹\\n생성된 산출물 그룹을 추적합니다. 관리형 테스트·빌드·생성 작업에는 그룹과 잠금이 필요합니다. 현재 적용: 꺼짐\\n유지관리 잠금\\n유지관리 작업을 안전하게 조정합니다. 끄면 그룹과 삭제도 중지되며 각 스위치의 선택은 유지됩니다. 현재 적용: 꺼짐\\n관리형 삭제\\n검토된 소유자 관리 삭제를 허용합니다. 그룹과 잠금이 모두 필요합니다. 현재 적용: 꺼짐\\n\\n종료 대기 중: 새 관리형 작업은 차단됩니다. 기존 작업은 안전하게 완료되며 잠금이 아직 유지될 수 있습니다.\\n\\n다시 불러오기\"}\n    at wait (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/verify-maintenance-preferences-render.mjs:49:137)\n    at async file:///C:/Users/felre/Desktop/pi-harness-init/scripts/verify-maintenance-preferences-render.mjs:67:165",
+      "browserExit": {
+        "confirmed": true,
+        "exitCode": 0,
+        "signalCode": null,
+        "processInspectionExitCode": 0,
+        "processIds": []
+      },
+      "exitCode": 1
+    },
+    {
+      "lifecycleId": "run:verify-maintenance-preferences-render:20261102T022413371Z-d4b75628-4f26-449a-9f69-553a74000739",
+      "outcome": "passed",
+      "checks": [
+        "loading disables native switches",
+        "all defaults enabled",
+        "keyboard switch persisted with CAS",
+        "failed native write retains confirmed choice",
+        "light native switch geometry",
+        "dark native switch geometry",
+        "native themes differ",
+        "draining preserves requested groups and blocks changes",
+        "Korean narrow view",
+        "drain completion refreshed",
+        "no browser exceptions"
+      ],
+      "browserExit": {
+        "confirmed": true,
+        "exitCode": 0,
+        "signalCode": null,
+        "processInspectionExitCode": 0,
+        "processIds": []
+      },
+      "exitCode": 0
+    }
+  ],
+  "visualInspection": "Light/dark English and dark narrow Korean images reviewed. Native card separators, switches, semantic colors and text wrapping confirmed.",
+  "retainedTests": "Retain forwarding and packaging/asset injection omission checks because future feature wiring and module-list edits can omit these paths.",
+  "gaps": [
+    "Actual installed host and complete Personalization provider graph",
+    "Native Linux/macOS rendering",
+    "Real native preference owner integration pending candidate"
+  ],
+  "cleanup": {
+    "status": "complete",
+    "nativeOwnerSha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+    "verification": "registered",
+    "reviewExitCode": 0,
+    "applyExitCode": 0,
+    "logicalBytesDeleted": 154845972,
+    "allRunRootsAbsent": true,
+    "finalized": [
+      {
+        "id": "run:verify-maintenance-preferences-render:20261102T022239374Z-8cfc1c6c-70aa-4b48-b590-9c71e82ff7a9",
+        "status": "finalized"
+      },
+      {
+        "id": "run:verify-maintenance-preferences-render:20261102T022331738Z-597b7764-f44c-49ba-8e72-730824c13733",
+        "status": "finalized"
+      },
+      {
+        "id": "run:verify-maintenance-preferences-render:20261102T022413371Z-d4b75628-4f26-449a-9f69-553a74000739",
+        "status": "finalized"
+      }
+    ],
+    "recoveryEvidence": [
+      "work/FE-01-maintenance-preferences/ui-registration-recovery.json",
+      "work/FE-01-maintenance-preferences/ui-registration-recovery-2.json"
+    ]
+  }
+}

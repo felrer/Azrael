@@ -1,0 +1,329 @@
+{
+  "schema": 1,
+  "scope": "Only failed built-engine instruction probes A/B/C; D excluded",
+  "runs": [
+    {
+      "sourceId": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030a",
+      "status": "failed",
+      "actualExit": 1,
+      "engineSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+      "started": "2026-10-30T14:43:59.191Z",
+      "finished": "2026-10-30T14:44:00.711Z",
+      "firstCausalError": "Could not find 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\x\\extensions\\azrael-ex\\dist\\test\\instructionService.test.js'; native not executed",
+      "fixturePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\x\\extensions\\azrael-ex\\dist\\test\\instructionService.test.js",
+      "sourceProducerSha256": "ea8ed9733b2452a9dee3f9226402fbf60b4e7577e55022d4cb420ca3fa8eee42",
+      "children": [
+        {
+          "pid": 7232,
+          "closed": true
+        }
+      ],
+      "currentReferences": [],
+      "inbound": []
+    },
+    {
+      "sourceId": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030b",
+      "status": "failed",
+      "actualExit": 1,
+      "engineSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+      "started": "2026-10-30T14:47:03.070Z",
+      "finished": "2026-10-30T14:47:05.122Z",
+      "firstCausalError": "Instruction fixture parent must be an owned child of project artifacts; W test with X fixture parent; native not executed",
+      "fixturePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\x\\artifacts\\sf\\instruction",
+      "sourceProducerSha256": "1f0d7ce121e33f1361d90a715647aec9d7c2aba040c70da33ac1680556a6765f",
+      "children": [
+        {
+          "pid": 49424,
+          "closed": true
+        }
+      ],
+      "currentReferences": [],
+      "inbound": []
+    },
+    {
+      "sourceId": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030c",
+      "status": "failed",
+      "actualExit": 1,
+      "engineSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+      "started": "2026-10-30T14:49:30.088Z",
+      "finished": "2026-10-30T14:49:52.506Z",
+      "firstCausalError": "Failed to initialize sqlite state runtime under long owned W fixture path; 5 failed / 1 passed",
+      "fixturePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\completed-engine-native-fixture-20261030a",
+      "sourceProducerSha256": "afa0d6cf844ca1714c12354a0bd653aa64780b6eedec1e48a62b87101b1b1663",
+      "children": [
+        {
+          "pid": 2624,
+          "closed": true
+        }
+      ],
+      "currentReferences": [],
+      "inbound": []
+    }
+  ],
+  "supersedingAcceptance": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\completed-engine-instruction-acceptance.json",
+    "sha256": "8faa31032c3f66ecf11976d3641cba2f5b5e0be46b2974db84a0835cc8b4326f"
+  },
+  "rawHandoff": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\failed-engine-probe-cleanup-7b397a",
+    "files": [
+      {
+        "name": "apply-execution.json",
+        "bytes": 2790
+      },
+      {
+        "name": "apply-request.json",
+        "bytes": 1099
+      },
+      {
+        "name": "apply-result.json",
+        "bytes": 2985
+      },
+      {
+        "name": "cleanup.cjs",
+        "bytes": 6515
+      },
+      {
+        "name": "register-a-execution.json",
+        "bytes": 2097
+      },
+      {
+        "name": "register-a-request.json",
+        "bytes": 1301
+      },
+      {
+        "name": "register-a-result.json",
+        "bytes": 2012
+      },
+      {
+        "name": "register-b-execution.json",
+        "bytes": 2097
+      },
+      {
+        "name": "register-b-request.json",
+        "bytes": 1301
+      },
+      {
+        "name": "register-b-result.json",
+        "bytes": 2012
+      },
+      {
+        "name": "register-c-execution.json",
+        "bytes": 2098
+      },
+      {
+        "name": "register-c-request.json",
+        "bytes": 1301
+      },
+      {
+        "name": "register-c-result.json",
+        "bytes": 2013
+      },
+      {
+        "name": "review-execution.json",
+        "bytes": 16695
+      },
+      {
+        "name": "review-request.json",
+        "bytes": 308
+      },
+      {
+        "name": "review-result.json",
+        "bytes": 19597
+      },
+      {
+        "name": "source-finalize.json",
+        "bytes": 1532
+      }
+    ],
+    "cleanupOwner": "root follow-up control-material cleanup per delegated contract"
+  },
+  "review": [
+    {
+      "id": "109aff71e28600fe42e5beb2e857eb997cea01b75de01fe5e00d7c4c617cdc56",
+      "group": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030a",
+      "token": "a6c6b11800e349427b7e872ec9df0d9cdddf41df7914481e56ff83e8afba9fbd",
+      "blockers": [],
+      "logicalBytes": 2860
+    },
+    {
+      "id": "4c0e196c98224e6d0aa6b265edcb0643b7d3731463c87e825defca854f7372f1",
+      "group": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030c",
+      "token": "d7285f48bcb806efbf8ea0ea87b0a78fae69bee328ee256c28bc8d76f8416c24",
+      "blockers": [],
+      "logicalBytes": 16340
+    },
+    {
+      "id": "b2f1b711fc60c9e243cfb2697d683d03e23071531e4d3474faf1166b2e44d718",
+      "group": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030b",
+      "token": "0984530ba4042d9e9359a17bbfbd563bed8d02fd70d4383d2a5536dbc17c2f2e",
+      "blockers": [],
+      "logicalBytes": 9725
+    }
+  ],
+  "executions": [
+    {
+      "stage": "register-a",
+      "pid": 15660,
+      "start": "2026-10-30T15:08:00.162Z",
+      "end": "2026-10-30T15:08:07.456Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "register-b",
+      "pid": 19584,
+      "start": "2026-10-30T15:08:07.535Z",
+      "end": "2026-10-30T15:08:14.523Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "register-c",
+      "pid": 35712,
+      "start": "2026-10-30T15:08:14.601Z",
+      "end": "2026-10-30T15:08:21.763Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "review",
+      "pid": 46632,
+      "start": "2026-10-30T15:08:21.765Z",
+      "end": "2026-10-30T15:08:24.631Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "apply",
+      "pid": 35372,
+      "start": "2026-10-30T15:08:27.559Z",
+      "end": "2026-10-30T15:08:38.153Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ],
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030a",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030b",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030c",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-35372-19-1793372910570",
+        "decision": "delete",
+        "decision_id": "37d391a8a7add9536439300f71feb20417d8ce8dc3ea42c1ef1c414211daa913",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "109aff71e28600fe42e5beb2e857eb997cea01b75de01fe5e00d7c4c617cdc56",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030a",
+        "reason": "Authorized exhausted failed A/B/C diagnostics; minimal causal outcomes and independent passing D acceptance preserved",
+        "remaining": false,
+        "status": "deleted",
+        "token": "a6c6b11800e349427b7e872ec9df0d9cdddf41df7914481e56ff83e8afba9fbd"
+      },
+      {
+        "attempt_id": "attempt-35372-21-1793372914561",
+        "decision": "delete",
+        "decision_id": "378334775e30531bd65983e80089284126d6112a18d54599169b65a584d38785",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "4c0e196c98224e6d0aa6b265edcb0643b7d3731463c87e825defca854f7372f1",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030c",
+        "reason": "Authorized exhausted failed A/B/C diagnostics; minimal causal outcomes and independent passing D acceptance preserved",
+        "remaining": false,
+        "status": "deleted",
+        "token": "d7285f48bcb806efbf8ea0ea87b0a78fae69bee328ee256c28bc8d76f8416c24"
+      },
+      {
+        "attempt_id": "attempt-35372-23-1793372917261",
+        "decision": "delete",
+        "decision_id": "30e5b6a2af33a5957a66feaaf98d6d5e0e8f92a89535995af7bdd51c0277d236",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "b2f1b711fc60c9e243cfb2697d683d03e23071531e4d3474faf1166b2e44d718",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030b",
+        "reason": "Authorized exhausted failed A/B/C diagnostics; minimal causal outcomes and independent passing D acceptance preserved",
+        "remaining": false,
+        "status": "deleted",
+        "token": "0984530ba4042d9e9359a17bbfbd563bed8d02fd70d4383d2a5536dbc17c2f2e"
+      }
+    ]
+  },
+  "finalized": [
+    {
+      "pid": 48140,
+      "start": "2026-10-30T15:08:45.128Z",
+      "end": "2026-10-30T15:08:45.333Z",
+      "exitCode": 0,
+      "id": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030a",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\809a6bfafaf033795e6c7cb3a945a6d025c10cd38c4873bdc5d4c1c4601c8b6d.json",
+      "sourceAbsent": true
+    },
+    {
+      "pid": 48140,
+      "start": "2026-10-30T15:08:45.333Z",
+      "end": "2026-10-30T15:08:45.514Z",
+      "exitCode": 0,
+      "id": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030b",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\391fa0b4ab1053c976b27a794cbd5c9aa10ca8b5572c1f30692b6e3996b25119.json",
+      "sourceAbsent": true
+    },
+    {
+      "pid": 48140,
+      "start": "2026-10-30T15:08:45.514Z",
+      "end": "2026-10-30T15:08:45.681Z",
+      "exitCode": 0,
+      "id": "run:ET-01-cold-build-cache-audit:built-engine-instructions-20261030c",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\f1730b48564f6ff6ff341aaeed5f74b83d7709435fbe8645c30cd4a23921a7b7.json",
+      "sourceAbsent": true
+    }
+  ],
+  "actualRemaining": [],
+  "maintenanceOwner": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe",
+    "sha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c"
+  }
+}

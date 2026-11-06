@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "executor": "exec_command/write_stdin",
+  "sessionId": 89581,
+  "pid": 51072,
+  "actualExitCode": 0,
+  "startedUtc": "2026-10-30T20:42:57.587Z",
+  "finishedUtc": "2026-10-30T20:50:04.774Z",
+  "resultSha256": "758fabb833a66472464a2f994f98d5aa57f6dc1d9942797954d9e23473a5bc2d",
+  "finalized": [
+    {
+      "id": "version:maintenance-owner-et01-lifecycle-pending-win-x64",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\82ecd4ccda752a3597d5ab04301512f7d95160a861cbabaa1c3f3ad62eba2e8e.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\pending-tool-versions-cleanup.json",
+        "sha256": "758fabb833a66472464a2f994f98d5aa57f6dc1d9942797954d9e23473a5bc2d",
+        "reason": "Exact f167 deletion actual0 and both roots absent; independent work acceptance retained",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "version:maintenance-owner-et01-lifecycle-pending-win-x64-r4",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\827ef8667f742c6a2e0f86e70d2b76e7637871dd9af2e076097c3166f1206fd4.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\pending-tool-versions-cleanup.json",
+        "sha256": "758fabb833a66472464a2f994f98d5aa57f6dc1d9942797954d9e23473a5bc2d",
+        "reason": "Exact f167 deletion actual0 and both roots absent; independent work acceptance retained",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    }
+  ],
+  "initialPreparationReadFailure": {
+    "exitCode": 1,
+    "reason": "UTF-8 BOM in existing d0 terminal proof; no mutation started; parsed without changing original bytes"
+  },
+  "defaultInstallationSha256": "1623fee0ebd3d43e4090d882c3df96e92a05ad6d3430f4252307cb2779c66a88"
+}

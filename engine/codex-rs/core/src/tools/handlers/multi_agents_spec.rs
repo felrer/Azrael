@@ -13,7 +13,7 @@ use std::collections::BTreeMap;
 
 pub const MULTI_AGENT_V1_NAMESPACE: &str = "multi_agent_v1";
 const MULTI_AGENT_V1_NAMESPACE_DESCRIPTION: &str = "Tools for spawning and managing sub-agents.";
-pub(crate) const AZRAEL_ROOT_DEFER_GUIDANCE: &str = "At a dependency boundary, first give one brief user-facing update, then call defer_root as the final control action. Specify exactly one scheduling argument: resume_after_ms (1 through 43,200,000 milliseconds) or resume_at (a future RFC3339 UTC timestamp within the next 12 hours). Do not use deadline as an argument name. Example arguments: {\"resume_after_ms\":600000,\"reason\":\"Need the research contract before implementation\",\"wake_on\":{\"agent_paths\":[\"/root/research\"],\"condition\":\"all_terminal\"}}. When waiting for sub-agent results needed for the next step, set wake_on.agent_paths to the required agents and wake_on.condition to all_terminal so the root resumes as soon as those agents terminate; use the scheduled resume time only as a fallback. Select all required agents when their results must be combined, or only the agent whose result enables the next useful step; do not include unrelated active agents. For non-subagent work, create a work_completion record before launching the producer, arrange for an actual terminal signal at its returned signalPath, and select the returned workId in wake_on.work_ids with condition all_terminal. When agent_paths and work_ids are both selected, all targets must terminate before early resume. Prefer an existing completion-aware tool wait when available. Use a timed-only reservation only when elapsed time itself is the dependency. Do not poll afterward; the UI owns periodic waiting status. Root resumes at the scheduled time or when all selected targets are terminal; ordinary progress does not wake it. Success, failure and interruption are terminal; check the results after resuming before continuing dependent work. Do not batch defer_root with incompatible root actions.";
+pub(crate) const AZRAEL_ROOT_DEFER_GUIDANCE: &str = "At a dependency boundary, first give one brief user-facing update, then call defer_root as the final control action. Specify exactly one scheduling argument: resume_after_ms (1 through 43,200,000 milliseconds) or resume_at (a future RFC3339 UTC timestamp within the next 12 hours). Do not use deadline as an argument name. Example arguments: {\"resume_after_ms\":600000,\"reason\":\"Need the research contract before implementation\",\"wake_on\":{\"agent_paths\":[\"/root/research\"],\"condition\":\"all_terminal\"}}. When waiting for sub-agent results needed for the next step, set wake_on.agent_paths to the required agents and wake_on.condition to all_terminal so the root resumes as soon as those agents terminate; use the scheduled resume time only as a fallback. Select all required agents when their results must be combined, or only the agent whose result enables the next useful step; do not include unrelated active agents. For non-subagent work, create a work_completion record before launch. For managed exec_command pass its workId as work_id so the executor owns completion; do not use a producer signal wrapper. For external producers arrange an actual terminal signal at signalPath. Select workId in wake_on.work_ids with condition all_terminal. Bound unknown means observation lost and requires investigation, not confirmed tree termination or cleanup permission. When agent_paths and work_ids are both selected, all targets must terminate before early resume. Prefer an existing completion-aware tool wait when available. Use a timed-only reservation only when elapsed time itself is the dependency. Do not poll afterward; the UI owns periodic waiting status. Root resumes at the scheduled time or when all selected targets are terminal; ordinary progress does not wake it. Success, failure and interruption are terminal; check the results after resuming before continuing dependent work. Do not batch defer_root with incompatible root actions.";
 
 const SPAWN_AGENT_INHERITED_MODEL_GUIDANCE: &str = "Spawned agents inherit your current model by default. Omit `model` to use that preferred default; set `model` only when an explicit override is needed.";
 const SPAWN_AGENT_INHERITED_MODEL_GUIDANCE_V2: &str = "Spawned agents inherit your current model by default. Do not set the `model` field unless the user explicitly asks for a different model.";
@@ -27,6 +27,8 @@ const MAX_REASONING_EFFORT_CHARS_IN_SPAWN_AGENT_DESCRIPTION: usize = 64;
 #[derive(Debug, Clone)]
 pub struct SpawnAgentToolOptions {
     pub available_models: Vec<ModelPreset>,
+    pub role_profile: Option<codex_protocol::protocol::RoleProfilePolicy>,
+    pub role_profile_error: Option<String>,
     pub agent_type_description: String,
     pub expose_agent_type: bool,
     pub hide_agent_type_model_reasoning: bool,
@@ -40,6 +42,8 @@ impl Default for SpawnAgentToolOptions {
     fn default() -> Self {
         Self {
             available_models: Vec::new(),
+            role_profile: None,
+            role_profile_error: None,
             agent_type_description: String::new(),
             expose_agent_type: true,
             hide_agent_type_model_reasoning: false,
@@ -70,12 +74,14 @@ impl Default for WaitAgentTimeoutOptions {
 
 pub fn create_spawn_agent_tool_v1(options: SpawnAgentToolOptions) -> ToolSpec {
     let available_models_description = (!options.model_catalog_in_context
-        && !options.hide_agent_type_model_reasoning)
-        .then(|| {
-            spawn_agent_models_description(&options.available_models, options.multi_agent_version)
-        });
-    let inherited_model_guidance =
-        (!options.hide_agent_type_model_reasoning).then_some(SPAWN_AGENT_INHERITED_MODEL_GUIDANCE);
+        && !options.hide_agent_type_model_reasoning
+        && options.role_profile.is_none())
+    .then(|| {
+        spawn_agent_models_description(&options.available_models, options.multi_agent_version)
+    });
+    let inherited_model_guidance = (!options.hide_agent_type_model_reasoning
+        && options.role_profile.is_none())
+    .then_some(SPAWN_AGENT_INHERITED_MODEL_GUIDANCE);
     let return_value_description =
         "Returns the spawned agent id plus the user-facing nickname when available.";
     let mut properties = spawn_agent_common_properties_v1(&options.agent_type_description);
@@ -85,6 +91,11 @@ pub fn create_spawn_agent_tool_v1(options: SpawnAgentToolOptions) -> ToolSpec {
     if options.hide_agent_type_model_reasoning {
         hide_spawn_agent_metadata_options(&mut properties);
     }
+    apply_profile_properties(
+        &mut properties,
+        options.role_profile.as_ref(),
+        options.role_profile_error.as_deref(),
+    );
 
     ToolSpec::Namespace(ResponsesApiNamespace {
         name: MULTI_AGENT_V1_NAMESPACE.to_string(),
@@ -100,7 +111,14 @@ pub fn create_spawn_agent_tool_v1(options: SpawnAgentToolOptions) -> ToolSpec {
             ),
             strict: false,
             defer_loading: None,
-            parameters: JsonSchema::object(properties, /*required*/ None, Some(false.into())),
+            parameters: JsonSchema::object(
+                properties,
+                options
+                    .role_profile
+                    .as_ref()
+                    .map(|_| vec!["profile_id".to_string()]),
+                Some(false.into()),
+            ),
             output_schema: Some(spawn_agent_output_schema_v1().into()),
         })],
     })
@@ -111,11 +129,14 @@ pub fn create_spawn_agent_tool_v2(
     description_override: Option<&str>,
 ) -> ToolSpec {
     let available_models_description = (!options.model_catalog_in_context
-        && options.expose_spawn_agent_model_overrides)
-        .then(|| {
-            spawn_agent_models_description(&options.available_models, options.multi_agent_version)
-        });
-    let inherited_model_guidance = if options.model_catalog_in_context {
+        && options.expose_spawn_agent_model_overrides
+        && options.role_profile.is_none())
+    .then(|| {
+        spawn_agent_models_description(&options.available_models, options.multi_agent_version)
+    });
+    let inherited_model_guidance = if options.role_profile.is_some() {
+        None
+    } else if options.model_catalog_in_context {
         options
             .expose_spawn_agent_model_overrides
             .then_some(SPAWN_AGENT_INHERITED_MODEL_GUIDANCE_V2)
@@ -131,6 +152,11 @@ pub fn create_spawn_agent_tool_v2(
         properties.remove("model");
         properties.remove("reasoning_effort");
     }
+    apply_profile_properties(
+        &mut properties,
+        options.role_profile.as_ref(),
+        options.role_profile_error.as_deref(),
+    );
     properties.insert(
         "task_name".to_string(),
         JsonSchema::string(Some(
@@ -144,8 +170,7 @@ pub fn create_spawn_agent_tool_v2(
         description: spawn_agent_tool_description_v2(
             available_models_description.as_deref(),
             options.model_catalog_in_context,
-            options
-                .expose_spawn_agent_model_overrides
+            (options.expose_spawn_agent_model_overrides && options.role_profile.is_none())
                 .then_some(SPAWN_AGENT_MODEL_CATALOG_GUIDANCE),
             inherited_model_guidance,
             options.usage_hint_text,
@@ -155,13 +180,51 @@ pub fn create_spawn_agent_tool_v2(
         defer_loading: None,
         parameters: JsonSchema::object(
             properties,
-            Some(vec!["task_name".to_string(), "message".to_string()]),
+            Some(if options.role_profile.is_some() {
+                vec![
+                    "task_name".to_string(),
+                    "message".to_string(),
+                    "profile_id".to_string(),
+                ]
+            } else {
+                vec!["task_name".to_string(), "message".to_string()]
+            }),
             Some(false.into()),
         ),
         output_schema: Some(
             spawn_agent_output_schema_v2(options.hide_agent_type_model_reasoning).into(),
         ),
     })
+}
+
+fn apply_profile_properties(
+    properties: &mut BTreeMap<String, JsonSchema>,
+    policy: Option<&codex_protocol::protocol::RoleProfilePolicy>,
+    error: Option<&str>,
+) {
+    if let Some(policy) = policy {
+        hide_spawn_agent_metadata_options(properties);
+        if let Some(error) = error {
+            properties.insert(
+                "profile_id".to_string(),
+                JsonSchema::string(Some(format!("Spawning unavailable: {error}"))),
+            );
+            return;
+        }
+        let choices = policy
+            .child_profile_ids()
+            .iter()
+            .filter_map(|id| {
+                policy
+                    .profiles
+                    .iter()
+                    .find(|p| &p.id == id)
+                    .map(|p| format!("{}: {}", p.id, p.name))
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+        properties.insert("profile_id".to_string(), JsonSchema::string_enum(policy.child_profile_ids().iter().cloned().map(Value::String).collect(), Some(format!("Required frozen child profile ID. Select only from:\n{choices}. The profile supplies model, reasoning and instructions together."))));
+    }
 }
 
 pub fn create_send_input_tool_v1() -> ToolSpec {
@@ -208,6 +271,7 @@ pub fn create_send_message_tool() -> ToolSpec {
 
 fn create_send_message_tool_with_encryption(encrypt_message: bool) -> ToolSpec {
     let properties = BTreeMap::from([
+        ("attachments".to_string(), image_attachments_schema()),
         (
             "target".to_string(),
             JsonSchema::string(Some(
@@ -244,6 +308,7 @@ pub fn create_followup_task_tool() -> ToolSpec {
 
 fn create_followup_task_tool_with_encryption(encrypt_message: bool) -> ToolSpec {
     let properties = BTreeMap::from([
+        ("attachments".to_string(), image_attachments_schema()),
         (
             "target".to_string(),
             JsonSchema::string(Some(
@@ -657,6 +722,7 @@ fn spawn_agent_common_properties_v2(
     encrypt_message: bool,
 ) -> BTreeMap<String, JsonSchema> {
     BTreeMap::from([
+        ("attachments".to_string(), image_attachments_schema()),
         (
             "message".to_string(),
             message_schema("Initial plain-text task for the new agent.", encrypt_message),
@@ -687,6 +753,24 @@ fn spawn_agent_common_properties_v2(
             )),
         ),
     ])
+}
+
+fn image_attachments_schema() -> JsonSchema {
+    JsonSchema::array(
+        JsonSchema::object(
+            BTreeMap::from([
+                ("path".to_string(), JsonSchema::string(Some(
+                    "Local image path in the caller's filesystem environment. The tool validates and copies the image automatically. Specify exactly one of path or attachment_id; images only, no URLs or general files.".to_string(),
+                ))),
+                ("attachment_id".to_string(), JsonSchema::string(Some(
+                    "Image attachment ID exposed in this session's image labels or a prior successful attachment receipt. Specify exactly one of attachment_id or path.".to_string(),
+                ))),
+            ]),
+            None,
+            Some(false.into()),
+        ),
+        Some("Optional images to deliver as actual image input, independently of parent history. At most 8 images; errors reject delivery rather than omit images.".to_string()),
+    )
 }
 
 fn message_schema(description: &str, encrypt: bool) -> JsonSchema {

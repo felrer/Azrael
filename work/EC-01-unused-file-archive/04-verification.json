@@ -1,0 +1,616 @@
+{
+  "schema": 1,
+  "status": "verified; producer controllers terminal; cleanup ready",
+  "platform": "Windows x64 local; Rust 1.95.0",
+  "installed_version": "version:maintenance-owner:ec01:pending-refresh",
+  "binary_sha256": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529",
+  "verification": {
+    "schema": 1,
+    "id": "version:maintenance-owner:ec01:pending-refresh",
+    "version": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529-windows-x64-pending-refresh-v1",
+    "executable_sha256": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529",
+    "source_receipt_sha256": "afa43fdaabe93651bfd02afe55cad719a05c3a5c034d501eebf5056c7c431122",
+    "source_before_after_unchanged": true,
+    "environment": "Windows x64 local, Rust 1.95.0",
+    "stages": [
+      {
+        "name": "freeze-engine",
+        "started": "2026-10-28T00:36:22.167Z",
+        "ended": "2026-10-28T00:37:11.116Z",
+        "exit_code": 0,
+        "source_receipt_sha256": "afa43fdaabe93651bfd02afe55cad719a05c3a5c034d501eebf5056c7c431122"
+      },
+      {
+        "name": "r3-provenance-before",
+        "command": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+        "args": [
+          "-B",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\input-tools\\engine-provenance.py",
+          "snapshot",
+          "--root",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\inputs\\engine-r3",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--file",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\source-r3-before.json"
+        ],
+        "started": "2026-10-28T00:37:11.147Z",
+        "ended": "2026-10-28T00:39:46.279Z",
+        "pid": 33572,
+        "exit_code": 0,
+        "signal": null,
+        "error": null
+      },
+      {
+        "name": "r3-focused-refresh",
+        "command": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\focused-refresh.cjs",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\inputs\\engine-r3"
+        ],
+        "started": "2026-10-28T00:39:46.284Z",
+        "ended": "2026-10-28T00:40:29.812Z",
+        "pid": 72104,
+        "exit_code": 0,
+        "signal": null,
+        "error": null
+      },
+      {
+        "name": "r3-release-build",
+        "command": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\input-tools\\cargo-target-owner.cjs",
+          "build",
+          "--release",
+          "-p",
+          "azrael-project-maintenance",
+          "--bin",
+          "maintenance_owner",
+          "--locked",
+          "--offline"
+        ],
+        "started": "2026-10-28T00:40:29.812Z",
+        "ended": "2026-10-28T00:41:14.101Z",
+        "pid": 81688,
+        "exit_code": 0,
+        "signal": null,
+        "error": null
+      },
+      {
+        "name": "r3-binary-acceptance",
+        "command": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\accept-binary-r3.cjs",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\target\\release\\maintenance_owner.exe"
+        ],
+        "started": "2026-10-28T00:41:14.102Z",
+        "ended": "2026-10-28T00:41:14.989Z",
+        "pid": 12692,
+        "exit_code": 0,
+        "signal": null,
+        "error": null
+      },
+      {
+        "name": "r3-library-tests",
+        "command": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\input-tools\\check-project-maintenance.cjs",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\inputs\\engine-r3",
+          "--stage",
+          "library"
+        ],
+        "started": "2026-10-28T00:41:14.990Z",
+        "ended": "2026-10-28T00:48:19.047Z",
+        "pid": 82672,
+        "exit_code": 0,
+        "signal": null,
+        "error": null
+      },
+      {
+        "name": "r3-provenance-after",
+        "command": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+        "args": [
+          "-B",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\input-tools\\engine-provenance.py",
+          "snapshot",
+          "--root",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\inputs\\engine-r3",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--file",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\source-r3-after.json"
+        ],
+        "started": "2026-10-28T00:48:19.049Z",
+        "ended": "2026-10-28T00:50:09.988Z",
+        "pid": 90608,
+        "exit_code": 0,
+        "signal": null,
+        "error": null
+      }
+    ],
+    "native_preflight": {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-28T00:41:15.067Z",
+          "durationMs": 6536,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-28T00:41:21.603Z",
+          "durationMs": 16761,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 172
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-28T00:41:38.364Z",
+          "durationMs": 400646,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "test_summaries": [
+      {
+        "status": "ok",
+        "passed": 42,
+        "failed": 0,
+        "summary": "test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.53s"
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "summary": "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      },
+      {
+        "status": "ok",
+        "passed": 4,
+        "failed": 0,
+        "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.41s"
+      },
+      {
+        "status": "ok",
+        "passed": 35,
+        "failed": 0,
+        "summary": "test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 67.36s"
+      },
+      {
+        "status": "ok",
+        "passed": 28,
+        "failed": 0,
+        "summary": "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 49.25s"
+      },
+      {
+        "status": "ok",
+        "passed": 4,
+        "failed": 0,
+        "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.26s"
+      },
+      {
+        "status": "ok",
+        "passed": 19,
+        "failed": 0,
+        "summary": "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.45s"
+      },
+      {
+        "status": "ok",
+        "passed": 5,
+        "failed": 0,
+        "summary": "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.90s"
+      },
+      {
+        "status": "ok",
+        "passed": 23,
+        "failed": 0,
+        "summary": "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 175.54s"
+      },
+      {
+        "status": "ok",
+        "passed": 8,
+        "failed": 0,
+        "summary": "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.99s"
+      },
+      {
+        "status": "ok",
+        "passed": 4,
+        "failed": 0,
+        "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.32s"
+      },
+      {
+        "status": "ok",
+        "passed": 0,
+        "failed": 0,
+        "summary": "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      }
+    ],
+    "binary_acceptance": {
+      "schema": 1,
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\target\\release\\maintenance_owner.exe",
+      "sha256": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529",
+      "verified_environment": "Windows x64 local",
+      "stopped_fixture_producer": {
+        "pid": 77924,
+        "exit_code": 0
+      },
+      "cases": [
+        {
+          "mode": "success",
+          "started": "2026-10-28T00:41:14.261Z",
+          "ended": "2026-10-28T00:41:14.516Z",
+          "pid": 92004,
+          "exit_code": 0,
+          "stdout": "{\"group_id\":\"g\",\"manifest_sha256\":\"5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29\",\"operation\":\"recover_refresh_pending\",\"receipt_ref\":\"artifacts\\\\maintenance\\\\evidence\\\\attempt.json\",\"receipt_sha256\":\"5e495571b7930a8dd065b3e62dcc52b5917d646c3ed663491ce5db90b932f005\",\"status\":\"discarded\"}\n",
+          "stderr": "",
+          "manifest_sha256": "5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29",
+          "manifest_unchanged": true,
+          "pending_remaining": false
+        },
+        {
+          "mode": "absent-before",
+          "started": "2026-10-28T00:41:14.523Z",
+          "ended": "2026-10-28T00:41:14.656Z",
+          "pid": 80636,
+          "exit_code": 0,
+          "stdout": "{\"group_id\":\"g\",\"manifest_sha256\":\"1a3446dbcd20eb9bad39f00cbdbb19928a16f1ac203bd337f4894adfbdc3f383\",\"operation\":\"recover_refresh_pending\",\"receipt_ref\":\"artifacts\\\\maintenance\\\\evidence\\\\attempt.json\",\"receipt_sha256\":\"2f48e0870536f1e924f60ffd1746082c5c72d2e27e21548ab4ba33776127136a\",\"status\":\"discarded\"}\n",
+          "stderr": "",
+          "manifest_sha256": "1a3446dbcd20eb9bad39f00cbdbb19928a16f1ac203bd337f4894adfbdc3f383",
+          "manifest_unchanged": true,
+          "pending_remaining": false
+        },
+        {
+          "mode": "wrong-hash",
+          "started": "2026-10-28T00:41:14.661Z",
+          "ended": "2026-10-28T00:41:14.805Z",
+          "pid": 88284,
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "{\"error\":\"manifest or pending SHA-256 differs\"}\n",
+          "manifest_sha256": "5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29",
+          "manifest_unchanged": true,
+          "pending_remaining": true
+        },
+        {
+          "mode": "non-refresh",
+          "started": "2026-10-28T00:41:14.810Z",
+          "ended": "2026-10-28T00:41:14.912Z",
+          "pid": 84132,
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "{\"error\":\"pending transaction is not exclusively a protection_revision refresh\"}\n",
+          "manifest_sha256": "5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29",
+          "manifest_unchanged": true,
+          "pending_remaining": true
+        },
+        {
+          "mode": "live-pid",
+          "started": "2026-10-28T00:41:14.919Z",
+          "ended": "2026-10-28T00:41:14.971Z",
+          "pid": 39392,
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "{\"error\":\"live owner PID vetoes recovery\"}\n",
+          "manifest_sha256": "5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29",
+          "manifest_unchanged": true,
+          "pending_remaining": true
+        }
+      ]
+    },
+    "actual_recovery": {
+      "group_id": "run:instruction-yazl-a",
+      "manifest_sha256": "a15e926fe1b3ad4ed06d51bf92187d3fe36088c2b00d43408bf75d03d4124228",
+      "operation": "recover_refresh_pending",
+      "receipt_ref": "artifacts/maintenance/evidence/ec01-pending-recovery-r1/discard-attempt.json",
+      "receipt_sha256": "cee3b8a3fbc1fb553ed6a1311c303d717e52b6d3ebc6e6a3e5cb7cdbc7bdf901",
+      "status": "discarded"
+    },
+    "manifest_unchanged_during_recovery": true,
+    "pending_absent": true,
+    "actual_group_refresh_exit_code": 0,
+    "direct_native_lease": {
+      "pid": 76088,
+      "exit_code": 0,
+      "signal": null,
+      "frames": [
+        {
+          "id": 0,
+          "ok": true,
+          "result": {
+            "acquired_at_ms": 1793148692017,
+            "operation": "EC01.acceptance",
+            "parent_pid": 5632,
+            "pid": 76088,
+            "schema": 2,
+            "token": "76088-1793148692017-9e11829e984fe825"
+          }
+        },
+        {
+          "id": 1,
+          "ok": true,
+          "result": {
+            "released": true,
+            "reservations_retained": []
+          }
+        }
+      ]
+    },
+    "first_failures_preserved": [
+      {
+        "schema": 1,
+        "attempt": "r1",
+        "controller_exit_code": 1,
+        "release_build_exit_code": 0,
+        "executable_sha256": "c13ad1e00759f3a59c46747bf8701acbc114e0369684d057a7a6f4a6a00826e0",
+        "executable_bytes": 2084352,
+        "binary_acceptance_exit_code": 1,
+        "first_causal_error": "Windows error33: secondary read handle cannot read byte range held by own exclusive guard/lease",
+        "actual_root_pending_touched": false,
+        "library_tests_started": false,
+        "source_after_audit_completed": false,
+        "logs": [
+          "logs/release-build.log",
+          "logs/binary-acceptance.log"
+        ]
+      },
+      {
+        "attempt": "r2",
+        "focused_typecheck_exit_code": 0,
+        "selected_tests": 9,
+        "execution_exit_code": 101,
+        "passed": 8,
+        "failed": 1,
+        "cause": "Test assumed read-only pending deletion must fail; corrected to actual Windows delete-sharing denial; production code unchanged",
+        "small_real_probe": {
+          "exit_code": 1,
+          "manifest_unchanged": true,
+          "pending_unchanged": true,
+          "receipt_retained": true
+        }
+      }
+    ],
+    "unverified": [
+      "Linux/macOS native",
+      "embedded engine and full application build/install"
+    ]
+  },
+  "metadata_retry": {
+    "retried": 25,
+    "success": 25,
+    "failure": 0,
+    "reviewed_groups": 125,
+    "reviewed_items": 192,
+    "present": 185,
+    "absent": 7,
+    "clear": [
+      {
+        "id": "run:CR-01-build-legacy-cleanup:protection-release-20261020-r1",
+        "live": 1,
+        "bytes": 4322283
+      },
+      {
+        "id": "run:CF-01-window-use-admin-setup:20261019-cache-management-root-r1",
+        "live": 1,
+        "bytes": 26437
+      },
+      {
+        "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-2",
+        "live": 1,
+        "bytes": 102364044
+      },
+      {
+        "id": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:integration",
+        "live": 2,
+        "bytes": 77219
+      },
+      {
+        "id": "run:CF-01-window-use-admin-setup:20261019-u23-registry-r1",
+        "live": 1,
+        "bytes": 3069
+      },
+      {
+        "id": "run:engine-check-retirement:r2",
+        "live": 1,
+        "bytes": 98169
+      },
+      {
+        "id": "run:DC-01-queue-question-wait-diagnosis:native-6",
+        "live": 1,
+        "bytes": 12879
+      },
+      {
+        "id": "run:CR-01-build-legacy-cleanup:inventory-20261019-r1",
+        "live": 1,
+        "bytes": 661690
+      },
+      {
+        "id": "run:CR-01-build-legacy-cleanup:module-preview-20261019-r1",
+        "live": 1,
+        "bytes": 8346
+      },
+      {
+        "id": "CR-01-retired-host-fixtures",
+        "live": 1,
+        "bytes": 0
+      },
+      {
+        "id": "run:test-scope-reduction:r1",
+        "live": 1,
+        "bytes": 20126
+      },
+      {
+        "id": "bn01-scope-fix-render-01",
+        "live": 1,
+        "bytes": 228634
+      },
+      {
+        "id": "bn01-scope-fix-tests-01",
+        "live": 1,
+        "bytes": 2609
+      },
+      {
+        "id": "bn01-scope-fix-tests-02",
+        "live": 1,
+        "bytes": 1234
+      },
+      {
+        "id": "cf01-logoff-disposable",
+        "live": 1,
+        "bytes": 0
+      },
+      {
+        "id": "du01-native-retrieval-perf-r1",
+        "live": 1,
+        "bytes": 13565
+      },
+      {
+        "id": "work:deployment-temporary:e24e915c4ffbf14916de423fdb9a62ddc0eaf91109139e47899ba01b53ecc2c0",
+        "live": 1,
+        "bytes": 0
+      },
+      {
+        "id": "engine-optimization-r18-default-native-summary",
+        "live": 0,
+        "bytes": 0
+      }
+    ]
+  },
+  "original_retry": {
+    "observed_at": "2026-10-27T23:16:04.899Z",
+    "status": "awaiting-supported-pending-state-recovery",
+    "controller_exit_code": 0,
+    "refresh": {
+      "attempted": 77,
+      "exit_zero": 49,
+      "exit_one": 28,
+      "failures": {
+        "membership_changed": 1,
+        "owner_missing": 1,
+        "access_denied": 1,
+        "pending_exists": 25
+      }
+    },
+    "review": {
+      "calls": 6,
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "groups": 125,
+      "items": 192,
+      "present": 185,
+      "absent": 7
+    },
+    "payload_moved": 0,
+    "payload_deleted": 0,
+    "states": [
+      {
+        "path": "artifacts\\maintenance\\manifest.json",
+        "bytes": 19925606,
+        "sha256": "a15e926fe1b3ad4ed06d51bf92187d3fe36088c2b00d43408bf75d03d4124228",
+        "revision": 3653
+      },
+      {
+        "path": "artifacts\\maintenance\\manifest.pending",
+        "bytes": 19925784,
+        "sha256": "61c7167102f05b84ef7212924fc1dfa9cc6e08c4c3124650f8a8cd37bd4e77aa",
+        "revision": 3654
+      }
+    ],
+    "active_diagnostic_bundle": {
+      "path": "artifacts/tasks/EC-01-unused-file-archive/runs/archive-lock-retry-r1",
+      "files": 89,
+      "bytes": 1241974,
+      "purpose": "Pending-state recovery and failed refresh diagnosis; remove through owner after recovery and re-verification"
+    },
+    "logs": "artifacts/tasks/EC-01-unused-file-archive/runs/archive-lock-retry-r1/logs",
+    "summary": "artifacts/tasks/EC-01-unused-file-archive/runs/archive-lock-retry-r1/review-summary.json",
+    "next_requirement": "Supported pending manifest recovery; do not remove or overwrite pending state manually"
+  },
+  "archive": {
+    "root": "archive/EC-01-lock-retry-20261028-r1",
+    "moved": [
+      {
+        "group_id": "run:CR-01-build-legacy-cleanup:protection-release-20261020-r1",
+        "id": "0a40a14fe0b1ed0c06b8404e7fa3cd6b80654ea866ae8c9aac856fb3b150ddc0",
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\protection-release-20261020-r1",
+        "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-lock-retry-20261028-r1\\payload\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\protection-release-20261020-r1",
+        "filecount": 919,
+        "bytes": "4322283",
+        "identity_preserved": true,
+        "source_absent": true
+      }
+    ],
+    "receipt_sha256": "115419f14001a32e94abf8553392561d8ac07f5241e92c90e3805de4823adacc",
+    "source_finalized": true,
+    "controller_exit_code": 0,
+    "previous_preflight_exit_code": 1,
+    "previous_failure": "PowerShell5 long-path lookup failed with zero moves; official reservation recovery 0; read-only extended .NET attribute guard then passed"
+  },
+  "producer_stop": {
+    "verified": true,
+    "controllers": [
+      {
+        "scope": "archive-lock-retry-r1",
+        "exit_code": 0,
+        "actual_operations": "49 refresh passed; 28 failed; six review calls passed; no producer children remain"
+      },
+      {
+        "scope": "pending-recovery-r1",
+        "exit_code": 0,
+        "actual_operations": "R1/R2 failures preserved in acceptance; R3 all stages 0, install 0, retry controller 0, final archive controller 0; all synchronous children terminal, leases released"
+      }
+    ]
+  },
+  "cleanup_groups": [
+    "run:EC-01:archive-lock-retry-r1",
+    "run:EC-01:pending-recovery-r1"
+  ],
+  "preserved": [
+    "Installed immutable standalone and independent acceptance",
+    "User-requested archives with independent migration/verification/source reconciliation controls",
+    "Protected compact native recovery authorization/receipt",
+    "Old standalone with independent EB execution consumer",
+    "Original physical-absent cleanup pending intent unchanged"
+  ]
+}

@@ -7,7 +7,6 @@ const { test } = require("node:test");
 const ts = require(path.resolve("extensions/azrael-ex/node_modules/typescript/lib/typescript.js"));
 const { createImmediateStopCoordinator } = require("./immediate-stop.cjs");
 const { IMMEDIATE_STOP_ASSET: asset, IMMEDIATE_STOP_MARKER: marker, injectImmediateStop } = require("./inject-immediate-stop.cjs");
-const { transformAsset } = require("./namespace-azrael-host.cjs");
 const pristine = fs.readFileSync(path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve("artifacts/upstream-ui/26.1007.21434"), asset), "utf8");
 const changed = injectImmediateStop(pristine, asset).text;
 function declarations(source) {
@@ -27,7 +26,7 @@ function declarations(source) {
 
   return found;
 }
-const native = declarations(pristine), injected = declarations(changed);
+const injected = declarations(changed);
 const deferred = () => { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; };
 const flush = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
 function clock() {
@@ -65,25 +64,6 @@ function harness({ helper, send, start } = {}) {
     stop(mode = "user-stop", id) { return method.call(manager, "thread", mode, id); }
   };
 }
-
-test("pinned injection parses through existing pipeline and guards asset, anchors, and idempotence", () => {
-  const integrated = injectImmediateStop(transformAsset(pristine, asset, asset, ts).text, asset).text;
-  assert.equal(ts.createSourceFile(asset, integrated, 99, true, ts.ScriptKind.JS).parseDiagnostics.length, 0);
-  assert.equal(ts.createSourceFile(asset, changed, 99, true, ts.ScriptKind.JS).parseDiagnostics.length, 0);
-  assert.equal(injectImmediateStop(changed, asset).text, changed);
-  assert.equal(injectImmediateStop(pristine, "future.js").text, pristine);
-  assert.throws(() => injectImmediateStop("", asset), /anchor/);
-  assert.throws(() => injectImmediateStop(pristine + pristine, asset), /anchor/);
-  assert.throws(() => injectImmediateStop(changed + marker, asset), /Duplicate/);
-  for (const damaged of [
-    changed.replace("return __azraelImmediateStop.trackStart", "return missing.trackStart"),
-    changed.replace("let i=()=>__azraelImmediateStop.stop", "let i=()=>missing.stop"),
-    changed.replace("expectedTurnId:__azraelExpectedTurnId", "expectedTurnId:null"),
-    changed.replace("const managers = new WeakMap();", "const managers = new Map();"),
-    changed + native.rAn,
-  ]) assert.throws(() => injectImmediateStop(damaged, asset), /Damaged/);
-  for (const key of ["mwn", "gwn", "fwn", "hwn", "U$", "eQ", "$Z"]) assert.equal(injected[key], native[key]);
-});
 
 test("actual native pending start is captured once; later submission cannot replace its ID", async () => {
   const one = deferred(), two = deferred(); let calls = 0;

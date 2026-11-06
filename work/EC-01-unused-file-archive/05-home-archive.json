@@ -1,0 +1,497 @@
+{
+  "schema": 1,
+  "started": "2026-10-28T02:10:55.391Z",
+  "platform": "Windows x64 local, same-volume rename",
+  "scope": [
+    "azr-r3-3dd11733",
+    "azr-r4-e660efa1",
+    ".tmppazXs2"
+  ],
+  "mapping": [
+    {
+      "name": "azr-r3-3dd11733",
+      "source": "C:\\Users\\felre\\azr-r3-3dd11733",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-external-home-20261028-r1\\payload\\user-home\\azr-r3-3dd11733",
+      "owner": "artifact-cleanup",
+      "historical_producer_exit": null,
+      "basis": "Only diagnosed cleanup receipt remains; original fixture absent. Receipt generator scripts/clean-verification-artifacts.ps1:71-75. No claim of original fixture success.",
+      "before": [
+        {
+          "path": "",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1688849863301567,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1125899909880256,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1688849863121063,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1688849863121064,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence/run",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1688849863121066,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence/run/cleanup-receipt.json",
+          "type": "file",
+          "dev": 3057815611,
+          "ino": 1688849863121084,
+          "size": 184,
+          "mtime": 1791343092799.2666,
+          "mode": 33206,
+          "sha256": "17abc6224350fcb4da0c80e332b014947262de34fb22bb69743cb283005448a4"
+        },
+        {
+          "path": "artifacts/verification",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1125899909880257,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        }
+      ],
+      "status": "archived",
+      "after": [
+        {
+          "path": "",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1688849863301567,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1125899909880256,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1688849863121063,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1688849863121064,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence/run",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1688849863121066,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence/run/cleanup-receipt.json",
+          "type": "file",
+          "dev": 3057815611,
+          "ino": 1688849863121084,
+          "size": 184,
+          "mtime": 1791343092799.2666,
+          "mode": 33206,
+          "sha256": "17abc6224350fcb4da0c80e332b014947262de34fb22bb69743cb283005448a4"
+        },
+        {
+          "path": "artifacts/verification",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1125899909880257,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        }
+      ],
+      "identity_match": true,
+      "source_absent": true
+    },
+    {
+      "name": "azr-r4-e660efa1",
+      "source": "C:\\Users\\felre\\azr-r4-e660efa1",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-external-home-20261028-r1\\payload\\user-home\\azr-r4-e660efa1",
+      "owner": "artifact-cleanup",
+      "historical_producer_exit": null,
+      "basis": "Only diagnosed cleanup receipt remains; original fixture absent. Receipt generator scripts/clean-verification-artifacts.ps1:71-75. No claim of original fixture success.",
+      "before": [
+        {
+          "path": "",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1125899910038542,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 844424933327887,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 3377699723516828,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 3940649676982142,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence/run",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1970324840007553,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence/run/cleanup-receipt.json",
+          "type": "file",
+          "dev": 3057815611,
+          "ino": 8162774327641988,
+          "size": 184,
+          "mtime": 1791343494963.6892,
+          "mode": 33206,
+          "sha256": "f8f66352af1e0b58821a7365f06ab35b6ead75224d75085f3397fc9b265b0e69"
+        },
+        {
+          "path": "artifacts/verification",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 844424933327888,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        }
+      ],
+      "status": "archived",
+      "after": [
+        {
+          "path": "",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1125899910038542,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 844424933327887,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 3377699723516828,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 3940649676982142,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence/run",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 1970324840007553,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": "artifacts/logs/verification-evidence/run/cleanup-receipt.json",
+          "type": "file",
+          "dev": 3057815611,
+          "ino": 8162774327641988,
+          "size": 184,
+          "mtime": 1791343494963.6892,
+          "mode": 33206,
+          "sha256": "f8f66352af1e0b58821a7365f06ab35b6ead75224d75085f3397fc9b265b0e69"
+        },
+        {
+          "path": "artifacts/verification",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 844424933327888,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        }
+      ],
+      "identity_match": true,
+      "source_absent": true
+    },
+    {
+      "name": ".tmppazXs2",
+      "source": "C:\\Users\\felre\\.tmppazXs2",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-external-home-20261028-r1\\payload\\user-home\\.tmppazXs2",
+      "owner": "codex-core/windows_sandbox integration test",
+      "historical_producer_exit": null,
+      "basis": "Exact two-file fixture and bytes match windows_elevated_enforces_deny_read_and_protects_setup_marker; original all integration-test process class absent.",
+      "before": [
+        {
+          "path": "",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 844424939603418,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": ".codex",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 562949962892787,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": ".codex/plugins",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 562949962892788,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": ".codex/plugins/cache",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 562949962892790,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": ".codex/plugins/cache/SKILL.md",
+          "type": "file",
+          "dev": 3057815611,
+          "ino": 562949962892795,
+          "size": 17,
+          "mtime": 1791150764751.6228,
+          "mode": 33206,
+          "sha256": "a532d7cc4bcaf75d84b7464f2f11d5f807ab19728ab8a8a144e8a5171ed11955"
+        },
+        {
+          "path": "exact-secret.txt",
+          "type": "file",
+          "dev": 3057815611,
+          "ino": 562949962892785,
+          "size": 13,
+          "mtime": 1791150764747.6162,
+          "mode": 33206,
+          "sha256": "3c8670978d5f6a127a5535578a957e460efc21a967a2f96f473373243078ec5d"
+        }
+      ],
+      "status": "archived",
+      "after": [
+        {
+          "path": "",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 844424939603418,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": ".codex",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 562949962892787,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": ".codex/plugins",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 562949962892788,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": ".codex/plugins/cache",
+          "type": "directory",
+          "dev": 3057815611,
+          "ino": 562949962892790,
+          "size": null,
+          "mtime": null,
+          "mode": 16822,
+          "sha256": null
+        },
+        {
+          "path": ".codex/plugins/cache/SKILL.md",
+          "type": "file",
+          "dev": 3057815611,
+          "ino": 562949962892795,
+          "size": 17,
+          "mtime": 1791150764751.6228,
+          "mode": 33206,
+          "sha256": "a532d7cc4bcaf75d84b7464f2f11d5f807ab19728ab8a8a144e8a5171ed11955"
+        },
+        {
+          "path": "exact-secret.txt",
+          "type": "file",
+          "dev": 3057815611,
+          "ino": 562949962892785,
+          "size": 13,
+          "mtime": 1791150764747.6162,
+          "mode": 33206,
+          "sha256": "3c8670978d5f6a127a5535578a957e460efc21a967a2f96f473373243078ec5d"
+        }
+      ],
+      "identity_match": true,
+      "source_absent": true
+    }
+  ],
+  "not_moved": [
+    {
+      "names": [
+        "av17",
+        "av18"
+      ],
+      "reason": "Retired payload absent; protected management roots and retirement evidence remain. No supported whole-management-root relocation established."
+    },
+    {
+      "names": [
+        "av30"
+      ],
+      "reason": "14 original child lifecycle owners retained; two missing report members and absolute references require owner reconciliation. No aggregation ownership assumed."
+    },
+    {
+      "names": [
+        "azrael-environment-share"
+      ],
+      "reason": "Source repository referenced by current documentation."
+    }
+  ],
+  "status": "archived",
+  "registration": {
+    "standalone_sha256": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529",
+    "register_exits": [
+      0,
+      0,
+      0
+    ],
+    "review_exit": 0,
+    "defer_exit": 0,
+    "groups": 3,
+    "items": 3,
+    "all_deferred_remaining": true
+  },
+  "finished": "2026-10-28T02:10:55.468Z",
+  "files": 4,
+  "bytes": 398,
+  "reclaimed_bytes": 0,
+  "remaining_status": "partial: av17/av18 management roots protected; av30 original-owner reconciliation unresolved"
+}

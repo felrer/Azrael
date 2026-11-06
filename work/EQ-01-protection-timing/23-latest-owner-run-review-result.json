@@ -1,0 +1,149 @@
+{
+  "exit_code": 0,
+  "signal": null,
+  "elapsed_ms": 6007.995999999999,
+  "stderr": "",
+  "result": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "dfdc26f58317efbaedd12ed06868a95f8dd510d2af5fdccb9ed49fb41c44dd63",
+        "owner": "standalone-candidate-preparation",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\29c6a2a826d8db61e9deb30a52a3b3bc44161a7fdf3da04e0e29cee62f7f50b3.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f"
+        ],
+        "group_token": "0e71ce2868cb8ed0c5b9c5c1409b08cc1dc47b282ba9273fa10930b840d8facc",
+        "id": "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f",
+        "identity": "52636e9dfbd160484d739943a952edbf2efe8fcf5c573e5c59da35ac256305c1",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+        "logical_bytes": 718938275,
+        "measured_at_ms": 1793552749369,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "dfdc26f58317efbaedd12ed06868a95f8dd510d2af5fdccb9ed49fb41c44dd63",
+          "member_references": {
+            "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\reports\\producer-6c08fa81cd55832e4d616b8648bdf092a57757604c6d1089c3aa41443ea5ea04.json",
+              "evidence_sha256": "6c08fa81cd55832e4d616b8648bdf092a57757604c6d1089c3aa41443ea5ea04",
+              "reason": "Current-source standalone build and all exact-binary acceptance finished; existing installation retained",
+              "request_sha256": "888f0dc3a0ea14b5e7daa77e4f62cbf7f393685ae2949c459c22c62ab4827922"
+            },
+            "created_at": "2026-11-01T16:57:18.383Z",
+            "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1",
+            "owner": "standalone-candidate-preparation",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\reports\\producer-6c08fa81cd55832e4d616b8648bdf092a57757604c6d1089c3aa41443ea5ea04.json",
+              "evidence_sha256": "6c08fa81cd55832e4d616b8648bdf092a57757604c6d1089c3aa41443ea5ea04",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Current-source standalone build and all exact-binary acceptance finished; existing installation retained",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-11-01T17:03:14.448Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793552819506,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              240,
+              45,
+              183,
+              0,
+              0,
+              0,
+              33,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "5ac80a1f4c8e497b7259a1bfa20e4438f20263507de8629847b114257218d8b2",
+        "verification": "registered"
+      }
+    ]
+  }
+}

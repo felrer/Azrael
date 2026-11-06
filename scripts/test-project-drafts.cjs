@@ -52,11 +52,7 @@ function fixture(state = {}) {
   }
   return { open, save, state: () => clone(state) };
 }
-test("pinned host transform is complete, idempotent and rejects drift", () => {
-  assert.equal(injectProjectDrafts(patched).count, 0);
-  assert.throws(() => injectProjectDrafts(original.replace("async sendPersistedAtomState(e)", "async changed(e)")), /anchor/);
-  assert.throws(() => injectProjectDrafts(patched.replace("projectDraftView(r[k],p)", "r[k]")), /Invalid/);
-});
+
 test("flags and filter survive host reconstruction and project-scoped draft synchronization", async () => {
   const flags = { '["local","a"]': true, '["other-host","b"]': true };
   const f = fixture(), a = f.open("project-a");

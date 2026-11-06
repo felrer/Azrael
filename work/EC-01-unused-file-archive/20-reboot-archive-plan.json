@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "owner": "EC-01-user-archive-custody",
+  "action": "archive-user-selected-unknown-after-verified-reboot",
+  "platform": "Windows x64 local",
+  "user_authorized": true,
+  "archive_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-post-reboot-unknown-20261028-r1",
+  "planned": [
+    {
+      "record": {
+        "schema": 1,
+        "id": "shared:cargo-target:96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+        "kind": "work",
+        "owner": "cargo-shared-cache",
+        "version": null,
+        "state": "pending",
+        "membership_complete": false,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+            "role": "cargo-cache",
+            "generated": true,
+            "protection_known": true
+          }
+        ],
+        "references": [],
+        "generation": "35a2ef51-ad40-4fc2-87d7-7b53e8c572b2",
+        "revision": 5,
+        "created_at": "2026-10-26T20:04:34.231Z",
+        "updated_at": "2026-10-26T22:47:30.953Z"
+      },
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-post-reboot-unknown-20261028-r1\\cargo-cache-96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24"
+    },
+    {
+      "record": {
+        "schema": 1,
+        "id": "shared:cargo-pending:dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+        "kind": "work",
+        "owner": "cargo-target-owner",
+        "version": null,
+        "state": "pending",
+        "membership_complete": false,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+            "role": "pending",
+            "generated": true,
+            "protection_known": true
+          }
+        ],
+        "references": [],
+        "generation": "5fdf3e98-6425-4179-9ab7-1ff29516f4f9",
+        "revision": 21,
+        "created_at": "2026-10-22T16:45:49.706Z",
+        "updated_at": "2026-10-23T01:47:17.820Z"
+      },
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-post-reboot-unknown-20261028-r1\\cargo-pending-dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f"
+    }
+  ],
+  "planned_control_evidence": [
+    "20-reboot-evidence.json",
+    "20-cargo-lease-retirement.json",
+    "20-cleanup-recovery-0.json",
+    "20-cleanup-recovery-1.json",
+    "20-reboot-archive-inventory.json",
+    "20-reboot-archive-review.json",
+    "20-reboot-archive-result.json"
+  ],
+  "retention": "User-requested archive; future cleanup requires explicit review and native registration if not registered",
+  "no_delete": true
+}

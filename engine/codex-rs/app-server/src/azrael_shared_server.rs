@@ -85,7 +85,7 @@ struct Owner {
     workspace_id: String,
     account_state_file: PathBuf,
     account_default_file: Option<PathBuf>,
-    /// Stable processor authority; every companion/UI alias moves together on rejoin.
+    /// Stable processor authority; session routes preserve it without rebinding window aliases.
     context: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     session_thread: Option<String>,
@@ -108,10 +108,6 @@ struct Lease {
 struct Registry {
     saved: SavedRegistry,
     leases: HashMap<String, Lease>,
-    registered_at: HashMap<String, u64>,
-    disappeared_at: HashMap<String, u64>,
-    work_owned: HashSet<String>,
-    sequence: u64,
     had_window: bool,
     startup_started: Instant,
     stopping: bool,
@@ -158,15 +154,9 @@ impl Registry {
                 return Err(invalid("corrupt window thread ownership"));
             }
         }
-        // Previous process owners have already disappeared; new registrations may rejoin them.
-        let disappeared_at = saved.owners.keys().map(|id| (id.clone(), 0)).collect();
         Ok(Self {
             saved,
             leases: HashMap::new(),
-            registered_at: HashMap::new(),
-            disappeared_at,
-            work_owned: HashSet::new(),
-            sequence: 0,
             had_window: false,
             startup_started: Instant::now(),
             stopping: false,
@@ -230,19 +220,13 @@ impl Registry {
             }
             return Ok(());
         }
-        self.sequence += 1;
-        self.registered_at.insert(owner.into(), self.sequence);
-        self.disappeared_at.remove(owner);
         self.leases.insert(owner.into(), Lease { pid, identity });
         self.had_window = true;
         self.last_window_gone = None;
         Ok(())
     }
     fn host_disappeared(&mut self, owner: &str) {
-        if self.leases.remove(owner).is_some() {
-            self.sequence += 1;
-            self.disappeared_at.insert(owner.into(), self.sequence);
-        }
+        self.leases.remove(owner);
         if self.leases.is_empty() && self.had_window && self.last_window_gone.is_none() {
             self.last_window_gone = Some(Instant::now());
         }
@@ -261,26 +245,13 @@ impl Registry {
             .map(|_| "last_window_closed")
     }
 
-    fn context_is_live(&self, context: &str) -> bool {
-        self.leases.keys().any(|owner| {
-            self.saved
-                .owners
-                .get(owner)
-                .is_some_and(|o| o.context == context)
-        })
-    }
-    fn select_thread(&mut self, requester: &str, thread: &str, resume: bool) -> io::Result<String> {
+    fn select_thread(&mut self, requester: &str, thread: &str) -> io::Result<String> {
         ThreadId::from_string(thread).map_err(invalid)?;
         let current = self.context(requester)?;
         let Some(original) = self.saved.threads.get(thread).cloned() else {
             self.saved.threads.insert(thread.into(), current.clone());
-            self.work_owned.insert(current.clone());
             return Ok(current);
         };
-        if current == original {
-            self.work_owned.insert(current.clone());
-            return Ok(current);
-        }
         let original_owner = self
             .saved
             .owners
@@ -291,34 +262,11 @@ impl Registry {
             .owners
             .get(requester)
             .ok_or_else(|| invalid("missing window owner"))?;
-        let disappeared = self
-            .saved
-            .owners
-            .iter()
-            .filter(|(_, owner)| owner.context == original)
-            .filter_map(|(id, _)| self.disappeared_at.get(id))
-            .max()
-            .copied()
-            .unwrap_or(0);
-        let new_registration = self
-            .registered_at
-            .get(requester)
-            .is_some_and(|sequence| *sequence > disappeared);
-        if !resume
-            || self.context_is_live(&original)
-            || original_owner.workspace_id != requester_owner.workspace_id
-            || self.work_owned.contains(&current)
-            || !new_registration
-        {
-            return Err(invalid("thread belongs to another window"));
+        if original_owner.workspace_id != requester_owner.workspace_id {
+            return Err(invalid("thread belongs to another workspace"));
         }
-        // Move all aliases of the new, unused context; retain original processor and callbacks.
-        for owner in self.saved.owners.values_mut() {
-            if owner.context == current {
-                owner.context = original.clone();
-            }
-        }
-        self.work_owned.insert(original.clone());
+        // Window lifetime and other open threads do not change project session access.
+        // Keep the processor's credentials, pending callbacks and running work intact.
         Ok(original)
     }
 }
@@ -412,6 +360,7 @@ enum ContextEvent {
     },
 }
 struct SessionScope {
+    read_only: bool,
     thread: String,
     context: String,
     workspace: String,
@@ -425,10 +374,11 @@ fn bind_session_scope_if_unsubscribed(
     scope: SessionScope,
     subscribers: &[ConnectionId],
 ) -> &'static str {
-    if !subscribers.is_empty()
-        || scopes
-            .values()
-            .any(|existing| existing.thread == scope.thread)
+    if !scope.read_only
+        && (!subscribers.is_empty()
+            || scopes
+                .values()
+                .any(|existing| !existing.read_only && existing.thread == scope.thread))
     {
         return "busy";
     }
@@ -446,7 +396,24 @@ fn session_claim_allows_request(
         .unwrap_or_else(|_| thread.to_owned());
     !scopes
         .iter()
-        .any(|(claimed, scope)| *claimed != connection && scope.thread == canonical)
+        .any(|(claimed, scope)| !scope.read_only && *claimed != connection && scope.thread == canonical)
+}
+
+fn session_input_allowed(
+    scope: &SessionScope,
+    message: &JSONRPCMessage,
+    known_callback: bool,
+) -> bool {
+    match message {
+        JSONRPCMessage::Request(request) if scope.read_only => {
+            handoff::read_only_scoped_request(&request.method, request.params.as_ref(), &scope.thread)
+        }
+        JSONRPCMessage::Request(request) => {
+            handoff::scoped_request(&request.method, request.params.as_ref(), &scope.thread)
+        }
+        JSONRPCMessage::Notification(notification) => notification.method == "initialized",
+        JSONRPCMessage::Response(_) | JSONRPCMessage::Error(_) => !scope.read_only && known_callback,
+    }
 }
 
 fn routed_context(
@@ -487,9 +454,9 @@ fn session_outgoing_allowed(
         return true;
     };
     match message {
-        OutgoingMessage::Request(_) => callback_thread == Some(&scope.thread),
+        OutgoingMessage::Request(_) => !scope.read_only && callback_thread == Some(&scope.thread),
         OutgoingMessage::AppServerNotification(_) => {
-            outgoing_thread(message).as_deref() == Some(&scope.thread)
+            !scope.read_only && outgoing_thread(message).as_deref() == Some(&scope.thread)
         }
         _ => true,
     }
@@ -834,7 +801,6 @@ fn record_published_thread(
         return Err(invalid("cross-window duplicate thread publication"));
     }
     registry.saved.threads.insert(thread.into(), context.into());
-    registry.work_owned.insert(context.into());
     Ok(true)
 }
 
@@ -883,8 +849,8 @@ pub(crate) async fn run(
     let registry_path =
         codex_app_server_daemon::azrael_window_registry_path(&home, &instance).map_err(invalid)?;
     let mut registry = Registry::load_scoped(&registry_path, &instance)?;
-    let mut thread_engines =
-        crate::azrael_thread_engines::ThreadEngineLeases::new(&home, &instance).await?;
+    let mut thread_sessions =
+        crate::azrael_thread_engines::ThreadEngineSessions::new(&home, &instance).await?;
     let mut contexts = HashMap::<String, Context>::new();
     let mut connections = HashMap::<ConnectionId, ConnectionState>::new();
     let mut owners = HashMap::<ConnectionId, String>::new();
@@ -920,7 +886,10 @@ pub(crate) async fn run(
                     if !scope.host.is_alive().await.map_err(invalid)? { dead_scopes.push(*connection); }
                 }
                 for connection in dead_scopes { scopes.remove(&connection); }
-                if scopes.is_empty() && let Some(reason) = registry.no_window_shutdown_reason_at(Instant::now()) {
+                // Metadata readers do not own execution or keep the source engine alive.
+                if !scopes.values().any(|scope| !scope.read_only)
+                    && let Some(reason) = registry.no_window_shutdown_reason_at(Instant::now())
+                {
                     tracing::info!(reason, "shared window engine has no window leases; stopping");
                     break;
                 }
@@ -935,7 +904,7 @@ pub(crate) async fn run(
                         let routed_thread=callback_thread.clone().or_else(||outgoing_thread(message));
                         if handoff_closure(message) && outgoing_thread(message).is_some_and(|thread|transferring.contains_key(&thread)||released.contains_key(&thread)) {continue;}
                         if let Some(thread) = published_thread(message) {
-                            if let Err(error) = thread_engines.acquire(thread) { terminal_error = Some(error); break; }
+                            if let Err(error) = thread_sessions.track(thread) { terminal_error = Some(error); break; }
                         }
                         match record_published_thread(&mut registry, &context, message) {
                             Ok(true) => if let Err(error) = registry.save(&registry_path) {
@@ -970,18 +939,10 @@ pub(crate) async fn run(
                         }
                         if let Some(thread) = published_thread(message) {
                             let workspace = &registry.saved.owners.get(&context).ok_or_else(|| invalid("missing publication workspace"))?.workspace_id;
-                            let published=thread_engines.publish(thread, &serde_json::json!({"schema":1,"protocol":1,"threadId":thread,
+                            if let Err(error) = thread_sessions.publish_hint(thread, &serde_json::json!({"schema":1,"protocol":1,"threadId":thread,
                                 "workspaceId":workspace,"instanceId":instance,"socketPath":socket_path,"engineVersion":version,
-                                "engineIdentity":identity,"storageCompatibility":compatibility}));
-                            if let Err(error)=published {
-                                if registry.saved.owners.get(&context).is_some_and(|owner|owner.session_thread.as_deref()==Some(thread)) {
-                                    failed_transfers.insert(thread.to_owned());
-                                    if let OutgoingEnvelope::ToConnection {connection_id,message:OutgoingMessage::Response(response),..}=&envelope {
-                                        send_error(&outgoing,*connection_id,response.id.clone(),error).await?;
-                                    }
-                                    continue;
-                                }
-                                return Err(error);
+                                "engineIdentity":identity,"storageCompatibility":compatibility})) {
+                                tracing::warn!(%thread,%error,"session discovery hint publication failed");
                             }
                         }
                         match envelope {
@@ -1017,16 +978,15 @@ pub(crate) async fn run(
                         }
                     },
                     Some(ContextEvent::ThreadCreated(context, thread)) => {
-                        if let Err(error) = thread_engines.acquire(&thread.to_string()) { terminal_error = Some(error); break; }
+                        if let Err(error) = thread_sessions.track(&thread.to_string()) { terminal_error = Some(error); break; }
                         if registry.saved.threads.get(&thread.to_string()).is_some_and(|owner| *owner != context) {
                             terminal_error = Some(invalid("cross-window duplicate thread detected"));
                         } else {
                             registry.saved.threads.insert(thread.to_string(), context.clone());
-                            registry.work_owned.insert(context.clone());
                             if let Err(error) = registry.save(&registry_path) {
                                 if registry.saved.owners.get(&context).is_some_and(|owner|owner.session_thread.is_some()) {
                                     failed_transfers.insert(thread.to_string());
-                                    tracing::warn!(%thread,%error,"selected transfer registry persistence failed; retaining session lease");
+                                    tracing::warn!(%thread,%error,"selected transfer registry persistence failed; retaining local session tracking");
                                     continue;
                                 }
                                 terminal_error = Some(error);
@@ -1042,7 +1002,7 @@ pub(crate) async fn run(
                     Some(ContextEvent::Handoff {connection, request, thread, target, result}) => {
                         match result {
                             Ok(true) => {
-                                if let Err(error) = thread_engines.release(&thread) { send_error(&outgoing, connection, request, error).await?; }
+                                if let Err(error) = thread_sessions.release(&thread) { send_error(&outgoing, connection, request, error).await?; }
                                 else {
                                     transferring.remove(&thread);
                                     released.insert(thread, target);
@@ -1109,7 +1069,10 @@ pub(crate) async fn run(
                                         message: OutgoingMessage::RawResponse { id: request.id.clone(), result: serde_json::json!({
                                             "schema": 1, "state": "ready", "enginePid": std::process::id(),
                                             "instanceId": instance, "engineVersion": version, "engineIdentity": identity,
-                                            "sessionHandoff": {"protocol": handoff::PROTOCOL,"storageCompatibility":compatibility}
+                                            "sessionHandoff": {"protocol": handoff::PROTOCOL,"storageCompatibility":compatibility,"readOnlyAttach":true},
+                                            "sessionTracked": request.params.as_ref().and_then(|params| params.get("threadId"))
+                                                .and_then(|thread| thread.as_str()).map(|thread| ThreadId::from_string(thread).ok()
+                                                    .is_some_and(|thread| thread_sessions.tracked_threads().contains(&thread)))
                                         }) }, write_complete_tx: None }).await.map_err(invalid)?;
                                 }
                                 continue;
@@ -1125,8 +1088,8 @@ pub(crate) async fn run(
                                     let context_id = registry.saved.threads.get(&attach.thread_id).cloned().ok_or_else(|| invalid("source does not own this session"))?;
                                     let binding = registry.saved.owners.get(&context_id).ok_or_else(|| invalid("source session context missing"))?;
                                     if binding.workspace_id != attach.workspace_id
-                                        || !thread_engines.owned_threads().contains(&ThreadId::from_string(&attach.thread_id).map_err(invalid)?) {
-                                        return Err(invalid("session workspace or authoritative lease mismatch"));
+                                        || !thread_sessions.tracked_threads().contains(&ThreadId::from_string(&attach.thread_id).map_err(invalid)?) {
+                                        return Err(invalid("session workspace or local tracking mismatch"));
                                     }
                                     let host = capture_process_identity(attach.host_pid).await.map_err(invalid)?.ok_or_else(|| invalid("session host is not alive"))?;
                                     if !contexts.contains_key(&context_id) {
@@ -1138,10 +1101,10 @@ pub(crate) async fn run(
                                     let subscribers=contexts.get(&context_id).ok_or_else(||invalid("session context unavailable"))?.processor
                                         .session_subscribers(ThreadId::from_string(&attach.thread_id).map_err(invalid)?).await;
                                     let attach_state=bind_session_scope_if_unsubscribed(&mut scopes,connection_id,
-                                        SessionScope {thread:attach.thread_id.clone(), context:context_id,
+                                        SessionScope {read_only:attach.read_only, thread:attach.thread_id.clone(), context:context_id,
                                             workspace:attach.workspace_id, target:attach.target_instance_id, host},&subscribers);
                                     Ok::<_,io::Error>(serde_json::json!({"schema":1,"protocol":1,"threadId":attach.thread_id,
-                                        "instanceId":instance,"engineIdentity":identity,"engineVersion":version,"storageCompatibility":compatibility,"state":attach_state}))
+                                        "instanceId":instance,"engineIdentity":identity,"engineVersion":version,"storageCompatibility":compatibility,"state":attach_state,"readOnly":attach.read_only}))
                                 }.await;
                                 match result {
                                     Ok(result) => outgoing.send(OutgoingEnvelope::ToConnection {connection_id,
@@ -1154,6 +1117,9 @@ pub(crate) async fn run(
                                 let Some(scope) = scopes.get(&connection_id).filter(|_| state.session.initialized()) else {
                                     send_error(&outgoing, connection_id, request.id.clone(), "handoff requires initialized session attachment").await?; continue;
                                 };
+                                if scope.read_only {
+                                    send_error(&outgoing, connection_id, request.id.clone(), "handoff requires writable session attachment").await?; continue;
+                                }
                                 let params = request.params.as_ref();
                                 if params.and_then(|p|p.get("threadId")).and_then(|p|p.as_str()) != Some(&scope.thread)
                                     || params.and_then(|p|p.get("targetInstanceId")).and_then(|p|p.as_str()) != Some(&scope.target) {
@@ -1238,12 +1204,12 @@ pub(crate) async fn run(
                             }
                         }
                         if let Some(scope) = scopes.get(&connection_id) {
-                            let allowed = match &message {
-                                JSONRPCMessage::Request(request) => handoff::scoped_request(&request.method,request.params.as_ref(),&scope.thread),
-                                JSONRPCMessage::Notification(notification) => notification.method == "initialized",
+                            let known_callback = match &message {
                                 JSONRPCMessage::Response(response) => callbacks.contains_key(&(connection_id,response.id.clone())),
                                 JSONRPCMessage::Error(error) => callbacks.contains_key(&(connection_id,error.id.clone())),
+                                _ => false,
                             };
+                            let allowed = session_input_allowed(scope, &message, known_callback);
                             if !allowed {
                                 if let JSONRPCMessage::Request(request) = &message {send_error(&outgoing,connection_id,request.id.clone(),"request exceeds attached session authority").await?;}
                                 continue;
@@ -1268,7 +1234,7 @@ pub(crate) async fn run(
                         }
                         if let JSONRPCMessage::Request(request) = &message {
                             if let Some(thread) = request.params.as_ref().and_then(|p| p.get("threadId")).and_then(|p| p.as_str()) {
-                                if !session_claim_allows_request(&scopes,connection_id,thread) {
+                                if request.method != "thread/read" && !session_claim_allows_request(&scopes,connection_id,thread) {
                                     send_error(&outgoing,connection_id,request.id.clone(),"session is claimed by another attached connection").await?;continue;
                                 }
                                 if transferring.contains_key(thread) || released.contains_key(thread)
@@ -1285,7 +1251,7 @@ pub(crate) async fn run(
                                         }
                                     }
                                 }
-                                if let Err(error) = thread_engines.acquire(thread) {
+                                if let Err(error) = thread_sessions.track(thread) {
                                     send_error(&outgoing, connection_id, request.id.clone(), error).await?;
                                     continue;
                                 }
@@ -1307,10 +1273,9 @@ pub(crate) async fn run(
                                 }
                                 let selected = if scopes.contains_key(&connection_id) || thread_routes.contains_key(&(connection_id,thread.to_owned())) {
                                     Ok(context_id.clone())
-                                } else {registry.select_thread(&owner_id,thread,request.method == "thread/resume")};
+                                } else {registry.select_thread(&owner_id,thread)};
                                 match selected {
                                     Ok(selected) => {
-                                        let rebound = context_id != selected;
                                         context_id = selected;
                                         if !scopes.contains_key(&connection_id) && !thread_routes.contains_key(&(connection_id,thread.to_owned())) {
                                             if let Err(error)=registry.save(&registry_path) {terminal_error=Some(error);break;}
@@ -1319,12 +1284,12 @@ pub(crate) async fn run(
                                             let binding = registry.saved.owners.get(&context_id).ok_or_else(|| invalid("rejoin context binding missing"))?;
                                             contexts.insert(context_id.clone(), create_context(&template, binding, &context_id, context_tx.clone(), project_account(&contexts, binding)).await?);
                                         }
-                                        if rebound {
+                                        if registry.context(&owner_id)? != context_id {
+                                            // Route only this thread; window defaults and sibling sessions stay separate.
+                                            thread_routes.insert((connection_id,thread.to_owned()),context_id.clone());
                                             let retained = &contexts.get(&context_id).ok_or_else(|| invalid("rejoined context unavailable"))?.processor;
-                                            for (alias, alias_state) in &connections {
-                                                if alias_state.session.initialized() && connection_context(&registry, &owners, *alias).as_deref() == Some(&context_id) {
-                                                    retained.connection_initialized(*alias, alias_state.session.request_attestation()).await;
-                                                }
+                                            if request.method != "thread/resume" {
+                                                retained.connection_initialized(connection_id,state.session.request_attestation()).await;
                                             }
                                         }
                                     },
@@ -1400,7 +1365,7 @@ pub(crate) async fn run(
     for context in contexts.values() {
         context.processor.turn_admission.begin_drain();
     }
-    let mut ids = thread_engines.owned_threads();
+    let mut ids = thread_sessions.tracked_threads();
     // Fence and cancel all existing trees before snapshot I/O or any RPC/startup-task waits.
     // Capture loaded IDs first: children may leave the manager as soon as cancellation starts.
     let mut initial_trees = Vec::new();
@@ -1415,7 +1380,7 @@ pub(crate) async fn run(
     {
         let (loaded, handles, errors) = result;
         for id in &loaded {
-            if let Err(error) = thread_engines.acquire(&id.to_string()) {
+            if let Err(error) = thread_sessions.track(&id.to_string()) {
                 retain_shutdown_error(&mut terminal_error, error);
                 continue;
             }
@@ -1582,13 +1547,13 @@ pub(crate) async fn run(
                 event = context_rx.recv() => {
                     // Keep bounded relays moving and immediately cancel any late admitted root.
                     if let Some(ContextEvent::ThreadCreated(context, thread)) = event {
-                        if let Err(error) = thread_engines.acquire(&thread.to_string()) { retain_shutdown_error(&mut terminal_error, error); continue; }
+                        if let Err(error) = thread_sessions.track(&thread.to_string()) { retain_shutdown_error(&mut terminal_error, error); continue; }
                         ids.insert(thread);
                         registry.saved.threads.entry(thread.to_string()).or_insert(context.clone());
                         if let Some(ctx) = contexts.get(&context) {
                             let (loaded, handles, errors) = ctx.processor.fence_shared_window_threads().await;
                             for id in loaded {
-                                match thread_engines.acquire(&id.to_string()) {
+                                match thread_sessions.track(&id.to_string()) {
                                     Ok(()) => { ids.insert(id); },
                                     Err(error) => retain_shutdown_error(&mut terminal_error, error),
                                 }
@@ -1609,7 +1574,7 @@ pub(crate) async fn run(
     {
         Ok((snapshots, loaded, errors)) => {
             for (thread, owner) in loaded {
-                if let Err(error) = thread_engines.acquire(&thread.to_string()) {
+                if let Err(error) = thread_sessions.track(&thread.to_string()) {
                     retain_shutdown_error(&mut terminal_error, error);
                     continue;
                 }
@@ -1626,7 +1591,7 @@ pub(crate) async fn run(
             for snapshot in snapshots {
                 for thread in snapshot.loaded {
                     if let Ok(thread) = ThreadId::from_string(&thread) {
-                        match thread_engines.acquire(&thread.to_string()) {
+                        match thread_sessions.track(&thread.to_string()) {
                             Ok(()) => {
                                 ids.insert(thread);
                             }

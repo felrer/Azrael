@@ -6,11 +6,16 @@ const crypto = require("node:crypto");
 const { spawnSync } = require("node:child_process");
 const lifecycle = require("./artifact-lifecycle.cjs");
 function commands(stage, platform = process.platform, artifactRoot, runRoot) {
+  if (stage === "pipeline") {
+    if (!runRoot) throw new Error("Pipeline checks require a registered run root");
+    return [[process.execPath, ["scripts/test-pipeline-state.cjs", path.join(runRoot, "temporary/pipeline")]]];
+  }
   if (stage === "writers") {
     if (!runRoot) throw new Error("Writer checks require a registered run root");
     return [
       [process.execPath, ["scripts/test-artifact-run.cjs", path.join(runRoot, "temporary/helper")]],
       [process.execPath, ["scripts/test-deployment-workspace.cjs", path.join(runRoot, "temporary/workspace")]],
+      [process.execPath, ["scripts/test-packaging-workspace.cjs", path.join(runRoot, "temporary/package-inputs")]],
       [process.execPath, ["scripts/test-artifact-check-ownership.cjs", path.join(runRoot, "temporary/checks")]],
       [process.execPath, ["scripts/test-artifact-render-ownership.cjs", "--output-root=" + path.join(runRoot, "temporary/renderers")]],
       [process.execPath, ["--test", "--test-name-pattern=instruction release ownership", "scripts/tests/instruction-package.test.cjs"]],
@@ -22,20 +27,14 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
   ];
   if (stage !== "windows" || platform !== "win32") throw new Error("Windows cleanup checks require --stage windows on Windows");
   return [
-    ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-metrics.ps1",
-      ...(runRoot ? ["-OutputDirectory", path.join(runRoot, "temporary/metrics")] : [])]],
-    ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-metrics.ps1", "-PackagingOnly",
-      ...(runRoot ? ["-OutputDirectory", path.join(runRoot, "temporary/retained-source")] : [])]],
-    ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-module-cache.ps1"]],
     ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-module-cache.ps1", "-RegistryOnly",
       ...(runRoot ? ["-FixtureRoot", path.join(runRoot, "temporary/module-registry")] : [])]],
     ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-module-cache.ps1", "-LegacyRegistryOnly",
       ...(runRoot ? ["-FixtureRoot", path.join(runRoot, "temporary/module-legacy-registry")] : [])]],
-    ...["legacy-releases", "verification-artifacts", "engine-caches"].map(name =>
+    ...["legacy-releases", "verification-artifacts"].map(name =>
       ["pwsh", ["-NoLogo", "-NoProfile", "-File", `scripts/test-clean-${name}.ps1`]]),
-    ...["verify only", "account-success", "build-fail"].map(name =>
-      ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-deploy-azrael.ps1", "-Case", name,
-        ...(artifactRoot ? ["-ArtifactProjectRoot", artifactRoot] : [])]]),
+    ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-clean-engine-caches.ps1",
+      ...(runRoot ? ["-FixtureRoot", path.join(runRoot, "temporary/engine-cache-cleanup")] : [])]],
     ...(runRoot ? [[process.execPath, ["scripts/test-deployment-control-retirement.cjs", path.join(runRoot, "temporary/control-retirement"), "happy"]]] : []),
   ];
 }
@@ -44,11 +43,9 @@ function main(argv) {
   const root = path.resolve(__dirname, ".."), id = crypto.randomUUID();
   // Keep Git's initial config path below Windows' pre-config path limit.
   // The full UUID still identifies the run; removing separators is lossless.
-  const run = path.join(root, "artifacts/tasks/lifecycle-checks/runs", id.replaceAll("-", ""));
-  // Child deploy checks own registered sibling runs. Nesting another project
-  // under this run can make Git discover the parent instead of its fixture.
+  const run = path.join(root, "artifacts/tasks/lc/runs", id.replaceAll("-", ""));
   const selected = selectCommands(argv, process.platform, root, run);
-  const record = {id:`run:lifecycle-check:${id}`,kind:"run",owner:"artifact-lifecycle-checks",members:[{path:run,role:"run"}]};
+  const record = {id:`run:lifecycle-check:${id}`,kind:"run",owner:"artifact-lifecycle-checks",members:[{path:run,role:"run",generated:true,protection_known:true}]};
   lifecycle.recordLifecycle(root,{...record,state:"pending",membership_complete:false});
   fs.mkdirSync(path.join(run,"logs"),{recursive:true});
   fs.mkdirSync(path.join(run,"temporary"),{recursive:true});

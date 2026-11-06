@@ -78,6 +78,7 @@ impl ToolExecutor<ToolInvocation> for RootResumeHandler {
                     work_ids,
                     reason,
                     codex_protocol::root_resume::RootResumeReasoningSettings {
+                        agent_profile: turn.agent_profile.clone(),
                         effort: step_context.settings.effective_reasoning_effort(),
                     },
                 )

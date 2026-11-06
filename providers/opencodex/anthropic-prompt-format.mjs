@@ -1,4 +1,4 @@
-// Labels text on an outgoing Anthropic request without changing message roles,
+// Labels text when the resolved profile selects Anthropic XML, preserving roles,
 // native image blocks, tool-call identities, or the stored conversation.
 function section(tag, text) {
   return `<${tag}>\n<![CDATA[${text.replaceAll(']]>', ']]]]><![CDATA[>')}]]>\n</${tag}>`;

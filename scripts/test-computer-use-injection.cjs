@@ -5,8 +5,11 @@ const { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelReq
   MANAGEMENT_MARKER, managementReplacements,
   SETTINGS_MARKER, SETTINGS_ANCHOR, SETTINGS_REPLACEMENT, CANCEL_MARKER, CANCEL_ANCHOR, CANCEL_REPLACEMENT,
   replacements, MARKER } = require("./inject-computer-use.cjs");
-const { createOwner } = require("./computer-use-approvals.cjs");
-const { request } = require("./test-computer-use-approvals.cjs");
+const { createOwner } = require("./window-use-approvals.cjs");
+function request(id, app = 'calculator.exe', persist = ['session', 'always'], threadId = 'thread-a') {
+  const executable = path.win32.isAbsolute(app) ? app : path.win32.join('C:\\Apps', app);
+  return { id, method: 'mcpServer/elicitation/request', params: { serverName: 'azrael_window', threadId, _meta: { connector_id: 'window-use', tool_params: { app: executable, permission: 'control' }, tool_params_display: [{ name: 'app', value: 'Calculator' }], persist } } };
+}
 const test = require('node:test');
 function assetRules(transformer, asset, rules = transformer.getTransformRules()) {
   return typeof transformer.getAssetTransformRules === "function" ? transformer.getAssetTransformRules(asset, rules) : rules;
@@ -24,7 +27,7 @@ async function run() {
   try {
     const owner = createOwner(home), sent = [], shown = [], outbound = [];
     const registered = [];
-    const context = vm.createContext({ require: name => { if(name === "./azrael-runtime.cjs")return {runtime:{windowControl:{}}};if(name === "./window-control-host.cjs")return {registerApprovalUI(native,publish){registered.push({native,publish});},respondApproval(native,id,result){return String(id).startsWith("azrael-window-consent-");}}; assert.equal(name, "./computer-use-approvals.cjs"); return owner; }, ut: class {}, IR: "provider" });
+    const context = vm.createContext({ require: name => { if(name === "./azrael-runtime.cjs")return {runtime:{windowControl:{}}};if(name === "./window-control-host.cjs")return {registerApprovalUI(native,publish){registered.push({native,publish});},respondApproval(native,id,result){return String(id).startsWith("azrael-window-consent-");}}; assert.equal(name, "./window-use-approvals.cjs"); return owner; }, ut: class {}, IR: "provider" });
     context.host = { codexMcpConnection: { sendResponse: (id, result) => sent.push({ id, result }), sendRequest: (...args) => outbound.push(args) }, broadcastToAllViews: value => shown.push(value), pendingMcpRequests: new Map(), sendInternalAppServerRequest: (...args) => outbound.push(args) };
     // Evaluate the exact transformed handlers obtained from the full pinned bundle.
     const onRequest = replacements[0][1];
@@ -44,9 +47,9 @@ async function run() {
     vm.runInContext("var " + settingsOwners[0].getText(hostAst) + ";settings=new dF", context);
     context.host.receive(request(1)); assert.equal(registered[0].native,context.host.codexMcpConnection);registered[0].publish({type:"fixture"});assert.equal(shown.pop().type,"fixture"); assert.equal(shown[0].request.id, 1);
     context.host.respond({ type: "mcp-response", response: { id: 1, result: { action: "accept", content: { persist: "always" } } } });
-    context.host.receive(request(2)); assert.equal(sent[1].result.content.scope, "global");
+    context.host.receive(request(2)); assert.equal(sent[1].result.content.permission, "control");
     assert.equal((await context.settings.getAppApprovals()).approvedApps.length, 1);
-    assert.equal((await context.settings.removeAppApproval("MICROSOFT.WINDOWSCALCULATOR")).approvedApps.length, 0);
+    assert.equal((await context.settings.removeAppApproval('C:\\APPS\\CALCULATOR.EXE')).approvedApps.length, 0);
     context.host.receive(request(3, "late.exe")); context.host.interrupt({ threadId: "thread-a", turnId: "turn-1" });
     context.host.respond({ type: "mcp-response", response: { id: 3, result: { action: "accept", content: { persist: "always" } } } });
     assert.equal(sent.at(-1).result.action, "cancel");
@@ -82,7 +85,7 @@ test("transformed core notifications and MCP flow never load an absent Window Us
       const context = vm.createContext({ IR: 'provider', require(name) {
         loads.push(name);
         if (name === './azrael-runtime.cjs') return { runtime: { windowControl } };
-        if (name === './computer-use-approvals.cjs') return owner;
+        if (name === './window-use-approvals.cjs') return owner;
         throw new Error('Missing Window Use module must never load: ' + name);
       } });
       context.host = { codexMcpConnection: { sendResponse: (...args) => sent.push(args), sendRequest: (...args) => outbound.push(args) }, pendingMcpRequests: new Map(), broadcastToAllViews: value => shown.push(value) };
@@ -233,6 +236,8 @@ test("pinned computer-use approval card cancels the request through the native r
     { ...rules, "inject-computer-use.cjs": "0".repeat(64) });
   const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([o], [b]) => o.localeCompare(b))));
   assert.notEqual(ruleKey(cardRules), ruleKey(changedRules), "injector changes must invalidate the approval card cache key");
+  assert.equal(cardRules["team-approval-routing.cjs"], sha(fs.readFileSync(path.join(__dirname, "team-approval-routing.cjs"))));
+  assert.notEqual(ruleKey(cardRules),ruleKey(assetRules(transformer,COMPUTER_USE_APPROVAL_CARD_ASSET,{...rules,"team-approval-routing.cjs":"0".repeat(64)})),"routing helper changes must invalidate the approval card cache key");
 
   const cardAst = vp.createSourceFile("approval-card.js", transformed.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
   const cardOwners = cardAst.statements.filter(node => vp.isFunctionDeclaration(node) && node.name?.text === "E");
@@ -257,14 +262,26 @@ test("pinned computer-use approval card cancels the request through the native r
           sent.push({ threadId, requestId, response: owner.response(requestId, response) }); return pending;
         } }),
         props: { ApprovalCard: "approval-card", conversationId: "thread-a", hostId: "local", requestId: id,
-          request: { riskLevel: "low", connectorName: "Computer Use", appDisplayName: app, persistModes: ["session", "always"] },
+          request: { riskLevel: "low", connectorName: "Window Use", appDisplayName: app, persistModes: ["session", "always"] },
           onRequestSettled: action => settled.push(action) } };
       const vmContext = vm.createContext(context);
       vm.runInContext(cardSource, vmContext);
       return { render: () => vm.runInContext("E(props)", vmContext).props, finish, sent, settled, wire, flags };
     }
     const cancel = harness(201, "cancel-card.exe");
-    const card = cancel.render();
+    const rendered = cancel.render();
+    const card = { ...rendered, body: rendered.body.props.children[2] };
+    const settingsButton = rendered.body.props.children[0];
+    let keyboardClicks = 0, prevented = 0, stopped = 0;
+    const keyEvent = (key, repeat = false) => ({ key, repeat, preventDefault: () => prevented++, stopPropagation: () => stopped++, currentTarget: { click: () => keyboardClicks++ } });
+    for (const key of ['Enter', ' ']) {
+      settingsButton.props.onKeyDown(keyEvent(key));
+      settingsButton.props.onKeyDown(keyEvent(key, true));
+      settingsButton.props.onKeyUp(keyEvent(key));
+    }
+    assert.equal(keyboardClicks, 2, 'Enter and Space activate only the settings button once per press');
+    assert.equal(prevented, 6); assert.equal(stopped, 6);
+    assert.equal(cancel.sent.length, 0, 'settings keyboard handling never calls the native approval response');
     assert.equal(card.body.type, "button");
     assert.equal(card.body.props.type, "button");
     assert.equal(card.body.props.disabled, false);
@@ -277,13 +294,14 @@ test("pinned computer-use approval card cancels the request through the native r
     assert.equal(cancel.sent[0].requestId, 201);
     assert.equal(cancel.sent[0].threadId, "thread-a");
     assert.equal(cancel.flags.length, 0);
-    const submitting = cancel.render();
+    const submittingRender = cancel.render();
+    const submitting = { ...submittingRender, body: submittingRender.body.props.children[2] };
     assert.equal(submitting.body.props.disabled, true);
     assert.equal(submitting.actions.isLoading, true);
     submitting.body.props.onClick();
     assert.equal(cancel.sent.length, 1, "native in-flight response guard must prevent duplicate cancellation");
     assert.equal(owner.getAppApprovals().approvedApps.length, 0);
-    assert(!fs.existsSync(path.join(home, "azrael/computer-use/app-approvals.json")));
+    assert(!fs.existsSync(path.join(home, "azrael/window-use/app-approvals.json")));
     cancel.finish(); await Promise.resolve();
     assert.deepEqual(cancel.settled, ["cancel"]);
     let reshown = false;
@@ -304,7 +322,7 @@ test("pinned computer-use approval card cancels the request through the native r
     assert.equal(always.wire[0].action, "accept");
     assert.equal(always.wire[0].content.persist, "always");
     always.finish(); await Promise.resolve(); assert.deepEqual(always.settled, ["accept"]);
-    assert(owner.getAppApprovals().approvedApps.some(app => app.bundleIdentifier === "always-card.exe"));
+    assert(owner.getAppApprovals().approvedApps.some(app => app.bundleIdentifier === "c:\\apps\\always-card.exe"));
     console.log("PASS pinned native card cancel/disabled/settlement/no persistence and unchanged deny/session/always approval actions");
   } finally { fs.rmSync(home, { recursive: true }); }
 });
@@ -447,9 +465,4 @@ test("unified Window Use settings replace legacy management while preserving nat
   assert.equal(vm.runInContext("li()", ciContext).type, "approval-list");
   assert.equal(refetches, 1); assert.equal(reads, 1); assert.deepEqual(await fetched, { approvedApps });
   console.log("PASS native management transform gates, memo and query mount; final unified launcher and preserved plugin/browser routes");
-});
-test('Window Use Azrael title is guarded and leaves Computer Use native title intact',()=>{
- const {injectWindowApprovalTitle,WINDOW_TITLE_MARKER,windowTitleReplacements}=require('./inject-computer-use.cjs');const original=fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), COMPUTER_USE_APPROVAL_CARD_ASSET),'utf8');
- const result=injectWindowApprovalTitle(original,COMPUTER_USE_APPROVAL_CARD_ASSET);assert.equal(result.count,1);assert.equal(injectWindowApprovalTitle(result.text,COMPUTER_USE_APPROVAL_CARD_ASSET).count,0);
- assert.throws(()=>injectWindowApprovalTitle(original+WINDOW_TITLE_MARKER,COMPUTER_USE_APPROVAL_CARD_ASSET));assert.throws(()=>injectWindowApprovalTitle(result.text.replace(windowTitleReplacements[2][1],'tampered'),COMPUTER_USE_APPROVAL_CARD_ASSET));assert.equal(injectWindowApprovalTitle(original,'unrelated.js').count,0);
 });

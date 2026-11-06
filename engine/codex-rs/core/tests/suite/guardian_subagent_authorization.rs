@@ -1075,8 +1075,9 @@ async fn run_guardian_subagent_review(
                 && !has_call_output(request, ASK_CALL_ID)
         },
         sse(vec![
-            ev_function_call(
+            core_test_support::responses::ev_function_call_with_namespace(
                 ASK_CALL_ID,
+                "legacy_codex_tools",
                 "request_user_input",
                 &json!({"questions": [{
                     "id": "deploy", "header": "Deploy", "question": ROOT_QUESTION,

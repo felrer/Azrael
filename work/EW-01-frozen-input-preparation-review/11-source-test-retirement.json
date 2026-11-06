@@ -1,0 +1,3540 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "authority": "User authorized pruning original selected source tests using recurrence criterion, explicitly reducing existence/source-shape assertions without mandatory equivalent replacements. Product behavior remains.",
+  "scope": {
+    "platform": "Common test source across intended platforms",
+    "verifiedEnvironment": "Windows x64 only",
+    "excluded": [
+      "product implementation",
+      "full product build",
+      "installation",
+      "shared instructions",
+      "unrelated test suites",
+      "existing frozen inputs"
+    ]
+  },
+  "originalSelection": [
+    "scripts/test-account-settings.cjs",
+    "scripts/test-account-switch-queue.cjs",
+    "scripts/test-artifact-lifecycle.cjs",
+    "scripts/test-asset-transform-cache-retention.cjs",
+    "scripts/test-asset-transform-cache.cjs",
+    "scripts/test-auto-review.cjs",
+    "scripts/test-btw.cjs",
+    "scripts/test-build-platform.cjs",
+    "scripts/test-capacity-retry-stop.cjs",
+    "scripts/test-cargo-scheduling.cjs",
+    "scripts/test-cargo-stable-source.cjs",
+    "scripts/test-cargo-target-owner.cjs",
+    "scripts/test-command-drag-block.cjs",
+    "scripts/test-compaction-progress.cjs",
+    "scripts/test-composer-draft.cjs",
+    "scripts/test-computer-use-approvals.cjs",
+    "scripts/test-computer-use-injection.cjs",
+    "scripts/test-computer-use-runtime.cjs",
+    "scripts/test-deferred-turn.cjs",
+    "scripts/test-devin-native-host.cjs",
+    "scripts/test-error-presentation.cjs",
+    "scripts/test-feature-preservation-cache.cjs",
+    "scripts/test-feature-preservation.cjs",
+    "scripts/test-fetch-response.cjs",
+    "scripts/test-file-open-menu.cjs",
+    "scripts/test-image-file-open.cjs",
+    "scripts/test-image-sketch.cjs",
+    "scripts/test-immediate-stop.cjs",
+    "scripts/test-independent-host-instructions.cjs",
+    "scripts/test-instruction-library-host.cjs",
+    "scripts/test-instruction-settings.cjs",
+    "scripts/test-integrated-entry.cjs",
+    "scripts/test-linux-host-preparation.cjs",
+    "scripts/test-local-file-drop.cjs",
+    "scripts/test-macos-signing.cjs",
+    "scripts/test-max-reasoning.cjs",
+    "scripts/test-missing-image.cjs",
+    "scripts/test-namespace-cache-owner.cjs",
+    "scripts/test-namespace-source.cjs",
+    "scripts/test-native-verification-cache.cjs",
+    "scripts/test-optional-diagnostics.cjs",
+    "scripts/test-ordinary-runtime-node.cjs",
+    "scripts/test-package-local-host.cjs",
+    "scripts/test-paginated-history.cjs",
+    "scripts/test-pets-cleanup.cjs",
+    "scripts/test-pipeline-preservation.cjs",
+    "scripts/test-preservation-integration.cjs",
+    "scripts/test-profile-menu-render.cjs",
+    "scripts/test-project-drafts.cjs",
+    "scripts/test-project-fail-fast.cjs",
+    "scripts/test-project-maintenance.cjs",
+    "scripts/test-provider-context.cjs",
+    "scripts/test-provider-model-picker.cjs",
+    "scripts/test-question-queue.cjs",
+    "scripts/test-queue-consumption.cjs",
+    "scripts/test-queue-refresh.cjs",
+    "scripts/test-queued-compaction.cjs",
+    "scripts/test-recent-chat-filter.cjs",
+    "scripts/test-recovery-bridge.cjs",
+    "scripts/test-recovery-presentation.cjs",
+    "scripts/test-recovery-state.cjs",
+    "scripts/test-request-preparation.cjs",
+    "scripts/test-request-state.cjs",
+    "scripts/test-scroll-fade.cjs",
+    "scripts/test-session-flags.cjs",
+    "scripts/test-session-links.cjs",
+    "scripts/test-sky-control-policy.cjs",
+    "scripts/test-source-test-fixtures.cjs",
+    "scripts/test-source-test-policy.cjs",
+    "scripts/test-student-design.cjs",
+    "scripts/test-submit-only-thread.cjs",
+    "scripts/test-task-work-time-history.cjs",
+    "scripts/test-task-work-time-ui.cjs",
+    "scripts/test-task-work-time.cjs",
+    "scripts/test-team-integration.cjs",
+    "scripts/test-thread-branch.cjs",
+    "scripts/test-ui-cleanup.cjs",
+    "scripts/test-ui-health.cjs",
+    "scripts/test-ui-input-diagnostics.cjs",
+    "scripts/test-ui-test-transform-fixture.cjs",
+    "scripts/test-url-safety-transport.cjs",
+    "scripts/test-use-control-settings.cjs",
+    "scripts/test-use-settings-host.cjs",
+    "scripts/test-use-settings-integration.cjs",
+    "scripts/test-use-settings-ui.cjs",
+    "scripts/test-user-wait-time.cjs",
+    "scripts/test-webview-drag.cjs",
+    "scripts/test-webview-idle.cjs",
+    "scripts/test-window-approval-notifications.cjs",
+    "scripts/test-window-async-approval-host.cjs",
+    "scripts/test-window-child-reconnect-integration.cjs",
+    "scripts/test-window-child-reconnect.cjs",
+    "scripts/test-window-child-recovery.cjs",
+    "scripts/test-window-child-session.cjs",
+    "scripts/test-window-child-viewer.cjs",
+    "scripts/test-window-control-errors.cjs",
+    "scripts/test-window-control-injection.cjs",
+    "scripts/test-window-control-mcp.cjs",
+    "scripts/test-window-control-policy.cjs",
+    "scripts/test-window-control-runtime.cjs",
+    "scripts/test-window-desktop-authority.cjs",
+    "scripts/test-window-input-revalidation.cjs",
+    "scripts/test-window-installed-application.cjs",
+    "scripts/test-window-installed-launch.cjs",
+    "scripts/test-window-permission-preparation.cjs",
+    "scripts/test-window-use-async-approvals.cjs",
+    "scripts/test-window-use-isolation.cjs",
+    "scripts/test-window-use-resources.cjs",
+    "scripts/test-window-use-stage-authority.cjs",
+    "scripts/test-window-use-staging.cjs",
+    "scripts/tests/codex-environment-engine.test.cjs",
+    "scripts/tests/inject-task-profile.test.cjs",
+    "scripts/tests/instruction-catalog.test.cjs",
+    "scripts/tests/instruction-library.test.cjs",
+    "scripts/tests/instruction-migration.test.cjs",
+    "scripts/tests/instruction-module-packaging.test.cjs",
+    "scripts/tests/instruction-package.test.cjs",
+    "scripts/tests/instruction-playbooks.test.cjs",
+    "scripts/tests/instruction-publisher.test.cjs",
+    "scripts/tests/sync-codex-environment.test.cjs",
+    "scripts/tests/task-profile-runtime.test.cjs"
+  ],
+  "baseline": [
+    {
+      "path": "scripts/test-account-settings.cjs",
+      "sha256": "fd141661f1c3327a716df82df01fc233209ce9ffbae8018291b5084d6b1e341b"
+    },
+    {
+      "path": "scripts/test-account-switch-queue.cjs",
+      "sha256": "bf42ccdc004eda53452714c50631687c92aa09100b36184c9304e090d91c41fc"
+    },
+    {
+      "path": "scripts/test-artifact-lifecycle.cjs",
+      "sha256": "6095dcaf13ca153969a40135043b8fa3f385fefcfdf4aa140143516c732d537b"
+    },
+    {
+      "path": "scripts/test-asset-transform-cache-retention.cjs",
+      "sha256": "66e7f80347363d19387332bdf58c5a2c5e7baafde26e3ed43eea93c19b742a79"
+    },
+    {
+      "path": "scripts/test-asset-transform-cache.cjs",
+      "sha256": "91eb4a1edb3673499adfb80f3e249fd74ddc8ca48ecbdb6e7ba6ccc919eba233"
+    },
+    {
+      "path": "scripts/test-auto-review.cjs",
+      "sha256": "77e1134e4c6f8cf52f23a63e6791e48ba0dbceea322360673de7bf97ef042b91"
+    },
+    {
+      "path": "scripts/test-btw.cjs",
+      "sha256": "0b22a40afb94813484f8b3640567b108af827689870cc61ddccd996ed926491d"
+    },
+    {
+      "path": "scripts/test-build-platform.cjs",
+      "sha256": "01b88164fd6fa18f4580149b77ab0a0164174aaec932e84e17005a97a857c4de"
+    },
+    {
+      "path": "scripts/test-capacity-retry-stop.cjs",
+      "sha256": "e7a4708431d6d836019d4d0c2ad047462506094fee48f0da096aadc4fb603230"
+    },
+    {
+      "path": "scripts/test-cargo-scheduling.cjs",
+      "sha256": "37998cada09526f60a32eab22ad749c9ff78f6c64c74f9a1125452c07c337313"
+    },
+    {
+      "path": "scripts/test-cargo-stable-source.cjs",
+      "sha256": "d04350f17fc49f139d71146377575fcaca8a9663682f2fdea05c9b7f86d34ac1"
+    },
+    {
+      "path": "scripts/test-cargo-target-owner.cjs",
+      "sha256": "3f24341acf28759e3b7f54c6cedb15ed307991802a7f003254595f5f8e94f69e"
+    },
+    {
+      "path": "scripts/test-command-drag-block.cjs",
+      "sha256": "8397909d9885ca8918698e161133b65b12df7be5fb64adfc3d0e6d1e754c871c"
+    },
+    {
+      "path": "scripts/test-compaction-progress.cjs",
+      "sha256": "ee699577b189f25cea82857509cc801bea002dfb42e63520549a5d651dd1dd81"
+    },
+    {
+      "path": "scripts/test-composer-draft.cjs",
+      "sha256": "b42e9ca976969a9f111711db7c806ae2677cc08d4c2d634fbeb201439692f5dc"
+    },
+    {
+      "path": "scripts/test-computer-use-approvals.cjs",
+      "sha256": "a6188fc4c832d383d82037a8dba2be323c0ee3dee67f9eb6f2fee0ab2dfc80e4"
+    },
+    {
+      "path": "scripts/test-computer-use-injection.cjs",
+      "sha256": "e3998bd1818095b76d6f1904a2f90ccbabbbc2d74c8254845499417f8a52d32b"
+    },
+    {
+      "path": "scripts/test-computer-use-runtime.cjs",
+      "sha256": "0eac66da96c4acda88be5650603d98f75a17ca7715d8cda92e294da7f731ba86"
+    },
+    {
+      "path": "scripts/test-deferred-turn.cjs",
+      "sha256": "b9b79dcb94c8a1c296ea5384c6e2e45ca02a1982c2b09e80655b332352f4e340"
+    },
+    {
+      "path": "scripts/test-devin-native-host.cjs",
+      "sha256": "19edafbf328fface4859594315a0e47ae1c53ebc49cd3e9645c36408cc21ee6f"
+    },
+    {
+      "path": "scripts/test-error-presentation.cjs",
+      "sha256": "57396e772b9c6e37e074941938f1fe26e8d32ba6ee5d7fc43e340e45eabf382b"
+    },
+    {
+      "path": "scripts/test-feature-preservation-cache.cjs",
+      "sha256": "ca180534899a2160f37b81f845e4d555034512202354b537962f3263f349c768"
+    },
+    {
+      "path": "scripts/test-feature-preservation.cjs",
+      "sha256": "e9c1b0f76d2f9eaef4780f29761501ddcee5f0bba1d68e890ee0f2ce9921129a"
+    },
+    {
+      "path": "scripts/test-fetch-response.cjs",
+      "sha256": "29a3f80e03811a368322e20767e23ead67eaeeb8c422b131da739bd8c8ff7197"
+    },
+    {
+      "path": "scripts/test-file-open-menu.cjs",
+      "sha256": "e17232c222b1b2d59fdec648c24c489987c5629ec0bee1dcc8b140099bf794a0"
+    },
+    {
+      "path": "scripts/test-image-file-open.cjs",
+      "sha256": "7481eb13ec64e1e51eaf143c43388398fb638799d92e4b823a3b9a78fe5cf5da"
+    },
+    {
+      "path": "scripts/test-image-sketch.cjs",
+      "sha256": "3f2487c10bdbb62a8c405c1cf7565d2274cb48166a94c682ae26bb0abe5ce038"
+    },
+    {
+      "path": "scripts/test-immediate-stop.cjs",
+      "sha256": "bec2dc9ceab90933ecb0ee58d49ed554cbac26b8aa537ceebf163f987319ff8f"
+    },
+    {
+      "path": "scripts/test-independent-host-instructions.cjs",
+      "sha256": "5a36d2dbd2d6aec9a2cda2a7475b8754d97b4b23e315153523a1bc84811e4da8"
+    },
+    {
+      "path": "scripts/test-instruction-library-host.cjs",
+      "sha256": "a8e469abffafbfc9662640a909ff0f19f6dfda554432d4d3d4c1e9c11e2c3809"
+    },
+    {
+      "path": "scripts/test-instruction-settings.cjs",
+      "sha256": "a1c83b1e1713e8e9e9107de6e40327f990d9fb7e8d4ac0809adc203f2998564a"
+    },
+    {
+      "path": "scripts/test-integrated-entry.cjs",
+      "sha256": "6ad057c91c3c2ff003a4674602dd0479513408b748a889c1fcbc797850d73d43"
+    },
+    {
+      "path": "scripts/test-linux-host-preparation.cjs",
+      "sha256": "ac3124a6bc97c7bceca2a5df5f12d192052fc404b4f497da02f538bd70a34f9b"
+    },
+    {
+      "path": "scripts/test-local-file-drop.cjs",
+      "sha256": "e2b5f04339cbdcf2c4efa79f17aa93da4020250cedce4781b1a806b35c857d89"
+    },
+    {
+      "path": "scripts/test-macos-signing.cjs",
+      "sha256": "f37deb5bec2cde4d78f06956236968edbcb910a5c6f9122d831d0eedbe89a1e0"
+    },
+    {
+      "path": "scripts/test-max-reasoning.cjs",
+      "sha256": "d36ee1c975d903ddd698ff2f78df0db753e8c66647500c291b07dc3908cce8b5"
+    },
+    {
+      "path": "scripts/test-missing-image.cjs",
+      "sha256": "662edd24c613b81360c9d348609d7fc0a4637f98acb87e55e1ef14b55f444479"
+    },
+    {
+      "path": "scripts/test-namespace-cache-owner.cjs",
+      "sha256": "24c4fb41e06c88aaf76dbf631bb50e0a63a8e673b88d9908a75cb32dba7fccd2"
+    },
+    {
+      "path": "scripts/test-namespace-source.cjs",
+      "sha256": "880f3c7bd37be7dcf1cc789eb555a8d86a5a645fcb846ca95385432ee85cfa93"
+    },
+    {
+      "path": "scripts/test-native-verification-cache.cjs",
+      "sha256": "3e9f02f14797d29890bbff39ab4b8cbf4128b5953b641ef14ff7b124677b0df5"
+    },
+    {
+      "path": "scripts/test-optional-diagnostics.cjs",
+      "sha256": "42ba17b09a959dbbe56e55c6865ab90b3cdd9f2c9c91fd4d11ba116c7e13f75a"
+    },
+    {
+      "path": "scripts/test-ordinary-runtime-node.cjs",
+      "sha256": "265fec67b3736b8342edcd5dd7114298066cdea121507875074df58f1a814d5d"
+    },
+    {
+      "path": "scripts/test-package-local-host.cjs",
+      "sha256": "79477d40ad1abc204953cabdb068a750e734900cc4edba7ec4e7842fccf36de2"
+    },
+    {
+      "path": "scripts/test-paginated-history.cjs",
+      "sha256": "ba0b735336109e54eb79d28a1ae84811932852133edbd32a3d4a714dcf28e238"
+    },
+    {
+      "path": "scripts/test-pets-cleanup.cjs",
+      "sha256": "6788d8a1862275cebde4228dace285f69eb9ca6bbccad882409dc310b61ae394"
+    },
+    {
+      "path": "scripts/test-pipeline-preservation.cjs",
+      "sha256": "bc93f1cec30d6d164dd968df36f8b4c8c67fcac2eeddd331904bf9fef4e63452"
+    },
+    {
+      "path": "scripts/test-preservation-integration.cjs",
+      "sha256": "a15bb37467d389717f5a7ccb7f20392683592dde777616f34cb031de781b99a1"
+    },
+    {
+      "path": "scripts/test-profile-menu-render.cjs",
+      "sha256": "361deda1d1b3e3eba0514cd9c6e0daee074ad5b3aeeea49c93044b705dcbb63a"
+    },
+    {
+      "path": "scripts/test-project-drafts.cjs",
+      "sha256": "a92ff20e4a5cb4664a560e15b68dd4e1053c8ce084673374f48622f57a8d5b7c"
+    },
+    {
+      "path": "scripts/test-project-fail-fast.cjs",
+      "sha256": "9c053dd8a9265ea77ca66c4b2e7e74d3ada5c7d9483c5650011d6070ef1bc9e7"
+    },
+    {
+      "path": "scripts/test-project-maintenance.cjs",
+      "sha256": "f5a39c41b3241d7907ee611e258965e4ed46706c4f79d7c5841a9f0269544c90"
+    },
+    {
+      "path": "scripts/test-provider-context.cjs",
+      "sha256": "72874de8f689fe0543c373fdbbbf696684204b699c0e0e750831c0a6ee68b135"
+    },
+    {
+      "path": "scripts/test-provider-model-picker.cjs",
+      "sha256": "f21e18c5c00afbb6f86a68088c9bb9dec86c2ba6cbe6449af85ba29b535811a0"
+    },
+    {
+      "path": "scripts/test-question-queue.cjs",
+      "sha256": "5c8fc66c23cc8096207de183e1c13a16640d0432e13c99d64906330d3acffc73"
+    },
+    {
+      "path": "scripts/test-queue-consumption.cjs",
+      "sha256": "e2d4ec0f535cd6948c6d9291fa7b8fc615d298c52ab45c656b886edc186d1984"
+    },
+    {
+      "path": "scripts/test-queue-refresh.cjs",
+      "sha256": "a1049691e5811574be1baed2fc558e534f2f443f944184bf945604402dad6fb4"
+    },
+    {
+      "path": "scripts/test-queued-compaction.cjs",
+      "sha256": "161f4beaaea26d693f9059a930a4c13fe1ee578e9119a909ade2d1cd69717a02"
+    },
+    {
+      "path": "scripts/test-recent-chat-filter.cjs",
+      "sha256": "c48a97da837c1ff42e6d17caa8ed2c88cc14fee41391a34d1cf01a62b1c9b703"
+    },
+    {
+      "path": "scripts/test-recovery-bridge.cjs",
+      "sha256": "876e65ff1848264f46e247f090b4b4a90fb0a416a27f5a563670a86b15e3860d"
+    },
+    {
+      "path": "scripts/test-recovery-presentation.cjs",
+      "sha256": "d309035da6ff8563d6eae3a689f2ac3f4aa89ceb2b8f64cf9027f5604dbcf46b"
+    },
+    {
+      "path": "scripts/test-recovery-state.cjs",
+      "sha256": "5abac9338b329f898b62a9d1cf737ab78b5eb1b10da5ef6560ec25c05c9afb21"
+    },
+    {
+      "path": "scripts/test-request-preparation.cjs",
+      "sha256": "007b8415fa3d1965d51f3053c307403cff9f6b0d2a26a4f6e73d49bb8b9e4652"
+    },
+    {
+      "path": "scripts/test-request-state.cjs",
+      "sha256": "58468e4d0972f40e08d02f84b73a76b52a1639868293b871a2b3579a40c1d26f"
+    },
+    {
+      "path": "scripts/test-scroll-fade.cjs",
+      "sha256": "bf2c27f9830b4bae748614f009194840693820c0ced5fc4676d06d5999c05c53"
+    },
+    {
+      "path": "scripts/test-session-flags.cjs",
+      "sha256": "b48f8168534ed8076313824a5aa151640f7529b2b1a97b4c7e46ce778cab5c9e"
+    },
+    {
+      "path": "scripts/test-session-links.cjs",
+      "sha256": "5713409d020e766523c2ba9c882071dd3922ab69a1c7e0a89e54e1a516445ee3"
+    },
+    {
+      "path": "scripts/test-sky-control-policy.cjs",
+      "sha256": "397b395a10e0955c72d86446f6fe86e89eb601531040aef1e26687321146de1f"
+    },
+    {
+      "path": "scripts/test-source-test-fixtures.cjs",
+      "sha256": "ae8349849964240fef2bd97e3bd5d22b24c484f9b688113ae00215d584ec43ef"
+    },
+    {
+      "path": "scripts/test-source-test-policy.cjs",
+      "sha256": "4db53e7446e8f745cd2183c678caa305d62993a22396a735a905a20b6cd4bd5d"
+    },
+    {
+      "path": "scripts/test-student-design.cjs",
+      "sha256": "a9de526c13ec5cb9cc482308d7b22297104da0c3f453e2ffa488af136f756f77"
+    },
+    {
+      "path": "scripts/test-submit-only-thread.cjs",
+      "sha256": "bd1fd843de19a72638a51bfb8ebf827e7c51f2d0fab3c72f94bf2dbd1e0e40e2"
+    },
+    {
+      "path": "scripts/test-task-work-time-history.cjs",
+      "sha256": "47b642a8e16f2babe87eeee99593901e3a0a7489ffbd27cac6d3520060dbf161"
+    },
+    {
+      "path": "scripts/test-task-work-time-ui.cjs",
+      "sha256": "3de68f42aeb9073bca91cfd2a98c2694bd737db1d859dc79a7453f1004d9c42c"
+    },
+    {
+      "path": "scripts/test-task-work-time.cjs",
+      "sha256": "cf4236a9e2a2b539284cd8b465c580ee778be6dffc8adb6debfbec0decb5fee6"
+    },
+    {
+      "path": "scripts/test-team-integration.cjs",
+      "sha256": "430c808c97d3af8829dc4ecb83b0198966930212ae6ef92c2f15528911058d9d"
+    },
+    {
+      "path": "scripts/test-thread-branch.cjs",
+      "sha256": "68a5aaa4f098e06686bc24b415f6f601ac51acfb5ffe320c4695cf2346d20841"
+    },
+    {
+      "path": "scripts/test-ui-cleanup.cjs",
+      "sha256": "7025b8fe960b1c64117869434819cf2e0c34cea5b1b063a4db828b867dd85ba8"
+    },
+    {
+      "path": "scripts/test-ui-health.cjs",
+      "sha256": "e6b8854b174cc914f475ab5d11cfd1c74b8050c757ad88058c9b8ae632800cef"
+    },
+    {
+      "path": "scripts/test-ui-input-diagnostics.cjs",
+      "sha256": "adad6b81905a8186599f4697b990f48541818dbb0003587127c2785654ce279a"
+    },
+    {
+      "path": "scripts/test-ui-test-transform-fixture.cjs",
+      "sha256": "d20f672938d85d9ad1ed8176ccf6daaa60217e11fbe331c008cc2c7dc44ab4f8"
+    },
+    {
+      "path": "scripts/test-url-safety-transport.cjs",
+      "sha256": "0ca702f5b74cfb81e00d07642f7be34fdf11c2f62eeb6790e76e7466ae3f0834"
+    },
+    {
+      "path": "scripts/test-use-control-settings.cjs",
+      "sha256": "4c26344686dca36be431ab00877e9711ad59ae71c13f7bd938098e138b28d6d8"
+    },
+    {
+      "path": "scripts/test-use-settings-host.cjs",
+      "sha256": "c046e34ec99a0d4f9eb691310a921531278ffdbc90dc804832df793b010259f3"
+    },
+    {
+      "path": "scripts/test-use-settings-integration.cjs",
+      "sha256": "66ca073b9187bb1a36518fa7919c9c1d1bcc17d807a0c56378dcf4bd3e3ccf8d"
+    },
+    {
+      "path": "scripts/test-use-settings-ui.cjs",
+      "sha256": "44383417739f8c6322792a528e28dbc3e9e2db5607ddbea3d09e1a1f9321fed5"
+    },
+    {
+      "path": "scripts/test-user-wait-time.cjs",
+      "sha256": "6d7c22dfe370a01d45da47d0b623d5307cca65932842e5584b8b3335d0483181"
+    },
+    {
+      "path": "scripts/test-webview-drag.cjs",
+      "sha256": "ac7de54d186a273094f4a742a56fd9731fc6de7f9f2d34ea5a36308d0adc10b8"
+    },
+    {
+      "path": "scripts/test-webview-idle.cjs",
+      "sha256": "dac051b78a028445f2d3356ae624666a78f6c130efc6412e01b1bdedf52c2725"
+    },
+    {
+      "path": "scripts/test-window-approval-notifications.cjs",
+      "sha256": "d62878285f24c6cd30cb7a3dc140b80b2b5ffc3e86653cc35a351b24b04e977f"
+    },
+    {
+      "path": "scripts/test-window-async-approval-host.cjs",
+      "sha256": "fc89752e385b5a4105371bd1850117bd8b7c42039356ee0d0b314325fecffa26"
+    },
+    {
+      "path": "scripts/test-window-child-reconnect-integration.cjs",
+      "sha256": "37de6343798ff480816cd5bd764e87a0c75c907d6fd429374f726659bda887d2"
+    },
+    {
+      "path": "scripts/test-window-child-reconnect.cjs",
+      "sha256": "8774f9cb4c7414a23fa05e079b5172797e870bc5d8f4914596963e5747c992fb"
+    },
+    {
+      "path": "scripts/test-window-child-recovery.cjs",
+      "sha256": "b579e28977f759d70ee258960224db30df19e118777b15567fc8eb00f0224130"
+    },
+    {
+      "path": "scripts/test-window-child-session.cjs",
+      "sha256": "b975cd2d38ef1af63aed9b08bce8d6f85c9591fdbf96a2f4531cf0debb2e1799"
+    },
+    {
+      "path": "scripts/test-window-child-viewer.cjs",
+      "sha256": "1c2d789027d1c257a2f23d9047f8ed4cf194eacec1fc36b372ed7ed0830f5a4f"
+    },
+    {
+      "path": "scripts/test-window-control-errors.cjs",
+      "sha256": "b51e974345881ec07f776b1c6e8ac359df1b49cf0e9bd1c4d5d79a1ee03703b0"
+    },
+    {
+      "path": "scripts/test-window-control-injection.cjs",
+      "sha256": "8e3b23d598a5cb11b1a3d472c18859e5cb74c4d1d90c3b01e0d43c0d2cf39f20"
+    },
+    {
+      "path": "scripts/test-window-control-mcp.cjs",
+      "sha256": "0c82c6e6010f20c7e573b2cd56c0d48cf2961380666ead9d02e5ebec4aca52b2"
+    },
+    {
+      "path": "scripts/test-window-control-policy.cjs",
+      "sha256": "e201fc850520548715ecbd9ce1ce275ad9e97f42082f9b3894f38b3bf0b5a9a0"
+    },
+    {
+      "path": "scripts/test-window-control-runtime.cjs",
+      "sha256": "e93b85b685f64fabc820e87b42bd18c1b0ae7178664a0a440db94f417ca741ec"
+    },
+    {
+      "path": "scripts/test-window-desktop-authority.cjs",
+      "sha256": "434d09c391c9cca4b70db0a8ea4ce2974b009dbeb7706554371ac085ea7df3e1"
+    },
+    {
+      "path": "scripts/test-window-input-revalidation.cjs",
+      "sha256": "1d8faab3c9084a8762c51256485627b281f3b2f09504bc493ce7404ab78d0fc8"
+    },
+    {
+      "path": "scripts/test-window-installed-application.cjs",
+      "sha256": "475aef2b89196efc86e84a176bcb2693d2454efc66cce0d0333ea022938c5adf"
+    },
+    {
+      "path": "scripts/test-window-installed-launch.cjs",
+      "sha256": "6f357033c10976ddacb63fa9e654712f1700446afb3c5633aff3cc3fa69d26c7"
+    },
+    {
+      "path": "scripts/test-window-permission-preparation.cjs",
+      "sha256": "a71c08ec734dad3cdadfb876f552a43f824acd0660f427dced662145a5ad9905"
+    },
+    {
+      "path": "scripts/test-window-use-async-approvals.cjs",
+      "sha256": "adf10511a942c424c0a853cc909c7d955070f47329f775f86efa9829297a2b37"
+    },
+    {
+      "path": "scripts/test-window-use-isolation.cjs",
+      "sha256": "ef2c1e325e58f0aa0cee8270bfc5eaa6b4b0f40cd23598158e350fe079c84416"
+    },
+    {
+      "path": "scripts/test-window-use-resources.cjs",
+      "sha256": "30cece4aa5b67817a92623ce57bbd4cd9e0770572b1f7168630e113ad8783202"
+    },
+    {
+      "path": "scripts/test-window-use-stage-authority.cjs",
+      "sha256": "0568158144c8a973c6e1db7df24e7c59894415dfcb67017046836c591a5d18ca"
+    },
+    {
+      "path": "scripts/test-window-use-staging.cjs",
+      "sha256": "6a65255c2d9f07d9397a44da3c4c862771dffd2cb5a389aedc3b4fb1d79679e1"
+    },
+    {
+      "path": "scripts/tests/codex-environment-engine.test.cjs",
+      "sha256": "82d8fa6f672556a89c229160851dab0d1a9358a05920034ec4aad43a7b84d1e4"
+    },
+    {
+      "path": "scripts/tests/inject-task-profile.test.cjs",
+      "sha256": "980075487fdd28fc354a985ddcea6e4e7910422278426754f4e17d4bc51657eb"
+    },
+    {
+      "path": "scripts/tests/instruction-catalog.test.cjs",
+      "sha256": "80722aeca7b7ee45919b3c72e3fc5d03424e0b3ff6998a314039d5692225181f"
+    },
+    {
+      "path": "scripts/tests/instruction-library.test.cjs",
+      "sha256": "1deba83dd4e31a0ea6e1a499682a98abab3a08107223d821b40366935e0fa48d"
+    },
+    {
+      "path": "scripts/tests/instruction-migration.test.cjs",
+      "sha256": "c491c2bab6da239335cbf8a24e65e84f98bf8a8d08374463d4e45edfa1459db1"
+    },
+    {
+      "path": "scripts/tests/instruction-module-packaging.test.cjs",
+      "sha256": "9fccb6608345cf7cffa910a00b49e21c65fbbf889bf8ecbe1b3c5bb476b35754"
+    },
+    {
+      "path": "scripts/tests/instruction-package.test.cjs",
+      "sha256": "ed7dad0586074ec75e03c2030df7438ee5ec20928ca899d4996e9690dfdf6458"
+    },
+    {
+      "path": "scripts/tests/instruction-playbooks.test.cjs",
+      "sha256": "0af36ff7a490bb2a3015f7cd7987911703dfea341d16e1b198c225c8541f6bc5"
+    },
+    {
+      "path": "scripts/tests/instruction-publisher.test.cjs",
+      "sha256": "692d5571b135011144d538e9a63bc1b842339a25a14fc19510c8c1dca897beef"
+    },
+    {
+      "path": "scripts/tests/sync-codex-environment.test.cjs",
+      "sha256": "c74172e4e1beafc0919d1dd17e57dd64b6a5666147a8b8c0834d412946c9e246"
+    },
+    {
+      "path": "scripts/tests/task-profile-runtime.test.cjs",
+      "sha256": "d27369da8881d8df619bb8992f72ec6454a28dfbc4581fe0a575664b944c54a5"
+    }
+  ],
+  "initialScopedStatus": " M docs/architecture/upstream-preservation.md\n M docs/ops/development.md\n M scripts/azrael-feature-contracts.json\n M scripts/test-artifact-lifecycle.cjs\n M scripts/test-cargo-scheduling.cjs\n M scripts/test-cargo-target-owner.cjs\n M scripts/test-deferred-turn.cjs\n M scripts/test-feature-preservation.cjs\n M scripts/test-pipeline-preservation.cjs\n M scripts/test-project-fail-fast.cjs\n M scripts/test-project.cjs\n M scripts/test-provider-context.cjs\n M scripts/test-recovery-bridge.cjs\n M scripts/test-source-test-fixtures.cjs\n M scripts/test-task-work-time-history.cjs\n M scripts/test-task-work-time.cjs\n M scripts/test-ui-health.cjs\n M scripts/tests/task-profile-runtime.test.cjs\n?? scripts/test-cargo-stable-source.cjs\n?? scripts/test-request-preparation.cjs\n?? scripts/test-request-state.cjs\n?? scripts/test-user-wait-time.cjs\n",
+  "auditOwners": {
+    "a": [
+      "scripts/test-account-settings.cjs",
+      "scripts/test-account-switch-queue.cjs",
+      "scripts/test-artifact-lifecycle.cjs",
+      "scripts/test-asset-transform-cache-retention.cjs",
+      "scripts/test-asset-transform-cache.cjs",
+      "scripts/test-auto-review.cjs",
+      "scripts/test-btw.cjs",
+      "scripts/test-build-platform.cjs",
+      "scripts/test-capacity-retry-stop.cjs",
+      "scripts/test-cargo-scheduling.cjs",
+      "scripts/test-cargo-stable-source.cjs",
+      "scripts/test-cargo-target-owner.cjs",
+      "scripts/test-command-drag-block.cjs",
+      "scripts/test-compaction-progress.cjs",
+      "scripts/test-composer-draft.cjs",
+      "scripts/test-computer-use-approvals.cjs",
+      "scripts/test-computer-use-injection.cjs",
+      "scripts/test-computer-use-runtime.cjs",
+      "scripts/test-deferred-turn.cjs",
+      "scripts/test-devin-native-host.cjs",
+      "scripts/test-error-presentation.cjs",
+      "scripts/test-feature-preservation-cache.cjs",
+      "scripts/test-feature-preservation.cjs",
+      "scripts/test-fetch-response.cjs",
+      "scripts/test-file-open-menu.cjs",
+      "scripts/test-image-file-open.cjs",
+      "scripts/test-image-sketch.cjs",
+      "scripts/test-immediate-stop.cjs",
+      "scripts/test-independent-host-instructions.cjs",
+      "scripts/test-instruction-library-host.cjs",
+      "scripts/test-instruction-settings.cjs",
+      "scripts/test-integrated-entry.cjs",
+      "scripts/test-linux-host-preparation.cjs",
+      "scripts/test-local-file-drop.cjs",
+      "scripts/test-macos-signing.cjs",
+      "scripts/test-max-reasoning.cjs",
+      "scripts/test-missing-image.cjs",
+      "scripts/test-namespace-cache-owner.cjs",
+      "scripts/test-namespace-source.cjs",
+      "scripts/test-native-verification-cache.cjs"
+    ],
+    "b": [
+      "scripts/test-optional-diagnostics.cjs",
+      "scripts/test-ordinary-runtime-node.cjs",
+      "scripts/test-package-local-host.cjs",
+      "scripts/test-paginated-history.cjs",
+      "scripts/test-pets-cleanup.cjs",
+      "scripts/test-pipeline-preservation.cjs",
+      "scripts/test-preservation-integration.cjs",
+      "scripts/test-profile-menu-render.cjs",
+      "scripts/test-project-drafts.cjs",
+      "scripts/test-project-fail-fast.cjs",
+      "scripts/test-project-maintenance.cjs",
+      "scripts/test-provider-context.cjs",
+      "scripts/test-provider-model-picker.cjs",
+      "scripts/test-question-queue.cjs",
+      "scripts/test-queue-consumption.cjs",
+      "scripts/test-queue-refresh.cjs",
+      "scripts/test-queued-compaction.cjs",
+      "scripts/test-recent-chat-filter.cjs",
+      "scripts/test-recovery-bridge.cjs",
+      "scripts/test-recovery-presentation.cjs",
+      "scripts/test-recovery-state.cjs",
+      "scripts/test-request-preparation.cjs",
+      "scripts/test-request-state.cjs",
+      "scripts/test-scroll-fade.cjs",
+      "scripts/test-session-flags.cjs",
+      "scripts/test-session-links.cjs",
+      "scripts/test-sky-control-policy.cjs",
+      "scripts/test-source-test-fixtures.cjs",
+      "scripts/test-source-test-policy.cjs",
+      "scripts/test-student-design.cjs",
+      "scripts/test-submit-only-thread.cjs",
+      "scripts/test-task-work-time-history.cjs",
+      "scripts/test-task-work-time-ui.cjs",
+      "scripts/test-task-work-time.cjs",
+      "scripts/test-team-integration.cjs",
+      "scripts/test-thread-branch.cjs",
+      "scripts/test-ui-cleanup.cjs",
+      "scripts/test-ui-health.cjs",
+      "scripts/test-ui-input-diagnostics.cjs",
+      "scripts/test-ui-test-transform-fixture.cjs"
+    ],
+    "c": [
+      "scripts/test-url-safety-transport.cjs",
+      "scripts/test-use-control-settings.cjs",
+      "scripts/test-use-settings-host.cjs",
+      "scripts/test-use-settings-integration.cjs",
+      "scripts/test-use-settings-ui.cjs",
+      "scripts/test-user-wait-time.cjs",
+      "scripts/test-webview-drag.cjs",
+      "scripts/test-webview-idle.cjs",
+      "scripts/test-window-approval-notifications.cjs",
+      "scripts/test-window-async-approval-host.cjs",
+      "scripts/test-window-child-reconnect-integration.cjs",
+      "scripts/test-window-child-reconnect.cjs",
+      "scripts/test-window-child-recovery.cjs",
+      "scripts/test-window-child-session.cjs",
+      "scripts/test-window-child-viewer.cjs",
+      "scripts/test-window-control-errors.cjs",
+      "scripts/test-window-control-injection.cjs",
+      "scripts/test-window-control-mcp.cjs",
+      "scripts/test-window-control-policy.cjs",
+      "scripts/test-window-control-runtime.cjs",
+      "scripts/test-window-desktop-authority.cjs",
+      "scripts/test-window-input-revalidation.cjs",
+      "scripts/test-window-installed-application.cjs",
+      "scripts/test-window-installed-launch.cjs",
+      "scripts/test-window-permission-preparation.cjs",
+      "scripts/test-window-use-async-approvals.cjs",
+      "scripts/test-window-use-isolation.cjs",
+      "scripts/test-window-use-resources.cjs",
+      "scripts/test-window-use-stage-authority.cjs",
+      "scripts/test-window-use-staging.cjs",
+      "scripts/tests/codex-environment-engine.test.cjs",
+      "scripts/tests/inject-task-profile.test.cjs",
+      "scripts/tests/instruction-catalog.test.cjs",
+      "scripts/tests/instruction-library.test.cjs",
+      "scripts/tests/instruction-migration.test.cjs",
+      "scripts/tests/instruction-module-packaging.test.cjs",
+      "scripts/tests/instruction-package.test.cjs",
+      "scripts/tests/instruction-playbooks.test.cjs",
+      "scripts/tests/instruction-publisher.test.cjs",
+      "scripts/tests/sync-codex-environment.test.cjs",
+      "scripts/tests/task-profile-runtime.test.cjs"
+    ]
+  },
+  "decisions": [
+    {
+      "path": "scripts/test-url-safety-transport.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"legacy host shape fixture routes URL safety and preserves surrounding text\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-url-safety-transport.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-webview-drag.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"host transform is idempotent and rejects unknown, ambiguous and damaged inputs\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-webview-drag.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-window-control-injection.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "'injected guards reject tampering and old injection markers'"
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-window-control-injection.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-paginated-history.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned transform parses, is idempotent, and ignores other assets\"",
+        "\"missing, duplicate, altered, and damaged marked anchors fail closed\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-paginated-history.cjs",
+      "removedRegisteredCases": 2
+    },
+    {
+      "path": "scripts/test-project-drafts.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned host transform is complete, idempotent and rejects drift\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-project-drafts.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-provider-context.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"provider controls inject only Personalization and preserve original bindings and instructions\"",
+        "\"all injected pinned assets are idempotent; targeted English and Korean labels retain RPC/link literals\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-provider-context.cjs",
+      "removedRegisteredCases": 2
+    },
+    {
+      "path": "scripts/test-question-queue.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"question queue transforms compose, parse, and reject partial or changed pinned inputs\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-question-queue.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-queue-consumption.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"injection is idempotent and fails closed for absent, repeated, and partial anchors\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-queue-consumption.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-queue-refresh.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"native refresh validation does not modify source and refuses missing or duplicate anchors\"",
+        "\"production repeat validates the exact owned presentation prelude and rejects damaged boundaries\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-queue-refresh.cjs",
+      "removedRegisteredCases": 2
+    },
+    {
+      "path": "scripts/test-queued-compaction.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"the three version-pinned UI transforms parse, remain idempotent, and reject drift\"",
+        "\"marked presentation assets reject missing skip feedback\"",
+        "\"marked compaction assets reject incomplete composer isolation\"",
+        "\"queued list v2 rejects stale, missing and partial waiting-label transforms\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-queued-compaction.cjs",
+      "removedRegisteredCases": 4
+    },
+    {
+      "path": "scripts/test-request-state.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned guards are idempotent, reject drift and preserve the host directive\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-request-state.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-scroll-fade.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned fade transforms reject drift and preserve masks, keyframes and unrelated timelines\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-scroll-fade.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-session-flags.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned local/recent rows transform once and fail closed on drift or damage\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-session-flags.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-student-design.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned composed assets parse, preserve settings, reject drift and remain idempotent\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-student-design.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-submit-only-thread.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"guarded transform is idempotent and rejects pinned drift or partial injection\"",
+        "\"normal creation and preparation methods are byte-identical to upstream\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-submit-only-thread.cjs",
+      "removedRegisteredCases": 2
+    },
+    {
+      "path": "scripts/test-task-work-time-ui.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "asset+' guarded transform, namespace dispatch, parse and idempotence'"
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-task-work-time-ui.cjs",
+      "removedRegisteredCases": 2
+    },
+    {
+      "path": "scripts/test-thread-branch.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned integrated transform parses; anchors, asset version, marker and idempotence are guarded\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-thread-branch.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-ui-cleanup.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"both pinned assets parse; unrelated assets, repeat invocation and corrupted anchors fail closed\"",
+        "\"retired slash-menu registrations are removed while toolbar and other commands remain\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-ui-cleanup.cjs",
+      "removedRegisteredCases": 2
+    },
+    {
+      "path": "scripts/test-ui-input-diagnostics.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"selected pinned assets transform, parse, and reject partial or duplicate instrumentation\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-ui-input-diagnostics.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-account-settings.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned settings and host transforms parse, reject drift and invalidate the cache\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-account-settings.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-account-switch-queue.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "`pinned transform parses and is idempotent: ${asset}`",
+        "`combined production transforms retain account queue guard: ${asset}`"
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-account-switch-queue.cjs",
+      "removedRegisteredCases": 6
+    },
+    {
+      "path": "scripts/test-auto-review.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"typed pinned transform changes only FXr rollout declaration and rejects corruption\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-auto-review.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-btw.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"all integrated pinned assets parse, report coverage and guard version, duplicate anchors and idempotence\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-btw.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-capacity-retry-stop.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"guarded transform and integrated pinned asset parse\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-capacity-retry-stop.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-command-drag-block.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned assets keep native controls, reject drift and remain idempotent\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-command-drag-block.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-compaction-progress.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"injection is idempotent and fails closed when wme pinned reducer anchor changes\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-compaction-progress.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-composer-draft.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned transform fails closed for missing, repeated and partial anchors\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-composer-draft.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-computer-use-injection.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "'Window Use Azrael title is guarded and leaves Computer Use native title intact'"
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-computer-use-injection.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-deferred-turn.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"deferred anchors match the pinned host, parse, and fail closed\"",
+        "\"complete host transform pipeline includes every waiting asset and preserves pinned anchors\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-deferred-turn.cjs",
+      "removedRegisteredCases": 2
+    },
+    {
+      "path": "scripts/test-fetch-response.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"transform replaces one pinned serializer and is idempotent\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-fetch-response.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-file-open-menu.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"menu transform is idempotent, scoped to its asset and rejects ambiguous pinned input\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-file-open-menu.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-image-sketch.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "'all six pinned boundaries transform, parse and reapply; damaged inputs fail closed'"
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-image-sketch.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-immediate-stop.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned injection parses through existing pipeline and guards asset, anchors, and idempotence\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-immediate-stop.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-instruction-settings.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"instruction transforms are idempotent and reject missing or duplicate anchors\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-instruction-settings.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-linux-host-preparation.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"supervision transform accepts the pinned native host before and after namespacing\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-linux-host-preparation.cjs",
+      "removedRegisteredCases": 1
+    },
+    {
+      "path": "scripts/test-local-file-drop.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "\"pinned Webview transformations are unique, repeatable, and syntactically valid\"",
+        "\"file-drop anchors survive the Azrael namespace transform\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-local-file-drop.cjs",
+      "removedRegisteredCases": 2
+    },
+    {
+      "path": "scripts/test-max-reasoning.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "`guarded adapter parses and is idempotent: ${asset}, provider=${chain}`",
+        "\"unrelated assets remain untouched\""
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-max-reasoning.cjs",
+      "removedRegisteredCases": 9
+    },
+    {
+      "path": "scripts/test-missing-image.cjs",
+      "decision": "remove-cases-retain-file",
+      "removedHistoricalDeclarationNames": [
+        "'pinned transforms parse, are idempotent and reject anchor drift'"
+      ],
+      "reason": "Independent parser/idempotence/damaged-anchor/source-shape smoke case has no established recurring work omission beyond production guard or surviving behavior/registration checks; deliberately reduce automated coverage without equivalent replacement.",
+      "retain": "Concrete behavior, caller argument forwarding, registration/package/cache input omission guards remain in same file.",
+      "beforeSourceForNames": "artifacts\\u14t\\scripts\\test-missing-image.cjs",
+      "removedRegisteredCases": 1
+    }
+  ],
+  "registrations": [
+    {
+      "path": "scripts/test-account-settings.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.account-settings",
+          "check": "ui.account-settings.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-account-switch-queue.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.request-preparation",
+          "check": "ui.request-preparation.account-admission",
+          "level": "source"
+        },
+        {
+          "feature": "ui.account-switch-queue",
+          "check": "ui.account-switch-queue.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-artifact-lifecycle.cjs",
+      "featureChecks": [
+        {
+          "feature": "tool.project-maintenance",
+          "check": "tool.project-maintenance.adapter",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "maintenance-lifecycle-source"
+      ]
+    },
+    {
+      "path": "scripts/test-asset-transform-cache-retention.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-asset-transform-cache.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-auto-review.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.auto-review",
+          "check": "ui.auto-review.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-btw.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.btw",
+          "check": "ui.btw.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "sent-draft-restoration-source",
+        "source-btw"
+      ]
+    },
+    {
+      "path": "scripts/test-build-platform.cjs",
+      "featureChecks": [],
+      "bundles": [
+        "compile-scope-source",
+        "maintenance-lifecycle-source"
+      ]
+    },
+    {
+      "path": "scripts/test-capacity-retry-stop.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.capacity-retry-stop",
+          "check": "ui.capacity-retry-stop.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-cargo-scheduling.cjs",
+      "featureChecks": [
+        {
+          "feature": "tool.project-maintenance",
+          "check": "tool.project-maintenance.verification-schedule",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "cargo-preflight-source"
+      ]
+    },
+    {
+      "path": "scripts/test-cargo-stable-source.cjs",
+      "featureChecks": [
+        {
+          "feature": "engine.shared-engine",
+          "check": "engine.shared-engine.stable-source",
+          "level": "native"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-cargo-target-owner.cjs",
+      "featureChecks": [],
+      "bundles": [
+        "cargo-preflight-source"
+      ]
+    },
+    {
+      "path": "scripts/test-command-drag-block.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.command-drag-block",
+          "check": "ui.command-drag-block.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "source-command-drag-block"
+      ]
+    },
+    {
+      "path": "scripts/test-compaction-progress.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.compaction-progress",
+          "check": "ui.compaction-progress.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-composer-draft.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.submit-only-thread",
+          "check": "ui.submit-only-thread.composer-draft",
+          "level": "source"
+        },
+        {
+          "feature": "ui.composer-draft",
+          "check": "ui.composer-draft.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "sent-draft-restoration-source"
+      ]
+    },
+    {
+      "path": "scripts/test-computer-use-approvals.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.computer-use",
+          "check": "ui.computer-use.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "sky-policy-package-boundary",
+        "window-use-core"
+      ]
+    },
+    {
+      "path": "scripts/test-computer-use-injection.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.computer-use",
+          "check": "ui.computer-use.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-platform-availability",
+        "sky-policy-package-boundary"
+      ]
+    },
+    {
+      "path": "scripts/test-computer-use-runtime.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.computer-use",
+          "check": "ui.computer-use.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "sky-policy-package-boundary"
+      ]
+    },
+    {
+      "path": "scripts/test-deferred-turn.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.deferred-contract",
+          "level": "source"
+        },
+        {
+          "feature": "ui.deferred-turn",
+          "check": "ui.deferred-turn.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "resume-boundary-branch-source"
+      ]
+    },
+    {
+      "path": "scripts/test-devin-native-host.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-error-presentation.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.error-presentation",
+          "check": "ui.error-presentation.transform",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-feature-preservation-cache.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-feature-preservation.cjs",
+      "featureChecks": [],
+      "bundles": [
+        "window-async-approval-inventory",
+        "cargo-preflight-source",
+        "window-viewer-regression",
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-fetch-response.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.fetch-response",
+          "check": "ui.fetch-response.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-file-open-menu.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.file-open-menu",
+          "check": "ui.file-open-menu.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-image-file-open.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.image-file-open",
+          "check": "ui.image-file-open.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-image-sketch.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.image-sketch",
+          "check": "ui.image-sketch.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-immediate-stop.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.immediate-stop",
+          "check": "ui.immediate-stop.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-independent-host-instructions.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-instruction-library-host.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "instruction-library-host"
+      ]
+    },
+    {
+      "path": "scripts/test-instruction-settings.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "instruction-library-host"
+      ]
+    },
+    {
+      "path": "scripts/test-integrated-entry.cjs",
+      "featureChecks": [
+        {
+          "feature": "engine.shared-engine",
+          "check": "engine.shared-engine.host",
+          "level": "source"
+        },
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.platform-availability",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-platform-availability",
+        "persisted-atoms-source"
+      ]
+    },
+    {
+      "path": "scripts/test-linux-host-preparation.cjs",
+      "featureChecks": [],
+      "bundles": [
+        "persisted-atoms-source"
+      ]
+    },
+    {
+      "path": "scripts/test-local-file-drop.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.local-file-drop",
+          "check": "ui.local-file-drop.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-macos-signing.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-max-reasoning.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.max-reasoning",
+          "check": "ui.max-reasoning.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-missing-image.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.missing-image",
+          "check": "ui.missing-image.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-namespace-cache-owner.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.question-withdrawal",
+          "check": "ui.question-withdrawal.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.request-preparation",
+          "check": "ui.request-preparation.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.submit-only-thread",
+          "check": "ui.submit-only-thread.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.behavior",
+          "level": "source"
+        },
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.deferred-contract",
+          "level": "source"
+        },
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.webview-idle",
+          "check": "ui.webview-idle.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.team-change-management",
+          "check": "ui.team-change-management.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.team-lead",
+          "check": "ui.team-lead.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.session-flags",
+          "check": "ui.session-flags.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.account-settings",
+          "check": "ui.account-settings.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.student-design",
+          "check": "ui.student-design.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.recovery",
+          "check": "ui.recovery.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.project-drafts",
+          "check": "ui.project-drafts.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.fetch-response",
+          "check": "ui.fetch-response.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.url-safety-transport",
+          "check": "ui.url-safety-transport.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.computer-use",
+          "check": "ui.computer-use.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.file-open-menu",
+          "check": "ui.file-open-menu.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.image-file-open",
+          "check": "ui.image-file-open.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.missing-image",
+          "check": "ui.missing-image.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.local-file-drop",
+          "check": "ui.local-file-drop.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.composer-draft",
+          "check": "ui.composer-draft.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.auto-review",
+          "check": "ui.auto-review.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.image-sketch",
+          "check": "ui.image-sketch.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.ui-cleanup",
+          "check": "ui.ui-cleanup.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.pets-cleanup",
+          "check": "ui.pets-cleanup.behavior",
+          "level": "source"
+        },
+        {
+          "feature": "ui.pets-cleanup",
+          "check": "ui.pets-cleanup.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.command-drag-block",
+          "check": "ui.command-drag-block.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.scroll-fade",
+          "check": "ui.scroll-fade.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.content-fonts",
+          "check": "ui.content-fonts.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.provider-context",
+          "check": "ui.provider-context.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.deferred-turn",
+          "check": "ui.deferred-turn.behavior",
+          "level": "source"
+        },
+        {
+          "feature": "ui.deferred-turn",
+          "check": "ui.deferred-turn.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.parent-request-activity",
+          "check": "ui.parent-request-activity.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.work-segment-folding",
+          "check": "ui.work-segment-folding.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.compaction-progress",
+          "check": "ui.compaction-progress.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.queue-refresh",
+          "check": "ui.queue-refresh.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.account-switch-queue",
+          "check": "ui.account-switch-queue.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.queue-consumption",
+          "check": "ui.queue-consumption.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.provider-model-picker",
+          "check": "ui.provider-model-picker.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.btw",
+          "check": "ui.btw.behavior",
+          "level": "source"
+        },
+        {
+          "feature": "ui.btw",
+          "check": "ui.btw.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.thread-branch",
+          "check": "ui.thread-branch.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.paginated-history",
+          "check": "ui.paginated-history.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.capacity-retry-stop",
+          "check": "ui.capacity-retry-stop.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.immediate-stop",
+          "check": "ui.immediate-stop.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.queued-compaction",
+          "check": "ui.queued-compaction.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.max-reasoning",
+          "check": "ui.max-reasoning.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.recent-chat-filter",
+          "check": "ui.recent-chat-filter.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.session-links",
+          "check": "ui.session-links.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.input-diagnostics",
+          "check": "ui.input-diagnostics.namespace-cache-owner",
+          "level": "source"
+        },
+        {
+          "feature": "ui.error-presentation",
+          "check": "ui.error-presentation.namespace-cache-owner",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "question-withdrawal-ui-source",
+        "recent-history-progressive",
+        "sent-draft-restoration-source",
+        "persisted-atoms-source",
+        "resume-boundary-branch-source",
+        "window-async-approval-source",
+        "window-use-logoff-preservation",
+        "source-btw"
+      ]
+    },
+    {
+      "path": "scripts/test-namespace-source.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-native-verification-cache.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-optional-diagnostics.cjs",
+      "featureChecks": [],
+      "bundles": [
+        "source-ui-health"
+      ]
+    },
+    {
+      "path": "scripts/test-ordinary-runtime-node.cjs",
+      "featureChecks": [
+        {
+          "feature": "engine.shared-engine",
+          "check": "engine.shared-engine.host",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-package-local-host.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-paginated-history.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.paginated-history",
+          "check": "ui.paginated-history.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-pets-cleanup.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.pets-cleanup",
+          "check": "ui.pets-cleanup.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-pipeline-preservation.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-preservation-integration.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-profile-menu-render.cjs",
+      "featureChecks": [],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-project-drafts.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.submit-only-thread",
+          "check": "ui.submit-only-thread.project-drafts",
+          "level": "source"
+        },
+        {
+          "feature": "ui.session-flags",
+          "check": "ui.session-flags.project-drafts",
+          "level": "source"
+        },
+        {
+          "feature": "ui.project-drafts",
+          "check": "ui.project-drafts.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "sent-draft-restoration-source",
+        "persisted-atoms-source"
+      ]
+    },
+    {
+      "path": "scripts/test-project-fail-fast.cjs",
+      "featureChecks": [
+        {
+          "feature": "tool.project-maintenance",
+          "check": "tool.project-maintenance.adapter",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-project-maintenance.cjs",
+      "featureChecks": [
+        {
+          "feature": "tool.project-maintenance",
+          "check": "tool.project-maintenance.adapter",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "maintenance-adapter"
+      ]
+    },
+    {
+      "path": "scripts/test-provider-context.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.provider-context",
+          "check": "ui.provider-context.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "response-tps-ui"
+      ]
+    },
+    {
+      "path": "scripts/test-provider-model-picker.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.provider-model-picker",
+          "check": "ui.provider-model-picker.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "response-tps-ui"
+      ]
+    },
+    {
+      "path": "scripts/test-question-queue.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.question-withdrawal",
+          "check": "ui.question-withdrawal.queue",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "question-withdrawal-ui-source",
+        "question-queue-source"
+      ]
+    },
+    {
+      "path": "scripts/test-queue-consumption.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.question-withdrawal",
+          "check": "ui.question-withdrawal.queue",
+          "level": "source"
+        },
+        {
+          "feature": "ui.queue-consumption",
+          "check": "ui.queue-consumption.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "question-withdrawal-ui-source"
+      ]
+    },
+    {
+      "path": "scripts/test-queue-refresh.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.queue-refresh",
+          "check": "ui.queue-refresh.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-queued-compaction.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.queued-compaction",
+          "check": "ui.queued-compaction.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-recent-chat-filter.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.recent-chat-filter",
+          "check": "ui.recent-chat-filter.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "recent-history-progressive"
+      ]
+    },
+    {
+      "path": "scripts/test-recovery-bridge.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.recovery",
+          "check": "ui.recovery.bridge",
+          "level": "source"
+        },
+        {
+          "feature": "ui.input-diagnostics",
+          "check": "ui.input-diagnostics.behavior",
+          "level": "source"
+        },
+        {
+          "feature": "ui.error-presentation",
+          "check": "ui.error-presentation.recovery-bridge",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-child-explicit-logoff",
+        "source-ui-health"
+      ]
+    },
+    {
+      "path": "scripts/test-recovery-presentation.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.recovery",
+          "check": "ui.recovery.presentation",
+          "level": "source"
+        },
+        {
+          "feature": "ui.error-presentation",
+          "check": "ui.error-presentation.recovery-presentation",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-recovery-state.cjs",
+      "featureChecks": [
+        {
+          "feature": "engine.shared-engine",
+          "check": "engine.shared-engine.host",
+          "level": "source"
+        },
+        {
+          "feature": "ui.recovery",
+          "check": "ui.recovery.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-request-preparation.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.request-preparation",
+          "check": "ui.request-preparation.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-request-state.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.request-preparation",
+          "check": "ui.request-preparation.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-scroll-fade.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.scroll-fade",
+          "check": "ui.scroll-fade.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "source-scroll-fade"
+      ]
+    },
+    {
+      "path": "scripts/test-session-flags.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.session-flags",
+          "check": "ui.session-flags.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "recent-history-progressive"
+      ]
+    },
+    {
+      "path": "scripts/test-session-links.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.session-links",
+          "check": "ui.session-links.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-sky-control-policy.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.computer-use",
+          "check": "ui.computer-use.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "sky-policy-package-boundary",
+        "window-use-core"
+      ]
+    },
+    {
+      "path": "scripts/test-source-test-fixtures.cjs",
+      "featureChecks": [
+        {
+          "feature": "engine.shared-engine",
+          "check": "engine.shared-engine.fixture-guards",
+          "level": "source"
+        },
+        {
+          "feature": "tool.project-maintenance",
+          "check": "tool.project-maintenance.adapter",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-source-test-policy.cjs",
+      "featureChecks": [
+        {
+          "feature": "tool.project-maintenance",
+          "check": "tool.project-maintenance.adapter",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-student-design.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.student-design",
+          "check": "ui.student-design.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-submit-only-thread.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.request-preparation",
+          "check": "ui.request-preparation.account-admission",
+          "level": "source"
+        },
+        {
+          "feature": "ui.submit-only-thread",
+          "check": "ui.submit-only-thread.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-task-work-time-history.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-task-work-time-ui.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-task-work-time.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-team-integration.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.team-change-management",
+          "check": "ui.team-change-management.integration",
+          "level": "source"
+        },
+        {
+          "feature": "ui.team-lead",
+          "check": "ui.team-lead.integration",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-thread-branch.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.thread-branch",
+          "check": "ui.thread-branch.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "resume-boundary-branch-source"
+      ]
+    },
+    {
+      "path": "scripts/test-ui-cleanup.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.ui-cleanup",
+          "check": "ui.ui-cleanup.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-ui-health.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.input-diagnostics",
+          "check": "ui.input-diagnostics.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "source-ui-health"
+      ]
+    },
+    {
+      "path": "scripts/test-ui-input-diagnostics.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.input-diagnostics",
+          "check": "ui.input-diagnostics.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "source-ui-health"
+      ]
+    },
+    {
+      "path": "scripts/test-ui-test-transform-fixture.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.behavior",
+          "level": "source"
+        },
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.deferred-contract",
+          "level": "source"
+        },
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.transform-fixture",
+          "level": "source"
+        },
+        {
+          "feature": "ui.pets-cleanup",
+          "check": "ui.pets-cleanup.behavior",
+          "level": "source"
+        },
+        {
+          "feature": "ui.pets-cleanup",
+          "check": "ui.pets-cleanup.transform-fixture",
+          "level": "source"
+        },
+        {
+          "feature": "ui.deferred-turn",
+          "check": "ui.deferred-turn.behavior",
+          "level": "source"
+        },
+        {
+          "feature": "ui.deferred-turn",
+          "check": "ui.deferred-turn.transform-fixture",
+          "level": "source"
+        },
+        {
+          "feature": "ui.btw",
+          "check": "ui.btw.behavior",
+          "level": "source"
+        },
+        {
+          "feature": "ui.btw",
+          "check": "ui.btw.transform-fixture",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "resume-boundary-branch-source",
+        "source-btw"
+      ]
+    },
+    {
+      "path": "scripts/test-url-safety-transport.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.url-safety-transport",
+          "check": "ui.url-safety-transport.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-use-control-settings.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-use-settings-host.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-use-settings-integration.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-use-settings-ui.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-user-wait-time.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.task-work-time",
+          "check": "ui.task-work-time.user-wait",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-webview-drag.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.local-file-drop",
+          "check": "ui.local-file-drop.drag-lifecycle",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-webview-idle.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.webview-idle",
+          "check": "ui.webview-idle.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "source-ui-health"
+      ]
+    },
+    {
+      "path": "scripts/test-window-approval-notifications.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-window-async-approval-host.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-window-child-reconnect-integration.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-child-reconnect"
+      ]
+    },
+    {
+      "path": "scripts/test-window-child-reconnect.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-child-reconnect"
+      ]
+    },
+    {
+      "path": "scripts/test-window-child-recovery.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-viewer-regression",
+        "window-use-logoff-preservation",
+        "window-child-reconnect",
+        "window-child-bootstrap-regression",
+        "window-use-logoff-files"
+      ]
+    },
+    {
+      "path": "scripts/test-window-child-session.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-viewer-regression",
+        "window-use-logoff-preservation",
+        "window-child-reconnect",
+        "window-child-bootstrap-regression",
+        "window-use-logoff-files"
+      ]
+    },
+    {
+      "path": "scripts/test-window-child-viewer.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/test-window-control-errors.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.stop-recovery",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-platform-availability",
+        "window-async-approval-source",
+        "window-viewer-regression",
+        "window-use-logoff-preservation",
+        "window-child-reconnect"
+      ]
+    },
+    {
+      "path": "scripts/test-window-control-injection.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-platform-availability",
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-window-control-mcp.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.platform-availability",
+          "level": "source"
+        },
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-platform-availability",
+        "window-use-logoff-preservation",
+        "window-use-core"
+      ]
+    },
+    {
+      "path": "scripts/test-window-control-policy.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-viewer-regression",
+        "window-use-logoff-preservation",
+        "window-use-core"
+      ]
+    },
+    {
+      "path": "scripts/test-window-control-runtime.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-viewer-regression",
+        "window-use-logoff-preservation",
+        "window-use-logoff-files"
+      ]
+    },
+    {
+      "path": "scripts/test-window-desktop-authority.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.computer-use",
+          "check": "ui.computer-use.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "sky-policy-package-boundary",
+        "window-use-core"
+      ]
+    },
+    {
+      "path": "scripts/test-window-input-revalidation.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-viewer-revalidation",
+        "window-child-reconnect"
+      ]
+    },
+    {
+      "path": "scripts/test-window-installed-application.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-window-installed-launch.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-viewer-regression",
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-window-permission-preparation.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-logoff-preservation"
+      ]
+    },
+    {
+      "path": "scripts/test-window-use-async-approvals.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-async-approval-source"
+      ]
+    },
+    {
+      "path": "scripts/test-window-use-isolation.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-viewer-revalidation",
+        "window-use-logoff-preservation",
+        "window-child-reconnect",
+        "window-use-logoff-files",
+        "window-use-core"
+      ]
+    },
+    {
+      "path": "scripts/test-window-use-resources.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-viewer-revalidation",
+        "window-use-logoff-preservation",
+        "window-child-reconnect",
+        "window-use-logoff-files"
+      ]
+    },
+    {
+      "path": "scripts/test-window-use-stage-authority.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-viewer-regression",
+        "window-use-logoff-preservation",
+        "window-use-core"
+      ]
+    },
+    {
+      "path": "scripts/test-window-use-staging.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.window-control",
+          "check": "ui.window-control.behavior",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "window-use-logoff-preservation",
+        "window-child-bootstrap-regression"
+      ]
+    },
+    {
+      "path": "scripts/tests/codex-environment-engine.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.computer-use",
+          "check": "ui.computer-use.environment-snapshot",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/tests/inject-task-profile.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/tests/instruction-catalog.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "instruction-library-backend",
+        "instruction-management-backend"
+      ]
+    },
+    {
+      "path": "scripts/tests/instruction-library.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "instruction-library-backend",
+        "instruction-management-backend"
+      ]
+    },
+    {
+      "path": "scripts/tests/instruction-migration.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "instruction-management-backend"
+      ]
+    },
+    {
+      "path": "scripts/tests/instruction-module-packaging.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/tests/instruction-package.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "maintenance-lifecycle-writers"
+      ]
+    },
+    {
+      "path": "scripts/tests/instruction-playbooks.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "instruction-library-backend",
+        "instruction-management-backend"
+      ]
+    },
+    {
+      "path": "scripts/tests/instruction-publisher.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": [
+        "instruction-library-backend",
+        "instruction-management-backend"
+      ]
+    },
+    {
+      "path": "scripts/tests/sync-codex-environment.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.computer-use",
+          "check": "ui.computer-use.environment-snapshot",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    },
+    {
+      "path": "scripts/tests/task-profile-runtime.test.cjs",
+      "featureChecks": [
+        {
+          "feature": "ui.instruction-settings",
+          "check": "ui.instruction-settings.library",
+          "level": "source"
+        }
+      ],
+      "bundles": []
+    }
+  ],
+  "verification": [
+    {
+      "scope": [
+        "scripts/test-url-safety-transport.cjs",
+        "scripts/test-webview-drag.cjs",
+        "scripts/test-window-control-injection.cjs"
+      ],
+      "start": "2026-11-01T15:40:46.419Z",
+      "end": "2026-11-01T15:41:05.198Z",
+      "exitCode": 0,
+      "signal": null,
+      "hashes": {
+        "scripts/test-url-safety-transport.cjs": "772322363d30dc87ff73a0f9997e93b25dffadfc60d7b3eb8615a8584d603eaa",
+        "scripts/test-webview-drag.cjs": "14d352410fc9e3c3bcad4852201ed94d3f19083768cc6349709c3304a27ce96e",
+        "scripts/test-window-control-injection.cjs": "3ad6ef439d443bfb6af093bb25597e0b2da564b89a26f8701f9da4102589915c"
+      },
+      "footer": [
+        "✔ core provider request, notification, response and teardown bypass an absent Window Use host (15.66ms)",
+        "ℹ tests 28",
+        "ℹ pass 28",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ duration_ms 18711.8065"
+      ],
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Successful scoped execution summarized here; no raw log retained or disposable fixture generated."
+    },
+    {
+      "scope": [
+        "scripts/test-paginated-history.cjs",
+        "scripts/test-project-drafts.cjs",
+        "scripts/test-provider-context.cjs",
+        "scripts/test-question-queue.cjs",
+        "scripts/test-queue-consumption.cjs",
+        "scripts/test-queue-refresh.cjs",
+        "scripts/test-queued-compaction.cjs",
+        "scripts/test-request-state.cjs",
+        "scripts/test-scroll-fade.cjs",
+        "scripts/test-session-flags.cjs",
+        "scripts/test-student-design.cjs",
+        "scripts/test-submit-only-thread.cjs",
+        "scripts/test-task-work-time-ui.cjs",
+        "scripts/test-thread-branch.cjs",
+        "scripts/test-ui-cleanup.cjs",
+        "scripts/test-ui-input-diagnostics.cjs"
+      ],
+      "start": "2026-11-01T15:42:03.881Z",
+      "end": "2026-11-01T15:45:46.176Z",
+      "exitCode": 0,
+      "signal": null,
+      "hashes": {
+        "scripts/test-paginated-history.cjs": "789b639620159813645823bd86beeb02ac28d0fd61635a20bc8e01e6531692be",
+        "scripts/test-project-drafts.cjs": "1515986cb6df7bcfee76a792d71519b0fc8cb697085fdffbb7d64b5db6f0f11c",
+        "scripts/test-provider-context.cjs": "43ca56229bb8ea5270cad08bbaa82ef544454bb041d5b36d0eb4a97e31fcdf6e",
+        "scripts/test-question-queue.cjs": "3eb4445cdaeae42252b36ff2821759a775d8e0eddc50348ad861cac43ec93b6e",
+        "scripts/test-queue-consumption.cjs": "f00013be1b6550fd3420e09aba237ab18e19b48b8978371e12851993da988eee",
+        "scripts/test-queue-refresh.cjs": "d0877f840ae10bff99680d91f22324fe8fd0cc52ff86bddb8ef6a5ce815255a8",
+        "scripts/test-queued-compaction.cjs": "3da5b3b15963d893f616cc891109e4121d25bdb598571896380a222aa1156656",
+        "scripts/test-request-state.cjs": "141b76183b153f84229171ca94ccb670fc2762e5d0a9e955c947bdd6f79969c6",
+        "scripts/test-scroll-fade.cjs": "b6bd2f819b5b7c95f73b02a4573bde849966751485e52ba2caf58c6256077903",
+        "scripts/test-session-flags.cjs": "d85d7e8b57e3ff4a7ea55f1442c4f5c6533baedb39ccc4a56a343e6dc799a2b6",
+        "scripts/test-student-design.cjs": "012a81da6ee52272d26634d34bd654f3b3becf16b625352a995900c255f37cc1",
+        "scripts/test-submit-only-thread.cjs": "3feebf13db34290fac5d9ab2bb35ab288128c9c5f87f6cbbcab963cef1d7f289",
+        "scripts/test-task-work-time-ui.cjs": "e21e8802226f92b7840e683f3842654232fd54673b4a4db35eb559f325df3c7c",
+        "scripts/test-thread-branch.cjs": "2d01d68494dff2176da2086bc2229ba17589b219f2f406eeb9db370205e2656e",
+        "scripts/test-ui-cleanup.cjs": "a8ee06103ee4ad2e2d521e0c71f705056aa6e973983e0624923f7e8b2a5961c8",
+        "scripts/test-ui-input-diagnostics.cjs": "225c688b723dcf98b5a2b6daff5902a80777a863d4de37e382844c1e900ea7e5"
+      },
+      "footer": [
+        "ℹ tests 166",
+        "ℹ pass 166",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ duration_ms 222225.483"
+      ],
+      "fixtureCleanup": {
+        "owner": "existing test-provider-context try/finally",
+        "parent": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\provider-context-policy",
+        "before": [],
+        "remaining": [],
+        "newEmptyParentRemoved": false
+      },
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "scope": [
+        "scripts/test-account-settings.cjs",
+        "scripts/test-account-switch-queue.cjs",
+        "scripts/test-auto-review.cjs",
+        "scripts/test-btw.cjs",
+        "scripts/test-capacity-retry-stop.cjs",
+        "scripts/test-command-drag-block.cjs",
+        "scripts/test-compaction-progress.cjs",
+        "scripts/test-composer-draft.cjs",
+        "scripts/test-computer-use-injection.cjs",
+        "scripts/test-deferred-turn.cjs",
+        "scripts/test-fetch-response.cjs",
+        "scripts/test-file-open-menu.cjs",
+        "scripts/test-image-sketch.cjs",
+        "scripts/test-immediate-stop.cjs",
+        "scripts/test-instruction-settings.cjs",
+        "scripts/test-linux-host-preparation.cjs",
+        "scripts/test-local-file-drop.cjs",
+        "scripts/test-max-reasoning.cjs",
+        "scripts/test-missing-image.cjs"
+      ],
+      "start": "2026-11-01T15:44:14.485Z",
+      "end": "2026-11-01T15:48:18.194Z",
+      "exitCode": 0,
+      "signal": null,
+      "hashes": {
+        "scripts/test-account-settings.cjs": "e2f2c207b83f2d6e08ee61e66e2d4784e15a6d53a2959426237014581a8ca00c",
+        "scripts/test-account-switch-queue.cjs": "982cac045dcfb9849cd234476084c5a1956098b3c67569a0f3a1bd495336ba56",
+        "scripts/test-auto-review.cjs": "5d579a2e74b5902aeb742b3676ef6d0421d17f97b4bdf831c0f242039cf95b2a",
+        "scripts/test-btw.cjs": "16b3bdeeeca439e214aa24c37d662cdd6c1ea0962b20e47948328be177fc0ca5",
+        "scripts/test-capacity-retry-stop.cjs": "8caf6a2f54fb29f2725bf6e041ab7b488498c1f8aa510399c132ffe0c408ce80",
+        "scripts/test-command-drag-block.cjs": "e7e0329463ed89fc0fa1b1de1bbb6f8ce50f4700b2e54df9c4cd1ba09890c54a",
+        "scripts/test-compaction-progress.cjs": "8666198bb3f5a9631befe617a29d26a0d50db6d2608fe98eadde413108efb5f5",
+        "scripts/test-composer-draft.cjs": "9bec54c3395027c395ebaa63f70cb92e03dc78a6389293f7b1774a9691bf4726",
+        "scripts/test-computer-use-injection.cjs": "ba0a620d9b877bf5ca2ac3e3ef136568826fefa1943c4be4eae10e90e6eca5cf",
+        "scripts/test-deferred-turn.cjs": "ab7ef3c028234c920e81c089464faf936468b1528aced9128b6c0cee9448258e",
+        "scripts/test-fetch-response.cjs": "bec992a9ddc5ba1f86f9a852c6a9e8997ae4bd393758218bf4c2b52953fbfbda",
+        "scripts/test-file-open-menu.cjs": "298d512ce5673b0ecf31c1c80f05770fac33aeda761bb5d4ee7399b3427473ba",
+        "scripts/test-image-sketch.cjs": "e76170f155e5c88fd0381a906c3e9ee320da2a0c5d99fd87c3fbf6a7e0e8bab9",
+        "scripts/test-immediate-stop.cjs": "c9fa3a8c8daadf7ef7db1e266169174836eff930d44e2f3cc73d021a49e16f77",
+        "scripts/test-instruction-settings.cjs": "65f1494d13936af9e82b98e89dae32b622a319e340a2cf03796a243a98ca50b5",
+        "scripts/test-linux-host-preparation.cjs": "dd96bbdef0b3a75ab97182bbf55feba7ca312af308c915b960e59760351d60ed",
+        "scripts/test-local-file-drop.cjs": "567f33e6e83a99e1ed80190e01387c7b37a148a367c3157075d1f55f247ba62f",
+        "scripts/test-max-reasoning.cjs": "0d62f6e2657ae48b63725ddc353021aba4700c2aec91dbae5d39b38613a0e054",
+        "scripts/test-missing-image.cjs": "88db32ea40d244c52de96f0aaa3536063b395c9ceb13836ec295c8878d5b52a4"
+      },
+      "footer": [
+        "✔ cancelled creation releases its waiting notice and never creates a thread (0.7968ms)",
+        "ℹ tests 219",
+        "ℹ pass 219",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ duration_ms 243635.6747"
+      ],
+      "fixtureCleanup": [
+        {
+          "path": "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native",
+          "remaining": [],
+          "before": [],
+          "owner": "existing per-test try/finally ordinary removal"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tmp",
+          "remaining": [],
+          "before": [],
+          "owner": "existing per-test try/finally ordinary removal"
+        }
+      ],
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "postVerificationNormalization": [
+    {
+      "path": "scripts/test-url-safety-transport.cjs",
+      "verifiedSha256": "772322363d30dc87ff73a0f9997e93b25dffadfc60d7b3eb8615a8584d603eaa",
+      "finalSha256": "e685b223b30da251874a406e36308dabbe3b1a467af14d9f8739a5a429f8bdc0",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-webview-drag.cjs",
+      "verifiedSha256": "14d352410fc9e3c3bcad4852201ed94d3f19083768cc6349709c3304a27ce96e",
+      "finalSha256": "14d352410fc9e3c3bcad4852201ed94d3f19083768cc6349709c3304a27ce96e",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-window-control-injection.cjs",
+      "verifiedSha256": "3ad6ef439d443bfb6af093bb25597e0b2da564b89a26f8701f9da4102589915c",
+      "finalSha256": "3ad6ef439d443bfb6af093bb25597e0b2da564b89a26f8701f9da4102589915c",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-paginated-history.cjs",
+      "verifiedSha256": "789b639620159813645823bd86beeb02ac28d0fd61635a20bc8e01e6531692be",
+      "finalSha256": "9db2a8955eaac2fadf8850bbf43878bd68697308a61fc859aea899f7812960ee",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-project-drafts.cjs",
+      "verifiedSha256": "1515986cb6df7bcfee76a792d71519b0fc8cb697085fdffbb7d64b5db6f0f11c",
+      "finalSha256": "1515986cb6df7bcfee76a792d71519b0fc8cb697085fdffbb7d64b5db6f0f11c",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-provider-context.cjs",
+      "verifiedSha256": "43ca56229bb8ea5270cad08bbaa82ef544454bb041d5b36d0eb4a97e31fcdf6e",
+      "finalSha256": "6fc7f1a5063ba331c8833555415b919a30a63828e2e9743c35c8f1b2b5a64b3d",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-question-queue.cjs",
+      "verifiedSha256": "3eb4445cdaeae42252b36ff2821759a775d8e0eddc50348ad861cac43ec93b6e",
+      "finalSha256": "3eb4445cdaeae42252b36ff2821759a775d8e0eddc50348ad861cac43ec93b6e",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-queue-consumption.cjs",
+      "verifiedSha256": "f00013be1b6550fd3420e09aba237ab18e19b48b8978371e12851993da988eee",
+      "finalSha256": "a2edb982e40c4e8d0fd5c4df13214f6c8b9a40a8065afa95b2b0de46e72df2c0",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-queue-refresh.cjs",
+      "verifiedSha256": "d0877f840ae10bff99680d91f22324fe8fd0cc52ff86bddb8ef6a5ce815255a8",
+      "finalSha256": "d0877f840ae10bff99680d91f22324fe8fd0cc52ff86bddb8ef6a5ce815255a8",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-queued-compaction.cjs",
+      "verifiedSha256": "3da5b3b15963d893f616cc891109e4121d25bdb598571896380a222aa1156656",
+      "finalSha256": "ce88427d4c966bc0729ad0ea72260989d60e0836c68488b0d194e052c4fa8a30",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-request-state.cjs",
+      "verifiedSha256": "141b76183b153f84229171ca94ccb670fc2762e5d0a9e955c947bdd6f79969c6",
+      "finalSha256": "141b76183b153f84229171ca94ccb670fc2762e5d0a9e955c947bdd6f79969c6",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-scroll-fade.cjs",
+      "verifiedSha256": "b6bd2f819b5b7c95f73b02a4573bde849966751485e52ba2caf58c6256077903",
+      "finalSha256": "b6bd2f819b5b7c95f73b02a4573bde849966751485e52ba2caf58c6256077903",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-session-flags.cjs",
+      "verifiedSha256": "d85d7e8b57e3ff4a7ea55f1442c4f5c6533baedb39ccc4a56a343e6dc799a2b6",
+      "finalSha256": "4aaf8db3ae01e4a28d9864a4b301b8d9bc97d1ca15cfdcb7a6b79fd21aefc978",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-student-design.cjs",
+      "verifiedSha256": "012a81da6ee52272d26634d34bd654f3b3becf16b625352a995900c255f37cc1",
+      "finalSha256": "6b58716d935ce68c69a3a68ea66bf454112a404c4a9c3a12fb7d88053641feb8",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-submit-only-thread.cjs",
+      "verifiedSha256": "3feebf13db34290fac5d9ab2bb35ab288128c9c5f87f6cbbcab963cef1d7f289",
+      "finalSha256": "3feebf13db34290fac5d9ab2bb35ab288128c9c5f87f6cbbcab963cef1d7f289",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-task-work-time-ui.cjs",
+      "verifiedSha256": "e21e8802226f92b7840e683f3842654232fd54673b4a4db35eb559f325df3c7c",
+      "finalSha256": "e21e8802226f92b7840e683f3842654232fd54673b4a4db35eb559f325df3c7c",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-thread-branch.cjs",
+      "verifiedSha256": "2d01d68494dff2176da2086bc2229ba17589b219f2f406eeb9db370205e2656e",
+      "finalSha256": "a50dfd8e0a1b489b1ea2e74d8aab91046a1d88435606b82ce131413ec3946a27",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-ui-cleanup.cjs",
+      "verifiedSha256": "a8ee06103ee4ad2e2d521e0c71f705056aa6e973983e0624923f7e8b2a5961c8",
+      "finalSha256": "a573121738912ad2720a0de13e4ee2b7dd34720615b13571ed028d4836bf002b",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-ui-input-diagnostics.cjs",
+      "verifiedSha256": "225c688b723dcf98b5a2b6daff5902a80777a863d4de37e382844c1e900ea7e5",
+      "finalSha256": "6fdd3d85a8dadd62633d949c411f030a0d0ca2f797534bf5243b29d76365ea30",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-account-settings.cjs",
+      "verifiedSha256": "e2f2c207b83f2d6e08ee61e66e2d4784e15a6d53a2959426237014581a8ca00c",
+      "finalSha256": "e2f2c207b83f2d6e08ee61e66e2d4784e15a6d53a2959426237014581a8ca00c",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-account-switch-queue.cjs",
+      "verifiedSha256": "982cac045dcfb9849cd234476084c5a1956098b3c67569a0f3a1bd495336ba56",
+      "finalSha256": "b42bc4d2b4b7b5e9914d3a076d2eb0637d24b35622a3a7738a7bf7c662303d25",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-auto-review.cjs",
+      "verifiedSha256": "5d579a2e74b5902aeb742b3676ef6d0421d17f97b4bdf831c0f242039cf95b2a",
+      "finalSha256": "0d960e54d27baa7a1b243127b64ecf18ba09b335c66bec83f10ab18a5196657a",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-btw.cjs",
+      "verifiedSha256": "16b3bdeeeca439e214aa24c37d662cdd6c1ea0962b20e47948328be177fc0ca5",
+      "finalSha256": "0cc536a43ba75d0251db6483d39e21079df94d94bde790f156d02c2ca114f380",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-capacity-retry-stop.cjs",
+      "verifiedSha256": "8caf6a2f54fb29f2725bf6e041ab7b488498c1f8aa510399c132ffe0c408ce80",
+      "finalSha256": "1d6083383b3a5f154e3e1907a13f1e6e3670b8a041d16c7a0e6aa3e06d7e9b33",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-command-drag-block.cjs",
+      "verifiedSha256": "e7e0329463ed89fc0fa1b1de1bbb6f8ce50f4700b2e54df9c4cd1ba09890c54a",
+      "finalSha256": "e7e0329463ed89fc0fa1b1de1bbb6f8ce50f4700b2e54df9c4cd1ba09890c54a",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-compaction-progress.cjs",
+      "verifiedSha256": "8666198bb3f5a9631befe617a29d26a0d50db6d2608fe98eadde413108efb5f5",
+      "finalSha256": "0da463049951cc55281f243bdf3909c0ad893e2efbecc73aa39a69d7e3f92a86",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-composer-draft.cjs",
+      "verifiedSha256": "9bec54c3395027c395ebaa63f70cb92e03dc78a6389293f7b1774a9691bf4726",
+      "finalSha256": "4029d34478c726fcbc461015ca23a42036c5eae0a638e1dc66aa3af36ceeb5e0",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-computer-use-injection.cjs",
+      "verifiedSha256": "ba0a620d9b877bf5ca2ac3e3ef136568826fefa1943c4be4eae10e90e6eca5cf",
+      "finalSha256": "ba0a620d9b877bf5ca2ac3e3ef136568826fefa1943c4be4eae10e90e6eca5cf",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-deferred-turn.cjs",
+      "verifiedSha256": "ab7ef3c028234c920e81c089464faf936468b1528aced9128b6c0cee9448258e",
+      "finalSha256": "ab7ef3c028234c920e81c089464faf936468b1528aced9128b6c0cee9448258e",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-fetch-response.cjs",
+      "verifiedSha256": "bec992a9ddc5ba1f86f9a852c6a9e8997ae4bd393758218bf4c2b52953fbfbda",
+      "finalSha256": "aa997047c51392080f6158a8be9e067a9b6c2ca24bf4582d958d49bf34da95c1",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-file-open-menu.cjs",
+      "verifiedSha256": "298d512ce5673b0ecf31c1c80f05770fac33aeda761bb5d4ee7399b3427473ba",
+      "finalSha256": "5af54e9aab2752a2ac741d66ba58d5cdf9ecda7fcd17661bdfb7aa5569c1a45b",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-image-sketch.cjs",
+      "verifiedSha256": "e76170f155e5c88fd0381a906c3e9ee320da2a0c5d99fd87c3fbf6a7e0e8bab9",
+      "finalSha256": "75e4c3074addbad5a555b43ed925e253b6e19047f9fedb63d248eb30b3e30d04",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-immediate-stop.cjs",
+      "verifiedSha256": "c9fa3a8c8daadf7ef7db1e266169174836eff930d44e2f3cc73d021a49e16f77",
+      "finalSha256": "8790f8e1f164a46610edd922b954b65bf6edde0b643db1f77d5b311b4ba90c00",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-instruction-settings.cjs",
+      "verifiedSha256": "65f1494d13936af9e82b98e89dae32b622a319e340a2cf03796a243a98ca50b5",
+      "finalSha256": "65f1494d13936af9e82b98e89dae32b622a319e340a2cf03796a243a98ca50b5",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-linux-host-preparation.cjs",
+      "verifiedSha256": "dd96bbdef0b3a75ab97182bbf55feba7ca312af308c915b960e59760351d60ed",
+      "finalSha256": "09930a720f0302c1ead35046186af149c8aed1c37ded19870774b3535c57de97",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-local-file-drop.cjs",
+      "verifiedSha256": "567f33e6e83a99e1ed80190e01387c7b37a148a367c3157075d1f55f247ba62f",
+      "finalSha256": "1bb3b2cfbbc81495d03178d970a74365809d802e763ba4f5daf8ec52d8af9c9a",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-max-reasoning.cjs",
+      "verifiedSha256": "0d62f6e2657ae48b63725ddc353021aba4700c2aec91dbae5d39b38613a0e054",
+      "finalSha256": "f8e7137163f46a9b049ea8ba696c314df7b9eafa35c7a4d41a0c67e04fb2bd85",
+      "lineEndingsNormalized": true,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    },
+    {
+      "path": "scripts/test-missing-image.cjs",
+      "verifiedSha256": "88db32ea40d244c52de96f0aaa3536063b395c9ceb13836ec295c8878d5b52a4",
+      "finalSha256": "88db32ea40d244c52de96f0aaa3536063b395c9ceb13836ec295c8878d5b52a4",
+      "lineEndingsNormalized": false,
+      "astEquivalent": true,
+      "syntaxExitCode": 0
+    }
+  ],
+  "normalizationNote": "One-off scanner could not rescan template continuations; it conservatively stopped before that file. Resumed with parsed AST equivalence excluding SourceFile whole-text/positions; all changes limited to CRLF normalization and trailing empty EOF lines after terminal tests.",
+  "retirementTotals": {
+    "auditedFiles": 121,
+    "changedTestFiles": 38,
+    "removedStatements": 50,
+    "removedRegisteredCases": 62,
+    "groups": [
+      {
+        "files": 19,
+        "statements": 23,
+        "registeredCases": 34
+      },
+      {
+        "files": 16,
+        "statements": 24,
+        "registeredCases": 25
+      },
+      {
+        "files": 3,
+        "statements": 3,
+        "registeredCases": 3
+      }
+    ],
+    "newTestFiles": 0,
+    "featureCheckPathsRemoved": 0,
+    "selectionPolicyChanged": false
+  },
+  "fixturePreparationRetained": {
+    "file": "scripts/test-ui-input-diagnostics.cjs",
+    "consumers": [
+      "serialized channel",
+      "metadata policy",
+      "state and consume methods",
+      "renderer behavior"
+    ],
+    "assertionsFromRetiredCaseRetained": false,
+    "transformationCostRetained": true
+  },
+  "cleanup": {
+    "status": "complete",
+    "fixtures": [
+      {
+        "owner": "existing test-provider-context try/finally",
+        "parent": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\provider-context-policy",
+        "before": [],
+        "remaining": [],
+        "newEmptyParentRemoved": false
+      },
+      {
+        "path": "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native",
+        "remaining": [],
+        "before": [],
+        "owner": "existing per-test try/finally ordinary removal"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tmp",
+        "remaining": [],
+        "before": [],
+        "owner": "existing per-test try/finally ordinary removal"
+      }
+    ],
+    "disposableProbeFiles": [],
+    "ownedSourceTestRecords": "maintained delivery evidence; source fixtures and raw success logs not retained"
+  },
+  "diffCheck": {
+    "exitCode": 0,
+    "errors": ""
+  },
+  "completedAt": "2026-11-01T15:51:19.997Z",
+  "acceptance": {
+    "actualCasesPassed": 413,
+    "failed": 0,
+    "skipped": 0,
+    "commandExits": [
+      0,
+      0,
+      0
+    ],
+    "sourceSyntaxExit": 0,
+    "registrationRecord": "15-source-survivor-registration.json",
+    "finalSourcesMatch": true,
+    "full121SuiteExecuted": false,
+    "productBuildExecuted": false,
+    "measuredSpeedup": null,
+    "commit": "Not created: concurrent and pre-existing edits overlap maintained test/docs files; index preserved."
+  }
+}

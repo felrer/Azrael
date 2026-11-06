@@ -1,0 +1,94 @@
+{
+  "runId": "subtree-final-20261030T050238166Z",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\subtree-final-20261030T050238166Z",
+  "fixture": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\subtree-final-20261030T050238166Z\\temporary\\fixture",
+  "exitCode": 0,
+  "signal": null,
+  "elapsedMs": 16232,
+  "fixtureAbsent": true,
+  "state": "complete",
+  "powershell": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+  "node": "C:\\Program Files\\nodejs\\node.exe",
+  "maintenanceOwner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe",
+  "maintenanceOwnerSha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c",
+  "source": {
+    "scripts/artifact-lifecycle.ps1": "65bd1f96ab55b52bd80dab9b36d88e44a54b95ad69f27ef7fa7b287fcf4fc139",
+    "scripts/test-clean-verification-artifacts.ps1": "b274b2ee5578e84e65feb66768391a17a4d67c1c86814afc78c41a0d36b822f9"
+  },
+  "assertions": 24,
+  "selection": "SubtreeOnly",
+  "environment": "Windows x64 local filesystem; other OS/CPU unverified",
+  "cases": [
+    "Exact selected subtree; arbitrary descendant/sibling denied",
+    "ReadOnly hardlinks across same authority subtrees allowed; outside-authority alias refused",
+    "Escaping/ancestor/noncanonical/ADS roots, unverified reparse, System roots refused before normalization",
+    "Stale authority identity and absent-authority reappearance refused",
+    "1,024 inspection file roots, duplicate and overlap refusal",
+    "Default physical failure stops later member; opt-in continues with partial evidence and actual remaining",
+    "Unlocked fixtures removed by existing owner"
+  ],
+  "notRun": [
+    "Full existing verification fixture suite",
+    "Cargo/product build",
+    "Linux/macOS"
+  ],
+  "cleanup": [
+    {
+      "finalization": [
+        {
+          "id": "run:ET-01-cold-build-cache-audit:subtree-20261030T050048157Z",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f117f6fb9a4d647d3b25a9362e44ef9e10f2d488a2b2dfa241d875c6a621b3a1.json"
+        }
+      ],
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\26a28a557f90403c89f0dde2fe82998d.json",
+        "sha256": "121c4a4ccec1d4375e73fce4429b2a7c8ac3ad45c80cf30cce320ff5101938ca"
+      },
+      "id": "subtree-20261030T050048157Z",
+      "remaining": false,
+      "status": "deleted"
+    },
+    {
+      "finalization": [
+        {
+          "id": "run:ET-01-cold-build-cache-audit:subtree-linear-20261030T050157890Z",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c7a2c9ae5eef2361b94039c93dce850f39d7eb22708e53e4ef6d13937080e559.json"
+        }
+      ],
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\4711685db7ca49d2b2da8b7db4e6dd12.json",
+        "sha256": "24327ab29122e85fbd376c0c1418909747663dd5f084bb9a0cf58f56f31648d6"
+      },
+      "id": "subtree-linear-20261030T050157890Z",
+      "remaining": false,
+      "status": "deleted"
+    },
+    {
+      "finalization": [
+        {
+          "id": "run:ET-01-cold-build-cache-audit:subtree-final-20261030T050238166Z",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f465e4480b6df1ee0acc499695114dd094f5d6124cba624b463bbb2c19dd8de8.json"
+        }
+      ],
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\6525a218519a4c3481071a1ad255e168.json",
+        "sha256": "32e794853e2dc7bd535b76f3c2c101195938d132130db74d424ca623a2d934d5"
+      },
+      "id": "subtree-final-20261030T050238166Z",
+      "remaining": false,
+      "status": "deleted"
+    }
+  ]
+}

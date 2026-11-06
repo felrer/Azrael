@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "at": "2026-11-02T06:20:22.577Z",
+  "accepted": true,
+  "resolved": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "maxLockWaitMs": 600000
+  },
+  "sha256": "474ec68c553dbea5babcdc4ebf79a84a045b7fa6d2ff3574d3ee14f4778d27c3",
+  "fixture": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\temporary\\default-queue-fixture",
+  "processes": [
+    {
+      "label": "register",
+      "pid": 51880,
+      "code": 0,
+      "signal": null,
+      "close_observed": true,
+      "elapsed_ms": 429.3941,
+      "stdout_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-1-register.stdout.log",
+      "stderr_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-1-register.stderr.log",
+      "overflow": false
+    },
+    {
+      "label": "holder",
+      "pid": 19192,
+      "code": 0,
+      "signal": null,
+      "close_observed": true,
+      "elapsed_ms": 6289.603,
+      "stdout_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-2-holder.stdout.log",
+      "stderr_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-2-holder.stderr.log",
+      "overflow": false
+    },
+    {
+      "label": "default-client",
+      "pid": 51796,
+      "code": 0,
+      "signal": null,
+      "close_observed": true,
+      "elapsed_ms": 6656.7531,
+      "stdout_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-3-default-client.stdout.log",
+      "stderr_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-3-default-client.stderr.log",
+      "overflow": false
+    },
+    {
+      "label": "native-observer",
+      "pid": 51384,
+      "code": 0,
+      "signal": null,
+      "close_observed": true,
+      "elapsed_ms": 417.3843999999999,
+      "stdout_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-4-native-observer.stdout.log",
+      "stderr_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-4-native-observer.stderr.log",
+      "overflow": false
+    },
+    {
+      "label": "review",
+      "pid": 46752,
+      "code": 0,
+      "signal": null,
+      "close_observed": true,
+      "elapsed_ms": 46.92579999999998,
+      "stdout_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-5-review.stdout.log",
+      "stderr_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-5-review.stderr.log",
+      "overflow": false
+    },
+    {
+      "label": "apply",
+      "pid": 34372,
+      "code": 0,
+      "signal": null,
+      "close_observed": true,
+      "elapsed_ms": 1224.8949000000002,
+      "stdout_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-6-apply.stdout.log",
+      "stderr_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\default-queue-6-apply.stderr.log",
+      "overflow": false
+    }
+  ],
+  "registration": {
+    "item": {
+      "cache_schema": null,
+      "created_at_ms": null,
+      "generated": true,
+      "id": "payload",
+      "identity": "3afde0ef0d21b9aaf8329e8003024a7a913e8236e12294e7b19017b3e55fd207",
+      "kind": "fixture",
+      "logical_bytes": 24,
+      "measured_at_ms": 1793600195862,
+      "owner": "ff1-default-queue",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\temporary\\default-queue-fixture\\generated\\payload.txt",
+      "presence": "present",
+      "protection_known": true,
+      "provenance": null,
+      "references": [],
+      "registered_at_ms": 1793600195862,
+      "remaining": true,
+      "source_path": null,
+      "tool": null,
+      "version": null
+    }
+  },
+  "client": {
+    "ok": true,
+    "elapsed_ms": 6141.861,
+    "owner": {
+      "acquired_at_ms": 1793600202337,
+      "operation": "ff1.node.queue",
+      "parent_pid": 51796,
+      "pid": 28780,
+      "schema": 2,
+      "token": "28780-1793600202337-6dc75613a032bc02"
+    },
+    "released": {
+      "released": true,
+      "reservations_retained": []
+    }
+  },
+  "native_exit": {
+    "pid": 28780,
+    "exit_observed": true,
+    "exit_code": 0
+  },
+  "acquired": {
+    "ok": true,
+    "acquired": true,
+    "elapsed_ms": 6141.861,
+    "owner": {
+      "acquired_at_ms": 1793600202337,
+      "operation": "ff1.node.queue",
+      "parent_pid": 51796,
+      "pid": 28780,
+      "schema": 2,
+      "token": "28780-1793600202337-6dc75613a032bc02"
+    },
+    "resolved": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    }
+  },
+  "cleanup": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [],
+    "results": [
+      {
+        "attempt_id": "attempt-34372-1-1793600203062",
+        "decision": "delete",
+        "decision_id": "de8d6538624710cbe8c05725ec98fa3ebfa4816b2ad01ca38d584c07d18c8a5b",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "id": "payload",
+        "reason": "installed default queue acceptance completed",
+        "remaining": false,
+        "status": "deleted",
+        "token": "0ec44b96a97575b2d2e912717d818ccc6a34245f4880930e7ffd62738f70f634"
+      }
+    ]
+  },
+  "target_absent": true,
+  "ok": true,
+  "active_direct_pids": [],
+  "raw_sha256": "b69cb4d99512c8b8385415cf172a5b40264224436af8e435c4df5b317184e1a6"
+}

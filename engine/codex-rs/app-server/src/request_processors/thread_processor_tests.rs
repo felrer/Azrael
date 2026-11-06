@@ -291,6 +291,7 @@ mod thread_processor_behavior_tests {
         ))];
         let active_turn = Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: "live-turn".to_string(),
             root_turn_id: None,
@@ -689,6 +690,7 @@ mod thread_processor_behavior_tests {
             initial_turns_page: None,
         };
         let config_snapshot = ThreadConfigSnapshot {
+            role_profile: None,
             auto_compaction_enabled: true,
             computer_use_mode: None,
             turn_extension_init: Default::default(),

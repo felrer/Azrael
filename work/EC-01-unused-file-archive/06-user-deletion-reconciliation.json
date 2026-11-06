@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "scope": "Post-processing only after user-reported direct deletion; no additional deletion or migration",
+  "observed_at": "2026-10-28T02:21:05.236Z",
+  "sources": [
+    {
+      "path": "C:\\Users\\felre\\av17",
+      "exists": false
+    },
+    {
+      "path": "C:\\Users\\felre\\av18",
+      "exists": false
+    },
+    {
+      "path": "C:\\Users\\felre\\av30",
+      "exists": false
+    },
+    {
+      "path": "C:\\Users\\felre\\azr-r3-3dd11733",
+      "exists": false
+    },
+    {
+      "path": "C:\\Users\\felre\\azr-r4-e660efa1",
+      "exists": false
+    },
+    {
+      "path": "C:\\Users\\felre\\.tmppazXs2",
+      "exists": false
+    }
+  ],
+  "archive": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-external-home-20261028-r1",
+    "exists": false,
+    "prior_migration_proof": "05-home-archive.json",
+    "proof_is_historical": true
+  },
+  "actor": "User reported direct deletion; absence independently observed",
+  "deletion_command": null,
+  "deletion_exit_code": null,
+  "deletion_time": null,
+  "reclaimed_bytes": null,
+  "primary_producer_references": [],
+  "primary_native_references": [],
+  "engine_project_aliases": [],
+  "management_reconciliation": "No surviving target records in primary catalog or native items. Deleted external manifests were not recreated or edited.",
+  "disposable_run": {
+    "id": "run:EC-01:external-home-r1",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\external-home-r1",
+    "exists": false,
+    "producer_finalized": true,
+    "proof": "05-cleanup.json",
+    "native_register_review_apply_exits": [
+      0,
+      0,
+      0
+    ]
+  },
+  "interrupted_audit": {
+    "path": "06-av30-file-audit.json",
+    "exists": false,
+    "plan_append_executed": false
+  },
+  "documentation": {
+    "updated": "docs/ops/development.md",
+    "correction": "av17/av18 profiles retired, av30 absent, u22c is no longer described as current external launch target; former profile-specific retention is not a blanket hold. Independent runtime/Git consumers remain subject to their owner review.",
+    "historical_plans_preserved": true
+  },
+  "status": "post-processing-complete"
+}

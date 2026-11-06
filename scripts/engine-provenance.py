@@ -34,15 +34,17 @@ def binary_names(target=TARGET):
 def snapshot(root, target=TARGET):
     binary_names(target)
     original_root = Path(root)
-    root = Path(root).resolve()
-    imported_receipt = root / "SOURCE.json"
+    # Keep physical identities canonical while using the importer's Windows
+    # extended namespace for IO (including receipt discovery beyond MAX_PATH).
+    helper_path = Path(__file__).with_name("import-engine-source.py")
+    spec = importlib.util.spec_from_file_location("engine_source_import", helper_path)
+    helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helper)
+    root = helper.canonical_path(original_root)
+    imported_receipt = helper.filesystem_path(root) / "SOURCE.json"
     if imported_receipt.exists() or imported_receipt.is_symlink():
         if imported_receipt.is_symlink():
             raise ValueError("Imported source receipt must be a regular file")
-        helper_path = Path(__file__).with_name("import-engine-source.py")
-        spec = importlib.util.spec_from_file_location("engine_source_import", helper_path)
-        helper = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(helper)
         context = helper.validation_root(original_root)
         if context.path != root:
             raise ValueError("Source root changed during provenance verification")

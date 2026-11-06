@@ -1,0 +1,341 @@
+{
+  "schema": 1,
+  "work": "EG-01",
+  "status": "verification_in_progress",
+  "platform": "Windows x64",
+  "sourceSha256": "c0f564cc9e22a1444dfaec7f420b228e06506f5bb6c869245ff668ad8dbcdd54",
+  "sourceReceiptSha256": "87531eca9161ade6b1a77ab167a38194d6e2b23c292be4e021ed153480f109fb",
+  "runs": [
+    {
+      "run": "r1",
+      "code": 101,
+      "signal": null,
+      "elapsedMs": 824863,
+      "startedUtc": "2026-10-28T13:31:34.530Z",
+      "endedUtc": "2026-10-28T13:45:19.394Z",
+      "phases": [
+        {
+          "schema": 1,
+          "typeCheck": "selected-tests",
+          "testSelection": "nonzero",
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-28T13:31:34.590Z",
+              "durationMs": 268739,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 1,
+          "typeCheck": "selected-tests",
+          "testSelection": "nonzero",
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-28T13:31:34.590Z",
+              "durationMs": 268739,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "session_handoff::tests::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-28T13:36:03.329Z",
+              "durationMs": 501292,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 10
+            }
+          ]
+        },
+        {
+          "schema": 1,
+          "typeCheck": "selected-tests",
+          "testSelection": "nonzero",
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-28T13:31:34.590Z",
+              "durationMs": 268739,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "session_handoff::tests::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-28T13:36:03.329Z",
+              "durationMs": 501292,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 10
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "session_handoff::tests::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-28T13:44:24.621Z",
+              "durationMs": 54763,
+              "exitCode": 101,
+              "signal": null
+            }
+          ]
+        }
+      ],
+      "outcome": "9 daemon tests passed; busy attach fixture timed out before source admission; corrected missing-control-directory inspection order. Remaining scopes not started.",
+      "inputInventorySha256": "a0fae43c161c6a213a506095e7ae6c5ebf37e2c5f1f21116f04a82abd3edd7c9"
+    },
+    {
+      "run": "r2",
+      "code": 101,
+      "signal": null,
+      "elapsedMs": 566735,
+      "startedUtc": "2026-10-28T13:48:58.487Z",
+      "endedUtc": "2026-10-28T13:58:25.222Z",
+      "phases": [
+        {
+          "schema": 1,
+          "typeCheck": "selected-tests",
+          "testSelection": "nonzero",
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-28T13:48:58.574Z",
+              "durationMs": 177393,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 1,
+          "typeCheck": "selected-tests",
+          "testSelection": "nonzero",
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-28T13:48:58.574Z",
+              "durationMs": 177393,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "session_handoff::tests::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-28T13:51:55.967Z",
+              "durationMs": 320640,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 10
+            }
+          ]
+        },
+        {
+          "schema": 1,
+          "typeCheck": "selected-tests",
+          "testSelection": "nonzero",
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-28T13:48:58.574Z",
+              "durationMs": 177393,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "session_handoff::tests::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-28T13:51:55.967Z",
+              "durationMs": 320640,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 10
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server-daemon",
+                "--lib",
+                "session_handoff::tests::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-28T13:57:16.607Z",
+              "durationMs": 19834,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 1,
+          "typeCheck": "selected-tests",
+          "testSelection": "nonzero",
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-core",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-28T13:57:36.444Z",
+              "durationMs": 48770,
+              "exitCode": 101,
+              "signal": null
+            }
+          ]
+        }
+      ],
+      "outcome": "10 daemon tests passed; core typecheck stopped with E0599 GatewayLoginRequired despite declaration present; remaining scopes not started.",
+      "inputInventorySha256": "71b8f401a6d070a745af01a387533deb79efa2c815b6e0d2f159ffe6d5df3fc9"
+    }
+  ],
+  "cacheDiagnostic": {
+    "command": "cargo check -p codex-model-provider --lib --locked --offline --profile test -v",
+    "exitCode": 0,
+    "startedUtc": "2026-10-28T14:00:14.028Z",
+    "endedUtc": "2026-10-28T14:02:06.160Z",
+    "note": "Separate package feature graph; success does not replace required core handoff checks."
+  },
+  "disposableGroups": [
+    "run:eg01:handoff-r1",
+    "run:eg01:handoff-r2",
+    "run:eg01:handoff-r3"
+  ]
+}

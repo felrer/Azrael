@@ -2017,6 +2017,7 @@ server_notification_definitions! {
     ThreadSettingsUpdated => "thread/settings/updated" (v2::ThreadSettingsUpdatedNotification),
     ThreadTokenUsageUpdated => "thread/tokenUsage/updated" (v2::ThreadTokenUsageUpdatedNotification),
     TurnStarted => "turn/started" (v2::TurnStartedNotification),
+    UserWaitTimingUpdated => "turn/userWaitTiming/updated" (v2::UserWaitTimingUpdatedNotification),
     RootResumeWaitUpdated => "turn/rootResumeWait/updated" (v2::RootResumeWaitUpdatedNotification),
     TurnDeferred => "turn/deferred" (v2::TurnDeferredNotification),
     HookStarted => "hook/started" (v2::HookStartedNotification),
@@ -3123,6 +3124,7 @@ mod tests {
             "required": ["confirmed"]
         }))?;
         let params = v2::McpServerElicitationRequestParams {
+            user_wait_request_id: None,
             thread_id: "thr_123".to_string(),
             turn_id: Some("turn_123".to_string()),
             server_name: "codex_apps".to_string(),

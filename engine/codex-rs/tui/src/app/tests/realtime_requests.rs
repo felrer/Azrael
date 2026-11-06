@@ -299,6 +299,7 @@ async fn switching_agent_threads_preserves_backend_voice_and_routes_pending_spee
             thread_id: source.to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: turn_id.into(),
                 root_turn_id: None,
@@ -670,6 +671,7 @@ async fn replay_reconciles_only_matching_voice_captions_one_for_one() {
         .insert(source, records);
     let voice = Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: "voice-turn".into(),
         root_turn_id: None,
@@ -939,6 +941,7 @@ async fn unrendered_buffered_items_do_not_consume_retained_captions() {
                 thread_id: source.to_string(),
                 turn: Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: turn_id.into(),
                     root_turn_id: None,
@@ -1227,6 +1230,7 @@ async fn rejected_realtime_speech_restores_the_delegated_final_answer() -> Resul
             thread_id: thread_id.to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "rejected-turn".to_string(),
                 root_turn_id: None,
@@ -1331,6 +1335,7 @@ async fn switching_threads_retains_undelivered_voice_answer_after_replay_evictio
             thread_id: original.to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "switched-turn".to_string(),
                 root_turn_id: None,
@@ -1416,6 +1421,7 @@ async fn switching_threads_retains_undelivered_voice_answer_after_replay_evictio
             session: Some(test_thread_session(original, app.config.cwd.to_path_buf())),
             turns: vec![Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "replayed-turn".to_string(),
                 root_turn_id: None,
@@ -1623,6 +1629,7 @@ async fn delegated_final_speech_reaches_app_server_once_and_stale_speech_is_reje
             thread_id: thread_id.to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: turn_id.to_string(),
                 root_turn_id: None,
@@ -1705,6 +1712,7 @@ async fn delegated_final_speech_reaches_app_server_once_and_stale_speech_is_reje
             thread_id: thread_id.to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: second_turn.to_string(),
                 root_turn_id: None,

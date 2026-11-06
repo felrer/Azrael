@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "id": "run:EW01-fixed-input:final-a",
+  "reservation_sha256": "6d0e1b5a052c9250f9b654ba1f789c2a24e1bdb41ae0c2f9c149596e7af5a5e5",
+  "lease_owner": {
+    "acquired_at_ms": 1793535991570,
+    "operation": "group_reservation",
+    "pid": 39764,
+    "schema": 2,
+    "token": "39764-1793535991570-b872442186ae381c"
+  },
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "observedAt": "2026-11-01T12:39:01.097Z",
+  "registrationControllerExitCode": 1,
+  "nativeExitCode": null,
+  "stop_basis": "The exact synchronous native register invocation returned its terminal maintenance_busy JSON to the controller (exec session 44928, controller exit 1). Native registration performs in-process measurement and lease work and launches no child commands; the exited native process terminates its worker threads. Current OS query also confirms reservation PID 39764 absent. This is not based on PID absence alone.",
+  "originalError": "OS lock busy at producer catalog commit; pre-intent reservation retained",
+  "executionOutcomeChanged": false
+}

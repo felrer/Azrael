@@ -11,7 +11,7 @@ const { createRegistry, publicOccupancy, commonDirectory } = require('./window-c
 const window = { hwnd: '101', pid: 4, processCreated: '123', executable: 'C:\\Apps\\test.exe', title: 'Same title', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'window-occupancy-'));
-  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(root, { recursive: true }));
   const directory = path.join(root, 'shared');
   const owner = (name, backend = { request: async (method,params) => method === 'listWindows' ? [window] : {...window,...params.window} }) => {
     const value = createWindowOwner({ backend, authorize: async () => true, codexHome: path.join(root, name), occupancyDirectory: directory, workspaceName: name });
@@ -20,63 +20,14 @@ function fixture(t) {
   return { root, directory, owner };
 }
 if (process.argv[2] !== 'occupancy-child') {
-test('different code homes share exact identity occupancy; same session and other threads differ', async t => {
-  const f = fixture(t), a = f.owner('Workspace A'), b = f.owner('Workspace B');
-  assert.equal((await b.call('b', 'list_windows', {})).candidates[0].occupancy.status, 'available');
-  await a.bind('a', window);
-  let value = (await b.call('b', 'list_windows', {})).candidates[0].occupancy;
-  assert.equal(value.status, 'occupied'); assert.deepEqual(value.sessions.map(s => [s.sessionId,s.workspaceName,s.state,s.isCurrentSession]), [['a','Workspace A','selected',false]]);
-  assert.equal((await a.status('a')).occupancy.status, 'available');
-  assert.equal((await a.listWindows('other-thread'))[0].occupancy.status, 'occupied');
-  // Advisory information does not reject another binding.
-  await b.bind('b', window); assert.equal((await a.status('a')).occupancy.status, 'occupied');
-  assert.deepEqual((await a.status('a')).occupancy.sessions.map(s => s.isCurrentSession).sort(), [false,true]);
-  b.clear('b'); assert.equal((await a.status('a')).occupancy.status, 'available');
-  for (const changed of [{hwnd:'102'}, {pid:5}, {processCreated:'124'}, {executable:'C:\\Apps\\other.exe'}]) {
-    await b.bind('b', {...window,...changed}); assert.equal((await a.status('a')).occupancy.status, 'available');
-  }
-  await b.bind('b', window); b.dispose(); assert.equal((await a.status('a')).occupancy.status, 'available');
-  a.clear('a'); assert.equal(fs.readdirSync(f.directory).filter(f => f.endsWith('.json')).length, 0);
+test('observational native bindings do not acquire control occupancy', async t => {
+  const f=fixture(t),a=f.owner('Workspace A'),b=f.owner('Workspace B');
+  await a.bind('same-thread',window);await b.bind('same-thread',window);
+  assert.deepEqual((await a.status('same-thread')).occupancy,{status:'available',sessions:[]});
+  assert.equal((await b.call('other-thread','list_windows',{})).candidates[0].occupancy.status,'available');
+  a.clear('same-thread');assert.equal((await b.status('same-thread')).occupancy.status,'available');
 });
-test('the same session id in another host remains an occupying other session', async t => {
-  const f = fixture(t), a = f.owner('Workspace A'), b = f.owner('Workspace B');
-  await a.bind('same-thread',window); await b.bind('same-thread',window);
-  for (const [owner,name] of [[a,'Workspace A'],[b,'Workspace B']]) {
-    const value = (await owner.status('same-thread')).occupancy;
-    assert.equal(value.status,'occupied');
-    assert.equal(value.sessions.length,2);
-    assert.deepEqual(value.sessions.filter(s=>s.isCurrentSession).map(s=>s.workspaceName),[name]);
-    assert.equal(value.sessions.filter(s=>!s.isCurrentSession).length,1);
-    assert.ok(value.sessions.every(s=>s.sessionId==='same-thread'));
-  }
-  b.dispose(); assert.equal((await a.status('same-thread')).occupancy.status,'available');
-});
-test('running and paused bindings persist; clearing or disposal cancels pending publication', async t => {
-  const f = fixture(t); let release, fail = false;
-  const a = f.owner('A', { request: async method => {
-    if (method === 'inspect') { await new Promise(resolve => { release = resolve; }); if (fail) throw new Error('Native failure'); return {window,observationId:'o',elementsTruncated:false,elements:[]}; }
-    return method === 'listWindows' ? [window] : window;
-  } }), b = f.owner('B');
-  let bound = await a.bind('a',window), pending = a.call('a','inspect',{targetId:bound.targetId});
-  while (!release) await new Promise(resolve => setImmediate(resolve));
-  assert.equal((await b.listWindows('b'))[0].occupancy.sessions[0].state,'running');
-  release(); await pending;
-  assert.equal((await b.listWindows('b'))[0].occupancy.sessions[0].state,'ready');
-  a.stop('a'); assert.equal((await b.listWindows('b'))[0].occupancy.sessions[0].state,'paused');
-  bound = await a.bind('a',window); release = undefined; fail = true;
-  pending = a.call('a','inspect',{targetId:bound.targetId});
-  while (!release) await new Promise(resolve => setImmediate(resolve)); release(); await assert.rejects(pending,/Native failure/);
-  assert.equal((await b.listWindows('b'))[0].occupancy.sessions[0].state,'paused');
-  bound = await a.bind('a',window); release = undefined; fail = false;
-  pending = a.call('a','inspect',{targetId:bound.targetId});
-  while (!release) await new Promise(resolve => setImmediate(resolve));
-  const queuedBind = a.bind('a',window); a.clear('a'); release();
-  await assert.rejects(pending,/cancelled/); await assert.rejects(queuedBind,/cancelled/);
-  assert.equal((await b.listWindows('b'))[0].occupancy.status,'available');
-  bound = await a.bind('a',window); release = undefined; pending = a.call('a','inspect',{targetId:bound.targetId});
-  while (!release) await new Promise(resolve => setImmediate(resolve)); a.dispose(); release(); await assert.rejects(pending,/cancelled/);
-  assert.equal((await b.listWindows('b'))[0].occupancy.status,'available');
-});
+
 test('bounded records ignore expiry, dead hosts and temp files; corruption or read failure is unknown', t => {
   const f = fixture(t); let clock = 1000;
   const a = createRegistry({directory:f.directory,now:()=>clock,entries:()=>[{sessionId:'a',workspaceName:'A',state:'paused',window}]});
@@ -100,7 +51,7 @@ test('a separate host process is visible across code homes and its exited record
   t.after(()=>{if(child.exitCode === null) child.kill();});
   const [message] = await once(child,'message'); assert.equal(message,'selected');
   const value = (await b.listWindows('parent'))[0].occupancy;
-  assert.equal(value.status,'occupied'); assert.equal(value.sessions[0].sessionId,'child'); assert.equal(value.sessions[0].workspaceName,'Child');
+  assert.equal(value.status,'available'); assert.deepEqual(value.sessions,[]);
   const exited = once(child,'exit'); child.send('exit'); await exited;
   assert.equal(fs.readdirSync(f.directory).filter(f=>f.endsWith('.json')).length,1); // abandoned record remains owned by child
   assert.equal((await b.listWindows('parent'))[0].occupancy.status,'available');

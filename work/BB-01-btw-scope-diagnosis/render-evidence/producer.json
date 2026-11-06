@@ -1,0 +1,12 @@
+{
+  "lifecycleId": "run:verify-btw-render:20261019T034132436Z-a89e20a2-6070-4d0b-a1ab-339c4604c294",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-btw-render\\runs\\20261019T034132436Z-a89e20a2-6070-4d0b-a1ab-339c4604c294",
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\verify-btw-render.mjs"
+  ],
+  "exitCode": 0,
+  "producerStopped": true,
+  "state": "complete",
+  "membership_complete": true
+}

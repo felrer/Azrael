@@ -1,6 +1,32 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
+    "AgentProfileRef": {
+      "additionalProperties": false,
+      "properties": {
+        "digest": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revision": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "digest"
+      ],
+      "type": "object"
+    },
     "ReasoningEffort": {
       "description": "A non-empty reasoning effort value advertised by the model.",
       "minLength": 1,
@@ -28,6 +54,17 @@
     "RootResumeReasoningSettings": {
       "description": "Effective effort captured by the step that requested deferral. The wrapper distinguishes a captured unset effort from an older reservation.",
       "properties": {
+        "agentProfile": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AgentProfileRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Profile of the deferred request, independent of current project selection."
+        },
         "effort": {
           "anyOf": [
             {

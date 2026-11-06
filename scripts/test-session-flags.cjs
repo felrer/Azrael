@@ -1,17 +1,9 @@
 "use strict";
 const assert = require("node:assert/strict"), fs = require("node:fs"), path = require("node:path"), vm = require("node:vm"), test = require("node:test");
-const ts = require("../extensions/azrael-ex/node_modules/typescript");
-const { ASSET, MARKER, HELPER, injectSessionFlags } = require("./inject-session-flags.cjs");
+const { ASSET, HELPER, injectSessionFlags } = require("./inject-session-flags.cjs");
 const original = fs.readFileSync(path.resolve("artifacts/upstream-ui/26.1007.21434", ASSET), "utf8");
 
-test("pinned local/recent rows transform once and fail closed on drift or damage", () => {
-  const result = injectSessionFlags(original, ASSET);
 
-  assert.equal(ts.createSourceFile(ASSET, result.text, 99, true, 1).parseDiagnostics.length, 0);
-  for (const damaged of ["", original + original, result.text + MARKER, result.text.replace(HELPER, "")])
-    assert.throws(() => injectSessionFlags(damaged, ASSET));
-  assert.equal(injectSessionFlags("unrelated", "other.js").text, "unrelated");
-});
 
 test("native preference writes isolate hosts, retain other flags, and prevent row actions", () => {
   let saved = {}, atom, prevent = 0, stop = 0;

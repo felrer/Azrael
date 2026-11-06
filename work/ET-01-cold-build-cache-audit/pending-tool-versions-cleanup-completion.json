@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "recordedUtc": "2026-10-30T20:51:41.830Z",
+  "nativeDriver": {
+    "pid": 51072,
+    "sessionId": 89581,
+    "actualExitCode": 0
+  },
+  "rawControlCleanup": {
+    "executor": "explicit installed pwsh7.6.9",
+    "sessionId": 46237,
+    "actualExitCode": 0,
+    "status": "deleted",
+    "reservationFinalization": {
+      "finished": true,
+      "reservations_retained": []
+    }
+  },
+  "checks": [
+    {
+      "id": "version:maintenance-owner-et01-lifecycle-pending-win-x64",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64",
+      "absent": true,
+      "sourceFinalized": true,
+      "activeReservation": false
+    },
+    {
+      "id": "version:maintenance-owner-et01-lifecycle-pending-win-x64-r4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4",
+      "absent": true,
+      "sourceFinalized": true,
+      "activeReservation": false
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:pending-tool-versions-cleanup-20261031a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\pending-tool-versions-cleanup-20261031a",
+      "absent": true,
+      "sourceFinalized": true,
+      "activeReservation": false
+    }
+  ],
+  "nativeOwnerSha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+  "defaultInstallationSha256": "1623fee0ebd3d43e4090d882c3df96e92a05ad6d3430f4252307cb2779c66a88",
+  "independentAcceptance": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\o-pending-abort-acceptance\\acceptance.json",
+    "sha256": "d0dcd8ab255c64430c2ad94784f827125356dc0275b3d98c460c884ef8c87aa2",
+    "fileCount": 26,
+    "bytes": 2225585,
+    "actualNativeExitCode": 0,
+    "authoritativeUnchanged": true,
+    "referencesUnchanged": true,
+    "pendingAbsent": true
+  },
+  "retainedCompact": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\pending-tool-versions-retirement.json",
+      "sha256": "4a96a8395a4cc181f968339e8ff8c067415a4ba1910d6da277a1802fe838ec43",
+      "bytes": 5349
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\pending-tool-versions-cleanup.json",
+      "sha256": "758fabb833a66472464a2f994f98d5aa57f6dc1d9942797954d9e23473a5bc2d",
+      "bytes": 27756
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\pending-tool-versions-cleanup-terminal.json",
+      "sha256": "b9d4e7862b89db39a43d7e6f97329a3d35dfef38c71e0623b66e3fccd71325a4",
+      "bytes": 2197
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\pending-tool-versions-control-cleanup.json",
+      "sha256": "b2c976ea9c5d980302fa6e5f183a41175c918aca0d0d0f2c9f0a981b74e71b75",
+      "bytes": 1179
+    }
+  ],
+  "priorReadFailures": {
+    "utf8BomPreparationActual1": true,
+    "ps5DotSourcePolicyRejected": true,
+    "filesystemMutationStartedByEither": false,
+    "executionPolicyChanged": false
+  },
+  "scope": "Only two superseded one-off P tool versions plus task-created rawcontrol; B cleanup and default installation untouched"
+}

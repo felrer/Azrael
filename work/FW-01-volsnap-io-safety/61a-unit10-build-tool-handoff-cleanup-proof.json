@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "status": "actual-old-unit8-input-owner-deleted-and-absent",
+  "id": "run:fw04:maintenance-input-fw01-01",
+  "ownedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\maintenance-input-fw01-01",
+  "originalState": "complete",
+  "originalProducer": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\maintenance-input-fw01-01\\reports\\producer-9acf5c98d7096999483c7dc0951d2db9d0aad2302e19544085c530dc55992f28.json",
+    "evidence_sha256": "9acf5c98d7096999483c7dc0951d2db9d0aad2302e19544085c530dc55992f28",
+    "exit_code": 0,
+    "outcome": "success",
+    "reason": "Synchronous exclusive unit8/39 copies and manifest verified; no child processes; independently surviving57 proof and pending held-build dependency established",
+    "status": "stopped"
+  },
+  "sourceOutcomeChanged": false,
+  "review": {
+    "verification": "registered",
+    "id": "e2fdbf9460e5af04c532ef988d60bd9f6e09579f69e655ceeb5d130e59157910",
+    "blockers": []
+  },
+  "nativeActualExits": [
+    {
+      "stage": "register",
+      "actualExit": 0,
+      "signal": null
+    },
+    {
+      "stage": "review",
+      "actualExit": 0,
+      "signal": null
+    },
+    {
+      "stage": "apply",
+      "actualExit": 0,
+      "signal": null
+    }
+  ],
+  "applyResults": [
+    {
+      "attempt_id": "attempt-31644-7528-1793947204901",
+      "decision": "delete",
+      "decision_id": "fedc1df208010fd945c9da3d0f6683f2cd6d09ea305517a8c4ad9feb3912b526",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "e2fdbf9460e5af04c532ef988d60bd9f6e09579f69e655ceeb5d130e59157910",
+      "lifecycle_group_id": "run:fw04:maintenance-input-fw01-01",
+      "reason": "User build input unit8 superseded by verified protected unit10 immutable input; old use ended and exact held dependency released; original success outcome preserved",
+      "remaining": false,
+      "status": "deleted",
+      "token": "763cab1083fa3ff159f92ed5e0069daa5b4ee506dfeab7d58900bf6fc9f24722"
+    }
+  ],
+  "oldRootAbsent": true,
+  "replacement": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\maintenance-input-fw01-02\\outputs\\unit10-maintenance_owner.exe",
+    "bytes": 5015040,
+    "sha256": "0155093a85dc2622909f281785c1e96903d279d4336ff4d5ddc9f713b4e5ebfd"
+  },
+  "held": {
+    "id": "run:fw04:build-followup-fw01-01",
+    "revision": 3,
+    "state": "pending",
+    "producer": null,
+    "references": [
+      {
+        "id": "run:fw04:maintenance-input-fw01-02",
+        "kind": "dependency",
+        "member_paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\maintenance-input-fw01-02"
+        ],
+        "reason": "Actual held user fw04 build uses verified unit10; build remains HOLD and exact input release/cleanup required after eventual build terminal or cancellation",
+        "reference_id": "fw04-build-followup-fw01-01:maintenance-input-unit10"
+      }
+    ]
+  },
+  "copyAndRefProof": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61a-unit10-build-tool-handoff-proof.json",
+    "bytes": 3921,
+    "sha256": "79184db7b27b6c7f94d5ac96e53c280004a9169c95cca530e7cac2b32f2870d3"
+  },
+  "notClaimed": [
+    "build execution",
+    "VSS/native whole cleanup",
+    "finalize before it actually runs"
+  ]
+}

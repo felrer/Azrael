@@ -1,0 +1,109 @@
+{
+  "at": "2026-11-02T12:21:21.812Z",
+  "status": "complete",
+  "scope": "Windows x64 standalone maintenance; full application/embedded engine not rebuilt",
+  "version_id": "version:maintenance-owner:ff01:group-20261102",
+  "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "sha256": "31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89",
+  "source_files": 44,
+  "source_matches_accepted": true,
+  "native_tests": {
+    "focused": 96,
+    "full": 252,
+    "actual_exit_code": 0,
+    "release_exit_code": 0
+  },
+  "acceptance": {
+    "paired_native_closes": 12,
+    "default_native_closes": 6,
+    "all_exit0": true,
+    "normal_resolver": true,
+    "pins_identical": true,
+    "pins_sha256": "b5a33c2b6e9fc76e0cd1f743a6af775c6991c831d56c92f7784bb400b33ec6dd"
+  },
+  "performance": {
+    "samples": 1,
+    "shared_host": true,
+    "members": 80,
+    "apply_seconds": {
+      "before": 61.869469,
+      "after": 59.818921,
+      "reduction_percent": 3.31
+    },
+    "current_review_seconds": {
+      "before": 47.961792,
+      "after": 45.276726,
+      "reduction_percent": 5.6
+    },
+    "current_review_count": 80,
+    "commits": 160,
+    "remaining_dominant_phase": "Fresh current member review; 39.787390s. No token-specific span; token contribution not independently measured."
+  },
+  "cleanup": {
+    "run": "deleted and finalized",
+    "retired_storage": "deleted and finalized",
+    "retired_catalog": "deleted and finalized",
+    "actual_absence": [
+      "artifacts/tasks/ff1/runs/group5",
+      "artifacts/versions/maintenance-owner-ff01-storage-win-x64-20261102",
+      "artifacts/versions/maintenance-owner-ff01-catalog-win-x64-20261102"
+    ],
+    "installation_consumer_revision": 30,
+    "unresolved_retention": [],
+    "exact_finalize_evidence_index": "52-finalize-evidence-index.json"
+  },
+  "commit": {
+    "created": false,
+    "reason": "Affected lib/groups/feature inventory contain pre-existing shared changes; duplicate_claims.rs is already staged by another task. Preserve current index and concurrent work; no safe complete task-only commit available."
+  },
+  "unverified": [
+    "Linux/macOS native execution",
+    "Full Azrael embedded engine build/install"
+  ],
+  "evidence": [
+    {
+      "path": "38-group-native-acceptance.json",
+      "sha256": "fe80e1a5dbba86ff4fb9676605950a043a9fbe53d82bb944c7e8a18bc1d9c7d8"
+    },
+    {
+      "path": "39-group-performance.json",
+      "sha256": "b590b9791650710745906275c1317b591a9596ae1bfbdaf88378a634a6f64ffb"
+    },
+    {
+      "path": "40-group-version-preparation.json",
+      "sha256": "8d9799629b477c2137a932377c526861c6fdfaca75b45ff6ee39dd3c51343838"
+    },
+    {
+      "path": "41-group-installation.json",
+      "sha256": "9fdbb1e2da40845396290898077fd02a0424d5ad7a8636031ff54e9a8f727b95"
+    },
+    {
+      "path": "42-group-default-acceptance.json",
+      "sha256": "73c7c1a6872e254bd802c7fde56f2688e312994b73f556833369c8b1d248a6c7"
+    },
+    {
+      "path": "43-group-run-close-proof.json",
+      "sha256": "8a03a42b23287383f02696e83fcd8770f15901eac28455eafd0db3b9c3bc84d2"
+    },
+    {
+      "path": "44-group-cleanup.json",
+      "sha256": "a8799aedad167ee3ca48d39e3d12d5d3b7ca33ac120c1f529801716dfc05f942"
+    },
+    {
+      "path": "46-group-retirement-guard.json",
+      "sha256": "cd84527e610559b4874b35321dbca8358f3dd7f14202416f656996e5639c2e62"
+    },
+    {
+      "path": "47-group-catalog-retirement.json",
+      "sha256": "ba7303fe75d7dfdc9793a26420f5d329e88853d7d296be8d989cadadd1931320"
+    },
+    {
+      "path": "48-group-catalog-cleanup.json",
+      "sha256": "78365976ef6f676e0b205eda9f90b41b13bfead16dd820bdc91a029184572584"
+    },
+    {
+      "path": "52-finalize-evidence-index.json",
+      "sha256": "3f92033328375a860869dde0bf57967bf4af01084034fdf986335f2369e50ff8"
+    }
+  ]
+}

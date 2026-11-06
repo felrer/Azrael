@@ -1,0 +1,200 @@
+﻿{
+    "observedUtc":  "2026-10-31T10:10:05.4210971Z",
+    "blocked":  [
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a18a86-7d75-70c1-a0a5-f17ae2537c23.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a18d87-2421-74f1-a8a6-06eb46a6a500.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a18fa8-c99f-7df0-8300-212b9bfad92e.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a18fe4-32fe-7162-b589-8c1a1158428f.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19034-a83e-79a0-8f58-d6962de94eb8.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19050-af0d-7153-9a44-9fbdd52b4acf.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19086-f403-7fe0-9f02-1161b8f80cdc.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19088-37e4-7c43-bae2-30d2b6c0a839.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19088-a84e-7b40-b0b5-fd2ac2efa24f.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190a0-a8d9-70d0-9d8d-1f7d78dc3f9b.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190b4-219a-7331-8c83-a0d06117b687.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190b4-21f7-7421-9df2-baaf091a2213.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190b5-263f-7081-8974-a7f355d9bc82.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190b5-48a6-77a1-8011-acb829b73b6c.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190b5-f2bc-7c33-8680-feda26c24ee1.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190b8-4a3b-7433-bd86-363cf5141722.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190b8-4f9a-7bb2-a74c-7cf19b6618b9.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190b8-540c-7853-a86f-0c0ff8172c53.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190b9-2666-7c90-9604-a3617fe4167e.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190ba-8fe1-7f90-83ab-2661cf1d794e.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190c9-5df1-7811-bc68-210b4cd90285.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190ca-b4e0-7870-b642-9ed624c86937.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190d2-314d-78a0-949f-44ccc904b90b.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190d3-2067-7d80-bbdd-44e101b75f96.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190dd-7eb1-7591-ac6e-7b93da959c78.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190dd-85ce-7762-812e-7b4789df0bc7.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190e2-2945-7c10-a561-f4f3ef781ba7.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a190e2-622a-7541-a7b9-527b52781676.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19115-f425-7151-ab08-dccfde296fa6.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19118-6ce3-74e0-95f3-7fc43f0d539e.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19118-bceb-7aa0-ae0e-34eaa54c5ed8.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19119-119e-79d2-bec8-9cf61d7700c6.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19127-d43e-7761-a153-84ec4bb88303.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19144-3a87-7da0-b8bd-902dc7de3722.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19146-d6b4-77d2-8d2e-c3a59352d175.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19146-f4e6-76e3-9e04-9e852810781f.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19151-3cb0-75e3-b411-ee839a1e550f.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    },
+                    {
+                        "name":  null,
+                        "reason":  "\u0027C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1\\01a19151-5cae-7493-b441-895eeb3bc46b.lock\u0027 파일은 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.",
+                        "hresult":  -2147024864
+                    }
+                ],
+    "directory":  "C:\\Users\\felre\\.azrael-ex\\azrael-thread-engines-v1",
+    "unexpected":  [
+
+                   ],
+    "available":  1190
+}

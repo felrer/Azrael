@@ -4,9 +4,9 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
 const tasks = require('./window-task-macros.cjs');
-const { createRegistry } = require('./window-control-occupancy.cjs');
+const { createRegistry, createLeaseCoordinator } = require('./window-control-occupancy.cjs');
 const ACTIONS = Object.freeze(['invoke', 'setValue', 'toggle', 'select', 'expand', 'collapse', 'scroll']);
-const TOOLS = Object.freeze(['context', 'prepare_permissions', 'request_stage', 'resource_status', 'cleanup', 'logoff_isolated', 'launch_isolated', 'capture_isolated', 'input_isolated', 'list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'virtual_input', 'release_virtual_input', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
+const TOOLS = Object.freeze(['context', 'capture_desktop', 'desktop_input', 'release_desktop_input', 'list_windows', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'switched_input', 'release_switched_input', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
 const OVERLAY_LABELS = Object.freeze({ capture: '화면 확인 중', inspect: '화면 요소 확인 중', invoke: '버튼 실행 중', set_value: '입력값 변경 중', toggle: '전환 중', select: '항목 선택 중', expand: '펼치는 중', collapse: '접는 중', scroll: '스크롤 중', press_key: '키 전달 중', wait_for: '결과 대기 중', assert: '결과 확인 중', resize: '창 크기 변경 중', run_size_macro: '창 크기 변경 중', run_task_macro: '매크로 실행 중' });
 const OBSERVATION_FAILURES = new Set(['stale-element', 'stale-observation', 'unknown-element', 'uia-value-limit',
   'capture-size-changed', 'capture-timeout', 'provider-timeout', 'backend-timeout', 'native-error',
@@ -54,29 +54,54 @@ function macro(value) {
   if (!Array.isArray(value.steps) || value.steps.length < 1 || value.steps.length > 10) fail('Macros require 1 to 10 steps');
   return { id: value.id, name: value.name, steps: value.steps.map(step => { keys(step, ['widthDip', 'heightDip'], ['widthDip', 'heightDip']); return { widthDip: size(step.widthDip), heightDip: size(step.heightDip) }; }) };
 }
-function createWindowOwner({ backend, authorize, approve, requestStage, context, resources, isolation, virtualInput, onUserStop = () => {}, onOverlayError = () => {}, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), '.codex'), now = Date.now, occupancyDirectory, workspacePath, workspaceName = 'Azrael' }) {
+function createWindowOwner({ backend, authorize, approve, requestPermission, context, desktopCapture, desktopInput, resolveDesktopWindow, releaseDesktopInput, visualizeAction, observationAllowed, virtualInput, switchedInput, onUserStop = () => {}, onOverlayError = () => {}, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), '.codex'), now = Date.now, occupancyDirectory, workspacePath, workspaceName = 'Azrael', isCancelled = () => false, leaseWaitMs = 30000 }) {
   if (!backend || typeof backend.request !== 'function' || typeof authorize !== 'function') fail('Backend and authorization required');
-  const bindings = new Map(); const candidates = new Map(); const selections = new Map(); const taskStore = tasks.createStore(codexHome, workspacePath); let queue = Promise.resolve(); let disposed = false;
+  const scopedBindings = new Map(); const bindings = new Map(); const candidates = new Map(); const selections = new Map(); const taskStore = tasks.createStore(codexHome, workspacePath); let queue = Promise.resolve(); let disposed = false;
   const userStoppedTargets = new Map();
+  const allBindings = () => [...new Set([...bindings.values(),...scopedBindings.values()])];
+  const hasBinding = (thread,b) => b.thread===thread && (bindings.get(thread)===b || scopedBindings.get(b.targetId)===b);
+  const leases = createLeaseCoordinator({directory:path.join(occupancyDirectory || path.join(codexHome,'azrael','window-use','occupancy'),'claims'),now,workspaceName});
+  const activeLeases = new Map(), sessionCleanups = new Map();
+  async function withLease(thread,identity,control,check,fn) {
+    const deadline=Date.now()+leaseWaitMs;
+    let lease;
+    while(!lease) {
+      check();
+      try {lease=leases.begin(identity,thread,control);} catch(error) {
+        if(error.code!=='window_busy'||Date.now()>=deadline||((activeLeases.get(thread)||0)>0||leases.hasOther(identity,thread)))throw error;
+        await new Promise(resolve=>setTimeout(resolve,50));
+      }
+    }
+    if(control)activeLeases.set(thread,(activeLeases.get(thread)||0)+1);
+    let finishAction;
+    try {if(control){while(!finishAction){check();try{finishAction=leases.beginAction();}catch(error){if(Date.now()>=deadline)throw error;await new Promise(resolve=>setTimeout(resolve,50));}}}check();return await fn(lease);} finally {try{finishAction?.();}finally {try{lease.complete();}finally{if(control)activeLeases.set(thread,activeLeases.get(thread)-1);}}}
+  }
+  const checkCancelled = thread => {if(disposed||isCancelled(thread))fail('Operation cancelled');};
+  const desktops = new Map(), desktopReleases = new Set();
+  const desktopState = thread => { str(thread); if(!desktops.has(thread))desktops.set(thread,{generation:0,observation:null,stopped:false});return desktops.get(thread); };
+  const invalidateDesktop = (thread,stopped=false) => { const d=desktopState(thread);d.generation++;d.observation=null;d.stopped ||= stopped;return d; };
+  const releaseDesktopQuietly = (thread,refreshIdle=false) => { let pins=[],pinError;try{if(releaseDesktopInput||refreshIdle)pins=leases.pinSession(thread,refreshIdle);}catch(error){pinError=error;}const pending=Promise.resolve().then(()=>{if(pinError)throw pinError;return releaseDesktopInput?.(thread);}).then(result=>{for(const pin of pins)pin.complete();return result;});desktopReleases.add(pending);void pending.then(()=>desktopReleases.delete(pending),error=>{desktopReleases.delete(pending);onOverlayError(thread,error);});return pending; };
   const virtualReleases = new Map();
   function releaseVirtual(thread) {
-    if (!virtualInput) return Promise.resolve({detached:true});
+    if (!virtualInput && !switchedInput) return Promise.resolve({detached:true});
+    let pins;try{pins=leases.pinSession(thread);}catch(error){return Promise.reject(error);}
     const previous = virtualReleases.get(thread);
-    const pending = (previous ? previous.catch(() => {}) : Promise.resolve()).then(() => virtualInput.release(thread));
+    const pending = (previous ? previous.catch(() => {}) : Promise.resolve()).then(async () => {const results=await Promise.allSettled([virtualInput?.release(thread),switchedInput?.release(thread)]);const failed=results.find(r=>r.status==='rejected');if(failed)throw failed.reason;for(const pin of pins)pin.complete();return {detached:true};});
     virtualReleases.set(thread,pending);
     void pending.then(() => {if(virtualReleases.get(thread)===pending) virtualReleases.delete(thread);}, error => onOverlayError(thread,error));
     return pending;
   }
   const releaseQuietly = thread => {void releaseVirtual(thread).catch(() => {});};
   workspaceName = (process.platform === 'win32' ? path.win32 : path).basename(String(workspaceName).replace(/[\x00-\x1f]/g, '')).slice(0,256) || 'Azrael';
-  const occupancy = createRegistry({ directory: occupancyDirectory || path.join(codexHome, 'azrael', 'window-use', 'occupancy'), now, entries: () => [...bindings].map(([sessionId,b]) => ({ sessionId, workspaceName, state: b.running && b.state !== 'paused' ? 'running' : b.state, window: Object.fromEntries(['hwnd','pid','processCreated','executable'].map(k => [k,b.identity[k]])) })) });
-  const occupancyOf = (w, thread) => { occupancy.publish(); return occupancy.read(w, thread); };
+  const occupancy = createRegistry({ directory: occupancyDirectory || path.join(codexHome, 'azrael', 'window-use', 'occupancy'), now, entries: () => allBindings().map(b => ({ sessionId:b.thread, workspaceName, state: b.running && b.state !== 'paused' ? 'running' : b.state, window: Object.fromEntries(['hwnd','pid','processCreated','executable'].map(k => [k,b.identity[k]])) })) });
+  const occupancyOf = (w, thread) => leases.read(w,thread);
   const macroPath = path.join(codexHome, 'azrael', 'computer-use', 'window-macros.json');
   const serial = fn => { const result = queue.then(() => { if (disposed) fail('Owner disposed'); return fn(); }); queue = result.catch(() => {}); return result; };
   const get = id => { str(id); const b = bindings.get(id); if (!b) fail('No selected window'); return b; };
   const canRestore = b => !b.userStopped && (b.state !== 'paused' || b.pauseReason === 'minimized');
   const restoreAllowed = b => canRestore(b) && (b.window.minimized || (b.state === 'paused' && b.pauseReason === 'minimized'));
-  const view = b => ({ occupancy: occupancyOf(b.identity, b.thread), targetId: b.targetId, state: b.state, ...(b.state === 'paused' ? { pauseReason: b.pauseReason || 'error' } : {}), ...(b.state === 'ready' && !b.observation ? { observationRequired: true } : {}), restoreAllowed: restoreAllowed(b), window: safeWindow(b.window), supportedActions: [...ACTIONS] });
+  const mayExposeTitle = (identity,thread) => { try { return !observationAllowed || observationAllowed(identity,thread) === true; } catch { return false; } };
+  const view = b => ({ occupancy: occupancyOf(b.identity, b.thread), targetId: b.targetId, windowId: b.targetId, state: b.state, ...(b.state === 'paused' ? { pauseReason: b.pauseReason || 'error' } : {}), ...(b.state === 'ready' && !b.observation ? { observationRequired: true } : {}), restoreAllowed: restoreAllowed(b), window: {...safeWindow(b.window),...(!mayExposeTitle(b.identity,b.thread)?{title:''}:{})}, supportedActions: [...ACTIONS] });
   const pause = (b, reason) => {
     const previous = b.state === 'paused' ? b.pauseReason : undefined;
     b.state = 'paused'; b.observation = null; releaseQuietly(b.thread);
@@ -90,8 +115,9 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
     if (typeof backend.hideOverlay === 'function') return backend.hideOverlay({ targetId: b.targetId, generation }).catch(error => onOverlayError(b.thread, error));
   };
   const stopBinding = (thread, userStopped = false) => {
+    invalidateDesktop(thread,userStopped);releaseDesktopQuietly(thread);
     cancelSelection(thread);
-    const b = bindings.get(thread); if (!b) return { state: 'unbound' };
+    const targets=allBindings().filter(b=>b.thread===thread); const b=bindings.get(thread)||targets[0]; if(!b){void releaseOwnedSession(thread).catch(error=>onOverlayError(thread,error));return {state:'unbound'};} for(const other of targets){if(other===b)continue;other.generation++;if(userStopped){other.userStopped=true;const stopped=userStoppedTargets.get(thread)||[];if(!stopped.some(w=>same(w,other.identity)))stopped.push({...other.identity});userStoppedTargets.set(thread,stopped);}pause(other,userStopped?'user_stopped':'error');}
     const generation = b.generation;
     b.generation++;
     if (userStopped) {
@@ -103,11 +129,18 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
     pause(b, userStopped ? 'user_stopped' : 'error');
     releaseQuietly(thread);
     void hideOverlay(b, generation);
+    void releaseOwnedSession(thread).catch(error=>onOverlayError(thread,error));
     return view(b);
   };
+  function releaseOwnedSession(thread) {
+    let pins;try{pins=leases.pinSession(thread);}catch(error){return Promise.reject(error);}
+    const pending=Promise.all([sessionCleanups.get(thread),virtualReleases.get(thread),...desktopReleases]).then(()=>{for(const pin of pins)pin.complete();leases.releaseSession(thread);});
+    sessionCleanups.set(thread,pending);
+    return pending;
+  }
   const overlaySubscription = backend.onOverlayStop?.(event => {
     if (disposed) return;
-    const b = [...bindings.values()].find(binding => binding.running && binding.targetId === event.targetId && binding.generation === event.generation);
+    const b = allBindings().find(binding => binding.running && binding.targetId === event.targetId && binding.generation === event.generation);
     if (!b) return; // A late event cannot stop another run or a newly selected window.
     const value = stopBinding(b.thread, true);
     onUserStop(b.thread, value);
@@ -120,18 +153,18 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
     await guard(b, thread, generation);
   }
   async function guard(b, thread, generation) {
-    if (disposed || bindings.get(thread) !== b || b.generation !== generation) fail('Operation cancelled');
-    if (!await authorize({ ...b.identity }, thread, { stage: b.operationStage || 1, operation: b.operation || 'status' })) { pause(b, 'error'); b.generation++; releaseQuietly(thread); occupancy.publish(); throw windowError('permission_denied','Window Use authorization required or revoked'); }
-    if (disposed || bindings.get(thread) !== b || b.generation !== generation) fail('Operation cancelled');
+    if (disposed || isCancelled(thread) || !hasBinding(thread,b) || b.generation !== generation) fail('Operation cancelled');
+    if (!await authorize({ ...b.identity }, thread, { permission: b.operationPermission || 'observation', operation: b.operation || 'status' })) { pause(b, 'error'); b.generation++; releaseQuietly(thread); occupancy.publish(); throw windowError('permission_denied','Window Use authorization required or revoked'); }
+    if (disposed || !hasBinding(thread,b) || b.generation !== generation) fail('Operation cancelled');
   }
   async function request(b, thread, generation, method, params = {}) {
     await guard(b, thread, generation);
-    if(['act','resize','restore'].includes(method) && !await authorize({...b.identity},thread,{stage:2,operation:method})) fail('Application authorization revoked');
+    if(['act','resize','restore'].includes(method) && !await authorize({...b.identity},thread,{permission:'control',operation:method})) fail('Application authorization revoked');
     let result;
     try { result = await backend.request(method, { ...params, window: { ...b.identity } }); }
     catch (error) {
       const minimized = error.code === 'window_minimized' || error.nativeCode === 'window-minimized';
-      const current = !disposed && bindings.get(thread) === b && b.generation === generation;
+      const current = !disposed && hasBinding(thread,b) && b.generation === generation;
       const geometryChanged = ['observe','inspect'].includes(method) && error.code === 'state_changed' && error.nativeCode === 'capture-size-changed' && error.mutationOutcome !== 'unknown';
       const observationFailed = ['observe','inspect','status'].includes(method) && error.mutationOutcome !== 'unknown' &&
         (OBSERVATION_FAILURES.has(error.nativeCode) || (!error.nativeCode && ['timeout','connection_error'].includes(error.code))) &&
@@ -182,7 +215,7 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
     const frameDimension = value => Number.isInteger(value) && value > 0 && value <= 16384;
     if (r.window.minimized || !frameDimension(r.widthPx) || !frameDimension(r.heightPx) || r.dpi !== b.window.dpi || !Array.isArray(r.elements) || !plain(r.image) || r.image.mimeType !== 'image/png' || typeof r.image.data !== 'string' || !r.image.data.length || !/^[A-Za-z0-9+/]*={0,2}$/.test(r.image.data)) fail('Invalid selected-window observation');
     const elements = elementsOf(r);
-    b.observation = { id: r.observationId, kind:'image', generation, ids: new Set(elements.map(e => e.id)) }; b.used = true;
+    b.observation = { lease:b.requestLease || leases.observation(b.identity,thread), id: r.observationId, kind:'image', generation, ids: new Set(elements.map(e => e.id)) }; b.used = true;
     return { ...view(b), observationId: r.observationId, frameTimestamp: r.frameTimestamp, widthPx: r.widthPx, heightPx: r.heightPx, dpi: r.dpi, elementsTruncated: r.elementsTruncated, elements, image: { mimeType: 'image/png', data: r.image.data } };
   }
   function elementsOf(r) {
@@ -204,7 +237,7 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
   }
   async function inspect(b, thread, generation, options = {}) {
     const r = await requestObservation(b, thread, generation, 'inspect', options); str(r.observationId); const elements = elementsOf(r);
-    b.observation = {id:r.observationId,generation,ids:new Set(elements.map(e => e.id))}; b.used = true;
+    b.observation = {lease:b.requestLease || leases.observation(b.identity,thread),id:r.observationId,generation,ids:new Set(elements.map(e => e.id))}; b.used = true;
     const metadata = {};
     for (const key of ['retrieval','changes']) if(Object.hasOwn(r,key)) metadata[key] = r[key];
     return {...view(b),observationId:r.observationId,elementsTruncated:r.elementsTruncated,elements,...metadata};
@@ -220,42 +253,33 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
       }
     }
   }
-  async function bindInternal(thread, selected) {
+  async function bindInternal(thread, selected, windowId, manual = true) {
     str(thread); const identity = descriptor(selected);
-    const generation = 0; const b = {thread,identity,window:identity,targetId:crypto.randomUUID(),state:'selected',generation,used:false,restoreAttempted:false,observation:null,selectedAt:now()};
-    const old = bindings.get(thread); if(old) {old.generation++; old.observation = null; await releaseVirtual(thread);} bindings.set(thread,b);
+    const previousDefault=bindings.get(thread), previous=allBindings().find(b=>b.thread===thread&&same(b.identity,identity));if(previous){previous.generation++;previous.observation=null;scopedBindings.delete(previous.targetId);windowId ||= previous.targetId;}
+    const generation = previous?.generation || 0; const b = {thread,identity,window:identity,targetId:windowId || crypto.randomUUID(),state:'selected',generation,used:false,restoreAttempted:false,observation:null,selectedAt:now()};
+    if(manual) bindings.set(thread,b); scopedBindings.set(b.targetId,b);if(!candidates.has(thread))candidates.set(thread,new Map());candidates.get(thread).set(b.targetId,identity);
     occupancy.publish();
-    try { await request(b,thread,generation,'status'); return view(b); } catch(e) {if(bindings.get(thread) === b) bindings.delete(thread); occupancy.publish(); throw e;}
+    try { await request(b,thread,generation,'status'); return view(b); } catch(e) {if(bindings.get(thread)===b){if(previousDefault)bindings.set(thread,previousDefault);else bindings.delete(thread);}scopedBindings.delete(b.targetId);if(previous)scopedBindings.set(previous.targetId,previous);occupancy.publish();throw e;}
   }
-  function cancelSelection(thread) { selections.set(thread,(selections.get(thread) || 0)+1); candidates.delete(thread); }
+  function cancelSelection(thread) { selections.set(thread,(selections.get(thread) || 0)+1); }
   function discovery(thread,tool,args) {
     try {
       str(thread);
       if(tool === 'list_windows' || tool === 'list_task_macros') keys(args,[]);
-      if(tool === 'select_window') {keys(args,['candidateId'],['candidateId']);str(args.candidateId);}
       if(tool === 'save_task_macro') {keys(args,['definition'],['definition']);args = {definition:tasks.definition(args.definition,true)};}
     } catch(e) {return Promise.reject(e);}
     const selection = selections.get(thread) || 0;
     return serial(async () => {
-      if(context && !await authorize(null,thread,{stage:1,operation:tool})) throw windowError('permission_denied','Window Use observation is disabled or unavailable');
+      if(context && !await authorize(null,thread,{permission:'observation',operation:tool})) throw windowError('permission_denied','Window Use observation is disabled or unavailable');
       if(tool === 'list_task_macros') return taskStore.read();
       if(tool === 'save_task_macro') return taskStore.save(args.definition);
       if(tool === 'list_windows') {
-        candidates.delete(thread); const raw = await backend.request('listWindows',{}); if(!Array.isArray(raw)) fail('Invalid window list');
+        const previous=candidates.get(thread); const raw = await backend.request('listWindows',{}); if(!Array.isArray(raw)) fail('Invalid window list');
         if((selections.get(thread) || 0) !== selection) fail('Operation cancelled');
-        const entries = new Map(raw.map(w => [crypto.randomUUID(),descriptor(w)])); candidates.set(thread,entries);
-        return {candidates:[...entries].map(([candidateId,w]) => ({candidateId,appName:(process.platform === 'win32' ? path.win32 : path).basename(w.executable),title:w.title,minimized:w.minimized,occupancy:occupancyOf(w,thread)}))};
+        const entries = new Map(raw.map(w => {w=descriptor(w);const existing=[...(previous || [])].find(([,old])=>same(old,w)) || allBindings().filter(b=>b.thread===thread&&same(b.identity,w)).map(b=>[b.targetId,b.identity])[0];return [existing?.[0] || crypto.randomUUID(),w];})); candidates.set(thread,entries);for(const b of allBindings().filter(b=>b.thread===thread&&!entries.has(b.targetId))){b.generation++;b.observation=null;scopedBindings.delete(b.targetId);if(bindings.get(thread)===b)bindings.delete(thread);}
+        return {candidates:[...entries].map(([windowId,w]) => ({windowId,appName:(process.platform === 'win32' ? path.win32 : path).basename(w.executable),title:observationAllowed&&!observationAllowed(w,thread)?'':w.title,minimized:w.minimized,occupancy:occupancyOf(w,thread)}))};
       }
-      const identity = candidates.get(thread)?.get(args.candidateId); if(!identity) fail('Stale or forged window candidate');
-      if ((userStoppedTargets.get(thread) || []).some(stopped => same(stopped, identity))) fail('Selected window paused by the user; explicit resume required');
-      const old = bindings.get(thread); if(old) {old.generation++;old.observation = null;}
-      const check = () => {if(disposed || (selections.get(thread) || 0) !== selection || candidates.get(thread)?.get(args.candidateId) !== identity) fail('Operation cancelled');};
-      check(); const raw = await backend.request('listWindows',{}); check();
-      if(!Array.isArray(raw) || !raw.map(descriptor).some(w => same(w,identity))) fail('Window candidate identity changed');
-      // Selecting an observation target never grants or requests app control.
-      const current = await backend.request('status',{window:{...identity}});check();
-      const fresh = descriptor(current?.window || current); if(!same(fresh,identity)) fail('Window candidate identity changed');
-      const result = await bindInternal(thread,fresh); check(); candidates.delete(thread); return result;
+
     });
   }
   async function locked(fn) {
@@ -280,90 +304,82 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
     try { await fs.writeFile(temp, JSON.stringify({ schema: 1, macros }), { flag: 'wx', mode: 0o600 }); await fs.rename(temp, macroPath); } finally { await fs.unlink(temp).catch(e => { if (e.code !== 'ENOENT') throw e; }); }
   }
   return {
-    listWindows: thread => serial(async () => { if(context && !await authorize(null,thread,{stage:1,operation:'list_windows'})) throw windowError('permission_denied','Window Use observation is disabled or unavailable'); const result = await backend.request('listWindows', {}); if (!Array.isArray(result)) fail('Invalid window list'); return result.map(w => ({...descriptor(w),occupancy:occupancyOf(w,thread)})); }),
-    bind: (thread, selected) => { cancelSelection(thread); const selection = selections.get(thread); return serial(async () => { if (selections.get(thread) !== selection) fail('Operation cancelled'); const result = await bindInternal(thread, selected); userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, selected))); return result; }); },
+    // Trusted manual UI entry; never exposed as an MCP tool.
+    requestPermission: (thread,args) => serial(async()=>{
+      keys(args,['permission','targetId','reason','switchedInput'],['permission','reason']);
+      if(!['observation','control','desktop'].includes(args.permission))fail('Invalid Window Use permission');
+      str(args.reason,1024);if(args.targetId!==undefined)str(args.targetId);
+      if(args.switchedInput!==undefined&&(typeof args.switchedInput!=='boolean'||args.permission!=='control'))fail('Invalid input permission');
+      if(args.permission==='desktop'&&(args.targetId!==undefined||args.switchedInput!==undefined))fail('Desktop approval is conversation-scoped');
+      const b=bindings.get(thread);if(args.targetId!==undefined&&args.targetId!==b?.targetId)fail('Stale or forged target');
+      if(b?.userStopped||desktopState(thread).stopped)fail('User stop requires explicit resume');
+      if(!requestPermission)fail('Permission requests are unavailable');
+      if(args.permission!=='desktop'&&!b)fail('Select a target first');
+      const result=await requestPermission(thread,args,b?{...b.identity}:undefined);
+      if(b&&bindings.get(thread)===b&&result.authorized===true){b.observation=null;await releaseVirtual(thread);}
+      return result;
+    }),
+    listWindows: thread => serial(async () => { if(context && !await authorize(null,thread,{permission:'observation',operation:'list_windows'})) throw windowError('permission_denied','Window Use observation is disabled or unavailable'); const result = await backend.request('listWindows', {}); if (!Array.isArray(result)) fail('Invalid window list'); return result.map(w => ({...descriptor(w),...(observationAllowed&&!observationAllowed(w,thread)?{title:''}:{}),occupancy:occupancyOf(w,thread)})); }),
+    bind: (thread, selected) => { cancelSelection(thread); const selection = selections.get(thread); return serial(async () => { if (selections.get(thread) !== selection) fail('Operation cancelled'); if(approve) await approve({...descriptor(selected)},thread,{permission:'observation'}); if(selections.get(thread)!==selection) fail('Operation cancelled'); const result = await bindInternal(thread, selected); userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, selected))); return result; }); },
     status: thread => serial(async () => { if (!bindings.has(thread)) return {state:'unbound',supportedActions:[...ACTIONS]}; const b = get(thread); await request(b, thread, b.generation, 'status'); return view(b); }),
-    resume: thread => serial(async () => { const b = get(thread); const generation = ++b.generation; b.userStopped = false; b.state = 'selected'; delete b.pauseReason; userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, b.identity))); b.observation = null; b.restoreAttempted = false; if(requestStage) {const result=await requestStage(thread,{stage:2,targetId:b.targetId,reason:'사용자가 창 제어를 다시 시작했습니다.'},{...b.identity});if(result.authorized!==true) fail('Application authorization revoked');} b.operationStage=2;await ready(b, thread, generation, true); return observe(b, thread, generation); }),
-    inspectForTask: thread => serial(async () => {const b=get(thread);b.operationStage=2;b.operation='inspect';await ready(b,thread,b.generation,false);return inspect(b,thread,b.generation,{mode:'task'});}),
+    resume: thread => {const run=()=>serial(async () => { const d=invalidateDesktop(thread);d.stopped=false;if(!bindings.has(thread))return {state:'unbound',desktopObservationRequired:true};const b = get(thread); const generation = ++b.generation; b.userStopped = false; b.state = 'selected'; delete b.pauseReason; userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, b.identity))); b.observation = null; b.restoreAttempted = false; if(requestPermission) {const result=await requestPermission(thread,{permission:'control',targetId:b.targetId,reason:'사용자가 창 제어를 다시 시작했습니다.'},{...b.identity});if(result.authorized!==true) fail('Application authorization revoked');} b.operationPermission='control';await ready(b, thread, generation, true); return observe(b, thread, generation); });const b=bindings.get(thread);return Promise.resolve(sessionCleanups.get(thread)).then(()=>b?withLease(thread,b.identity,true,()=>checkCancelled(thread),run):run()); },
+    inspectForTask: thread => serial(async () => {const b=get(thread);b.operationPermission='control';b.operation='inspect';await ready(b,thread,b.generation,false);return inspect(b,thread,b.generation,{mode:'task'});}),
     stop: thread => stopBinding(thread, true),
-    clear: thread => { cancelSelection(thread); releaseQuietly(thread); const b = bindings.get(thread); if (b) { hideOverlay(b, b.generation); b.generation++; } bindings.delete(thread); userStoppedTargets.delete(thread); occupancy.publish(); },
-    invalidateObservation: thread => { releaseQuietly(thread); const b = bindings.get(thread); if (b) { hideOverlay(b, b.generation); b.generation++; b.observation = null; return view(b); } },
-    peek: thread => { const b = bindings.get(thread); return b ? view(b) : undefined; },
-    dispose: () => { disposed = true; overlaySubscription?.dispose(); for (const b of bindings.values()) { releaseQuietly(b.thread); hideOverlay(b, b.generation); b.generation++; } bindings.clear(); userStoppedTargets.clear(); candidates.clear(); selections.clear(); occupancy.dispose(); return Promise.all([...virtualReleases.values()]); },
+    clear: thread => { cancelSelection(thread);candidates.delete(thread); invalidateDesktop(thread);releaseDesktopQuietly(thread);desktops.delete(thread);releaseQuietly(thread); const b = bindings.get(thread); if (b) { hideOverlay(b, b.generation); b.generation++; } bindings.delete(thread); for(const b of allBindings().filter(b=>b.thread===thread)){b.generation++;b.observation=null;scopedBindings.delete(b.targetId);} userStoppedTargets.delete(thread); occupancy.publish(); },
+    invalidateObservation: thread => { invalidateDesktop(thread);releaseDesktopQuietly(thread);releaseQuietly(thread); const b = bindings.get(thread); if (b) { hideOverlay(b, b.generation); b.generation++; b.observation = null; } for(const b of allBindings().filter(b=>b.thread===thread)){b.generation++;b.observation=null;} return b?view(b):undefined; },
+    peek: (thread,windowId) => { const b = windowId===undefined?bindings.get(thread):scopedBindings.get(windowId); return b?.thread===thread ? view(b) : undefined; },
+    dispose: () => { disposed = true; const closingThreads=new Set([...desktops.keys(),...allBindings().map(b=>b.thread),...sessionCleanups.keys()]);for(const thread of desktops.keys()) {invalidateDesktop(thread,true);releaseDesktopQuietly(thread);}desktops.clear();overlaySubscription?.dispose(); for (const b of allBindings()) { releaseQuietly(b.thread); hideOverlay(b, b.generation); b.generation++; } const closing=Promise.all([...closingThreads].map(releaseOwnedSession));bindings.clear(); scopedBindings.clear(); userStoppedTargets.clear(); candidates.clear(); selections.clear(); occupancy.dispose(); return closing.then(()=>{leases.dispose();return Promise.all([...virtualReleases.values(),...desktopReleases]);}); },
+    withWindowLease: (thread,identity,fn) => withLease(thread,identity,true,()=>{checkCancelled(thread);if(desktopState(thread).stopped)fail('User stop requires explicit resume');},()=>fn()),
     getMacros: () => serial(() => locked(readMacros)),
     saveMacro: entry => { const checked = macro(entry); return serial(() => locked(async () => { const entries = await readMacros(); const next = entries.filter(m => m.id !== checked.id).concat(checked); if (next.length > 100) fail('Too many macros'); await writeMacros(next); return checked; })); },
     deleteMacro: id => { str(id, 128); return serial(() => locked(async () => { const entries = await readMacros(); await writeMacros(entries.filter(m => m.id !== id)); })); },
     call: (thread, tool, args) => {
       if (!TOOLS.includes(tool)) return Promise.reject(new Error('Unsupported selected-window tool'));
-      if (tool === 'context') { try { keys(args, ['guideVersion']); if(args.guideVersion !== undefined) str(args.guideVersion); } catch(e) { return Promise.reject(e); } return serial(() => context ? context(thread, args) : {stage:1, executionContext:'parent-window'}); }
-      if (tool === 'logoff_isolated') {
-        try { keys(args,['reason'],['reason']);str(args.reason,1024); } catch(e) { return Promise.reject(e); }
-        return serial(() => resources ? resources(tool,thread,args) : {status:'unavailable',logoffConfirmed:false});
+      if (tool === 'context') { try { keys(args, ['guideVersion']); if(args.guideVersion !== undefined) str(args.guideVersion); } catch(e) { return Promise.reject(e); } return serial(() => context ? context(thread, args) : {executionContext:'parent-window'}); }
+      if (tool === 'capture_desktop') {
+        try {keys(args,[]);} catch(error) {return Promise.reject(error);}
+        const d=desktopState(thread),generation=d.generation;
+        return serial(async()=>{if(!desktopCapture) throw windowError('unsupported_action','Desktop observation is unavailable');const result=await desktopCapture(thread,args);if(disposed||desktopState(thread)!==d||d.generation!==generation)fail('Operation cancelled');const id=crypto.randomBytes(24).toString('hex');d.observation={id,originX:result.originX,originY:result.originY,widthPx:result.widthPx,heightPx:result.heightPx};return {...result,observationId:id};});
       }
-      if (tool === 'resource_status' || tool === 'cleanup') { try { keys(args, tool==='cleanup'?['ids']:[]);if(args.ids!==undefined && (!Array.isArray(args.ids) || args.ids.length<1 || args.ids.length>20 || args.ids.some(id=>typeof id!=='string' || !/^[A-Za-z0-9_.-]{1,128}$/.test(id)))) throw windowError('invalid_request','Invalid cleanup resource IDs'); } catch(e) { return Promise.reject(e); } return serial(() => resources ? resources(tool, thread,args) : {status:'unavailable',resources:[]}); }
-      if (['launch_isolated','capture_isolated','input_isolated'].includes(tool)) {
-        try {
-          if(tool==='launch_isolated') {
-            keys(args,['targetId','packageName','applicationId']);
-            if((args.targetId!==undefined)===(args.packageName!==undefined)) throw windowError('invalid_request','Select exactly one observed target or installed package');
-            if(args.targetId!==undefined) {str(args.targetId);if(args.applicationId!==undefined) throw windowError('invalid_request','Application ID requires an installed package');}
-            else for(const name of ['packageName','applicationId']) if(args[name]!==undefined && (typeof args[name]!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(args[name]))) throw windowError('invalid_request','Invalid installed application identity');
-          } else {keys(args,tool==='input_isolated'?['targetId','observationId','input']:['targetId'],tool==='input_isolated'?['targetId','observationId','input']:['targetId']);str(args.targetId);if(tool==='input_isolated') {str(args.observationId);if(!plain(args.input)) throw windowError('invalid_request','Invalid isolated input');}}
-        } catch(e) {return Promise.reject(e);}
-        return serial(async()=>{const b=bindings.get(thread);if(b?.userStopped) fail('User stop requires explicit resume');if(!isolation) throw windowError('unsupported_action','Isolated execution is unavailable');if(tool==='launch_isolated' && args.targetId!==undefined && (!b || args.targetId!==b.targetId)) fail('Stale or forged target');return isolation(tool,thread,args,tool==='launch_isolated' && args.targetId!==undefined?{...b.identity}:undefined);});
+      if(tool==='release_desktop_input') {
+        try{keys(args,[]);}catch(error){return Promise.reject(error);}
+        invalidateDesktop(thread);
+        return serial(async()=>{await releaseDesktopQuietly(thread,true);return {detached:true,observationRequired:true};});
       }
-      if (tool === 'prepare_permissions') {
-        try {
-          keys(args,['stage','targetId','reason','candidateIds'],['stage','reason']);
-          if(![2,3,4].includes(args.stage)) fail('Invalid Window Use stage');
-          str(args.reason,1024); if(args.targetId!==undefined) str(args.targetId);
-          if(args.candidateIds!==undefined && (!Array.isArray(args.candidateIds) || args.candidateIds.length>8 || new Set(args.candidateIds).size!==args.candidateIds.length)) fail('Expected up to eight unique observed app candidates');
-          for(const id of args.candidateIds||[]) str(id);
-        } catch(e) {return Promise.reject(e);}
-        return serial(async()=>{
-          const b=bindings.get(thread),selection=selections.get(thread)||0,entries=candidates.get(thread);
-          if(args.targetId!==undefined && args.targetId!==b?.targetId) fail('Stale or forged target');
-          if(args.stage===2 && !b) fail('Select an observation target first');
-          if(b?.userStopped) fail('User stop requires explicit resume');
-          if(!requestStage) fail('Stage transition is unavailable');
-          const apps=(args.candidateIds||[]).map(id=>{const app=entries?.get(id);if(!app) fail('Stale or forged window candidate');return {...app};});
-          if(apps.length){
-            if(context && !await authorize(null,thread,{stage:1,operation:tool})) throw windowError('permission_denied','Window Use observation is disabled or unavailable');
-            const raw=await backend.request('listWindows',{});
-            if(!Array.isArray(raw)) fail('Invalid window list');
-            if(disposed || (selections.get(thread)||0)!==selection || candidates.get(thread)!==entries) fail('Operation cancelled');
-            const live=raw.map(descriptor);
-            for(const app of apps){
-              if(!live.some(w=>same(w,app))) fail('Window candidate identity changed');
-              if((userStoppedTargets.get(thread)||[]).some(w=>same(w,app))) fail('User stop requires explicit resume');
-              const occupied=occupancyOf(app,thread);
-              if(occupied.status==='unknown' || occupied.sessions.some(s=>!s.isCurrentSession)) throw windowError('state_changed','App candidate occupancy is unknown or belongs to another task');
-            }
-          }
-          return requestStage(thread,{stage:args.stage,reason:args.reason,prepareOnly:true},b?{...b.identity}:undefined,apps);
+      if(tool==='desktop_input') {
+        try {keys(args,['observationId','input'],['observationId','input']);str(args.observationId);args={...args,input:require('./window-switched-input.cjs').validateDesktopInput(args.input)};}catch(error){return Promise.reject(error);}
+        const d=desktopState(thread),generation=d.generation;
+        const run=expectedWindow=>serial(async()=>{
+          if(!desktopInput)throw windowError('unsupported_action','Desktop input is unavailable');
+          const check=async(requestApproval=false)=>{if(disposed||desktopState(thread)!==d||d.generation!==generation)fail('Operation cancelled');if(d.stopped)fail('User stop requires explicit resume');if(!await authorize(null,thread,{permission:'desktop',operation:'desktop_input',...(requestApproval?{requestApproval:true,input:args.input}:{})}))throw windowError('permission_denied','Desktop control approval required');if(disposed||d.generation!==generation)fail('Operation cancelled');};
+          try{await check(true);}catch(error){if(error?.observationRequired===true)d.observation=null;throw error;}const observation=d.observation;
+          if(!observation||observation.id!==args.observationId)throw windowError('state_changed','Fresh desktop image capture required',{observationRequired:true,actionExecuted:false,recovery:'observe_again'});
+          const inside=(x,y)=>Number.isSafeInteger(x)&&Number.isSafeInteger(y)&&x>=observation.originX&&y>=observation.originY&&x<observation.originX+observation.widthPx&&y<observation.originY+observation.heightPx;
+          if(!inside(args.input.x,args.input.y)||(args.input.action==='drag'&&!inside(args.input.fromX,args.input.fromY)))fail('Screen coordinates are outside the desktop observation');
+          d.observation=null;
+          const result=await desktopInput(thread,args.input,{...observation},check,expectedWindow);await check();
+          return {delivery:'desktopInput',verified:false,observationRequired:true,inputResult:result};
         });
+        if(!resolveDesktopWindow)return Promise.reject(windowError('unsupported_action','Desktop target resolution is unavailable',{actionExecuted:false}));
+        return Promise.resolve().then(()=>resolveDesktopWindow(thread,args.input)).then(expectedWindow=>{if(!expectedWindow)fail('Desktop target resolution failed');return withLease(thread,expectedWindow,true,()=>{checkCancelled(thread);if(d.stopped)fail('User stop requires explicit resume');if(d.generation!==generation)fail('Operation cancelled');},()=>run(expectedWindow));});
       }
-      if (tool === 'request_stage') {
-        try { keys(args,['stage','targetId','reason','virtualInput'],['stage','reason']); if(args.virtualInput!==undefined && (typeof args.virtualInput!=='boolean' || args.stage!==2)) fail('Invalid arguments'); if(![2,3,4].includes(args.stage)) fail('Invalid Window Use stage'); str(args.reason,1024); if(args.targetId !== undefined) str(args.targetId); } catch(e) { return Promise.reject(e); }
-        return serial(async () => { const b=bindings.get(thread); if(args.targetId !== undefined && args.targetId !== b?.targetId) fail('Stale or forged target'); if(args.stage===2 && !b) fail('Select an observation target first'); if(b?.userStopped) fail('User stop requires explicit resume'); if(!requestStage) fail('Stage transition is unavailable'); const result=await requestStage(thread,args,b ? {...b.identity}:undefined); if(b && bindings.get(thread)===b) { b.generation++; b.observation=null; await releaseVirtual(thread); if(result.authorized === true) {b.state='ready';delete b.pauseReason;} } return result; });
+      if (tool === 'release_virtual_input' || tool === 'release_switched_input') {
+        try {keys(args,['windowId'],['windowId']);str(args.windowId);} catch(error) {return Promise.reject(error);}
+        const b=scopedBindings.get(args.windowId);if(!b || b.thread!==thread)return Promise.reject(expectedError('Stale or forged target'));return withLease(thread,b.identity,false,()=>checkCancelled(thread),()=>serial(async()=>{b.generation++;b.observation=null;await releaseVirtual(thread);const {targetId,...result}=view(b);return {...result,detached:true};}));
       }
-      if (tool === 'release_virtual_input') {
-        try {keys(args,['targetId'],['targetId']);str(args.targetId);} catch(error) {return Promise.reject(error);}
-        return serial(async () => {const b=get(thread);if(args.targetId!==b.targetId) fail('Stale or forged target');b.generation++;b.observation=null;await releaseVirtual(thread);return {...view(b),detached:true};});
-      }
-      if (['list_windows','select_window','list_task_macros','save_task_macro'].includes(tool)) return discovery(thread,tool,args);
-      if (tool === 'status' && !bindings.has(thread)) { try { keys(args,['targetId']); if(Object.hasOwn(args,'targetId')) fail('Stale or forged target'); } catch(e) {return Promise.reject(e);} return serial(() => ({state:'unbound',supportedActions:[...ACTIONS]})); }
+      if (['list_windows','list_task_macros','save_task_macro'].includes(tool)) return discovery(thread,tool,args);
       const action = tool === 'set_value' ? 'setValue' : tool === 'press_key' ? 'pressKey' : tool;
       try {
-        const allowed = ['targetId']; const required = tool === 'status' ? [] : ['targetId'];
+        const allowed = ['windowId']; const required = ['windowId'];
         if(tool === 'virtual_input') {allowed.push('observationId','input');required.push('observationId','input');str(args.observationId);if(!virtualInput) throw windowError('unsupported_action','Virtual input runtime is unavailable');args={...args,input:require('./window-virtual-input.cjs').validateInput(args.input)};}
+        if(tool === 'switched_input') {allowed.push('observationId','input');required.push('observationId','input');str(args.observationId);if(!switchedInput)throw windowError('unsupported_action','Switched input runtime is unavailable');args={...args,input:require('./window-switched-input.cjs').validateInput(args.input)};}
         if(tool === 'inspect') { allowed.push('mode','query','scope','limit','observationId','elementId','fields','textRange','baseObservationId'); validateInspect(args); }
         if (ACTIONS.includes(action) || action === 'pressKey') { allowed.push('observationId', 'elementId'); required.push('observationId', 'elementId'); if (action === 'setValue' || action === 'scroll') { allowed.push('value'); required.push('value'); } }
         if (action === 'pressKey') {allowed.push('key');required.push('key');}
         if (tool === 'run_task_macro') {allowed.push('definition','macroId','parameters');if(Boolean(args?.definition) === Boolean(args?.macroId)) fail('Provide definition or macroId');if(args?.definition) args = {...args,definition:tasks.definition(args.definition)};if(args?.macroId) str(args.macroId,128);if(args?.parameters !== undefined && !plain(args.parameters)) fail('Invalid task parameters');args = {...args,parameters:{...(args.parameters || {})}};}
         if (tool === 'resize') { allowed.push('widthDip', 'heightDip'); required.push('widthDip', 'heightDip'); }
         if (tool === 'run_size_macro') { allowed.push('macroId'); required.push('macroId'); }
-        keys(args, allowed, required); if (Object.hasOwn(args, 'targetId')) str(args.targetId);
+        keys(args, allowed, required); if (Object.hasOwn(args, 'windowId')) str(args.windowId);
         if (ACTIONS.includes(action) || action === 'pressKey') {
           str(args.observationId); str(args.elementId);
           if (action === 'setValue' && (typeof args.value !== 'string' || args.value.length > 32768)) fail('Invalid value');
@@ -375,12 +391,18 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
         args = { ...args, ...(action === 'scroll' ? { value: { ...args.value } } : {}) };
       } catch (e) { return Promise.reject(e); }
       // Capture the binding generation at submission, so Stop also cancels queued calls.
-      let b; try { b = get(thread); } catch (e) { return Promise.reject(e); }
+      let b; try { str(args.windowId); const identity=candidates.get(thread)?.get(args.windowId); b=scopedBindings.get(args.windowId); if(!identity || (b && b.thread!==thread))fail('Stale or forged window ID'); if(!b){const stopped=(userStoppedTargets.get(thread)||[]).some(w=>same(w,identity));b={thread,identity,window:identity,targetId:args.windowId,state:stopped?'paused':'selected',userStopped:stopped,pauseReason:stopped?'user_stopped':undefined,generation:0,observation:null};scopedBindings.set(args.windowId,b);} } catch (e) { return Promise.reject(e); }
       const generation = b.generation;
-      return serial(async () => {
-        b.operation = tool; b.operationStage = ['capture','inspect','status'].includes(tool) ? 1 : 2;
+      const control=!['capture','inspect','status'].includes(tool);
+      return withLease(thread,b.identity,control,()=>{checkCancelled(thread);if(!hasBinding(thread,b)||b.generation!==generation)fail('Operation cancelled');if(b.userStopped&&control)fail('User stop requires explicit resume');},lease=>serial(async () => {
+        b.requestLease={epoch:lease.epoch,usable:lease.usable};
+        if(control && b.observation && (!b.observation.lease?.usable || b.observation.lease.epoch!==lease.epoch))b.observation=null;
+        b.operation = tool; b.operationPermission = ['capture','inspect','status'].includes(tool) ? 'observation' : 'control';
+        if (Object.hasOwn(args, 'windowId') && args.windowId !== b.targetId) fail('Stale or forged target');
+        if (disposed || !hasBinding(thread,b) || b.generation !== generation) fail('Operation cancelled');
+        if (b.userStopped && b.operationPermission === 'control') fail('User stop requires explicit resume');
+        if (approve) await approve({...b.identity},thread,{permission:b.operationPermission,switchedInput:tool==='switched_input'});
         await guard(b, thread, generation);
-        if (Object.hasOwn(args, 'targetId') && args.targetId !== b.targetId) fail('Stale or forged target');
         if (tool === 'status') { await request(b, thread, generation, 'status'); const macros = await locked(readMacros); await guard(b, thread, generation); return { ...view(b), macros }; }
         if (tool === 'restore_window') {
           if (!canRestore(b)) fail('Selected window paused; user resume required');
@@ -402,39 +424,41 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
           occupancy.publish();
           return { ...view(b), restored, observationRequired: true };
         }
-        if (b.state === 'paused') { if (b.pauseReason === 'minimized') throw minimizedError(b); fail('Selected window paused; user resume required'); }
+        if (b.state === 'paused') { if(b.userStopped)fail('User stop requires explicit resume'); if (b.pauseReason === 'minimized') throw minimizedError(b); fail('Selected window paused; user resume required'); }
         b.running = true; occupancy.publish();
         try {
-        if(b.operationStage !== 1) {
+        if(b.operationPermission === 'control') {
           try {await showOverlay(b, thread, generation, tool);}
-          catch(error) {if(tool==='virtual_input') {b.generation++;pause(b,'error');await releaseVirtual(thread);}throw error;}
+          catch(error) {if(tool==='virtual_input'||tool==='switched_input') {b.generation++;pause(b,'error');await releaseVirtual(thread);}throw error;}
         }
         if (tool === 'run_task_macro') {
           const stored = args.definition ? null : await taskStore.read(); const snapshot = args.definition || stored.macros.find(m => m.id === args.macroId);if(!snapshot) fail('Unknown task macro');
-          const result = await tasks.run(snapshot,args.parameters,{progress:async ({index,total,action,phase}) => showOverlay(b,thread,generation,phase === 'verifying' ? 'assert' : action,(index+1)+'/'+total+' · '),cancel:() => {if(bindings.get(thread) === b && b.generation === generation) {b.generation++;pause(b,'error');}},guard:() => guard(b,thread,generation),inspect:async() => {await ready(b,thread,generation,false);return inspect(b,thread,generation,{mode:'task'});},capture:async() => {await ready(b,thread,generation,false);return observe(b,thread,generation);},act:async params => {await ready(b,thread,generation,false);const observation = b.observation;if(!observation || observation.id !== params.observationId || !observation.ids.has(params.elementId)) fail('Fresh selected-window observation required');b.observation = null;await request(b,thread,generation,'act',params);b.used = true;}});
+          const result = await tasks.run(snapshot,args.parameters,{progress:async ({index,total,action,phase}) => showOverlay(b,thread,generation,phase === 'verifying' ? 'assert' : action,(index+1)+'/'+total+' · '),cancel:() => {if(hasBinding(thread,b) && b.generation === generation) {b.generation++;pause(b,'error');}},guard:() => guard(b,thread,generation),inspect:async() => {await ready(b,thread,generation,false);return inspect(b,thread,generation,{mode:'task'});},capture:async() => {await ready(b,thread,generation,false);return observe(b,thread,generation);},act:async params => {await ready(b,thread,generation,false);const observation = b.observation;if(!observation || observation.id !== params.observationId || !observation.ids.has(params.elementId)) fail('Fresh selected-window observation required');const finishVisual=await visualizeAction?.(thread,{...b.identity},params,params.action,()=>guard(b,thread,generation));b.observation = null;try{await request(b,thread,generation,'act',params);b.used = true;}finally{try{await finishVisual?.();}catch(error){onOverlayError(thread,error);}}}});
           return {...result,occupancy:occupancyOf(b.identity,thread),...(stored ? {revision:stored.revision,macroId:args.macroId} : {})};
         }
         await ready(b, thread, generation, false);
         if (tool === 'capture') return await observe(b, thread, generation);
-        if (tool === 'inspect') { const {targetId,...options}=args; return await inspect(b,thread,generation,options); }
-        if (tool === 'virtual_input') {
+        if (tool === 'inspect') { const {windowId,...options}=args; return await inspect(b,thread,generation,options); }
+        if (tool === 'virtual_input' || tool === 'switched_input') {
           const observation=b.observation;
           if(!observation || observation.kind!=='image' || observation.generation!==generation || observation.id!==args.observationId) throw windowError('state_changed','Fresh image capture required');
           if(virtualReleases.has(thread)) await virtualReleases.get(thread);
-          const check=async()=>{await guard(b,thread,generation);await request(b,thread,generation,'status');if(b.state==='paused') fail('Selected window paused');if(occupancyOf(b.identity,thread).status!=='available') throw windowError('permission_denied','Window occupancy is unavailable');};
+          const check=async()=>{await guard(b,thread,generation);await request(b,thread,generation,'status');if(b.state==='paused') fail('Selected window paused');};
           b.observation=null;
           try {
             await check();
-            const result=await virtualInput.input(thread,{...b.identity},args.input,check);
+            const result=await (tool==='switched_input'?switchedInput:virtualInput).input(thread,{...b.identity},args.input,check);
             await check();b.used=true;
-            return {...view(b),delivery:'virtualInput',verified:false,observationRequired:true,...(typeof result?.delivered==='boolean'?{delivered:result.delivered}:{})};
+            return {...view(b),delivery:tool==='switched_input'?'switchedInput':'virtualInput',verified:false,observationRequired:true,...(tool==='switched_input'?{inputResult:result}:{}),...(typeof result?.delivered==='boolean'?{delivered:result.delivered}:{})};
           } catch(error) {if(bindings.get(thread)===b) {b.generation++;pause(b,'error');}await releaseVirtual(thread);throw error;}
         }
         if (ACTIONS.includes(action) || action === 'pressKey') {
           const observation = b.observation;
           if (!observation || observation.generation !== generation || observation.id !== args.observationId || !observation.ids.has(args.elementId)) fail('Fresh selected-window observation required');
+          const finishVisual=await visualizeAction?.(thread,{...b.identity},args,tool,()=>guard(b,thread,generation));
           b.observation = null;
-          await request(b, thread, generation, 'act', { observationId: args.observationId, elementId: args.elementId, action, ...(action === 'pressKey' ? {value:args.key} : Object.hasOwn(args, 'value') ? { value: args.value } : {}) });
+          try {await request(b, thread, generation, 'act', { observationId: args.observationId, elementId: args.elementId, action, ...(action === 'pressKey' ? {value:args.key} : Object.hasOwn(args, 'value') ? { value: args.value } : {}) });}
+          finally {try{await finishVisual?.();}catch(error){onOverlayError(thread,error);}}
           b.used = true; return { ...view(b), observationRequired: true, ...(action === 'pressKey' ? {delivery:'windowMessage',verified:false} : {}) };
         }
         b.observation = null;
@@ -443,8 +467,8 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
         for (const step of steps) { await guard(b, thread, generation); await ready(b, thread, generation, false); await request(b, thread, generation, 'resize', step); result = await observe(b, thread, generation); }
         return result;
         }
-        finally { await hideOverlay(b, generation); b.running = false; occupancy.publish(); }
-      });
+        finally { await hideOverlay(b, generation); b.running = false; b.requestLease=null; occupancy.publish(); }
+      })).then(result=>{if(!plain(result))return result;const {targetId,...publicResult}=result;return publicResult;});
     },
   };
 }

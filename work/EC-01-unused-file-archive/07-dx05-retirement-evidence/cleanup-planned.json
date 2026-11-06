@@ -1,0 +1,12 @@
+{
+  "run": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\dx05-owner-20261026",
+  "id": "run:DX-05:owner-20261026",
+  "item_ids": [
+    "a69826221e7db59173bc3950eeb24cac0f662b0b81556801e2a38dc77d9b55d8"
+  ],
+  "reason": "Build target, TEMP, fixture, requests and raw logs no longer needed; installation verification preserved in version",
+  "index_before": {
+    "sha256": "dd4e2bb60dfa612261c8e569afe51df37f133986ff878b6990a011db4694fa96",
+    "bytes": 2064119
+  }
+}

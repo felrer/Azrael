@@ -1,0 +1,13 @@
+{
+  "lifecycleId": "run:EZ01:permissions-card-mw0br79m",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-mw0br79m",
+  "args": [
+    "--test",
+    "--test-name-pattern=pinned computer-use approval card",
+    "scripts/test-computer-use-injection.cjs"
+  ],
+  "exitCode": 1,
+  "signal": null,
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-mw0br79m\\logs\\tests.log",
+  "text": "✖ pinned computer-use approval card cancels the request through the native response closure (857.2755ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1059.2415\n\n✖ failing tests:\n\ntest at scripts\\test-computer-use-injection.cjs:206:1\n✖ pinned computer-use approval card cancels the request through the native response closure (857.2755ms)\n  Error: ENOENT: no such file or directory, open 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-mw0br79m\\inputs\\project\\instructions\\skills\\design-collaboration\\SKILL.md'\n      at Object.openSync (node:fs:697:18)\n      at Object.readFileSync (node:fs:543:35)\n      at Object.getTransformRules (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-mw0br79m\\inputs\\project\\scripts\\namespace-azrael-host.cjs:540:41)\n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-mw0br79m\\inputs\\project\\scripts\\test-computer-use-injection.cjs:232:29)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1397:25)\n      at Test.start (node:internal/test_runner/test:1257:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    errno: -4058,\n    code: 'ENOENT',\n    syscall: 'open',\n    path: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\EZ01\\\\runs\\\\permissions-card-mw0br79m\\\\inputs\\\\project\\\\instructions\\\\skills\\\\design-collaboration\\\\SKILL.md'\n  }\n"
+}

@@ -1,0 +1,323 @@
+{
+  "status": "passed",
+  "platform": "win32-x64",
+  "scope": "Exact test-owned Windows fixture windows; read-only native query and cosmetic broker verification; no physical input/focus/cursorvisibility changes",
+  "physicalActuation": false,
+  "cppRuntime": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\outputs\\runtime\\azrael-multi-pointer.exe",
+    "sha256": "b0fd6e69f543670d6a3f664a086cf9dd3f15036c353a832c47ff84db75526afb",
+    "manifestSha256": "1002663099888d9ed8831eb499486c9d8bc8fc7dc6b5e14b297d9a230ba38326"
+  },
+  "attempts": [
+    {
+      "runId": "desktop-smoke-mw0hwna8",
+      "groupId": "run:EZ01:desktop-smoke-mw0hwna8",
+      "controllerExitCode": 0,
+      "phase": "directory preparation only",
+      "fixtureLaunched": false
+    },
+    {
+      "runId": "desktop-live-mw0hyy9k",
+      "groupId": "run:EZ01:desktop-live-mw0hyy9k",
+      "controllerSession": 46736,
+      "controllerExitCode": 1,
+      "phase": "owned fixture ready then harness parser failure before broker/native launch",
+      "diagnosis": "hwnd compared against nonexistent field12; actual native hit field11 matches both fixture roots",
+      "closures": [
+        {
+          "name": "fixture",
+          "exitCode": 0,
+          "signal": null,
+          "lines": [
+            "before|7a4021a|3499|1462",
+            "window|0|a30540|26472|01dd6b7761ba12dd|C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe|40|100|360|240|144|a30540",
+            "window|1|ed0364|26472|01dd6b7761ba12dd|C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe|430|100|360|240|144|ed0364",
+            "ready|7a4021a|3512|1439",
+            "closing|7a4021a|3546|1391",
+            "closed|False|False"
+          ],
+          "stderr": ""
+        }
+      ],
+      "foregroundObservedUnchanged": true,
+      "cursorObserved": "External cursor coordinates differed; no pointer input issued",
+      "brokerLaunched": false,
+      "rustLaunched": false
+    },
+    {
+      "controllerSession": 11548,
+      "controllerExitCode": 1,
+      "phase": "beginArtifactRun claim release",
+      "runIdReturned": false,
+      "fixtureLaunched": false,
+      "brokerLaunched": false,
+      "rustLaunched": false,
+      "error": {
+        "message": "Native lease timeout; outcome unknown",
+        "lock_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\.run-claim.lock",
+        "operation": "artifact-run.claim",
+        "request_operation": "release",
+        "request_id": 1,
+        "native_pid": 32012,
+        "native_exit_observed": false,
+        "native_exit_code": null,
+        "native_signal": null,
+        "worker_termination_requested": true
+      },
+      "narrowObservation": "No desktop-live-r2-* run directory and no Get-Process32012 output; PID absence is not termination proof"
+    }
+  ],
+  "verified": [
+    "C++ runtime manifest and executable SHA-256 integrity",
+    "Fixture native WindowFromPoint/GetAncestor exact owned root hits for both windows",
+    "Fixture foreground HWND unchanged before/ready/closing",
+    "Fixture graceful exit0 and IsWindow false for both owned HWNDs",
+    "fixture-native-hit-exact-roots-no-activation",
+    "desktop-titlebar-outer-bounds-create",
+    "present-active-idle",
+    "retarget-second-exact-root",
+    "retarget-back-same-live-broker",
+    "presentation-only-outside-client",
+    "default-desktop-false-rejected",
+    "rust-windowAtPoint-two-exact-roots",
+    "rust-actionPoint-owned-UIA-bounds",
+    "rust-actionPoint-stale-rejected",
+    "rust-actionPoint-retained-image-no-element"
+  ],
+  "unverified": [],
+  "cleanupHandoff": {
+    "groups": [
+      "run:EZ01:desktop-smoke-mw0hwna8",
+      "run:EZ01:desktop-live-mw0hyy9k",
+      "run:EZ01:desktop-live-r3-mw0ixvx5"
+    ],
+    "ownerLeaseUncertain": false,
+    "rootOwnsReconciliation": true,
+    "originalLeaseUnknownPreserved": true,
+    "currentRunClosed": true
+  },
+  "ownerLeaseDiagnostic": {
+    "reportedAtUtc": "2026-11-03T10:00:38.217Z",
+    "timestampMeaning": "parent decision request created immediately after observed owner failure; exact failure timestamp unavailable",
+    "controllerSession": 11548,
+    "controllerExitCode": 1,
+    "nodeRuntime": {
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "version": "v26.7.0"
+    },
+    "worker": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-worker.cjs",
+      "sha256": "b0b3781fc349f6fbe26c318c7c4e2d0e98806a387468036cc1af3a353f1926ac"
+    },
+    "owner": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000,
+      "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680"
+    },
+    "environment": {
+      "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "AZRAEL_MAINTENANCE_OWNER": null
+    },
+    "nativeLeaseArgs": [
+      "--lease",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\.run-claim.lock",
+      "--operation",
+      "artifact-run.claim",
+      "--wait-ms",
+      "600000",
+      "--parent-pid",
+      "UNRECORDED_CONTROLLER_PID"
+    ],
+    "fullObservedPacket": {
+      "message": "Native lease timeout; outcome unknown",
+      "lock_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\.run-claim.lock",
+      "operation": "artifact-run.claim",
+      "request_operation": "release",
+      "request_id": 1,
+      "native_pid": 32012,
+      "native_exit_observed": false,
+      "native_exit_code": null,
+      "native_signal": null,
+      "worker_termination_requested": true
+    },
+    "stack": [
+      "Error: Native lease timeout; outcome unknown",
+      "wait (scripts/maintenance-lock-owner.cjs:71:55)",
+      "request (scripts/maintenance-lock-owner.cjs:82:12)",
+      "Object.release (scripts/maintenance-lock-owner.cjs:99:20)",
+      "Object.beginArtifactRun (scripts/artifact-run.cjs:94:21)"
+    ]
+  },
+  "rustReadiness": {
+    "source": "root observed cargo test/build exit0",
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\desktop-native-r2-mw0hwxxe\\temporary\\target\\debug\\azrael-window-control.exe",
+    "executionSuspended": true
+  },
+  "currentRunId": "desktop-live-r3-mw0ixvx5",
+  "currentGroupId": "run:EZ01:desktop-live-r3-mw0ixvx5",
+  "steps": [
+    {
+      "name": "fixture-native-hit-exact-roots-no-activation",
+      "passed": true
+    },
+    {
+      "name": "desktop-titlebar-outer-bounds-create",
+      "passed": true
+    },
+    {
+      "name": "present-active-idle",
+      "passed": true
+    },
+    {
+      "name": "retarget-second-exact-root",
+      "passed": true,
+      "brokerPid": 10020
+    },
+    {
+      "name": "retarget-back-same-live-broker",
+      "passed": true,
+      "brokerPid": 10020
+    },
+    {
+      "name": "presentation-only-outside-client",
+      "passed": true
+    },
+    {
+      "name": "default-desktop-false-rejected",
+      "passed": true,
+      "error": {
+        "code": "desktop_not_enabled",
+        "message": "Desktop retarget requires immutable startup desktop authority",
+        "deliveredInputs": 0,
+        "activationDeliveredInputs": 0,
+        "foregroundAttempted": false,
+        "systemCursorVisibilityCommands": 0
+      }
+    },
+    {
+      "name": "rust-windowAtPoint-two-exact-roots",
+      "passed": true
+    },
+    {
+      "name": "rust-actionPoint-owned-UIA-bounds",
+      "passed": true,
+      "point": {
+        "x": 186,
+        "y": 217
+      },
+      "buttonBounds": [
+        86,
+        190,
+        200,
+        55
+      ]
+    },
+    {
+      "name": "rust-actionPoint-stale-rejected",
+      "passed": true
+    },
+    {
+      "name": "rust-actionPoint-retained-image-no-element",
+      "passed": true,
+      "point": {
+        "x": 220,
+        "y": 237
+      },
+      "hasImage": true
+    }
+  ],
+  "closures": [
+    {
+      "name": "restricted-broker",
+      "pid": 44924,
+      "exitCode": 0,
+      "signal": null,
+      "terminationVerified": true,
+      "stderrBytes": 706
+    },
+    {
+      "name": "desktop-broker",
+      "pid": 10020,
+      "exitCode": 0,
+      "signal": null,
+      "terminationVerified": true,
+      "stderrBytes": 1850
+    },
+    {
+      "name": "rust",
+      "pid": 60368,
+      "exitCode": 0,
+      "signal": null,
+      "terminationVerified": true,
+      "stderrBytes": 0
+    },
+    {
+      "name": "fixture",
+      "pid": 45064,
+      "exitCode": 0,
+      "signal": null,
+      "lines": [
+        "before|7a4021a|3783|1695",
+        "window|0|15802f2|45064|01dd6b7b2d897384|C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe|40|100|360|240|144|15802f2",
+        "window|1|1350e2a|45064|01dd6b7b2d897384|C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe|430|100|360|240|144|1350e2a",
+        "button|86|190|200|55",
+        "ready|7a4021a|3783|1695",
+        "closing|7a4021a|3783|1695",
+        "closed|False|False"
+      ],
+      "stderrBytes": 0
+    }
+  ],
+  "rustRuntime": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\desktop-native-r2-mw0hwxxe\\temporary\\target\\debug\\azrael-window-control.exe",
+    "sha256": "d7ada062a24e9b37825c62e7eda59b02e7e20d0b6f59bdb2acb3981178dd2fc6"
+  },
+  "windows": [
+    {
+      "hwnd": "15802f2",
+      "pid": 45064,
+      "processCreated": "01dd6b7b2d897384",
+      "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "title": "Azrael owned desktop smoke 0",
+      "minimized": false,
+      "widthPx": 360,
+      "heightPx": 240,
+      "dpi": 144,
+      "left": 40,
+      "top": 100
+    },
+    {
+      "hwnd": "1350e2a",
+      "pid": 45064,
+      "processCreated": "01dd6b7b2d897384",
+      "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "title": "Azrael owned desktop smoke 1",
+      "minimized": false,
+      "widthPx": 360,
+      "heightPx": 240,
+      "dpi": 144,
+      "left": 430,
+      "top": 100
+    }
+  ],
+  "brokerPid": 10020,
+  "initialCursor": {
+    "x": 3783,
+    "y": 1695
+  },
+  "finalCppCursor": {
+    "x": 3783,
+    "y": 1695
+  },
+  "cppForegroundHwnd": "0x7a4021a",
+  "observedControllerExitCode": 0,
+  "currentAssertions": {
+    "zeroCppDeliveredInputs": true,
+    "zeroCppActivationInputs": true,
+    "cppForegroundUnchangedAcrossEveryReply": true,
+    "fixtureForegroundUnchangedBeforeReadyClosing": true,
+    "fixtureBothHwndsAbsentAfterGracefulClose": true,
+    "cursorCoordinatesRecordedWithoutImmobilityRequirement": true
+  }
+}

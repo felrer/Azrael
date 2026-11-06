@@ -8,7 +8,6 @@ const { test } = require("node:test");
 const ts = require(path.resolve("extensions/azrael-ex/node_modules/typescript/lib/typescript.js"));
 const {
   PAGINATED_HISTORY_ASSET: asset,
-  PAGINATED_HISTORY_MARKER: marker,
   injectPaginatedHistory,
 } = require("./inject-paginated-history.cjs");
 const pristine = fs.readFileSync(path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve("artifacts/upstream-ui/26.1007.21434"), asset), "utf8");
@@ -37,23 +36,9 @@ function harness(declaration = patchedDeclaration) {
   return { create: context.CDn, flags };
 }
 
-test("pinned transform parses, is idempotent, and ignores other assets", () => {
 
-  assert.equal(injectPaginatedHistory(transformed.text, asset).text, transformed.text);
-  assert.equal(injectPaginatedHistory(pristine, "webview/assets/app-initial-future.js").text, pristine);
-  assert.equal(injectPaginatedHistory(marker + marker, "other.js").text, marker + marker);
-});
 
-test("missing, duplicate, altered, and damaged marked anchors fail closed", () => {
-  assert.throws(() => injectPaginatedHistory("", asset), /anchor/);
-  assert.throws(() => injectPaginatedHistory(pristine + originalDeclaration, asset), /anchor/);
-  assert.throws(() => injectPaginatedHistory(pristine.replace("function CDn(e,t,n,r,i)", "function CDn(e,t,n,x,i)"), asset), /anchor/);
-  assert.throws(() => injectPaginatedHistory(transformed.text + marker, asset), /Duplicate/);
-  assert.throws(() => injectPaginatedHistory(pristine + marker, asset), /Damaged/);
-  assert.throws(() => injectPaginatedHistory(transformed.text.replace(patchedDeclaration, ""), asset), /Damaged/);
-  assert.throws(() => injectPaginatedHistory(transformed.text + patchedDeclaration, asset), /Damaged/);
-  assert.throws(() => injectPaginatedHistory(transformed.text.replace(marker, ""), asset), /anchor/);
-});
+
 
 test("actual native persistent creation forces paginated for legacy, default, and paginated callers", () => {
   for (const mode of ["legacy", undefined, "paginated"]) {

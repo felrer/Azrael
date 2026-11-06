@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "scope": {
+    "platform": "Windows x64",
+    "powershell": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+    "node": "v26.7.0",
+    "linux_mac_runtime_acceptance": false,
+    "production_mutations": false
+  },
+  "checks": [
+    {
+      "name": "preparation",
+      "cases": 11,
+      "childExitCode": 0,
+      "wrapperExitCode": 0,
+      "log": "preparation.log",
+      "result": "preparation-result.json",
+      "inputs": "final-source-sha256.json",
+      "coverage": "Default protection; exact tool dependency/proxy release; failed and unknown outcomes preserved; incomplete/tampered package and exact authority rejection; nested p/q legacy source-only cache-owner binding; existing legacy proxy release; interruption/retry; installation and engine recovery preserved"
+    },
+    {
+      "name": "new absent-project invalidation",
+      "childExitCode": 0,
+      "wrapperExitCode": 1,
+      "wrapperReason": "Same original multi-check wrapper later observed unrelated strict-default compiler guard failure",
+      "log": "absent-invalidation.log",
+      "result": "original-results.json",
+      "inputs": "original-source-sha256.json",
+      "reuse": "PowerShell invalidation implementation/test unchanged since this pass; later module-cache-consumers changes add tool-invalidation helpers and optional release behavior, leaving invoked list-consumers path unchanged"
+    },
+    {
+      "name": "strict-default missing registry",
+      "childExitCode": 0,
+      "wrapperExitCode": 0,
+      "log": "strict-missing-registry.log",
+      "result": "strict-missing-registry-result.json",
+      "inputs": "final-source-sha256.json",
+      "real_process_guard": true
+    },
+    {
+      "name": "Node syntax and git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "earlierAttempts": [
+    {
+      "run": "cache-invalidation-336345b9",
+      "test": "strict-default missing registry",
+      "childExitCode": 1,
+      "wrapperExitCode": 1,
+      "cause": "Real-process guard rejected concurrent native compiler; no guard weakened"
+    },
+    {
+      "run": "cache-invalidation-final-1619c047",
+      "test": "preparation before legacy integration",
+      "cases": 10,
+      "childExitCode": 0,
+      "wrapperExitCode": 0
+    },
+    {
+      "run": "cache-invalidation-legacy-162edc41",
+      "test": "preparation legacy integration",
+      "cases": 11,
+      "childExitCode": 0,
+      "wrapperExitCode": 1,
+      "cause": "Tests passed; finishArtifactRun catalog lease busy; reconciled via supported closeLifecycle to stopped/failure exit1",
+      "terminal": "legacy-wrapper-terminal.json"
+    },
+    {
+      "test": "first final strict registration",
+      "executed": false,
+      "wrapperExitCode": 1,
+      "cause": "beginArtifactRun catalog.lock busy before test or output creation; root coordinated next begin after promotion terminal"
+    }
+  ],
+  "files": [
+    {
+      "source": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-accepted-5162b93f\\logs\\preparation.log",
+      "file": "preparation.log",
+      "sha256": "b6a64f61be3940876bddf154b5070b2609f98649ddcc6cd5a13b064f8b6837c9",
+      "bytes": 1128
+    },
+    {
+      "source": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-accepted-5162b93f\\reports\\validation.json",
+      "file": "preparation-result.json",
+      "sha256": "63d1e88cb3506f290d3f23e752bbbaf58275ad3a9a3585e3745cb62134d714e0",
+      "bytes": 479
+    },
+    {
+      "source": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-strict-a000bad7\\logs\\missing-registry.log",
+      "file": "strict-missing-registry.log",
+      "sha256": "973eb4f0010111743f57b4c6518366105ad7da1f979c22e8735854c855d8e858",
+      "bytes": 208
+    },
+    {
+      "source": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-strict-a000bad7\\reports\\validation.json",
+      "file": "strict-missing-registry-result.json",
+      "sha256": "75ed39505a384ccaffc4d2ef0569b533fd2722a9fea29937ab84366da64988d0",
+      "bytes": 899
+    },
+    {
+      "source": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-strict-a000bad7\\inputs\\source-sha256.json",
+      "file": "final-source-sha256.json",
+      "sha256": "4a2bb1d571b890e01f402cbf4f3babd721632b2f10bb8005bf371893ead3bd5c",
+      "bytes": 1058
+    },
+    {
+      "source": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9\\logs\\absent-invalidation.log",
+      "file": "absent-invalidation.log",
+      "sha256": "2a8c3858247fc744419b9a442f094442d65eaa47b349928ff49dbe6d4d5da08d",
+      "bytes": 506
+    },
+    {
+      "source": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9\\reports\\validation.json",
+      "file": "original-results.json",
+      "sha256": "ea85ad31fd9f2d6e339a1e780787f44f5dcd11d00bf50f2084956c881cd93a20",
+      "bytes": 2022
+    },
+    {
+      "source": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9\\inputs\\source-sha256.json",
+      "file": "original-source-sha256.json",
+      "sha256": "44eb2dad878e49a758abf8d7a35e79f5186fe2caa14edb8af01133702e530da2",
+      "bytes": 739
+    },
+    {
+      "source": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-legacy-162edc41\\reports\\wrapper-terminal.json",
+      "file": "legacy-wrapper-terminal.json",
+      "sha256": "bee7abc5131bfd2ed30222c575a9e880d17469a3837ffb71c0db159d149b11c1",
+      "bytes": 592
+    }
+  ],
+  "disposableRuns": [
+    {
+      "runId": "cache-invalidation-336345b9",
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:cache-invalidation-336345b9",
+      "path": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9",
+      "cleanupOwner": "root coordinated maintenance owner"
+    },
+    {
+      "runId": "cache-invalidation-final-1619c047",
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:cache-invalidation-final-1619c047",
+      "path": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-final-1619c047",
+      "cleanupOwner": "root coordinated maintenance owner"
+    },
+    {
+      "runId": "cache-invalidation-legacy-162edc41",
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:cache-invalidation-legacy-162edc41",
+      "path": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-legacy-162edc41",
+      "cleanupOwner": "root coordinated maintenance owner"
+    },
+    {
+      "runId": "cache-invalidation-accepted-5162b93f",
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:cache-invalidation-accepted-5162b93f",
+      "path": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-accepted-5162b93f",
+      "cleanupOwner": "root coordinated maintenance owner"
+    },
+    {
+      "runId": "cache-invalidation-strict-a000bad7",
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:cache-invalidation-strict-a000bad7",
+      "path": "artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-strict-a000bad7",
+      "cleanupOwner": "root coordinated maintenance owner"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "writer_pid": 50388,
+  "original_binary": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-duplicate-claims-win-x64/payload/maintenance_owner.exe",
+    "sha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c"
+  },
+  "retained_source_identity": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-native-source-identity.json",
+    "sha256": "4adb6083ccfb9a5bb4ab51f156a4f5b30825494d32e51c9b5fb43f7784cc64ce"
+  },
+  "lease_source": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-native-lease-source.rs",
+    "sha256": "e0f9a822ae1243e9b1695de0ba4e0f068ee3df9c7b288e5bb5eba2fb8c87738c"
+  },
+  "cli_source": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-native-cli-source.rs",
+    "sha256": "101328eb4f2d8038a2a5981e9fef2e6037426189c11db343c8f5047e057ea5d3"
+  },
+  "javascript_worker_source": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/javascript-lease-worker-source.cjs",
+    "sha256": "67a9029b8a05234736d2e92b18a09a0d9b0dd9aeab7b02f2be45ca4df90edd67"
+  },
+  "scope": "Exact --lease lifecycle.catalog mode with synchronous write_record/remove_record dispatch. This mode has no product/deletion child producer or asynchronous record writer; worker closure closes native stdin. Native EOF/error exits and drops the OS lease.",
+  "no_native_process_descendants_basis": "Exact retained lease source has no process creation path. CLI lease mode calls that synchronous loop; the JavaScript worker creates only the one native lease child.",
+  "subsequent_os_lease": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/successful-os-lease-reacquire.json",
+    "sha256": "334b525e1479b7a4bac9b05b3f7ecee04e560c0e11c005761952e88729c1becd",
+    "native_exit_code": null,
+    "observed_supported_reacquire_and_release": true,
+    "source_of_actual_dispatch_exit_zero": "Root independently reported diagnostic actual0; JSON itself records acquired/released true."
+  },
+  "limitations": [
+    "This is a source/terminal/actual-OS-lease argument, not a recorded native writer exit or acknowledgement."
+  ]
+}

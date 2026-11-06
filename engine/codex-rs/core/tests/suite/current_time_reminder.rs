@@ -879,7 +879,7 @@ async fn sleep_tool_uses_configured_time_provider() -> Result<()> {
                 ev_response_created("resp-1"),
                 ev_function_call_with_namespace(
                     CALL_ID,
-                    "clock",
+                    "legacy_codex_tools",
                     "sleep",
                     &json!({ "duration_ms": DURATION_MS }).to_string(),
                 ),

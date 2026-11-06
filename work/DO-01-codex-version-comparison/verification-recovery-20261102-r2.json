@@ -1,0 +1,21 @@
+{
+  "id": "run:do2:source-20261102-r2",
+  "lease_owner": {
+    "acquired_at_ms": 1793561891488,
+    "operation": "group_reservation",
+    "pid": 32728,
+    "schema": 2,
+    "token": "32728-1793561891488-7c8bbb72795d198d"
+  },
+  "reservation_sha256": "a4c2640adcc49cda1c7c0b386d0ac651e6c40cef65111d1b1274d0e693e9b877",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "basis": {
+    "nativePid": 32728,
+    "nativeObservedExit": 1,
+    "controllerSession": 56301,
+    "controllerObservedExit": 1,
+    "stage": "register pre-intent; no delete worker launched",
+    "observation": "Synchronous native register returned actual1, wrapper session56301 terminal1, pre-intent registration has no external worker process"
+  }
+}

@@ -304,6 +304,7 @@ fn evicted_voice_delegation_marker_still_suppresses_private_replay() {
     let mut resumed = ThreadEventStore::new(/*capacity*/ 1);
     resumed.set_turns(vec![Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: "voice-turn".into(),
         root_turn_id: None,
@@ -350,6 +351,7 @@ fn saved_voice_turn_suppresses_reasoning_without_hiding_typed_reasoning() {
     };
     let turn = |id: &str, items| Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: id.into(),
         root_turn_id: None,
@@ -400,6 +402,7 @@ fn snapshot_keeps_typed_output_before_voice_handoff_in_the_same_turn() {
     let mut store = ThreadEventStore::new(/*capacity*/ 8);
     store.set_turns(vec![Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: "shared".into(),
         root_turn_id: None,
@@ -661,6 +664,7 @@ async fn misalignment_buffered_replay_preserves_input_after_continuation() {
     };
     let failed_turn = Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         error: Some(error.clone()),
         items: vec![ThreadItem::McpToolCall {

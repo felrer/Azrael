@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "closed": {
+    "created_at": "2026-10-30T19:04:37.183Z",
+    "id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031b",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\inputs",
+        "protection_known": true,
+        "role": "inputs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\temporary",
+        "protection_known": true,
+        "role": "temporary"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\logs",
+        "protection_known": true,
+        "role": "logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports",
+        "protection_known": true,
+        "role": "reports"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\outputs",
+        "protection_known": true,
+        "role": "outputs"
+      }
+    ],
+    "membership_complete": true,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b",
+    "owner": "lifecycle-pending-abort-tool",
+    "ownership_scope": "run-root",
+    "references": [],
+    "revision": 2,
+    "schema": 1,
+    "state": "complete",
+    "updated_at": "2026-10-30T20:24:06.696Z",
+    "version": null,
+    "producer": {
+      "status": "stopped",
+      "outcome": "success",
+      "exit_code": 0,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports\\acceptance-r4.json",
+      "evidence_sha256": "ccfb00edc779cd54b4409240159ebd991c1835a6b03cc0bae7786896aff138d0",
+      "reason": "Latest r4 driver42352 native session61149 actual0: selected1/fullPM227/release passed with unchanged85d4 source and all7 Cargo observed-terminal0. Prior r3 selected101/driver1 and original kernel null remain immutable."
+    },
+    "close_receipt": {
+      "request_sha256": "24f7d6d59bbec791e9750a0251899b5943a8ecebdf4692e6eace67c21d879b6c",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports\\acceptance-r4.json",
+      "evidence_sha256": "ccfb00edc779cd54b4409240159ebd991c1835a6b03cc0bae7786896aff138d0",
+      "reason": "Latest r4 driver42352 native session61149 actual0: selected1/fullPM227/release passed with unchanged85d4 source and all7 Cargo observed-terminal0. Prior r3 selected101/driver1 and original kernel null remain immutable."
+    }
+  },
+  "priorReleased": {
+    "close_receipt": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031a\\reports\\acceptance-r2-resumed.json",
+      "evidence_sha256": "1fbb417ff014d90440e6f21b190758fe275543ad320554e0e4715c5209f5ffe2",
+      "reason": "Resumed writer47332 native exec session91330 exited0; selected-r2/fullPM227/release and c092 source guards passed. This closes only the latest accepted workflow; original selected101 and kernel35992 timeout/OSexitnull remain immutable prior attempt evidence.",
+      "request_sha256": "58467f434fe6917804a3d6ad41ca7d46cc40230fe60c20c111be42d1653d63ad"
+    },
+    "created_at": "2026-10-30T18:00:57.162Z",
+    "id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031a",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\ms3",
+        "protection_known": true,
+        "role": "inputs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt3",
+        "protection_known": true,
+        "role": "temporary"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031a\\logs",
+        "protection_known": true,
+        "role": "logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031a\\reports",
+        "protection_known": true,
+        "role": "reports"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031a\\outputs",
+        "protection_known": true,
+        "role": "outputs"
+      }
+    ],
+    "membership_complete": true,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031a",
+    "owner": "lifecycle-pending-abort-tool",
+    "ownership_scope": "run-root",
+    "producer": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031a\\reports\\acceptance-r2-resumed.json",
+      "evidence_sha256": "1fbb417ff014d90440e6f21b190758fe275543ad320554e0e4715c5209f5ffe2",
+      "exit_code": 0,
+      "outcome": "success",
+      "reason": "Resumed writer47332 native exec session91330 exited0; selected-r2/fullPM227/release and c092 source guards passed. This closes only the latest accepted workflow; original selected101 and kernel35992 timeout/OSexitnull remain immutable prior attempt evidence.",
+      "status": "stopped"
+    },
+    "references": [],
+    "revision": 6,
+    "schema": 1,
+    "state": "complete",
+    "updated_at": "2026-10-30T20:24:06.808Z",
+    "version": null,
+    "release_receipt": {
+      "request_sha256": "be6b651ad608328342560023235fec0b76cb117306ea46c7bce8cd59cf28e722",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports\\acceptance-r4.json",
+      "evidence_sha256": "ccfb00edc779cd54b4409240159ebd991c1835a6b03cc0bae7786896aff138d0",
+      "reason": "r4 producer42352 actual0 with all7 Cargo stopped; release only b execution protection on existing ms3/mt3 owner"
+    }
+  },
+  "actualTerminal": {
+    "schema": 1,
+    "executor": "exec_command/write_stdin",
+    "sessionId": 61149,
+    "pid": 42352,
+    "identity": {
+      "pid": 42352,
+      "parentPid": 1056,
+      "creationDateUtc": "2026-10-30T20:15:57.7128640Z",
+      "creationDateUnixMs": 1793391357712,
+      "executable": "C:\\Program Files\\nodejs\\node.exe"
+    },
+    "actualExitCode": 0,
+    "signal": null,
+    "startedUtc": "2026-10-30T20:15:58.375Z",
+    "finishedUtc": "2026-10-30T20:23:52.432Z",
+    "sourceOnly": {
+      "sessionId": 77350,
+      "pid": 50732,
+      "actualExitCode": 0
+    },
+    "observedUtc": "2026-10-30T20:24:06.404Z"
+  },
+  "acceptanceSha256": "ccfb00edc779cd54b4409240159ebd991c1835a6b03cc0bae7786896aff138d0",
+  "recordedUtc": "2026-10-30T20:24:06.843Z"
+}

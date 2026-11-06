@@ -1,0 +1,898 @@
+﻿[
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-f0551f81d99a26d74728\\01-sk\\migration\\migration-aETJjT\\installed\\skills\\example",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sk\\migration\\migration-aETJjT\\other"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-f0551f81d99a26d74728\\01-sk\\migration\\migration-ApXAFq\\installed\\skills\\example",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sk\\migration\\migration-ApXAFq\\legacy-source"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-f0551f81d99a26d74728\\01-sk\\migration\\migration-ApXAFq\\recorded-restored-link",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sk\\migration\\migration-ApXAFq\\legacy-source"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-f0551f81d99a26d74728\\01-sk\\migration\\migration-d4Amsv\\installed\\skills\\example",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sk\\migration\\migration-d4Amsv\\legacy-source"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-f0551f81d99a26d74728\\01-sk\\migration\\migration-hcO58M\\installed\\skills\\example",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sk\\migration\\migration-hcO58M\\legacy-source"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-f0551f81d99a26d74728\\01-sk\\migration\\migration-J0UiAb\\installed\\skills\\example\\linked-folder",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sk\\migration\\migration-J0UiAb\\legacy-source"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-f0551f81d99a26d74728\\01-sk\\migration\\migration-sOmaRt\\installed\\skills\\example",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sk\\migration\\migration-sOmaRt\\legacy-source"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-f0551f81d99a26d74728\\01-sk\\migration\\migration-tHswVt\\installed\\skills\\example",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sk\\migration\\migration-tHswVt\\legacy-source"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-f0551f81d99a26d74728\\01-sk\\migration\\migration-vJarY6\\installed\\skills\\example",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sk\\migration\\migration-vJarY6\\legacy-source"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\@bufbuild\\protobuf\\2.14.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\@bufbuild\\protobuf@2.14.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\@hono\\node-server\\2.1.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\@hono\\node-server@2.1.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\@modelcontextprotocol\\sdk\\1.30.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\@modelcontextprotocol\\sdk@1.30.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\@napi-rs\\keyring\\1.3.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\@napi-rs\\keyring@1.3.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\@napi-rs\\keyring-win32-x64-msvc\\1.3.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\@napi-rs\\keyring-win32-x64-msvc@1.3.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\@oven\\bun-windows-x64\\1.4.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\@oven\\bun-windows-x64@1.4.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\@types\\bun\\1.4.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\@types\\bun@1.4.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\@types\\node\\26.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\@types\\node@26.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\@typescript\\typescript-win32-x64\\7.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\@typescript\\typescript-win32-x64@7.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\accepts\\2.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\accepts@2.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\ajv\\8.20.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\ajv@8.20.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\ajv-formats\\3.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\ajv-formats@3.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\body-parser\\2.3.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\body-parser@2.3.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\bun\\1.4.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\bun@1.4.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\bun-types\\1.4.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\bun-types@1.4.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\bytes\\3.1.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\bytes@3.1.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\call-bind-apply-helpers\\1.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\call-bind-apply-helpers@1.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\call-bound\\1.0.4@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\call-bound@1.0.4@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\content-disposition\\1.1.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\content-disposition@1.1.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\content-type\\1.0.5@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\content-type@1.0.5@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\content-type\\2.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\content-type@2.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\cookie\\0.7.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\cookie@0.7.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\cookie-signature\\1.2.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\cookie-signature@1.2.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\cors\\2.8.6@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\cors@2.8.6@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\cross-spawn\\7.0.6@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\cross-spawn@7.0.6@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\debug\\4.4.3@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\debug@4.4.3@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\depd\\2.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\depd@2.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\dunder-proto\\1.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\dunder-proto@1.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\ee-first\\1.1.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\ee-first@1.1.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\encodeurl\\2.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\encodeurl@2.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\es-define-property\\1.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\es-define-property@1.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\es-errors\\1.3.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\es-errors@1.3.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\es-object-atoms\\1.1.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\es-object-atoms@1.1.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\escape-html\\1.0.3@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\escape-html@1.0.3@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\etag\\1.8.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\etag@1.8.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\eventsource\\3.0.7@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\eventsource@3.0.7@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\eventsource-parser\\3.1.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\eventsource-parser@3.1.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\express\\5.2.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\express@5.2.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\express-rate-limit\\8.5.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\express-rate-limit@8.5.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\fast-deep-equal\\3.1.3@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\fast-deep-equal@3.1.3@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\fast-uri\\3.1.7@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\fast-uri@3.1.7@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\finalhandler\\2.1.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\finalhandler@2.1.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\forwarded\\0.2.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\forwarded@0.2.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\fresh\\2.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\fresh@2.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\function-bind\\1.1.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\function-bind@1.1.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\get-intrinsic\\1.3.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\get-intrinsic@1.3.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\get-proto\\1.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\get-proto@1.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\gopd\\1.2.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\gopd@1.2.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\has-symbols\\1.1.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\has-symbols@1.1.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\hasown\\2.0.4@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\hasown@2.0.4@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\hono\\4.13.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\hono@4.13.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\http-errors\\2.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\http-errors@2.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\iconv-lite\\0.7.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\iconv-lite@0.7.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\inherits\\2.0.4@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\inherits@2.0.4@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\ip-address\\10.4.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\ip-address@10.4.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\ipaddr.js\\1.9.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\ipaddr.js@1.9.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\is-promise\\4.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\is-promise@4.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\isexe\\2.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\isexe@2.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\jose\\6.2.3@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\jose@6.2.3@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\json-schema-traverse\\1.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\json-schema-traverse@1.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\json-schema-typed\\8.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\json-schema-typed@8.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\math-intrinsics\\1.1.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\math-intrinsics@1.1.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\media-typer\\1.1.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\media-typer@1.1.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\merge-descriptors\\2.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\merge-descriptors@2.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\mime-db\\1.54.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\mime-db@1.54.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\mime-types\\3.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\mime-types@3.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\ms\\2.1.3@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\ms@2.1.3@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\negotiator\\1.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\negotiator@1.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\object-assign\\4.1.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\object-assign@4.1.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\object-inspect\\1.13.4@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\object-inspect@1.13.4@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\on-finished\\2.4.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\on-finished@2.4.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\once\\1.4.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\once@1.4.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\parseurl\\1.3.3@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\parseurl@1.3.3@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\path-key\\3.1.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\path-key@3.1.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\path-to-regexp\\8.4.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\path-to-regexp@8.4.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\pkce-challenge\\5.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\pkce-challenge@5.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\proxy-addr\\2.0.7@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\proxy-addr@2.0.7@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\qs\\6.16.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\qs@6.16.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\range-parser\\1.3.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\range-parser@1.3.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\raw-body\\3.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\raw-body@3.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\require-from-string\\2.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\require-from-string@2.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\router\\2.2.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\router@2.2.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\safer-buffer\\2.1.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\safer-buffer@2.1.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\send\\1.2.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\send@1.2.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\serve-static\\2.2.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\serve-static@2.2.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\setprototypeof\\1.2.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\setprototypeof@1.2.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\shebang-command\\2.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\shebang-command@2.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\shebang-regex\\3.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\shebang-regex@3.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\side-channel\\1.1.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\side-channel@1.1.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\side-channel-list\\1.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\side-channel-list@1.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\side-channel-map\\1.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\side-channel-map@1.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\side-channel-weakmap\\1.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\side-channel-weakmap@1.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\statuses\\2.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\statuses@2.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\toidentifier\\1.0.1@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\toidentifier@1.0.1@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\type-is\\2.1.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\type-is@2.1.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\typescript\\7.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\typescript@7.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\undici-types\\8.3.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\undici-types@8.3.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\unpipe\\1.0.0@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\unpipe@1.0.0@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\vary\\1.1.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\vary@1.1.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\which\\2.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\which@2.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\wrappy\\1.0.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\wrappy@1.0.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\zod\\4.4.3@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\zod@4.4.3@@@1"
+                   ],
+        "link_type":  "Junction"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-a3449992c4eec04ef54a\\01-sf\\bun-cache\\zod-to-json-schema\\3.25.2@@@1",
+        "attributes":  3088,
+        "target":  [
+                       "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\artifacts\\sf\\bun-cache\\zod-to-json-schema@3.25.2@@@1"
+                   ],
+        "link_type":  "Junction"
+    }
+]

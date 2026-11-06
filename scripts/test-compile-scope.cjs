@@ -15,7 +15,7 @@ test("core integration targets remain explicitly selectable without expanding un
     source: block.match(/path\s*=\s*"([^"]+)"/)[1],
     selected: /required-features\s*=\s*\["integration-tests"\]/.test(block.split(/^\[/m)[0]),
   }));
-  assert.deepEqual(targets.map(t => t.name).sort(), ["all", "mcp_trace_propagation", "request_user_input_async", "responses_headers"]);
+  assert.deepEqual(targets.map(t => t.name).sort(), ["all", "code_mode_tracing", "mcp_trace_propagation", "request_user_input_async", "responses_headers"]);
   for (const target of targets) {
     assert.ok(target.selected, target.name);
     assert.ok(fs.existsSync(path.join(root, "engine/codex-rs/core", target.source)));

@@ -1,0 +1,207 @@
+{
+  "schema": 1,
+  "targetThread": "01a1944e-688b-7263-a3ab-b9cedba56951",
+  "scope": "Read-only historical Windows x64 build timing audit. No build or tests run.",
+  "generatedAt": "2026-11-01T14:21:01.601Z",
+  "timezone": "Asia/Seoul",
+  "sources": [
+    {
+      "path": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\01\\rollout-2026-11-01T08-32-09-01a1944e-688b-7263-a3ab-b9cedba56951.jsonl",
+      "sha256": "81d9458baeb4c0efa82b481c9f2325faf1f126d8e4ea36f013b85026bd6f2e3a"
+    },
+    {
+      "path": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\01\\rollout-2026-11-01T08-32-20-01a1944e-688b-7263-a3ab-b9cedba56951_01a1944e-949e-76e1-bafc-d9cea9502729.jsonl",
+      "sha256": "a3dd93b468e1f954c7eaf2991d8c1b8f33b052cfbf2e1fd5868bd03d404e5dcb"
+    },
+    {
+      "path": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\01\\rollout-2026-11-01T08-58-58-01a1944e-688b-7263-a3ab-b9cedba56951_01a19466-f7b7-7c60-a1b3-10fcb75ed912.jsonl",
+      "sha256": "f6ae3f5642d5e5eb03018e1b006af2c65824b97430dbdb9587104d4d6d50f46d"
+    },
+    {
+      "path": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\01\\rollout-2026-11-01T08-59-23-01a1944e-688b-7263-a3ab-b9cedba56951_01a19467-57e1-79b1-bc3e-16cdf81273f0.jsonl",
+      "sha256": "b0af313b9145af57f50ce19e20d8fe6e73b0b846db7409ae29d137c4f14e31e9"
+    },
+    {
+      "path": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\01\\rollout-2026-11-01T16-33-21-01a1944e-688b-7263-a3ab-b9cedba56951_01a19606-f838-7381-8450-4086b7cfec8b.jsonl",
+      "sha256": "dd1b20563ee1a192a0dcdd8366839d5daa4c61b6bbe9d0cf3f60b39ed10e3d8b"
+    },
+    {
+      "path": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\01\\rollout-2026-11-01T16-33-43-01a1944e-688b-7263-a3ab-b9cedba56951_01a19607-4e42-7723-ae3d-24522fbe2c62.jsonl",
+      "sha256": "a8a7236f97faca55dbd343726677da55646dcc3545f9f63dcd7260736219aa05"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\freeze-resume-ao\\reports\\deployment-inputs.json",
+      "sha256": "3f2e3c45f31aaa545bb93dea95079b738f135947bcd92fbd442e09e4c7cfbbd3"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\logs\\win014-eu01-20261101-aw-product\\build-metrics.json",
+      "sha256": "34a40255d69b6417441720341f019e8204c2d84a83735b01967116682b38fccc"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\logs\\verification-evidence\\deploy-win014-eu01-20261101-aw-product\\source-initial\\results.json",
+      "sha256": "034ae054c29aec384b76d55455bc593e62a9b87ff622c3c0319b1ab6f9dc3cee"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\acceptance-ba\\reports\\engine-preservation\\preservation-K26mwa\\receipt.json",
+      "sha256": "6fb6c56d5226ef7737926c69917607d30283deb24868471bbe8c33e6a4c7a21e"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\logs\\verification-evidence\\deploy-win014-eu01-20261101-aw-product\\native\\preservation-L6GN76\\receipt.json",
+      "sha256": "56b5221c080b9f72328f27754581b4564aeddb487ba039deb115077345aa20fc"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\deployments\\deploy-win014-eu01-20261101-aw-product\\package\\preparation-metrics.json",
+      "sha256": "1d3266e18a76e4936a76505b1748eedbea6f21d9775de3dd0fba65c9be5b8845"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\deployments\\deploy-win014-eu01-20261101-aw-product\\package\\azrael-host.vsix.metrics.json",
+      "sha256": "f7c1629206096df1227f3fe9256972be45833d2d54e3ef43a38b288ac7b7c6be"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\releases\\win014-eu01-20261101-aw-product\\build-acceptance.json",
+      "sha256": "0167d19d85345909e0cda49aa0a428fdb5f3bfdc34e0e4f501d26aff9b24ed6a"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\install-bf\\result.json",
+      "sha256": "4649f74b66ffd43eb1d4a4717d20a6af562ba8251bee2956e765ff0cc435d7d4"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\deployments\\independent-20261101-194615-298\\deployment.json",
+      "sha256": "7d4311dbfa0da2a58b8dc52f04a1396a66c70c9b08b9de52df0bc63f335bfd8c"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-archive-mapping.json",
+      "sha256": "e7e49667109fffc9decfe9299e861bcdf723bde7b494333e3334f2027030dfe0"
+    }
+  ],
+  "timeline": [
+    {
+      "label": "진단·수정",
+      "start": "2026-11-01T01:34:55.614Z",
+      "end": "2026-11-01T01:56:59.504Z",
+      "elapsedMs": 1323890
+    },
+    {
+      "label": "사전 검사·고정 입력",
+      "start": "2026-11-01T01:56:59.504Z",
+      "end": "2026-11-01T02:18:29.929Z",
+      "elapsedMs": 1290425
+    },
+    {
+      "label": "제품 빌드 실행 준비",
+      "start": "2026-11-01T02:18:29.929Z",
+      "end": "2026-11-01T02:19:54.520Z",
+      "elapsedMs": 84591
+    },
+    {
+      "label": "첫 제품 빌드(엔진 성공·npm 경로 실패)",
+      "start": "2026-11-01T02:19:54.520Z",
+      "end": "2026-11-01T03:01:18.558Z",
+      "elapsedMs": 2484038
+    },
+    {
+      "label": "환경·경로 수정·소스 사전 검사",
+      "start": "2026-11-01T03:01:18.558Z",
+      "end": "2026-11-01T03:16:52.269Z",
+      "elapsedMs": 933711
+    },
+    {
+      "label": "완료 엔진 재사용 제품 조립",
+      "start": "2026-11-01T03:16:52.269Z",
+      "end": "2026-11-01T03:27:24.196Z",
+      "elapsedMs": 631927
+    },
+    {
+      "label": "인수 입력 확인·검사 시작 준비",
+      "start": "2026-11-01T03:27:24.196Z",
+      "end": "2026-11-01T03:30:31.916Z",
+      "elapsedMs": 187720
+    },
+    {
+      "label": "첫 전체 선택 소스 검사",
+      "start": "2026-11-01T03:30:31.916Z",
+      "end": "2026-11-01T03:59:56.905Z",
+      "elapsedMs": 1764989
+    },
+    {
+      "label": "fixture 보완·실패 범위 재검사",
+      "start": "2026-11-01T03:59:56.905Z",
+      "end": "2026-11-01T04:08:02.998Z",
+      "elapsedMs": 486093
+    },
+    {
+      "label": "첫 네이티브 인수·중단·재개 요청까지",
+      "start": "2026-11-01T04:08:02.998Z",
+      "end": "2026-11-01T05:40:32.064Z",
+      "elapsedMs": 5549066
+    },
+    {
+      "label": "소유 실행 복구·재개 준비",
+      "start": "2026-11-01T05:40:32.064Z",
+      "end": "2026-11-01T05:44:47.232Z",
+      "elapsedMs": 255168
+    },
+    {
+      "label": "재개한 네이티브 검사",
+      "start": "2026-11-01T05:44:47.232Z",
+      "end": "2026-11-01T06:07:12.562Z",
+      "elapsedMs": 1345330
+    },
+    {
+      "label": "최종 VSIX 준비·생성",
+      "start": "2026-11-01T06:07:12.562Z",
+      "end": "2026-11-01T06:15:56.100Z",
+      "elapsedMs": 523538
+    },
+    {
+      "label": "첫 격리 인수·실패 결과 확보",
+      "start": "2026-11-01T06:15:56.100Z",
+      "end": "2026-11-01T06:20:28.946Z",
+      "elapsedMs": 272846
+    },
+    {
+      "label": "검증기 제한시간 수정·재실행 준비",
+      "start": "2026-11-01T06:20:28.946Z",
+      "end": "2026-11-01T06:25:16.656Z",
+      "elapsedMs": 287710
+    },
+    {
+      "label": "최종 격리 인수·엔진 재확인·영수증 완성",
+      "start": "2026-11-01T06:25:16.656Z",
+      "end": "2026-11-01T06:37:43.732Z",
+      "elapsedMs": 747076
+    }
+  ],
+  "buildThroughAcceptanceMs": 18168118,
+  "engineOriginal": {
+    "source": "session output 2026-11-01T03:01:42.169Z and 03:01:54.686Z",
+    "startedUtc": "2026-11-01T02:19:54.5204946Z",
+    "completedUtc": "2026-11-01T03:01:18.5580870Z",
+    "elapsedMs": 2484037,
+    "status": "failed",
+    "engineBuildMs": 2267636,
+    "cargoCommandMs": 2241671,
+    "engineSourceAndBinaryCheckMs": 95720,
+    "hostCompatibilityMs": 118080,
+    "companionStagingMs": 1326
+  },
+  "nativeActualTestExecution": {
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\acceptance-ba\\reports\\engine-preservation\\preservation-K26mwa\\engine.shared-engine.appserver.log",
+    "sha256": "68a2a8031c4cdb808554b22dc6a00fe0823c2a5a6c0701bb722ebf3cb834afe1",
+    "passedTests": 90,
+    "seconds": 23.190000000000005
+  },
+  "unknowns": [
+    "First native parent receipt stayed running and was cancelled; child handoff actual exit 0 does not prove parent success.",
+    "04:48:28.747 to 05:40:32.064 is an unsegmented interval, not established CPU idle or lock wait.",
+    "Raw initial source-test output was deleted; no per-file source execution ranking inferred.",
+    "No Cargo dirty/fingerprint trace in original release command: exact recompilation cause not established."
+  ],
+  "currentFollowup": {
+    "preparedInputPriorMs": 872692.1224,
+    "preparedInputAfterMs": 785074.6744,
+    "controlledComparison": false,
+    "record": "07-measurement.json",
+    "notPartOfTargetSession": true
+  }
+}

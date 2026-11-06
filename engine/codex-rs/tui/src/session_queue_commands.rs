@@ -114,6 +114,7 @@ pub(super) async fn run_session_queue_action_with_app_server(
         .request_typed(ClientRequest::ThreadQueueAdd {
             request_id,
             params: ThreadQueueAddParams {
+            agent_profile: None,
                 thread_id: thread_id.to_string(),
                 kind: None,
                 input: vec![UserInput::Text {

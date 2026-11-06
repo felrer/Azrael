@@ -1,0 +1,54 @@
+{
+  "scope": "FA-01 standalone workbench, Windows x64 / Node 26.7 / Chrome",
+  "testRun": {
+    "startedAt": "2026-11-01T17:16:00.332Z",
+    "endedAt": "2026-11-01T17:16:11.279Z",
+    "exitCode": 0,
+    "signal": null,
+    "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T171552798Z-e617b94f-754f-4262-9568-69d75e30fa54\\logs\\tests.log",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T171552798Z-e617b94f-754f-4262-9568-69d75e30fa54",
+    "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261101T171552798Z-e617b94f-754f-4262-9568-69d75e30fa54"
+  },
+  "sourceIdentity": {
+    "scripts/instruction-workbench.cjs": "142df88ededb43ef95e7e4125be4ff57eb61272763b3e23ba75c14a71ccaaaff",
+    "scripts/tests/instruction-workbench.test.cjs": "04579e29b7a067d3d9c4200fb01cbc5bb9402fd85edb5e3548fd432e19fce61a",
+    "scripts/tests/instruction-workbench-server.test.cjs": "ee73ac0fb5868add86c2c080cb31dcd3677106b663617fd0a0ab75d0a5fa372f",
+    "scripts/instruction-workbench-view.cjs": "d254cc7083ff8d3e8a4d50b989b5551276b7faea8f99cddff9dd5cc105313087",
+    "scripts/serve-instruction-workbench.cjs": "cb5e6f60f37865668a525105c1d5e18183eca9716f409b2081402ecf62455de6"
+  },
+  "browser": {
+    "passed": [
+      "Local package create/detail/file preview",
+      "Package-provided profile save and equip",
+      "Independent project A/B state and restoration",
+      "Request snapshot isolation",
+      "360/800/1440 CSS widths and light/dark themes",
+      "GitHub background state with usable search and preserved local cards",
+      "Explicit profile handle mouse drag equips the selected project",
+      "Authenticated live public felrer/Azrael catalog refresh completed, without source error; no published resource packages returned"
+    ],
+    "pending": [
+      "Real GitHub package acquisition",
+      "Installed-engine model/provider application",
+      "Linux/macOS acceptance"
+    ]
+  },
+  "responseSample": {
+    "pageMs": 34,
+    "localStateMs": 244,
+    "caveat": "Single warm local measurement; not a benchmark or installed-app claim"
+  },
+  "cleanup": "Disposable terminal run logs summarized here before owner-based removal; original observed failures remain in 02-verification.json",
+  "tests": 9,
+  "liveServer": {
+    "url": "http://127.0.0.1:4318/",
+    "runRoot": "artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261101T173353779Z-f4cb0634-6178-45ff-ba92-70f003789f48",
+    "pid": 39252,
+    "checkBundle": {
+      "bytesAtMeasurement": 41677,
+      "files": 7,
+      "purpose": "Live standalone UI, sample package/profile, minimal HTTP logs, screenshot; stop and owner-clean after user confirms normal operation",
+      "cleanupPending": true
+    }
+  }
+}

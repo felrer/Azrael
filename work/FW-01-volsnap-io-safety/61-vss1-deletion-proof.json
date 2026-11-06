@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "status": "actual-owner-deletion-and-root-absence",
+  "id": "run:fw03v:fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+  "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+  "sourceOriginalState": "failed",
+  "sourceOriginalProducer": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss-bounded-producer-stop-proof.json",
+    "evidence_sha256": "e595e607e25616672ea8550a5bd313f7342df99a092c36fa3828949054df889f",
+    "exit_code": 1,
+    "outcome": "failure",
+    "reason": "Root accepted bounded exact owned VSS producer source containment plus actual controller/native terminal/drain, fixtureJoin and owned shadow absence/detach; no OS-global/per-worker missing-event claim",
+    "status": "stopped"
+  },
+  "logicalBytes": 272821115,
+  "physicalReclaimedBytes": null,
+  "member": {
+    "id": "9cdf1bff868863241f86fa0fb1279b995ee481c5b0dcd876f26e217462842b0b",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+    "blockers": [],
+    "verification": "registered",
+    "logicalBytes": 272821115
+  },
+  "applyResults": [
+    {
+      "attempt_id": "attempt-23684-7534-1793947998042",
+      "decision": "delete",
+      "decision_id": "7c5cbdb0f76543b3b2b5bd055e908554de4c8ed75cb6e4587090ba4fe5b4f0af",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "9cdf1bff868863241f86fa0fb1279b995ee481c5b0dcd876f26e217462842b0b",
+      "lifecycle_group_id": "run:fw03v:fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+      "reason": "Exact user-authorized FW01 owned disposable group; accepted producer stop and complete membership, ended consumers and independently surviving result/evidence; preserve unrelated groups",
+      "remaining": false,
+      "status": "deleted",
+      "token": "a0d9e6745fb874042f35daade5f8e546ba0be5f8cca46eeae8e988b6e1cda7e7"
+    }
+  ],
+  "nativeActors": [
+    {
+      "label": "vss1-register",
+      "pid": 16104,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss1-register.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss1-review",
+      "pid": 25120,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss1-review.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss1-apply",
+      "pid": 23684,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss1-apply.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    }
+  ],
+  "rootAbsent": true,
+  "notClaimed": "No original failed/unknown outcome rewritten; physical free-space reclamation not measured"
+}

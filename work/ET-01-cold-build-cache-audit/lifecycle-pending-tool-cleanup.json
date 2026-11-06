@@ -1,0 +1,382 @@
+{
+  "schema": 1,
+  "scope": "Only lifecycle-pending-abort a/b, a external ms3/mt3, and actual O CLI b root",
+  "sources": [
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+      "revision": 6,
+      "state": "complete",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031a\\reports\\acceptance-r2-resumed.json",
+        "evidence_sha256": "1fbb417ff014d90440e6f21b190758fe275543ad320554e0e4715c5209f5ffe2",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Resumed writer47332 native exec session91330 exited0; selected-r2/fullPM227/release and c092 source guards passed. This closes only the latest accepted workflow; original selected101 and kernel35992 timeout/OSexitnull remain immutable prior attempt evidence.",
+        "status": "stopped"
+      },
+      "references": [],
+      "inbound": []
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031b",
+      "revision": 2,
+      "state": "complete",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports\\acceptance-r4.json",
+        "evidence_sha256": "ccfb00edc779cd54b4409240159ebd991c1835a6b03cc0bae7786896aff138d0",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Latest r4 driver42352 native session61149 actual0: selected1/fullPM227/release passed with unchanged85d4 source and all7 Cargo observed-terminal0. Prior r3 selected101/driver1 and original kernel null remain immutable.",
+        "status": "stopped"
+      },
+      "references": [],
+      "inbound": []
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:o-pending-abort-20261031b",
+      "revision": 2,
+      "state": "complete",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\o-pending-abort-20261031b\\reports\\producer-a52dd43206b99335d6d410f9235d73e85789bc81a511973402a622934712c3cf.json",
+        "evidence_sha256": "a52dd43206b99335d6d410f9235d73e85789bc81a511973402a622934712c3cf",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Actual r4 standalone abort0; exact unpublished pending absent; authoritative JSON and references byte unchanged. Original native unknown/null preserved.",
+        "status": "stopped"
+      },
+      "references": [],
+      "inbound": []
+    }
+  ],
+  "maintenanceOwner": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-contained-registry-win-x64\\payload\\maintenance_owner.exe",
+    "sha256": "2a14a04c64ae2752f1cb98be27fe1d102855a780190b3f32729ea201a11259be"
+  },
+  "independentAcceptance": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\o-pending-abort-acceptance\\acceptance.json",
+    "sha256": "d0dcd8ab255c64430c2ad94784f827125356dc0275b3d98c460c884ef8c87aa2"
+  },
+  "ownerSelection": {
+    "retained": "2a14 contained guard accepted",
+    "f167RegistrySha": "1293359d3d928cdc0a7b29bf479a788d0fa946031285cf43180a0a75917c3a8e",
+    "requiredGuardSha": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104",
+    "reason": "Small r3/r6 verification inputs differ; equivalent contained guard acceptance not established"
+  },
+  "rawHandoff": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\lifecycle-pending-tool-cleanup-6c4b02",
+    "files": [
+      {
+        "name": "apply-execution.json",
+        "bytes": 4319
+      },
+      {
+        "name": "apply-request.json",
+        "bytes": 1854
+      },
+      {
+        "name": "apply-result.json",
+        "bytes": 4720
+      },
+      {
+        "name": "cleanup.cjs",
+        "bytes": 6323
+      },
+      {
+        "name": "register-a-execution.json",
+        "bytes": 4247
+      },
+      {
+        "name": "register-a-request.json",
+        "bytes": 2533
+      },
+      {
+        "name": "register-a-result.json",
+        "bytes": 4356
+      },
+      {
+        "name": "register-b-execution.json",
+        "bytes": 2106
+      },
+      {
+        "name": "register-b-request.json",
+        "bytes": 1309
+      },
+      {
+        "name": "register-b-result.json",
+        "bytes": 2021
+      },
+      {
+        "name": "register-c-execution.json",
+        "bytes": 2067
+      },
+      {
+        "name": "register-c-request.json",
+        "bytes": 1281
+      },
+      {
+        "name": "register-c-result.json",
+        "bytes": 1982
+      },
+      {
+        "name": "review-execution.json",
+        "bytes": 28493
+      },
+      {
+        "name": "review-request.json",
+        "bytes": 294
+      },
+      {
+        "name": "review-result.json",
+        "bytes": 33652
+      },
+      {
+        "name": "source-finalize.json",
+        "bytes": 1518
+      }
+    ],
+    "cleanupOwner": "Root accepted exact raw helper F follow-up in delegated contract; current use ended"
+  },
+  "review": [
+    {
+      "id": "0402425b538d81c9fe7be42cfec3f4b85928175163a320c268f45999d25c42d8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b",
+      "group": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031b",
+      "token": "0e9197e6afdd12172f8cb2d093314188ced0f2f045cb3d13c7fa952b23da07ca",
+      "blockers": [],
+      "logicalBytes": 7045076
+    },
+    {
+      "id": "344294bffa1dd3a0766dc3357931e9155062971d1d9fa9dd7c6ad3bbf4994084",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031a",
+      "group": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+      "token": "120d3f17fd167a31b0e239213aa25014ca2e2126b46ae69dc9841d710bae0652",
+      "blockers": [],
+      "logicalBytes": 7480736
+    },
+    {
+      "id": "b3ec623102ae48b019df8ecf58fcadb0dd681cd1c74b7172cf0e4cc28a1e0858",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt3",
+      "group": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+      "token": "f413ab350e2c4e1fb6a489b613bb5889fad23a35d78bfc4c70e57144122793d2",
+      "blockers": [],
+      "logicalBytes": 1103725448
+    },
+    {
+      "id": "cf2a1e55584450546e0f29bbdda5ff6a57aacfcde6cc23d4649523b7f96a462c",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\ms3",
+      "group": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+      "token": "248e9ba7e89619bacc70649786d8b0df731d9798090067e672b67d61ebca1b6d",
+      "blockers": [],
+      "logicalBytes": 405453270
+    },
+    {
+      "id": "d088dad720d49f37a29d7b64e145cd9762a73c926668050df4b10da0925959a3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\o-pending-abort-20261031b",
+      "group": "run:ET-01-cold-build-cache-audit:o-pending-abort-20261031b",
+      "token": "4c7619d0415e8df89466ce8c27ba8b19e7bebdaa62c6ae308335d3c795d57c7e",
+      "blockers": [],
+      "logicalBytes": 6252
+    }
+  ],
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031b",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ET-01-cold-build-cache-audit:o-pending-abort-20261031b",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-48460-64-1793392961950",
+        "decision": "delete",
+        "decision_id": "9b630a4fdbb91ca65767fd585b4d6d57abf7403ab782bc7ebef6a2771b39748b",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "0402425b538d81c9fe7be42cfec3f4b85928175163a320c268f45999d25c42d8",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031b",
+        "reason": "Exact exhausted tool a/b and exclusive ms3/mt3; full independent acceptance and prior failures preserved; current consumers excluded",
+        "remaining": false,
+        "status": "deleted",
+        "token": "0e9197e6afdd12172f8cb2d093314188ced0f2f045cb3d13c7fa952b23da07ca"
+      },
+      {
+        "attempt_id": "attempt-48460-66-1793392973477",
+        "decision": "delete",
+        "decision_id": "7615ec87dc3a40aa42faf93bc8b68198a3f88fc1d220b6d66c8117a40871cc4f",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "344294bffa1dd3a0766dc3357931e9155062971d1d9fa9dd7c6ad3bbf4994084",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+        "reason": "Exact exhausted tool a/b and exclusive ms3/mt3; full independent acceptance and prior failures preserved; current consumers excluded",
+        "remaining": false,
+        "status": "deleted",
+        "token": "120d3f17fd167a31b0e239213aa25014ca2e2126b46ae69dc9841d710bae0652"
+      },
+      {
+        "attempt_id": "attempt-48460-68-1793392977409",
+        "decision": "delete",
+        "decision_id": "fe2c376aa989c536059cab171c5310e9e691ac8fafc1eb31793bf758497f2df8",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "b3ec623102ae48b019df8ecf58fcadb0dd681cd1c74b7172cf0e4cc28a1e0858",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+        "reason": "Exact exhausted tool a/b and exclusive ms3/mt3; full independent acceptance and prior failures preserved; current consumers excluded",
+        "remaining": false,
+        "status": "deleted",
+        "token": "f413ab350e2c4e1fb6a489b613bb5889fad23a35d78bfc4c70e57144122793d2"
+      },
+      {
+        "attempt_id": "attempt-48460-70-1793393035372",
+        "decision": "delete",
+        "decision_id": "f5d5fadb1d8ff0cb4e0b18f47d2ae526a5d07ad96dd9c3f125062e386a0e4927",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "cf2a1e55584450546e0f29bbdda5ff6a57aacfcde6cc23d4649523b7f96a462c",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+        "reason": "Exact exhausted tool a/b and exclusive ms3/mt3; full independent acceptance and prior failures preserved; current consumers excluded",
+        "remaining": false,
+        "status": "deleted",
+        "token": "248e9ba7e89619bacc70649786d8b0df731d9798090067e672b67d61ebca1b6d"
+      },
+      {
+        "attempt_id": "attempt-48460-72-1793393619383",
+        "decision": "delete",
+        "decision_id": "62e5b78d798b1376caf44160997b58eb05ca5cfaf79125b5431d6e490d9a6155",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "d088dad720d49f37a29d7b64e145cd9762a73c926668050df4b10da0925959a3",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:o-pending-abort-20261031b",
+        "reason": "Exact exhausted tool a/b and exclusive ms3/mt3; full independent acceptance and prior failures preserved; current consumers excluded",
+        "remaining": false,
+        "status": "deleted",
+        "token": "4c7619d0415e8df89466ce8c27ba8b19e7bebdaa62c6ae308335d3c795d57c7e"
+      }
+    ]
+  },
+  "actualRemaining": [],
+  "sourceFinalizationPending": false,
+  "executions": [
+    {
+      "stage": "register-a",
+      "pid": 34136,
+      "start": "2026-10-30T20:30:57.891Z",
+      "end": "2026-10-30T20:38:32.522Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "register-b",
+      "pid": 59280,
+      "start": "2026-10-30T20:39:38.189Z",
+      "end": "2026-10-30T20:39:50.418Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "register-c",
+      "pid": 39944,
+      "start": "2026-10-30T20:40:02.758Z",
+      "end": "2026-10-30T20:40:46.010Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "review",
+      "pid": 48968,
+      "start": "2026-10-30T20:40:50.840Z",
+      "end": "2026-10-30T20:40:54.191Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "apply",
+      "pid": 48460,
+      "start": "2026-10-30T20:41:01.721Z",
+      "end": "2026-10-30T20:53:45.192Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ],
+  "finalized": [
+    {
+      "pid": 51404,
+      "start": "2026-10-30T20:54:28.132Z",
+      "end": "2026-10-30T20:54:28.375Z",
+      "exitCode": 0,
+      "id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031a",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\7558f27979bb5ec4e33d5cf165ec06db92ad2f645c3c8c2c18e33ad6f9999dcc.json",
+      "sourceAbsent": true
+    },
+    {
+      "pid": 51404,
+      "start": "2026-10-30T20:54:28.375Z",
+      "end": "2026-10-30T20:54:28.654Z",
+      "exitCode": 0,
+      "id": "run:ET-01-cold-build-cache-audit:lifecycle-pending-abort-20261031b",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\39efb3bcb2fc9c13798e699f6eed54fd54592301c2c4ed5071e5a3b63b06aaad.json",
+      "sourceAbsent": true
+    },
+    {
+      "pid": 51404,
+      "start": "2026-10-30T20:54:28.654Z",
+      "end": "2026-10-30T20:54:28.866Z",
+      "exitCode": 0,
+      "id": "run:ET-01-cold-build-cache-audit:o-pending-abort-20261031b",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\5cda498c4aa8786ce3d19d2da953bd0d973f0d4f8657db3a4fa49964a485ca97.json",
+      "sourceAbsent": true
+    }
+  ],
+  "status": "deleted-and-finalized"
+}

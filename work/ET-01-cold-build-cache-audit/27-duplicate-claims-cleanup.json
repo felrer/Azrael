@@ -1,0 +1,35 @@
+{
+  "startedUtc": "2026-10-30T03:34:09.766Z",
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe",
+  "steps": [
+    {
+      "stage": "migration-review",
+      "request": {
+        "operation": "reconcile_duplicate_groups",
+        "sources": [
+          {
+            "id": "do1-unused-native-outputs-r1",
+            "owner": "DO-01-codex-version-comparison"
+          },
+          {
+            "id": "do2-native-outputs-r1",
+            "owner": "codex-retained-reasoning"
+          }
+        ],
+        "target": {
+          "id": "work:ET-01:legacy-native-duplicate-claims",
+          "owner": "cargo-target-owner"
+        },
+        "reason": "User approved resolving duplicate claims and invalidating all regenerable build caches. Consolidate exact legacy native output ownership before ordinary deletion.",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-duplicate-claims-current-originals.json",
+        "evidence_sha256": "8726eca64840ebe9df7870c0b707e3606d846d54b42d5ea3a021bbd64d6c35c6",
+        "phase": "review"
+      },
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": 2258.6555,
+      "result": null,
+      "stderr": "{\"error\":\"duplicate evidence must preserve the full original groups, items and migration identity\"}\n"
+    }
+  ]
+}

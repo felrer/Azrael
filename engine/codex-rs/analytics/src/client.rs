@@ -885,6 +885,7 @@ fn session_event_to_analytics_notification(
                 thread_id: thread_id.to_string(),
                 turn: Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     error,
                     started_at: completed.started_at,
@@ -899,6 +900,7 @@ fn session_event_to_analytics_notification(
                 thread_id: thread_id.to_string(),
                 turn: Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     started_at: aborted.started_at,
                     completed_at: aborted.completed_at,
@@ -927,6 +929,7 @@ fn session_event_to_analytics_notification(
 fn analytics_turn(turn_id: &str, status: TurnStatus) -> Turn {
     Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: turn_id.to_string(),
         root_turn_id: None,

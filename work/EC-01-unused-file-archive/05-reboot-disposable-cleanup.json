@@ -1,0 +1,911 @@
+{
+  "schema": 1,
+  "ids": [
+    "run:ec01-latest-build:module-recovery-validation-r1",
+    "run:ec01-latest-build:module-recovery-validation-r2",
+    "run:ec01-latest-build:native-recovery-reservation-r1",
+    "run:ec01-latest-build:native-recovery-reservation-r2",
+    "run:ec01-latest-build:native-recovery-reservation-r3"
+  ],
+  "operations": [
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "review",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    },
+    {
+      "operation": "apply",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": ""
+    }
+  ],
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:ec01-latest-build:module-recovery-validation-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "ef56765bd7ed26551dc62e719a499499782a313fcfa1e3ef1ceabd3bb5a56bf4",
+        "owner": "EC-01/root-recovery-test",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\920c315012f8dd55d56101c8fc38b506a8acd4c5e7bfd5621acdd5b002f392a0.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:ec01-latest-build:module-recovery-validation-r2",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "f4346a298c4e60b5c82f6b5dacd28f3b839f1eed063478375fef6c07a73db2bc",
+        "owner": "EC-01/root-recovery-test",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\dd39651c7418f72536a5562747596d015351f8d79faf45daa1f5c3be114ded62.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:ec01-latest-build:native-recovery-reservation-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "27bdebb3ae53e4c32594558dc7a8692e74fb1562e86faef57b092f121b32cb1f",
+        "owner": "EC-01/native-recovery",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\82ea69eeb8c77525f9b6495631e776154ae9b1e42ad13ae5991fe64c13c231c8.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:ec01-latest-build:native-recovery-reservation-r2",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "8690121efa238ddaaa4dddc63d26cdf84e74b3bd4a90ee375c471091abbe42dd",
+        "owner": "EC-01/native-recovery",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4c3035575140de3d83719c70685f77082a2d4290c3f2a16c47914625c69620f4.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:ec01-latest-build:native-recovery-reservation-r3",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "596aad1e2bd3fb81b678ff90eb1d237164079b5f923a2621830f8c97ddd5d340",
+        "owner": "EC-01/native-recovery",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a3c234189006191c02442e9907e42581f9ceb105b49e4ada15675f527c05337b.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "2b0c07fe35eefe79a5be99c49a3c0f022548d84e146939671486478df73c9d3a"
+        ],
+        "group_token": "4cf4f40dda9d736a15465e821b6f00cc9873127194ea08635041c691c21de22d",
+        "id": "2b0c07fe35eefe79a5be99c49a3c0f022548d84e146939671486478df73c9d3a",
+        "identity": "ca50f168387e8a0858cef2893fa5e76375cd67fc8a001d3f9e71af3112a3d643",
+        "lifecycle_group_id": "run:ec01-latest-build:module-recovery-validation-r2",
+        "logical_bytes": 3542,
+        "measured_at_ms": 1793281911993,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "f4346a298c4e60b5c82f6b5dacd28f3b839f1eed063478375fef6c07a73db2bc",
+          "member_references": {
+            "2b0c07fe35eefe79a5be99c49a3c0f022548d84e146939671486478df73c9d3a": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2\\reports\\producer-3de7e9494eebeaa61ef970810193ef71271589c8baa3db42d8fbe4e2154f4a68.json",
+              "evidence_sha256": "3de7e9494eebeaa61ef970810193ef71271589c8baa3db42d8fbe4e2154f4a68",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "7d169571b74011275cd16d3d22a36275c63ba5a6dc88b26148fa17c6a34d4a03"
+            },
+            "created_at": "2026-10-29T13:26:17.430Z",
+            "id": "run:ec01-latest-build:module-recovery-validation-r2",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2",
+            "owner": "EC-01/root-recovery-test",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2\\reports\\producer-3de7e9494eebeaa61ef970810193ef71271589c8baa3db42d8fbe4e2154f4a68.json",
+              "evidence_sha256": "3de7e9494eebeaa61ef970810193ef71271589c8baa3db42d8fbe4e2154f4a68",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-29T13:26:40.066Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793282294481,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r2",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              155,
+              222,
+              211,
+              0,
+              0,
+              0,
+              6,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "fb4a52a4c66ccf57beb8cb7ff792eb424bff2fe5be07f215e0d536f11a054b37",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "3ec5c32a3c9267d1671101cc42895e7da608ea34d11744c9fafea2c83981259e"
+        ],
+        "group_token": "2a82cdd134a308071deac05e6b27fad3f1acbe526a414183952e198729371160",
+        "id": "3ec5c32a3c9267d1671101cc42895e7da608ea34d11744c9fafea2c83981259e",
+        "identity": "a1f3c7cc117c9b558d6fd051b602eb1d386d872280379f95445c285ed30ca050",
+        "lifecycle_group_id": "run:ec01-latest-build:native-recovery-reservation-r2",
+        "logical_bytes": 1149712,
+        "measured_at_ms": 1793282117570,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "8690121efa238ddaaa4dddc63d26cdf84e74b3bd4a90ee375c471091abbe42dd",
+          "member_references": {
+            "3ec5c32a3c9267d1671101cc42895e7da608ea34d11744c9fafea2c83981259e": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2\\reports\\producer-aef623ede8ebea4ba908d8d2fa063870605e326de7bb528c12824326de7a66f5.json",
+              "evidence_sha256": "aef623ede8ebea4ba908d8d2fa063870605e326de7bb528c12824326de7a66f5",
+              "reason": "Tracked standalone worker and synchronous managed Cargo producers reached terminal close",
+              "request_sha256": "51e39b0300ceb9014880b39efb0b0f4b0b10801e0f5e8de06d871960a6065761"
+            },
+            "created_at": "2026-10-29T13:35:26.076Z",
+            "id": "run:ec01-latest-build:native-recovery-reservation-r2",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2",
+            "owner": "EC-01/native-recovery",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2\\reports\\producer-aef623ede8ebea4ba908d8d2fa063870605e326de7bb528c12824326de7a66f5.json",
+              "evidence_sha256": "aef623ede8ebea4ba908d8d2fa063870605e326de7bb528c12824326de7a66f5",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Tracked standalone worker and synchronous managed Cargo producers reached terminal close",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-29T13:35:31.830Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793282304962,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r2",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              219,
+              226,
+              211,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "93595c6e771907834c80686054e9813182e534415f8b3b02eaac5b0a33e49622",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "4f959075642f69724622c98dbac4f77af916f76102455499c0f1424ea3773ac8"
+        ],
+        "group_token": "8dd18b9ac7c10e7e147ce7b770783b6a0bfe210e65c24406a51453254e09de1b",
+        "id": "4f959075642f69724622c98dbac4f77af916f76102455499c0f1424ea3773ac8",
+        "identity": "4b93ca85d49cd69dd3758ed8f1c594fd20b8c0a60f6af09f7ca6650faf45405a",
+        "lifecycle_group_id": "run:ec01-latest-build:module-recovery-validation-r1",
+        "logical_bytes": 2713,
+        "measured_at_ms": 1793281807199,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "ef56765bd7ed26551dc62e719a499499782a313fcfa1e3ef1ceabd3bb5a56bf4",
+          "member_references": {
+            "4f959075642f69724622c98dbac4f77af916f76102455499c0f1424ea3773ac8": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1\\reports\\producer-5a46fbe5870231eb1c59b5d79a235ef998027e46085caa08f80e0f9d89c8d12b.json",
+              "evidence_sha256": "5a46fbe5870231eb1c59b5d79a235ef998027e46085caa08f80e0f9d89c8d12b",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "a049b9816f21f3653c6ecd711d1a65c7fa71fe12a75b04b90c9c643f886c55f6"
+            },
+            "created_at": "2026-10-29T13:24:41.424Z",
+            "id": "run:ec01-latest-build:module-recovery-validation-r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1",
+            "owner": "EC-01/root-recovery-test",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1\\reports\\producer-5a46fbe5870231eb1c59b5d79a235ef998027e46085caa08f80e0f9d89c8d12b.json",
+              "evidence_sha256": "5a46fbe5870231eb1c59b5d79a235ef998027e46085caa08f80e0f9d89c8d12b",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-29T13:24:57.146Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793282289159,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\module-recovery-validation-r1",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              71,
+              222,
+              211,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "6de57c3627675cea776a3c7d40d895adc4131b70791cdeec6a7691b4200b2702",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "838e88cecf3c6be956574f93367241c7df94f999e87f8e867a1c42f86f248335"
+        ],
+        "group_token": "088d1015477a63573e053db7498e2f8df762e5fa69dd9d4553c3024ba0448b10",
+        "id": "838e88cecf3c6be956574f93367241c7df94f999e87f8e867a1c42f86f248335",
+        "identity": "1981358c9d3e029110d229222fe0c641203f37e6fff3521838926bac3c5b4583",
+        "lifecycle_group_id": "run:ec01-latest-build:native-recovery-reservation-r1",
+        "logical_bytes": 1148217,
+        "measured_at_ms": 1793282017252,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "27bdebb3ae53e4c32594558dc7a8692e74fb1562e86faef57b092f121b32cb1f",
+          "member_references": {
+            "838e88cecf3c6be956574f93367241c7df94f999e87f8e867a1c42f86f248335": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1\\reports\\producer-d4cc70bdc96c03ed31f77eee8b1a14b325f60b710461276c5e8741b13f3441ca.json",
+              "evidence_sha256": "d4cc70bdc96c03ed31f77eee8b1a14b325f60b710461276c5e8741b13f3441ca",
+              "reason": "Tracked standalone worker and synchronous managed Cargo producers reached terminal close",
+              "request_sha256": "aa2b3504cd9af4fff19a5fee79c16bf1a46cc4cf4fa8dd635c7584f8d9de68e3"
+            },
+            "created_at": "2026-10-29T13:34:41.109Z",
+            "id": "run:ec01-latest-build:native-recovery-reservation-r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1",
+            "owner": "EC-01/native-recovery",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1\\reports\\producer-d4cc70bdc96c03ed31f77eee8b1a14b325f60b710461276c5e8741b13f3441ca.json",
+              "evidence_sha256": "d4cc70bdc96c03ed31f77eee8b1a14b325f60b710461276c5e8741b13f3441ca",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Tracked standalone worker and synchronous managed Cargo producers reached terminal close",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-29T13:34:47.291Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793282299694,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r1",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              112,
+              223,
+              211,
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "d6a6a158802b9abd4b2211e4718ec173538f37a029274a4f96bd8369f34ede4d",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "8d3a28e3745e6ef29a32b53c3b50945e846b14174e5921b256a6b7d0bc03c3a4"
+        ],
+        "group_token": "9603747ee52a44aea398b7bf25ffec418cf9c6cc557105a2a3f002f1c750edb6",
+        "id": "8d3a28e3745e6ef29a32b53c3b50945e846b14174e5921b256a6b7d0bc03c3a4",
+        "identity": "5dd22e6e3e79867a9df4bfc5ab740502ee6f8cdf20bc4a3a44346d48de590638",
+        "lifecycle_group_id": "run:ec01-latest-build:native-recovery-reservation-r3",
+        "logical_bytes": 1149848,
+        "measured_at_ms": 1793282222639,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "596aad1e2bd3fb81b678ff90eb1d237164079b5f923a2621830f8c97ddd5d340",
+          "member_references": {
+            "8d3a28e3745e6ef29a32b53c3b50945e846b14174e5921b256a6b7d0bc03c3a4": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3\\reports\\producer-ce16ea66f207a11854342083b956000ba5a50a81391ba7a3cdc4d5e970bd96af.json",
+              "evidence_sha256": "ce16ea66f207a11854342083b956000ba5a50a81391ba7a3cdc4d5e970bd96af",
+              "reason": "Tracked standalone worker and synchronous managed Cargo producers reached terminal close",
+              "request_sha256": "050dcff1b97a4db2afddbd2192b70c7fadd2f7b0ebb9f548f4d100658701e63c"
+            },
+            "created_at": "2026-10-29T13:36:13.432Z",
+            "id": "run:ec01-latest-build:native-recovery-reservation-r3",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3",
+            "owner": "EC-01/native-recovery",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3\\reports\\producer-ce16ea66f207a11854342083b956000ba5a50a81391ba7a3cdc4d5e970bd96af.json",
+              "evidence_sha256": "ce16ea66f207a11854342083b956000ba5a50a81391ba7a3cdc4d5e970bd96af",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Tracked standalone worker and synchronous managed Cargo producers reached terminal close",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-10-29T13:36:19.334Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793282310394,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\native-recovery-reservation-r3",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              154,
+              228,
+              211,
+              0,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "8ef6de4b2f4aff23f1879a522e0a94b27e2b48e5be58a63a105a94d118cc3666",
+        "verification": "registered"
+      }
+    ]
+  },
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:ec01-latest-build:module-recovery-validation-r1",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-latest-build:module-recovery-validation-r2",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-latest-build:native-recovery-reservation-r1",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-latest-build:native-recovery-reservation-r2",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-latest-build:native-recovery-reservation-r3",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-20836-4114-1793282427048",
+        "decision": "delete",
+        "decision_id": "a097b6e1de001034f2b4d8a770e681ba0be94cbd5560c4b06c65fc84c908f071",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "2b0c07fe35eefe79a5be99c49a3c0f022548d84e146939671486478df73c9d3a",
+        "lifecycle_group_id": "run:ec01-latest-build:module-recovery-validation-r2",
+        "reason": "Stopped failed recovery preparation, selected source/evidence superseded by passing r4/r3 and no remaining consumer",
+        "remaining": false,
+        "status": "deleted",
+        "token": "fb4a52a4c66ccf57beb8cb7ff792eb424bff2fe5be07f215e0d536f11a054b37"
+      },
+      {
+        "attempt_id": "attempt-20836-4116-1793282514791",
+        "decision": "delete",
+        "decision_id": "0126dc832159d0d0a38df17787f6616c097a13e3b3ca40bca3de82bf68621cc5",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "3ec5c32a3c9267d1671101cc42895e7da608ea34d11744c9fafea2c83981259e",
+        "lifecycle_group_id": "run:ec01-latest-build:native-recovery-reservation-r2",
+        "reason": "Stopped failed recovery preparation, selected source/evidence superseded by passing r4/r3 and no remaining consumer",
+        "remaining": false,
+        "status": "deleted",
+        "token": "93595c6e771907834c80686054e9813182e534415f8b3b02eaac5b0a33e49622"
+      },
+      {
+        "attempt_id": "attempt-20836-4118-1793282584031",
+        "decision": "delete",
+        "decision_id": "7b9c19a68cf96cec10edb97f551bd77e94b5d6c5269c761fe065b1f56ccf2628",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "4f959075642f69724622c98dbac4f77af916f76102455499c0f1424ea3773ac8",
+        "lifecycle_group_id": "run:ec01-latest-build:module-recovery-validation-r1",
+        "reason": "Stopped failed recovery preparation, selected source/evidence superseded by passing r4/r3 and no remaining consumer",
+        "remaining": false,
+        "status": "deleted",
+        "token": "6de57c3627675cea776a3c7d40d895adc4131b70791cdeec6a7691b4200b2702"
+      },
+      {
+        "attempt_id": "attempt-20836-4120-1793282636043",
+        "decision": "delete",
+        "decision_id": "369b6e58abd565862ca5c19dce53d768e256e917340388809a4eea415944a4c4",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "838e88cecf3c6be956574f93367241c7df94f999e87f8e867a1c42f86f248335",
+        "lifecycle_group_id": "run:ec01-latest-build:native-recovery-reservation-r1",
+        "reason": "Stopped failed recovery preparation, selected source/evidence superseded by passing r4/r3 and no remaining consumer",
+        "remaining": false,
+        "status": "deleted",
+        "token": "d6a6a158802b9abd4b2211e4718ec173538f37a029274a4f96bd8369f34ede4d"
+      },
+      {
+        "attempt_id": "attempt-20836-4122-1793282680560",
+        "decision": "delete",
+        "decision_id": "5be12b7989979afaf5d40247d61ab979a02fe1e4155c00f10a2e33a691335c2e",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "8d3a28e3745e6ef29a32b53c3b50945e846b14174e5921b256a6b7d0bc03c3a4",
+        "lifecycle_group_id": "run:ec01-latest-build:native-recovery-reservation-r3",
+        "reason": "Stopped failed recovery preparation, selected source/evidence superseded by passing r4/r3 and no remaining consumer",
+        "remaining": false,
+        "status": "deleted",
+        "token": "8ef6de4b2f4aff23f1879a522e0a94b27e2b48e5be58a63a105a94d118cc3666"
+      }
+    ]
+  },
+  "finalized": [
+    {
+      "id": "run:ec01-latest-build:module-recovery-validation-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\920c315012f8dd55d56101c8fc38b506a8acd4c5e7bfd5621acdd5b002f392a0.json"
+    },
+    {
+      "id": "run:ec01-latest-build:module-recovery-validation-r2",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\dd39651c7418f72536a5562747596d015351f8d79faf45daa1f5c3be114ded62.json"
+    },
+    {
+      "id": "run:ec01-latest-build:native-recovery-reservation-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\82ea69eeb8c77525f9b6495631e776154ae9b1e42ad13ae5991fe64c13c231c8.json"
+    },
+    {
+      "id": "run:ec01-latest-build:native-recovery-reservation-r2",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4c3035575140de3d83719c70685f77082a2d4290c3f2a16c47914625c69620f4.json"
+    },
+    {
+      "id": "run:ec01-latest-build:native-recovery-reservation-r3",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a3c234189006191c02442e9907e42581f9ceb105b49e4ada15675f527c05337b.json"
+    }
+  ],
+  "remaining": []
+}

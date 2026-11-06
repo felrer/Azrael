@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 1,
+  "finalized": true,
+  "purpose": "Independent verification and stopped-producer evidence retained before disposable run deletion",
+  "generatedAt": "2026-11-01T20:19:34.008Z",
+  "scope": {
+    "platform": "win32",
+    "architecture": "x64",
+    "fullProductBuild": false,
+    "liveInference": false,
+    "assignedFiles": [
+      "providers/opencodex/inference.ts",
+      "providers/opencodex/helper.ts",
+      "providers/opencodex/tests/profile-account-scope.test.ts"
+    ]
+  },
+  "wire": "optional providerAccount:{providerId,accountId}",
+  "finalAcceptance": {
+    "focusedTests": {
+      "passed": 6,
+      "failed": 0,
+      "assertions": 24,
+      "exitCode": 0
+    },
+    "syntax": {
+      "compiler": "TypeScript 5.9.3 transpileModule",
+      "files": 3,
+      "errorDiagnostics": 0
+    },
+    "fullNoEmit": {
+      "passed": false,
+      "typescript59ExitCode": 2,
+      "typescript59DependencyDiagnostics": 76,
+      "typescript59OwnedFileDiagnostics": 0,
+      "typescript7ExitCode": 1
+    },
+    "limitations": [
+      "No whole product build or native end-to-end acceptance in this worker",
+      "No live provider inference",
+      "No successful complete provider graph noEmit result"
+    ]
+  },
+  "runs": [
+    {
+      "id": "run:FA-01-profile-account-scope:20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511",
+      "originalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511",
+      "producer": {
+        "exitCode": 1,
+        "signal": null,
+        "state": "failed",
+        "producerStopped": true,
+        "membershipComplete": true,
+        "children": [
+          {
+            "pid": 45528,
+            "closed": true
+          },
+          {
+            "pid": 32876,
+            "closed": true
+          }
+        ]
+      },
+      "validation": {
+        "results": [
+          {
+            "name": "profile-account-scope",
+            "exitCode": 4294967295,
+            "signal": null
+          },
+          {
+            "name": "typescript-noemit",
+            "exitCode": 1,
+            "signal": null
+          }
+        ]
+      },
+      "checks": {
+        "passed": 0,
+        "failed": 0,
+        "executed": 0,
+        "assertions": null
+      },
+      "firstCause": "Interrupted owned Bun discovery before test results; missing ./ explicit test path was the suspected harness cause. Child stop exit preserved.",
+      "typecheck": {
+        "compiler": "7.0.2",
+        "exitCode": 1,
+        "errorCount": 92,
+        "ownedThreeFileDiagnosticCount": 11,
+        "firstDiagnostic": "antigravity.ts(7,22): error TS7016: Could not find a declaration file for module './inference-mapping.mjs'. 'C:/Users/felre/Desktop/pi-harness-init/providers/opencodex/inference-mapping.mjs' implicitly has an 'any' type.",
+        "firstDiagnostics": [
+          "antigravity.ts(7,22): error TS7016: Could not find a declaration file for module './inference-mapping.mjs'. 'C:/Users/felre/Desktop/pi-harness-init/providers/opencodex/inference-mapping.mjs' implicitly has an 'any' type.",
+          "antigravity.ts(19,7): error TS18048: 'account' is possibly 'undefined'.",
+          "antigravity.ts(19,31): error TS18048: 'account' is possibly 'undefined'."
+        ],
+        "baselineComparisonPerformed": false,
+        "scopeNote": "Strict compiler also diagnoses imported untyped modules and existing inference flow; no baseline equivalence is asserted."
+      },
+      "evidenceSha256": {
+        "producer": "08ee8d29f42f1c49d1e77964eb57a0e7fa635f32b82af4d40d3dd26d2c119d46",
+        "validation": "859920e901afc30afdecd259f43b4603f3971df19be7df8d1322e44550fb77f5",
+        "testStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "run:FA-01-profile-account-scope:20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d",
+      "originalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d",
+      "producer": {
+        "exitCode": 1,
+        "signal": null,
+        "state": "failed",
+        "producerStopped": true,
+        "membershipComplete": true,
+        "children": [
+          {
+            "pid": 52484,
+            "closed": true
+          },
+          {
+            "pid": 8896,
+            "closed": true
+          }
+        ]
+      },
+      "validation": {
+        "results": [
+          {
+            "name": "profile-account-scope",
+            "exitCode": 1,
+            "signal": null
+          },
+          {
+            "name": "typescript-noemit",
+            "exitCode": 2,
+            "signal": null
+          }
+        ]
+      },
+      "checks": {
+        "passed": 0,
+        "failed": 1,
+        "executed": 0,
+        "loaderErrors": 1,
+        "assertions": null
+      },
+      "firstCause": "Loader rejected missing initial isolated CODEX_HOME directory before test execution.",
+      "typecheck": {
+        "compiler": "5.9.3",
+        "exitCode": 2,
+        "errorCount": 76,
+        "ownedThreeFileDiagnosticCount": 0,
+        "firstDiagnostic": "catalog.ts(168,36): error TS2339: Property 'reason' does not exist on type 'BoundedDiscoveryJsonResult'.",
+        "firstDiagnostics": [
+          "catalog.ts(168,36): error TS2339: Property 'reason' does not exist on type 'BoundedDiscoveryJsonResult'.",
+          "custom-api.ts(131,69): error TS2353: Object literal may only specify known properties, and 'maxOutputTokens' does not exist in type '{ parallelToolCalls: any; reasoning: any; }'.",
+          "vendor/src/adapters/cursor/live-models.ts(68,21): error TS2322: Type '{ ok: false; error: \"timeout\" | \"policy\" | \"http\" | \"auth\" | \"empty\" | \"too_large\" | \"transport\" | \"decode\"; detail?: string; } | { ok: true; baseUrl: string; }' is not assignable to type 'CursorUsableModelsResult'."
+        ],
+        "baselineComparisonPerformed": false,
+        "scopeNote": "All 76 diagnostics are outside the three assigned files. No dependency graph errors were altered or suppressed."
+      },
+      "evidenceSha256": {
+        "producer": "f95c5a11c4f8dd541302ab9e090243dc0f35f580fa00d63e7eee84c0cffa17ca",
+        "validation": "b41f7412c15aa56175c085860522b5590ad9f7d589d00a78d796ecf1711e2d01",
+        "testStderr": "8e5f7280b181f2fc4201b77edc32c174e58a33fb34f96b71ac79b8d14df22092"
+      }
+    },
+    {
+      "id": "run:FA-01-profile-account-scope:20261101T195441694Z-c9edf6e2-3c37-4ea5-92c0-8275f2d4a003",
+      "originalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195441694Z-c9edf6e2-3c37-4ea5-92c0-8275f2d4a003",
+      "producer": {
+        "exitCode": 1,
+        "signal": null,
+        "state": "failed",
+        "producerStopped": true,
+        "membershipComplete": true,
+        "children": [
+          {
+            "pid": 57332,
+            "closed": true
+          }
+        ]
+      },
+      "validation": {
+        "exitCode": 1,
+        "signal": null,
+        "syntaxDiagnostics": []
+      },
+      "checks": {
+        "passed": 5,
+        "failed": 1,
+        "executed": 6,
+        "assertions": 24
+      },
+      "firstCause": "All behavior assertions completed; ordinary synchronous fixture cleanup failed with Windows EBUSY after SQLite owner close.",
+      "evidenceSha256": {
+        "producer": "a444bf660a5738a39ad1e13fe5c47e28dce92aee235fa37749de9c75ef407bff",
+        "validation": "5dafa050916e3883929467a32c40dd6ee984e3e24806355067da6bcd0aa885bb",
+        "testStderr": "77976146eb96e2fddad7f3d2717a14a026444c1b438b77e91a75ab1aec88923b"
+      }
+    },
+    {
+      "id": "run:FA-01-profile-account-scope:20261101T195630588Z-eb109be5-a3b9-448c-b437-0372b2fb8064",
+      "originalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-profile-account-scope\\runs\\20261101T195630588Z-eb109be5-a3b9-448c-b437-0372b2fb8064",
+      "producer": {
+        "exitCode": 0,
+        "signal": null,
+        "state": "complete",
+        "producerStopped": true,
+        "membershipComplete": true,
+        "children": [
+          {
+            "pid": 28964,
+            "closed": true
+          }
+        ]
+      },
+      "validation": {
+        "exitCode": 0,
+        "signal": null,
+        "syntaxDiagnostics": []
+      },
+      "checks": {
+        "passed": 6,
+        "failed": 0,
+        "executed": 6,
+        "assertions": 24
+      },
+      "firstCause": "Focused behavior tests and ordinary asynchronous fixture cleanup completed successfully.",
+      "evidenceSha256": {
+        "producer": "f5282fadea17c0b84282d5422d9f347b7f353fe1c0126370d3771a79c658b0a0",
+        "validation": "e117565074bc5585026dc68041321a0ed205a72614b6f75c5434f193528ba1cc",
+        "testStderr": "ebf05bc1b42db7009c160c2a5219d51b6d6f99c1397e5d9be58a7e824f09324d"
+      }
+    }
+  ],
+  "sourceMeasurements": {
+    "timing": "Current source identity at evidence preservation, not a pre-execution immutable input measurement",
+    "files": {
+      "providers/opencodex/inference.ts": "ff77d138f19b3303fd21aba4a6903fd67fddda5bcf38ad8eb5ae314a1870f2bb",
+      "providers/opencodex/helper.ts": "5d2b837745c41b479df4a440b88e81b4e010490eeb11779ee0790d7e15f3dcf4",
+      "providers/opencodex/tests/profile-account-scope.test.ts": "bdbe60e754cfde937937f14755bbac37c561cfd592e412f9f86737875029b188"
+    }
+  },
+  "cleanupAuthorization": {
+    "targetIds": [
+      "run:FA-01-profile-account-scope:20261101T194954315Z-074244f1-a749-43df-aa14-27df21956511",
+      "run:FA-01-profile-account-scope:20261101T195331010Z-5138c7ec-a145-4cf7-b675-c8bcc1715f5d",
+      "run:FA-01-profile-account-scope:20261101T195441694Z-c9edf6e2-3c37-4ea5-92c0-8275f2d4a003",
+      "run:FA-01-profile-account-scope:20261101T195630588Z-eb109be5-a3b9-448c-b437-0372b2fb8064"
+    ],
+    "reason": "Root explicitly authorized disposal after independently preserving verification and stopped producer outcomes",
+    "cleanupOwnerSha256": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627",
+    "controllerId": "run:FA-01-account-scope-cleanup:20261101T201918333Z-a154a8e9-da15-4dbb-950f-0316586ac125"
+  }
+}

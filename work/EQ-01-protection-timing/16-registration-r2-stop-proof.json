@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "id": "version:maintenance-owner:eq01:delete-apply-r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "0593312ea2887b24927e8de4084231ee3b1a7494084a6c785b399ae2ad70dce0",
+  "lease_owner": {
+    "acquired_at_ms": 1793323749024,
+    "operation": "group_reservation",
+    "pid": 25328,
+    "schema": 2,
+    "token": "25328-1793323749024-9ac860f6aa27541e"
+  },
+  "reason": "Exact owned synchronous register child terminated with actual exit 1 and controller terminal exit 1; registration launches no deletion workers or child producers. Bound request, reservation owner and failed result are preserved.",
+  "execution": {
+    "work_id": "5965641d-80b6-4ab2-94ff-d89796a165c9",
+    "observed_exit_code": 1,
+    "native_pid": 25328,
+    "request": "work/EQ-01-protection-timing/16-superseded-candidate-register-r2-request.json"
+  }
+}

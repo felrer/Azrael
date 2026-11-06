@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+  "owner": "artifacts/versions/maintenance-owner-et01-duplicate-claims-win-x64/payload/maintenance_owner.exe",
+  "ownerSha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c",
+  "registerGroups": 7,
+  "registerItems": 10,
+  "registerExitCodes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "reviewExitCode": 0,
+  "applyExitCode": 0,
+  "deleted": [
+    {
+      "id": "972baebefae5c4d6b58a6a3a9583a565e1b81ff182afdd8e5f2c5156bf70c48a",
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:engine-cleanup-readonly-probe-38cd514d",
+      "status": "deleted",
+      "remaining": false,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-readonly-probe-38cd514d",
+      "logicalBytes": 1606
+    },
+    {
+      "id": "b05df981545c55cd53f6a02a16948a99b0866c5a618f3eee35d59b5b2b4ca1c9",
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:engine-cleanup-corrected-7e504d10",
+      "status": "deleted",
+      "remaining": false,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-corrected-7e504d10",
+      "logicalBytes": 3668
+    },
+    {
+      "id": "b95eee58e9228ca48e4c883d7ff04c4cc5d7beeca11f298791420ce4e1a4e833",
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:engine-cleanup-compressed-ec709d83",
+      "status": "deleted",
+      "remaining": false,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-compressed-ec709d83",
+      "logicalBytes": 3221
+    },
+    {
+      "id": "bd1ee546cb69ea5f2d70fd7c8bb3f2999efc843694470d51d1829c83a65feb3c",
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:engine-cleanup-original-5cb2e7ef",
+      "status": "deleted",
+      "remaining": false,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-original-5cb2e7ef",
+      "logicalBytes": 2964
+    }
+  ],
+  "sourceFinalization": [
+    {
+      "id": "run:ET-01-cold-build-cache-audit:engine-cleanup-readonly-probe-38cd514d",
+      "status": "finalized",
+      "paths": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-readonly-probe-38cd514d",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:engine-cleanup-corrected-7e504d10",
+      "status": "finalized",
+      "paths": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-corrected-7e504d10",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:engine-cleanup-compressed-ec709d83",
+      "status": "finalized",
+      "paths": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-compressed-ec709d83",
+          "absent": true
+        }
+      ]
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:engine-cleanup-original-5cb2e7ef",
+      "status": "finalized",
+      "paths": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-original-5cb2e7ef",
+          "absent": true
+        }
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "id": "23b5991391488b845c4ed863f6d905b58b5edc17ab5b47cb86ac9d41bafda88c",
+      "group": "run:deploy-checks:395416005861454cbd0cae3e9699df34",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-build-fail-d7c30d0d",
+      "logicalBytes": 507195,
+      "blockers": [
+        "a lifecycle group member is protected"
+      ],
+      "sourceBlockers": []
+    },
+    {
+      "id": "28a252c3938bf324068fbb92f7d4a3ef545deb7401e9fe7a02ec003b6b7cefaa",
+      "group": "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-verify-only-fbd33ae2",
+      "logicalBytes": 556606,
+      "blockers": [
+        "a lifecycle group member is protected"
+      ],
+      "sourceBlockers": []
+    },
+    {
+      "id": "35bf1b9b42dd3760acb60b5abb1b41ae786d54bea4a9d7fe980e897970c95d63",
+      "group": "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-dffb",
+      "logicalBytes": 0,
+      "blockers": [
+        "outside configured managed roots",
+        "a lifecycle group member is protected"
+      ],
+      "sourceBlockers": []
+    },
+    {
+      "id": "7143a9d48fd370f1e0c99d4e6d2ee9bfce5bb98349ab98931cb460aec383f4e4",
+      "group": "run:deploy-checks:395416005861454cbd0cae3e9699df34",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-3954",
+      "logicalBytes": 0,
+      "blockers": [
+        "outside configured managed roots",
+        "a lifecycle group member is protected"
+      ],
+      "sourceBlockers": []
+    },
+    {
+      "id": "ba7d2335cd4fb83260956c2774d360b77d67838cfd1e9d0f684fe15b7b9d8469",
+      "group": "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-account-success-786485c7",
+      "logicalBytes": 591470,
+      "blockers": [
+        "a lifecycle group member is protected"
+      ],
+      "sourceBlockers": []
+    },
+    {
+      "id": "e5abf6e31654c5f7b59f48907f50b46e60bd51294c1d648c7f3c43af1b4e8b9b",
+      "group": "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-f279",
+      "logicalBytes": 0,
+      "blockers": [
+        "outside configured managed roots",
+        "a lifecycle group member is protected"
+      ],
+      "sourceBlockers": []
+    }
+  ],
+  "controlRun": "run:ET-01-cold-build-cache-audit:engine-cleanup-chain-796b38dc",
+  "controlRunRemaining": true,
+  "decision": "No shell/API bypass or configuration change; root decision requested for exact three shortTemporary paths outside P managed roots",
+  "frozenZMutation": false
+}

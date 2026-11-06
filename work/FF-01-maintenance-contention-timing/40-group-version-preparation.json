@@ -1,0 +1,13 @@
+{
+  "at": "2026-11-02T11:53:13.254Z",
+  "version_id": "version:maintenance-owner:ff01:group-20261102",
+  "version_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102",
+  "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "sha256": "31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89",
+  "bytes": 2859520,
+  "source_candidate": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\outputs\\native\\attempt03\\candidate-maintenance_owner.exe",
+  "source_matches": true,
+  "producer_exit_code": 0,
+  "producer_close_observed": true,
+  "producer_closed_at": "2026-11-02T11:53:19.027Z"
+}

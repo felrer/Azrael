@@ -3625,8 +3625,9 @@ async fn pre_tool_use_hook_model_tracks_step_after_a_turn_update() -> Result<()>
         vec![
             sse(vec![
                 ev_response_created("resp-1"),
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     request_user_input_call_id,
+                    "legacy_codex_tools",
                     "request_user_input",
                     r#"{"questions":[{"id":"continue","header":"Continue","question":"Continue?","options":[{"label":"Yes (Recommended)","description":"Run it."},{"label":"No","description":"Stop."}]}]}"#,
                 ),

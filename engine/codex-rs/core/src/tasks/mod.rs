@@ -346,6 +346,36 @@ impl Session {
         turn_context
             .turn_metadata_state
             .set_turn_started_at_unix_ms(turn_started_at_unix_ms);
+        if let Some(runtime) = turn_context.turn_timing_state.user_wait() {
+            if let Some(parent) = turn_context.parent_thread_id {
+                self.services
+                    .agent_control
+                    .track_user_wait_activity(
+                        parent,
+                        format!("agent:{}:{}", self.thread_id, turn_context.sub_id),
+                        runtime.subscribe_running(),
+                    )
+                    .await;
+            }
+        }
+        if let Some(runtime) = turn_context.turn_timing_state.user_wait() {
+            self.services
+                .unified_exec_manager
+                .track_user_wait_runtime(&runtime)
+                .await;
+            for (id, running) in self
+                .services
+                .agent_control
+                .user_wait_child_activity(self.thread_id)
+                .await
+            {
+                runtime.track_child(id, running);
+            }
+            self.services
+                .code_mode_service
+                .track_existing_cell_activity(&runtime);
+            runtime.start_publisher(Arc::downgrade(self), turn_context.sub_id.clone());
+        }
         let token_usage_at_turn_start = self.total_token_usage().await.unwrap_or_default();
 
         let cancellation_token = CancellationToken::new();
@@ -558,14 +588,31 @@ impl Session {
                 .and_then(|context| context.cyber_access_program);
         }
         let turn_context = self
-            .new_turn_with_default_settings(
-                sub_id,
+            .new_profiled_turn_with_default_settings(
+                sub_id.clone(),
                 NewTurnContextOptions {
+                    provider_account: None,
+                    agent_profile: start_options.agent_profile,
                     final_output_json_schema: start_options.final_output_json_schema,
                     cyber_access_program: start_options.cyber_access_program,
                 },
             )
             .await;
+        let turn_context = match turn_context {
+            Ok(context) => context,
+            Err(error) => {
+                self.clear_reserved_idle_turn(&turn_state).await;
+                self.send_event_raw(codex_protocol::protocol::Event {
+                    id: sub_id,
+                    msg: EventMsg::Error(ErrorEvent {
+                        misalignment: None,
+                        message: error.to_string(),
+                        codex_error_info: Some(codex_protocol::protocol::CodexErrorInfo::BadRequest),
+                    }),
+                }).await;
+                return;
+            }
+        };
         if let Some(trigger) = start_options.turn_trigger {
             turn_context.turn_metadata_state.set_turn_trigger(trigger);
         }

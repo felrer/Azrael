@@ -1,0 +1,184 @@
+{
+  "observed_at": "2026-11-01T15:09:28.015Z",
+  "scope": "Original primary recovery cleanup review; no claim about other active project artifacts",
+  "groups": [
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-2",
+      "evidence": "07-primary-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 100238159
+    },
+    {
+      "id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+      "evidence": "07-primary-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 3611
+    },
+    {
+      "id": "run:DM-01-boundary-pilot:unknown-proof-refusal-20261023T144746673Z",
+      "evidence": "07-primary-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 2583
+    },
+    {
+      "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+      "evidence": "07-legacy-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 53196
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+      "evidence": "07-legacy-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": null
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+      "evidence": "07-legacy-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 54334
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+      "evidence": "07-legacy-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 42294
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+      "evidence": "07-legacy-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 224266
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+      "evidence": "07-legacy-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 83066
+    },
+    {
+      "id": "run:CM-01:host-35dac893",
+      "evidence": "07-legacy-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 38460
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+      "evidence": "07-pending-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 84477
+    },
+    {
+      "id": "work:engine-check-retirement-r1",
+      "evidence": "07-pending-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 20971
+    },
+    {
+      "id": "run:CX-01:shutdown-r1",
+      "evidence": "07-cx-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 1197109938
+    },
+    {
+      "id": "version:maintenance-owner:dx05",
+      "evidence": "07-dx05-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 1635228
+    },
+    {
+      "id": "CF-01-cache-lease-r1",
+      "evidence": "07-cf-cn-dn-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 9932
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+      "evidence": "07-cf-cn-dn-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 412747
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:temporary",
+      "evidence": "07-cf-cn-dn-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 35073498
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+      "evidence": "07-cf-cn-dn-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 16654312
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+      "evidence": "07-cf-cn-dn-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 263925
+    },
+    {
+      "id": "run:DN-01:approved-log-retirement-20261024-r2",
+      "evidence": "07-cf-cn-dn-cleanup.json",
+      "apply_exit_code": 0,
+      "status": "finalized",
+      "all_members_absent": true,
+      "logical_bytes": 206819
+    }
+  ],
+  "deleted_groups": 20,
+  "retained_protected": [
+    {
+      "id": "work:DH-01-project-storage-review:retention",
+      "path": "artifacts/tasks/DH-01-project-storage-review/retention",
+      "registered_logical_bytes": 1947,
+      "retention_approval": "approved",
+      "retention_approved_on": "2026-11-02 Asia/Seoul",
+      "retention_authority": "User explicitly approved preserving this exact path until its references are resolved.",
+      "revisit_condition": "Resolve the two consuming cleanup records' evidence references, then recheck owner protection before deletion.",
+      "evidence": "07-dh-final-review.json"
+    }
+  ],
+  "installation_recovery": {
+    "id": "work:EU01-install-014:install-bf-recovery",
+    "bytes": 5307,
+    "user_normal_operation_confirmed": false
+  }
+}

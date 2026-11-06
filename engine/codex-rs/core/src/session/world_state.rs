@@ -3,6 +3,7 @@ use std::sync::Arc;
 use super::session::Session;
 use super::step_context::StepContext;
 use crate::connectors;
+use crate::context::ParentRequestGuidance;
 use crate::context::TokenBudgetContext;
 use crate::context::world_state::AgentsMdState;
 use crate::context::world_state::AppsInstructionsState;
@@ -17,14 +18,13 @@ use crate::context::world_state::ModelCatalogState;
 use crate::context::world_state::ModelInstructionsState;
 use crate::context::world_state::MultiAgentModeState;
 use crate::context::world_state::MultiAgentUsageHintState;
+use crate::context::world_state::ParentRequestGuidanceState;
 use crate::context::world_state::PermissionsState;
 use crate::context::world_state::PersistentModeState;
 use crate::context::world_state::PluginsInstructionsState;
+use crate::context::world_state::ProjectMaintenanceGuidanceState;
 use crate::context::world_state::RealtimeState;
 use crate::context::world_state::RootCoordinationState;
-use crate::context::world_state::ParentRequestGuidanceState;
-use crate::context::world_state::ProjectMaintenanceGuidanceState;
-use crate::context::ParentRequestGuidance;
 use crate::context::world_state::ToolsState;
 use crate::context::world_state::TopLevelToolsState;
 use crate::context::world_state::WorldState;
@@ -96,7 +96,6 @@ impl Session {
         let model_instructions = codex_prompts::compose_harness_instructions(
             &step_context.harness_profile.prompt_variant,
             step_context.harness_profile.behavior_template.as_deref(),
-            step_context.harness_profile.uses_claude_tools(),
             None,
         );
         let omit_update_plan = !turn_context.config.update_plan_enabled
@@ -135,10 +134,13 @@ impl Session {
                         .cloned()
                 })
         };
-        let native_provider = turn_context.config.native_model_provider.as_ref().map_or(
-            turn_context.config.model_provider_id.as_str(),
-            |(id, _)| id.as_str(),
-        );
+        let native_provider = turn_context
+            .config
+            .native_model_provider
+            .as_ref()
+            .map_or(turn_context.config.model_provider_id.as_str(), |(id, _)| {
+                id.as_str()
+            });
         let provider = super::provider_handoff::provider_id(&model_info.slug, native_provider);
         let previous_provider = previous_model
             .as_deref()
@@ -286,13 +288,15 @@ impl Session {
         }
         if !crate::guardian::is_basic_session_source(&turn_context.session_source) {
             let send_user_message_async_available =
-                !turn_context.session_source.is_non_root_agent()
-                    && step_context
-                        .settings
-                        .model_info
-                        .experimental_supported_tools
-                        .iter()
-                        .any(|tool| tool == "send_user_message_async");
+                crate::agent::role_profile::has_user_interaction_authority(
+                    &turn_context.config,
+                    &turn_context.session_source,
+                ) && step_context
+                    .settings
+                    .model_info
+                    .experimental_supported_tools
+                    .iter()
+                    .any(|tool| tool == "send_user_message_async");
             world_state.add_section(PersistentModeState::new(
                 turn_context.config.features.persistent_execution_enabled(
                     step_context.settings.effective_reasoning_effort().as_ref(),
@@ -401,7 +405,10 @@ impl Session {
                 world_state.add_extension_section(section);
             }
         }
-        if !turn_context.session_source.is_non_root_agent() {
+        if crate::agent::role_profile::has_root_authority(
+            &turn_context.config,
+            &turn_context.session_source,
+        ) {
             world_state.add_section(RootCoordinationState);
         }
         let available_maintenance_tools = crate::tools::handlers::project_maintenance::TOOL_NAMES
@@ -415,10 +422,14 @@ impl Session {
                 _ => "project_cleanup_apply (apply)",
             }.to_string())
             .collect();
-        world_state.add_section(ProjectMaintenanceGuidanceState(codex_prompts::ProjectMaintenanceGuidance {
-            available_tools: available_maintenance_tools,
-        }));
-        if !turn_context.session_source.is_non_root_agent() || turn_context.parent_thread_id.is_some() {
+        world_state.add_section(ProjectMaintenanceGuidanceState(
+            codex_prompts::ProjectMaintenanceGuidance {
+                available_tools: available_maintenance_tools,
+            },
+        ));
+        if !turn_context.session_source.is_non_root_agent()
+            || turn_context.parent_thread_id.is_some()
+        {
             world_state.add_section(ParentRequestGuidanceState(ParentRequestGuidance {
                 has_parent: turn_context.parent_thread_id.is_some(),
                 tools_enabled: super::parent_request::parent_request_tools_enabled(turn_context),
@@ -433,26 +444,22 @@ impl Session {
             world_state.add_section(usage_hint);
         }
         world_state.add_section(multi_agent_mode);
-        let spawn_tool = if step_context.harness_profile.uses_claude_tools() {
-            Some(ToolName::plain("Agent"))
-        } else {
-            match turn_context.multi_agent_version {
-                MultiAgentVersion::Disabled => None,
-                MultiAgentVersion::V1 => Some(ToolName::new(
-                    Some(MULTI_AGENT_V1_NAMESPACE.to_string()),
-                    "spawn_agent",
-                )),
-                MultiAgentVersion::V2 => turn_context
-                    .config
-                    .multi_agent_v2
-                    .expose_spawn_agent_model_overrides
-                    .then(|| {
-                        ToolName::new(
-                            turn_context.config.multi_agent_v2.tool_namespace.clone(),
-                            "spawn_agent",
-                        )
-                    }),
-            }
+        let spawn_tool = match turn_context.multi_agent_version {
+            MultiAgentVersion::Disabled => None,
+            MultiAgentVersion::V1 => Some(ToolName::new(
+                Some(MULTI_AGENT_V1_NAMESPACE.to_string()),
+                "spawn_agent",
+            )),
+            MultiAgentVersion::V2 => turn_context
+                .config
+                .multi_agent_v2
+                .expose_spawn_agent_model_overrides
+                .then(|| {
+                    ToolName::new(
+                        turn_context.config.multi_agent_v2.tool_namespace.clone(),
+                        "spawn_agent",
+                    )
+                }),
         };
         let model_overrides_available =
             spawn_tool.is_some_and(|name| step_context.tool_router.exposes_tool(&name));

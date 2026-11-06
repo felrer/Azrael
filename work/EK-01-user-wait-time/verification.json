@@ -1,0 +1,995 @@
+{
+  "scope": "Windows source and native React/CSS fixture evidence; installed-host/Linux/macOS acceptance not established",
+  "userWaitRender": {
+    "checks": [
+      "light waits from native boundary",
+      "light timing inside native styled card",
+      "light completed history survives pending card removal with request context",
+      "light answered timer remains frozen",
+      "dark waits from native boundary",
+      "dark timing inside native styled card",
+      "dark completed history survives pending card removal with request context",
+      "dark answered timer remains frozen",
+      "theme foreground changes",
+      "narrow native card has no horizontal overflow",
+      "native approve action preserved",
+      "cancelled boundary stays visible",
+      "no browser exceptions"
+    ],
+    "outcome": "passed",
+    "exitCode": 0,
+    "browserExit": {
+      "confirmed": true,
+      "exitCode": 0,
+      "signalCode": null,
+      "processInspectionExitCode": 0,
+      "processIds": []
+    },
+    "rootVisualReview": "light native card spacing, response timer and preserved actions inspected"
+  },
+  "aggregateRender": {
+    "checks": [
+      "light first user / summary / assistant order",
+      "light exactly one plain summary line",
+      "dark first user / summary / assistant order",
+      "dark exactly one plain summary line",
+      "native semantic theme text colors",
+      "0 committed reservations eligibility",
+      "1 committed reservations eligibility",
+      "2 committed reservations eligibility",
+      "3 committed reservations eligibility",
+      "independent eligible groups",
+      "partial loaded entries never substitute first user",
+      "live automatic waiting time ticks",
+      "clock ticks never query metadata",
+      "completed live chain freezes total",
+      "history failure retains a plain partial line",
+      "light 29 summary unmount 0",
+      "light 29 summary unmount 1",
+      "light 29 summary unmount 2",
+      "light 29 summary unmount 3",
+      "light 29 summary unmount 4",
+      "light 29 summary unmount 5",
+      "light 29 summary unmount 6",
+      "light 29 summary unmount 7",
+      "light 29 remount retains one first-user summary",
+      "light 29 scrolling never reloads metadata",
+      "light 29 finite nonoverlapping native rows",
+      "dark 29 summary unmount 0",
+      "dark 29 summary unmount 1",
+      "dark 29 summary unmount 2",
+      "dark 29 summary unmount 3",
+      "dark 29 summary unmount 4",
+      "dark 29 summary unmount 5",
+      "dark 29 summary unmount 6",
+      "dark 29 summary unmount 7",
+      "dark 29 remount retains one first-user summary",
+      "dark 29 scrolling never reloads metadata",
+      "dark 29 finite nonoverlapping native rows",
+      "light 176 summary unmount 0",
+      "light 176 summary unmount 1",
+      "light 176 summary unmount 2",
+      "light 176 summary unmount 3",
+      "light 176 summary unmount 4",
+      "light 176 summary unmount 5",
+      "light 176 summary unmount 6",
+      "light 176 summary unmount 7",
+      "light 176 remount retains one first-user summary",
+      "light 176 scrolling never reloads metadata",
+      "light 176 finite nonoverlapping native rows",
+      "dark 176 summary unmount 0",
+      "dark 176 summary unmount 1",
+      "dark 176 summary unmount 2",
+      "dark 176 summary unmount 3",
+      "dark 176 summary unmount 4",
+      "dark 176 summary unmount 5",
+      "dark 176 summary unmount 6",
+      "dark 176 summary unmount 7",
+      "dark 176 remount retains one first-user summary",
+      "dark 176 scrolling never reloads metadata",
+      "dark 176 finite nonoverlapping native rows",
+      "light 1000 summary unmount 0",
+      "light 1000 summary unmount 1",
+      "light 1000 summary unmount 2",
+      "light 1000 summary unmount 3",
+      "light 1000 summary unmount 4",
+      "light 1000 summary unmount 5",
+      "light 1000 summary unmount 6",
+      "light 1000 summary unmount 7",
+      "light 1000 remount retains one first-user summary",
+      "light 1000 scrolling never reloads metadata",
+      "light 1000 finite nonoverlapping native rows",
+      "dark 1000 summary unmount 0",
+      "dark 1000 summary unmount 1",
+      "dark 1000 summary unmount 2",
+      "dark 1000 summary unmount 3",
+      "dark 1000 summary unmount 4",
+      "dark 1000 summary unmount 5",
+      "dark 1000 summary unmount 6",
+      "dark 1000 summary unmount 7",
+      "dark 1000 remount retains one first-user summary",
+      "dark 1000 scrolling never reloads metadata",
+      "dark 1000 finite nonoverlapping native rows",
+      "no browser exceptions []"
+    ],
+    "outcome": "passed",
+    "exitCode": 0,
+    "browserExit": {
+      "confirmed": true,
+      "exitCode": 0,
+      "signalCode": null,
+      "processInspectionExitCode": 0,
+      "processIds": []
+    }
+  },
+  "cleanup": {
+    "state": "complete",
+    "review": {
+      "groups": [
+        {
+          "cached_live_members": 1,
+          "cleanup_status": null,
+          "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-01",
+          "kind": "run",
+          "members_total": 1,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "cc2bdd8081dc7c8e299fabe5883dc12586391207f3c0c9a447588117982f48cd",
+          "owner": "scripts/verify-user-wait-time-render.mjs",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\209de2423844873018c7c2bb17cf059e551030f9748adaf820ef3eea0a17760b.json",
+          "version": null
+        },
+        {
+          "cached_live_members": 1,
+          "cleanup_status": null,
+          "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-02",
+          "kind": "run",
+          "members_total": 1,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "e67e8c3a48bf3e842baa276781352e69555ec84dd3b8489036d1afb4aa5a380b",
+          "owner": "scripts/verify-user-wait-time-render.mjs",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7da472edefd53369786e22897216da5516cf115158affb5db4ae889e984f498b.json",
+          "version": null
+        },
+        {
+          "cached_live_members": 1,
+          "cleanup_status": null,
+          "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-03",
+          "kind": "run",
+          "members_total": 1,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "be5274901e6f253a3354e4d0f0c35f0a97606b3b9d7c355a6b2b18c0e0b67f49",
+          "owner": "scripts/verify-user-wait-time-render.mjs",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1d0d0605d32ec2451bd3458c5a2aeda829325631d278c8606f1595e4a2a10197.json",
+          "version": null
+        }
+      ],
+      "items": [
+        {
+          "blockers": [],
+          "group_member_ids": [
+            "239225f6b477acd1c7c2871c8a41776a6912efd6d4d2c909728982b17bdfde10"
+          ],
+          "group_token": "871ba0232832006dd5d826b639bd4cfbe58275ed9337395fd24fda9dbb6e63bc",
+          "id": "239225f6b477acd1c7c2871c8a41776a6912efd6d4d2c909728982b17bdfde10",
+          "identity": "9095672dba2765ee939ff49b9c4628253a0c6b5ae0fe6dd01781194b70143493",
+          "lifecycle_group_id": "run:verify-user-wait-time-render-EK-01:ui-20261029-01",
+          "logical_bytes": 42075168,
+          "measured_at_ms": 1793243399854,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "cc2bdd8081dc7c8e299fabe5883dc12586391207f3c0c9a447588117982f48cd",
+            "member_references": {
+              "239225f6b477acd1c7c2871c8a41776a6912efd6d4d2c909728982b17bdfde10": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01\\reports\\producer-68498f33edfcc182eb0ef20c90bdd53dbd097fbaad02d02c0e9813154b6f705a.json",
+                "evidence_sha256": "68498f33edfcc182eb0ef20c90bdd53dbd097fbaad02d02c0e9813154b6f705a",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "f41cf2ed139223e8ccc744ea683e108cf5e0e373c68671a7c7ae4ea7f07b0d2f"
+              },
+              "created_at": "2026-10-29T02:51:50.711Z",
+              "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-01",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01\\temporary",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01",
+              "owner": "scripts/verify-user-wait-time-render.mjs",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01\\reports\\producer-68498f33edfcc182eb0ef20c90bdd53dbd097fbaad02d02c0e9813154b6f705a.json",
+                "evidence_sha256": "68498f33edfcc182eb0ef20c90bdd53dbd097fbaad02d02c0e9813154b6f705a",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 2,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-29T02:51:59.963Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793244024744,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-01",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                35,
+                189,
+                183,
+                0,
+                0,
+                0,
+                16,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "fe1371c430e49595dcb01c1f6ab8fdcc0f5923b0df269107b3024aaa8a144ad9",
+          "verification": "registered"
+        },
+        {
+          "blockers": [],
+          "group_member_ids": [
+            "505259f2c680179c26ac0681586da77285e46406df1ffc99b69944764da5f810"
+          ],
+          "group_token": "ddd6a520b85f6220675f607c88cb0f0381b5362dcf93370c8c639fa92c76a901",
+          "id": "505259f2c680179c26ac0681586da77285e46406df1ffc99b69944764da5f810",
+          "identity": "575d1b44c03e5a009b8533a806a79a605caffb4f1c771d1b2c90dee8de15e5c2",
+          "lifecycle_group_id": "run:verify-user-wait-time-render-EK-01:ui-20261029-03",
+          "logical_bytes": 60120017,
+          "measured_at_ms": 1793243656953,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "be5274901e6f253a3354e4d0f0c35f0a97606b3b9d7c355a6b2b18c0e0b67f49",
+            "member_references": {
+              "505259f2c680179c26ac0681586da77285e46406df1ffc99b69944764da5f810": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03\\reports\\producer-c38edad77d97ee7d16be75935533cad80d0d513d09b92ac47f4f37acb121eceb.json",
+                "evidence_sha256": "c38edad77d97ee7d16be75935533cad80d0d513d09b92ac47f4f37acb121eceb",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "9869904cc7c1771481385c97ba62040502a7db87de8ddd7e9d57f7734ebf5163"
+              },
+              "created_at": "2026-10-29T02:56:59.838Z",
+              "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-03",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03\\temporary",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03",
+              "owner": "scripts/verify-user-wait-time-render.mjs",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03\\reports\\producer-c38edad77d97ee7d16be75935533cad80d0d513d09b92ac47f4f37acb121eceb.json",
+                "evidence_sha256": "c38edad77d97ee7d16be75935533cad80d0d513d09b92ac47f4f37acb121eceb",
+                "exit_code": 0,
+                "outcome": "success",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 2,
+              "schema": 1,
+              "state": "complete",
+              "updated_at": "2026-10-29T02:57:14.449Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793244036931,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-03",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                76,
+                134,
+                180,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "c4a3077790a46dfb7049722317cfcdbbe025f95b1c52e903745e7ad71c909017",
+          "verification": "registered"
+        },
+        {
+          "blockers": [],
+          "group_member_ids": [
+            "ac9cfaf15b546f48e979b154acc96af6d15aa7fd862f10c0dfc410fba8200c57"
+          ],
+          "group_token": "4988fccb4a843f5d1b7413b09b4c16b2a479cf2c90c80ac5e1467643f1ca7db9",
+          "id": "ac9cfaf15b546f48e979b154acc96af6d15aa7fd862f10c0dfc410fba8200c57",
+          "identity": "a557c4dba089b6b71f957ff4bfa3c6a2b4b6c8642d5ec1735b2923bf36688b13",
+          "lifecycle_group_id": "run:verify-user-wait-time-render-EK-01:ui-20261029-02",
+          "logical_bytes": 43373355,
+          "measured_at_ms": 1793243527119,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "e67e8c3a48bf3e842baa276781352e69555ec84dd3b8489036d1afb4aa5a380b",
+            "member_references": {
+              "ac9cfaf15b546f48e979b154acc96af6d15aa7fd862f10c0dfc410fba8200c57": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02\\reports\\producer-59e394aea5cd09243a33ca5363f5a5c287de74bbe8b946e4423a604f408f265b.json",
+                "evidence_sha256": "59e394aea5cd09243a33ca5363f5a5c287de74bbe8b946e4423a604f408f265b",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "e95efb9aaed9c9aa9243d612414ad263426e6feea9d76de9de39c1668696978d"
+              },
+              "created_at": "2026-10-29T02:55:00.584Z",
+              "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-02",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02\\temporary",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02",
+              "owner": "scripts/verify-user-wait-time-render.mjs",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02\\reports\\producer-59e394aea5cd09243a33ca5363f5a5c287de74bbe8b946e4423a604f408f265b.json",
+                "evidence_sha256": "59e394aea5cd09243a33ca5363f5a5c287de74bbe8b946e4423a604f408f265b",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 2,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-29T02:55:09.763Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793244030600,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                136,
+                237,
+                183,
+                0,
+                0,
+                0,
+                18,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "0f14c79b986066ed8f9fea68504902b40d4848024719c404313d381af2876e34",
+          "verification": "registered"
+        }
+      ]
+    },
+    "status": "all-nine-roots-absent-and-finalized",
+    "groups": [
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-01",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-02",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-03",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-04",
+      "run:verify-task-work-time-render:20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+      "run:EK01-user-wait-native:schema01",
+      "run:EK01-user-wait-native:protocol01",
+      "run:EK01-user-wait-native:core01",
+      "run:EK01-user-wait-native:core02"
+    ],
+    "deletedGroups": [
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-01",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-02",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-03",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-04",
+      "run:verify-task-work-time-render:20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+      "run:EK01-user-wait-native:schema01",
+      "run:EK01-user-wait-native:protocol01",
+      "run:EK01-user-wait-native:core01",
+      "run:EK01-user-wait-native:core02"
+    ],
+    "reclaimedBytes": null,
+    "remainingRoots": [],
+    "blocker": null,
+    "attempts": [
+      {
+        "operation": "registerRequest UI04",
+        "exitCode": 1,
+        "error": "active-cleanup-reservation (prior root synchronous failed registration)"
+      },
+      {
+        "operation": "register aggregate",
+        "exitCode": 1,
+        "error": "OS maintenance.lock busy"
+      },
+      {
+        "operation": "recover exact UI04 reservation",
+        "exitCode": 1,
+        "error": "OS maintenance.lock busy",
+        "attempts": 2
+      },
+      {
+        "operation": "recover exact UI04 reservation after prior controller exit",
+        "exitCode": 0,
+        "outcome": "reservation_recovered",
+        "originalOutcomeChanged": false
+      },
+      {
+        "operation": "register UI04",
+        "exitCode": 1,
+        "error": "OS maintenance.lock busy under new external controller42308"
+      },
+      {
+        "operation": "register core01 after runtime handback",
+        "exitCode": 1,
+        "error": "OS maintenance.lock busy, external main-root EL-01 owner"
+      }
+    ],
+    "recoveryEvidence": "work/EK-01-user-wait-time/cleanup-reservation-recovery.json",
+    "ui04Reservation": {
+      "ownerPid": 56520,
+      "token": "56520-1793243760710-0c1392e107693ec4",
+      "status": "recovered",
+      "operationExitCode": 0,
+      "executionOutcomeChanged": false,
+      "pendingIntentsChanged": false,
+      "recoveryEvidenceSha256": "1d932a690fadcd560dc2ab270e778b3ee8a7169ed8858546e3bea8ff052a9557"
+    },
+    "nativeHandoff": {
+      "groups": [
+        "run:EK01-user-wait-native:schema01",
+        "run:EK01-user-wait-native:protocol01"
+      ],
+      "revision": 3,
+      "referencesReleased": true,
+      "knownProtocolTargetApproxGB": 9.71,
+      "evidence": "work/EK-01-user-wait-time/native-verification.json"
+    },
+    "releaseCondition": "Unrelated EI01 owner releases maintenance/catalog locks; fresh supported owner recovery/registration/review/apply, verify absence and finalize required.",
+    "temporaryRequestRemoved": true,
+    "reclaimedLogicalBytes": 10561016936,
+    "physicalReclaimedBytes": null,
+    "physicalReclaimedNote": "Registered logical sizes only; physical reclaimed bytes were not measured.",
+    "protocolRootAbsent": true,
+    "lastApply": {
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n"
+    },
+    "finalizePending": [],
+    "finalizedGroups": [
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-01",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-02",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-03",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-04",
+      "run:verify-task-work-time-render:20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+      "run:EK01-user-wait-native:schema01",
+      "run:EK01-user-wait-native:protocol01",
+      "run:EK01-user-wait-native:core01",
+      "run:EK01-user-wait-native:core02"
+    ],
+    "recoverySummary": "All seven prior apply reservations recovered through supported owner with original execution outcomes unchanged; protocol01 absent and finalized",
+    "registeredGroups": [
+      "run:EK01-user-wait-native:protocol01",
+      "run:EK01-user-wait-native:schema01",
+      "run:verify-user-wait-time-render-EK-01:ui-20261029-04",
+      "run:verify-task-work-time-render:20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+      "run:EK01-user-wait-native:core01",
+      "run:EK01-user-wait-native:core02"
+    ],
+    "oldCoreScopeApproved": true,
+    "latestRecoveryEvidence": "work/EK-01-user-wait-time/cleanup-registration-recovery-core01-02.json",
+    "reviewedRemainingLogicalBytes": 0,
+    "latestApply": {
+      "session": 48754,
+      "exitCode": 1,
+      "error": "catalog OS lock busy",
+      "returnedPerItemResults": false,
+      "observedAllThreeRootsAbsent": true,
+      "originalOutcomePreserved": true
+    },
+    "core01ReregistrationReason": "Native cleanup_status pending after partial failed apply; current present-member full measurement required to clear pending via supported registration, preserving original failure history",
+    "finalFinalizations": [
+      {
+        "id": "run:EK01-user-wait-native:core01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6a247985879a549ba8e24c6a9beaf46633e60d02aeb267989817f94b02235cb1.json"
+      },
+      {
+        "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-02",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7da472edefd53369786e22897216da5516cf115158affb5db4ae889e984f498b.json"
+      },
+      {
+        "id": "run:verify-task-work-time-render:20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d10e7b7ad02b4a0c71fcb55730ebafd1197b764c314dc0b6d1211389ef553c71.json"
+      }
+    ],
+    "lastThreeRecovery": {
+      "exitCode": 0,
+      "reservations": 3,
+      "executionOutcomeChanged": false,
+      "pendingIntentsChanged": false,
+      "evidencePrefix": "work/EK-01-user-wait-time/cleanup-apply53768-recovery-"
+    },
+    "completedReview": {
+      "groups": [
+        {
+          "id": "run:EK01-user-wait-native:core01",
+          "membershipComplete": true,
+          "membersTotal": 1,
+          "owner": "user-wait-native-verification"
+        },
+        {
+          "id": "run:verify-task-work-time-render:20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+          "membershipComplete": true,
+          "membersTotal": 1,
+          "owner": "scripts/verify-task-work-time-render.mjs"
+        },
+        {
+          "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-02",
+          "membershipComplete": true,
+          "membersTotal": 1,
+          "owner": "scripts/verify-user-wait-time-render.mjs"
+        }
+      ],
+      "items": [
+        {
+          "id": "6a2d31be110d02fbecb821e54a82a3fb3fdc121c18ef059b7fa535980f9dd86a",
+          "token": "b3d8e79fdff1826c94e6274d6c27eb8359d854754697f291e667e68091ba5f42",
+          "group": "run:EK01-user-wait-native:core01",
+          "groupMemberIds": [
+            "6a2d31be110d02fbecb821e54a82a3fb3fdc121c18ef059b7fa535980f9dd86a"
+          ],
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\core01",
+          "presence": "present",
+          "remaining": true,
+          "logicalBytes": 194256109,
+          "blockers": [],
+          "observationError": null,
+          "sourceStatus": "measured",
+          "sourceBlockers": [],
+          "sourceReferences": [],
+          "membershipMatches": true,
+          "sourceOwner": "user-wait-native-verification",
+          "producer": "stopped",
+          "producerOutcome": "failure",
+          "referenceCount": 0
+        },
+        {
+          "id": "ac9cfaf15b546f48e979b154acc96af6d15aa7fd862f10c0dfc410fba8200c57",
+          "token": "0f14c79b986066ed8f9fea68504902b40d4848024719c404313d381af2876e34",
+          "group": "run:verify-user-wait-time-render-EK-01:ui-20261029-02",
+          "groupMemberIds": [
+            "ac9cfaf15b546f48e979b154acc96af6d15aa7fd862f10c0dfc410fba8200c57"
+          ],
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-user-wait-time-render-EK-01\\runs\\ui-20261029-02",
+          "presence": "present",
+          "remaining": true,
+          "logicalBytes": 43373355,
+          "blockers": [],
+          "observationError": null,
+          "sourceStatus": "measured",
+          "sourceBlockers": [],
+          "sourceReferences": [],
+          "membershipMatches": true,
+          "sourceOwner": "scripts/verify-user-wait-time-render.mjs",
+          "producer": "stopped",
+          "producerOutcome": "failure",
+          "referenceCount": 0
+        },
+        {
+          "id": "b04633f9f705cb42de12f579c0ba6ec313f57bfcfb9c8a981abfeedeff6bc33d",
+          "token": "782b3c1f71e4350544d8801a2feb44bf9f8ff7d931d88eb77d1050ee07a22b5f",
+          "group": "run:verify-task-work-time-render:20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+          "groupMemberIds": [
+            "b04633f9f705cb42de12f579c0ba6ec313f57bfcfb9c8a981abfeedeff6bc33d"
+          ],
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-task-work-time-render\\runs\\20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+          "presence": "present",
+          "remaining": true,
+          "logicalBytes": 57808553,
+          "blockers": [],
+          "observationError": null,
+          "sourceStatus": "measured",
+          "sourceBlockers": [],
+          "sourceReferences": [],
+          "membershipMatches": true,
+          "sourceOwner": "scripts/verify-task-work-time-render.mjs",
+          "producer": "stopped",
+          "producerOutcome": "success",
+          "referenceCount": 0
+        }
+      ]
+    },
+    "finalAbsenceCheck": {
+      "roots": [
+        "artifacts/tasks/verify-user-wait-time-render-EK-01/runs/ui-20261029-01",
+        "artifacts/tasks/verify-user-wait-time-render-EK-01/runs/ui-20261029-02",
+        "artifacts/tasks/verify-user-wait-time-render-EK-01/runs/ui-20261029-03",
+        "artifacts/tasks/verify-user-wait-time-render-EK-01/runs/ui-20261029-04",
+        "artifacts/tasks/verify-task-work-time-render/runs/20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+        "artifacts/tasks/EK01-user-wait-native/runs/schema01",
+        "artifacts/tasks/EK01-user-wait-native/runs/protocol01",
+        "artifacts/tasks/EK01-user-wait-native/runs/core01",
+        "artifacts/tasks/EK01-user-wait-native/runs/core02"
+      ],
+      "allAbsent": true,
+      "checkedAt": "2026-10-29T05:57:15.109Z"
+    },
+    "retiredNative": {
+      "groups": [
+        "run:EK01-user-wait-native:downstream01",
+        "run:EK01-user-wait-native:downstream02",
+        "run:EK01-user-wait-native:core03"
+      ],
+      "state": "registering",
+      "evidence": "work/EK-01-user-wait-time/native-preliminary-downstream.json",
+      "evidenceSha256": "db6927a742b49177b5312ba7da8a4a984acb6baddef88f57f4403cdfc5723618",
+      "registrations": [
+        {
+          "id": "run:EK01-user-wait-native:downstream01",
+          "exitCode": 1,
+          "result": {
+            "stdout": ""
+          },
+          "stderr": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n"
+        },
+        {
+          "id": "run:EK01-user-wait-native:downstream01",
+          "exitCode": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EK01-user-wait-native:downstream01",
+              "kind": "run",
+              "members": [
+                "fb46c3777fe78ca8808bbde1e959d01e92ae17585be6c8f7446b699fed601fc2"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "44ad3b4c5e141154e9911a21de85b0508a357c63b04f3147014fc59a6ba0f754",
+              "owner": "user-wait-native-verification",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\dbc3107de9a68f97b645fb9686359d76b43deca6d7b18f21a4af59876487d4fe.json",
+              "registered_at_ms": 1793255001332,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "fb46c3777fe78ca8808bbde1e959d01e92ae17585be6c8f7446b699fed601fc2",
+                "identity": "89c1fbf3b2940090ce7eb79fcdc4d01acaecfa6e1c25eb817a2d8c9a28491f5b",
+                "kind": "run",
+                "lifecycle_group_id": "run:EK01-user-wait-native:downstream01",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 43757,
+                "measured_at_ms": 1793254980183,
+                "owner": "user-wait-native-verification",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\downstream01",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\dbc3107de9a68f97b645fb9686359d76b43deca6d7b18f21a4af59876487d4fe.json",
+                "references": [],
+                "registered_at_ms": 1793254980183,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          },
+          "stderr": ""
+        },
+        {
+          "id": "run:EK01-user-wait-native:downstream02",
+          "exitCode": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EK01-user-wait-native:downstream02",
+              "kind": "run",
+              "members": [
+                "d6f7912dfdf2bc5470798f38237971212ff145152667bd0a9b4c5950861f9adc"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "2a85e493565b8122309636a9c106e7b4ac67d8334f220ce0313d640623cf8ade",
+              "owner": "user-wait-native-verification",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e41a5ba88389ebf143cf7e739c756764bcd501a75adfc0b282331abf1af4021e.json",
+              "registered_at_ms": 1793255248239,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "d6f7912dfdf2bc5470798f38237971212ff145152667bd0a9b4c5950861f9adc",
+                "identity": "38145a1cd7e2e09e057fa243caecc0c290c8b4b5ed435f1cdb8af7151b7292ff",
+                "kind": "run",
+                "lifecycle_group_id": "run:EK01-user-wait-native:downstream02",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 202927820,
+                "measured_at_ms": 1793255229837,
+                "owner": "user-wait-native-verification",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\downstream02",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e41a5ba88389ebf143cf7e739c756764bcd501a75adfc0b282331abf1af4021e.json",
+                "references": [],
+                "registered_at_ms": 1793255229837,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          },
+          "stderr": ""
+        },
+        {
+          "id": "run:EK01-user-wait-native:core03",
+          "exitCode": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EK01-user-wait-native:core03",
+              "kind": "run",
+              "members": [
+                "3d11d257da044823a90e78e562d78100945c27554af3022158209f05579e1840"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "a63c648d0cc64441e0c9287b56c6fa91e594f86f61fd4712c7e1d2bd844e1fda",
+              "owner": "user-wait-native-verification",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e4c418e581eb295c396266f117df64510fc147c227d989ed7dd012573c68325e.json",
+              "registered_at_ms": 1793255471518,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "3d11d257da044823a90e78e562d78100945c27554af3022158209f05579e1840",
+                "identity": "1313a6a951863445e281e7f73860ad919084a4a5e52585b8a64430476520fc69",
+                "kind": "run",
+                "lifecycle_group_id": "run:EK01-user-wait-native:core03",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 196090116,
+                "measured_at_ms": 1793255456193,
+                "owner": "user-wait-native-verification",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\core03",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e4c418e581eb295c396266f117df64510fc147c227d989ed7dd012573c68325e.json",
+                "references": [],
+                "registered_at_ms": 1793255456193,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          },
+          "stderr": ""
+        }
+      ]
+    }
+  },
+  "source": {
+    "command": "node --test scripts/test-task-work-time.cjs scripts/test-task-work-time-history.cjs scripts/test-task-work-time-ui.cjs scripts/test-user-wait-time.cjs scripts/test-deferred-turn.cjs",
+    "tests": 110,
+    "exitCode": 0,
+    "cache": "original transform executed; shared cache reuse disabled",
+    "durationMs": 132144.0934,
+    "scope": "Five focused source suites including completed-turn new background approval merge and original-turn card matching"
+  },
+  "recipe": {
+    "focused": "user wait timing",
+    "exitCode": 0,
+    "unrelatedFullSuiteFailure": "Existing deletion approval wrapper hash differs from reviewed recipe in two tests; source left unchanged"
+  },
+  "preservationManifest": {
+    "validated": true,
+    "ownershipAndTransforms": "passed",
+    "unrelatedSuiteFailure": "Existing ui.request-preparation feature lacks mandatory test-namespace-cache-owner owner; two other preservation integration checks passed"
+  }
+}

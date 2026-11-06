@@ -73,6 +73,8 @@ pub struct ExtraConfig {}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CreateThreadParams {
     #[serde(default)]
+    pub role_profile: Option<codex_protocol::protocol::RoleProfilePolicy>,
+    #[serde(default)]
     pub computer_use_mode: Option<codex_protocol::protocol::ComputerUseMode>,
     /// ChatGPT user that created this thread; absent when unavailable or for older threads.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -479,6 +481,7 @@ pub struct StoredTurn {
     pub duration_ms: Option<i64>,
     #[serde(default)]
     pub root_resume_wait: Option<codex_protocol::root_resume::RootResumeWait>,
+    pub user_wait_timing: Option<codex_protocol::user_wait::UserWaitTiming>,
 }
 
 /// A page of stored turns.

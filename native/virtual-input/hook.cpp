@@ -111,6 +111,10 @@ bool Send(HWND w,UINT msg,WPARAM wp=0,LPARAM lp=0){
   DWORD_PTR ignored=0;
   if(!SendMessageTimeoutW(w,msg,wp,lp,SMTO_ABORTIFHUNG|SMTO_BLOCK,static_cast<UINT>(std::min<ULONGLONG>(kTimeout,deadline-now)),&ignored)){
     poisoned=true;Error(Outcome::Unknown,L"Message timeout: delivery outcome unknown; detach required");return false;}
+  packet->lastRecipient=reinterpret_cast<uint64_t>(w);
+  packet->lastMessage=msg;
+  packet->lastMessageResult=static_cast<int64_t>(ignored);
+  ++packet->deliveredMessages;
   return true;
 }
 bool Valid(){

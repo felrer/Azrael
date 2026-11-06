@@ -1,0 +1,18 @@
+{
+  "at": "2026-11-02T01:41:38.524Z",
+  "source_files_matching_live": 37,
+  "native_passed": 232,
+  "native_exit": 0,
+  "build_exit": 0,
+  "common_instruction_tests_passed": 5,
+  "common_instruction_exit": 0,
+  "candidate_registry_exit": 0,
+  "default_recovery_exit": 0,
+  "default_cli_accepted": true,
+  "sha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "stop_basis": "All Cargo, native CLI, Node lease and PowerShell verification children synchronously returned with terminal exit0; no detached producer launched; results preserved outside run",
+  "scope": "Windows x64 standalone and active installed lifecycle skill; embedded app engine not reinstalled",
+  "commit": "withheld: staged CLI and broad concurrent maintenance/instruction changes belong to other work; original index preserved"
+}

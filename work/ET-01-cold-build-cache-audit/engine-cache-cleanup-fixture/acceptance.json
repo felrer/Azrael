@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "scope": "Windows x64 fixture correction only; production cleaner/policy and frozen W/Y/Z unchanged",
+  "source": {
+    "file": "scripts/test-clean-engine-caches.ps1",
+    "beforeSha256": "7f2ce1090b01e2c4dd72af199b3a396ecb4631fdb21fe5e88c63e91adadc9d9f",
+    "afterSha256": "dcb9f73bf4e26adc9d771c1496f62739d476aaa1e9a6410bcc033d4e58268d04",
+    "change": "Replace fixture-only Set-ItemProperty readonly reset with File.SetAttributes preserving filesystem-managed Compressed flag; 2 added/1 removed lines",
+    "syntaxExitCode": 0,
+    "diffCheckExitCode": 0
+  },
+  "originalZFailure": {
+    "testLog": "artifacts/e/artifacts/z/artifacts/tasks/lifecycle-checks/runs/f03b984194a74f4eab18d3f5d1b28073/logs/7.log",
+    "outerError": "finally ordinary Remove-Item rejected remaining readonly synthetic file",
+    "lastPass": "readonly deletion diagnosed and retained",
+    "causalEvidence": "Retained 4140-byte report diagnoses ReadOnly, Compressed; compressed P reproduction proves provider restoration rejects Compressed then finally cannot remove readonly file",
+    "retainedFixture": "artifacts/e/artifacts/z/artifacts/verification/engine-cache-cleanup-d285dea108604be19a9dc17e5f282e69",
+    "retainedReadonlyFile": "project/upstream/codex/codex-rs/target/cache.txt",
+    "fileMetadata": {
+      "length": 5,
+      "nlink": 1,
+      "symlink": false,
+      "diagnosedAttributes": "ReadOnly, Compressed"
+    },
+    "mutation": "none; root owns later whole Z temp cleanup"
+  },
+  "owner": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe",
+    "sha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c",
+    "scope": "Process-local AZRAEL_MAINTENANCE_OWNER only; global selection unchanged"
+  },
+  "initialShortProbe": {
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-readonly-probe-38cd514d",
+    "lifecycleId": "run:ET-01-cold-build-cache-audit:engine-cleanup-readonly-probe-38cd514d",
+    "childExitCode": 1,
+    "observation": "{\r\n  \"version\": \"7.6.9\",\r\n  \"original_set_item_property_error\": null,\r\n  \"corrected_readonly_absent\": true,\r\n  \"ordinary_removal_verified\": true\r\n}\r\n",
+    "ownerPinned": false,
+    "ownerIdentity": "Inherited global default, exact executable not captured; root observed eq01-protection-r3 during that window",
+    "meaning": "Exit1 because original setter did not fail on uncompressed synthetic file; fixture ordinary removed and absence verified"
+  },
+  "originalFull": {
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-original-5cb2e7ef",
+    "lifecycleId": "run:ET-01-cold-build-cache-audit:engine-cleanup-original-5cb2e7ef",
+    "fixture": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-original-5cb2e7ef\\outputs\\fixture",
+    "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe",
+    "ownerSha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c",
+    "childExitCode": 0,
+    "wrapperExitCode": 0,
+    "passLines": [
+      "INFO: powershell directory symlink fixture created",
+      "PASS: ordinary powershell recursive deletion preserves external sentinel and supports long paths",
+      "PASS: preview, workspace-only version, semver prerelease, bounded root enumeration",
+      "PASS: build process names and selected-cache executable block mutation",
+      "PASS: readonly deletion diagnosed and retained; regular prerelease cache removed; source/current/newer/unknown and external sentinel preserved",
+      "PASS: diagnosed synthetic readonly attribute corrected; ordinary older-cache deletion succeeds",
+      "PASS: project ancestor, source root, and target junction rejection",
+      "PASS: custom CurrentSourceRoot preparation; registered older build-cache retirement; current/newer/unmanaged/invalid preservation",
+      "PASS: 5000-file cleanup in 2.019s (60s regression limit)",
+      "PASS: unmarked/nested Cargo caches; primary and alternate active protections; one live cache preserves only itself; command-line and extended paths; sibling boundaries; late process/indicator revalidation; unknown/source/junction/traversal safety",
+      "PASS: unused same/newer-version snapshot/worktree Cargo targets removed; primary/current-source/explicit targets and source/unknown content preserved",
+      "PASS: marker migration, equal-version retention, in-place switch, prepare preview, malformed/refused/unmanaged targets"
+    ]
+  },
+  "compressedProbe": {
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-compressed-ec709d83",
+    "lifecycleId": "run:ET-01-cold-build-cache-audit:engine-cleanup-compressed-ec709d83",
+    "childExitCode": 0,
+    "observation": "\r\n C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-compressed-ec709d83\\temporary\\�� �ִ� ������ �����ϴ� ��\r\n\r\n\r\n1�� ���͸��� 1���� ������ ����Ǿ����ϴ�.\r\n��ü 23����Ʈ�� �����Ͱ� 23����Ʈ�� ����Ǿ����ϴ�.\r\n���� ������ 1.0 �� 1�Դϴ�.\r\n{\r\n  \"compactExit\": 0,\r\n  \"before\": \"ReadOnly, Compressed\",\r\n  \"provider_error\": {\r\n    \"message\": \"The attribute cannot be set because attributes are not supported. Only the following attributes can be set: Archive, Hidden, Normal, ReadOnly, or System.\",\r\n    \"id\": \"SetPropertyError,Microsoft.PowerShell.Commands.SetItemPropertyCommand\"\r\n  },\r\n  \"after_provider\": \"ReadOnly, Compressed\",\r\n  \"dotnet_error\": null,\r\n  \"after_dotnet\": \"Compressed\",\r\n  \"absence\": true\r\n}\r\n",
+    "wrapperExitCode": 0,
+    "meaning": "compact.exe exact newly owned file only exit0; original provider SetPropertyError retains ReadOnly,Compressed; File.SetAttributes succeeds preserving Compressed; ordinary removal verified"
+  },
+  "correctedFull": {
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-corrected-7e504d10",
+    "lifecycleId": "run:ET-01-cold-build-cache-audit:engine-cleanup-corrected-7e504d10",
+    "exe": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+    "args": [
+      "-NoProfile",
+      "-File",
+      "scripts/test-clean-engine-caches.ps1",
+      "-FixtureRoot",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-corrected-7e504d10\\outputs\\fixture"
+    ],
+    "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe",
+    "childExitCode": 0,
+    "inputsUnchanged": true,
+    "exitCode": 0,
+    "fixtureAbsent": true,
+    "wrapperExitCode": 0,
+    "passLines": [
+      "INFO: powershell directory symlink fixture created",
+      "PASS: ordinary powershell recursive deletion preserves external sentinel and supports long paths",
+      "PASS: preview, workspace-only version, semver prerelease, bounded root enumeration",
+      "PASS: build process names and selected-cache executable block mutation",
+      "PASS: readonly deletion diagnosed and retained; regular prerelease cache removed; source/current/newer/unknown and external sentinel preserved",
+      "PASS: diagnosed synthetic readonly attribute corrected; ordinary older-cache deletion succeeds",
+      "PASS: project ancestor, source root, and target junction rejection",
+      "PASS: custom CurrentSourceRoot preparation; registered older build-cache retirement; current/newer/unmanaged/invalid preservation",
+      "PASS: 5000-file cleanup in 2.038s (60s regression limit)",
+      "PASS: unmarked/nested Cargo caches; primary and alternate active protections; one live cache preserves only itself; command-line and extended paths; sibling boundaries; late process/indicator revalidation; unknown/source/junction/traversal safety",
+      "PASS: unused same/newer-version snapshot/worktree Cargo targets removed; primary/current-source/explicit targets and source/unknown content preserved",
+      "PASS: marker migration, equal-version retention, in-place switch, prepare preview, malformed/refused/unmanaged targets"
+    ]
+  },
+  "finalInputHashes": {
+    "scripts/test-clean-engine-caches.ps1": "dcb9f73bf4e26adc9d771c1496f62739d476aaa1e9a6410bcc033d4e58268d04",
+    "scripts/clean-engine-caches.ps1": "c4309f667ab5b21237ffc661bd72b5724e1197dc04c64659a2c18ff5e736535b",
+    "scripts/artifact-lifecycle.ps1": "65bd1f96ab55b52bd80dab9b36d88e44a54b95ad69f27ef7fa7b287fcf4fc139",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c"
+  },
+  "rawCleanup": {
+    "owner": "P standalone accepted3993 after separate acceptance preserved",
+    "runs": [
+      "engine-cleanup-readonly-probe-38cd514d",
+      "engine-cleanup-original-5cb2e7ef",
+      "engine-cleanup-compressed-ec709d83",
+      "engine-cleanup-corrected-7e504d10"
+    ],
+    "status": "completed",
+    "receipts": [
+      "cleanup-phase1.json",
+      "managed-root-cleanup.json",
+      "control-cleanup.json"
+    ],
+    "rawGroupsDeletedAndFinalized": 8,
+    "backupDisposedAfterExactConfigRestoration": true
+  },
+  "remainingWindowsCases": [
+    "verify only",
+    "account-success",
+    "build-fail"
+  ],
+  "remainingCaseStatus": "Completed: all three selected Windows cases passed actual child/wrapper exit0; see chain-acceptance.json",
+  "previousSnapshotSha256": "a3d01f8511ea86d885050c63ccb6704cb30a68c9ae71eeb6503fa63ca89742e5"
+}

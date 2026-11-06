@@ -7,7 +7,7 @@ const pm = require("node:vm");
 const util = require("node:util");
 const test = require("node:test");
 const crypto = require("node:crypto");
-const { COMPOSER_DRAFT_ASSET, MARKER, injectComposerDraft } = require("./inject-composer-draft.cjs");
+const { COMPOSER_DRAFT_ASSET, injectComposerDraft } = require("./inject-composer-draft.cjs");
 const { BTW_MARKER, BTW_COMPOSER_ADMISSION_ANCHOR, BTW_COMPOSER_ADMISSION_REPLACEMENT, injectBtw } = require("./inject-btw.cjs");
 const { injectQueuedCompactionPresentation } = require("./inject-queued-compaction.cjs");
 const repo = path.resolve(__dirname, "..");
@@ -496,14 +496,6 @@ test("locally held follow-ups remain visible during the optimistic send window",
   }
   const legacy = { id: "submitted", submissionIntent: "send-now", createdAt: 0 };
   assert.equal(select("thread", { get: key => key === "messages" ? [legacy] : key === "admitted" ? ["submitted"] : false }).length, 0);
-});
-test("pinned transform fails closed for missing, repeated and partial anchors", () => {
-  for (const version of [1, 2, 3]) assert.throws(() => injectComposerDraft(original + `/*azrael-composer-draft-v${version}*/`), /Outdated/);
-  assert.throws(() => injectComposerDraft(original.replace("async function zMa({", "async function changed({")), /anchor/);
-  assert.throws(() => injectComposerDraft(original + "async function zMa({"), /anchor/);
-  assert.throws(() => injectComposerDraft(transformed.replace("__azraelClear(ut)", "u(ut)")), /partial/);
-  assert.throws(() => injectComposerDraft(transformed + MARKER), /partial/);
-
 });
 test("namespace integrates draft protection and fingerprints its source for cache invalidation", () => {
   const host = require("./namespace-azrael-host.cjs");

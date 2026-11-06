@@ -1,0 +1,59 @@
+{
+  "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fh01-34fdc6ea\\engine",
+  "sourceSha256": "b90ee0a8a5e5808f22852a6acc9e6a54681d0621cb1612ca33d503cd025dba9a",
+  "results": [
+    {
+      "crate": "codex-core",
+      "filter": "config::schema::tests::config_schema_matches_fixture",
+      "exitCode": 0,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 3140
+          }
+        ],
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 3140,
+        "executed": 1
+      }
+    },
+    {
+      "crate": "codex-app-server-protocol",
+      "filter": "schema_fixtures_tests::",
+      "exitCode": 0,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 1,
+            "measured": 0,
+            "filteredOut": 337
+          }
+        ],
+        "passed": 4,
+        "failed": 0,
+        "ignored": 1,
+        "measured": 0,
+        "filteredOut": 337,
+        "executed": 4
+      }
+    }
+  ],
+  "exitCode": 0,
+  "primaryOwnerFilesMatched": 29,
+  "generatedSchemaHashesMatched": 13,
+  "nativeBehaviorPassed": 27,
+  "nativeTotalPassed": 32
+}

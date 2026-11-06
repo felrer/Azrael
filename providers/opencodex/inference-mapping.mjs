@@ -30,12 +30,12 @@ function identity(namespace, name, kind) {
 function alias(namespace, name, kind) {
   return 'az_' + createHash('sha256').update(identity(namespace, name, kind)).digest('hex').slice(0, 40);
 }
-const CLAUDE_TOOL_NAMES = new Set(['Read', 'Edit', 'Write', 'Grep', 'Glob', 'Bash', 'Agent', 'Skill', 'ToolSearch', 'AskUserQuestion', 'TaskOutput', 'TaskStop']);
 export function harnessFingerprint(request) {
   const profile = request.harness_profile;
   if (profile === undefined) return undefined;
   if (!object(profile) || ['id', 'fingerprint', 'tool_profile', 'prompt_profile'].some(key =>
     !string(profile[key]) || !profile[key].trim() || bytes(profile[key]) > 1024 || /[\x00-\x1f\x7f]/.test(profile[key]))) fail('invalid_harness_profile');
+  if (profile.instruction_format !== undefined && !['native', 'anthropic-xml'].includes(profile.instruction_format)) fail('invalid_harness_profile');
   return profile.fingerprint;
 }
 export function replayHarnessMatches(metadata, request) {
@@ -78,24 +78,21 @@ function multimodal(content, budget) {
   });
 }
 
+function agentContent(item, budget) {
+  const header = `Agent message from ${bounded(item.author)} to ${bounded(item.recipient)}:\n`;
+  const content = multimodal(item.content, budget);
+  return typeof content === 'string' ? header + content : [{ type: 'text', text: header }, ...content];
+}
+
 // The model-facing alias is request-scoped; the digest keeps history stable as
 // lazy tools are added. Return names resolve only within the current catalog.
-export function compileRequest(request, { promptFormat, compactToolSearchResults = false, actualAdapter } = {}) {
+export function compileRequest(request, { compactToolSearchResults = false } = {}) {
   if (!object(request) || request.protocol_version !== 1 || request.type !== 'request' ||
       !string(request.request_id) || !Array.isArray(request.input) || !Array.isArray(request.tools)) fail('invalid_request');
   if (!string(request.model) || !request.model.trim() || bytes(request.model) > 256 ||
       /[\x00-\x1f\x7f-\x9f]/.test(request.model)) fail('unsupported_native_model');
   const profileFingerprint = harnessFingerprint(request);
-  const claudeProfile = request.harness_profile?.tool_profile === 'builtin/claude-code-core';
-  if (claudeProfile && (request.provider_id !== 'anthropic' || (request.model.startsWith('managed/') && !request.model.startsWith('managed/anthropic/')) || actualAdapter !== 'anthropic')) fail('harness_provider_mismatch');
-  // The resolved Claude catalog already carries every live discovered schema.
-  // History references its current aliases without repeating those definitions.
-  compactToolSearchResults ||= claudeProfile;
-  const wireAlias = (namespace, name, kind) => {
-    identity(namespace, name, kind);
-    return claudeProfile && kind === 'function' && ['', 'functions'].includes(namespace) && CLAUDE_TOOL_NAMES.has(name)
-      ? name : alias(namespace, name, kind);
-  };
+  const wireAlias = alias;
   const names = new Map();
   const acceptedNames = new Map();
   const tools = [];
@@ -133,7 +130,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
   }
   for (const tool of request.tools) declare(tool);
   const searchHistory = compactToolSearchResults ? undefined : projectSearchHistory(request.input, names, wireAlias);
-  const format = !claudeProfile && promptFormat === 'anthropic-xml' ? anthropicPromptSection : (_tag, content) => content;
+  const format = request.harness_profile?.instruction_format === 'anthropic-xml' ? anthropicPromptSection : (_tag, content) => content;
   const currentTaskIndex = request.input.findLastIndex(item => item?.type === 'message' && item.role === 'user');
   const messages = [];
   if (request.instructions) messages.push({ role: 'system', content: format('common_instructions', bounded(request.instructions)) });
@@ -170,10 +167,11 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
         }
         break;
       }
-      case 'agent_message':
+      case 'agent_message': {
         assistant = undefined;
-        messages.push({ role: 'user', content: format('agent_message', `Agent message from ${bounded(item.author)} to ${bounded(item.recipient)}:\n${plainText(item.content)}`) });
+        messages.push({ role: 'user', content: format('agent_message', agentContent(item, images)) });
         break;
+      }
       case 'function_call':
       case 'custom_tool_call':
       case 'tool_search_call': {
@@ -203,7 +201,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
         if (item.execution !== 'client' || !calls.has(item.call_id) || results.has(item.call_id) || !Array.isArray(item.tools)) fail('invalid_tool_search_result');
         results.add(item.call_id);
         assistant = undefined;
-        // API and Claude discovery use only current aliases. Other providers retain the
+        // API discovery uses only current aliases. Other providers retain the
         // latest uncovered definition, including nested Code Mode helpers.
         messages.push({ role: 'tool', tool_call_id: item.call_id, content: format('tool_result', bounded(JSON.stringify(
           compactToolSearchResults
@@ -233,7 +231,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
   }
   // Base64 is ASCII and JSON-safe; the rebuilt data URL prefix stays within text slack.
   if (bytes(JSON.stringify({ messages, tools })) - images.bytes > MAX_BYTES) fail('context_limit');
-  return { messages, tools, names, acceptedNames, calls, historyAliases, claudeProfile, harnessFingerprint: profileFingerprint, parallel: request.parallel_tool_calls === true, model: request.model, thread: request.thread_id, account: request.credential_scope };
+  return { messages, tools, names, acceptedNames, calls, historyAliases, harnessFingerprint: profileFingerprint, parallel: request.parallel_tool_calls === true, model: request.model, thread: request.thread_id, account: request.credential_scope };
 }
 
 function compactSearchTools(specs, names, wireAlias) {

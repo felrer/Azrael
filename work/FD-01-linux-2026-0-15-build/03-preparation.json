@@ -1,0 +1,151 @@
+{
+  "status": "preparation-ready-awaiting-final-inputs",
+  "version": "2026.0.15",
+  "platform": {
+    "os": "linux",
+    "arch": "x64",
+    "target": "x86_64-unknown-linux-gnu",
+    "distribution": "Ubuntu 24.04",
+    "glibc": "2.39",
+    "environment": "WSL2 ktcloud-ubuntu-24.04",
+    "verificationUser": "ubuntu"
+  },
+  "tools": {
+    "node": {
+      "version": "22.18.0",
+      "executable": "artifacts/tools/multi-platform/linux-x64/node-v22.18.0-linux-x64/bin/node",
+      "sha256": "ccacb2d6d87ba6d118b2bffc1ae33747a05cc5fc6b1f1ec4fc1d420b687e952d",
+      "archiveSha256": "c1bfeecf1d7404fa74728f9db72e697decbd8119ccc6f5a294d795756dfcfca7"
+    },
+    "bun": {
+      "version": "1.4.2",
+      "variant": "linux-x64-baseline",
+      "executable": "artifacts/tools/multi-platform/linux-x64/bun-linux-x64-baseline/bun",
+      "sha256": "a83d263767d839e4d2649ca8e35d07159c7afc99afdc96d731ced29e056dda0c",
+      "archiveSha256": "c678040f14fe0440eb839d37cbd0ce4c051a32da72806ac97de6a6aab6bf728f"
+    },
+    "rust": {
+      "rustc": "1.95.0 (59807616e 2026-04-14)",
+      "cargo": "1.95.0",
+      "host": "x86_64-unknown-linux-gnu",
+      "installedComponents": [
+        "rustc",
+        "cargo",
+        "rust-std",
+        "clippy",
+        "rustfmt",
+        "rust-src"
+      ],
+      "installationUser": "root",
+      "verificationUser": "ubuntu"
+    }
+  },
+  "paths": {
+    "nativeWorkspace": "/home/ubuntu/azrael-linux-build",
+    "cargoHome": "/home/ubuntu/azrael-linux-build/artifacts/cache/cargo-home",
+    "npmCache": "/home/ubuntu/azrael-linux-build/artifacts/cache/npm",
+    "bunCache": "/home/ubuntu/azrael-linux-build/artifacts/cache/bun",
+    "temporary": "/home/ubuntu/azrael-linux-build/artifacts/tmp",
+    "rustupHome": "/mnt/c/Users/felre/Desktop/pi-harness-init/artifacts/tools/multi-platform/linux-x64/rustup",
+    "environmentScript": "artifacts/tasks/linux-2026.0.15-preparation/environment.sh"
+  },
+  "actualResults": [
+    {
+      "stage": "initial tool unpack/install as ubuntu on DrvFS",
+      "nodeExit": 2,
+      "bunExit": 1,
+      "rustExit": 1,
+      "result": "failed",
+      "cause": "Cannot restore Unix attributes/timestamps on uid0 DrvFS; executable bytes remained valid"
+    },
+    {
+      "stage": "Rust tool installation as WSL default root",
+      "exitCode": 0,
+      "result": "passed; no Windows ACL, ownership or mount configuration changes"
+    },
+    {
+      "stage": "ubuntu native Rust metadata compilation and probe removal",
+      "exitCode": 0,
+      "result": "passed"
+    },
+    {
+      "stage": "Linux Node/Bun/Python and native library/cache readiness",
+      "exitCode": 0,
+      "result": "passed"
+    },
+    {
+      "stage": "cargo fetch --locked --target x86_64-unknown-linux-gnu",
+      "exitCode": 0,
+      "result": "passed",
+      "startedUtc": "2026-11-02T01:12:58Z",
+      "completedUtc": "2026-11-02T01:13:44Z",
+      "observedDependencyFiles": 166,
+      "changedDependencyFiles": 0
+    },
+    {
+      "stage": "pinned UI source preconditions",
+      "result": "passed; four byte hashes match; first one-off probe incorrectly compared upper/lower-case hex and was corrected"
+    },
+    {
+      "stage": "actual Linux platform contracts",
+      "command": "node --test scripts/test-platform-runtime.cjs scripts/test-build-platform.cjs",
+      "exitCode": 0,
+      "tests": 21,
+      "pass": 21,
+      "skip": 0,
+      "durationMs": 21236.062983
+    },
+    {
+      "stage": "pinned Linux ripgrep execution and ELF target",
+      "exitCode": 0,
+      "version": "15.2.0",
+      "os": "linux",
+      "arch": "x64"
+    }
+  ],
+  "pending": [
+    "Completion of concurrent feature/maintenance improvements and final source selection",
+    "Freeze exact Linux product inputs",
+    "Bootstrap verified native Linux maintenance owner; Windows receipt is not usable from Linux",
+    "Select final functional/source/native checks and compile the product",
+    "Prepare/package and accept the exact Linux artifact"
+  ],
+  "exclusions": [
+    "No final product source capture",
+    "No product Rust compilation",
+    "No package, VSIX installation, publication or user-state changes",
+    "No claim of Linux desktop or WSL product acceptance"
+  ],
+  "ownership": {
+    "shared": "shared:linux-x64-build-tools:node22.18-bun1.4.2-rust1.95",
+    "run": "run:linux-2026.0.15:preparation",
+    "nativeCache": "FD-01 work record until native workspace owner bootstrap",
+    "sharedRevision": 2,
+    "sharedState": "complete with pending-build consumer reference",
+    "runRevision": 2,
+    "runState": "pending with complete membership and pending-build consumer reference"
+  },
+  "evidenceLogs": [
+    "artifacts/tasks/linux-2026.0.15-preparation/logs/node-tools.log",
+    "artifacts/tasks/linux-2026.0.15-preparation/logs/bun-tools.log",
+    "artifacts/tasks/linux-2026.0.15-preparation/logs/rust-tools.log",
+    "artifacts/tasks/linux-2026.0.15-preparation/logs/rust-install-r2.log",
+    "artifacts/tasks/linux-2026.0.15-preparation/logs/cargo-fetch-r1.log"
+  ],
+  "diagnosticCorrections": [
+    "Initial WSL shell quoting/CRLF probes were corrected before interpreting readiness",
+    "Rust metadata output /dev/null required a sibling temp under /dev; corrected to an owned native tmp output and verified removal"
+  ],
+  "retention": "Tools, pinned archives and dependency caches are reusable build inputs; run evidence/environment script remain needed for the pending build. No product task completion claimed.",
+  "cache": {
+    "nativeCargoHomeSizeApprox": "1.7GiB",
+    "crateArchives": 1127,
+    "nodeCompileCacheUnderOwnedTmp": true
+  },
+  "cleanup": {
+    "temporaryPlanBodyAbsent": true,
+    "nativeRustProbeRemoved": true,
+    "currentNativeTmpContents": "node-compile-cache only; reusable by the pending build",
+    "activePreparationProcesses": 0
+  }
+}

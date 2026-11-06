@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "action": "recover-cleanup",
+  "source": {
+    "id": "run:fw03r:control-01",
+    "kind": "run",
+    "owner": "control-retirement-test",
+    "version": null,
+    "generation": null,
+    "revision": 1,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": null,
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports",
+        "protection_known": true,
+        "role": "reports"
+      }
+    ]
+  },
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "stop_basis": "Exact historical outer command/session terminal1/1/0 recovered in independent60a and bound to start PID/controller/source/report; retained child close/drain and native lease release in independent23/25/26/27/28/31/33/48/52/58b/58/59. Root confirms all CONTROL consumers ended and catalog quiet after61a. No aggregate exit, new historical close event or global OS tree observation invented.",
+  "membership_basis": "Existing exact run-root ownership covers all planned/actual descendant outputs including reports, inputs and isolated state; no nested or foreign claim added. Current canonical pending revision1, original members, owner, root identity and zero current inbound references freshly checked. Root/staging no longer consumes any original material; minimum independent WORK receipts survive.",
+  "producer_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\22-control-retirement-verification.json",
+      "sha256": "6d8cf8e7fc4a8cf4c8178fa0aba9c3a121dd8702e8e513a7a2eeb20dfa3f115a"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\23-control-retirement-acceptance.json",
+      "sha256": "3e0cfb984fc8f916d5aa0bfe2fc4239244d198ff66f13502776c0a2e35e14fa3"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\25-control-retirement-correction.json",
+      "sha256": "551454079b521ea3c9d5a024577838561ba298f1a7c29d6afe3ad5b95f8346d9"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\26-control-retirement-acceptance.json",
+      "sha256": "72a2713a3d940f6b6ca7196157720722b26d11585522d84833aaa7c3b2740620"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\27-control-retirement-result.json",
+      "sha256": "5cebd5a199d9cb20d2a28d290d7fbcb81b34d1409fe06744d0224536fda609a6"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\28-control-retirement-result.json",
+      "sha256": "9f4a34a81218934529cdaa53c1dafc3cb49eff2316f191bd3fb3229aea9b1ee0"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\31-control-retirement-result.json",
+      "sha256": "4efa0a6938e11ed6cfc0d0490fab9f5d34b26a36349978e61b4dd85d1da69016"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\33-control-retirement-result.json",
+      "sha256": "17b95655beb67991477f2acd70879f1acc79608032dadf6db3a5ed8e5dd25da4"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\48-historical-empty-publication-recovery.json",
+      "sha256": "29bee4defeda6f47209b3b2105e915977c5e6cae03052d30f522e28e4eb2cc57"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\52-historical-empty-publication-recovery.json",
+      "sha256": "a24bec3b6ef2b9aa07f90af69fc4a90833219e40217a8d471c5f34e3407cf20e"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58a-native-source-retirement-verification.json",
+      "sha256": "a6956877ef9d78bc60e1f03c0f1dd29140f1a760c95c8b196e3ec345c546eeb2"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58b-legacy-source-retirement-result.json",
+      "sha256": "9a25e94c8f0fe7d4aaf8cd7e1758f7a07dfc7cbb4ba6d22e0d0f73cc49ddb071"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58-historical-empty-publication-recovery.json",
+      "sha256": "83ecb5f1cce156b637e2e939448884ba4c45a75119c31a07511289baca405cc1"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\59-control-retirement-result.json",
+      "sha256": "eb340266d3d446d89aac25900f6ea1dadd8eca71a89de9543afa206147d1bce7"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\60a-historical-controller-terminal-evidence.json",
+      "sha256": "0b7bf285a5560216d53b1714d5720c87c85453b8eb66018b05e720366a6499d9"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61a-unit10-build-tool-handoff.json",
+      "sha256": "63dc78918faa42e528d2c033fda08289feb6ed9386a3e42f8b329f17a68ffdda"
+    }
+  ]
+}

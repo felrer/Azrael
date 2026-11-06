@@ -346,6 +346,17 @@ async fn strict_auto_review_respects_explicit_elicitation_denials() {
         let reviewer = RecordingReviewer::new(Ok(Some(approved_response())));
         let (manager, events, sender) =
             elicitation_fixture(policy, PermissionProfile::Disabled, Some(reviewer.clone()));
+        let interactions = Arc::new(AtomicUsize::new(0));
+        {
+            let observed = interactions.clone();
+            let mut authority = manager.authority.lock().unwrap();
+            let authority = authority.as_mut().unwrap();
+            authority.lifecycle = authority.lifecycle.take().map(|lifecycle| {
+                lifecycle.with_interaction(move |_, _, _| {
+                    observed.fetch_add(1, Relaxed);
+                })
+            });
+        }
         assert_eq!(
             send_elicitation(&sender, Some(json!(true))).await,
             if explicitly_denied {
@@ -389,6 +400,11 @@ async fn strict_auto_review_respects_explicit_elicitation_denials() {
             (usize::from(!explicitly_denied), 0),
         );
         assert!(events.is_empty(), "strict review must not emit an event");
+        assert_eq!(
+            interactions.load(Relaxed),
+            0,
+            "automatic review must not start a human wait"
+        );
     }
 }
 
@@ -725,16 +741,28 @@ async fn user_verification_drops_pending_response_when_the_request_is_cancelled(
         verification_fixture(AskForApproval::OnRequest, /*reviewer*/ None);
     let active_elicitations = Arc::new(AtomicUsize::new(0));
     let registrations = active_elicitations.clone();
+    let active_interactions = Arc::new(AtomicUsize::new(0));
+    let interaction_registrations = active_interactions.clone();
+    let identity = Arc::new(StdMutex::new(None));
+    let interaction_identity = identity.clone();
     manager
         .authority
         .lock()
         .unwrap()
         .as_mut()
         .unwrap()
-        .lifecycle = Some(ElicitationLifecycle::new(move || {
-        registrations.fetch_add(/*val*/ 1, Relaxed);
-        LifecycleRegistration(registrations.clone())
-    }));
+        .lifecycle = Some(
+        ElicitationLifecycle::new(move || {
+            registrations.fetch_add(/*val*/ 1, Relaxed);
+            LifecycleRegistration(registrations.clone())
+        })
+        .with_interaction(move |server, id, request| {
+            *interaction_identity.lock().unwrap() =
+                Some((server.to_owned(), id.clone(), request.clone()));
+            interaction_registrations.fetch_add(1, Relaxed);
+            LifecycleRegistration(interaction_registrations.clone())
+        }),
+    );
     let pending = tokio::spawn(sender(
         RequestId::Number(7),
         Elicitation::UserVerification {
@@ -744,12 +772,21 @@ async fn user_verification_drops_pending_response_when_the_request_is_cancelled(
             challenge: "AQID".into(),
         },
     ));
-    events.recv().await.unwrap();
+    let event = events.recv().await.unwrap();
+    let EventMsg::ElicitationRequest(request) = event.msg else {
+        panic!("expected human interaction");
+    };
+    assert_eq!(
+        *identity.lock().unwrap(),
+        Some((request.server_name, request.id, request.request))
+    );
+    assert_eq!(active_interactions.load(Relaxed), 1);
     assert_eq!(active_elicitations.load(Relaxed), 1);
     pending.abort();
     assert!(pending.await.unwrap_err().is_cancelled());
     assert!(manager.router.requests.lock().unwrap().is_empty());
     assert_eq!(active_elicitations.load(Relaxed), 0);
+    assert_eq!(active_interactions.load(Relaxed), 0);
 }
 
 #[tokio::test]

@@ -1,0 +1,59 @@
+{
+  "request": {
+    "operation": "apply",
+    "verification": "registered",
+    "decisions": [
+      {
+        "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+        "token": "22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95",
+        "decision": "delete",
+        "reason": "Official prerequisite seed/controller and CLI children ended, persistent U/E independently verified and accepted by root, temporary VSIX/cache/log/input consumer ended"
+      }
+    ],
+    "lock_wait_ms": 600000
+  },
+  "observed": {
+    "pid": 25016,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "error": null,
+    "close_observed": true,
+    "stdout_drained": true,
+    "stderr_drained": true
+  },
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:fw04:isolated-seed-20261106-01",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-25016-7561-1793974013011",
+        "decision": "delete",
+        "decision_id": "4e3be2ef36f795bfaf655cf475586b28d5abc0c1cdc9a56d8417872ede526b7a",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+        "lifecycle_group_id": "run:fw04:isolated-seed-20261106-01",
+        "reason": "Official prerequisite seed/controller and CLI children ended, persistent U/E independently verified and accepted by root, temporary VSIX/cache/log/input consumer ended",
+        "remaining": false,
+        "status": "deleted",
+        "token": "22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95"
+      }
+    ]
+  },
+  "stdout": "{\"aborted\":false,\"cancelled\":false,\"groups\":[{\"id\":\"run:fw04:isolated-seed-20261106-01\",\"status\":\"deleted\"}],\"results\":[{\"attempt_id\":\"attempt-25016-7561-1793974013011\",\"decision\":\"delete\",\"decision_id\":\"4e3be2ef36f795bfaf655cf475586b28d5abc0c1cdc9a56d8417872ede526b7a\",\"deletion\":{\"attributes\":[],\"error\":null,\"physical_bytes_reclaimed\":null,\"remaining\":false,\"status\":\"deleted\"},\"group_status\":\"deleted\",\"id\":\"b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f\",\"lifecycle_group_id\":\"run:fw04:isolated-seed-20261106-01\",\"reason\":\"Official prerequisite seed/controller and CLI children ended, persistent U/E independently verified and accepted by root, temporary VSIX/cache/log/input consumer ended\",\"remaining\":false,\"status\":\"deleted\",\"token\":\"22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95\"}]}\n",
+  "stderr": ""
+}

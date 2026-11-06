@@ -121,6 +121,7 @@ async fn older_tool_projection_matches_initial_replay() {
     chat.replay_thread_turns(
         vec![AppServerTurn {
             root_resume_wait: None,
+            user_wait_timing: None,
             items,
             ..app_server_turn(
                 "turn",
@@ -224,6 +225,7 @@ async fn snapshot_formatter_reasoning_matches_compact_and_detailed_replay() {
         chat.replay_thread_turns(
             vec![AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 items: vec![item],
                 ..app_server_turn(
                     "turn",

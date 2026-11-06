@@ -1,0 +1,490 @@
+{
+  "schema": 1,
+  "status": "running",
+  "actualExit": 1,
+  "cleanerId": "run:fw03v:final-cleaner-61-01",
+  "cleanerRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01",
+  "groups": [
+    {
+      "id": "run:fw03v:fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+      "owner": "root/fw03vss-comparison",
+      "revisionBeforeDelete": 4,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+      "originalState": "failed",
+      "originalProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss-bounded-producer-stop-proof.json",
+        "evidence_sha256": "e595e607e25616672ea8550a5bd313f7342df99a092c36fa3828949054df889f",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Root accepted bounded exact owned VSS producer source containment plus actual controller/native terminal/drain, fixtureJoin and owned shadow absence/detach; no OS-global/per-worker missing-event claim",
+        "status": "stopped"
+      },
+      "closeReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss-bounded-producer-stop-proof.json",
+        "evidence_sha256": "e595e607e25616672ea8550a5bd313f7342df99a092c36fa3828949054df889f",
+        "reason": "Root accepted bounded exact owned VSS producer source containment plus actual controller/native terminal/drain, fixtureJoin and owned shadow absence/detach; no OS-global/per-worker missing-event claim",
+        "request_sha256": "94d5b10e39b6f6a0de33f3e9c59c81ce157476896fd849b6908b2c9074e21a1b"
+      },
+      "cleanupRecovery": null,
+      "logicalBytes": 272821115,
+      "member": {
+        "id": "9cdf1bff868863241f86fa0fb1279b995ee481c5b0dcd876f26e217462842b0b",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+        "blockers": [],
+        "verification": "registered",
+        "logicalBytes": 272821115
+      },
+      "applyResults": [
+        {
+          "attempt_id": "attempt-23684-7534-1793947998042",
+          "decision": "delete",
+          "decision_id": "7c5cbdb0f76543b3b2b5bd055e908554de4c8ed75cb6e4587090ba4fe5b4f0af",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "9cdf1bff868863241f86fa0fb1279b995ee481c5b0dcd876f26e217462842b0b",
+          "lifecycle_group_id": "run:fw03v:fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+          "reason": "Exact user-authorized FW01 owned disposable group; accepted producer stop and complete membership, ended consumers and independently surviving result/evidence; preserve unrelated groups",
+          "remaining": false,
+          "status": "deleted",
+          "token": "a0d9e6745fb874042f35daade5f8e546ba0be5f8cca46eeae8e988b6e1cda7e7"
+        }
+      ],
+      "actualRootAbsent": true,
+      "deletionProof": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss1-deletion-proof.json",
+        "bytes": 4381,
+        "sha256": "0e429cddddd67b9bf5bd5897a25906f3721bf63b742edb2cba311eb3bc253c80"
+      },
+      "finalize": {
+        "id": "run:fw03v:fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ca8b61c00e336a4bdd72917a97837ce8ca0d44d5719d60fab06f7e27044f9fe5.json",
+        "retirement": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss1-deletion-proof.json",
+          "sha256": "0e429cddddd67b9bf5bd5897a25906f3721bf63b742edb2cba311eb3bc253c80",
+          "reason": "Actual installed C0CF registered group apply terminal0, exact member deleted remainingfalse and ordinary lstat root absent; independent deletion proof survives this group/registry",
+          "original_state": "failed",
+          "original_membership_complete": true
+        }
+      },
+      "actualCanonicalAbsent": true
+    },
+    {
+      "id": "run:fw03v:compare-corrected-8155f9f4-84fd-4e71-813c-5d54bf5a5ba6",
+      "owner": "FW-01/root/vss_finish",
+      "revisionBeforeDelete": 3,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\compare-corrected-8155f9f4-84fd-4e71-813c-5d54bf5a5ba6",
+      "originalState": "failed",
+      "originalProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss-bounded-producer-stop-proof.json",
+        "evidence_sha256": "e595e607e25616672ea8550a5bd313f7342df99a092c36fa3828949054df889f",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Root accepted bounded exact owned VSS producer source containment plus actual controller/native terminal/drain, fixtureJoin and owned shadow absence/detach; no OS-global/per-worker missing-event claim",
+        "status": "stopped"
+      },
+      "closeReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss-bounded-producer-stop-proof.json",
+        "evidence_sha256": "e595e607e25616672ea8550a5bd313f7342df99a092c36fa3828949054df889f",
+        "reason": "Root accepted bounded exact owned VSS producer source containment plus actual controller/native terminal/drain, fixtureJoin and owned shadow absence/detach; no OS-global/per-worker missing-event claim",
+        "request_sha256": "ee6be605aa2716057c5e20bc12061bbaf4335de1147f901c0502085f690aff85"
+      },
+      "cleanupRecovery": null,
+      "logicalBytes": 274038885,
+      "member": {
+        "id": "5f08a881929d945952f7a6404675b22d5bf9cf5f79b282b4f1e240b0cadf9654",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\compare-corrected-8155f9f4-84fd-4e71-813c-5d54bf5a5ba6",
+        "blockers": [],
+        "verification": "registered",
+        "logicalBytes": 274038885
+      },
+      "applyResults": [
+        {
+          "attempt_id": "attempt-25908-7537-1793948103529",
+          "decision": "delete",
+          "decision_id": "af4ebadafe9d853deade61ecadeb484396f0d0ca0893b166d195dbac0b41d241",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "5f08a881929d945952f7a6404675b22d5bf9cf5f79b282b4f1e240b0cadf9654",
+          "lifecycle_group_id": "run:fw03v:compare-corrected-8155f9f4-84fd-4e71-813c-5d54bf5a5ba6",
+          "reason": "Exact user-authorized FW01 owned disposable group; accepted producer stop and complete membership, ended consumers and independently surviving result/evidence; preserve unrelated groups",
+          "remaining": false,
+          "status": "deleted",
+          "token": "9200f6e94d63964c781d606587909cb7bf94d921c06a39efbcaee29f04d4166a"
+        }
+      ],
+      "actualRootAbsent": true,
+      "deletionProof": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss2-deletion-proof.json",
+        "bytes": 4421,
+        "sha256": "a5a13f2597cabd36746bac5d0937e0fec177e6e503f577045a429ba8d1c3cb30"
+      },
+      "finalize": {
+        "id": "run:fw03v:compare-corrected-8155f9f4-84fd-4e71-813c-5d54bf5a5ba6",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\77c4a2f068356f800838a1b49c0f2a271c9de55baa41d138c41395ab7c8e2ac5.json",
+        "retirement": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss2-deletion-proof.json",
+          "sha256": "a5a13f2597cabd36746bac5d0937e0fec177e6e503f577045a429ba8d1c3cb30",
+          "reason": "Actual installed C0CF registered group apply terminal0, exact member deleted remainingfalse and ordinary lstat root absent; independent deletion proof survives this group/registry",
+          "original_state": "failed",
+          "original_membership_complete": true
+        }
+      },
+      "actualCanonicalAbsent": true
+    },
+    {
+      "id": "run:fw03v:vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661",
+      "owner": "FW-01/root/vss_finish",
+      "revisionBeforeDelete": 3,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661",
+      "originalState": "complete",
+      "originalProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss-bounded-producer-stop-proof.json",
+        "evidence_sha256": "e595e607e25616672ea8550a5bd313f7342df99a092c36fa3828949054df889f",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Root accepted bounded exact owned VSS producer source containment plus actual controller/native terminal/drain, fixtureJoin and owned shadow absence/detach; no OS-global/per-worker missing-event claim",
+        "status": "stopped"
+      },
+      "closeReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss-bounded-producer-stop-proof.json",
+        "evidence_sha256": "e595e607e25616672ea8550a5bd313f7342df99a092c36fa3828949054df889f",
+        "reason": "Root accepted bounded exact owned VSS producer source containment plus actual controller/native terminal/drain, fixtureJoin and owned shadow absence/detach; no OS-global/per-worker missing-event claim",
+        "request_sha256": "81be46d62833338aed9fab41e8e26c861ce6bd56bb19c0d52067bcbd69a04298"
+      },
+      "cleanupRecovery": null,
+      "logicalBytes": 340946330,
+      "member": {
+        "id": "ff05aae226d14302f9eb7869d36d3b75365bf87ceecbaa27d6cf2e66973ae3bd",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661",
+        "blockers": [],
+        "verification": "registered",
+        "logicalBytes": 340946330
+      },
+      "applyResults": [
+        {
+          "attempt_id": "attempt-19432-7540-1793948190794",
+          "decision": "delete",
+          "decision_id": "b52e2770f7c76495ee86ce402da91f7061c9984082edf9d50c67cb22a8637823",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "ff05aae226d14302f9eb7869d36d3b75365bf87ceecbaa27d6cf2e66973ae3bd",
+          "lifecycle_group_id": "run:fw03v:vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661",
+          "reason": "Exact user-authorized FW01 owned disposable group; accepted producer stop and complete membership, ended consumers and independently surviving result/evidence; preserve unrelated groups",
+          "remaining": false,
+          "status": "deleted",
+          "token": "88a63477b16889f90355be94519d882a261f6804366f8d071a4f95904bc14935"
+        }
+      ],
+      "actualRootAbsent": true,
+      "deletionProof": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss3-deletion-proof.json",
+        "bytes": 4387,
+        "sha256": "19a8bc8f5463bd6032f46270fd7732df813a7eb21ac2de836f21fd2a786fe153"
+      },
+      "finalize": {
+        "id": "run:fw03v:vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\805ef87e4af342870fc0f6a750740e5bfeea04e2181182de8aff51c19cf98ceb.json",
+        "retirement": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61-vss3-deletion-proof.json",
+          "sha256": "19a8bc8f5463bd6032f46270fd7732df813a7eb21ac2de836f21fd2a786fe153",
+          "reason": "Actual installed C0CF registered group apply terminal0, exact member deleted remainingfalse and ordinary lstat root absent; independent deletion proof survives this group/registry",
+          "original_state": "complete",
+          "original_membership_complete": true
+        }
+      },
+      "actualCanonicalAbsent": true
+    },
+    {
+      "id": "run:fw03v:native-613162bb",
+      "owner": "FW-01-integrated/native-verification",
+      "revisionBeforeDelete": 2,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb",
+      "originalState": "pending",
+      "originalProducer": null,
+      "closeReceipt": null,
+      "cleanupRecovery": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61b-native-cleanup-recovery-proof.json",
+        "evidence_sha256": "0396faca96054e28ab7c5a8caef0381ac7ff2d5dba9495a37d521d9c72833f13",
+        "generation": null,
+        "id": "run:fw03v:native-613162bb",
+        "kind": "run",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb",
+            "protection_known": true,
+            "role": "run"
+          }
+        ],
+        "membership_complete_verified": true,
+        "original_membership_complete": false,
+        "original_producer": null,
+        "original_state": "pending",
+        "owner": "FW-01-integrated/native-verification",
+        "producer_stopped_verified": true,
+        "reason": "Confirmed exact current producer stop and whole-root complete membership authorize cleanup eligibility only; preserve original pending/no-producer/null outcome and all historic failures",
+        "schema": 1,
+        "source_revision": 1,
+        "verified_at": "2026-11-06T06:56:44.948Z",
+        "version": null
+      }
+    }
+  ],
+  "nativeActors": [
+    {
+      "label": "vss1-register",
+      "pid": 16104,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss1-register.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss1-review",
+      "pid": 25120,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss1-review.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss1-apply",
+      "pid": 23684,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss1-apply.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss2-register",
+      "pid": 26888,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss2-register.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss2-review",
+      "pid": 22200,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss2-review.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss2-apply",
+      "pid": 25908,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss2-apply.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss3-register",
+      "pid": 54572,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss3-register.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss3-review",
+      "pid": 53164,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss3-review.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "vss3-apply",
+      "pid": 19432,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\vss3-apply.request.json"
+      ],
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    },
+    {
+      "label": "native-register",
+      "pid": 29568,
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\native-register.request.json"
+      ],
+      "exit": {
+        "code": 1,
+        "signal": null
+      },
+      "closeObserved": true,
+      "stdoutDrained": true,
+      "stderrDrained": true,
+      "error": null,
+      "overflow": false
+    }
+  ],
+  "logicalBytesDeleted": 887806330,
+  "physicalReclaimedBytes": null,
+  "physicalMeaning": "Logical measured source bytes only; sparse/compressed/hardlink/actual disk free-space recovery was not measured.",
+  "excluded": [
+    "outside NATIVE persistent/shared Cargo caches and references",
+    "old fw04 build failure run/payload",
+    "new unit10 input/held build caller",
+    "original shared engine baseline",
+    "installed C0CF/version",
+    "all independent work evidence/formal control proofs",
+    "primary/HEAD/index/user state"
+  ],
+  "buildCalls": 0,
+  "nativeRecoveryProof": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61b-native-cleanup-recovery-proof.json",
+    "bytes": 2626,
+    "sha256": "0396faca96054e28ab7c5a8caef0381ac7ff2d5dba9495a37d521d9c72833f13"
+  },
+  "nativeOriginalPreserved": {
+    "state": "pending",
+    "producer": null,
+    "revision": 2
+  },
+  "error": "AssertionError [ERR_ASSERTION]: Native failed/unknown native-register\n    at native (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\final-cleaner-driver-r1.cjs:11:480)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async deleteGroup (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\final-cleaner-driver-r1.cjs:15:55)\n    at async main (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\final-cleaner-61-01\\inputs\\final-cleaner-driver-r1.cjs:24:1975)",
+  "finishedUtc": "2026-11-06T06:57:56.323Z"
+}

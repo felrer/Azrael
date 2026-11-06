@@ -1,0 +1,3189 @@
+{
+  "schema": 1,
+  "status": "partial; 25 confirmed inactive groups archived and source ledger reconciled; remaining usage/retention scope unresolved",
+  "requested_scope": "Find unused project files and move them to archive/, including investigation of protected/conditional candidates",
+  "verification_environment": "Windows x64 local checkout; product support and source contracts unchanged",
+  "reviewed_scope": {
+    "native_initial_live_items": 221,
+    "native_groups": 149,
+    "producer_observation_records": 522,
+    "source_audit": "Documentation routers, selected source/config/test entrypoints, dynamic extension tests, plugin registry; not every plugin/provider/engine/upstream file"
+  },
+  "archive": {
+    "root": "archive/EC-01-unused-file-archive-20261028",
+    "groups": 25,
+    "roots": 35,
+    "files": 1362,
+    "logical_bytes": 157704772,
+    "identity_and_absence_verified": true,
+    "native_registered_and_deferred": true,
+    "receipt": "archive/EC-01-unused-file-archive-20261028/migration-receipt.json",
+    "space_reclaimed": 0
+  },
+  "document_link_updates": [
+    {
+      "file": "work\\CO-01-design-preview-modules\\01-plan.md",
+      "links": 4,
+      "before_sha256": "fc8ade240764a75fa76f2a83b3bb0a367e3670dcb9bbbe6233868ab1caa9b1c4",
+      "after_sha256": "54dee80fe7420857a94012dcce29ca91132e810f5380ecc302f10b7339d82870"
+    },
+    {
+      "file": "work\\CN-01-catalog-modules\\01-plan.md",
+      "links": 13,
+      "before_sha256": "dc4934be708554926a20f695907ead3ea36a506a71119fb44a4a9c6250fd2e51",
+      "after_sha256": "a95effd7156e03c4a5ed788dfa075300cd03bfc038d4ee83ed8e70a2f4efb7fe"
+    },
+    {
+      "file": "work\\CF-01-window-use-admin-setup\\01-plan.md",
+      "links": 1,
+      "before_sha256": "bc47f69829f8cfe55237e55b2ab3a7ca14c8667a0336cc97f580aec130a1f4ab",
+      "after_sha256": "25f64331285c3865371a430514465a9ebd8523dbb94235f512ee6d8ea37d16f9"
+    },
+    {
+      "file": "work\\DN-01-disk-cleanup-candidates\\02-log-cleanup-result.md",
+      "links": 6,
+      "before_sha256": "ba52ab04a6b2976c938e71a2bc9527c4dc213281df4a5f87445b2c25e480621d",
+      "after_sha256": "54e34a448febf3d4935457a57d1700da63f36b9a3509d3d6f5cd09e23470339d"
+    },
+    {
+      "file": "work\\DN-01-disk-cleanup-candidates\\05-formal-cleanup-result.md",
+      "links": 1,
+      "before_sha256": "bd0813423a4896f474a41e918b1c376e4719918af9f78c9badc556f6c3d6908d",
+      "after_sha256": "8206811d678fd4ae47ea09d2575ecc5ea0233d665a1cff3596adddff6e23debb"
+    }
+  ],
+  "remaining_registered_groups": [
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:integration",
+      "owner": "/root",
+      "review_observed_at_ms": 1793135509621,
+      "blockers": [
+        "a lifecycle group member is protected",
+        "lifecycle membership source is read-only control evidence"
+      ],
+      "items": [
+        {
+          "id": "01c99d154bd8a07bc5403c93e2737302457e8e8a296d19f5f9c59dab3248b754",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-async-approval-r1/host/ledger-producer.json",
+          "cached_logical_bytes": 584,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "2711f10e8169123b83b6ec408c2883fb35d26c74357aac82984b818926a9cad1",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-async-approval-r1/integration",
+          "cached_logical_bytes": 114857,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "31b28ff0ca02c3316b0844f9693c50ff71faee9287a14d0a34d79972387a4982",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-async-approval-r1/host/ledger-unit.log",
+          "cached_logical_bytes": 1362,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "9a10a63181a722da8b10b6cea0e1c27e174ab464ba0af784e4d02004e560b6fe",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-async-approval-r1/host/temporary",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "aa23be1c2f30a1c4318054842e90c4e3d71ba50e22c8344c08d712c33d2ba656",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-async-approval-r1/producer.json",
+          "cached_logical_bytes": 1498,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-5",
+      "owner": "CL-01-question-withdrawal",
+      "review_observed_at_ms": 1793135558093,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "0783bd3f422597e520a9b200e654e70766735f0628708ea264efa99b686f58af",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/native-5",
+          "cached_logical_bytes": 101717114,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:protection-release-20261020-r1",
+      "owner": "/root",
+      "review_observed_at_ms": 1793136067826,
+      "blockers": [],
+      "items": [
+        {
+          "id": "0a40a14fe0b1ed0c06b8404e7fa3cd6b80654ea866ae8c9aac856fb3b150ddc0",
+          "path": "artifacts/tasks/CR-01-build-legacy-cleanup/runs/protection-release-20261020-r1",
+          "cached_logical_bytes": 4322283,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:compile-scope-1",
+      "owner": "CL-01-compile-scope",
+      "review_observed_at_ms": 1793135529097,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "producer inbound consumer protects group: work:BI-01-legacy-custody:20261019",
+        "producer inbound consumer protects group: work:DM-01:preserved-nonlog-input-custody:20261024",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "0aebd7f7572cf57b31e90d4187a974b9751903250122be2c305df23804517f6a",
+          "path": "artifacts/verification/cargo-owner-tests/gate-1-zero-tests-4sHaVX",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        },
+        {
+          "id": "446a1d79117a6f2cfe3b6f45dc5ee2d05f93d7552dda154b4d275ecf1d811e88",
+          "path": "artifacts/verification/cargo-owner-tests/gate-0-type-failure-oGaCIk",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        },
+        {
+          "id": "55852fe10d90b2682ffa0b6d5ee257ba2b97d699cc359169ea2780af91a398c1",
+          "path": "artifacts/verification/cargo-owner-tests/command-contract-7AAgeo",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        },
+        {
+          "id": "67a39a25ec2c696067682f7c1b0c0e32610f28d11eca27578a37c87179fe74b1",
+          "path": "artifacts/verification/cargo-owner-tests/gate-1-inconsistent-interruption-ELN4I2",
+          "cached_logical_bytes": 1224,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        },
+        {
+          "id": "73cac88d27a51917e60ed2d181a34cad7d938cd4f1ed241a776bac4743fdb4ae",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/compile-scope-1",
+          "cached_logical_bytes": 166179286,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        },
+        {
+          "id": "786f406c2c886dc58b016cb2fda2bc42f9c253ab9adc20d10a8d3dc12c629256",
+          "path": "artifacts/verification/cargo-owner-tests/gate-0-missing-tool-LMwZMh",
+          "cached_logical_bytes": 1131,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        },
+        {
+          "id": "c9fef60504b78f6f7973779c117caabd76d7df4ec93de98de50e709b4f6e6189",
+          "path": "artifacts/verification/cargo-owner-tests/gate-0-interruption-oFmHKl",
+          "cached_logical_bytes": 1136,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        },
+        {
+          "id": "e7fac9aa5b0f66ba2ef72843d0a533ef3baf0ec0772fa96fcd3bfc20309b5eaa",
+          "path": "artifacts/verification/cargo-owner-tests/gate-1-selection-failure-kv2gW3",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+      "owner": "/root/board-verification",
+      "review_observed_at_ms": 1793135592812,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "producer owner membership is not complete"
+      ],
+      "items": [
+        {
+          "id": "0cdda5dcce85de0b0792c781e4be460a27c0801dda44a64a693de49ebae9d068",
+          "path": "artifacts/tasks/CN-01-catalog-modules/runs/ui-1792389925582-cf185d66/logs",
+          "cached_logical_bytes": 602,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "7a84aaf689442a17334539eebc028b94d5e6c1772a2b4a7d060997f758c73558",
+          "path": "artifacts/tasks/CN-01-catalog-modules/runs/ui-1792389925582-cf185d66/reports",
+          "cached_logical_bytes": 263323,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CX-01:shutdown-r1",
+      "owner": "CX-01-azrael-auth-recovery",
+      "review_observed_at_ms": 1793136073072,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "producer projected membership differs from registered member roots or roles"
+      ],
+      "items": [
+        {
+          "id": "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb",
+          "path": "artifacts/verification/cx22a",
+          "cached_logical_bytes": 476162831,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385",
+          "path": "artifacts/tasks/CX-01-azrael-auth-recovery/runs/shutdown-r1",
+          "cached_logical_bytes": 521985369,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89",
+          "path": "artifacts/verification/cx22b",
+          "cached_logical_bytes": 198961738,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "version:maintenance-owner:dx05",
+      "owner": "DX-05",
+      "review_observed_at_ms": 1793135642807,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "13ef51a9a1b91caa11a927558838fa14ce8b2725486614612ae28fd7b8229ca5",
+          "path": "artifacts/versions/maintenance-owner-6f6f874e-win-x64-dx05",
+          "cached_logical_bytes": 1635228,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:test-scope-reduction:policy",
+      "owner": "test-scope-reduction",
+      "review_observed_at_ms": 1793135642782,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "18f15fc18d9e4c4d1668b299de249c283134d53cf423ec26e66c9a4f4ade6a9f",
+          "path": "artifacts/tasks/windows-2026-0-9/runs/test-scope-reduction-policy",
+          "cached_logical_bytes": 340544,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+      "owner": "/root/board-verification",
+      "review_observed_at_ms": 1793135597282,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "producer owner membership is not complete"
+      ],
+      "items": [
+        {
+          "id": "1c70f92c4a0ebcc83138c4bdd270008dae072400828f48c92161b1cd8dae0fd6",
+          "path": "artifacts/tasks/CN-01-catalog-modules/runs/ui-1792389925582-cf185d66/temporary",
+          "cached_logical_bytes": 16654312,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-cache-management-root-r1",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135514931,
+      "blockers": [],
+      "items": [
+        {
+          "id": "1e228adb298f8d85339b350f930f5d7956b0ad10ef675d25c59edc64ef60eb5a",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-cache-management-root-r1",
+          "cached_logical_bytes": 26437,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:schemas-1",
+      "owner": "CL-01-question-withdrawal",
+      "review_observed_at_ms": 1793135564215,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "2013907533bd0a73faf5ed4903c2e6ac709fe2c8e1069e454a3c8bfc4125a862",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/schemas-1",
+          "cached_logical_bytes": 8876931,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-8",
+      "owner": "DC-01 question supersession",
+      "review_observed_at_ms": 1793135636024,
+      "blockers": [
+        "references active or unknown",
+        "producer inbound consumer protects group: run:DC-01-queue-question-wait-diagnosis:native-9",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "247b29defa3fc591108a510252290e3c4d6220b45726ec88228297ba1d5da48d",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/native-8",
+          "cached_logical_bytes": 51761,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "run:DC-01-queue-question-wait-diagnosis:native-9:Passing full queue scope; product bytes unchanged"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:compile-scope-2",
+      "owner": "CL-01-compile-scope",
+      "review_observed_at_ms": 1793135535142,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "24a18a5873d27e6324716e4a2e6be768a09832215690f56290c20484e6ec2e7e",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/compile-scope-2",
+          "cached_logical_bytes": 101638959,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+      "owner": "scripts/verify-instruction-library-render.mjs",
+      "review_observed_at_ms": 1793135569758,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle group membership is incomplete",
+        "producer owner membership is not complete",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "26f7a269f3b3d08104c67ecfda52468961b6a83752d3281826e5d24e8e35b104",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+          "cached_logical_bytes": 83066,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-2",
+      "owner": "DC-01-queue-question-wait-diagnosis",
+      "review_observed_at_ms": 1793135640393,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "293dfb90102112c81e3027c7f7961a4620b3be2a688af9b587394784ac1aa070",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/reply-account-native-2",
+          "cached_logical_bytes": 102364044,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T003606886Z-fbf867fa-5714-4a31-87d4-40c9144494bb",
+      "owner": "scripts/verify-instruction-library-render.mjs",
+      "review_observed_at_ms": 1793135575820,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "2a45f8d2ac3f59f3f5d813e708c0606066d32dc051fc7e46109bfa0891cff3e1",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T003606886Z-fbf867fa-5714-4a31-87d4-40c9144494bb",
+          "cached_logical_bytes": 577411,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:integration",
+      "owner": "/root",
+      "review_observed_at_ms": 1793135519903,
+      "blockers": [],
+      "items": [
+        {
+          "id": "2ae377ce9dc9071806daf6a3154483d25f449b2125195495da99736ed1305c88",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-reconnect-r1/producer.json",
+          "cached_logical_bytes": 2645,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "61cc5d1a80d2207607ada27f9e43607b7cdfff8ce67941054184b4c1589a9306",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-reconnect-r1/integration",
+          "cached_logical_bytes": 74574,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-u23-registry-r1",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135524297,
+      "blockers": [],
+      "items": [
+        {
+          "id": "2c25c0bf72fc4a9fbd59c22eb06cf02bd223a941fed246e09cf2735016acc451",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-u23-registry-r1",
+          "cached_logical_bytes": 3069,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-1",
+      "owner": "CL-01-question-withdrawal",
+      "review_observed_at_ms": 1793135552996,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "2c72d018a367f10fd0849348474046d494ca989e11453a99253dd595b83c241b",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/native-1",
+          "cached_logical_bytes": 106689080,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:sdk-1",
+      "owner": "question-supersession",
+      "review_observed_at_ms": 1793135642700,
+      "blockers": [
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "2cc8b85e1b3658c9c3f9bec19639f79cc9eaa597c0c2f08f6e5c4e743fd9a920",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/sdk-1",
+          "cached_logical_bytes": 903,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "run:DC-01-queue-question-wait-diagnosis:native-5:SDK pass for identical frozen source",
+            "run:DC-01-queue-question-wait-diagnosis:native-4:Reuse SDK compatibility pass for identical frozen models",
+            "run:DC-01-queue-question-wait-diagnosis:native-6:Reuse SDK compatibility pass"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:permission-disabled-host:rmvl4okue",
+      "owner": "scripts/verify-permissions-disabled-host.cjs",
+      "review_observed_at_ms": 1793135642770,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected",
+        "generation or usage protection unconfirmed",
+        "outside configured managed roots"
+      ],
+      "items": [
+        {
+          "id": "2f3825b47d072249bc002366bd66ddbeefd9862aae7c857a4390f7cfb662b0df",
+          "path": "artifacts/tasks/permission-disabled-host/runs/rmvl4okue",
+          "cached_logical_bytes": 191186,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "d32e64041f1429dea6f58d7de85a02da06ab87bf53ca7976bfdceb479bb89ea0",
+          "path": "artifacts/pd13",
+          "cached_logical_bytes": 2142679844,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:verify-window-native-approval-render:20261019T014508252Z-c874bae8-cc27-4675-a709-f239e279a92a",
+      "owner": "scripts/verify-window-native-approval-render.mjs",
+      "review_observed_at_ms": 1793135642793,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "3148b23e116352d06d334f0fcc30328d552996db08cc237e7e048f8918472436",
+          "path": "artifacts/tasks/verify-window-native-approval-render/runs/20261019T014508252Z-c874bae8-cc27-4675-a709-f239e279a92a",
+          "cached_logical_bytes": 55466397,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+      "owner": "BB-01-btw-scope-diagnosis",
+      "review_observed_at_ms": 1793135501803,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "producer owner membership is not complete"
+      ],
+      "items": [
+        {
+          "id": "3933b39447b18380faf9cebf5761aaaf361772739bc1b1d3816caa6fdde54e07",
+          "path": "artifacts/tasks/BB-01-btw-panel-route/runs/20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+          "cached_logical_bytes": 53196,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01:host-4c720674",
+      "owner": "instruction-library-verification",
+      "review_observed_at_ms": 1793135581424,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "3acc71d235a128bfc5c2c89f9b93e4316b586de491305a4fcac33fb372f34135",
+          "path": "artifacts/tasks/CM-01/runs/host-4c720674",
+          "cached_logical_bytes": 27179,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DH-01-project-storage-review:retire-old-v2",
+      "owner": "/root",
+      "review_observed_at_ms": 1793135642712,
+      "blockers": [
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "3c0f1bb6f6b270228d28417091e93eb3672258264db6edc3cd566f00bfe8e89a",
+          "path": "artifacts/tasks/DH-01-project-storage-review/runs/retire-old-v2",
+          "cached_logical_bytes": 15383995,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work:DH-01-project-storage-review:retention:Current storage-review work consumes immutable deletion/verification/failure records until remaining32 partitions and additional approval are resolved"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:engine-check-retirement:r2",
+      "owner": "engine-check-retirement",
+      "review_observed_at_ms": 1793135642750,
+      "blockers": [],
+      "items": [
+        {
+          "id": "3cdc472d9d129d7dad5ee41ddc874a3007caa515ff1a28f7e34d6dee42b9b165",
+          "path": "artifacts/tasks/windows-2026-0-9/runs/engine-check-retirement-r2",
+          "cached_logical_bytes": 98169,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:compile-scope-3",
+      "owner": "CL-01-compile-scope",
+      "review_observed_at_ms": 1793135545792,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "3e7fc5d347e45038e1cf16e11ed8571ff400f1cb3a136bfc942d18d0cec0f191",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/compile-scope-3",
+          "cached_logical_bytes": 104443070,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-2",
+      "owner": "question-supersession",
+      "review_observed_at_ms": 1793135631392,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "producer owner membership is not complete"
+      ],
+      "items": [
+        {
+          "id": "440726894d12631238b703e0a0a337a2425b47aec35d3b60cafe11e906adbda5",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/native-2",
+          "cached_logical_bytes": 100238159,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DM-01-legacy-custody:bwd2",
+      "owner": "/root",
+      "review_observed_at_ms": 1793135642725,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "4c378ff1dd59ed2a232fc2c15c4dfe510e81b118f423d5fa7343cbf26dbabfec",
+          "path": "artifacts/tasks/DM-01-legacy-custody/runs/bwd2",
+          "cached_logical_bytes": 7307741,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+      "owner": "scripts/verify-instruction-library-render.mjs",
+      "review_observed_at_ms": 1793135643221,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "52d4173bb6affcc8b16dd81ea005be62fd91fb20cbb5155896f0f98e358ab03d",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+          "cached_logical_bytes": 224266,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-7",
+      "owner": "DC-01 question supersession",
+      "review_observed_at_ms": 1793135643440,
+      "blockers": [
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "5314ed8c03bff8068e60ffd63fbff37a6d9ff2e7c2662c8349fa4eb84acd0dae",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/native-7",
+          "cached_logical_bytes": 159625,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "run:DC-01-queue-question-wait-diagnosis:native-8:Passing accepted/compact/turn scopes reused"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:group-tool-review-20261019-r1",
+      "owner": "/root",
+      "review_observed_at_ms": 1793135643364,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "564edbfb9742ba934fc27fe7cbdbbf353fba8e3988af51903ba39cfcf1cefd5f",
+          "path": "artifacts/tasks/CR-01-build-legacy-cleanup/runs/group-tool-review-20261019-r1",
+          "cached_logical_bytes": 48517,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-4",
+      "owner": "CL-01-question-withdrawal",
+      "review_observed_at_ms": 1793135643209,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "58118fb04717e6571060b8f241d35de987c6697419f94df1534712aa74e12bf5",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/native-4",
+          "cached_logical_bytes": 101727888,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "work:DW14:pty-unmanaged-cache-r3",
+      "owner": "DW14-pty-preflight",
+      "review_observed_at_ms": 1793135643667,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "64ca36af8abeeb4137b9723b5a22de129b0d47ca60960cf3561ea63e9b936834",
+          "path": "artifacts/cache/cargo/96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+      "owner": "artifact-lifecycle-checks",
+      "review_observed_at_ms": 1793135643503,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "65ee82bffd95c521f799dda1dfc92c486ee2f090b6b24aeff321834b72c018b4",
+          "path": "artifacts/tasks/lifecycle-checks/runs/080d3acc97d040d1a5b0cc7d92315698",
+          "cached_logical_bytes": 9471651,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DN-01:approved-log-retirement-20261024-r2",
+      "owner": "DN-01-log-retirement",
+      "review_observed_at_ms": 1793135643490,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "66721d2c79e7728a0dbb2fe24b6511a5abd23c1c28f92d8a0c7aaed31f8b9d0c",
+          "path": "artifacts/tasks/DN-01-disk-cleanup-candidates/runs/approved-log-retirement-20261024-r2/reports",
+          "cached_logical_bytes": 206819,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-5",
+      "owner": "question-supersession",
+      "review_observed_at_ms": 1793135643414,
+      "blockers": [
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "66a4a91a7f2d16980a341022b72464854c76aee59bffc20c1304c3e71cc18dfd",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/native-5",
+          "cached_logical_bytes": 94301,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "run:DC-01-queue-question-wait-diagnosis:native-7:Passing async-question scope reused",
+            "run:DC-01-queue-question-wait-diagnosis:native-6:Reuse successful async-question command from interrupted aggregate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-5",
+      "owner": "DC-01-queue-question-wait-diagnosis",
+      "review_observed_at_ms": 1793135643465,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "6c1c4117994214617a879a7b8ff6af30a2b8d35926efabb8b45a53d77b9da1f0",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/reply-account-native-5",
+          "cached_logical_bytes": 102382836,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-6",
+      "owner": "question-supersession",
+      "review_observed_at_ms": 1793135643427,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "7102ab138d62035e3b6504a26b23c1c1b60c80772e7140f7fdc03889b36087de",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/native-6",
+          "cached_logical_bytes": 12879,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002847408Z-54f38789-20c8-463a-8270-334f7d90aa08",
+      "owner": "scripts/verify-instruction-library-render.mjs",
+      "review_observed_at_ms": 1793135643236,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "77f1a32c05ec077e34f5f126e59d50900279511b93cde715dcda541e2f7b15a3",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T002847408Z-54f38789-20c8-463a-8270-334f7d90aa08",
+          "cached_logical_bytes": 577198,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-3",
+      "owner": "DC-01-queue-question-wait-diagnosis",
+      "review_observed_at_ms": 1793135643452,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "7e665271d02493698005aaec0e3b9fc3c412374990142bda1ba3126e783f709d",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/reply-account-native-3",
+          "cached_logical_bytes": 102339424,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "CF-01-cache-lease-r1",
+      "owner": "cache_lease_recovery",
+      "review_observed_at_ms": 1793135643112,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "8bf4051754ad8ebea0aabb2920f0c87b478ba3d599d2977532780e4a86092ef2",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-cache-lease-r1",
+          "cached_logical_bytes": 9932,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DH-01-project-storage-review:retire-old-v3",
+      "owner": "/root",
+      "review_observed_at_ms": 1793135643477,
+      "blockers": [
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "8e58862049c6340a6eaec67efe1b3cfc82e1ff8b017a0d3ffda115b3d112dbfa",
+          "path": "artifacts/tasks/DH-01-project-storage-review/runs/retire-old-v3",
+          "cached_logical_bytes": 734369,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work:DH-01-project-storage-review:retention:Current approved three-root cleanup consumes immutable v3 native decisions and restoration evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:temporary",
+      "owner": "/root/board-verification",
+      "review_observed_at_ms": 1793135643250,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "976cc076db16517789e84e6e2bf9e6cb84e2339188f072fb2e17bc06be9e0793",
+          "path": "artifacts/tasks/CN-01-catalog-modules/runs/ui-1792388395582-d1a343de/temporary",
+          "cached_logical_bytes": 35073498,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "version:engine-original-ccbcbf93",
+      "owner": "BU-01-error-specificity",
+      "review_observed_at_ms": 1793135643528,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "BU-01-engine-original",
+          "path": "artifacts/shared/engine-original-ccbcbf93",
+          "cached_logical_bytes": 95478457,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "engine/SOURCE.json"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-error-specificity-run-01",
+      "owner": "BU-01-error-specificity",
+      "review_observed_at_ms": 1793135643547,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "BU-01-error-specificity-logs",
+          "path": "artifacts/tasks/error-specificity/runs/01/logs",
+          "cached_logical_bytes": 325424,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/02-plan.md"
+          ]
+        },
+        {
+          "id": "BU-01-error-specificity-reports",
+          "path": "artifacts/tasks/error-specificity/runs/01/reports",
+          "cached_logical_bytes": 301060,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/02-plan.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-02",
+      "owner": "BU-01",
+      "review_observed_at_ms": 1793135643588,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-02-logs",
+          "path": "artifacts/tasks/refusal-cause/runs/02/logs",
+          "cached_logical_bytes": 135,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-02-reports",
+          "path": "artifacts/tasks/refusal-cause/runs/02/reports",
+          "cached_logical_bytes": 10366,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-03",
+      "owner": "BU-01",
+      "review_observed_at_ms": 1793135643605,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-03-logs",
+          "path": "artifacts/tasks/refusal-cause/runs/03/logs",
+          "cached_logical_bytes": 479698,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-03-reports",
+          "path": "artifacts/tasks/refusal-cause/runs/03/reports",
+          "cached_logical_bytes": 305714,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-04",
+      "owner": "BU-01",
+      "review_observed_at_ms": 1793135643623,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-04-logs",
+          "path": "artifacts/tasks/refusal-cause/runs/04/logs",
+          "cached_logical_bytes": 6740,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-04-reports",
+          "path": "artifacts/tasks/refusal-cause/runs/04/reports",
+          "cached_logical_bytes": 92410,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-05",
+      "owner": "BU-01",
+      "review_observed_at_ms": 1793135643645,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-05-logs",
+          "path": "artifacts/tasks/refusal-cause/runs/05/logs",
+          "cached_logical_bytes": 12636,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-05-reports",
+          "path": "artifacts/tasks/refusal-cause/runs/05/reports",
+          "cached_logical_bytes": 50126,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-01",
+      "owner": "BU-01",
+      "review_observed_at_ms": 1793135643567,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-logs",
+          "path": "artifacts/tasks/refusal-cause/runs/01/logs",
+          "cached_logical_bytes": 1111,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-reports",
+          "path": "artifacts/tasks/refusal-cause/runs/01/reports",
+          "cached_logical_bytes": 34785,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BU-01-thread-01a144c2-error-analysis/03-plan.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BW-01-profile-dedup-run-03",
+      "owner": "BW-01-profile-dedup",
+      "review_observed_at_ms": 1793135643654,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "BW-01-final-verification",
+          "path": "artifacts/tasks/bw3",
+          "cached_logical_bytes": 101477370,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BW-01-openai-profile-context-analysis/01-plan.md: verified source and check evidence pending independently preserved installed-candidate acceptance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CG-01-implementation-01",
+      "owner": "CG-01-startup-session-performance-review",
+      "review_observed_at_ms": 1793135643124,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "CG-01-implementation-01-files",
+          "path": "artifacts/tasks/CG-01-startup-session-performance-review/runs/implementation-01",
+          "cached_logical_bytes": 189656165,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/CG-01-startup-session-performance-review/01-plan.md: exact tested source and verification evidence; retain until packaged-host acceptance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:inventory-20261019-r1",
+      "owner": "build-legacy-cleanup-inventory",
+      "review_observed_at_ms": 1793135643379,
+      "blockers": [],
+      "items": [
+        {
+          "id": "CR-01-legacy-inventory",
+          "path": "artifacts/tasks/CR-01-build-legacy-cleanup/runs/inventory-20261019-r1",
+          "cached_logical_bytes": 661690,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:module-preview-20261019-r1",
+      "owner": "build-legacy-cleanup-module-preview",
+      "review_observed_at_ms": 1793135643393,
+      "blockers": [],
+      "items": [
+        {
+          "id": "CR-01-legacy-module-preview",
+          "path": "artifacts/tasks/CR-01-build-legacy-cleanup/runs/module-preview-20261019-r1",
+          "cached_logical_bytes": 8346,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "CR-01-retired-host-fixtures",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135643135,
+      "blockers": [],
+      "items": [
+        {
+          "id": "CR-01-retired-fixture-h20",
+          "path": "artifacts/build/h20",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "CT-01-orphan-output-r1",
+      "owner": "CT-01-orphan-output-recovery",
+      "review_observed_at_ms": 1793135643197,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "CT-01-evidence-0",
+          "path": "artifacts/tasks/orphan-output-recovery/runs/20261019-r1",
+          "cached_logical_bytes": 1824100,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "verification:CT-01-orphan-output-recovery"
+          ]
+        },
+        {
+          "id": "CT-01-evidence-1",
+          "path": "artifacts/tasks/orphan-output-recovery/runs/20261019-r2",
+          "cached_logical_bytes": 90046,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "verification:CT-01-orphan-output-recovery"
+          ]
+        },
+        {
+          "id": "CT-01-evidence-2",
+          "path": "artifacts/tasks/orphan-output-recovery/runs/20261019-r3",
+          "cached_logical_bytes": 2241738,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "verification:CT-01-orphan-output-recovery"
+          ]
+        },
+        {
+          "id": "CT-01-source-0",
+          "path": "artifacts/build/ct01",
+          "cached_logical_bytes": 99903061,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "verification:CT-01-orphan-output-recovery"
+          ]
+        },
+        {
+          "id": "CT-01-source-1",
+          "path": "artifacts/build/ct01-r2",
+          "cached_logical_bytes": 99902637,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "verification:CT-01-orphan-output-recovery"
+          ]
+        },
+        {
+          "id": "CT-01-source-2",
+          "path": "artifacts/build/ct01-r3",
+          "cached_logical_bytes": 99903061,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "verification:CT-01-orphan-output-recovery"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DB01:native-r1",
+      "owner": "/root/native_logoff",
+      "review_observed_at_ms": 1793135643405,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "DB01-native-r1",
+          "path": "artifacts/tasks/DB-01-window-child-logoff/runs/native-r1",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "native verification pending"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DB01:native-r2",
+      "owner": "/root/native_logoff",
+      "review_observed_at_ms": 1793135644222,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "DB01-native-r2",
+          "path": "artifacts/tasks/DB-01-window-child-logoff/runs/native-r2",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "native verification pending"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DK-01:native-backend-fixtures",
+      "owner": "DK-01-instruction-catalog-diagnosis",
+      "review_observed_at_ms": 1793135644268,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "DK-01-native-backend-fixtures",
+          "path": "artifacts/tasks/DK-01-instruction-catalog-diagnosis/native-backend",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DK-01-backend-verification-active"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:DK-01:private-skills-evidence-20261025",
+      "owner": "DK-01-instruction-catalog-diagnosis",
+      "review_observed_at_ms": 1793135644432,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "DK-01-private-skills-logs",
+          "path": "artifacts/tasks/DK-01-instruction-catalog-diagnosis/runs/private-skills-20261025-b1b49cd2/logs",
+          "cached_logical_bytes": 36048,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/DK-01-instruction-catalog-diagnosis/01-plan.md"
+          ]
+        },
+        {
+          "id": "DK-01-private-skills-reports",
+          "path": "artifacts/tasks/DK-01-instruction-catalog-diagnosis/runs/private-skills-20261025-b1b49cd2/reports",
+          "cached_logical_bytes": 10731,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/DK-01-instruction-catalog-diagnosis/01-plan.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:DW-01:source-threshold-unregistered-fixtures",
+      "owner": "DW-01-source-stage-fixture-cleanup",
+      "review_observed_at_ms": 1793135644556,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "DW-01-safe-source-fixture-063",
+          "path": "artifacts/logs/AF-01-resume-install/optimization-20min/cargo-schema4-mock-benchmark.json",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "work:engine-check-retirement-r1",
+      "owner": "root",
+      "review_observed_at_ms": 1793135644583,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle group membership is incomplete",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "a0679b7ab589b502f120619ceedac0eebd852790966595cc4ec5be9e1fa20e47",
+          "path": "artifacts/tasks/windows-2026-0-9/runs/engine-check-retirement-r1",
+          "cached_logical_bytes": 20971,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T003712055Z-ed612182-8ec1-4aa2-9fd3-bbc09b3f92df",
+      "owner": "scripts/verify-instruction-library-render.mjs",
+      "review_observed_at_ms": 1793135644115,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "a414f8fb761a026071c51d4bcb0aa3e3fad30905e2351ecd0a5828f0f5a7a5fb",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T003712055Z-ed612182-8ec1-4aa2-9fd3-bbc09b3f92df",
+          "cached_logical_bytes": 571752,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-3",
+      "owner": "CL-01-question-withdrawal",
+      "review_observed_at_ms": 1793135644071,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "a79cdcd163a1398514f8ec463a73c10956760ab58d9fb123a1776bb1e34e4bf5",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/native-3",
+          "cached_logical_bytes": 104569037,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01:host-35dac893",
+      "owner": "instruction-library-verification",
+      "review_observed_at_ms": 1793135644130,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "a88a452f3f8b123dd3a93b69aba6f73e04a813fea402d1a60494b1c96e5e4896",
+          "path": "artifacts/tasks/CM-01/runs/host-35dac893",
+          "cached_logical_bytes": 38460,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+      "owner": "/root/board-verification",
+      "review_observed_at_ms": 1793135644171,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "ad07ecd044fe288480c4481992bd865a94e2c4e672c5a6e0795b1998c65084e2",
+          "path": "artifacts/tasks/CN-01-catalog-modules/runs/ui-1792388395582-d1a343de/reports",
+          "cached_logical_bytes": 409046,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "dc17393fccaf5a1b2cbf28a978e6f6abf8b1cf552e2ed67746cb4c707780bf6d",
+          "path": "artifacts/tasks/CN-01-catalog-modules/runs/ui-1792388395582-d1a343de/logs",
+          "cached_logical_bytes": 3701,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+      "owner": "/root/native_check_schedule-pilot",
+      "review_observed_at_ms": 1793135644277,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "ad0eb15ef4253ec46a81e264337b09284f91ff2133cba14d6e33d5a82e526db6",
+          "path": "artifacts/tasks/DM-01-boundary-pilot/runs/cancel-20261023T144738817Z",
+          "cached_logical_bytes": 3611,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-2",
+      "owner": "CL-01-question-withdrawal",
+      "review_observed_at_ms": 1793135644058,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "ad4850f2a3fdfe07bea3fa6c8711c91268759aafc226d7a10481c3e00422581e",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/native-2",
+          "cached_logical_bytes": 101601165,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-6",
+      "owner": "CL-01-question-withdrawal",
+      "review_observed_at_ms": 1793135644087,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "af6afe09e0817c2479af67f36b75cfdc5285a7d98373ff1b3aaf8592d9db00bd",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/native-6",
+          "cached_logical_bytes": 104358319,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002152367Z-722d1796-bbc6-4543-b4ba-c8faaf2e8c49",
+      "owner": "instruction-library-verification",
+      "review_observed_at_ms": 1793135644101,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "b328b365c8a393d80b7680cfc4d009497c920a7d4d2cbb848bbfbd1621073398",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T002152367Z-722d1796-bbc6-4543-b4ba-c8faaf2e8c49",
+          "cached_logical_bytes": 1361790,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:test-scope-reduction:r1",
+      "owner": "test-scope-reduction",
+      "review_observed_at_ms": 1793135644338,
+      "blockers": [],
+      "items": [
+        {
+          "id": "b4732815775cea576dcc199efb2475f7cf87508f90b0f9dce2d0712533ade415",
+          "path": "artifacts/tasks/windows-2026-0-9/runs/test-scope-reduction-r1",
+          "cached_logical_bytes": 20126,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:BB-01-btw-panel-route:20261019T034436213Z-c7b81c71-30b4-45d2-adcf-729533a9736e",
+      "owner": "BB-01-btw-scope-diagnosis",
+      "review_observed_at_ms": 1793135644018,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "b7ede202355675f4e9dbfcadf9e8ef93b2e26417b2c2af9aeb81a5f08c015b25",
+          "path": "artifacts/tasks/BB-01-btw-panel-route/runs/20261019T034436213Z-c7b81c71-30b4-45d2-adcf-729533a9736e",
+          "cached_logical_bytes": 7938,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:instruction-yazl-a",
+      "owner": "instruction-module-fix",
+      "review_observed_at_ms": 1793135644326,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "ba4391a7e3361ae47756c0768c4cb3e0de5d98f5b2ab903080f349704788468c",
+          "path": "artifacts/tasks/instruction-yazl/runs/a",
+          "cached_logical_bytes": 21481355,
+          "generated": true,
+          "protection_known": false,
+          "references": [
+            "version:instruction-external-iy17a:Active verification extension and acceptance evidence retained for this installed profile"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-4",
+      "owner": "question-supersession",
+      "review_observed_at_ms": 1793135644232,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "bd8e8ebdb65dcdfe31668ba4939da63c5bb296ebda70dd36615936dcceddd3bf",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/native-4",
+          "cached_logical_bytes": 1708,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "work:DH-01-project-storage-review:retention",
+      "owner": "/root",
+      "review_observed_at_ms": 1793135644389,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "be906b29f70c655c7c9d5bb7916e3f3846586033231196e5719b2878794a1210",
+          "path": "artifacts/tasks/DH-01-project-storage-review/retention",
+          "cached_logical_bytes": 1947,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-9",
+      "owner": "DC-01 question supersession",
+      "review_observed_at_ms": 1793135644244,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "bec8232adf1002f958850f7fa4030de0b336c5f6ea4e18957fb5ff9b56de2caf",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/native-9",
+          "cached_logical_bytes": 107654900,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "bn01-scope-fix-render-01",
+      "owner": "image-sketch-render-fixture",
+      "review_observed_at_ms": 1793135643951,
+      "blockers": [],
+      "items": [
+        {
+          "id": "bn01-scope-fix-render-01-evidence",
+          "path": "artifacts/tasks/BN-01-image-sketch/runs/scope-fix-render-01",
+          "cached_logical_bytes": 228634,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "bn01-scope-fix-tests-01",
+      "owner": "image-sketch-scope-fix",
+      "review_observed_at_ms": 1793135643963,
+      "blockers": [],
+      "items": [
+        {
+          "id": "bn01-scope-fix-tests-01-evidence",
+          "path": "artifacts/tasks/BN-01-image-sketch/runs/scope-fix-tests-01",
+          "cached_logical_bytes": 2609,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "bn01-scope-fix-tests-02",
+      "owner": "image-sketch-scope-fix",
+      "review_observed_at_ms": 1793135643972,
+      "blockers": [],
+      "items": [
+        {
+          "id": "bn01-scope-fix-tests-02-evidence",
+          "path": "artifacts/tasks/BN-01-image-sketch/runs/scope-fix-tests-02",
+          "cached_logical_bytes": 1234,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "bx01-retirement-evidence",
+      "owner": "BX-01",
+      "review_observed_at_ms": 1793135643990,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "bx01-retirement-control",
+          "path": "artifacts/tasks/BX-01/control",
+          "cached_logical_bytes": 5899,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "BX-01 verification reproduction and diagnosis"
+          ]
+        },
+        {
+          "id": "bx01-retirement-evidence-files",
+          "path": "artifacts/tasks/BX-01/evidence/retirement-01",
+          "cached_logical_bytes": 28959,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/BX-01-legacy-unused-feature-audit/01-plan.md: retained source regression evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:window-use-diagnostic-20261018-r1",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135644363,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "c02a8fd87a5d0b0b3c8e29a894834ab28b1dfdaeb731bb3402ffb58c4ee1d26f",
+          "path": "artifacts/verification/wd18",
+          "cached_logical_bytes": 24993009,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        },
+        {
+          "id": "f2d8d47257b0d57c7348f983a256d64bde5d1a24ddbcd8ac5bb5e6d07b625978",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261018-diagnostic-r1",
+          "cached_logical_bytes": 53297,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DM-01-boundary-reform:postinstall-retirement-r1",
+      "owner": "/root",
+      "review_observed_at_ms": 1793135644302,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "c1608b9f90240ffcb88eae2c430b1c8bfd14c88d9a03863bc9744ae1a3514e43",
+          "path": "artifacts/tasks/DM-01-boundary-reform/runs/postinstall-retirement-r1",
+          "cached_logical_bytes": 1468907,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:cargo-preflight-1",
+      "owner": "CL-01-cargo-preflight",
+      "review_observed_at_ms": 1793135644046,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "c442358784b16c124a7149b836ab375494e7c640b6b117b3d17fa1a9e0771293",
+          "path": "artifacts/tasks/CL-01-question-withdrawal/runs/cargo-preflight-1",
+          "cached_logical_bytes": 13286626,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DM-01-boundary-pilot:unknown-proof-refusal-20261023T144746673Z",
+      "owner": "/root/native_check_schedule-pilot",
+      "review_observed_at_ms": 1793135644289,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "c651050f2dd90c849b6961f3a7977be7f4dd3c29fa9c2ce087d96437c7b20463",
+          "path": "artifacts/tasks/DM-01-boundary-pilot/runs/unknown-proof-refusal-20261023T144746673Z",
+          "cached_logical_bytes": 2583,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:engine",
+      "owner": "/root/approval_engine_async",
+      "review_observed_at_ms": 1793135644033,
+      "blockers": [
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "c98231fea92bf529b3719467ff762c529f40879fa49bad74586b0477921d51ec",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-async-approval-r1/engine",
+          "cached_logical_bytes": 950947515,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:integration:Native approval verification is required by integrated source acceptance and future package acceptance.",
+            "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:integration:Current host retains async approval engine contract; keep its verified native evidence for future package."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-4",
+      "owner": "DC-01-queue-question-wait-diagnosis",
+      "review_observed_at_ms": 1793135644256,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "cb73558e68d6518b85871f8d5503e7241e7b150f31f71e02f03a1b341b3465fb",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/reply-account-native-4",
+          "cached_logical_bytes": 102396640,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DU-01-approval-async-ui:20261019T014329625Z-001257fa-fd59-4631-b8c1-d7aef3d5b167",
+      "owner": "approval_ui",
+      "review_observed_at_ms": 1793135644313,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "ce333fa0e83bd44dd521c2685cb628936e11f37428eeb5ab808c4688832fb754",
+          "path": "artifacts/tasks/DU-01-approval-async-ui/runs/20261019T014329625Z-001257fa-fd59-4631-b8c1-d7aef3d5b167",
+          "cached_logical_bytes": 1559,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01:types-91c2c6e7",
+      "owner": "instruction-library-verification",
+      "review_observed_at_ms": 1793135644143,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "ceae4fb64b7d55e23ee7ebd009a5cd897213aadf0bf29f881ff680efbe20cc63",
+          "path": "artifacts/tasks/CM-01/runs/types-91c2c6e7",
+          "cached_logical_bytes": 1361637,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "cf01-async-approval-host-tests-r1",
+      "owner": "CF-01-window-use-admin-setup/approval_host",
+      "review_observed_at_ms": 1793135644000,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "cf01-async-approval-host-test-evidence",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-async-approval-r1/host/tests",
+          "cached_logical_bytes": 201311,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "CF-01 async Window Use root integration acceptance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-bootstrap-length-r1",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135644009,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "cf01-bootstrap-length-r1-evidence",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-bootstrap-length-r1",
+          "cached_logical_bytes": 527120,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "retained-bootstrap-source-verification",
+            "future-immutable-package-acceptance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-logoff-disposable",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135644996,
+      "blockers": [],
+      "items": [
+        {
+          "id": "cf01-logoff-temporary",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "cf01-logoff-verification",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135645010,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "cf01-logoff-verification-files",
+          "path": "artifacts/verification/window-use-logoff-cleanup-20261018",
+          "cached_logical_bytes": 211754,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/CF-01-window-use-admin-setup/02-plan.md:required verification and own-only patches; live acceptance and separate commit remain pending"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-queue-integration-r1",
+      "owner": "/root/u23_queue_integration",
+      "review_observed_at_ms": 1793135645022,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "cf01-queue-integration-r1-evidence",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-queue-integration-r1",
+          "cached_logical_bytes": 31347,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/CF-01-window-use-admin-setup/03-plan.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-u21a-live-retry005",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135645126,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "cf01-u21a-live-retry005-io-0",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-u21a-live-r1/outputs/agent-io/retry-005-attempted.json",
+          "cached_logical_bytes": 92,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "live-session7-unknown-input-diagnosis"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-1",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-u21a-live-r1/outputs/agent-io/retry-005-command.json",
+          "cached_logical_bytes": 1644,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "live-session7-unknown-input-diagnosis"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-2",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-u21a-live-r1/outputs/agent-io/retry-005-completed.json",
+          "cached_logical_bytes": 1719,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "live-session7-unknown-input-diagnosis"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-3",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-u21a-live-r1/outputs/agent-io/retry-005-delivered.json",
+          "cached_logical_bytes": 461,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "live-session7-unknown-input-diagnosis"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-4",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-u21a-live-r1/outputs/agent-io/retry-005-events.jsonl",
+          "cached_logical_bytes": 224962,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "live-session7-unknown-input-diagnosis"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-5",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-u21a-live-r1/outputs/agent-io/retry-005-phase.json",
+          "cached_logical_bytes": 63,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "live-session7-unknown-input-diagnosis"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-6",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-u21a-live-r1/outputs/agent-io/retry-005-readback.json",
+          "cached_logical_bytes": 481,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "live-session7-unknown-input-diagnosis"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-reports",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-u21a-live-r1/reports/retry005",
+          "cached_logical_bytes": 10394,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "live-session7-unknown-input-diagnosis"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-viewer-live-r1",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135645161,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "cf01-viewer-live-r1-logs",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-live-r1/logs",
+          "cached_logical_bytes": 3050,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "active-f-diagnostic-fixture",
+            "pending-fresh-child-acceptance",
+            "user-retained-verification"
+          ]
+        },
+        {
+          "id": "cf01-viewer-live-r1-outputs",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-live-r1/outputs",
+          "cached_logical_bytes": 782384,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "active-f-diagnostic-fixture",
+            "pending-fresh-child-acceptance",
+            "user-retained-verification"
+          ]
+        },
+        {
+          "id": "cf01-viewer-live-r1-reports",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-live-r1/reports",
+          "cached_logical_bytes": 67427,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "active-f-diagnostic-fixture",
+            "pending-fresh-child-acceptance",
+            "user-retained-verification"
+          ]
+        },
+        {
+          "id": "cf01-viewer-live-r1-temporary",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-live-r1/temporary",
+          "cached_logical_bytes": 12819,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "active-f-diagnostic-fixture",
+            "pending-fresh-child-acceptance",
+            "user-retained-verification"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-viewer-revalidation-evidence",
+      "owner": "CF-01-window-use-admin-setup",
+      "review_observed_at_ms": 1793135645179,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "cf01-viewer-revalidation-logs",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-revalidation/logs",
+          "cached_logical_bytes": 50560,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "source-native-verification-and-pending-installed-acceptance"
+          ]
+        },
+        {
+          "id": "cf01-viewer-revalidation-reports",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-revalidation/reports",
+          "cached_logical_bytes": 9326,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "source-native-verification-and-pending-installed-acceptance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch01-sky-policy-package-boundary",
+      "owner": "CH-01-sky-policy-package-boundary",
+      "review_observed_at_ms": 1793135645189,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "ch01-runtime-and-evidence",
+          "path": "artifacts/tasks/sky-policy-package-boundary",
+          "cached_logical_bytes": 373912109,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "C:/Users/felre/.azrael-ex/config.toml",
+            "work/CH-01-sky-policy-package-boundary/01-plan.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:managed-group-guidance-20261019-r1",
+      "owner": "/root",
+      "review_observed_at_ms": 1793135645869,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "d532e64ea17c09d822806a33325713f5531324f388b300a14733483308140179",
+          "path": "artifacts/tasks/CR-01-build-legacy-cleanup/runs/managed-group-guidance-20261019-r1",
+          "cached_logical_bytes": 24951,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:BZ-01:projection-and-render-03",
+      "owner": "BZ-01-reproduce",
+      "review_observed_at_ms": 1793135645820,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "d8bea75c126313e9e570ae8cab4e76927650e2a9bb37c194b5bf62425076b83a",
+          "path": "artifacts/tasks/BZ-01-resume-list-indicators/runs/projection-and-render-03",
+          "cached_logical_bytes": 128122,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-1",
+      "owner": "DC-01-queue-question-wait-diagnosis",
+      "review_observed_at_ms": 1793135645893,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "dd244bd8eb9e38c11f3082b5c23d7cb6e90d4e87335c72e0b0902d5830b96441",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/reply-account-native-1",
+          "cached_logical_bytes": 102527960,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002621537Z-5509aa03-d7b9-4d3a-8710-2fa3eddd119c",
+      "owner": "instruction-library-verification",
+      "review_observed_at_ms": 1793135645850,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "deaa547a7bf270beda349316588449ce19577c79ccefbc03895b0978aeda817a",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T002621537Z-5509aa03-d7b9-4d3a-8710-2fa3eddd119c",
+          "cached_logical_bytes": 94750,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+      "owner": "instruction-library-verification",
+      "review_observed_at_ms": 1793135645835,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "df3b6b56bccff8a51ff90f276b81aaef3d11317b53e21b6b9ed6eb682bebd90b",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+          "cached_logical_bytes": 54334,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "do1-unused-native-outputs-r1",
+      "owner": "DO-01-codex-version-comparison",
+      "review_observed_at_ms": 1793135645440,
+      "blockers": [
+        "overlapping lifecycle member requires its own whole-group decision",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "path": "engine/codex-rs/target/debug/deps/all-c71321a47dbe4ed9.exe",
+          "cached_logical_bytes": 303104000,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "path": "engine/codex-rs/target/debug/deps/all-c71321a47dbe4ed9.pdb",
+          "cached_logical_bytes": 868913152,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "path": "engine/codex-rs/target/debug/deps/codex_core-ee1b27bb08f71819.exe",
+          "cached_logical_bytes": 321040384,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "path": "engine/codex-rs/target/debug/deps/codex_core-ee1b27bb08f71819.pdb",
+          "cached_logical_bytes": 910495744,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "do2-native-outputs-r1",
+      "owner": "codex-retained-reasoning",
+      "review_observed_at_ms": 1793135645519,
+      "blockers": [
+        "overlapping lifecycle member requires its own whole-group decision",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "do2-all-c71321a47dbe4ed9.exe",
+          "path": "engine/codex-rs/target/debug/deps/all-c71321a47dbe4ed9.exe",
+          "cached_logical_bytes": 303104000,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "do2-all-c71321a47dbe4ed9.pdb",
+          "path": "engine/codex-rs/target/debug/deps/all-c71321a47dbe4ed9.pdb",
+          "cached_logical_bytes": 868913152,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "do2-codex_core-ee1b27bb08f71819.exe",
+          "path": "engine/codex-rs/target/debug/deps/codex_core-ee1b27bb08f71819.exe",
+          "cached_logical_bytes": 321040384,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        },
+        {
+          "id": "do2-codex_core-ee1b27bb08f71819.pdb",
+          "path": "engine/codex-rs/target/debug/deps/codex_core-ee1b27bb08f71819.pdb",
+          "cached_logical_bytes": 910495744,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "du01-approval50-host-r1",
+      "owner": "DU-01-window-use-stages/approval_host",
+      "review_observed_at_ms": 1793135645541,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "du01-approval50-host-evidence",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261018-approval50-r1/host",
+          "cached_logical_bytes": 53900,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages root acceptance and regression diagnosis"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-child-checks-20261017",
+      "owner": "DU-01-window-use-stages/child-session",
+      "review_observed_at_ms": 1793135645604,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "du01-child-checks-r1",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/checks-r1",
+          "cached_logical_bytes": 4404,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-checks-r2",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/checks-r2",
+          "cached_logical_bytes": 2507,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-checks-r3",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/checks-r3",
+          "cached_logical_bytes": 2517,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-checks-r4",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/checks-r4",
+          "cached_logical_bytes": 2848,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-child-native-preparations-20261017",
+      "owner": "DU-01-window-use-stages/child-session",
+      "review_observed_at_ms": 1793135645708,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "du01-child-native-prep-r1",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r1",
+          "cached_logical_bytes": 63989,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r10",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r10",
+          "cached_logical_bytes": 137087,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r11",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r11",
+          "cached_logical_bytes": 137245,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r2",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r2",
+          "cached_logical_bytes": 67563,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r3",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r3",
+          "cached_logical_bytes": 76034,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r4",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r4",
+          "cached_logical_bytes": 80564,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r5",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r5",
+          "cached_logical_bytes": 29022,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r6",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r6",
+          "cached_logical_bytes": 81416,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r7",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r7",
+          "cached_logical_bytes": 104107,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r8",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r8",
+          "cached_logical_bytes": 105121,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r9",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-child-r1/native-prep-r9",
+          "cached_logical_bytes": 107173,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/native-adapter-integration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-desktop-authority-r1",
+      "owner": "DU-01/window_desktop_authority",
+      "review_observed_at_ms": 1793135645721,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "du01-desktop-authority-r1-output",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-desktop-authority-r1",
+          "cached_logical_bytes": 6360,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01 active integration validation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-explicit-stop-r1",
+      "owner": "window_explicit_stop",
+      "review_observed_at_ms": 1793135645733,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "du01-explicit-stop-r1-output",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-explicit-stop-r1",
+          "cached_logical_bytes": 1174326,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "root-integration-handoff"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-integration-20261017-r1",
+      "owner": "DU-01-window-use-stages",
+      "review_observed_at_ms": 1793135645743,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "du01-integration-20261017-run",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-integration-r1",
+          "cached_logical_bytes": 99793,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "verification:DU-01-source-acceptance-and-live-admission-followup"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-native-retrieval-perf-r1",
+      "owner": "DU-01-window-use-stages/native-retrieval",
+      "review_observed_at_ms": 1793135645755,
+      "blockers": [],
+      "items": [
+        {
+          "id": "du01-native-retrieval-perf-r1-evidence",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-retrieval-perf-r1",
+          "cached_logical_bytes": 13565,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "du01-postboot-20261016-r1",
+      "owner": "DU-01-window-use-stages/root",
+      "review_observed_at_ms": 1793135645780,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "du01-postboot-20261016-run",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261016-postboot-investigation-r1",
+          "cached_logical_bytes": 30344,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "DU-01-window-use-stages/01-plan.md: current investigation and restoration evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-settings-r1",
+      "owner": "DU-01-window-use-stages/settings",
+      "review_observed_at_ms": 1793135645790,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "du01-settings-r1-payload",
+          "path": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-settings-r1",
+          "cached_logical_bytes": 340595,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "active DU-01 integration and source/render acceptance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BW-01-profile-provider-run-01",
+      "owner": "BW-01-profile-provider",
+      "review_observed_at_ms": 1793135645971,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "e325c4de0b933f14a48dc3adad5c66f07770a80283991798231b56ce20311661",
+          "path": "artifacts/tasks/bwp1",
+          "cached_logical_bytes": 101802854,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "work:deployment-temporary:e24e915c4ffbf14916de423fdb9a62ddc0eaf91109139e47899ba01b53ecc2c0",
+      "owner": "azrael-deployment-temporary",
+      "review_observed_at_ms": 1793135646012,
+      "blockers": [
+        "lifecycle membership source changed or is unavailable; re-register full current membership"
+      ],
+      "items": [
+        {
+          "id": "e938d78f0a18ac3173c3933c34e473f3cdade0d4c4093196cacad108b247fce7",
+          "path": "artifacts/workspaces/l/artifacts/t",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:native",
+      "owner": "/root/child_reconnect_native",
+      "review_observed_at_ms": 1793135647160,
+      "blockers": [
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "eb4e9dbe401478fd137d608afbd41ca30c7c2b3b3b10428ea92aca0a94fff9a8",
+          "path": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-reconnect-r1/native",
+          "cached_logical_bytes": 2245064,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:integration:Final helper and native checks substantiate source reconnect acceptance."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+      "owner": "instruction-library-verification",
+      "review_observed_at_ms": 1793135647192,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "ebc2feba3931098491119a56116ca3ed0d59a6a9cf2f1ccaa96b730b5be7e00a",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+          "cached_logical_bytes": 98216,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "version:window-use-u17b",
+      "owner": "DU-01-window-use-stages",
+      "review_observed_at_ms": 1793135647249,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "efad417a9bc3cf2d57e4729a8c632006d1a4b2e23e41c86460f70021a1ab16d9",
+          "path": "artifacts/versions/window-use-u17b",
+          "cached_logical_bytes": 258979,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "(ungrouped)",
+      "owner": "latest-committed-windows-build",
+      "review_observed_at_ms": null,
+      "blockers": [],
+      "items": [
+        {
+          "id": "engine-optimization-r18-default-native-summary",
+          "path": "artifacts/logs/test-reduction/native/native-summary.json",
+          "cached_logical_bytes": 0,
+          "generated": true,
+          "protection_known": true,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+      "owner": "instruction-library-verification",
+      "review_observed_at_ms": 1793135647178,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "f4f336e2751cd41b2e5fafb6e9b514e5dfc1a4a912e92b160dae39b1cd74d1e3",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+          "cached_logical_bytes": 84477,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+      "owner": "instruction-library-verification",
+      "review_observed_at_ms": 1793135647204,
+      "blockers": [
+        "generation or usage protection unconfirmed",
+        "lifecycle group membership is incomplete",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "f95e20ea9a00756ea01539bf89184f3a35b8697d57a5c6f9d0ed4e03c5fe92e5",
+          "path": "artifacts/tasks/CM-01-instruction-library-experience/runs/20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+          "cached_logical_bytes": 42294,
+          "generated": true,
+          "protection_known": false,
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-3",
+      "owner": "question-supersession",
+      "review_observed_at_ms": 1793135647216,
+      "blockers": [
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "fa13e2e2cb9abc16a8fcdeed3d038c6d4a046c1cc6eccc57e99155f9e2d8bd34",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/native-3",
+          "cached_logical_bytes": 105854268,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "run:DC-01-queue-question-wait-diagnosis:native-5:Immutable engine source 42db1ed55584f53dd494bd712d77de7cd742c7b1981969f15b3f3ff2a77b2a75",
+            "run:DC-01-queue-question-wait-diagnosis:native-4:Reuse immutable engine inputs 42db1ed55584f53dd494bd712d77de7cd742c7b1981969f15b3f3ff2a77b2a75",
+            "run:DC-01-queue-question-wait-diagnosis:native-7:Frozen native verification inputs",
+            "run:DC-01-queue-question-wait-diagnosis:native-9:Base frozen source, test-only overlay",
+            "run:DC-01-queue-question-wait-diagnosis:native-8:Frozen native verification inputs",
+            "run:DC-01-queue-question-wait-diagnosis:native-6:Same immutable engine inputs 42db1ed55584f53dd494bd712d77de7cd742c7b1981969f15b3f3ff2a77b2a75",
+            "run:DC-01-queue-question-wait-diagnosis:sdk-1:Immutable source for SDK verification"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-native-2",
+      "owner": "DC-01 typed queued replies",
+      "review_observed_at_ms": 1793135647229,
+      "blockers": [
+        "references active or unknown",
+        "lifecycle membership source changed or is unavailable; re-register full current membership",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "fda26ebd2c586d53a32684969f233ec755f144561bddf5e4f6608a3b6e9793d3",
+          "path": "artifacts/tasks/DC-01-queue-question-wait-diagnosis/runs/reply-native-2",
+          "cached_logical_bytes": 109274154,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "run:DC-01-queue-question-wait-diagnosis:reply-account-native-1:Reuses immutable source baseline whose native checks passed",
+            "run:DC-01-queue-question-wait-diagnosis:reply-account-native-2:Reuses immutable source baseline whose native checks passed",
+            "run:DC-01-queue-question-wait-diagnosis:reply-account-native-3:Reuses immutable source baseline whose native checks passed",
+            "run:DC-01-queue-question-wait-diagnosis:reply-account-native-4:Reuses immutable source baseline whose native checks passed",
+            "run:DC-01-queue-question-wait-diagnosis:reply-account-native-5:Reuses immutable source baseline whose native checks passed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "session-storage-cleanup-audit-20261022",
+      "owner": "model",
+      "review_observed_at_ms": 1793135647241,
+      "blockers": [
+        "references active or unknown",
+        "a lifecycle group member is protected"
+      ],
+      "items": [
+        {
+          "id": "session-storage-cleanup-audit-20261022-files",
+          "path": "artifacts/tasks/session-storage-cleanup-20261022/runs/audit-1",
+          "cached_logical_bytes": 8363063,
+          "generated": true,
+          "protection_known": true,
+          "references": [
+            "work/DE-01-session-storage-cleanup/01-plan.md"
+          ]
+        }
+      ]
+    }
+  ],
+  "additional_audit": [
+    {
+      "paths": [
+        "artifacts/iy17b"
+      ],
+      "finding": "Retained installed external-profile consumer references frozen engine/runtime."
+    },
+    {
+      "paths": [
+        "artifacts/n9a",
+        "artifacts/n9b",
+        "artifacts/w30*",
+        "artifacts/v-m1",
+        "artifacts/v-m2"
+      ],
+      "finding": "Pending/incomplete producer records; exact stopped-process tree evidence absent."
+    },
+    {
+      "paths": [
+        "artifacts/n10a"
+      ],
+      "finding": "Version record complete but owner work records unresolved link validation and unclosed related work."
+    },
+    {
+      "paths": [
+        "artifacts/fixtures",
+        "artifacts/tmp",
+        "artifacts/validation-tools",
+        "artifacts/visualizations",
+        "artifacts/w14w",
+        "artifacts/wp1"
+      ],
+      "finding": "Retained/incomplete custody or observation scopes with unknown ownership/use and consumers."
+    },
+    {
+      "paths": [
+        "artifacts/tools"
+      ],
+      "finding": "Bun runtime is a current build/runtime/test input; whole root is not unused."
+    },
+    {
+      "paths": [
+        "artifacts/verification/cx22a",
+        "artifacts/verification/cx22b",
+        "artifacts/tasks/CX-01-azrael-auth-recovery/runs/shutdown-r1"
+      ],
+      "finding": "Stopped success is verified, but owner work retains independent version acceptance evidence; fourth declared profile cx22r is absent and native membership is inconsistent. Existing owner API cannot selectively prune closed membership."
+    },
+    {
+      "paths": [
+        "artifacts/pd13"
+      ],
+      "finding": "Stopped/generated isolated fixture is verified, but actual-thread lineage snapshot consumer and work retention are unreleased; protection remains unknown. User-gate diagnosis is partial."
+    },
+    {
+      "paths": [
+        "scripts/test-macos-signing.cjs"
+      ],
+      "finding": "Not found in inspected direct selectors, but contains distinct signing checks for an active platform contract; not confirmed obsolete."
+    },
+    {
+      "paths": [
+        "artifacts/workspaces/h/artifacts/releases/w13r-99afefb1"
+      ],
+      "finding": "Observed active Azrael engine/bridge/Node/desktop consumers; not unused."
+    },
+    {
+      "paths": [
+        "work/CF-01-window-use-admin-setup",
+        "work/CH-01-sky-policy-package-boundary",
+        "work/CT-01-orphan-output-recovery",
+        "work/CG-01-startup-session-performance-review",
+        "work/DC-01-queue-question-wait-diagnosis"
+      ],
+      "finding": "Owner records retain successor installation/verification or host acceptance requirements. Execution closure does not release these consumers. No additional confirmed unused group found."
+    }
+  ],
+  "limitations": [
+    "No exhaustive proof that every source or dependency file is unused/used.",
+    "Remaining list contains blocked or uncertain candidates, not a declaration that all are unused.",
+    "No source/test retirement, product build, installation, process termination, force deletion, lock removal, ACL changes or primary managed-root widening."
+  ],
+  "source_reconciliation": {
+    "groups": 25,
+    "items": 35,
+    "all_original_items_remaining_false": true,
+    "evidence": "source-reconciliation.json",
+    "sha256": "82f4158bdc9f76c5795670138f76fc6c0696d4d943ebe6f14680dd86113b0aeb"
+  },
+  "original_producer_finalization": {
+    "records": 16,
+    "all_registry_records_absent": true,
+    "evidence": "producer-finalization.json"
+  },
+  "next_decision": "Determine which old verification/acceptance requirements may be retired; separately approve any management-owner code changes needed to reconcile closed membership. Active runtime/installation consumers remain excluded.",
+  "disposable_cleanup": {
+    "status": "removed and absence verified",
+    "current_work_files": [
+      "01-plan.md",
+      "audit-report.json",
+      "document-link-updates.json"
+    ],
+    "removed_after_reconciliation": 14
+  }
+}

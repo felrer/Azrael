@@ -1,0 +1,44 @@
+{
+  "actualExecution": {
+    "workId": "194f635e-0fc3-4ea1-822a-35dbe147bf77",
+    "state": "failed",
+    "exitCode": 1
+  },
+  "owner": {
+    "schema": 1,
+    "token": "4bf2ac19-5488-464a-9047-bb5a983a502a",
+    "run": "pid-28508",
+    "coordinatorPid": 28508,
+    "producerPid": 42520,
+    "startedUtc": "2026-10-31T08:59:57.055Z",
+    "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+    "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+    "command": "cargo",
+    "args": [
+      "test",
+      "-p",
+      "codex-app-server",
+      "--lib",
+      "azrael_thread_engines::tests::",
+      "--locked",
+      "--offline",
+      "--target",
+      "x86_64-pc-windows-msvc",
+      "--",
+      "--test-threads=1"
+    ],
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3\\inputs\\codex-rs",
+    "compilationSignature": "6d56ea19eb1250c5797ccee365eb7732cfe72af7fae9a9b574358d4abed40230",
+    "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\98f0e430ab4f1b4b10cc2ee1e8bbee75db4ecde9178403d5a3138a6cc459cfc0",
+    "status": "success",
+    "phase": "observed-terminal",
+    "lastProgressUtc": "2026-10-31T09:08:10.845Z",
+    "preparingUtc": "2026-10-31T08:59:57.055Z",
+    "spawnAttemptedUtc": "2026-10-31T09:00:04.003Z",
+    "resultObservedUtc": "2026-10-31T09:08:10.845Z",
+    "exitCode": 0,
+    "signal": null,
+    "producerStarted": true
+  },
+  "observedCause": "Catalog lock contention interrupted finalization after synchronous Cargo observed close; no unknown child outcome"
+}

@@ -1,0 +1,72 @@
+{
+  "scope": [
+    "scripts/test-account-settings.cjs",
+    "scripts/test-account-switch-queue.cjs",
+    "scripts/test-auto-review.cjs",
+    "scripts/test-btw.cjs",
+    "scripts/test-capacity-retry-stop.cjs",
+    "scripts/test-command-drag-block.cjs",
+    "scripts/test-compaction-progress.cjs",
+    "scripts/test-composer-draft.cjs",
+    "scripts/test-computer-use-injection.cjs",
+    "scripts/test-deferred-turn.cjs",
+    "scripts/test-fetch-response.cjs",
+    "scripts/test-file-open-menu.cjs",
+    "scripts/test-image-sketch.cjs",
+    "scripts/test-immediate-stop.cjs",
+    "scripts/test-instruction-settings.cjs",
+    "scripts/test-linux-host-preparation.cjs",
+    "scripts/test-local-file-drop.cjs",
+    "scripts/test-max-reasoning.cjs",
+    "scripts/test-missing-image.cjs"
+  ],
+  "start": "2026-11-01T15:44:14.485Z",
+  "end": "2026-11-01T15:48:18.194Z",
+  "exitCode": 0,
+  "signal": null,
+  "hashes": {
+    "scripts/test-account-settings.cjs": "e2f2c207b83f2d6e08ee61e66e2d4784e15a6d53a2959426237014581a8ca00c",
+    "scripts/test-account-switch-queue.cjs": "982cac045dcfb9849cd234476084c5a1956098b3c67569a0f3a1bd495336ba56",
+    "scripts/test-auto-review.cjs": "5d579a2e74b5902aeb742b3676ef6d0421d17f97b4bdf831c0f242039cf95b2a",
+    "scripts/test-btw.cjs": "16b3bdeeeca439e214aa24c37d662cdd6c1ea0962b20e47948328be177fc0ca5",
+    "scripts/test-capacity-retry-stop.cjs": "8caf6a2f54fb29f2725bf6e041ab7b488498c1f8aa510399c132ffe0c408ce80",
+    "scripts/test-command-drag-block.cjs": "e7e0329463ed89fc0fa1b1de1bbb6f8ce50f4700b2e54df9c4cd1ba09890c54a",
+    "scripts/test-compaction-progress.cjs": "8666198bb3f5a9631befe617a29d26a0d50db6d2608fe98eadde413108efb5f5",
+    "scripts/test-composer-draft.cjs": "9bec54c3395027c395ebaa63f70cb92e03dc78a6389293f7b1774a9691bf4726",
+    "scripts/test-computer-use-injection.cjs": "ba0a620d9b877bf5ca2ac3e3ef136568826fefa1943c4be4eae10e90e6eca5cf",
+    "scripts/test-deferred-turn.cjs": "ab7ef3c028234c920e81c089464faf936468b1528aced9128b6c0cee9448258e",
+    "scripts/test-fetch-response.cjs": "bec992a9ddc5ba1f86f9a852c6a9e8997ae4bd393758218bf4c2b52953fbfbda",
+    "scripts/test-file-open-menu.cjs": "298d512ce5673b0ecf31c1c80f05770fac33aeda761bb5d4ee7399b3427473ba",
+    "scripts/test-image-sketch.cjs": "e76170f155e5c88fd0381a906c3e9ee320da2a0c5d99fd87c3fbf6a7e0e8bab9",
+    "scripts/test-immediate-stop.cjs": "c9fa3a8c8daadf7ef7db1e266169174836eff930d44e2f3cc73d021a49e16f77",
+    "scripts/test-instruction-settings.cjs": "65f1494d13936af9e82b98e89dae32b622a319e340a2cf03796a243a98ca50b5",
+    "scripts/test-linux-host-preparation.cjs": "dd96bbdef0b3a75ab97182bbf55feba7ca312af308c915b960e59760351d60ed",
+    "scripts/test-local-file-drop.cjs": "567f33e6e83a99e1ed80190e01387c7b37a148a367c3157075d1f55f247ba62f",
+    "scripts/test-max-reasoning.cjs": "0d62f6e2657ae48b63725ddc353021aba4700c2aec91dbae5d39b38613a0e054",
+    "scripts/test-missing-image.cjs": "88db32ea40d244c52de96f0aaa3536063b395c9ceb13836ec295c8878d5b52a4"
+  },
+  "footer": [
+    "✔ cancelled creation releases its waiting notice and never creates a thread (0.7968ms)",
+    "ℹ tests 219",
+    "ℹ pass 219",
+    "ℹ fail 0",
+    "ℹ cancelled 0",
+    "ℹ skipped 0",
+    "ℹ duration_ms 243635.6747"
+  ],
+  "fixtureCleanup": [
+    {
+      "path": "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native",
+      "remaining": [],
+      "before": [],
+      "owner": "existing per-test try/finally ordinary removal"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tmp",
+      "remaining": [],
+      "before": [],
+      "owner": "existing per-test try/finally ordinary removal"
+    }
+  ],
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -237,6 +237,7 @@ mod tests {
             name: None,
             turns: vec![Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,

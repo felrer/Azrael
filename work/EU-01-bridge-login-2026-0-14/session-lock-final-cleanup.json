@@ -1,0 +1,681 @@
+{
+  "operations": [
+    {
+      "operation": "register",
+      "group": "run:EU01-session-lock-removal:live-routing-windows-r3",
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-session-lock-removal:live-routing-windows-r3",
+          "kind": "run",
+          "members": [
+            "6a2516c9a53fc98eff13e97d49c52617538e1ac1891f79afebfa919f1494a5ba"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "ed041bb97fbb2bc68ca52388af5ccdab23c9f77c1edd7df2d48acc58db72afa3",
+          "owner": "session-lock-removal",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f56c2b73af58bfd873f723c9e3ffe92098f43f0270afcde57663181171ed01c1.json",
+          "registered_at_ms": 1793440416975,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "6a2516c9a53fc98eff13e97d49c52617538e1ac1891f79afebfa919f1494a5ba",
+            "identity": "76edca840d600f518a47c92dabd67822f6384c4c87146b2512943b177080323e",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:live-routing-windows-r3",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 193726831,
+            "measured_at_ms": 1793440400171,
+            "owner": "session-lock-removal",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f56c2b73af58bfd873f723c9e3ffe92098f43f0270afcde57663181171ed01c1.json",
+            "references": [],
+            "registered_at_ms": 1793440400171,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-session-lock-removal:live-routing-windows-r4",
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-session-lock-removal:live-routing-windows-r4",
+          "kind": "run",
+          "members": [
+            "9635406b66449b83e5a9e620bc6d7139ad8288d0b2ecc63428f797fe46a0688b"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "75bcb32197bdf10c65ee19996d770940f9c537bb18008b634ca02723346c8cf5",
+          "owner": "session-lock-removal",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\652b4ef980b463a8d9ebad950d72ca551b7ac39cd65805a855fa466d0e566114.json",
+          "registered_at_ms": 1793440522848,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "9635406b66449b83e5a9e620bc6d7139ad8288d0b2ecc63428f797fe46a0688b",
+            "identity": "4663400a4ebc83fa0538a6bd312c1f664b5ba17263e284b5c6ac61cda4da1c1f",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:live-routing-windows-r4",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1376082,
+            "measured_at_ms": 1793440505740,
+            "owner": "session-lock-removal",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\652b4ef980b463a8d9ebad950d72ca551b7ac39cd65805a855fa466d0e566114.json",
+            "references": [],
+            "registered_at_ms": 1793440505740,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-session-lock-removal:live-routing-windows-r5",
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-session-lock-removal:live-routing-windows-r5",
+          "kind": "run",
+          "members": [
+            "736e68dcea8e29e41c47054c9d3939205dbe0ad6663aad07a2f5f845ff59c023"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "8d22c24de12f2b25f452383287aa00fd352798b42ec68b074ba3439923c2895e",
+          "owner": "session-lock-removal",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f7b6d251561789f3a5d3f6012145409583961a572c2f59b3bf73f7526a61d24b.json",
+          "registered_at_ms": 1793440715536,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "736e68dcea8e29e41c47054c9d3939205dbe0ad6663aad07a2f5f845ff59c023",
+            "identity": "55f8412fb0872953931b10ff7c19537d0cc9f84099ea8f2fdbcd00bf78e95789",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:live-routing-windows-r5",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 193731116,
+            "measured_at_ms": 1793440697835,
+            "owner": "session-lock-removal",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f7b6d251561789f3a5d3f6012145409583961a572c2f59b3bf73f7526a61d24b.json",
+            "references": [],
+            "registered_at_ms": 1793440697835,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "review",
+      "exitCode": 0,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-session-lock-removal:live-routing-windows-r3",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "ed041bb97fbb2bc68ca52388af5ccdab23c9f77c1edd7df2d48acc58db72afa3",
+            "owner": "session-lock-removal",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f56c2b73af58bfd873f723c9e3ffe92098f43f0270afcde57663181171ed01c1.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-session-lock-removal:live-routing-windows-r4",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "75bcb32197bdf10c65ee19996d770940f9c537bb18008b634ca02723346c8cf5",
+            "owner": "session-lock-removal",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\652b4ef980b463a8d9ebad950d72ca551b7ac39cd65805a855fa466d0e566114.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-session-lock-removal:live-routing-windows-r5",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "8d22c24de12f2b25f452383287aa00fd352798b42ec68b074ba3439923c2895e",
+            "owner": "session-lock-removal",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f7b6d251561789f3a5d3f6012145409583961a572c2f59b3bf73f7526a61d24b.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "6a2516c9a53fc98eff13e97d49c52617538e1ac1891f79afebfa919f1494a5ba"
+            ],
+            "group_token": "41a4d3bc342f4d17ecf06a5ed240b60fd65b4092c8d89c182b1c0d6932ff4ee0",
+            "id": "6a2516c9a53fc98eff13e97d49c52617538e1ac1891f79afebfa919f1494a5ba",
+            "identity": "76edca840d600f518a47c92dabd67822f6384c4c87146b2512943b177080323e",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:live-routing-windows-r3",
+            "logical_bytes": 193726831,
+            "measured_at_ms": 1793440400171,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "ed041bb97fbb2bc68ca52388af5ccdab23c9f77c1edd7df2d48acc58db72afa3",
+              "member_references": {
+                "6a2516c9a53fc98eff13e97d49c52617538e1ac1891f79afebfa919f1494a5ba": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3\\reports\\producer-506a784bfae6e5ef86cfc1554a46edededb274f312176ade2363d0d72a92d886.json",
+                  "evidence_sha256": "506a784bfae6e5ef86cfc1554a46edededb274f312176ade2363d0d72a92d886",
+                  "reason": "Executor observed failed controller exit 1 after synchronous Cargo terminal exit 0; catalog contention interrupted ownership finalization. Original failed outcome preserved.",
+                  "request_sha256": "0b61a804721d5d3e17887177bf4094edb894db8130c12b483bd1abd2090c0e65"
+                },
+                "created_at": "2026-10-31T08:58:04.780Z",
+                "id": "run:EU01-session-lock-removal:live-routing-windows-r3",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3",
+                "owner": "session-lock-removal",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3\\reports\\producer-506a784bfae6e5ef86cfc1554a46edededb274f312176ade2363d0d72a92d886.json",
+                  "evidence_sha256": "506a784bfae6e5ef86cfc1554a46edededb274f312176ade2363d0d72a92d886",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "Executor observed failed controller exit 1 after synchronous Cargo terminal exit 0; catalog contention interrupted ownership finalization. Original failed outcome preserved.",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T09:18:01.422Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793440770032,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r3",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  5,
+                  32,
+                  220,
+                  0,
+                  0,
+                  0,
+                  4,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "0634425774946d182eed8410f05dea47bd0317ddeb81bcb31fbe7cc944e6319e",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "736e68dcea8e29e41c47054c9d3939205dbe0ad6663aad07a2f5f845ff59c023"
+            ],
+            "group_token": "71442fecc90bdb7a61d914785278d76659fa1a3a6396ac3c54b4bdd7fb63ef5f",
+            "id": "736e68dcea8e29e41c47054c9d3939205dbe0ad6663aad07a2f5f845ff59c023",
+            "identity": "55f8412fb0872953931b10ff7c19537d0cc9f84099ea8f2fdbcd00bf78e95789",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:live-routing-windows-r5",
+            "logical_bytes": 193731116,
+            "measured_at_ms": 1793440697835,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "8d22c24de12f2b25f452383287aa00fd352798b42ec68b074ba3439923c2895e",
+              "member_references": {
+                "736e68dcea8e29e41c47054c9d3939205dbe0ad6663aad07a2f5f845ff59c023": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5\\reports\\producer-e51f6ac56873d2980e4c6422a73abf09bdb0b631cf5eeaef26c9338459a26c7a.json",
+                  "evidence_sha256": "e51f6ac56873d2980e4c6422a73abf09bdb0b631cf5eeaef26c9338459a26c7a",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "0afccb0b4fc1efca8729772dab23127cfde54ac2dbd88a5a576b0d7b3f0eb9fa"
+                },
+                "created_at": "2026-10-31T09:42:58.195Z",
+                "id": "run:EU01-session-lock-removal:live-routing-windows-r5",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5",
+                "owner": "session-lock-removal",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5\\reports\\producer-e51f6ac56873d2980e4c6422a73abf09bdb0b631cf5eeaef26c9338459a26c7a.json",
+                  "evidence_sha256": "e51f6ac56873d2980e4c6422a73abf09bdb0b631cf5eeaef26c9338459a26c7a",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-31T09:50:45.366Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793440794126,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r5",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  132,
+                  141,
+                  219,
+                  0,
+                  0,
+                  0,
+                  8,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "ac1e552122a2a432895e689eeaf652eab49f05f01dbc508dfde4e723e266368e",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "9635406b66449b83e5a9e620bc6d7139ad8288d0b2ecc63428f797fe46a0688b"
+            ],
+            "group_token": "174ddb7c87db240d56c280d6f18d465fd0921638aff7f0f5c1d0e8015f8be1ad",
+            "id": "9635406b66449b83e5a9e620bc6d7139ad8288d0b2ecc63428f797fe46a0688b",
+            "identity": "4663400a4ebc83fa0538a6bd312c1f664b5ba17263e284b5c6ac61cda4da1c1f",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:live-routing-windows-r4",
+            "logical_bytes": 1376082,
+            "measured_at_ms": 1793440505740,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "75bcb32197bdf10c65ee19996d770940f9c537bb18008b634ca02723346c8cf5",
+              "member_references": {
+                "9635406b66449b83e5a9e620bc6d7139ad8288d0b2ecc63428f797fe46a0688b": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4\\reports\\producer-dcf8f09a73ed5f1f4dcb179c340147820fb0039a1df3e6073c4b6cefae76c19f.json",
+                  "evidence_sha256": "dcf8f09a73ed5f1f4dcb179c340147820fb0039a1df3e6073c4b6cefae76c19f",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "a0288f2af378193b519551da499478c4529a1c3ad7ce8352c126defacd802a54"
+                },
+                "created_at": "2026-10-31T09:18:19.894Z",
+                "id": "run:EU01-session-lock-removal:live-routing-windows-r4",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4",
+                "owner": "session-lock-removal",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4\\reports\\producer-dcf8f09a73ed5f1f4dcb179c340147820fb0039a1df3e6073c4b6cefae76c19f.json",
+                  "evidence_sha256": "dcf8f09a73ed5f1f4dcb179c340147820fb0039a1df3e6073c4b6cefae76c19f",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T09:42:33.883Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793440775984,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\live-routing-windows-r4",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  221,
+                  111,
+                  39,
+                  0,
+                  0,
+                  0,
+                  17,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "4fc621bd341b604a3d8513268c286ea2a08e94d4e9292302e1d33d8531d3a831",
+            "verification": "registered"
+          }
+        ]
+      }
+    }
+  ],
+  "apply": {
+    "exitCode": 0,
+    "result": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:EU01-session-lock-removal:live-routing-windows-r3",
+          "status": "deleted"
+        },
+        {
+          "id": "run:EU01-session-lock-removal:live-routing-windows-r4",
+          "status": "deleted"
+        },
+        {
+          "id": "run:EU01-session-lock-removal:live-routing-windows-r5",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-2112-4410-1793440926529",
+          "decision": "delete",
+          "decision_id": "ab0732061d94b37a20f1fc050ed89a5464ad513e940f5a929712dfde066e7345",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "6a2516c9a53fc98eff13e97d49c52617538e1ac1891f79afebfa919f1494a5ba",
+          "lifecycle_group_id": "run:EU01-session-lock-removal:live-routing-windows-r3",
+          "reason": "All selected final verification completed; independent counts, source identities, initial failures and retry provenance retained in session-lock-removal-acceptance.json; consumers released",
+          "remaining": false,
+          "status": "deleted",
+          "token": "0634425774946d182eed8410f05dea47bd0317ddeb81bcb31fbe7cc944e6319e"
+        },
+        {
+          "attempt_id": "attempt-2112-4412-1793441109674",
+          "decision": "delete",
+          "decision_id": "3568bcfe4f2829194354c6557962802c6a29e87c8eb79dd9f48c4a5cd750bdda",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "736e68dcea8e29e41c47054c9d3939205dbe0ad6663aad07a2f5f845ff59c023",
+          "lifecycle_group_id": "run:EU01-session-lock-removal:live-routing-windows-r5",
+          "reason": "All selected final verification completed; independent counts, source identities, initial failures and retry provenance retained in session-lock-removal-acceptance.json; consumers released",
+          "remaining": false,
+          "status": "deleted",
+          "token": "ac1e552122a2a432895e689eeaf652eab49f05f01dbc508dfde4e723e266368e"
+        },
+        {
+          "attempt_id": "attempt-2112-4414-1793441301358",
+          "decision": "delete",
+          "decision_id": "209604c28281f24d48522ce1b9f164a3c2e4b214928732f04e6338e3b0a83c11",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "9635406b66449b83e5a9e620bc6d7139ad8288d0b2ecc63428f797fe46a0688b",
+          "lifecycle_group_id": "run:EU01-session-lock-removal:live-routing-windows-r4",
+          "reason": "All selected final verification completed; independent counts, source identities, initial failures and retry provenance retained in session-lock-removal-acceptance.json; consumers released",
+          "remaining": false,
+          "status": "deleted",
+          "token": "4fc621bd341b604a3d8513268c286ea2a08e94d4e9292302e1d33d8531d3a831"
+        }
+      ]
+    }
+  },
+  "finalized": [
+    {
+      "id": "run:EU01-session-lock-removal:live-routing-windows-r3",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f56c2b73af58bfd873f723c9e3ffe92098f43f0270afcde57663181171ed01c1.json"
+    },
+    {
+      "id": "run:EU01-session-lock-removal:live-routing-windows-r4",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\652b4ef980b463a8d9ebad950d72ca551b7ac39cd65805a855fa466d0e566114.json"
+    },
+    {
+      "id": "run:EU01-session-lock-removal:live-routing-windows-r5",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f7b6d251561789f3a5d3f6012145409583961a572c2f59b3bf73f7526a61d24b.json"
+    }
+  ]
+}

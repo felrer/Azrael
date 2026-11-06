@@ -1,0 +1,23 @@
+{
+  "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-04",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "cb76146c5745b821af4597440234e98c448286ae71d31ee96c9cb7fdc7b1e6ca",
+  "lease_owner": {
+    "acquired_at_ms": 1793247496000,
+    "operation": "group_reservation",
+    "pid": 34400,
+    "schema": 2,
+    "token": "34400-1793247496000-ebe2f3e4305e498d"
+  },
+  "originalOutcome": {
+    "synchronousExecSession": 69997,
+    "ownerExitCode": 0,
+    "aborted": true,
+    "protocol01Deleted": true,
+    "schema01Blocked": true,
+    "ui04AndAggregateUnattempted": true,
+    "reason": "Observation persistence failed after recorded protocol deletion; original partial destructive result preserved"
+  },
+  "terminationEvidence": "Own synchronous child_process.spawnSync returned terminal exit0 with aborted:true. No detached launch or background wrapper. Root inspected native apply path and confirmed no spawned descendants; exact full process tree stopped. Native recovery independently validates owner and live lease."
+}

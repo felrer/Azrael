@@ -1607,8 +1607,9 @@ async fn mcp_tool_call_metadata_uses_captured_step_after_request_user_input() ->
         vec![
             sse(vec![
                 ev_response_created("resp-1"),
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     request_user_input_call_id,
+                    "legacy_codex_tools",
                     "request_user_input",
                     &request_user_input_args,
                 ),

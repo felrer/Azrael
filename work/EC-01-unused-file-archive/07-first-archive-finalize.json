@@ -1,0 +1,42 @@
+{
+  "id": "archive:primary-588c8011b35743113d1f",
+  "prior_apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "archive:primary-588c8011b35743113d1f",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-10484-18-1793536393669",
+        "decision": "delete",
+        "decision_id": "08b6b0d4c22bd55fe879e084485781b3a711a592fd2d26d013732d23485dbd80",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "b6a01dc0f98575e17edcf5998282a8619f80f19243fd54331d43a9904de9c3be",
+        "lifecycle_group_id": "archive:primary-588c8011b35743113d1f",
+        "reason": "User explicitly requests disposal of archived inactive generated artifacts; original outcomes and relocation evidence preserved independently.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "0d36329681b58208ace4af67528043e17dedd0acad21a6cf456f6ddea556df82"
+      }
+    ]
+  },
+  "finalize": {
+    "id": "archive:primary-588c8011b35743113d1f",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\lifecycles\\024b5dbbe3a7c85c269dc3e2c14aaa8c38b69e51508522218b842df47d77a1dd.json"
+  }
+}

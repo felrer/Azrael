@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "scope": "single Windows x64 MSVC release compilation; no repeat, packaging or install",
+  "startedUtc": "2026-10-31T11:28:58.190Z",
+  "steps": [
+    {
+      "label": "git-dir",
+      "startedUtc": "2026-10-31T11:29:57.212Z",
+      "completedUtc": "2026-10-31T11:29:57.276Z",
+      "durationMs": 63.777799999996205,
+      "exitCode": 0
+    },
+    {
+      "label": "git-head",
+      "startedUtc": "2026-10-31T11:29:57.295Z",
+      "completedUtc": "2026-10-31T11:29:57.360Z",
+      "durationMs": 65.869200000001,
+      "exitCode": 0
+    },
+    {
+      "label": "git-init",
+      "startedUtc": "2026-10-31T11:29:57.371Z",
+      "completedUtc": "2026-10-31T11:29:57.545Z",
+      "durationMs": 174.18210000000545,
+      "exitCode": 0
+    },
+    {
+      "label": "git-head-bind",
+      "startedUtc": "2026-10-31T11:29:57.560Z",
+      "completedUtc": "2026-10-31T11:29:57.732Z",
+      "durationMs": 172.18279999999504,
+      "exitCode": 0
+    },
+    {
+      "label": "receipt-delta",
+      "startedUtc": "2026-10-31T11:29:57.791Z",
+      "completedUtc": "2026-10-31T11:31:26.274Z",
+      "durationMs": 88483.65729999999,
+      "exitCode": 0
+    },
+    {
+      "label": "record-frozen-source",
+      "startedUtc": "2026-10-31T11:31:26.305Z",
+      "completedUtc": "2026-10-31T11:33:46.649Z",
+      "durationMs": 140345.31209999998,
+      "exitCode": 0
+    },
+    {
+      "label": "source-before",
+      "startedUtc": "2026-10-31T11:33:46.897Z",
+      "completedUtc": "2026-10-31T11:33:58.464Z",
+      "durationMs": 11566.430499999959,
+      "exitCode": 1
+    }
+  ],
+  "sourceDelta": [
+    "codex-rs/app-server-daemon/src/session_handoff.rs",
+    "codex-rs/app-server/src/azrael_shared_server.rs",
+    "codex-rs/app-server/src/azrael_shared_server/tests.rs",
+    "codex-rs/app-server/src/azrael_thread_engines.rs",
+    "codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+    "codex-rs/project-maintenance/src/lease.rs",
+    "codex-rs/project-maintenance/src/lib.rs",
+    "codex-rs/project-maintenance/src/registry.rs",
+    "codex-rs/project-maintenance/tests/registry.rs"
+  ],
+  "cache": {
+    "key": "96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+    "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+    "releaseExistedBefore": false
+  },
+  "status": "failed",
+  "failure": "Error: source-before: Traceback (most recent call last):\r\n  File \"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\m1\\inputs\\scripts\\engine-provenance.py\", line 182, in <module>\r\n    main()\r\n    ~~~~^^\r\n  File \"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\m1\\inputs\\scripts\\engine-provenance.py\", line 144, in main\r\n    args.file.write_text(json.dumps(value, indent=2) + \"\\n\", encoding=\"utf-8\")\r\n    ^^^^^^^^^^^^^^^^^^^^\r\nAttributeError: 'NoneType' object has no attribute 'write_text'\r\n\n    at execute (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\measure-cargo-once.cjs:9:554)\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\measure-cargo-once.cjs:46:35)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47",
+  "completedUtc": "2026-10-31T11:33:58.474Z"
+}

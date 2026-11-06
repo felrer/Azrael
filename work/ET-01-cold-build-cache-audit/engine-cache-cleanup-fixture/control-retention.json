@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "exitCode": 0,
+  "group": "run:ET-01-cold-build-cache-audit:engine-cleanup-chain-796b38dc",
+  "items": [
+    {
+      "id": "9f17712dce123b3287e1377cb2da7df0e6ff5331e629587a8d07f211fb73db5a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-chain-796b38dc",
+      "logicalBytes": 82159,
+      "generated": true,
+      "protectionKnown": true,
+      "references": [],
+      "identity": "bc819f13c8f7ad2341f72ae766600c3fcacede8e6c7c6574a6d0a434cc2f9037"
+    }
+  ],
+  "membershipSourceIdentity": "4decc00c16f57d377c20da50d1d58d6757cb5846e2346244b45b0b054fdfcdc7",
+  "retention": "Resolved: user-authorized exact temporary managed boundaries retired, original config restored, control deleted and source finalized",
+  "previousRetention": "Protected pending explicit user decision for three shortTemporary managed-root scope and root execution-owner coordination; fresh review required before any deletion; current native content measurements remain valid only while control content unchanged",
+  "resolution": {
+    "status": "deleted",
+    "remaining": false,
+    "finalMeasuredLogicalBytes": 238581,
+    "sourceFinalized": true,
+    "sourceRecordAbsent": true,
+    "receipt": "control-cleanup.json",
+    "configExactBytesRestored": true
+  }
+}

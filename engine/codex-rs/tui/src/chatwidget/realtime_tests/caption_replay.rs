@@ -10,6 +10,7 @@ async fn replay_preserves_typed_updates_before_voice_steers_the_turn() {
     chat.replay_thread_turns(
         vec![Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: "typed-then-voice".into(),
             root_turn_id: None,
@@ -84,6 +85,7 @@ async fn in_progress_voice_replay_restores_the_late_reasoning_guard() {
     chat.replay_thread_turns(
         vec![Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: "saved-voice-turn".into(),
             root_turn_id: None,

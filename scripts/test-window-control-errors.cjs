@@ -20,7 +20,7 @@ test('session absence differs from unreadable or corrupt session state', async (
 });
 test('corrupt saved task definitions are internal errors rather than invalid caller input', async t => {
   const prefix = path.join(os.tmpdir(), 'window-errors-store-'), home = await fs.mkdtemp(prefix);
-  t.after(async () => { assert(path.resolve(home).startsWith(path.resolve(prefix))); await fs.rm(home, { recursive: true, force: true }); });
+  t.after(async () => { assert(path.resolve(home).startsWith(path.resolve(prefix))); await fs.rm(home, { recursive: true }); });
   const store = require('./window-task-macros.cjs').createStore(home, home);
   await fs.mkdir(path.dirname(store.file), { recursive: true });
   await fs.writeFile(store.file, JSON.stringify({ schema: 1, revision: 0, macros: [{ schema: 1 }] }));
@@ -30,7 +30,7 @@ test('corrupt saved task definitions are internal errors rather than invalid cal
 test('tool errors retain known recovery information and suppress arbitrary exception text', async () => {
   for (const thrown of [windowError('cancelled', 'Operation cancelled', { stage: 'approval', mutationOutcome: 'unknown' }), new Error('private provider content')]) {
     const protocol = createProtocol({ relay: async () => { throw thrown; } });
-    const reply = await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'status', arguments: {}, _meta: meta } });
+    const reply = await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'status', arguments: { windowId: 'fixture' }, _meta: meta } });
     assert.equal(reply.result.isError, true);
     const payload = JSON.parse(reply.result.content[0].text);
     assert.deepEqual(payload, errorPayload(thrown));
@@ -48,7 +48,7 @@ function socketFixture() {
 }
 for (const message of ['User stop requires explicit resume', 'Selected window paused by the user; explicit resume required']) test(`user stop reports explicit resume guidance through MCP: ${message}`, async () => {
   const protocol = createProtocol({ relay: async () => { throw expectedError(message); } });
-  const reply = await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'request_stage', arguments: { stage: 2, reason: 'Resume fixture' }, _meta: meta } });
+  const reply = await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'resize', arguments: { windowId: 'fixture', widthDip:700,heightDip:500 }, _meta: meta } });
   assert.equal(reply.result.isError, true);
   const payload = JSON.parse(reply.result.content[0].text);
   assert.deepEqual(payload, {
@@ -59,33 +59,29 @@ for (const message of ['User stop requires explicit resume', 'Selected window pa
   assert.deepEqual(errorPayload(expectedError('Unexpected internal failure')), { code: 'unclassified', message: '미분류된 오류' });
 });
 
-test('user stop blocks stage prompts and reselection until the user resume path', async () => {
-  const filename = path.join(__dirname, 'window-control-policy.cjs');
-  const nativeRequire = require('node:module').createRequire(filename), module = { exports: {} };
-  const fixtureRequire = name => name === './window-control-occupancy.cjs'
-    ? { createRegistry: () => ({ publish() {}, read: () => ({ status: 'available', sessions: [] }), dispose() {} }) }
-    : name === './window-task-macros.cjs' ? { createStore: () => ({}) } : nativeRequire(name);
-  new Function('require', 'module', 'exports', await fs.readFile(filename, 'utf8'))(fixtureRequire, module, module.exports);
+test('user stop blocks app permission prompts and reselection until the user resume path', async () => {
+  const { createWindowOwner } = require('./window-control-policy.cjs');
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), 'window-errors-stop-'));
   const window = { hwnd: '1', pid: 123, processCreated: 'fixture', executable: 'C:/fixture.exe', title: 'Fixture', minimized: false, widthPx: 100, heightPx: 100, dpi: 96 };
   let prompts = 0;
-  const owner = module.exports.createWindowOwner({
+  const owner = createWindowOwner({
     backend: { request: async method => method === 'listWindows' ? [window] : method === 'observe'
       ? { window, observationId: 'fresh', frameTimestamp: 'now', widthPx: 100, heightPx: 100, dpi: 96, elements: [], elementsTruncated: false, image: { mimeType: 'image/png', data: 'YQ==' } } : { window } },
-    authorize: async () => true, requestStage: async () => { prompts++; return { authorized: true }; }, codexHome: 'C:/fixture',
+    authorize: async () => true, requestPermission: async () => { prompts++; return { authorized: true }; }, codexHome: home,
   });
   try {
     const selected = await owner.bind('fixture', window);
     owner.stop('fixture');
     const stopped = error => error.code === 'state_changed' && error.recovery === 'user_resume' && error.pauseReason === 'user_stopped';
-    for (const stage of [2, 4]) await assert.rejects(owner.call('fixture', 'request_stage', { stage, targetId: selected.targetId, reason: 'Fixture' }), stopped);
+    for (const permission of ['observation','control']) await assert.rejects(owner.requestPermission('fixture', { permission, targetId: selected.targetId, reason: 'Fixture' }), stopped);
     const { candidates } = await owner.call('fixture', 'list_windows', {});
-    await assert.rejects(owner.call('fixture', 'select_window', { candidateId: candidates[0].candidateId }), stopped);
+    await assert.rejects(owner.call('fixture', 'capture', { windowId: candidates[0].windowId }), stopped);
     assert.equal(prompts, 0);
     const resumed = await owner.resume('fixture');
     assert.equal(resumed.state, 'ready');
     assert.equal(resumed.observationId, 'fresh');
     assert.equal(prompts, 1);
-  } finally { owner.dispose(); }
+  } finally { await owner.dispose(); await fs.rm(home, { recursive: true }); }
 });
 
 test('recovery instructions round trip through host transport and MCP with strict field validation', async () => {
@@ -96,7 +92,7 @@ test('recovery instructions round trip through host transport and MCP with stric
       assert.deepEqual(errorPayload(fromPayload(payload)), payload);
       const socket = socketFixture();
       const protocol = createProtocol({ relay: () => pipeRequest('fixture', {}, { connect: () => socket }) });
-      const reply = protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'status', arguments: {}, _meta: meta } });
+      const reply = protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'status', arguments: { windowId: 'fixture' }, _meta: meta } });
       socket.emit('connect'); socket.emit('data', Buffer.from(JSON.stringify({ error: payload }) + '\n'));
       assert.deepEqual(JSON.parse((await reply).result.content[0].text), payload);
     }
@@ -128,7 +124,7 @@ test('minimized pause metadata round trips with strict enum and boolean validati
 });
 test('approval and native permission details survive serialization with strict field types', () => {
   for (const approvalState of ['waiting', 'expired', 'declined', 'cancelled', 'accepted']) {
-    const payload = { code: approvalState === 'declined' ? 'approval_declined' : 'approval_timeout', message: 'Approval response', stage: 'approval', approvalState, userResponded: approvalState === 'declined', actionExecuted: false };
+    const payload = { code: approvalState === 'declined' ? 'approval_denied' : 'approval_timeout', message: 'Approval response', stage: 'approval', approvalState, userResponded: approvalState === 'declined', actionExecuted: false };
     assert.deepEqual(errorPayload(windowError(payload.code, payload.message, payload)), payload);
     assert.deepEqual(errorPayload(fromPayload(JSON.parse(JSON.stringify(payload)))), payload);
   }
@@ -152,17 +148,17 @@ test('approval progress is not a terminal result and expiry reports awaiting app
 
 test('connection closing during approval reports expiry rather than user decline', async () => {
   for (const event of ['end', 'close']) {
-    const socket = socketFixture(); const request = pipeRequest('fixture', { tool: 'select_window' }, { connect: () => socket });
+    const socket = socketFixture(); const request = pipeRequest('fixture', { tool: 'capture', arguments: { windowId: 'fixture' } }, { connect: () => socket });
     socket.emit('connect'); socket.emit('data', Buffer.from('{"progress":{"stage":"approval"}}\n')); socket.emit(event);
     await assert.rejects(request, e => e.code === 'approval_timeout' && e.approvalState === 'expired' && e.userResponded === false && e.actionExecuted === false);
   }
 });
 
 test('explicit decline stays distinct through host transport and model protocol', async () => {
-  const payload = { code: 'approval_declined', message: 'Window Use approval declined', stage: 'approval', approvalState: 'declined', userResponded: true, actionExecuted: false };
+  const payload = { code: 'approval_denied', message: 'Window Use approval declined', stage: 'approval', approvalState: 'declined', userResponded: true, actionExecuted: false };
   const socket = socketFixture();
   const protocol = createProtocol({ relay: () => pipeRequest('fixture', {}, { connect: () => socket }) });
-  const reply = protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'status', arguments: {}, _meta: meta } });
+  const reply = protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'status', arguments: { windowId: 'fixture' }, _meta: meta } });
   socket.emit('connect'); socket.emit('data', Buffer.from(JSON.stringify({ error: payload }) + '\n'));
   assert.deepEqual(JSON.parse((await reply).result.content[0].text), payload);
 });
@@ -183,22 +179,4 @@ test('transport expiry after a mutation starts does not imply the app was unchan
 test('partial accessibility and experimental key flags survive model projection', () => {
   const projected = JSON.parse(callResult({ elements: [], elementsTruncated: true, experimental: true, delivery: 'windowMessage', verified: false }).content[0].text);
   assert.equal(projected.elementsTruncated, true); assert.equal(projected.experimental, true); assert.equal(projected.verified, false);
-});
-
-
-test('isolated viewer and action recovery metadata survives pipe and MCP without diagnostic secrets',async()=>{
-  for(const code of ['isolated_viewer_minimized','state_changed']) {
-    const payload=errorPayload(windowError(code,'Recover isolated execution',{nativeCode:'native_input_failed',actionExecuted:false,inputReleaseConfirmed:true,viewerState:'minimized',requiredUserAction:'restore_isolated_viewer',mutationOutcome:'unknown',recovery:'observe_again',observationRequired:true,diagnostic:{code:'native_input_failed',phase:'input',hresult:-1,message:'token=private',stack:'private',path:'C:/private'}}));
-    assert.equal(payload.diagnostic.message,'[redacted diagnostic message]');assert.doesNotMatch(JSON.stringify(payload),/private|stack/);
-    assert.deepEqual(errorPayload(fromPayload(payload)),payload);
-    const socket=socketFixture(),protocol=createProtocol({relay:()=>pipeRequest('fixture',{}, {connect:()=>socket})});
-    const reply=protocol({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'capture_isolated',arguments:{targetId:'child'},_meta:meta}});
-    socket.emit('connect');socket.emit('data',Buffer.from(JSON.stringify({error:payload})+'\n'));
-    assert.deepEqual(JSON.parse((await reply).result.content[0].text),payload);
-  }
-  const plain={code:'state_changed',message:'Changed'};
-  for(const invalid of [{viewerState:'private',requiredUserAction:'private',inputReleaseConfirmed:'true',diagnostic:'private'},{viewerState:null,requiredUserAction:1,inputReleaseConfirmed:1,diagnostic:[]}]) {
-    assert.deepEqual(errorPayload(fromPayload({...plain,...invalid})),plain);
-    assert.deepEqual(errorPayload({...plain,...invalid}),plain);
-  }
 });

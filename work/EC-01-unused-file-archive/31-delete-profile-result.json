@@ -1,0 +1,4207 @@
+{
+  "schema": 1,
+  "utc": "2026-10-29T00:45:50.289Z",
+  "status": "measurements-complete-scoped-retention-approved",
+  "scope": "Windows11 x64 release-profile diagnostic test tool, original source/product behavior/default binary/install unchanged",
+  "retention": "Agreed permanent measurement deliverable plus minimum independently readable evidence; all new experiment payload disposable; no archive",
+  "source": {
+    "zip": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.13-ec01-r1\\provenance\\sources\\r3-selected-source.zip",
+    "zipId": {
+      "dev": 3057815611,
+      "ino": 1407374895805466,
+      "size": 271542451,
+      "birthtimeMs": 1793185196316.0576,
+      "mtimeMs": 1793185449943.0527,
+      "sha256": "01da25bb19bf1a8dbf9a58eff6a94055ba81bff1b3ccac32b6cf001e37201e75"
+    },
+    "supportedBaselineSnapshot": {
+      "schema": 2,
+      "sourceKind": "imported-snapshot",
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "2dda28700e732d3070bb8e03f1dbbc20e6e5136c7c5f6eae81e1f8d56941fcde",
+      "importedReceiptSha256": "58fb690081f06fc3851266340f16927b44ab2c84ef236cdc4dad37761b247be0",
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceSha256": "a8333bab2d1dcc1b759ec8f7b173fa57e651e7879a07a35e800e01c0ad153c60",
+      "fileCount": 9332,
+      "target": "x86_64-pc-windows-msvc",
+      "buildEnvironment": {
+        "RUSTFLAGS": "",
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "V8_FROM_SOURCE": "",
+        "V8_FORCE_DEBUG": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "EXTRA_GN_ARGS": "",
+        "NINJA": "",
+        "CLANG_BASE_PATH": "",
+        "PYTHON": "",
+        "LIBCLANG_PATH": ""
+      }
+    },
+    "diagnosticFrozenInputsSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+    "delta": {
+      "ec01_profile.rs": {
+        "after": "e9f9a9cacab1fe048e7c3395f2ceefb786805e01530122428c29c5c117d1ab59"
+      },
+      "lib.rs": {
+        "before": "6ff132b892dd5114247bfbb14c2f3b37224a2564191c5b53000924881e5542ad",
+        "after": "931b50f60481985dfa93b4f3fa9d928f791599aef98fd23b7190277c2796ed91"
+      },
+      "storage.rs": {
+        "before": "9daf14b6d33faa7ebdaf9299beb13444f80cce4907d3f3175c334e4806a2e013",
+        "after": "61e089370426314e7ca4be9ceeb1bebfd83902f729f49939568c11a3191479e8"
+      },
+      "registry.rs": {
+        "before": "e00d4d052a3487b233f8acced83c51f1157dbd017ceadca6adacf30eb5d58522",
+        "after": "eb3002f181bd4db90f564073608c913ffac7a1711680f5fd2aeacb774e9ab479"
+      },
+      "apply.rs": {
+        "before": "e95cbdeccce11d7516448be5b50a99767ea6f133fed4e35306ecf41a5d3e399f",
+        "after": "26e67bc803c07a5f8d14c3bec92452dbe6c3c998b3fb9718bc914427875be1c5"
+      },
+      "groups.rs": {
+        "before": "5867215cd1b3c70255f8dbe119281b53c83afb7a4271d712dcdc481e02cba29e",
+        "after": "632252c26809454cb56b453ade137bb731a1b94446b7094c9d46ce24b7b4d6bf"
+      },
+      "reservations.rs": {
+        "before": "4854a32e18c5ddbda515a9cccceaf0ce28f04975cb5b778478a112a504c1e562",
+        "after": "9da93dd4696f7e0ae2b2a5b3594b18d017aba5e0ce07312868c073d140c6d077"
+      },
+      "paths.rs": {
+        "before": "472d4bddfded25e417ec1f844ac3c8c2a7fc01ffdd98e3a2300648deef685c0b",
+        "after": "6c21a8ba59708009293857667ca9f833ec6c3512ae3923d23e130572520b1b82"
+      },
+      "windows_delete.rs": {
+        "before": "3c3f5021cd1e6aede389e227aa5efd59e0f5280977ea4194199da75a947311ad",
+        "after": "8d64acade937f5a777a84d3d9c31d5bb01e65766ee471429a0f43e50e66780b8"
+      },
+      "ec01_diagnostic.rs": {
+        "after": "057b2ee020203ee27c9f1a4c967c77fead7d371eb74186648b45674a70f4c366"
+      }
+    },
+    "crateParity": {
+      "codex-rs/project-maintenance/src/lib.rs": {
+        "preserved": "6ff132b892dd5114247bfbb14c2f3b37224a2564191c5b53000924881e5542ad",
+        "current": "6ff132b892dd5114247bfbb14c2f3b37224a2564191c5b53000924881e5542ad"
+      },
+      "codex-rs/project-maintenance/src/apply.rs": {
+        "preserved": "e95cbdeccce11d7516448be5b50a99767ea6f133fed4e35306ecf41a5d3e399f",
+        "current": "e95cbdeccce11d7516448be5b50a99767ea6f133fed4e35306ecf41a5d3e399f"
+      },
+      "codex-rs/project-maintenance/src/storage.rs": {
+        "preserved": "9daf14b6d33faa7ebdaf9299beb13444f80cce4907d3f3175c334e4806a2e013",
+        "current": "9daf14b6d33faa7ebdaf9299beb13444f80cce4907d3f3175c334e4806a2e013"
+      },
+      "codex-rs/project-maintenance/src/registry.rs": {
+        "preserved": "e00d4d052a3487b233f8acced83c51f1157dbd017ceadca6adacf30eb5d58522",
+        "current": "e00d4d052a3487b233f8acced83c51f1157dbd017ceadca6adacf30eb5d58522"
+      },
+      "codex-rs/project-maintenance/src/groups.rs": {
+        "preserved": "5867215cd1b3c70255f8dbe119281b53c83afb7a4271d712dcdc481e02cba29e",
+        "current": "5867215cd1b3c70255f8dbe119281b53c83afb7a4271d712dcdc481e02cba29e"
+      },
+      "codex-rs/project-maintenance/src/reservations.rs": {
+        "preserved": "4854a32e18c5ddbda515a9cccceaf0ce28f04975cb5b778478a112a504c1e562",
+        "current": "4854a32e18c5ddbda515a9cccceaf0ce28f04975cb5b778478a112a504c1e562"
+      },
+      "codex-rs/project-maintenance/src/windows_delete.rs": {
+        "preserved": "3c3f5021cd1e6aede389e227aa5efd59e0f5280977ea4194199da75a947311ad",
+        "current": "3c3f5021cd1e6aede389e227aa5efd59e0f5280977ea4194199da75a947311ad"
+      },
+      "codex-rs/project-maintenance/src/paths.rs": {
+        "preserved": "472d4bddfded25e417ec1f844ac3c8c2a7fc01ffdd98e3a2300648deef685c0b",
+        "current": "472d4bddfded25e417ec1f844ac3c8c2a7fc01ffdd98e3a2300648deef685c0b"
+      }
+    },
+    "installedOwner": {
+      "schema": 1,
+      "protocol": "maintenance-owner-lease-v1",
+      "executable": "artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+      "sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+      "version_id": "version:maintenance-owner:ec01:unknown-recovery",
+      "version": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26-windows-x64-unknown-recovery-v1",
+      "acceptance_sha256": "ac556350d1575c668d78f5b6f6125a74c8e4744f2a7fa38637c2a1bf35e06f36",
+      "binarySha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26"
+    },
+    "tools": {
+      "tools": {
+        "cargo": {
+          "executable": "C:/Users/felre/.cargo/bin/cargo.exe",
+          "sha256": "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7",
+          "stdout": "cargo 1.95.0 (f2d3ce0bd 2026-03-21)",
+          "actualExit": 0
+        },
+        "rustc": {
+          "executable": "C:/Users/felre/.cargo/bin/rustc.exe",
+          "sha256": "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7",
+          "stdout": "rustc 1.95.0 (59807616e 2026-04-14)\nbinary: rustc\ncommit-hash: 59807616e1fa2540724bfbac14d7976d7e4a3860\ncommit-date: 2026-04-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.95.0\nLLVM version: 22.1.2",
+          "actualExit": 0
+        }
+      },
+      "vcvars": "C:/Program Files/Microsoft Visual Studio/18/Community/VC/Auxiliary/Build/vcvars64.bat",
+      "vcvarsSha256": "6b516d8fcf543c14b2d861e1f45661e0029230fe0dc48e86ce78522801822209",
+      "profile": "release",
+      "targetPolicy": "fresh run-owned explicit target; no shared/protected cache consumed",
+      "sourceSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "buildEnvironmentSha256": "f8f338ad9e943890208c3a07828354f1a126bd840e753625d70261748c8c2c16"
+    },
+    "primary": {
+      "sha256": "ae0929b1b22f6bb17f5aa2b60e9c4ea0c1b2668bb8ecb13e3c29f0a84f3b01f7",
+      "bytes": 20323660,
+      "decisions": 1444,
+      "legacyDecisions": 1196,
+      "usage": "inert copied data only; no historical embedded paths authorized",
+      "liveChangedAtFinalValidation": false
+    }
+  },
+  "machine": {
+    "utc": "2026-10-28T23:54:20.4258079Z",
+    "phase": "Cargo release selection preparation",
+    "os": "Microsoft Windows 11 Home",
+    "osVersion": "10.0.26200",
+    "cpu": "Intel(R) Core(TM) i7-10700K CPU @ 3.80GHz",
+    "logicalProcessors": 16,
+    "totalMemoryBytes": 34271817728,
+    "freeMemoryBytes": 4927684608,
+    "freeDiskBytes": 25366466560,
+    "observedTotalCpuPercent": 11,
+    "cacheOrder": "Warm existing Cargo home; fresh run target; no cold-cache guarantee or purge"
+  },
+  "measurements": [
+    {
+      "directory": "dispatch-off-1793232668275",
+      "kind": "dispatch-result.json",
+      "rows": [
+        {
+          "caseID": "catalog1-file1000-native1",
+          "catalogRecords": 1,
+          "decisions": 0,
+          "filesPerMember": 1000,
+          "history": "small",
+          "members": 1,
+          "phase": "setup",
+          "stateBytes": 62
+        },
+        {
+          "binary": "installed9bc",
+          "caseID": "catalog1-file1000-native1",
+          "durationMs": 4087.8018,
+          "error": null,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "register",
+          "utcEpochMs": 1793232684614
+        },
+        {
+          "binary": "installed9bc",
+          "caseID": "catalog1-file1000-native1",
+          "durationMs": 123.2454,
+          "error": null,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "review",
+          "utcEpochMs": 1793232684737
+        },
+        {
+          "binary": "installed9bc",
+          "caseID": "catalog1-file1000-native1",
+          "durationMs": 21398.1202,
+          "error": null,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "apply",
+          "utcEpochMs": 1793232706135
+        }
+      ]
+    },
+    {
+      "directory": "dispatch-off-1793232747904",
+      "kind": "dispatch-result.json",
+      "rows": [
+        {
+          "caseID": "catalog1-file1000-native2",
+          "catalogRecords": 1,
+          "decisions": 0,
+          "filesPerMember": 1000,
+          "history": "small",
+          "members": 1,
+          "phase": "setup",
+          "stateBytes": 62
+        },
+        {
+          "binary": "installed9bc",
+          "caseID": "catalog1-file1000-native2",
+          "durationMs": 3995.204,
+          "error": null,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "register",
+          "utcEpochMs": 1793232764134
+        },
+        {
+          "binary": "installed9bc",
+          "caseID": "catalog1-file1000-native2",
+          "durationMs": 114.33309999999999,
+          "error": null,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "review",
+          "utcEpochMs": 1793232764249
+        },
+        {
+          "binary": "installed9bc",
+          "caseID": "catalog1-file1000-native2",
+          "durationMs": 21610.2912,
+          "error": null,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "apply",
+          "utcEpochMs": 1793232785859
+        }
+      ]
+    },
+    {
+      "directory": "dispatch-on-1793231776313",
+      "kind": "dispatch-result.json",
+      "rows": [
+        {
+          "caseID": "probe-diag-on",
+          "catalogRecords": 1,
+          "decisions": 0,
+          "filesPerMember": 1,
+          "history": "small",
+          "members": 1,
+          "phase": "setup",
+          "stateBytes": 62
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "probe-diag-on",
+          "durationMs": 1192.1470000000002,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 798,
+              "catalog.read_bytes": 28728,
+              "catalog.stat": 144,
+              "hash.bytes": 8808,
+              "merge.before_comparisons": 0,
+              "merge.id_find_comparisons": 0,
+              "merge.id_position_comparisons": 0,
+              "merge.legacy_comparisons": 0,
+              "paths.checked_metadata.stat": 8933,
+              "store.current.bytes": 62
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 36,
+                "exclusiveMs": 258.5419,
+                "inclusiveMs": 880.2484,
+                "name": "catalog"
+              },
+              {
+                "count": 36,
+                "exclusiveMs": 17.0688,
+                "inclusiveMs": 192.4497,
+                "name": "catalog.names"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.0512,
+                "inclusiveMs": 0.0512,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 72,
+                "exclusiveMs": 26.079,
+                "inclusiveMs": 273.5334,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 184.1677,
+                "inclusiveMs": 1192.1169,
+                "name": "dispatch"
+              },
+              {
+                "count": 32,
+                "exclusiveMs": 0.1926,
+                "inclusiveMs": 0.1926,
+                "name": "hash"
+              },
+              {
+                "count": 403,
+                "exclusiveMs": 683.7006,
+                "inclusiveMs": 683.7006,
+                "name": "paths.check"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 15.9255,
+                "inclusiveMs": 143.5105,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.1548,
+                "inclusiveMs": 1.9181,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0176,
+                "inclusiveMs": 0.0176,
+                "name": "store.merge"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.4125,
+                "inclusiveMs": 9.7027,
+                "name": "store.save"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0053,
+                "inclusiveMs": 0.0053,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 1.7815,
+                "inclusiveMs": 1.7815,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.103,
+                "inclusiveMs": 0.103,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 3.9149,
+                "inclusiveMs": 3.9149,
+                "name": "store.save.sync"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "register",
+          "utcEpochMs": 1793231788262
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "probe-diag-on",
+          "durationMs": 92.0067,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 399,
+              "catalog.read_bytes": 1596,
+              "catalog.stat": 8,
+              "hash.bytes": 3791,
+              "paths.checked_metadata.stat": 734
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 2,
+                "exclusiveMs": 35.7429,
+                "inclusiveMs": 78.2308,
+                "name": "catalog"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.997,
+                "inclusiveMs": 11.2254,
+                "name": "catalog.names"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0192,
+                "inclusiveMs": 0.0192,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 4,
+                "exclusiveMs": 1.3977,
+                "inclusiveMs": 14.8139,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.5484,
+                "inclusiveMs": 92.0029,
+                "name": "dispatch"
+              },
+              {
+                "count": 9,
+                "exclusiveMs": 0.0473,
+                "inclusiveMs": 0.0473,
+                "name": "hash"
+              },
+              {
+                "count": 28,
+                "exclusiveMs": 45.8894,
+                "inclusiveMs": 45.8894,
+                "name": "paths.check"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 7.361,
+                "inclusiveMs": 85.6296,
+                "name": "review.selection"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "review",
+          "utcEpochMs": 1793231788354
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "probe-diag-on",
+          "durationMs": 1723.8645,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 399,
+              "catalog.read_bytes": 14364,
+              "catalog.stat": 72,
+              "hash.bytes": 15909,
+              "merge.before_comparisons": 1,
+              "merge.id_find_comparisons": 1,
+              "merge.id_position_comparisons": 1,
+              "merge.legacy_comparisons": 0,
+              "paths.checked_metadata.stat": 6436,
+              "store.current.bytes": 2998
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [
+              {
+                "bootstrapMs": 241.7503
+              },
+              {
+                "assertTree1Ms": 32.4747,
+                "assertTree2Ms": 5.5141,
+                "assertTree3Ms": 5.6908,
+                "entries": 2,
+                "finalAbsenceMs": 5.0612,
+                "junctionMs": 0.0091,
+                "normalizationMs": 4.8441,
+                "normalizationPreflightMs": 6.847,
+                "outcome": "deleted",
+                "removeItemMs": 45.9024,
+                "totalMs": 138.9607
+              }
+            ],
+            "spans": [
+              {
+                "count": 2,
+                "exclusiveMs": 40.2106,
+                "inclusiveMs": 469.1491,
+                "name": "apply.safe_entries"
+              },
+              {
+                "count": 18,
+                "exclusiveMs": 230.1382,
+                "inclusiveMs": 595.6241,
+                "name": "catalog"
+              },
+              {
+                "count": 18,
+                "exclusiveMs": 9.1693,
+                "inclusiveMs": 104.6491,
+                "name": "catalog.names"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0176,
+                "inclusiveMs": 0.0176,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 36,
+                "exclusiveMs": 13.5895,
+                "inclusiveMs": 145.5895,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 121.9607,
+                "inclusiveMs": 1705.8765,
+                "name": "dispatch"
+              },
+              {
+                "count": 45,
+                "exclusiveMs": 0.2145,
+                "inclusiveMs": 0.2145,
+                "name": "hash"
+              },
+              {
+                "count": 264,
+                "exclusiveMs": 466.5832,
+                "inclusiveMs": 466.5832,
+                "name": "paths.check"
+              },
+              {
+                "count": 3,
+                "exclusiveMs": 26.1469,
+                "inclusiveMs": 140.388,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.3449,
+                "inclusiveMs": 3.8189,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.0362,
+                "inclusiveMs": 0.0362,
+                "name": "store.merge"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 4.4129,
+                "inclusiveMs": 75.8813,
+                "name": "store.save"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 35.2482,
+                "inclusiveMs": 48.6369,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 2.7211,
+                "inclusiveMs": 2.7211,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.2092,
+                "inclusiveMs": 0.2092,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 6.3869,
+                "inclusiveMs": 6.3869,
+                "name": "store.save.sync"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 727.2155,
+                "inclusiveMs": 727.2155,
+                "name": "windows.worker.request"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 21.2711,
+                "inclusiveMs": 21.2711,
+                "name": "windows.worker.startup"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "apply",
+          "utcEpochMs": 1793231790078
+        }
+      ]
+    },
+    {
+      "directory": "dispatch-on-1793231902799",
+      "kind": "dispatch-result.json",
+      "rows": [
+        {
+          "caseID": "history-large-catalog0",
+          "catalogRecords": 1,
+          "decisions": 1444,
+          "filesPerMember": 1,
+          "history": "large",
+          "members": 1,
+          "phase": "setup",
+          "stateBytes": 18057073
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "history-large-catalog0",
+          "durationMs": 2360.4474,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 816,
+              "catalog.read_bytes": 29376,
+              "catalog.stat": 144,
+              "hash.bytes": 8970,
+              "merge.before_comparisons": 1043290,
+              "merge.id_find_comparisons": 0,
+              "merge.id_position_comparisons": 0,
+              "merge.legacy_comparisons": 715806,
+              "paths.checked_metadata.stat": 8933,
+              "store.current.bytes": 18057073
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 36,
+                "exclusiveMs": 283.1674,
+                "inclusiveMs": 1048.8093,
+                "name": "catalog"
+              },
+              {
+                "count": 36,
+                "exclusiveMs": 21.8415,
+                "inclusiveMs": 250.3964,
+                "name": "catalog.names"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.0593,
+                "inclusiveMs": 0.0593,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 72,
+                "exclusiveMs": 30.0497,
+                "inclusiveMs": 337.858,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 787.9704,
+                "inclusiveMs": 2360.2897,
+                "name": "dispatch"
+              },
+              {
+                "count": 32,
+                "exclusiveMs": 0.2601,
+                "inclusiveMs": 0.2601,
+                "name": "hash"
+              },
+              {
+                "count": 403,
+                "exclusiveMs": 836.3629,
+                "inclusiveMs": 836.3629,
+                "name": "paths.check"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 22.2081,
+                "inclusiveMs": 176.4485,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 99.7946,
+                "inclusiveMs": 101.477,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 58.0835,
+                "inclusiveMs": 58.0835,
+                "name": "store.merge"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 125.0273,
+                "inclusiveMs": 224.7654,
+                "name": "store.save"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0051,
+                "inclusiveMs": 0.0051,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 5.188,
+                "inclusiveMs": 5.188,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 75.284,
+                "inclusiveMs": 75.284,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 14.9878,
+                "inclusiveMs": 14.9878,
+                "name": "store.save.sync"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "register",
+          "utcEpochMs": 1793231916796
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "history-large-catalog0",
+          "durationMs": 334.7583,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 408,
+              "catalog.read_bytes": 1632,
+              "catalog.stat": 8,
+              "hash.bytes": 3828,
+              "paths.checked_metadata.stat": 734
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 2,
+                "exclusiveMs": 40.0569,
+                "inclusiveMs": 86.3723,
+                "name": "catalog"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.9811,
+                "inclusiveMs": 11.4126,
+                "name": "catalog.names"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0474,
+                "inclusiveMs": 0.0474,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 4,
+                "exclusiveMs": 1.5944,
+                "inclusiveMs": 16.0688,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 232.9899,
+                "inclusiveMs": 334.73,
+                "name": "dispatch"
+              },
+              {
+                "count": 9,
+                "exclusiveMs": 0.0501,
+                "inclusiveMs": 0.0501,
+                "name": "hash"
+              },
+              {
+                "count": 28,
+                "exclusiveMs": 51.1671,
+                "inclusiveMs": 51.1671,
+                "name": "paths.check"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 7.8431,
+                "inclusiveMs": 94.2538,
+                "name": "review.selection"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "review",
+          "utcEpochMs": 1793231917131
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "history-large-catalog0",
+          "durationMs": 2951.2968,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 408,
+              "catalog.read_bytes": 14688,
+              "catalog.stat": 72,
+              "hash.bytes": 16118,
+              "merge.before_comparisons": 2089469,
+              "merge.id_find_comparisons": 2889,
+              "merge.id_position_comparisons": 2889,
+              "merge.legacy_comparisons": 1431612,
+              "paths.checked_metadata.stat": 6436,
+              "store.current.bytes": 36117056
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [
+              {
+                "bootstrapMs": 278.55740000000003
+              },
+              {
+                "assertTree1Ms": 36.8663,
+                "assertTree2Ms": 5.4156,
+                "assertTree3Ms": 5.6153,
+                "entries": 2,
+                "finalAbsenceMs": 5.0253000000000005,
+                "junctionMs": 0.0118,
+                "normalizationMs": 4.7454,
+                "normalizationPreflightMs": 7.034000000000001,
+                "outcome": "deleted",
+                "removeItemMs": 46.1344,
+                "totalMs": 149.5132
+              }
+            ],
+            "spans": [
+              {
+                "count": 2,
+                "exclusiveMs": 41.2002,
+                "inclusiveMs": 483.1944,
+                "name": "apply.safe_entries"
+              },
+              {
+                "count": 18,
+                "exclusiveMs": 238.4012,
+                "inclusiveMs": 616.7354,
+                "name": "catalog"
+              },
+              {
+                "count": 18,
+                "exclusiveMs": 9.7911,
+                "inclusiveMs": 108.4538,
+                "name": "catalog.names"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0254,
+                "inclusiveMs": 0.0254,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 36,
+                "exclusiveMs": 13.951,
+                "inclusiveMs": 151.9287,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 464.49,
+                "inclusiveMs": 2931.1257,
+                "name": "dispatch"
+              },
+              {
+                "count": 45,
+                "exclusiveMs": 0.2989,
+                "inclusiveMs": 0.2989,
+                "name": "hash"
+              },
+              {
+                "count": 264,
+                "exclusiveMs": 492.6963,
+                "inclusiveMs": 492.6963,
+                "name": "paths.check"
+              },
+              {
+                "count": 3,
+                "exclusiveMs": 22.933,
+                "inclusiveMs": 131.3097,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 151.3525,
+                "inclusiveMs": 154.7978,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 95.4733,
+                "inclusiveMs": 95.4733,
+                "name": "store.merge"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 400.1333,
+                "inclusiveMs": 861.8991,
+                "name": "store.save"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 47.5358,
+                "inclusiveMs": 62.0058,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 8.2985,
+                "inclusiveMs": 8.2985,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 102.0777,
+                "inclusiveMs": 102.0777,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 28.1497,
+                "inclusiveMs": 28.1497,
+                "name": "store.save.sync"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 796.5666,
+                "inclusiveMs": 796.5666,
+                "name": "windows.worker.request"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 17.7512,
+                "inclusiveMs": 17.7512,
+                "name": "windows.worker.startup"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "apply",
+          "utcEpochMs": 1793231920082
+        }
+      ]
+    },
+    {
+      "directory": "dispatch-on-1793231961814",
+      "kind": "dispatch-result.json",
+      "rows": [
+        {
+          "caseID": "history-small-catalog500",
+          "catalogRecords": 501,
+          "decisions": 0,
+          "filesPerMember": 1,
+          "history": "small",
+          "members": 1,
+          "phase": "setup",
+          "stateBytes": 62
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "history-small-catalog500",
+          "durationMs": 161626.623,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 358380,
+              "catalog.read_bytes": 12901680,
+              "catalog.stat": 72144,
+              "hash.bytes": 9006,
+              "merge.before_comparisons": 0,
+              "merge.id_find_comparisons": 0,
+              "merge.id_position_comparisons": 0,
+              "merge.legacy_comparisons": 0,
+              "paths.checked_metadata.stat": 1232933,
+              "store.current.bytes": 62
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 36,
+                "exclusiveMs": 1016.362,
+                "inclusiveMs": 161263.3865,
+                "name": "catalog"
+              },
+              {
+                "count": 36,
+                "exclusiveMs": 53.8306,
+                "inclusiveMs": 252.0267,
+                "name": "catalog.names"
+              },
+              {
+                "count": 1002,
+                "exclusiveMs": 22.0095,
+                "inclusiveMs": 22.0095,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 36072,
+                "exclusiveMs": 15001.1333,
+                "inclusiveMs": 159803.7909,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 218.8441,
+                "inclusiveMs": 161626.0374,
+                "name": "dispatch"
+              },
+              {
+                "count": 32,
+                "exclusiveMs": 0.2131,
+                "inclusiveMs": 0.2131,
+                "name": "hash"
+              },
+              {
+                "count": 72403,
+                "exclusiveMs": 145287.1806,
+                "inclusiveMs": 145287.1806,
+                "name": "paths.check"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 20.011,
+                "inclusiveMs": 36918.5354,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.1608,
+                "inclusiveMs": 1.9405,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0135,
+                "inclusiveMs": 0.0135,
+                "name": "store.merge"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.4347,
+                "inclusiveMs": 9.5407,
+                "name": "store.save"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0064,
+                "inclusiveMs": 0.0064,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 2.1892,
+                "inclusiveMs": 2.1892,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0971,
+                "inclusiveMs": 0.0971,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 3.5515,
+                "inclusiveMs": 3.5515,
+                "name": "store.save.sync"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "register",
+          "utcEpochMs": 1793232135346
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "history-small-catalog500",
+          "durationMs": 9334.920800000002,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 179190,
+              "catalog.read_bytes": 716760,
+              "catalog.stat": 4008,
+              "hash.bytes": 3836,
+              "paths.checked_metadata.stat": 68734
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 2,
+                "exclusiveMs": 89.3083,
+                "inclusiveMs": 9320.4173,
+                "name": "catalog"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 2.7738,
+                "inclusiveMs": 14.0895,
+                "name": "catalog.names"
+              },
+              {
+                "count": 501,
+                "exclusiveMs": 11.1989,
+                "inclusiveMs": 11.1989,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 2004,
+                "exclusiveMs": 856.3034,
+                "inclusiveMs": 9188.1234,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.4814,
+                "inclusiveMs": 9334.4823,
+                "name": "dispatch"
+              },
+              {
+                "count": 9,
+                "exclusiveMs": 0.0389,
+                "inclusiveMs": 0.0389,
+                "name": "hash"
+              },
+              {
+                "count": 4028,
+                "exclusiveMs": 8366.3427,
+                "inclusiveMs": 8366.3427,
+                "name": "paths.check"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 8.0349,
+                "inclusiveMs": 9328.4837,
+                "name": "review.selection"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "review",
+          "utcEpochMs": 1793232144681
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "history-small-catalog500",
+          "durationMs": 86784.2905,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 179190,
+              "catalog.read_bytes": 6450840,
+              "catalog.stat": 36072,
+              "hash.bytes": 16165,
+              "merge.before_comparisons": 1,
+              "merge.id_find_comparisons": 1,
+              "merge.id_position_comparisons": 1,
+              "merge.legacy_comparisons": 0,
+              "paths.checked_metadata.stat": 618436,
+              "store.current.bytes": 3042
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [
+              {
+                "bootstrapMs": 271.3724
+              },
+              {
+                "assertTree1Ms": 48.5655,
+                "assertTree2Ms": 7.711,
+                "assertTree3Ms": 9.0327,
+                "entries": 2,
+                "finalAbsenceMs": 7.719,
+                "junctionMs": 0.0277,
+                "normalizationMs": 6.3296,
+                "normalizationPreflightMs": 8.3597,
+                "outcome": "deleted",
+                "removeItemMs": 63.406600000000005,
+                "totalMs": 193.0843
+              }
+            ],
+            "spans": [
+              {
+                "count": 2,
+                "exclusiveMs": 49.7422,
+                "inclusiveMs": 46300.5367,
+                "name": "apply.safe_entries"
+              },
+              {
+                "count": 18,
+                "exclusiveMs": 669.7341,
+                "inclusiveMs": 85248.9538,
+                "name": "catalog"
+              },
+              {
+                "count": 18,
+                "exclusiveMs": 30.4652,
+                "inclusiveMs": 144.1058,
+                "name": "catalog.names"
+              },
+              {
+                "count": 501,
+                "exclusiveMs": 10.6321,
+                "inclusiveMs": 10.6321,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 18036,
+                "exclusiveMs": 8035.6139,
+                "inclusiveMs": 84289.5567,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 142.2397,
+                "inclusiveMs": 86763.5742,
+                "name": "dispatch"
+              },
+              {
+                "count": 45,
+                "exclusiveMs": 0.273,
+                "inclusiveMs": 0.273,
+                "name": "hash"
+              },
+              {
+                "count": 36264,
+                "exclusiveMs": 76662.1667,
+                "inclusiveMs": 76662.1667,
+                "name": "paths.check"
+              },
+              {
+                "count": 3,
+                "exclusiveMs": 36.4123,
+                "inclusiveMs": 14824.3173,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.42,
+                "inclusiveMs": 4.5628,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.041,
+                "inclusiveMs": 0.041,
+                "name": "store.merge"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 6.037,
+                "inclusiveMs": 333.1935,
+                "name": "store.save"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 275.5403,
+                "inclusiveMs": 293.6746,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 3.8051,
+                "inclusiveMs": 3.8051,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.2398,
+                "inclusiveMs": 0.2398,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 6.6202,
+                "inclusiveMs": 6.6202,
+                "name": "store.save.sync"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 812.8517,
+                "inclusiveMs": 812.8517,
+                "name": "windows.worker.request"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 20.7399,
+                "inclusiveMs": 20.7399,
+                "name": "windows.worker.startup"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "apply",
+          "utcEpochMs": 1793232231465
+        }
+      ]
+    },
+    {
+      "directory": "dispatch-on-1793232432646",
+      "kind": "dispatch-result.json",
+      "rows": [
+        {
+          "caseID": "catalog1-member4",
+          "catalogRecords": 1,
+          "decisions": 0,
+          "filesPerMember": 1,
+          "history": "small",
+          "members": 4,
+          "phase": "setup",
+          "stateBytes": 62
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "catalog1-member4",
+          "durationMs": 1767.9019,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 2268,
+              "catalog.read_bytes": 81648,
+              "catalog.stat": 144,
+              "hash.bytes": 23391,
+              "merge.before_comparisons": 0,
+              "merge.id_find_comparisons": 0,
+              "merge.id_position_comparisons": 0,
+              "merge.legacy_comparisons": 0,
+              "paths.checked_metadata.stat": 11144,
+              "store.current.bytes": 62
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 36,
+                "exclusiveMs": 319.278,
+                "inclusiveMs": 1301.1469,
+                "name": "catalog"
+              },
+              {
+                "count": 36,
+                "exclusiveMs": 22.131,
+                "inclusiveMs": 242.0422,
+                "name": "catalog.names"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.0823,
+                "inclusiveMs": 0.0823,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 72,
+                "exclusiveMs": 30.7253,
+                "inclusiveMs": 333.0744,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 310.7765,
+                "inclusiveMs": 1767.8679,
+                "name": "dispatch"
+              },
+              {
+                "count": 35,
+                "exclusiveMs": 0.3573,
+                "inclusiveMs": 0.3573,
+                "name": "hash"
+              },
+              {
+                "count": 511,
+                "exclusiveMs": 1057.0612,
+                "inclusiveMs": 1057.0612,
+                "name": "paths.check"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 20.0354,
+                "inclusiveMs": 204.8442,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.2318,
+                "inclusiveMs": 2.202,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0354,
+                "inclusiveMs": 0.0354,
+                "name": "store.merge"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.5554,
+                "inclusiveMs": 11.5669,
+                "name": "store.save"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0074,
+                "inclusiveMs": 0.0074,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 1.5076,
+                "inclusiveMs": 1.5076,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 1.3658,
+                "inclusiveMs": 1.3658,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 3.7175,
+                "inclusiveMs": 3.7175,
+                "name": "store.save.sync"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "register",
+          "utcEpochMs": 1793232450609
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "catalog1-member4",
+          "durationMs": 125.28249999999998,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 1134,
+              "catalog.read_bytes": 4536,
+              "catalog.stat": 8,
+              "hash.bytes": 10386,
+              "paths.checked_metadata.stat": 932
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 2,
+                "exclusiveMs": 40.1117,
+                "inclusiveMs": 98.0491,
+                "name": "catalog"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 1.0305,
+                "inclusiveMs": 12.8484,
+                "name": "catalog.names"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0366,
+                "inclusiveMs": 0.0366,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 4,
+                "exclusiveMs": 1.5171,
+                "inclusiveMs": 16.2508,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.5508,
+                "inclusiveMs": 125.278,
+                "name": "dispatch"
+              },
+              {
+                "count": 21,
+                "exclusiveMs": 0.102,
+                "inclusiveMs": 0.102,
+                "name": "hash"
+              },
+              {
+                "count": 34,
+                "exclusiveMs": 62.1672,
+                "inclusiveMs": 62.1672,
+                "name": "paths.check"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 19.7621,
+                "inclusiveMs": 117.906,
+                "name": "review.selection"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "review",
+          "utcEpochMs": 1793232450735
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "catalog1-member4",
+          "durationMs": 10538.143,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 1134,
+              "catalog.read_bytes": 149688,
+              "catalog.stat": 264,
+              "hash.bytes": 133913,
+              "merge.before_comparisons": 36,
+              "merge.id_find_comparisons": 16,
+              "merge.id_position_comparisons": 16,
+              "merge.legacy_comparisons": 0,
+              "paths.checked_metadata.stat": 28765,
+              "store.current.bytes": 34725
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [
+              {
+                "bootstrapMs": 983.6336
+              },
+              {
+                "assertTree1Ms": 82.6552,
+                "assertTree2Ms": 10.96,
+                "assertTree3Ms": 9.209800000000001,
+                "entries": 2,
+                "finalAbsenceMs": 7.6839,
+                "junctionMs": 0.0235,
+                "normalizationMs": 8.0508,
+                "normalizationPreflightMs": 12.1552,
+                "outcome": "deleted",
+                "removeItemMs": 106.5545,
+                "totalMs": 320.1537
+              },
+              {
+                "assertTree1Ms": 9.0209,
+                "assertTree2Ms": 10.5379,
+                "assertTree3Ms": 10.0358,
+                "entries": 2,
+                "finalAbsenceMs": 0.5768,
+                "junctionMs": 0.0203,
+                "normalizationMs": 7.8202,
+                "normalizationPreflightMs": 7.6434,
+                "outcome": "deleted",
+                "removeItemMs": 3.3093000000000004,
+                "totalMs": 55.0821
+              },
+              {
+                "assertTree1Ms": 10.0091,
+                "assertTree2Ms": 24.4877,
+                "assertTree3Ms": 10.1865,
+                "entries": 2,
+                "finalAbsenceMs": 0.5991000000000001,
+                "junctionMs": 0.0234,
+                "normalizationMs": 8.1857,
+                "normalizationPreflightMs": 7.8229,
+                "outcome": "deleted",
+                "removeItemMs": 4.5105,
+                "totalMs": 66.9954
+              },
+              {
+                "assertTree1Ms": 6.2751,
+                "assertTree2Ms": 6.6535,
+                "assertTree3Ms": 7.8776,
+                "entries": 2,
+                "finalAbsenceMs": 0.5697,
+                "junctionMs": 0.0183,
+                "normalizationMs": 7.168900000000001,
+                "normalizationPreflightMs": 12.5726,
+                "outcome": "deleted",
+                "removeItemMs": 3.2183,
+                "totalMs": 45.1083
+              }
+            ],
+            "spans": [
+              {
+                "count": 8,
+                "exclusiveMs": 553.707,
+                "inclusiveMs": 5222.9936,
+                "name": "apply.safe_entries"
+              },
+              {
+                "count": 66,
+                "exclusiveMs": 2188.5064,
+                "inclusiveMs": 5371.2491,
+                "name": "catalog"
+              },
+              {
+                "count": 66,
+                "exclusiveMs": 55.8265,
+                "inclusiveMs": 668.5031,
+                "name": "catalog.names"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0397,
+                "inclusiveMs": 0.0397,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 132,
+                "exclusiveMs": 83.4886,
+                "inclusiveMs": 939.3502,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 722.0634,
+                "inclusiveMs": 10516.5696,
+                "name": "dispatch"
+              },
+              {
+                "count": 216,
+                "exclusiveMs": 2.1448,
+                "inclusiveMs": 2.1448,
+                "name": "hash"
+              },
+              {
+                "count": 1137,
+                "exclusiveMs": 3574.1102,
+                "inclusiveMs": 3574.1102,
+                "name": "paths.check"
+              },
+              {
+                "count": 9,
+                "exclusiveMs": 135.5631,
+                "inclusiveMs": 945.5828,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 8,
+                "exclusiveMs": 2.3728,
+                "inclusiveMs": 23.8072,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 8,
+                "exclusiveMs": 0.2445,
+                "inclusiveMs": 0.2445,
+                "name": "store.merge"
+              },
+              {
+                "count": 8,
+                "exclusiveMs": 36.4259,
+                "inclusiveMs": 756.446,
+                "name": "store.save"
+              },
+              {
+                "count": 8,
+                "exclusiveMs": 425.2335,
+                "inclusiveMs": 538.0932,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 8,
+                "exclusiveMs": 16.7573,
+                "inclusiveMs": 16.7573,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 8,
+                "exclusiveMs": 1.2242,
+                "inclusiveMs": 1.2242,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 8,
+                "exclusiveMs": 72.5948,
+                "inclusiveMs": 72.5948,
+                "name": "store.save.sync"
+              },
+              {
+                "count": 4,
+                "exclusiveMs": 2603.7251,
+                "inclusiveMs": 2603.7251,
+                "name": "windows.worker.request"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 42.5418,
+                "inclusiveMs": 42.5418,
+                "name": "windows.worker.startup"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "apply",
+          "utcEpochMs": 1793232461273
+        }
+      ]
+    },
+    {
+      "directory": "dispatch-on-1793232546022",
+      "kind": "dispatch-result.json",
+      "rows": [
+        {
+          "caseID": "catalog1-file1000-diag",
+          "catalogRecords": 1,
+          "decisions": 0,
+          "filesPerMember": 1000,
+          "history": "small",
+          "members": 1,
+          "phase": "setup",
+          "stateBytes": 62
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "catalog1-file1000-diag",
+          "durationMs": 3896.242,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 816,
+              "catalog.read_bytes": 29376,
+              "catalog.stat": 144,
+              "hash.bytes": 271604,
+              "merge.before_comparisons": 0,
+              "merge.id_find_comparisons": 0,
+              "merge.id_position_comparisons": 0,
+              "merge.legacy_comparisons": 0,
+              "paths.checked_metadata.stat": 25916,
+              "store.current.bytes": 62
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 36,
+                "exclusiveMs": 308.5923,
+                "inclusiveMs": 1098.2418,
+                "name": "catalog"
+              },
+              {
+                "count": 36,
+                "exclusiveMs": 21.8721,
+                "inclusiveMs": 251.638,
+                "name": "catalog.names"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.0458,
+                "inclusiveMs": 0.0458,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 72,
+                "exclusiveMs": 32.4483,
+                "inclusiveMs": 349.2174,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 2620.6402,
+                "inclusiveMs": 3896.1947,
+                "name": "dispatch"
+              },
+              {
+                "count": 32,
+                "exclusiveMs": 2.4043,
+                "inclusiveMs": 2.4043,
+                "name": "hash"
+              },
+              {
+                "count": 403,
+                "exclusiveMs": 871.0578,
+                "inclusiveMs": 871.0578,
+                "name": "paths.check"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 23.5626,
+                "inclusiveMs": 192.661,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.2083,
+                "inclusiveMs": 2.57,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0211,
+                "inclusiveMs": 0.0211,
+                "name": "store.merge"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 9.7964,
+                "inclusiveMs": 19.6984,
+                "name": "store.save"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0066,
+                "inclusiveMs": 0.0066,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 2.0671,
+                "inclusiveMs": 2.0671,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.1338,
+                "inclusiveMs": 0.1338,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 3.338,
+                "inclusiveMs": 3.338,
+                "name": "store.save.sync"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "register",
+          "utcEpochMs": 1793232562388
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "catalog1-file1000-diag",
+          "durationMs": 127.1872,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 408,
+              "catalog.read_bytes": 1632,
+              "catalog.stat": 8,
+              "hash.bytes": 3834,
+              "paths.checked_metadata.stat": 734
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 2,
+                "exclusiveMs": 49.2646,
+                "inclusiveMs": 107.3509,
+                "name": "catalog"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 1.3076,
+                "inclusiveMs": 13.934,
+                "name": "catalog.names"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.02,
+                "inclusiveMs": 0.02,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 4,
+                "exclusiveMs": 1.8729,
+                "inclusiveMs": 21.1623,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.6269,
+                "inclusiveMs": 127.1792,
+                "name": "dispatch"
+              },
+              {
+                "count": 9,
+                "exclusiveMs": 0.0616,
+                "inclusiveMs": 0.0616,
+                "name": "hash"
+              },
+              {
+                "count": 28,
+                "exclusiveMs": 62.317,
+                "inclusiveMs": 62.317,
+                "name": "paths.check"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 11.7086,
+                "inclusiveMs": 119.1134,
+                "name": "review.selection"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "review",
+          "utcEpochMs": 1793232562515
+        },
+        {
+          "binary": "diagnostic",
+          "caseID": "catalog1-file1000-diag",
+          "durationMs": 21857.293999999998,
+          "error": null,
+          "metrics": {
+            "counters": {
+              "catalog.decode_bytes": 408,
+              "catalog.read_bytes": 14688,
+              "catalog.stat": 72,
+              "hash.bytes": 16137,
+              "merge.before_comparisons": 1,
+              "merge.id_find_comparisons": 1,
+              "merge.id_position_comparisons": 1,
+              "merge.legacy_comparisons": 0,
+              "paths.checked_metadata.stat": 23419,
+              "store.current.bytes": 3040
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [
+              {
+                "bootstrapMs": 259.478
+              },
+              {
+                "assertTree1Ms": 3103.6684,
+                "assertTree2Ms": 3386.7452000000003,
+                "assertTree3Ms": 3379.3065,
+                "entries": 1001,
+                "finalAbsenceMs": 7.9781,
+                "junctionMs": 0.0186,
+                "normalizationMs": 3295.7121,
+                "normalizationPreflightMs": 3702.4279,
+                "outcome": "deleted",
+                "removeItemMs": 384.1469,
+                "totalMs": 17537.6689
+              }
+            ],
+            "spans": [
+              {
+                "count": 2,
+                "exclusiveMs": 48.956,
+                "inclusiveMs": 594.1443,
+                "name": "apply.safe_entries"
+              },
+              {
+                "count": 18,
+                "exclusiveMs": 292.2274,
+                "inclusiveMs": 757.2854,
+                "name": "catalog"
+              },
+              {
+                "count": 18,
+                "exclusiveMs": 12.3533,
+                "inclusiveMs": 135.6118,
+                "name": "catalog.names"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0188,
+                "inclusiveMs": 0.0188,
+                "name": "catalog.record.decode_validate"
+              },
+              {
+                "count": 36,
+                "exclusiveMs": 16.2646,
+                "inclusiveMs": 178.0483,
+                "name": "catalog.record.read"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 2602.5189,
+                "inclusiveMs": 21834.7949,
+                "name": "dispatch"
+              },
+              {
+                "count": 45,
+                "exclusiveMs": 0.2872,
+                "inclusiveMs": 0.2872,
+                "name": "hash"
+              },
+              {
+                "count": 264,
+                "exclusiveMs": 597.4006,
+                "inclusiveMs": 597.4006,
+                "name": "paths.check"
+              },
+              {
+                "count": 3,
+                "exclusiveMs": 35.3495,
+                "inclusiveMs": 185.0454,
+                "name": "reservations.verify"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.4834,
+                "inclusiveMs": 5.4312,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.0489,
+                "inclusiveMs": 0.0489,
+                "name": "store.merge"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 5.0887,
+                "inclusiveMs": 89.4153,
+                "name": "store.save"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 39.0029,
+                "inclusiveMs": 56.624,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 3.144,
+                "inclusiveMs": 3.144,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 0.2214,
+                "inclusiveMs": 0.2214,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 2,
+                "exclusiveMs": 6.6685,
+                "inclusiveMs": 6.6685,
+                "name": "store.save.sync"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 18153.6224,
+                "inclusiveMs": 18153.6224,
+                "name": "windows.worker.request"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 21.1384,
+                "inclusiveMs": 21.1384,
+                "name": "windows.worker.startup"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "apply",
+          "utcEpochMs": 1793232584372
+        }
+      ]
+    },
+    {
+      "directory": "storage-off-1793231724439",
+      "kind": "storage-result.json",
+      "rows": [
+        {
+          "caseID": "storage-small-off",
+          "decisions": 0,
+          "durationMs": 0.0218,
+          "inputBytes": 62,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "merge.direct",
+          "profileRequested": "off"
+        },
+        {
+          "caseID": "storage-small-off",
+          "durationMs": 40.5563,
+          "error": null,
+          "inputBytes": 62,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "store.save.suspended"
+        },
+        {
+          "caseID": "storage-large-off",
+          "decisions": 1444,
+          "durationMs": 99.32939999999999,
+          "inputBytes": 20323660,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "merge.direct",
+          "profileRequested": "off"
+        },
+        {
+          "caseID": "storage-large-off",
+          "durationMs": 496.0878,
+          "error": null,
+          "inputBytes": 20323660,
+          "metrics": {
+            "counters": {},
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": []
+          },
+          "outcome": "success",
+          "phase": "store.save.suspended"
+        }
+      ]
+    },
+    {
+      "directory": "storage-on-1793231598095",
+      "kind": "storage-result.json",
+      "rows": [
+        {
+          "caseID": "storage-small-on",
+          "decisions": 0,
+          "durationMs": 0.0499,
+          "inputBytes": 62,
+          "metrics": {
+            "counters": {
+              "merge.before_comparisons": 0,
+              "merge.id_find_comparisons": 0,
+              "merge.id_position_comparisons": 0,
+              "merge.legacy_comparisons": 0
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 1,
+                "exclusiveMs": 0.0355,
+                "inclusiveMs": 0.0355,
+                "name": "store.merge"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "merge.direct",
+          "profileRequested": "on"
+        },
+        {
+          "caseID": "storage-small-on",
+          "durationMs": 42.2111,
+          "error": null,
+          "inputBytes": 62,
+          "metrics": {
+            "counters": {
+              "merge.before_comparisons": 0,
+              "merge.id_find_comparisons": 0,
+              "merge.id_position_comparisons": 0,
+              "merge.legacy_comparisons": 0,
+              "paths.checked_metadata.stat": 128,
+              "store.current.bytes": 62
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 8,
+                "exclusiveMs": 14.1465,
+                "inclusiveMs": 14.1465,
+                "name": "paths.check"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.1404,
+                "inclusiveMs": 1.7107,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0042,
+                "inclusiveMs": 0.0042,
+                "name": "store.merge"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 2.5597,
+                "inclusiveMs": 42.2088,
+                "name": "store.save"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 17.4315,
+                "inclusiveMs": 25.2964,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 1.3759,
+                "inclusiveMs": 1.3759,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 0.0669,
+                "inclusiveMs": 0.0669,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 6.4837,
+                "inclusiveMs": 6.4837,
+                "name": "store.save.sync"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "store.save.suspended"
+        },
+        {
+          "caseID": "storage-large-on",
+          "decisions": 1444,
+          "durationMs": 111.9061,
+          "inputBytes": 20323660,
+          "metrics": {
+            "counters": {
+              "merge.before_comparisons": 1044734,
+              "merge.id_find_comparisons": 1444,
+              "merge.id_position_comparisons": 1444,
+              "merge.legacy_comparisons": 715806
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 1,
+                "exclusiveMs": 54.9542,
+                "inclusiveMs": 54.9542,
+                "name": "store.merge"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "merge.direct",
+          "profileRequested": "on"
+        },
+        {
+          "caseID": "storage-large-on",
+          "durationMs": 500.6096,
+          "error": null,
+          "inputBytes": 20323660,
+          "metrics": {
+            "counters": {
+              "merge.before_comparisons": 1044734,
+              "merge.id_find_comparisons": 1444,
+              "merge.id_position_comparisons": 1444,
+              "merge.legacy_comparisons": 715806,
+              "paths.checked_metadata.stat": 128,
+              "store.current.bytes": 20323660
+            },
+            "nesting": "Rust inclusive includes child spans; exclusive subtracts direct instrumented children only. PowerShell breakdown is INCLUDED in Rust worker request; do not add it.",
+            "powershell": [],
+            "spans": [
+              {
+                "count": 8,
+                "exclusiveMs": 15.4129,
+                "inclusiveMs": 15.4129,
+                "name": "paths.check"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 103.9017,
+                "inclusiveMs": 105.8942,
+                "name": "store.current.read_parse"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 49.0672,
+                "inclusiveMs": 49.0672,
+                "name": "store.merge"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 245.8913,
+                "inclusiveMs": 500.6071,
+                "name": "store.save"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 20.3572,
+                "inclusiveMs": 28.304,
+                "name": "store.save.lock_wait"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 4.1819,
+                "inclusiveMs": 4.1819,
+                "name": "store.save.rename"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 50.6524,
+                "inclusiveMs": 50.6524,
+                "name": "store.save.serialize_write"
+              },
+              {
+                "count": 1,
+                "exclusiveMs": 11.1425,
+                "inclusiveMs": 11.1425,
+                "name": "store.save.sync"
+              }
+            ]
+          },
+          "outcome": "success",
+          "phase": "store.save.suspended"
+        }
+      ]
+    }
+  ],
+  "selectedCargoTerminals": [
+    {
+      "directory": "dispatch-off-1793232668275",
+      "schema": 1,
+      "utc": "2026-10-29T00:11:49.145Z",
+      "actualExit": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-29T00:11:10.765Z",
+            "durationMs": 3099,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-29T00:11:13.864Z",
+            "durationMs": 3028,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-29T00:11:16.892Z",
+            "durationMs": 29315,
+            "exitCode": 0,
+            "signal": null
+          }
+        ],
+        "preparation": {
+          "schema": 1,
+          "recommendation": "prepare-recommended",
+          "action": "prepare",
+          "mode": "auto",
+          "key": "4ccedd5b4fa02984d36062125e40cae3a65625ab6c1a238926833ee98e9118e1",
+          "reason": "No matching completed preparation"
+        }
+      },
+      "beforeSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "afterSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "inputsUnchanged": true
+    },
+    {
+      "directory": "dispatch-off-1793232747904",
+      "schema": 1,
+      "utc": "2026-10-29T00:13:08.799Z",
+      "actualExit": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-29T00:12:30.336Z",
+            "durationMs": 3364,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-29T00:12:33.700Z",
+            "durationMs": 2966,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-29T00:12:36.666Z",
+            "durationMs": 29265,
+            "exitCode": 0,
+            "signal": null
+          }
+        ],
+        "preparation": {
+          "schema": 1,
+          "recommendation": "prepare-recommended",
+          "action": "prepare",
+          "mode": "auto",
+          "key": "d12ebc3ccef658d6abba99101cf2717c0cce180513d39191b4f134e8420ab6bc",
+          "reason": "No matching completed preparation"
+        }
+      },
+      "beforeSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "afterSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "inputsUnchanged": true
+    },
+    {
+      "directory": "dispatch-on-1793231776313",
+      "schema": 1,
+      "utc": "2026-10-28T23:56:32.972Z",
+      "actualExit": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-28T23:56:18.621Z",
+            "durationMs": 2977,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T23:56:21.598Z",
+            "durationMs": 2778,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-28T23:56:24.376Z",
+            "durationMs": 5769,
+            "exitCode": 0,
+            "signal": null
+          }
+        ],
+        "preparation": {
+          "schema": 1,
+          "recommendation": "prepare-recommended",
+          "action": "prepare",
+          "mode": "auto",
+          "key": "2a065e68f10fd43aeb3c912f257d92079071f13525e67b3b327e093d889316b1",
+          "reason": "No matching completed preparation"
+        }
+      },
+      "beforeSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "afterSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "inputsUnchanged": true
+    },
+    {
+      "directory": "dispatch-on-1793231902799",
+      "schema": 1,
+      "utc": "2026-10-28T23:58:42.685Z",
+      "actualExit": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-28T23:58:25.330Z",
+            "durationMs": 3074,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T23:58:28.404Z",
+            "durationMs": 2836,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-28T23:58:31.240Z",
+            "durationMs": 8969,
+            "exitCode": 0,
+            "signal": null
+          }
+        ],
+        "preparation": {
+          "schema": 1,
+          "recommendation": "prepare-recommended",
+          "action": "prepare",
+          "mode": "auto",
+          "key": "b5a1baf9731117c6afc89a5399fbec749b5ec7880f14a830d029fa7ad02c71f3",
+          "reason": "No matching completed preparation"
+        }
+      },
+      "beforeSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "afterSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "inputsUnchanged": true
+    },
+    {
+      "directory": "dispatch-on-1793231961814",
+      "schema": 1,
+      "utc": "2026-10-29T00:03:54.443Z",
+      "actualExit": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-28T23:59:24.131Z",
+            "durationMs": 3434,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T23:59:27.565Z",
+            "durationMs": 2827,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-28T23:59:30.392Z",
+            "durationMs": 261152,
+            "exitCode": 0,
+            "signal": null
+          }
+        ],
+        "preparation": {
+          "schema": 1,
+          "recommendation": "prepare-recommended",
+          "action": "prepare",
+          "mode": "auto",
+          "key": "d50bcc01829f815d1db6a3710650e34bfe0a4cb16716e0a6826e6ad5e06099bb",
+          "reason": "No matching completed preparation"
+        }
+      },
+      "beforeSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "afterSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "inputsUnchanged": true
+    },
+    {
+      "directory": "dispatch-on-1793232432646",
+      "schema": 1,
+      "utc": "2026-10-29T00:07:44.527Z",
+      "actualExit": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-29T00:07:15.268Z",
+            "durationMs": 4586,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-29T00:07:19.854Z",
+            "durationMs": 4220,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-29T00:07:24.075Z",
+            "durationMs": 17326,
+            "exitCode": 0,
+            "signal": null
+          }
+        ],
+        "preparation": {
+          "schema": 1,
+          "recommendation": "prepare-recommended",
+          "action": "prepare",
+          "mode": "auto",
+          "key": "a96180066f46c9cdd25689228fd74d358cb9b488f0767d3bd3c7234848c4fdd5",
+          "reason": "No matching completed preparation"
+        }
+      },
+      "beforeSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "afterSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "inputsUnchanged": true
+    },
+    {
+      "directory": "dispatch-on-1793232546022",
+      "schema": 1,
+      "utc": "2026-10-29T00:09:47.180Z",
+      "actualExit": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-29T00:09:08.388Z",
+            "durationMs": 3276,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-29T00:09:11.665Z",
+            "durationMs": 3221,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_dispatch",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-29T00:09:14.886Z",
+            "durationMs": 29553,
+            "exitCode": 0,
+            "signal": null
+          }
+        ],
+        "preparation": {
+          "schema": 1,
+          "recommendation": "prepare-recommended",
+          "action": "prepare",
+          "mode": "auto",
+          "key": "f44d22e2ed051d9c670899f19959fc3d33e2ffa56819a1677be714dfcb82e112",
+          "reason": "No matching completed preparation"
+        }
+      },
+      "beforeSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "afterSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "inputsUnchanged": true
+    },
+    {
+      "directory": "storage-off-1793231724439",
+      "schema": 1,
+      "utc": "2026-10-28T23:55:38.338Z",
+      "actualExit": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-28T23:55:26.609Z",
+            "durationMs": 2655,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_storage",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T23:55:29.265Z",
+            "durationMs": 2586,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_storage",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-28T23:55:31.851Z",
+            "durationMs": 4026,
+            "exitCode": 0,
+            "signal": null
+          }
+        ],
+        "preparation": {
+          "schema": 1,
+          "recommendation": "prepare-recommended",
+          "action": "prepare",
+          "mode": "auto",
+          "key": "d18c355cbaa2b56ce0e16a43f702477a5d632f5605e467725647a725d6fccc8f",
+          "reason": "No matching completed preparation"
+        }
+      },
+      "beforeSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "afterSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "inputsUnchanged": true
+    },
+    {
+      "directory": "storage-on-1793231598095",
+      "schema": 1,
+      "utc": "2026-10-28T23:54:15.092Z",
+      "actualExit": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-28T23:53:20.284Z",
+            "durationMs": 17260,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_storage",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T23:53:37.544Z",
+            "durationMs": 30594,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "ec01_diagnostic_storage",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-28T23:54:08.138Z",
+            "durationMs": 4287,
+            "exitCode": 0,
+            "signal": null
+          }
+        ],
+        "preparation": {
+          "schema": 1,
+          "recommendation": "prepare-recommended",
+          "action": "prepare",
+          "mode": "auto",
+          "key": "1e6c56f616446faefe5f4020151e88623afb970df7073533fe71701fe59391be",
+          "reason": "No matching completed preparation"
+        }
+      },
+      "beforeSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "afterSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "inputsUnchanged": true
+    }
+  ],
+  "guardRegressions": [
+    {
+      "schema": 1,
+      "phase": "guard-cache_hit_member_callback_cannot_hide_changed_record_bytes",
+      "utc": "2026-10-29T00:14:20.672Z",
+      "status": "complete",
+      "actualExit": 0,
+      "signal": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-29T00:14:10.221Z",
+            "durationMs": 2636,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "cache_hit_member_callback_cannot_hide_changed_record_bytes",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-29T00:14:12.857Z",
+            "durationMs": 2599,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "cache_hit_member_callback_cannot_hide_changed_record_bytes",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-29T00:14:15.456Z",
+            "durationMs": 2641,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      "sourceSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "sourceBeforeAfterUnchanged": true,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-delete-profile\\runs\\r2\\logs\\guard-cache_hit_member_callback_cannot_hide_changed_record_bytes.log"
+    },
+    {
+      "schema": 1,
+      "phase": "guard-overlapping_owner_or_receipt_changes_are_conflicts",
+      "utc": "2026-10-29T00:14:07.935Z",
+      "status": "complete",
+      "actualExit": 0,
+      "signal": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests"
+            ],
+            "startedUtc": "2026-10-29T00:13:57.125Z",
+            "durationMs": 2888,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "overlapping_owner_or_receipt_changes_are_conflicts",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-29T00:14:00.013Z",
+            "durationMs": 2903,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 1
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--lib",
+              "overlapping_owner_or_receipt_changes_are_conflicts",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-29T00:14:02.917Z",
+            "durationMs": 2643,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      "sourceSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+      "sourceBeforeAfterUnchanged": true,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-delete-profile\\runs\\r2\\logs\\guard-overlapping_owner_or_receipt_changes_are_conflicts.log"
+    }
+  ],
+  "validation": {
+    "schema": 1,
+    "utc": "2026-10-29T00:16:58.309Z",
+    "actualExit": 0,
+    "frozenSha256": "02716f41bd68c3ede6c43dcdcda728d7ce8af2d3e0ba3829c842f95918c16b44",
+    "frozenFiles": 9344,
+    "engineMembershipFiles": 9336,
+    "sourceBeforeAfterUnchanged": true,
+    "primarySnapshotSha256": "ae0929b1b22f6bb17f5aa2b60e9c4ea0c1b2668bb8ecb13e3c29f0a84f3b01f7",
+    "livePrimary": {
+      "dev": 3057815611,
+      "ino": 60235645017480530,
+      "size": 20323660,
+      "mtimeMs": 1793231406301.6362,
+      "sha256": "ae0929b1b22f6bb17f5aa2b60e9c4ea0c1b2668bb8ecb13e3c29f0a84f3b01f7"
+    },
+    "liveChangedIndependently": false,
+    "liveScope": "read-only observation; frozen input identity alone is experimental success criterion",
+    "liveRevision": 3975,
+    "liveItems": 1278,
+    "liveGroups": 547,
+    "liveDecisions": 1444,
+    "fixturePayloadsRemaining": [],
+    "diagnosticBinaries": [
+      {
+        "name": "azrael_project_maintenance-7e04dc1301909836.exe",
+        "sha256": "edd2c5cc8ece3e22a406f9eafde09614d45f957328248949a4aa3a4fb930bcd9"
+      }
+    ],
+    "targetLeasePresent": false,
+    "lifecycle": [
+      {
+        "id": "run:ec01-delete-profile:r2",
+        "owner": "ec01-delete-profile",
+        "revision": 1,
+        "state": "pending",
+        "membership_complete": false,
+        "references": [
+          {
+            "id": "version:2026.0.13-ec01-r1",
+            "kind": "execution",
+            "member_paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.13-ec01-r1"
+            ],
+            "reason": "Read retained source ZIP once for independent frozen diagnostic engine input",
+            "reference_id": "ec01-delete-profile-retained-zip-r2",
+            "target_revision": 3
+          }
+        ]
+      },
+      {
+        "id": "run:ec01-delete-profile:r1",
+        "owner": "ec01-delete-profile",
+        "revision": 2,
+        "state": "failed",
+        "membership_complete": true,
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-delete-profile\\runs\\r1\\reports\\preparation-terminal.json",
+          "evidence_sha256": "5607fb7eae93ff7e0cb18270a8097a18cfc98fb8aedf2d94b5cb3d7bf99e6128",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Synchronous preflight/controller actual1; all owned child calls returned; no Cargo launched",
+          "status": "stopped"
+        },
+        "references": []
+      }
+    ],
+    "existingNativeTaskItems": []
+  },
+  "observedCostHierarchy": {
+    "catalog501": {
+      "caseID": "history-small-catalog500",
+      "applyMs": 86784.2905,
+      "catalogInclusiveMs": 85248.9538,
+      "catalogInclusivePercent": 98.23085872897698,
+      "pathChecksExclusiveMs": 76662.1667,
+      "pathChecksExclusivePercent": 88.3364561239341,
+      "recordReadExclusiveMs": 8035.6139,
+      "recordDecodeMs": 10.6321,
+      "counters": {
+        "catalog.decode_bytes": 179190,
+        "catalog.read_bytes": 6450840,
+        "catalog.stat": 36072,
+        "hash.bytes": 16165,
+        "merge.before_comparisons": 1,
+        "merge.id_find_comparisons": 1,
+        "merge.id_position_comparisons": 1,
+        "merge.legacy_comparisons": 0,
+        "paths.checked_metadata.stat": 618436,
+        "store.current.bytes": 3042
+      }
+    },
+    "file1000": {
+      "caseID": "catalog1-file1000-diag",
+      "applyMs": 21857.293999999998,
+      "workerRequestInclusiveMs": 18153.6224,
+      "powershell": [
+        {
+          "bootstrapMs": 259.478
+        },
+        {
+          "assertTree1Ms": 3103.6684,
+          "assertTree2Ms": 3386.7452000000003,
+          "assertTree3Ms": 3379.3065,
+          "entries": 1001,
+          "finalAbsenceMs": 7.9781,
+          "junctionMs": 0.0186,
+          "normalizationMs": 3295.7121,
+          "normalizationPreflightMs": 3702.4279,
+          "outcome": "deleted",
+          "removeItemMs": 384.1469,
+          "totalMs": 17537.6689
+        }
+      ]
+    },
+    "meaning": "catalog repeat -> each record physical path/ancestor metadata revalidation; tree/normalization guards dominate file1000 Windows work; inclusive rows overlap and must not be summed",
+    "old95MinuteApportionment": null,
+    "optimizationSpeedPrediction": null
+  },
+  "preparationFailures": [
+    {
+      "run": "r1",
+      "name": "prepare-inputs.json",
+      "durationMs": 31070.0722,
+      "cause": "Error: engine snapshot actual exit 1",
+      "actualExit": 1
+    },
+    {
+      "run": "r2",
+      "name": "prepare-inputs-selected-1793231334737.json",
+      "durationMs": 47420.1233,
+      "cause": "Error: preserved engine snapshot actual exit 1",
+      "actualExit": 1
+    },
+    {
+      "run": "r2",
+      "name": "prepare-inputs-selected.json",
+      "durationMs": 3940.3602,
+      "cause": "Error: safe extraction actual exit 1",
+      "actualExit": 1
+    },
+    {
+      "run": "r2",
+      "name": "prepare-inputs.json",
+      "durationMs": 1537.8364,
+      "cause": "Error: safe extraction actual exit 1",
+      "actualExit": 1
+    },
+    {
+      "run": "r2",
+      "name": "prepare-tool.json",
+      "durationMs": 55.379,
+      "cause": "Error: MSVC environment actual 1",
+      "actualExit": 1
+    }
+  ],
+  "additionalActualOutcomes": [
+    {
+      "command": "initial beginArtifactRun preparation",
+      "actualExit": 1,
+      "cause": "catalog lock5s busy before output; later supported probe succeeded"
+    },
+    {
+      "command": "initial r1 failure close",
+      "actualExit": 1,
+      "cause": "catalog lock5s busy; later supported close success preservedfailure1"
+    },
+    {
+      "command": "r2 pre-output preparation",
+      "actualExit": 1,
+      "cause": "controller passed id instead of record to cleanupReservation; fixed before run creation"
+    },
+    {
+      "command": "first storage-on outer PowerShell shell",
+      "actualExit": 1,
+      "cargoActualExit": 0,
+      "selectedTests": 1,
+      "cause": "stderr/redirection discrepancy; successful Cargo receipt and metrics retained; subsequent NodeFD collection actual0"
+    }
+  ],
+  "limitations": [
+    "Installed9bc source file parity not proven; diagnostic crate eight source files match selected ZIP/current bytes only",
+    "Serial warm-sequence samples; no cold-cache guarantee or cache purge",
+    "Large-history/catalog501 fourth factorial omitted by parent decision; no95-minute apportionment or optimization speed prediction",
+    "Initial source/coverage/Windows path/bootstrap harness failures retained; initial PowerShell shell exit1 is separate from successful Cargo actual0",
+    "Only two selected existing negative guard regressions ran; full native suite and other OS targets not run",
+    "No product optimization, app build, installation or existing live payload deletion was performed",
+    "store.save.lock_wait spans complete Sentinel acquisition including its guards; OS contention wait is not isolated. Windows worker startup synchronous spawn differs from PowerShell bootstrap, which is included in first request."
+  ],
+  "cleanup": {
+    "status": "partial-deletion-approved-retention",
+    "lifecycleIds": [
+      "run:ec01-delete-profile:r1",
+      "run:ec01-delete-profile:r2"
+    ],
+    "scopedExecutionReferences": [
+      {
+        "id": "version:2026.0.13-ec01-r1",
+        "kind": "execution",
+        "member_paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.13-ec01-r1"
+        ],
+        "reason": "Read retained source ZIP once for independent frozen diagnostic engine input",
+        "reference_id": "ec01-delete-profile-retained-zip-r2",
+        "target_revision": 3
+      }
+    ],
+    "nativeRegisteredTaskItems": [
+      "953a703adcc560922129b588b6da7247755da947460342f9261330d7392823cf",
+      "15f15dfe9d58912578c7760e1df5810425213b5523560088f716c4e9be4fd154"
+    ],
+    "plannedEvidenceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final",
+    "archive": false,
+    "retentionCore": [
+      {
+        "relative": "inputs/frozen-variant.json",
+        "bytes": 1348451
+      },
+      {
+        "relative": "inputs/controller-frozen.cjs",
+        "bytes": 38354
+      },
+      {
+        "relative": "inputs/identities.json",
+        "bytes": 7598
+      },
+      {
+        "relative": "inputs/tools.json",
+        "bytes": 1150
+      },
+      {
+        "relative": "reports/diagnostic-delta.json",
+        "bytes": 2091
+      },
+      {
+        "relative": "reports/final-validation.json",
+        "bytes": 2416
+      },
+      {
+        "relative": "reports/stop-observation.json",
+        "bytes": 460
+      },
+      {
+        "relative": "reports/root-readiness-probe-plan.json",
+        "bytes": 719
+      },
+      {
+        "relative": "reports/root-readiness-probe-result.json",
+        "bytes": 6822
+      }
+    ],
+    "retentionCoreBytes": 1408061,
+    "independentEvidenceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final",
+    "custodyMapping": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\custody-mapping.json",
+    "r2ProducerOutcome": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\r2-stop-and-original-failure.json",
+      "evidence_sha256": "08e3540037cb4e2afeafed302293d61d93ea2235d9b539abbb392370652e183a",
+      "reason": "Preserve original r2 preparation actual1; all subsequent successful diagnostic producers terminal with complete owned membership and independently retained acceptance evidence"
+    },
+    "r2References": [],
+    "sourceVersionPreserved": {
+      "id": "version:2026.0.13-ec01-r1",
+      "revision": 3,
+      "references": []
+    },
+    "nativeCommands": [
+      {
+        "schema": 1,
+        "phase": "recover-reservation",
+        "actualExit": 0,
+        "pid": 27396,
+        "signal": null,
+        "error": null,
+        "startedUtc": "2026-10-29T00:34:46.229Z",
+        "endedUtc": "2026-10-29T00:34:56.180Z",
+        "durationMs": 9950.2308,
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\recover-reservation-request.json",
+        "cause": null
+      },
+      {
+        "schema": 1,
+        "phase": "register-1",
+        "id": "run:ec01-delete-profile:r1",
+        "status": "failed",
+        "startedUtc": "2026-10-29T00:29:08.753Z",
+        "endedUtc": "2026-10-29T00:29:54.247Z",
+        "durationMs": 44522.1764,
+        "actualExit": 1,
+        "signal": null,
+        "error": null,
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\register-1-request.json",
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\register-1-stdout.json",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\register-1-stderr.log",
+        "cause": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}"
+      },
+      {
+        "schema": 1,
+        "phase": "register-retry-1",
+        "id": "run:ec01-delete-profile:r1",
+        "status": "complete",
+        "pid": 46588,
+        "startedUtc": "2026-10-29T00:36:43.391Z",
+        "endedUtc": "2026-10-29T00:38:07.860Z",
+        "durationMs": 84469.0842,
+        "actualExit": 0,
+        "signal": null,
+        "error": null,
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\register-retry-1-request.json",
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\register-retry-1-stdout.json",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\register-retry-1-stderr.log",
+        "cause": null
+      },
+      {
+        "schema": 1,
+        "phase": "register-retry-2",
+        "id": "run:ec01-delete-profile:r2",
+        "status": "failed",
+        "pid": 24156,
+        "startedUtc": "2026-10-29T00:38:09.351Z",
+        "endedUtc": "2026-10-29T00:40:33.009Z",
+        "durationMs": 143657.7367,
+        "actualExit": 1,
+        "signal": null,
+        "error": null,
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\register-retry-2-request.json",
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\register-retry-2-stdout.json",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\register-retry-2-stderr.log",
+        "cause": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance)\"}"
+      },
+      {
+        "schema": 1,
+        "phase": "r2-recovery",
+        "pid": 47176,
+        "actualExit": 0,
+        "signal": null,
+        "error": null,
+        "startedUtc": "2026-10-29T02:42:02.346Z",
+        "endedUtc": "2026-10-29T02:42:59.604Z",
+        "durationMs": 57243.2109,
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\r2-recovery-request.json",
+        "cause": null
+      },
+      {
+        "schema": 1,
+        "phase": "r2-register-final",
+        "id": "run:ec01-delete-profile:r2",
+        "pid": 44444,
+        "actualExit": 0,
+        "signal": null,
+        "error": null,
+        "startedUtc": "2026-10-29T02:44:39.539Z",
+        "endedUtc": "2026-10-29T02:50:55.996Z",
+        "durationMs": 376456.8491,
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\r2-register-final-request.json",
+        "cause": null
+      },
+      {
+        "schema": 1,
+        "phase": "review-final-batch",
+        "pid": 22264,
+        "actualExit": 0,
+        "signal": null,
+        "error": null,
+        "startedUtc": "2026-10-29T02:52:21.120Z",
+        "endedUtc": "2026-10-29T02:52:32.903Z",
+        "durationMs": 11781.1915,
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\review-final-batch-request.json",
+        "cause": null
+      },
+      {
+        "schema": 1,
+        "phase": "apply-final-batch",
+        "pid": 48252,
+        "actualExit": 1,
+        "signal": null,
+        "error": null,
+        "startedUtc": "2026-10-29T02:52:32.905Z",
+        "endedUtc": "2026-10-29T02:56:34.167Z",
+        "durationMs": 241261.7191,
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\apply-final-batch-request.json",
+        "cause": "{\"error\":\"다른 프로세스가 파일의 한 부분을 잠갔으므로, 프로세스가 해당 파일을 액세스할 수 없습니다. (os error 33)\"}"
+      },
+      {
+        "schema": 1,
+        "phase": "apply-recovery-r1",
+        "pid": 52588,
+        "actualExit": 1,
+        "signal": null,
+        "startedUtc": "2026-10-29T03:05:38.710Z",
+        "endedUtc": "2026-10-29T03:05:38.744Z",
+        "durationMs": 33.7685,
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\apply-recovery-r1-request.json",
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\apply-recovery-r1-stdout.json",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\apply-recovery-r1-stderr.log",
+        "cause": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance/maintenance.lock (reservation_recovery)\"}"
+      }
+    ],
+    "currentGroups": [
+      {
+        "id": "run:ec01-delete-profile:r1",
+        "nativeRegistered": true,
+        "logicalBytes": 28186,
+        "rootPresent": true,
+        "references": 0,
+        "producerOutcomePreserved": "stopped/failure/actual1",
+        "finalized": false,
+        "cleanupStatus": "unattempted",
+        "remaining": true,
+        "reservation": {
+          "pid": 48252,
+          "acquired_at_ms": 1793242387460,
+          "sha256": "e993d043da7f8130e340b183395861b151bf2fc0f70d71d90050581ef7af9c1d",
+          "retainedOriginal": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\apply-failure-r1-reservation-original.json"
+        }
+      },
+      {
+        "id": "run:ec01-delete-profile:r2",
+        "nativeRegistered": true,
+        "logicalBytes": 382257439,
+        "rootPresent": false,
+        "references": 0,
+        "producerOutcomePreserved": "stopped/failure/actual1",
+        "finalized": false,
+        "cleanupStatus": "deleted",
+        "remaining": false,
+        "reservation": {
+          "pid": 48252,
+          "acquired_at_ms": 1793242392582,
+          "sha256": "7d1f90b8994d36a120b43bf2ee97d94f77ed13a96013c7dcf2e779b062ab21a1",
+          "retainedOriginal": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\apply-failure-r2-reservation-original.json"
+        }
+      }
+    ],
+    "deletedRunRoots": 1,
+    "nativeRootDeletionStarted": true,
+    "blocker": {
+      "firstCause": "Batch apply Windows os33 after durable r2 deletion; r1 unattempted",
+      "latestCause": "Exact r1 apply reservation recovery actual1: maintenance.lock busy (reservation_recovery)",
+      "latestNativePid": 52588,
+      "pendingParentRequest": null,
+      "noBlindRetry": true,
+      "otherControllerStoppedByThisTask": false,
+      "parentDecision": "Resolved01a1859f: stop additional recovery/register/review/apply; root coordinates remaining protection/user retention and execution window"
+    },
+    "updatedUtc": "2026-10-29T03:14:34.620Z",
+    "scopedExecutionReferencesReleased": true,
+    "totalDeletedLogicalBytes": 382257439,
+    "physicalReclaimedBytes": null,
+    "partialApply": {
+      "actualExit": 1,
+      "nativePid": 48252,
+      "r2": {
+        "status": "deleted",
+        "remaining": false,
+        "decisionId": "50d7b6607a741433625b0f76f945956b7397b656f3e803ca7a0c3b37d5a0b540",
+        "logicalBytes": 382257439
+      },
+      "r1": {
+        "status": "unattempted",
+        "remaining": true
+      },
+      "error": "Windows os error33; exact locked path/actor unconfirmed",
+      "reconciliation": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\apply-failure-reconciliation.json"
+    },
+    "oneoff30Present": false,
+    "finalizedLifecycleCount": 0,
+    "logRetention": {
+      "mapping": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\custody-mapping.json",
+      "structuredTerminalReceipts": "Native cleanup request/stdout/stderr/terminal retained directly in independent evidence; successful Cargo raw logs disposable, replaced by structured command terminal/configuration/counter evidence",
+      "guardLogs": "Original guard raw .log paths no longer present after r2 deletion; independently retained guard terminal receipts preserve executed test and actualexit"
+    },
+    "finalHandoff": {
+      "schema": 1,
+      "utc": "2026-10-29T03:06:40.563Z",
+      "status": "protected-partial-cleanup-handoff",
+      "parentDecision": "01a1859f-114e-7de3-a8be-2e7252ce9354 resolved: no more recovery/register/review/apply",
+      "remaining": [
+        {
+          "id": "run:ec01-delete-profile:r1",
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ddf62a05afccbe6c43e23e268508e079491d2edae7635dbf5e3d39e7f7e0225e.json",
+          "registrySha256": "26ea3a7549cfea9c5420ead7e81074afd7629e7a9525af24b9641673c3226968",
+          "revision": 2,
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-delete-profile\\runs\\r1\\reports\\preparation-terminal.json",
+            "evidence_sha256": "5607fb7eae93ff7e0cb18270a8097a18cfc98fb8aedf2d94b5cb3d7bf99e6128",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Synchronous preflight/controller actual1; all owned child calls returned; no Cargo launched",
+            "status": "stopped"
+          },
+          "state": "failed",
+          "membershipComplete": true,
+          "referenceCount": 0,
+          "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-delete-profile\\runs\\r1",
+          "rootPresent": true,
+          "reservationPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\4ce23bc1ee0e5d7103b52cee4b1699d56d0c012ce1bd916292083310586f8827.json",
+          "reservationSha256": "e993d043da7f8130e340b183395861b151bf2fc0f70d71d90050581ef7af9c1d",
+          "reservation": {
+            "acquired_at_ms": 1793242387460,
+            "operation": "group_reservation",
+            "pid": 48252,
+            "schema": 2,
+            "token": "48252-1793242387460-52bbe0111c5b3ccc"
+          }
+        },
+        {
+          "id": "run:ec01-delete-profile:r2",
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7c7d36f9d34db3ce36a1b9f05c3ec6c89bd29310f537c83c5ea457e66f11b522.json",
+          "registrySha256": "e63f27be3912aa6d18dc8e72092eab2cdab9a23ef6fe7fbc25d9274b751cba23",
+          "revision": 2,
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\r2-stop-and-original-failure.json",
+            "evidence_sha256": "08e3540037cb4e2afeafed302293d61d93ea2235d9b539abbb392370652e183a",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Preserve original r2 preparation actual1; all subsequent successful diagnostic producers terminal with complete owned membership and independently retained acceptance evidence",
+            "status": "stopped"
+          },
+          "state": "failed",
+          "membershipComplete": true,
+          "referenceCount": 0,
+          "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-delete-profile\\runs\\r2",
+          "rootPresent": false,
+          "reservationPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\efb25f1e767d7f36cb4f88db120be78ca979e6e5efc05890be83fec806113fa9.json",
+          "reservationSha256": "7d1f90b8994d36a120b43bf2ee97d94f77ed13a96013c7dcf2e779b062ab21a1",
+          "reservation": {
+            "acquired_at_ms": 1793242392582,
+            "operation": "group_reservation",
+            "pid": 48252,
+            "schema": 2,
+            "token": "48252-1793242392582-529419e89545898b"
+          }
+        }
+      ],
+      "oneoff": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\30-delete-profile-controller.cjs",
+        "bytes": 38354,
+        "sha256": "864995476c45ae5a1dfe63556810775abd71c6ee92c339fe9f2301578d669ca1",
+        "retainedSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\controller-final.cjs",
+        "present": true
+      },
+      "containers": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-delete-profile",
+          "present": true,
+          "directEntries": [
+            "runs"
+          ]
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-delete-profile\\runs",
+          "present": true,
+          "directEntries": [
+            "r1"
+          ]
+        }
+      ],
+      "measurementsUnchanged": true,
+      "noFurtherNativeMutation": true
+    },
+    "independentEvidenceSize": {
+      "files": 122,
+      "bytes": 2927866,
+      "measuredUtc": "2026-10-29T03:06:40.582Z",
+      "method": "Owned retained evidence directory file stat only; no payload rehash"
+    },
+    "oneoffRetirement": {
+      "actualExit": 0,
+      "remaining": false,
+      "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\root-oneoff-retirement.json",
+      "independentCopy": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\controller-final.cjs",
+      "sha256": "864995476c45ae5a1dfe63556810775abd71c6ee92c339fe9f2301578d669ca1"
+    },
+    "retentionApproval": {
+      "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-delete-profile-final\\root-retention-approval.json",
+      "schema": 1,
+      "utc": "2026-10-29T03:14:34.616Z",
+      "sourceQuestionItemId": "[\"request_user_input_async\",\"01a185a6-57d5-7770-a14f-6d0fa5acc83a\",0]",
+      "userDecision": "Retain until management window becomes available",
+      "groupIds": [
+        "run:ec01-delete-profile:r1",
+        "run:ec01-delete-profile:r2"
+      ],
+      "retained": [
+        {
+          "path": "artifacts/tasks/ec01-delete-profile/runs/r1",
+          "kind": "owned-run-payload",
+          "bytes": 28186
+        },
+        {
+          "path": "artifacts/maintenance/lifecycles/ddf62a05afccbe6c43e23e268508e079491d2edae7635dbf5e3d39e7f7e0225e.json",
+          "kind": "producer-record",
+          "bytes": 2242
+        },
+        {
+          "path": "artifacts/maintenance/lifecycles/7c7d36f9d34db3ce36a1b9f05c3ec6c89bd29310f537c83c5ea457e66f11b522.json",
+          "kind": "producer-record",
+          "bytes": 2432
+        },
+        {
+          "path": "artifacts/maintenance/lifecycles/reservations/4ce23bc1ee0e5d7103b52cee4b1699d56d0c012ce1bd916292083310586f8827.json",
+          "kind": "protected-apply-reservation",
+          "bytes": 3953
+        },
+        {
+          "path": "artifacts/maintenance/lifecycles/reservations/efb25f1e767d7f36cb4f88db120be78ca979e6e5efc05890be83fec806113fa9.json",
+          "kind": "protected-apply-reservation",
+          "bytes": 4147
+        }
+      ],
+      "logicalBytes": 40960,
+      "containers": [
+        "artifacts/tasks/ec01-delete-profile",
+        "artifacts/tasks/ec01-delete-profile/runs"
+      ],
+      "reason": "Repeated supported cleanup/recovery lock contention; no force/guard/ACL bypass",
+      "releaseCondition": "After other management operations terminate and supported lock checks establish a management window: recover exact reservations using stopped-producer proof, fresh registered review/delete r1, finalize both groups and retire empty containers without another cleanup request",
+      "notAuthorized": [
+        "force deletion",
+        "lock removal",
+        "changing failed outcomes",
+        "deleting other tasks"
+      ],
+      "deletedLogicalBytes": 382257439,
+      "physicalBytesReclaimed": null,
+      "oneoff30Deleted": true
+    }
+  },
+  "fixtureActualOutcomes": [
+    {
+      "caseID": "catalog1-file1000-native1",
+      "members": 1,
+      "filesPerMember": 1000,
+      "results": [
+        {
+          "id": "item-0",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        }
+      ]
+    },
+    {
+      "caseID": "catalog1-file1000-native2",
+      "members": 1,
+      "filesPerMember": 1000,
+      "results": [
+        {
+          "id": "item-0",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        }
+      ]
+    },
+    {
+      "caseID": "probe-diag-on",
+      "members": 1,
+      "filesPerMember": 1,
+      "results": [
+        {
+          "id": "item-0",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        }
+      ]
+    },
+    {
+      "caseID": "history-large-catalog0",
+      "members": 1,
+      "filesPerMember": 1,
+      "results": [
+        {
+          "id": "item-0",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        }
+      ]
+    },
+    {
+      "caseID": "history-small-catalog500",
+      "members": 1,
+      "filesPerMember": 1,
+      "results": [
+        {
+          "id": "item-0",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        }
+      ]
+    },
+    {
+      "caseID": "catalog1-member4",
+      "members": 4,
+      "filesPerMember": 1,
+      "results": [
+        {
+          "id": "item-0",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        },
+        {
+          "id": "item-1",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        },
+        {
+          "id": "item-2",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        },
+        {
+          "id": "item-3",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        }
+      ]
+    },
+    {
+      "caseID": "catalog1-file1000-diag",
+      "members": 1,
+      "filesPerMember": 1000,
+      "results": [
+        {
+          "id": "item-0",
+          "status": "deleted",
+          "remaining": false,
+          "deletionStatus": "deleted",
+          "attributeChanges": 0,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "exclusiveConservation": [
+    {
+      "caseID": "probe-diag-on",
+      "phase": "register",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 1192.1169,
+      "allRustExclusiveMs": 1192.1169,
+      "residualMs": 0
+    },
+    {
+      "caseID": "probe-diag-on",
+      "phase": "review",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 92.0029,
+      "allRustExclusiveMs": 92.0029,
+      "residualMs": 0
+    },
+    {
+      "caseID": "probe-diag-on",
+      "phase": "apply",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 1705.8765,
+      "allRustExclusiveMs": 1705.8764999999999,
+      "residualMs": -2.2737367544323206e-13
+    },
+    {
+      "caseID": "history-large-catalog0",
+      "phase": "register",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 2360.2897,
+      "allRustExclusiveMs": 2360.2897000000003,
+      "residualMs": 4.547473508864641e-13
+    },
+    {
+      "caseID": "history-large-catalog0",
+      "phase": "review",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 334.73,
+      "allRustExclusiveMs": 334.73,
+      "residualMs": 0
+    },
+    {
+      "caseID": "history-large-catalog0",
+      "phase": "apply",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 2931.1257,
+      "allRustExclusiveMs": 2931.1257000000005,
+      "residualMs": 4.547473508864641e-13
+    },
+    {
+      "caseID": "history-small-catalog500",
+      "phase": "register",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 161626.0374,
+      "allRustExclusiveMs": 161626.03740000003,
+      "residualMs": 2.9103830456733704e-11
+    },
+    {
+      "caseID": "history-small-catalog500",
+      "phase": "review",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 9334.4823,
+      "allRustExclusiveMs": 9334.4823,
+      "residualMs": 0
+    },
+    {
+      "caseID": "history-small-catalog500",
+      "phase": "apply",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 86763.5742,
+      "allRustExclusiveMs": 86763.57419999997,
+      "residualMs": -2.9103830456733704e-11
+    },
+    {
+      "caseID": "catalog1-member4",
+      "phase": "register",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 1767.8679,
+      "allRustExclusiveMs": 1767.8678999999997,
+      "residualMs": -2.2737367544323206e-13
+    },
+    {
+      "caseID": "catalog1-member4",
+      "phase": "review",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 125.278,
+      "allRustExclusiveMs": 125.278,
+      "residualMs": 0
+    },
+    {
+      "caseID": "catalog1-member4",
+      "phase": "apply",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 10516.5696,
+      "allRustExclusiveMs": 10516.5696,
+      "residualMs": 0
+    },
+    {
+      "caseID": "catalog1-file1000-diag",
+      "phase": "register",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 3896.1947,
+      "allRustExclusiveMs": 3896.194700000001,
+      "residualMs": 9.094947017729282e-13
+    },
+    {
+      "caseID": "catalog1-file1000-diag",
+      "phase": "review",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 127.1792,
+      "allRustExclusiveMs": 127.17920000000001,
+      "residualMs": 1.4210854715202004e-14
+    },
+    {
+      "caseID": "catalog1-file1000-diag",
+      "phase": "apply",
+      "rootSpan": "dispatch",
+      "rootInclusiveMs": 21834.7949,
+      "allRustExclusiveMs": 21834.7949,
+      "residualMs": 0
+    },
+    {
+      "caseID": "storage-small-on",
+      "phase": "merge.direct",
+      "rootSpan": "store.merge",
+      "rootInclusiveMs": 0.0355,
+      "allRustExclusiveMs": 0.0355,
+      "residualMs": 0
+    },
+    {
+      "caseID": "storage-small-on",
+      "phase": "store.save.suspended",
+      "rootSpan": "store.save",
+      "rootInclusiveMs": 42.2088,
+      "allRustExclusiveMs": 42.2088,
+      "residualMs": 0
+    },
+    {
+      "caseID": "storage-large-on",
+      "phase": "merge.direct",
+      "rootSpan": "store.merge",
+      "rootInclusiveMs": 54.9542,
+      "allRustExclusiveMs": 54.9542,
+      "residualMs": 0
+    },
+    {
+      "caseID": "storage-large-on",
+      "phase": "store.save.suspended",
+      "rootSpan": "store.save",
+      "rootInclusiveMs": 500.6071,
+      "allRustExclusiveMs": 500.60709999999995,
+      "residualMs": -5.684341886080802e-14
+    }
+  ]
+}

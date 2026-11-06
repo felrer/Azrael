@@ -1298,6 +1298,7 @@ async fn interrupted_turn_after_goal_budget_limited_uses_budget_message_snapshot
                 thread_id: "thread-1".to_string(),
                 turn: codex_app_server_protocol::Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: "turn-1".to_string(),
                     root_turn_id: None,
@@ -1340,6 +1341,7 @@ async fn interrupted_turn_after_goal_budget_limited_uses_budget_message_snapshot
                 thread_id: "thread-1".to_string(),
                 turn: codex_app_server_protocol::Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: "turn-1".to_string(),
                     root_turn_id: None,

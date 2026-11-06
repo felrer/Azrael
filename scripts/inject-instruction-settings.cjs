@@ -1,9 +1,11 @@
 "use strict";
 
-const INSTRUCTION_SETTINGS_ASSETS = ["webview/assets/use-visible-settings-sections-7686bdcccd03.js", "webview/assets/settings-page-f0054e44de3c.js"];
+const MCP_SETTINGS_ASSET = "webview/assets/mcp-settings-1facd8f02248.js";
+const INSTRUCTION_SETTINGS_ASSETS = ["webview/assets/use-visible-settings-sections-7686bdcccd03.js", "webview/assets/settings-page-f0054e44de3c.js", MCP_SETTINGS_ASSET];
 const MARKER = "/*azrael-instruction-settings-v1*/";
 const PAGE_ANCHOR = "}let B;e[72]";
 const HOST_ANCHOR = 'case"open-vscode-command":{';
+const MCP_SETTINGS_ANCHOR = '(0,p.jsx)(c,{title:(0,p.jsx)(a,{slug:`mcp-settings`}),subtitle:(0,p.jsx)(r,{id:`settings.section.mcp-settings.subtitle`,defaultMessage:`Connect external tools and data sources`,description:`Subtitle for MCP settings section`}),children:(0,p.jsx)(u,{manageOnly:!0})})';
 
 function azraelSettingsText(locale, english, korean) {
   return typeof locale === "string" && /^ko(?:[-_]|$)/i.test(locale) ? korean : english;
@@ -249,24 +251,72 @@ function AzraelInstructionSettings() {
   return (0, $.jsx)("div", { ref: target, style: { width: "100%", minWidth: 0 }, "data-azrael-instruction-settings": true });
 }
 
+// Shares the standalone client without executing script text or nesting a frame.
+function AzraelWorkbenchSettings() {
+  const locale = s().locale;
+  const target = Q.useRef(null);
+  Q.useEffect(() => {
+    const element = target.current;
+    if (!element) return;
+    const root = element.shadowRoot ?? element.attachShadow({ mode: "open" });
+    const clientId = crypto.randomUUID();
+    let mounted = true, sequence = 0, client;
+    const listeners = new Set();
+    const send = (action, message) => azraelInstructionBridge.dispatchMessage("azrael-workbench", { clientId, requestId: String(++sequence), action, message, locale });
+    const theme = () => { element.dataset.theme = document.body.classList.contains("vscode-dark") || document.body.classList.contains("vscode-high-contrast") || document.documentElement.dataset.theme === "dark" ? "dark" : "light"; };
+    theme();
+    const observer = new MutationObserver(theme);
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class"] });
+    const unsubscribe = azraelInstructionBridge.subscribe("azrael-workbench-state", message => {
+      if (!mounted || message.clientId !== clientId) return;
+      if (message.message) { for (const listener of listeners) listener(message.message); return; }
+      if (message.error) { root.textContent = message.error; return; }
+      if (typeof message.html !== "string") return;
+      client?.dispose();
+      const parsed = new DOMParser().parseFromString(message.html, "text/html");
+      for (const script of parsed.querySelectorAll("script")) script.remove();
+      root.replaceChildren();
+      for (const style of parsed.head.querySelectorAll("style")) {
+        style.textContent = style.textContent.replace(/:root\b/g, ":host").replace(/html\[data-theme=dark\]/g, ":host([data-theme=dark])").replace(/\bbody\s*\{/g, ":host{");
+        root.appendChild(document.importNode(style, true));
+      }
+      for (const node of [...parsed.body.childNodes]) root.appendChild(document.importNode(node, true));
+      client = azraelWorkbenchClient("", locale, { native: true, projectId: message.projectId, root,
+        postMessage: request => send("request", request),
+        subscribe: listener => { listeners.add(listener); return () => listeners.delete(listener); } });
+    });
+    root.textContent = azraelSettingsText(locale, "Loading…", "불러오는 중…");
+    send("mount");
+    return () => { mounted = false; client?.dispose(); send("unmount"); unsubscribe(); observer.disconnect(); listeners.clear(); root.replaceChildren(); };
+  }, [locale]);
+  return (0, $.jsx)("div", { ref: target, style: { width: "100%", minWidth: 0 }, "data-azrael-workbench-settings": true });
+}
+
 function once(text, from, to) {
   if (text.split(from).length !== 2) throw new Error("Pinned instruction settings anchor changed: " + from);
   return text.replace(from, to);
 }
 
 function injectInstructionSettings(text, relativePath) {
-  if (![...INSTRUCTION_SETTINGS_ASSETS, "out/extension.js"].includes(relativePath)) return { text, count: 0 };
+  if (![...INSTRUCTION_SETTINGS_ASSETS, MCP_SETTINGS_ASSET, "out/extension.js"].includes(relativePath)) return { text, count: 0 };
   if (text.split(MARKER).length > 2) throw new Error("Duplicate instruction settings marker");
   if (text.includes(MARKER)) return { text, count: 0 };
+  if (relativePath === MCP_SETTINGS_ASSET) {
+    // Retain old links as an alias of the full Plugins surface, including Add and Browse.
+    return { text: once(text, MCP_SETTINGS_ANCHOR, '(0,p.jsx)(u,{})') + '\n' + MARKER, count: 1 };
+  }
   if (relativePath === "out/extension.js") {
     const sidebarAnchor = /e\.push\(Mt\.commands\.registerCommand\("(?:chatgpt|azrael)\.openSidebar",Ru\)\)/g;
     const registrations = text.match(sidebarAnchor);
     if (registrations?.length !== 1) throw new Error("Pinned instruction settings sidebar registration anchor changed");
     text = once(text, registrations[0], registrations[0] + ',e.push(Mt.commands.registerCommand("azrael.openSettingsPanel",()=>Pe.showSettings({section:"general-settings"})))');
     return { text: once(text, HOST_ANCHOR,
-      "case\"azrael-instructions\":{await je.commands.executeCommand(\"azrael.instructionsEmbedded\",e,r,this.findPanelByWebview(e));break}" + MARKER + HOST_ANCHOR), count: 1 };
+      "case\"azrael-workbench\":{await je.commands.executeCommand(\"azrael.workbenchEmbedded\",e,r,this.findPanelByWebview(e));break}case\"azrael-instructions\":{await je.commands.executeCommand(\"azrael.instructionsEmbedded\",e,r,this.findPanelByWebview(e));break}" + MARKER + HOST_ANCHOR), count: 1 };
   }
   if (relativePath === INSTRUCTION_SETTINGS_ASSETS[0]) {
+    // The native cache already tracks l (Plugins availability). Preserve MCP access when unavailable.
+    text = once(text, '!(e.slug===`mcp-settings`&&0)', '!(e.slug===`mcp-settings`&&l)');
     // Registration happens before visibility selection, so route fallback recognizes the section.
     text = once(text, "We=Qe.map(e=>", "We=Qe.flatMap(e=>e.slug===`personalization`?[e,{slug:`azrael-instructions`}]:[e]).map(e=>");
     text = once(text, 'case`general-settings`:case`personalization`:', 'case`azrael-instructions`:case`general-settings`:case`personalization`:');
@@ -276,20 +326,20 @@ function injectInstructionSettings(text, relativePath) {
     text += '\n' + MARKER + '\nfunction azraelInstructionIcon(props){return(0,t().jsx)("svg",{width:20,height:20,viewBox:"0 0 20 20",fill:"none",stroke:"currentColor",strokeWidth:1.3,...props,children:(0,t().jsx)("path",{d:"M5 2.5h7l3 3v12H5z M12 2.5v3h3 M8 8h4 M8 11h4 M8 14h4"})})}';
     return { text, count: 1 };
   }
-  const instructionContent = "if(y===`azrael-instructions`){Me=(0,$.jsx)(AzraelInstructionSettings,{});}let B;e[72]";
+  const instructionContent = "if(y===`azrael-instructions`){Me=(0,$.jsx)(AzraelWorkbenchSettings,{});}let B;e[72]";
   const accountTail = "if(y===`usage`)Me=(0,$.jsx)(AzraelAccountSettings,{});let B;e[72]";
   text = text.includes('/*azrael-account-settings-v1*/')
     ? once(text, accountTail, "if(y===`usage`)Me=(0,$.jsx)(AzraelAccountSettings,{});" + instructionContent)
     : once(text, PAGE_ANCHOR, '}' + instructionContent);
   text = once(text, '.appshots.agent.personalization.pets.', '.appshots.agent.personalization.azrael-instructions.pets.');
   text = once(text, '.voice.storage.agent.personalization.pets.', '.voice.storage.agent.personalization.azrael-instructions.pets.');
-  text = once(text, "s=Xe(e.slug,w,!1),c=e.slug===", "s=e.slug===`azrael-instructions`?{id:`azrael.settings.instructions`,defaultMessage:azraelSettingsText(T.locale,`Instruction Documents`,`지침 문서`)}:Xe(e.slug,w,!1),c=e.slug===");
+  text = once(text, "s=Xe(e.slug,w,!1),c=e.slug===", "s=e.slug===`azrael-instructions`?{id:`azrael.settings.instructions`,defaultMessage:azraelSettingsText(T.locale,`Presets`,`프리셋`)}:e.slug===`computer-use`?{id:`azrael.settings.windowUse`,defaultMessage:`Window use`}:Xe(e.slug,w,!1),c=e.slug===");
   const label = "label:(0,Z.jsx)(qe,{codexMicroDeviceModel:C,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:w,slug:e.slug})";
-  text = once(text, label, "label:e.slug===`azrael-instructions`?azraelSettingsText(T.locale,`Instruction Documents`,`지침 문서`):(0,Z.jsx)(qe,{codexMicroDeviceModel:C,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:w,slug:e.slug})");
-  text = once(text, "f=A?(0,Z.jsx)(qe,", "f=e.slug===`azrael-instructions`?azraelSettingsText(T.locale,`Instruction Documents`,`지침 문서`):A?(0,Z.jsx)(qe,");
+  text = once(text, label, "label:e.slug===`azrael-instructions`?azraelSettingsText(T.locale,`Presets`,`프리셋`):e.slug===`computer-use`?`Window use`:(0,Z.jsx)(qe,{codexMicroDeviceModel:C,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:w,slug:e.slug})");
+  text = once(text, "f=A?(0,Z.jsx)(qe,", "f=e.slug===`azrael-instructions`?azraelSettingsText(T.locale,`Presets`,`프리셋`):e.slug===`computer-use`?`Window use`:A?(0,Z.jsx)(qe,");
   text = once(text, 'icon:16 in a?', 'icon:e.slug===`azrael-instructions`?(0,Z.jsx)(AzraelInstructionNavigationIcon,{className:t?`text-codex-icon-active`:void 0}):16 in a?');
   text = once(text, 'iconAssetSource:i?void 0:r.navigation', 'iconAssetSource:e.slug===`azrael-instructions`?void 0:i?void 0:r.navigation');
-  return { text: 'import{X9t as azraelInstructionBridge}from"./app-initial-c014f9ee4429.js";' + text + '\n' + MARKER + '\n' + azraelSettingsText.toString() + '\n' + instructionClientTools.toString() + '\n' + AzraelInstructionSettings.toString() + '\n' + AzraelInstructionNavigationIcon.toString(), count: 1 };
+  return { text: 'import{X9t as azraelInstructionBridge}from"./app-initial-c014f9ee4429.js";' + text + '\n' + MARKER + '\n' + azraelSettingsText.toString() + '\n' + instructionClientTools.toString() + '\n' + AzraelInstructionSettings.toString() + '\nconst azraelWorkbenchClient=' + require('./instruction-workbench-view.cjs').workbenchClient.toString() + ';\n' + AzraelWorkbenchSettings.toString() + '\n' + AzraelInstructionNavigationIcon.toString(), count: 1 };
 }
 
-module.exports = { INSTRUCTION_SETTINGS_ASSETS, MARKER, injectInstructionSettings, AzraelInstructionSettings, AzraelInstructionNavigationIcon, azraelSettingsText, instructionClientTools };
+module.exports = { INSTRUCTION_SETTINGS_ASSETS, MARKER, injectInstructionSettings, AzraelInstructionSettings, AzraelWorkbenchSettings, AzraelInstructionNavigationIcon, azraelSettingsText, instructionClientTools };

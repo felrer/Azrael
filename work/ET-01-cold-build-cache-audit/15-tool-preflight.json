@@ -1,0 +1,56 @@
+{
+  "observedUtc": "2026-10-30T02:06:02.938Z",
+  "platform": "win32",
+  "arch": "x64",
+  "source": {
+    "baseTag": "rust-v0.162.0",
+    "inventorySha256": "bf42b325e59d96b27e268abeb52f32fe426766f0295a3b7980dc40a41dd22a5d"
+  },
+  "identities": {
+    "node": {
+      "path": "C:\\Program Files\\nodejs\\node.exe",
+      "exists": true,
+      "sha256": "e921fe5307e29bf6fd00000dd594356affd3a7b044e52720c7f10decbdc305b9"
+    },
+    "python": {
+      "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "exists": true,
+      "sha256": "85b71d8c6ec1905935f74be0c9869aae198d00e98f39df699ec66f9c5a84cecd"
+    },
+    "pwsh": {
+      "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\PowerShell\\7\\pwsh.exe",
+      "exists": true,
+      "sha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233"
+    },
+    "cargo": {
+      "path": "C:\\Users\\felre\\.cargo\\bin\\cargo.exe",
+      "exists": true,
+      "sha256": "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7"
+    },
+    "rustc": {
+      "path": "C:\\Users\\felre\\.cargo\\bin\\rustc.exe",
+      "exists": true,
+      "sha256": "86478e53f769379d7f0ebfa7c9aa97cb76ca92233f79aa2cc0dbee2efaac73c7"
+    },
+    "bun": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\bun-1.4.2\\package\\bin\\bun.exe",
+      "exists": true,
+      "sha256": "15277c59ccd6c6c20f8dc9716c2b59c1776320d606b6a8658f70be8799519ca4"
+    },
+    "code": {
+      "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\code.cmd",
+      "exists": true,
+      "sha256": "22f0d3dad8591dbf8ed8f6bce8bd003e872c9a9934b04e2a4005cefc288ad5df"
+    },
+    "codeModeHost": {
+      "path": "C:\\Users\\felre\\.vscode\\extensions\\openai.chatgpt-26.1021.22027-win32-x64\\bin\\windows-x86_64\\codex-code-mode-host.exe",
+      "exists": true,
+      "sha256": "89713bec82069f1fefc70ec6d52fcb96d79cfd5f0d8d831aedde0b2005a39402"
+    },
+    "computerUse": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\h\\artifacts\\releases\\w13r-99afefb1\\computer-use\\node_repl.exe",
+      "exists": true,
+      "sha256": "e42e0d846b9c1e5da3ec7b5e069fdae3643df590f4e304f433cfaa7fbd8732a7"
+    }
+  }
+}

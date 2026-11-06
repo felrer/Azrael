@@ -15,6 +15,17 @@ use serde_json::Value;
 use serde_json::value::RawValue;
 use std::sync::Arc;
 
+pub const LEGACY_CODEX_TOOLS_NAMESPACE: &str = "legacy_codex_tools";
+
+/// Keep the legacy tool schema intact for discovery under its shared namespace.
+pub fn legacy_codex_tool(tool: ResponsesApiTool) -> ToolSpec {
+    ToolSpec::Namespace(ResponsesApiNamespace {
+        name: LEGACY_CODEX_TOOLS_NAMESPACE.to_string(),
+        description: "Legacy Codex tools.".to_string(),
+        tools: vec![ResponsesApiNamespaceTool::Function(tool)],
+    })
+}
+
 /// When serialized as JSON, this produces a valid "Tool" in the OpenAI
 /// Responses API.
 #[derive(Debug, Clone, Serialize, PartialEq)]

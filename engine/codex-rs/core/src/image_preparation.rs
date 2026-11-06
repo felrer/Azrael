@@ -13,6 +13,7 @@ use codex_context_fragments::AnnotatedContent;
 use codex_context_fragments::set_annotated_content;
 use codex_context_fragments::to_annotated_content;
 use codex_features::Feature;
+use codex_protocol::models::AgentMessageInputContent;
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::ContentItemKind;
 use codex_protocol::models::FunctionCallOutputContentItem;
@@ -189,9 +190,56 @@ pub(crate) async fn prepare_response_items(
                 )
                 .await
             }
+            ResponseItem::AgentMessage { content, .. } => {
+                for part in content.iter_mut() {
+                    if let AgentMessageInputContent::InputImage { image, detail } = part {
+                        if let Err(error) = prepare_image(
+                            image,
+                            detail,
+                            ImageOrigin {
+                                thread_id,
+                                ephemeral,
+                                message_role: Some("user"),
+                                item_id: None,
+                            },
+                            &mut metadata,
+                            mode,
+                            image_store,
+                        )
+                        .await
+                        {
+                            warn!(%error, "failed to prepare agent message image");
+                            *part = AgentMessageInputContent::InputText {
+                                text: error.placeholder().to_string(),
+                            };
+                        }
+                    }
+                }
+                // Preparation may resize/reencode the snapshot. Expose the ID of the
+                // actual inline image retained in the recipient's history for relays.
+                for index in 1..content.len() {
+                    let label = match &content[index] {
+                        AgentMessageInputContent::InputImage {
+                            image: ImageReference::Inline { image_url },
+                            ..
+                        } => Some(format!(
+                            "Image attachment ID: {}",
+                            crate::image_attachments::image_attachment_id(image_url)
+                        )),
+                        _ => None,
+                    };
+                    if let Some(label) = label
+                        && let AgentMessageInputContent::InputText { text } =
+                            &mut content[index - 1]
+                        && text.starts_with("Image attachment ID: ")
+                    {
+                        *text = label;
+                    }
+                }
+                None
+            }
             ResponseItem::AdditionalTools { .. }
             | ResponseItem::Reasoning { .. }
-            | ResponseItem::AgentMessage { .. }
             | ResponseItem::LocalShellCall { .. }
             | ResponseItem::FunctionCall { .. }
             | ResponseItem::ToolSearchCall { .. }

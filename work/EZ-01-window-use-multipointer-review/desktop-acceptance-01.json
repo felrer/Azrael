@@ -1,0 +1,163 @@
+{
+  "status": "Source implementation and scoped verification complete; disposable cleanup complete",
+  "platform": "Windows x64 local, no installed-package or physical-input acceptance",
+  "cleanupGroups": [
+    "run:EZ01:mp-mw0hc8lu",
+    "run:EZ01:mp-mw0hqqfv",
+    "run:EZ01:desktop-native-mw0hdhiy",
+    "run:EZ01:desktop-native-r2-mw0hwxxe",
+    "run:EZ01:desktop-source-mw0hiqiw",
+    "run:EZ01:desktop-source-r2-mw0hngg8",
+    "run:EZ01:desktop-source-r3-mw0hvqhj",
+    "run:EZ01:desktop-smoke-mw0hwna8",
+    "run:EZ01:desktop-live-mw0hyy9k",
+    "run:verify-use-settings-render:20261103T093150436Z-332978d5-c28c-41cb-ac8e-2c5adfef0de4",
+    "run:verify-window-native-approval-render:20261103T093343863Z-181f431f-0ef0-4ad3-b5fc-cd1d7ccbd409",
+    "run:verify-window-native-approval-render:20261103T093813089Z-5f7d4cab-7bc1-4610-a848-5465b31541a0",
+    "run:EZ01:desktop-live-r3-mw0ixvx5"
+  ],
+  "sources": [
+    {
+      "path": "scripts/window-control-policy.cjs",
+      "sha256": "4c0475e39f12224e8980fff500a9bf7865df98dbb8c5edb3e053fd5d5d8e46b9"
+    },
+    {
+      "path": "scripts/window-control-mcp.cjs",
+      "sha256": "b315f3e882d4d1d93ac41a2414798ac09981649abab4dabe852dec1ac52a1d8e"
+    },
+    {
+      "path": "scripts/window-control-host.cjs",
+      "sha256": "f0ba49c5b156be5c6d71431473cd34730da90c2e530123f0fb06260ca06d62af"
+    },
+    {
+      "path": "scripts/window-switched-input.cjs",
+      "sha256": "17d7b9ae9ec3795bdbd664cbd836f4d87dd3bb48625da97bdbdd3d6e2a841461"
+    },
+    {
+      "path": "scripts/window-use-approvals.cjs",
+      "sha256": "2593acb9b06fdf36dafa24526b2b1232fc97b21201c8ba65717fc2e5fd3ca41d"
+    },
+    {
+      "path": "scripts/inject-window-control.cjs",
+      "sha256": "689b9d8f922959e585c5b73f2eeb56d14adf1efbdbc9e85f1d25f74788c6f434"
+    },
+    {
+      "path": "scripts/use-settings-host.cjs",
+      "sha256": "160337747fd2df9d6f35a25256ca9d41b0ea528545c65f15f1ae8fe6b40a3f44"
+    },
+    {
+      "path": "scripts/window-control-backend.cjs",
+      "sha256": "89705e7c6dcd08920592d1a42a586d7e535b5e1b3e2ebe5ff2e38bab1dac3400"
+    },
+    {
+      "path": "native/window-control/src/main.rs",
+      "sha256": "053baca1d35b407ca8a51c84f3f81a549e7e8f536d4d4ba818b10c640150480f"
+    },
+    {
+      "path": "native/window-control/src/protocol.rs",
+      "sha256": "9eae4a9e893cb0db3d36205882983a5894ec1154e95fea19afb0bcadae56b049"
+    },
+    {
+      "path": "native/window-control/src/windows_backend.rs",
+      "sha256": "a8af7810d537410a6b3f9241755a522995b219db41e8f60b273a9e5c1e14dddf"
+    },
+    {
+      "path": "native/multi-pointer/broker.hpp",
+      "sha256": "9dc442f2504f2fca8b07d3ae39c249ea9289e864818c01e46c06ccf5659c628f"
+    },
+    {
+      "path": "native/multi-pointer/platform.hpp",
+      "sha256": "006a125025fd5d320716db1f1ab9de639c97824f7323ff7b075ee06f596e4567"
+    },
+    {
+      "path": "native/multi-pointer/overlay.hpp",
+      "sha256": "17dd796906cf31be5693ea2aa962ac801156c3650dd4ff1ad977958b556082dd"
+    }
+  ],
+  "verification": [
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-source.json",
+      "sha256": "c52e9c672eedbf8da0d6e81bc7355d9bd386317b6b465b91daa55f6eb7029ee1"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-source-r2.json",
+      "sha256": "4d31a2ed4e14e081c28c3c00de737f4c49f3b3bc9836c1a39df7e7e7d05b6441"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-source-r3.json",
+      "sha256": "3aaf84dae131aa37479d8c7f78349c312751440d810ee79b99a000ef4bb0ae92"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-source-results.json",
+      "sha256": "168acffa430cf6033d61643db37dbf6275c9f3445840419d9119fbd511b05336"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-native.json",
+      "sha256": "ee18ea70f80300183db5dbccd4adb5bfbcbb0e8af7600ba7ebdfae9b224aba25"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-native-r2.json",
+      "sha256": "b1e53b2fae91f34bca30e1820587067f7e82c10703c3c3b8ac38bdb02175e218"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-approval-render.json",
+      "sha256": "37dbee9430a1ceee4db8a0183bcdf9295248d87ca5a3b85b0b9597889493782e"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-settings-render.json",
+      "sha256": "eda565344c0a25a68e358b8d92510fad563420ef86d1df58a9ea2fea758aad14"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-pointer-native.json",
+      "sha256": "ee6baf83598618f9d1b6a86ed57e085a7388c53d6ed853984c79e94b36f39246"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-runtime-smoke.json",
+      "sha256": "67c24f68f0bf5183128ebbe765aef70a362736b90c2dff2163d64c1fbbf26f82"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-claim-recovery.json",
+      "sha256": "833f146a3b4f7bc4e90e67e8221f7ec6157d6cbf21a8ccc65471417c0b7a3e7c"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/desktop-cleanup-01.json",
+      "sha256": "9a4295a7187e24ad966ba3f807a68f2cd92a531b242776192a32f4a6b3dccd1c"
+    }
+  ],
+  "knownFailures": [
+    "Initial source fixture assertions and typed stale-observation failure corrected; latest affected suite 66/66 exit0",
+    "Isolated environment sync timeout passed on retry",
+    "Initial global desktop card lacked classifier caption; corrected and render retry 134 checks exit0",
+    "Rust dispatch gate omitted new methods; corrected and test/build r2 exit0"
+  ],
+  "unverified": [
+    "Physical desktop input and end-user installed-runtime acceptance",
+    "Product installation"
+  ],
+  "cleanupState": "13 payload roots and lifecycle records absent; 12 finalize responses confirmed, first prior timeout reconciled by actual record absence without inventing an exit",
+  "finalSourceAudit": {
+    "nodeCheckFiles": 8,
+    "exitCode": 0,
+    "scopedDiffCheckExitCode": 0,
+    "featureManifestValidationExitCode": 0,
+    "commit": "Not created: extensive pre-existing/shared dirty changes cannot be safely separated."
+  },
+  "smoke": {
+    "checks": 11,
+    "exitCode": 0,
+    "applicationInputs": 0,
+    "activationInputs": 0,
+    "foregroundUnchanged": true,
+    "allOwnedProcessesExited": true,
+    "fixtureHwndsAbsent": true
+  },
+  "cleanup": {
+    "groups": 13,
+    "logicalBytes": 1923302031,
+    "remainingPaths": 0,
+    "remainingLifecycleRecords": 0,
+    "applyExitCode": 0,
+    "physicalReclaimedBytes": null,
+    "report": "work/EZ-01-window-use-multipointer-review/desktop-cleanup-01.json"
+  }
+}

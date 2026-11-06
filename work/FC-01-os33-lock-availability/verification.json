@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "scope": "Windows x64 source verification only; no installed binary change",
+  "result": {
+    "startedUtc": "2026-11-02T00:52:34.194Z",
+    "endedUtc": "2026-11-02T00:55:02.463Z",
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "preflight": {
+      "schema": 2,
+      "compilation": "cargo-test",
+      "testExecution": "nonzero-passed",
+      "contract": "selected-tests-v2",
+      "cargoInvocations": 1,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 74,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 35,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 11,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 28,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 22,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 24,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 8,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          }
+        ],
+        "passed": 230,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0,
+        "executed": 230
+      },
+      "phases": [
+        {
+          "phase": "compilation-and-execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked",
+            "--",
+            "--test-threads=4"
+          ],
+          "startedUtc": "2026-11-02T00:52:34.198Z",
+          "durationMs": 148263,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "inputs_unchanged": true,
+    "toolchain": "stable-x86_64-pc-windows-msvc",
+    "scope": "azrael-project-maintenance package"
+  },
+  "focusedChecks": [
+    "lock_recovery::tests::os_release_keeps_inode_and_legacy_markers_are_not_acquired",
+    "lock_recovery::tests::availability_waits_for_exclusive_owner_before_reading_metadata"
+  ],
+  "sources": [
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+      "sha256": "b692b2c1289a2573b9c84adf766a73b71ba983a3671131082445ec918c0439be",
+      "matchesFrozen": true
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/registry.rs",
+      "sha256": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104",
+      "matchesFrozen": true
+    }
+  ],
+  "dependencyVersionsPreserved": true,
+  "externalDependencies": 77,
+  "priorAttempt": {
+    "exit_code": 101,
+    "inputs_unchanged": true,
+    "cause": "Reduced standalone workspace requires lockfile pruning; no tests executed"
+  },
+  "formatCheck": {
+    "exit_code": 0
+  },
+  "diffCheck": {
+    "exit_code": 0
+  },
+  "logDigests": {
+    "stdout": "c3b2b417180caecde0dd16bb70a8e3ad2c33b3d0f284fc5c6a1254f81cdc180e",
+    "stderr": "abc3d495bdc9a819a9dfd272aec5534a723940605dcb57422fe0d07c4d164889"
+  },
+  "producerStopBasis": "Managed synchronous Cargo actual exit 0 with stdout/stderr drained; all test targets completed. No daemon or detached producer launched."
+}

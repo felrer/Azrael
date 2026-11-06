@@ -1,0 +1,323 @@
+{
+  "id": "work:archive-delete-20261101-r1",
+  "started_at": "2026-11-01T15:30:26.817Z",
+  "steps": [
+    {
+      "label": "register",
+      "pid": 44452,
+      "exit_code": 0,
+      "signal": null,
+      "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\register-request.json",
+      "ended_at": "2026-11-01T15:30:33.804Z",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "work:archive-delete-20261101-r1",
+          "kind": "work",
+          "members": [
+            "637c9148cd07b7d3cce5e87a0febfacc14bdfe42b07bdb8473343d66035951be"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "b07959afd14791f8f6ea09e83b4620ca72642ccac5107ac5fbde49c8fa01a7d1",
+          "owner": "cleanup-resumption-20261101",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\lifecycles\\ded5e388153622a68cb1fdb7dea5219936424dc2470c86332ab7d7300e81a6b5.json",
+          "registered_at_ms": 1793547033108,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "637c9148cd07b7d3cce5e87a0febfacc14bdfe42b07bdb8473343d66035951be",
+            "identity": "03f9894f6981f1b3bb17b03fcc3ed61977b5bf5e6339f8528dec4f8604bb7cbc",
+            "kind": "reports",
+            "lifecycle_group_id": "work:archive-delete-20261101-r1",
+            "lifecycle_role": "evidence",
+            "logical_bytes": 3845174,
+            "measured_at_ms": 1793547032826,
+            "owner": "cleanup-resumption-20261101",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\lifecycles\\ded5e388153622a68cb1fdb7dea5219936424dc2470c86332ab7d7300e81a6b5.json",
+            "references": [],
+            "registered_at_ms": 1793547032826,
+            "remaining": true,
+            "role": "reports",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "label": "review",
+      "pid": 50424,
+      "exit_code": 0,
+      "signal": null,
+      "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\review-request.json",
+      "ended_at": "2026-11-01T15:30:33.949Z",
+      "value": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "work:archive-delete-20261101-r1",
+            "kind": "work",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "b07959afd14791f8f6ea09e83b4620ca72642ccac5107ac5fbde49c8fa01a7d1",
+            "owner": "cleanup-resumption-20261101",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\lifecycles\\ded5e388153622a68cb1fdb7dea5219936424dc2470c86332ab7d7300e81a6b5.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "637c9148cd07b7d3cce5e87a0febfacc14bdfe42b07bdb8473343d66035951be"
+            ],
+            "group_token": "fcdd2457c1f3b31beb7a1b2ce9e0abd150a944ce73b0459821677d2e8f64f186",
+            "id": "637c9148cd07b7d3cce5e87a0febfacc14bdfe42b07bdb8473343d66035951be",
+            "identity": "03f9894f6981f1b3bb17b03fcc3ed61977b5bf5e6339f8528dec4f8604bb7cbc",
+            "lifecycle_group_id": "work:archive-delete-20261101-r1",
+            "logical_bytes": 3845174,
+            "measured_at_ms": 1793547032826,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "b07959afd14791f8f6ea09e83b4620ca72642ccac5107ac5fbde49c8fa01a7d1",
+              "member_references": {
+                "637c9148cd07b7d3cce5e87a0febfacc14bdfe42b07bdb8473343d66035951be": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\stage-closeout.json",
+                  "evidence_sha256": "2f046c7cb9d80f768a2f61434a311d576157323d262a496d88b388c84b36cd24",
+                  "reason": "This control work stage has ended with actual controller exit1 because four protected junction groups remain; completed groups keep their observed native exit0. Closing this stage does not complete the user task or make blocked groups deletable.",
+                  "request_sha256": "d584eec2657b878d6ff97a2119766de4f84ba422c4a0ce42ddba75379418817f"
+                },
+                "created_at": "2026-11-01T12:26:41.164Z",
+                "id": "work:archive-delete-20261101-r1",
+                "kind": "work",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1",
+                    "protection_known": true,
+                    "role": "reports"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "cleanup-resumption-20261101",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\stage-closeout.json",
+                  "evidence_sha256": "2f046c7cb9d80f768a2f61434a311d576157323d262a496d88b388c84b36cd24",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "This control work stage has ended with actual controller exit1 because four protected junction groups remain; completed groups keep their observed native exit0. Closing this stage does not complete the user task or make blocked groups deletable.",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-11-01T15:30:08.065Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793547033845,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  44,
+                  21,
+                  192,
+                  0,
+                  0,
+                  0,
+                  31,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "f3480fda0376b595954ce3aa43b07b976593a0e96a57c754bc7ac1588ccd31dc",
+            "verification": "registered"
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "label": "apply",
+      "pid": 26376,
+      "exit_code": 0,
+      "signal": null,
+      "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\apply-request.json",
+      "ended_at": "2026-11-01T15:30:46.066Z",
+      "value": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "work:archive-delete-20261101-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-26376-448-1793547035760",
+            "decision": "delete",
+            "decision_id": "4d79f8991e425b3f0637a368b8a265f13bf3e8a1cee5408326a6dcb4caaecc62",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "637c9148cd07b7d3cce5e87a0febfacc14bdfe42b07bdb8473343d66035951be",
+            "lifecycle_group_id": "work:archive-delete-20261101-r1",
+            "reason": "Task-owned disposable control work stage stopped with observed original failure1; independent per-group receipts and pending junction identity evidence handed off. Current scripts and duplicate command logs no longer needed.",
+            "remaining": false,
+            "status": "deleted",
+            "token": "f3480fda0376b595954ce3aa43b07b976593a0e96a57c754bc7ac1588ccd31dc"
+          }
+        ]
+      },
+      "stderr": ""
+    }
+  ],
+  "items": [
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "637c9148cd07b7d3cce5e87a0febfacc14bdfe42b07bdb8473343d66035951be"
+      ],
+      "group_token": "fcdd2457c1f3b31beb7a1b2ce9e0abd150a944ce73b0459821677d2e8f64f186",
+      "id": "637c9148cd07b7d3cce5e87a0febfacc14bdfe42b07bdb8473343d66035951be",
+      "identity": "03f9894f6981f1b3bb17b03fcc3ed61977b5bf5e6339f8528dec4f8604bb7cbc",
+      "lifecycle_group_id": "work:archive-delete-20261101-r1",
+      "logical_bytes": 3845174,
+      "measured_at_ms": 1793547032826,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "b07959afd14791f8f6ea09e83b4620ca72642ccac5107ac5fbde49c8fa01a7d1",
+        "member_references": {
+          "637c9148cd07b7d3cce5e87a0febfacc14bdfe42b07bdb8473343d66035951be": []
+        },
+        "membership_matches": true,
+        "owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\stage-closeout.json",
+            "evidence_sha256": "2f046c7cb9d80f768a2f61434a311d576157323d262a496d88b388c84b36cd24",
+            "reason": "This control work stage has ended with actual controller exit1 because four protected junction groups remain; completed groups keep their observed native exit0. Closing this stage does not complete the user task or make blocked groups deletable.",
+            "request_sha256": "d584eec2657b878d6ff97a2119766de4f84ba422c4a0ce42ddba75379418817f"
+          },
+          "created_at": "2026-11-01T12:26:41.164Z",
+          "id": "work:archive-delete-20261101-r1",
+          "kind": "work",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1",
+              "protection_known": true,
+              "role": "reports"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "cleanup-resumption-20261101",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\stage-closeout.json",
+            "evidence_sha256": "2f046c7cb9d80f768a2f61434a311d576157323d262a496d88b388c84b36cd24",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "This control work stage has ended with actual controller exit1 because four protected junction groups remain; completed groups keep their observed native exit0. Closing this stage does not complete the user task or make blocked groups deletable.",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 2,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-11-01T15:30:08.065Z",
+          "version": null
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1793547033845,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            44,
+            21,
+            192,
+            0,
+            0,
+            0,
+            31,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "f3480fda0376b595954ce3aa43b07b976593a0e96a57c754bc7ac1588ccd31dc",
+      "verification": "registered"
+    }
+  ],
+  "finalize": {
+    "id": "work:archive-delete-20261101-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\lifecycles\\ded5e388153622a68cb1fdb7dea5219936424dc2470c86332ab7d7300e81a6b5.json"
+  },
+  "status": "finalized",
+  "ended_at": "2026-11-01T15:30:46.178Z"
+}

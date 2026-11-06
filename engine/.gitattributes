@@ -7,3 +7,4 @@ codex-rs/state/migrations/0065_parent_requests.sql text eol=lf
 codex-rs/state/migrations/0066_parent_request_wake_reason.sql text eol=lf
 codex-rs/state/thread_history_migrations/0007_projection_version.sql text eol=lf
 codex-rs/state/thread_history_migrations/0011_turn_attribution.sql text eol=lf
+codex-rs/state/thread_history_migrations/0012_user_wait_timing.sql text eol=lf

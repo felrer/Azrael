@@ -1,0 +1,11 @@
+﻿{
+    "controllerStartUtc":  "2026-10-30T03:42:15.2600799Z",
+    "actualExitCode":  1,
+    "command":  "\"C:\\Program Files\\nodejs\\node.exe\" work/ET-01-cold-build-cache-audit/delete-cargo-cache.cjs",
+    "observedTerminalUtc":  "2026-10-30T04:59:18.7516565Z",
+    "controllerPid":  28096,
+    "reportStatus":  null,
+    "schema":  1,
+    "originalExecSession":  20075,
+    "targetAbsent":  false
+}

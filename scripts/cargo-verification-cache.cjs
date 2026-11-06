@@ -20,31 +20,56 @@ const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const wrappers = new Set(['check-api-context.cjs', 'check-model-harness-profiles.cjs',
   'check-root-resume-reasoning.cjs', 'check-task-work-time-native.cjs',
   'check-thread-auto-compaction.cjs', 'check-parent-requests.cjs',
-  // The task-profile JS fixture closure is not audited for result reuse.
-  // Keep actual wrapper execution and Cargo compilation reuse.
+  // task-profile-skills creates a JS materializer fixture at runtime. Its
+  // complete dependency/runtime closure is not audited for result reuse;
+  // always execute the wrapper while retaining Cargo compilation reuse.
   'check-capacity-recovery.cjs',
   'check-shared-engine-native.cjs'].map(file => `scripts/${file}`));
 const sourceOnlyHelpers = {
-  // Schema2 preparation retains every compiler input and checks target identity.
-  'scripts/cargo-test-preparation.cjs': '40772407a2358d38af4fc16927716d122b758b40196fb0e6daacad52a48f5924',
-  // Both reviewed variants have identical preparation/selection/execution gates.
-  // The latter only registers the selected-upstream/deletion-approval wrappers.
+  // Admission reads only OS memory; bind its reviewed bytes before excluding product payloads.
+  'scripts/build-resource-admission.cjs': ['170f9d012203d52d268fee8c352eb82466170c1381c395f9fce8a991721ec75b'],
+  // Reviewed variants have identical preparation/selection/execution gates;
+  // later variants only register additional guarded wrappers.
   'scripts/cargo-verification.cjs': [
+    // Single Cargo invocation; actual nonzero passing libtest counts required.
+    '693c71ca462a95b430d5b5effa7cf70620c38361c364328c28d9b72ccdcbe7c1',
     '9aac0bceeb7858cfa5222ba52b32b6b3bc02cd1417e38f1433b559bc6de0f552',
     '7673d86f700d4b829bb5b945629827691f1379a90162228c9a2c11dbba5511af',
-    // Reviewed coordinator environment, diagnostics and nonzero actual gate.
+    '854e124086453530bf0ca5cebddce73b9c0e9186f0b2879bf1ff93882490f4e3',
+    // Validated coordinator environment and structured diagnostics; the
+    // executable source and nonzero actual libtest gate remain mandatory.
     '810fd8a86d749748c805ce3ff39e3af8bb4c7e9420cfe9be620b03dea220df5f',
+    // Selected task-memory declaration added to guarded wrappers; command/env
+    // construction and actual nonzero libtest acceptance remain source-backed.
+    'a734dae46f063a5fe3a996354094f6c4c03dd86690d638cb700d58cdb28ac31d',
+    // Reviewed management-only reuse decision path forwarding; actual Cargo
+    // invocation, filters and nonzero libtest acceptance remain unchanged.
+    'dff29bb34537e0a90c51f925ea6b2876f9a4f93bb47224ecefa63a7f86eb5fb5',
   ],
-  // Explicit recovery only retires verified lease metadata; Cargo payload inputs remain unchanged.
-  // Reviewed source-only ownership evidence; failures and unknown stay guarded.
+  // Reviewed ownership-only variants retain exact Cargo arguments, selection
+  // gates and helper-content binding. Preparation failures never become passes.
   'scripts/cargo-target-owner.cjs': [
+    // Memory admission only delays start; arguments and actual result gates remain unchanged.
+    'ce3f16d4e5657130705d8eb8f12050b31f83077b79bac20cd2df06b23a26ebd2',
     '6bb5299038040a3dde8440adeec32c686817a37d6bc93c564579a8a0bbc0ef1b',
+    '5e5860154a0ab76caf778dccfba456d25e357fe3b28150ccf1d0b32223fed864',
+    '0564f8dd5bb324c524d38ef75739fd148aa4d5db7d19d5e85214567dbb60cb84',
+    // Ordinary Win32 cwd below MAX_PATH; source-only consumers and gates unchanged.
+    "df3700e9b780cc6645a8bd700db6721f793014d07bfd0a1a420ac62397c4ae0a",
+    // Immutable terminal evidence and independent claim finalization do not
+    // consume the supplied product bundle or Code Mode host.
     'fc0b578c02787edb7530d49bbaf1f0eaf2db0a57620347fffaf732d5531cf1a3',
   ],
-  // Reviewed source-only ownership evidence; failures and unknown stay guarded.
   'scripts/cargo-shared-cache.cjs': [
     '3b9b9f1acca1b113e7b5722675b0d36aa61028f90d90049831fc9c6cdf2ec308',
+    '816abb1b504e064fea1c6b3fab2a343d8ef23b11ef907454145d486c8dd4e407',
+    'bd68c2959c65c3c5f2d587d7af03e4bbaf511fc81debcf017faf676ca1d0ddbc',
+    // Cache claims and immutable close evidence preserve the selected Cargo
+    // command; ownership failures remain failures and unknown stays protected.
     '13c760941efec9b765d202d2a7111ebc9d7d1620210cfada46a68a2829b23ec3',
+    // Reviewed scoped storage and evidence-based generation recovery preserve
+    // the selected Cargo invocation and do not consume product bundle bytes.
+    '6a91db8d1f128157fa27fbc42b1033d4903bd005ce0a92f273753246c42fbfd4',
   ],
 };
 function auditedSourceOnly(config, group) {
@@ -159,7 +184,7 @@ async function runtime(config, env, providers = {}) {
     const command = buildCargoTestCommand(config.engineSourceRoot, ['test', '--lib'], { env, isolateHostEnvironment });
     return { isolateHostEnvironment, cwd: command.cwd, args: command.args,
       targetDirectory: command.env.CARGO_TARGET_DIR, rustMinStack: command.env.RUST_MIN_STACK,
-      instaUpdate: command.env.INSTA_UPDATE, environmentSha256: sha(canonical(command.env)) };
+      instaUpdate: command.env.INSTA_UPDATE, environmentSha256: sha(canonical(Object.fromEntries(Object.entries(command.env).filter(([name]) => name !== 'AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH')))) };
   });
   const tools = {};
   for (const name of ['cargo', 'rustc']) {
@@ -213,8 +238,8 @@ async function runtime(config, env, providers = {}) {
     version: process.version, platform, arch: process.arch },
     os: { release: os.release(), version: os.version(), machine: os.machine() }, tools, externalTools,
     cargoConfigs: configs, configParser,
-    environmentSha256: sha(canonical(env)), normalized,
-    helper: await getDirectoryState(config.projectRoot, ['scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/cargo-shared-cache.cjs', 'scripts/cargo-test-preparation.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/artifact-observations.cjs']) };
+    environmentSha256: sha(canonical(Object.fromEntries(Object.entries(env).filter(([name]) => name !== 'AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH')))), normalized,
+    helper: await getDirectoryState(config.projectRoot, ['scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/build-resource-admission.cjs', 'scripts/cargo-shared-cache.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/artifact-observations.cjs']) };
 }
 
 async function key(config, group, inputs, runtimeIdentity) {
@@ -224,9 +249,9 @@ async function key(config, group, inputs, runtimeIdentity) {
     throw Error('Cargo cache requires an absolute engine source root');
   }
   const files = new Set(['scripts/feature-preservation.cjs', 'scripts/cargo-verification-cache.cjs',
-    'scripts/cargo-preflight-recipes.cjs',
-    'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/cargo-shared-cache.cjs', 'scripts/cargo-test-preparation.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/artifact-observations.cjs', 'scripts/cargo-config-self-contained.py',
-    'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
+    'scripts/cargo-preflight-recipes.cjs', 'scripts/build-resource-admission.cjs',
+    'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/cargo-shared-cache.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/artifact-observations.cjs', 'scripts/cargo-config-self-contained.py',
+    'scripts/verification-result-cache.cjs', 'scripts/verification-reuse-policy.cjs', 'scripts/directory-state.cjs']);
   const declared = group.entries.map(({ feature, check }) => {
     feature.owners.forEach(file => files.add(file)); files.add(feature.contract); files.add(check.args[0]);
     return { feature, check };
@@ -304,7 +329,7 @@ function options(config) {
   if (typeof projectRoot !== 'string' || !path.isAbsolute(projectRoot)) {
     throw Error('Cargo verification cache project root must be an absolute path');
   }
-  return { projectRoot,
+  return { projectRoot, ...(config.reuseDecisionsPath === undefined ? {} : { reuseDecisionsPath: config.reuseDecisionsPath }),
     cacheRoot: path.join(projectRoot, 'artifacts/cache/verification-results', CACHE_NAMESPACE) };
 }
 module.exports = { isEligible, runtime, key, options, preparationRuntimeIdentity, resolveExecutable, CACHE_NAMESPACE, CACHE_SCHEMA: storage.CACHE_SCHEMA,

@@ -1,0 +1,35 @@
+{
+  "exit_code": 0,
+  "stderr": "",
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:EQ-01-protection-timing:delete-apply-profile-r1",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-32164-4215-1793321962737",
+        "decision": "delete",
+        "decision_id": "837b7923cfd492f873d6e1f9b2b2cfa9025cb2839b28245524a9e44cd1b9dc76",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "4e8e64144f220f276eafd5d89bf0b80c7aa56e4bd036426c2e72e596633cf8ab",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:delete-apply-profile-r1",
+        "reason": "Completed verified profiling run; independent acceptance and required evidence preserved outside the run in work/12-apply-acceptance.json and new candidate verification",
+        "remaining": false,
+        "status": "deleted",
+        "token": "76ab8a008dfe173d99215f1ab0808502888f154cb216b776dfa6e36f3f2f80cd"
+      }
+    ]
+  }
+}

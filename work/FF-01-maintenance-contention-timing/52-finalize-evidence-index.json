@@ -1,0 +1,23 @@
+{
+  "note": "Cleanup reports accumulated later stage results. These exact immutable snapshots preserve each verified pre-finalize evidence byte sequence and its recorded hash.",
+  "snapshots": [
+    {
+      "id": "version:maintenance-owner:ff01:storage-20261102",
+      "original_evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\44-group-cleanup.json",
+      "original_sha256": "d80b192a3333071f47736cefed45567c06260e6270063f90034d949b9a1aceda",
+      "immutable_snapshot": "49-storage-finalize-evidence.json"
+    },
+    {
+      "id": "run:ff1:group5",
+      "original_evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\44-group-cleanup.json",
+      "original_sha256": "818edfc7d774a090c9e712663c87998aa30829adc34fb1d2d07ed4effeeff95e",
+      "immutable_snapshot": "50-run-finalize-evidence.json"
+    },
+    {
+      "id": "version:maintenance-owner:ff01:catalog-20261102",
+      "original_evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\48-group-catalog-cleanup.json",
+      "original_sha256": "bab9a459c8c3d1c6f82f06d14a537570889a9040e8e458ac073d7d0bf6baa492",
+      "immutable_snapshot": "51-catalog-finalize-evidence.json"
+    }
+  ]
+}

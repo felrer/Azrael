@@ -1,0 +1,19 @@
+{
+  "id": "run:EK01-user-wait-native:core01",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "72a0af29d8ec20b96ed64fad63e6219f67b4b5f85d4af4693d0dfd0aa7023835",
+  "lease_owner": {
+    "acquired_at_ms": 1793248415829,
+    "operation": "group_reservation",
+    "pid": 12292,
+    "schema": 2,
+    "token": "12292-1793248415829-fb8c73a73b579690"
+  },
+  "originalOutcome": {
+    "synchronousExecSession": 78601,
+    "ownerExitCode": 1,
+    "reason": "Registration failed OS maintenance.lock busy during commit; failed outcome preserved"
+  },
+  "terminationEvidence": "Own synchronous child_process.spawnSync returned terminal exit1, no detached launch or wrapper. Previously inspected native registration entry/dispatch/registry/reservation path has no spawned descendants; full tree ended. Native recovery checks exact owner/live lease independently."
+}

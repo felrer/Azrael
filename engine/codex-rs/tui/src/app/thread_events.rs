@@ -689,6 +689,7 @@ mod tests {
     fn test_turn(turn_id: &str, status: TurnStatus, items: Vec<ThreadItem>) -> Turn {
         Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: turn_id.to_string(),
             root_turn_id: None,
@@ -723,6 +724,7 @@ mod tests {
             thread_id: thread_id.to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 completed_at: Some(0),
                 duration_ms: Some(1),

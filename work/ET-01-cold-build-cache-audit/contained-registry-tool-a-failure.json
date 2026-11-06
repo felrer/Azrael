@@ -1,0 +1,253 @@
+{
+  "schema": 1,
+  "outcome": "failure",
+  "compilerOsExitCode": null,
+  "sourceGuardFailed": true,
+  "lifecycleId": "run:ET-01-cold-build-cache-audit:contained-registry-tool-20261031a",
+  "closedRevision": 2,
+  "closedProducer": {
+    "status": "stopped",
+    "outcome": "failure",
+    "exit_code": null,
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\contained-registry-tool-20261031a\\reports\\library.json",
+    "evidence_sha256": "3e4d062531495d4ef15196d82f6862cdb4b22998d646695862613c6676db1256",
+    "reason": "All owned synchronous children returned; library exit0 and 227 tests passed but full source guard failed; persistent controller OS exit unavailable"
+  },
+  "library": {
+    "exitCode": 0,
+    "selectedTests": 227,
+    "preflight": {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-30T15:57:57.185Z",
+          "durationMs": 2871,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-30T15:58:00.056Z",
+          "durationMs": 36353,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 227
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-30T15:58:36.410Z",
+          "durationMs": 343926,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "sourceBefore": "319c156451290ca32e7e5b8cef35fd7be1f8b559267eb750eebc45e6b7595259",
+    "sourceAfter": "2643a4d39c8d7c466a32f9b48e4c0db15f070474deedf36733d0673879c95c5b",
+    "sourceUnchanged": false,
+    "targetOwnerLeaseRemaining": false,
+    "startedUtc": "2026-10-30T15:57:54.768Z",
+    "finishedUtc": "2026-10-30T16:04:23.403Z",
+    "logSha256": "9984e9e2f5e5185d506276f57961d564c3764ecb9e146fecaf054e3056a42026"
+  },
+  "pollution": {
+    "schema": 1,
+    "utc": "2026-10-30T16:05:10.315Z",
+    "originalSha256": "319c156451290ca32e7e5b8cef35fd7be1f8b559267eb750eebc45e6b7595259",
+    "observedSha256": "2643a4d39c8d7c466a32f9b48e4c0db15f070474deedf36733d0673879c95c5b",
+    "originalFilesChanged": [],
+    "originalFilesRemoved": [],
+    "addedFiles": [
+      {
+        "path": "codex-rs/project-maintenance/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/cversions.2.db",
+        "sha256": "de800ec458c404e412158787a7bc6660fe54a2bc3b6903b31d07a661325056f0",
+        "mode": 438,
+        "kind": "file",
+        "bytes": 16384
+      },
+      {
+        "path": "codex-rs/project-maintenance/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/{6AF0698E-D558-4F6E-9B3C-3716689AF493}.2.ver0x0000000000000001.db",
+        "sha256": "15a96a6158120a5e7edcb8309f13f1ab0384be5ff444fda1e786bf5279059ff4",
+        "mode": 438,
+        "kind": "file",
+        "bytes": 308840
+      },
+      {
+        "path": "codex-rs/project-maintenance/%SystemDrive%/ProgramData/Microsoft/Windows/Caches/{DDF571F2-BE98-426D-8288-1A9A39C3FDA2}.2.ver0x0000000000000001.db",
+        "sha256": "c3370dcb283e4d78aca2095120d5d588c6110391a863f179201e67c9c640d6b0",
+        "mode": 438,
+        "kind": "file",
+        "bytes": 662488
+      }
+    ],
+    "addedDirectories": [
+      {
+        "path": "codex-rs/project-maintenance/%SystemDrive%",
+        "mode": 438
+      },
+      {
+        "path": "codex-rs/project-maintenance/%SystemDrive%/ProgramData",
+        "mode": 438
+      },
+      {
+        "path": "codex-rs/project-maintenance/%SystemDrive%/ProgramData/Microsoft",
+        "mode": 438
+      },
+      {
+        "path": "codex-rs/project-maintenance/%SystemDrive%/ProgramData/Microsoft/Windows",
+        "mode": 438
+      },
+      {
+        "path": "codex-rs/project-maintenance/%SystemDrive%/ProgramData/Microsoft/Windows/Caches",
+        "mode": 438
+      }
+    ],
+    "environment": {
+      "SystemDrive": null,
+      "SystemRoot": "C:\\WINDOWS",
+      "ProgramData": null,
+      "ALLUSERSPROFILE": null,
+      "PUBLIC": null,
+      "USERPROFILE": "C:\\Users\\felre"
+    },
+    "cleanupPerformed": false
+  },
+  "owners": [
+    {
+      "schema": 1,
+      "token": "9f99ce0e-6c55-49f1-a871-970cf92673d2",
+      "run": "pid-35992",
+      "coordinatorPid": 35992,
+      "producerPid": 37460,
+      "startedUtc": "2026-10-30T15:57:57.186Z",
+      "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt\\cargo-target",
+      "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt\\cargo-target",
+      "command": "cargo",
+      "args": [
+        "check",
+        "-p",
+        "azrael-project-maintenance",
+        "--locked",
+        "--offline",
+        "--tests",
+        "--profile",
+        "test"
+      ],
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\ms\\engine\\codex-rs",
+      "compilationSignature": "4b26de6be2e02e16244632d49fc8bd751921a9ae0182ae1d8dfbad775079add9",
+      "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt\\pending",
+      "status": "success",
+      "phase": "observed-terminal",
+      "lastProgressUtc": "2026-10-30T15:58:00.052Z",
+      "preparingUtc": "2026-10-30T15:57:57.186Z",
+      "spawnAttemptedUtc": "2026-10-30T15:57:57.189Z",
+      "resultObservedUtc": "2026-10-30T15:58:00.052Z",
+      "exitCode": 0,
+      "signal": null,
+      "producerStarted": true,
+      "durationMs": 2869.9733
+    },
+    {
+      "schema": 1,
+      "token": "841543a5-7055-436f-b460-98a5b2cda9df",
+      "run": "pid-35992",
+      "coordinatorPid": 35992,
+      "producerPid": 40920,
+      "startedUtc": "2026-10-30T15:58:00.058Z",
+      "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt\\cargo-target",
+      "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt\\cargo-target",
+      "command": "cargo",
+      "args": [
+        "test",
+        "-p",
+        "azrael-project-maintenance",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1",
+        "--list",
+        "--format=terse"
+      ],
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\ms\\engine\\codex-rs",
+      "compilationSignature": "a92a12ead8aead0cc19b0938702a8cab0a1fb9791048de11e57f562cba78a42d",
+      "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt\\pending",
+      "status": "success",
+      "phase": "observed-terminal",
+      "lastProgressUtc": "2026-10-30T15:58:36.406Z",
+      "preparingUtc": "2026-10-30T15:58:00.058Z",
+      "spawnAttemptedUtc": "2026-10-30T15:58:00.060Z",
+      "resultObservedUtc": "2026-10-30T15:58:36.406Z",
+      "exitCode": 0,
+      "signal": null,
+      "producerStarted": true,
+      "durationMs": 36352.2454
+    },
+    {
+      "schema": 1,
+      "token": "ac63a1e4-bcad-4261-987a-0c810dd92f4f",
+      "run": "pid-35992",
+      "coordinatorPid": 35992,
+      "producerPid": 44780,
+      "startedUtc": "2026-10-30T15:58:36.411Z",
+      "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt\\cargo-target",
+      "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt\\cargo-target",
+      "command": "cargo",
+      "args": [
+        "test",
+        "-p",
+        "azrael-project-maintenance",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1"
+      ],
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\ms\\engine\\codex-rs",
+      "compilationSignature": "a92a12ead8aead0cc19b0938702a8cab0a1fb9791048de11e57f562cba78a42d",
+      "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt\\pending",
+      "status": "success",
+      "phase": "observed-terminal",
+      "lastProgressUtc": "2026-10-30T16:04:20.333Z",
+      "preparingUtc": "2026-10-30T15:58:36.411Z",
+      "spawnAttemptedUtc": "2026-10-30T15:58:36.414Z",
+      "resultObservedUtc": "2026-10-30T16:04:20.333Z",
+      "exitCode": 0,
+      "signal": null,
+      "producerStarted": true,
+      "durationMs": 343925.0791
+    }
+  ],
+  "disposition": "Exact complete old run/ms/mt roots handed to root for owner cleanup; ms2/mt2 are a separate new run; raw evidence no longer required for diagnosis"
+}

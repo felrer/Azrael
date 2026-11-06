@@ -1,0 +1,10 @@
+{
+  "at": "2026-11-02T01:15:17.074Z",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "build_exit": 0,
+  "default_acceptance_exit": 0,
+  "ps_recovery_exit": 0,
+  "binary_sha256": "480e125e26c1c6955a8ed013935a1b06f542472f71d226614047656ab1e50855",
+  "source": "Verification children all synchronously observed terminal; no detached producer launched; all required evidence copied outside run"
+}

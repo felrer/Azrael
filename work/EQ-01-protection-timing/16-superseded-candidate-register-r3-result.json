@@ -1,0 +1,50 @@
+{
+  "exit_code": 0,
+  "signal": null,
+  "stderr": "",
+  "result": {
+    "group": {
+      "cleanup_status": null,
+      "id": "version:maintenance-owner:eq01:delete-apply-r1",
+      "kind": "version",
+      "members": [
+        "abe610c1ad0edfffdbea51140cc7d2c7271f8ed574803e7eb728f37148d340c0"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "50e778a46ed607c1a8f2f99b25734fe29420ca82e07345bb292738fcce0b4bcd",
+      "owner": "EQ-01",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7a88d7c6a0d1735bb90890b7a4acac4fcd4188626acf00619844c57320427009.json",
+      "registered_at_ms": 1793324292098,
+      "version": "6a39e9c6c6002f3eee110a1822403108b803869e586498ae15ce8dda02b39b92-windows-x64-delete-apply-v1"
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "abe610c1ad0edfffdbea51140cc7d2c7271f8ed574803e7eb728f37148d340c0",
+        "identity": "7207e96248d7697f52fc65471d5b37ad758b40c85eb158f73ac50936c03e33a3",
+        "kind": "release",
+        "lifecycle_group_id": "version:maintenance-owner:eq01:delete-apply-r1",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 2386159,
+        "measured_at_ms": 1793324266145,
+        "owner": "EQ-01",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6a39e9c6-win-x64-eq01-delete-apply",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7a88d7c6a0d1735bb90890b7a4acac4fcd4188626acf00619844c57320427009.json",
+        "references": [],
+        "registered_at_ms": 1793324266145,
+        "remaining": true,
+        "role": "release",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "at": "2026-11-02T13:50:37.678Z",
+  "platform": "Windows x64 Node",
+  "runs": [
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd\\reports\\producer-f35562bf111907cfcd255c5b3e1856882caf38ce225acf259662a62d8bbf6bdb.json",
+        "evidence_sha256": "f35562bf111907cfcd255c5b3e1856882caf38ce225acf259662a62d8bbf6bdb",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned test runner and tracked Node child completed",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-workbench.cjs"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned test runner and tracked Node child completed",
+        "children": [
+          {
+            "pid": 29164,
+            "closed": true
+          }
+        ],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "summary": {
+        "startedAt": "2026-11-02T13:47:44.522Z",
+        "endedAt": "2026-11-02T13:48:33.271Z",
+        "exitCode": 0,
+        "signal": null,
+        "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd\\logs\\tests.log",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd",
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd"
+      },
+      "log": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd\\logs\\tests.log",
+        "sha256": "b75685daa433f884cecd6c5f3c65158721ed05231a53a695d7b8b38ae67657d3",
+        "bytes": 7956
+      },
+      "counts": {
+        "tests": 76,
+        "pass": 76,
+        "fail": 0
+      },
+      "failureDetails": null
+    },
+    {
+      "id": "run:DK-01-instruction-catalog-diagnosis:types-7f3fb87e",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-7f3fb87e\\reports\\producer-6dab59142b4e401d340da94869b781fc794f70eb53a87541eace5cf6cc61186f.json",
+        "evidence_sha256": "6dab59142b4e401d340da94869b781fc794f70eb53a87541eace5cf6cc61186f",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:DK-01-instruction-catalog-diagnosis:types-7f3fb87e",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-7f3fb87e",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-library.cjs",
+          "types"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "summary": {
+        "scope": "types",
+        "startedAt": "2026-11-02T13:46:51.177Z",
+        "endedAt": "2026-11-02T13:46:56.438Z",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "extensions/azrael-ex/node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--project",
+          "extensions/azrael-ex/tsconfig.json"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-7f3fb87e\\logs\\types.log",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-7f3fb87e",
+        "reusedValidator": null
+      },
+      "log": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-7f3fb87e\\logs\\types.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "counts": null,
+      "failureDetails": null
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261102T134459662Z-0d495adf-e1a6-4d25-85f8-05560ce3a25e",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134459662Z-0d495adf-e1a6-4d25-85f8-05560ce3a25e\\reports\\producer-068b058203b938d017e37ccf75e22d6c7b7e5879d15bbb987e645c447d5efefe.json",
+        "evidence_sha256": "068b058203b938d017e37ccf75e22d6c7b7e5879d15bbb987e645c447d5efefe",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned test runner and tracked Node child completed",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T134459662Z-0d495adf-e1a6-4d25-85f8-05560ce3a25e",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134459662Z-0d495adf-e1a6-4d25-85f8-05560ce3a25e",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-workbench.cjs"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned test runner and tracked Node child completed",
+        "children": [
+          {
+            "pid": 17508,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "summary": {
+        "startedAt": "2026-11-02T13:45:07.305Z",
+        "endedAt": "2026-11-02T13:45:40.173Z",
+        "exitCode": 1,
+        "signal": null,
+        "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134459662Z-0d495adf-e1a6-4d25-85f8-05560ce3a25e\\logs\\tests.log",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134459662Z-0d495adf-e1a6-4d25-85f8-05560ce3a25e",
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T134459662Z-0d495adf-e1a6-4d25-85f8-05560ce3a25e"
+      },
+      "log": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134459662Z-0d495adf-e1a6-4d25-85f8-05560ce3a25e\\logs\\tests.log",
+        "sha256": "ac0d606dbaf9168cce62dceb0429f2c64c240334938aa93953bcba37436c0ec1",
+        "bytes": 9481
+      },
+      "counts": {
+        "tests": 76,
+        "pass": 74,
+        "fail": 2
+      },
+      "failureDetails": "failing tests:\n\ntest at scripts\\tests\\instruction-workbench-server.test.cjs:43:1\n✖ role-profile transport retains security guards and provider-qualified cached catalog identity (25.1766ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  400 !== 200\n  \n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\tests\\instruction-workbench-server.test.cjs:55:12)\n      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n      at async Test.run (node:internal/test_runner/test:1404:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 400,\n    expected: 200,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at scripts\\tests\\instruction-workbench.test.cjs:66:1\n✖ ordinary profiles require root across activation paths and retain last good role snapshots (156.3ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n  + undefined\n  - [\n  -   'root'\n  - ]\n  \n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\tests\\instruction-workbench.test.cjs:68:10)\n      at async Test.run (node:internal/test_runner/test:1404:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: [ 'root' ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n"
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261102T134606377Z-1b0e6f52-63ca-4259-a658-829c225e477b",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134606377Z-1b0e6f52-63ca-4259-a658-829c225e477b\\reports\\producer-df03c6614c9d8050768bf8678968328f69db68a3bea7fc48f49253e3022234dd.json",
+        "evidence_sha256": "df03c6614c9d8050768bf8678968328f69db68a3bea7fc48f49253e3022234dd",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned test runner and tracked Node child completed",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T134606377Z-1b0e6f52-63ca-4259-a658-829c225e477b",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134606377Z-1b0e6f52-63ca-4259-a658-829c225e477b",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-workbench.cjs"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned test runner and tracked Node child completed",
+        "children": [
+          {
+            "pid": 53548,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "summary": {
+        "startedAt": "2026-11-02T13:46:24.001Z",
+        "endedAt": "2026-11-02T13:47:05.254Z",
+        "exitCode": 1,
+        "signal": null,
+        "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134606377Z-1b0e6f52-63ca-4259-a658-829c225e477b\\logs\\tests.log",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134606377Z-1b0e6f52-63ca-4259-a658-829c225e477b",
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T134606377Z-1b0e6f52-63ca-4259-a658-829c225e477b"
+      },
+      "log": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134606377Z-1b0e6f52-63ca-4259-a658-829c225e477b\\logs\\tests.log",
+        "sha256": "276539c16cbd8971c6f417a62c030be22125a47cc58a767eced5d4a4cec39039",
+        "bytes": 8729
+      },
+      "counts": {
+        "tests": 76,
+        "pass": 75,
+        "fail": 1
+      },
+      "failureDetails": "failing tests:\n\ntest at scripts\\tests\\instruction-workbench.test.cjs:66:1\n✖ ordinary profiles require root across activation paths and retain last good role snapshots (1209.0087ms)\n  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n  \n    assert.ok(edited.profile.diagnostics.some(d => d.code === \"conversation-role-incompatible\"))\n  \n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\tests\\instruction-workbench.test.cjs:79:10)\n      at async Test.run (node:internal/test_runner/test:1404:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n"
+    }
+  ],
+  "installedProductVerified": false
+}

@@ -1,0 +1,494 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "Native verification policy and Cargo execution optimization; product build, final native profile and installation remain separate",
+  "platform": {
+    "os": "win32",
+    "arch": "x64",
+    "node": "v26.7.0"
+  },
+  "nativeProfile": {
+    "name": "cache-lifetime",
+    "checks": [
+      "tool.project-maintenance.library",
+      "tool.project-maintenance.core",
+      "tool.project-maintenance.windows-cleanup",
+      "engine.shared-engine.stable-source"
+    ]
+  },
+  "actualAttempts": [
+    {
+      "attempt": "a",
+      "status": "failed",
+      "controllerPid": 41580,
+      "startedUtc": "2026-10-31T01:38:04.022Z",
+      "finishedUtc": "2026-10-31T01:40:03.225Z",
+      "commands": [
+        {
+          "name": "node-contracts",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "--test",
+            "--test-concurrency=1",
+            "scripts/test-cargo-verification.cjs",
+            "scripts/test-cargo-verification-cache.cjs",
+            "scripts/test-cargo-target-owner.cjs",
+            "scripts/test-feature-preservation.cjs",
+            "scripts/test-pipeline-preservation.cjs"
+          ],
+          "startedUtc": "2026-10-31T01:38:04.033Z",
+          "exitCode": 1,
+          "pid": 42948,
+          "signal": null,
+          "finishedUtc": "2026-10-31T01:40:03.224Z"
+        }
+      ],
+      "unitCounts": {
+        "tests": 137,
+        "pass": 135,
+        "fail": 2,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "validationReportSha256": "6c80333feb71cdd670db1368465392937669f82819fc3ba0166dfdb349c272bf",
+      "nodeStdoutSha256": "11e05f7685c86fd21e773ec47aed4f5cddafe8e6f05b96cbf7197582e9535266",
+      "failingCases": [
+        "✖ audited source-backed checks omit complete product payload identity but retain source and unknown inputs (317.9533ms)",
+        "✖ named native profile preserves source scope, omissions and exact receipt identity (3364.0512ms)",
+        "✖ audited source-backed checks omit complete product payload identity but retain source and unknown inputs (317.9533ms)",
+        "✖ named native profile preserves source scope, omissions and exact receipt identity (3364.0512ms)"
+      ],
+      "failureContext": "✖ failing tests:\n\ntest at scripts\\test-cargo-verification-cache.cjs:145:1\n✖ audited source-backed checks omit complete product payload identity but retain source and unknown inputs (317.9533ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + 'f33e10269d418acf08b88386c502ae3ad88e9fa9c0f82892c81d2eba0e26f6a4'\n  - 'a2cf53a58b483e16572af8cf9d09dd90c9c2fc87406dbf970635844fe27f2658'\n  \n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:160:10)\n      at async Test.run (node:internal/test_runner/test:1404:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'f33e10269d418acf08b88386c502ae3ad88e9fa9c0f82892c81d2eba0e26f6a4',\n    expected: 'a2cf53a58b483e16572af8cf9d09dd90c9c2fc87406dbf970635844fe27f2658',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at scripts\\test-feature-preservation.cjs:200:3\n✖ named native profile preserves source scope, omissions and exact receipt identity (3364.0512ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  'passed' !== 'failed'\n  \n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-feature-preservation.cjs:237:14)\n      at async Test.run (node:internal/test_runner/test:1404:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'passed',\n    expected: 'failed',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+    },
+    {
+      "attempt": "b",
+      "status": "passed",
+      "controllerPid": 45984,
+      "startedUtc": "2026-10-31T01:40:51.739Z",
+      "finishedUtc": "2026-10-31T01:42:45.331Z",
+      "commands": [
+        {
+          "name": "node-contracts",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "--test",
+            "--test-concurrency=1",
+            "scripts/test-cargo-verification.cjs",
+            "scripts/test-cargo-verification-cache.cjs",
+            "scripts/test-cargo-target-owner.cjs",
+            "scripts/test-feature-preservation.cjs",
+            "scripts/test-pipeline-preservation.cjs",
+            "scripts/test-cargo-preflight-recipes.cjs",
+            "scripts/test-pipeline-preflight.cjs",
+            "scripts/test-cargo-scheduling.cjs",
+            "scripts/test-mcp-lazy-startup.cjs"
+          ],
+          "startedUtc": "2026-10-31T01:40:51.749Z",
+          "exitCode": 0,
+          "pid": 51180,
+          "signal": null,
+          "finishedUtc": "2026-10-31T01:42:39.517Z"
+        },
+        {
+          "name": "windows-selection",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "--test",
+            "--test-concurrency=1",
+            "--test-name-pattern=Windows lifecycle acceptance selects only owned cleanup checks with contained fixtures",
+            "scripts/test-artifact-lifecycle.cjs"
+          ],
+          "startedUtc": "2026-10-31T01:42:39.518Z",
+          "exitCode": 0,
+          "pid": 50228,
+          "signal": null,
+          "finishedUtc": "2026-10-31T01:42:39.669Z"
+        },
+        {
+          "name": "deploy-selection",
+          "executable": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+          "args": [
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-File",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031b\\inputs\\invoke-deploy-selection.ps1"
+          ],
+          "startedUtc": "2026-10-31T01:42:39.670Z",
+          "exitCode": 0,
+          "pid": 42412,
+          "signal": null,
+          "finishedUtc": "2026-10-31T01:42:43.098Z"
+        },
+        {
+          "name": "cargo-probe",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031b\\inputs\\run-cargo-probe.cjs",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031b\\inputs\\probe-engine",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031b\\logs\\cargo-probe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031b\\reports\\cargo-probe.json"
+          ],
+          "startedUtc": "2026-10-31T01:42:43.102Z",
+          "exitCode": 0,
+          "pid": 55856,
+          "signal": null,
+          "finishedUtc": "2026-10-31T01:42:45.324Z"
+        }
+      ],
+      "unitCounts": {
+        "tests": 177,
+        "pass": 177,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "validationReportSha256": "dfce406b3870d1c936a30aca896688b538766ca3bab08b2071515072bb4436b9",
+      "nodeStdoutSha256": "37262926e2cd0588d40ddd474ca71f5945b10bcb8cfebdd0a73c97684d12e411",
+      "failingCases": []
+    }
+  ],
+  "inputs": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification.cjs",
+      "sha256": "693c71ca462a95b430d5b5effa7cf70620c38361c364328c28d9b72ccdcbe7c1"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs",
+      "sha256": "7d0e0b841807e5ae7f80f159574dc89344f6c9bee34c4430f1cd1cb76f0a55aa"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-target-owner.cjs",
+      "sha256": "0564f8dd5bb324c524d38ef75739fd148aa4d5db7d19d5e85214567dbb60cb84"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\feature-preservation.cjs",
+      "sha256": "42e31ef7da2ac0f453bf9de61132cdacecb8c9a8b4c29efa743ca85d42261aaf"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\azrael-feature-contracts.json",
+      "sha256": "c9fae64c0f59b62bd1d8400eeb579f81d0a250bde64b0b4c6bf4f0a2568c953f"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\deploy-azrael.ps1",
+      "sha256": "c2742a02796523e13c2afca2fdbdaa2cc0958285919a3b412bcd70050496ab70"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-artifact-lifecycle.cjs",
+      "sha256": "17361a468eabb7985074facbbfddb8c735f8ee526e79255aedb21ba17d651f0c"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification.cjs",
+      "sha256": "e7308f5425e962c6413175d3a2b92643c6b3f29b562752f17fc2bafc5c317994"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs",
+      "sha256": "70262ef80c865c92f4db21160236263de61aa68ccbd50ad21d27d032772fa5c3"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-target-owner.cjs",
+      "sha256": "3f24341acf28759e3b7f54c6cedb15ed307991802a7f003254595f5f8e94f69e"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-feature-preservation.cjs",
+      "sha256": "e9c1b0f76d2f9eaef4780f29761501ddcee5f0bba1d68e890ee0f2ce9921129a"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-pipeline-preservation.cjs",
+      "sha256": "996ce5ed3b5fef83b35aef9d1f220d4c692e01041fc65ce7b333101c94e9aaee"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-artifact-lifecycle.cjs",
+      "sha256": "6095dcaf13ca153969a40135043b8fa3f385fefcfdf4aa140143516c732d537b"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-deploy-azrael.ps1",
+      "sha256": "7214733c0bd66d7a8f2b4d5c6b6430b0394ab6acdc7f9a3788bb430fac5eea95"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\project-maintenance.json",
+      "sha256": "8ee43985e5bade1ef4bb29d823537119a81292ad5757d769fe6d0520b507fadb"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-preflight-recipes.cjs",
+      "sha256": "2b9af96dc44ba4e7fb28a2ad492374b80cf456b1c1476e9da0d30b75cb0b5cdf"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\pipeline-preflight.cjs",
+      "sha256": "c3524d426f125bbd7b43489393aaae625052c284276d112cc3368ccbf46259f9"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-preflight-recipes.cjs",
+      "sha256": "a3e1ec6c3366a30088282600c56ba9e1df40ac72ce5ad1cfc8c1204952ccfdf7"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-pipeline-preflight.cjs",
+      "sha256": "136510bdeb187e9f9d15df9c7f2db5c5ed5e6063883fb2359fceb5fc034cdd77"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-scheduling.cjs",
+      "sha256": "37998cada09526f60a32eab22ad749c9ff78f6c64c74f9a1125452c07c337313"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-mcp-lazy-startup.cjs",
+      "sha256": "2d27d1c337f0979ac6d442a5881f42b832d71f364abdff1ce24eef66335169a0"
+    }
+  ],
+  "retiredInputs": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-test-preparation.cjs",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-test-preparation.cjs",
+      "absent": true
+    }
+  ],
+  "probeResults": [
+    {
+      "name": "pass",
+      "status": 0,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 2,
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "contract": "selected-tests-v2",
+        "cargoInvocations": 1,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 1
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 1,
+          "executed": 1
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "verification-probe",
+              "--lib",
+              "actual_behavior",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-31T01:42:43.155Z",
+            "durationMs": 1708,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero",
+      "status": 1,
+      "signal": null,
+      "error": "Cargo test did not report a nonzero successful actual libtest execution",
+      "preflight": {
+        "schema": 2,
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "contract": "selected-tests-v2",
+        "cargoInvocations": 1,
+        "accepted": false,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 0,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 2
+            }
+          ],
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 2,
+          "executed": 0
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "verification-probe",
+              "--lib",
+              "no_matching_test",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-31T01:42:44.867Z",
+            "durationMs": 109,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "ignored",
+      "status": 1,
+      "signal": null,
+      "error": "Cargo test did not report a nonzero successful actual libtest execution",
+      "preflight": {
+        "schema": 2,
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "contract": "selected-tests-v2",
+        "cargoInvocations": 1,
+        "accepted": false,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 0,
+              "failed": 0,
+              "ignored": 1,
+              "measured": 0,
+              "filteredOut": 1
+            }
+          ],
+          "passed": 0,
+          "failed": 0,
+          "ignored": 1,
+          "measured": 0,
+          "filteredOut": 1,
+          "executed": 0
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "verification-probe",
+              "--lib",
+              "ignored_behavior",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-31T01:42:44.980Z",
+            "durationMs": 108,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "compiler",
+      "status": 101,
+      "signal": null,
+      "error": null,
+      "preflight": {
+        "schema": 2,
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "contract": "selected-tests-v2",
+        "cargoInvocations": 1,
+        "accepted": false,
+        "actualCounts": {
+          "summaries": [],
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0,
+          "executed": 0
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "verification-probe",
+              "--lib",
+              "actual_behavior",
+              "--features",
+              "broken",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-31T01:42:45.091Z",
+            "durationMs": 225,
+            "exitCode": 101,
+            "signal": null
+          }
+        ]
+      }
+    }
+  ],
+  "deploySelection": {
+    "Passed": 1,
+    "Failed": 0,
+    "Logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\deploy-checks\\runs\\126e8a9ca44e410c99a470feac39cdf6\\logs",
+    "Fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\deploy-checks\\runs\\126e8a9ca44e410c99a470feac39cdf6\\temporary\\fixtures spaces 한글",
+    "RunRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\deploy-checks\\runs\\126e8a9ca44e410c99a470feac39cdf6",
+    "Reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\deploy-checks\\runs\\126e8a9ca44e410c99a470feac39cdf6\\reports",
+    "LifecycleId": "run:deploy-checks:126e8a9ca44e410c99a470feac39cdf6",
+    "ResultPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\deploy-checks\\runs\\126e8a9ca44e410c99a470feac39cdf6\\reports\\results.json",
+    "result": {
+      "case": "registered engine owner selection",
+      "exitCode": 0,
+      "passed": true,
+      "metrics": null
+    }
+  },
+  "validationRuns": [
+    {
+      "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "id": "run:ET-01-cold-build-cache-audit:native-policy-optimization-20261031a",
+      "memberPaths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031a"
+      ]
+    },
+    {
+      "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "id": "run:ET-01-cold-build-cache-audit:native-policy-optimization-20261031b",
+      "memberPaths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031b"
+      ]
+    },
+    {
+      "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+      "id": "run:deploy-checks:126e8a9ca44e410c99a470feac39cdf6",
+      "memberPaths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\deploy-checks\\runs\\126e8a9ca44e410c99a470feac39cdf6",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t-126e"
+      ]
+    }
+  ],
+  "productBuildExecuted": false,
+  "oldGTargetTouched": false,
+  "measuredValidationMs": 113592,
+  "finishedUtc": "2026-10-31T01:43:20.380Z"
+}

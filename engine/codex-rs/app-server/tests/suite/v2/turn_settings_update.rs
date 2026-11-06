@@ -61,8 +61,9 @@ async fn settings_updates_report_results_and_preserve_the_target_on_saved_thread
         vec![
             responses::sse(vec![
                 responses::ev_response_created("response-1"),
-                responses::ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "pause-turn",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({
                         "questions": [{
@@ -433,8 +434,9 @@ async fn live_reviewer_updates_route_approvals_without_changing_future_turns(
 
     let server = responses::start_mock_server().await;
     let mut replies = vec![responses::sse(vec![
-        responses::ev_function_call(
+        core_test_support::responses::ev_function_call_with_namespace(
             "pause-turn",
+            "legacy_codex_tools",
             "request_user_input",
             &json!({"questions": [{
                 "id": "continue", "header": "Continue", "question": "Continue?",

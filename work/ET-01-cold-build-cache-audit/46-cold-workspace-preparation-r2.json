@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "status": "frozen-inputs-ready",
+  "primary": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+  "artifactOwner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+  "workingRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w",
+  "controller": {
+    "pid": 24764,
+    "startedUtc": "2026-10-30T06:16:04.616Z",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\prepare-cold-workspace.cjs",
+      "--retry-source"
+    ]
+  },
+  "capture": {
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a",
+    "nonce": "0835848d39ceb999feb45bf71683966279856f7fa93d46b8f9f47f219e2d67d2",
+    "recordingReady": {
+      "helperPid": 29296,
+      "startExitCode": 0,
+      "recordingReadyAt": "2026-10-30T06:02:43.8511200Z",
+      "schema": 1,
+      "instanceName": "ET01-0835848d39ceb999",
+      "nonce": "0835848d39ceb999feb45bf71683966279856f7fa93d46b8f9f47f219e2d67d2",
+      "statusExitCode": 0,
+      "helperStartedAt": "2026-10-30T06:02:40.8967506Z"
+    }
+  },
+  "steps": [],
+  "control": {
+    "id": "work:ET-01:cold-artifact-owner-control",
+    "revision": 1
+  },
+  "caches": {
+    "cargo": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g",
+      "id": "work:ET-01:cold-cache:cargo",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "cargoHome": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\h",
+      "id": "work:ET-01:cold-cache:cargoHome",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "npm": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\n",
+      "id": "work:ET-01:cold-cache:npm",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "bun": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\b",
+      "id": "work:ET-01:cold-cache:bun",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "dotnetHome": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\d",
+      "id": "work:ET-01:cold-cache:dotnetHome",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "nuget": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\u",
+      "id": "work:ET-01:cold-cache:nuget",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "pending": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\p",
+      "id": "work:ET-01:cold-cache:pending",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "pip": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\pip",
+      "id": "work:ET-01:cold-cache:pip",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "temporary": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t",
+      "id": "work:ET-01:cold-cache:temporary",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "fixtures": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f",
+      "id": "work:ET-01:cold-cache:fixtures",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "windowControl": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\wc",
+      "id": "work:ET-01:cold-cache:windowControl",
+      "revision": 1,
+      "absentBefore": true
+    }
+  },
+  "run": {
+    "id": "run:ET-01-cold-build-cache-audit:inputs-20261030b",
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\inputs-20261030b",
+    "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\inputs-20261030b\\reports",
+    "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\inputs-20261030b\\logs"
+  },
+  "environment": {
+    "CARGO_HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\h",
+    "npm_config_cache": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\n",
+    "BUN_INSTALL_CACHE_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\b",
+    "DOTNET_CLI_HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\d",
+    "NUGET_PACKAGES": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\u",
+    "PIP_CACHE_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\pip",
+    "TEMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t",
+    "TMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t",
+    "TMPDIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t",
+    "INSTA_UPDATE": "no",
+    "INSTA_PENDING_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\p",
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PATH": "C:/Users/felre/AppData/Local/Programs/PowerShell/7;C:/Users/felre/AppData/Local/Programs/Python/Python313;C:/Users/felre/.cargo/bin;C:/Program Files/nodejs;C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\bun-1.4.2\\package\\bin;C:\\Users\\felre\\.azrael-ex\\tmp\\arg0\\codex-arg0fpSFXI;C:\\Users\\felre\\.azrael-ex\\tmp\\arg0\\codex-arg0LvCbHh;C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.20.8-hotspot\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\GitHub CLI\\;C:\\Program Files\\nodejs\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR;C:\\Program Files\\Tailscale\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files\\dotnet\\;C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\;c:\\Users\\felre\\.vscode\\extensions\\azrael-ex-local.azrael-2026.0.13\\bin\\windows-x86_64",
+    "AZRAEL_MAINTENANCE_OWNER": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe"
+  },
+  "context": {
+    "reportPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\inputs-20261030b\\reports\\workspace.json",
+    "manifestSha256": "aa1ef86a6ba9317f7e9265ce707466d0efbd38a0cc388514ea6d16c32cf17080",
+    "inputRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\i2",
+    "workingRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w",
+    "immutableProjectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\i2\\project",
+    "workingEngineRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\engine",
+    "immutableEngineRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\i2\\project\\engine",
+    "moduleCacheProjectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+    "inputLifecycleId": "input:4b2824a7dc10d2a3f19376b2",
+    "workingLifecycleId": "workspace:4b2824a7dc10d2a3f19376b2",
+    "projectSha256": "d11e6e62abecfe90086aefb8b5a040dd67bd16d6e2316f404aca993a90f50204",
+    "engine": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9342,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "fe89c76ca30d2f6363cdd278e6fc3320724013d4caab8251994559c387e3be21",
+      "importedReceiptSha256": "7c17a0665896d4d23f05f25f1dd31b2aa8da77127d4e899a62a21c397c1fcc81",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "f68496044985ca443e5329071bf5c35d044df9e989d135c17ff7e6918c145657",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "timings": {
+      "sourceSnapshotMs": 9267.7608,
+      "enginePreflightMs": 12096.463300000001,
+      "immutableSnapshotMs": 0.0008999999845400453,
+      "immutableCaptureMs": 357720.4556,
+      "workingCaptureMs": 260708.06940000004,
+      "workingCapturePhasesMs": {
+        "inventory": 2543.6178000000073,
+        "copy": 224956.09719999996,
+        "git": 24259.345899999957,
+        "finalHash": 8930.512299999944
+      },
+      "workingGitIo": {
+        "reusedFileCount": 13827,
+        "writtenObjectCount": 11879
+      },
+      "engineFreezeMs": 210001.8199,
+      "immutableInventoryMs": 15871.403500000015,
+      "immutableGitPreparationMs": 69159.58499999999,
+      "workingGitPreparationMs": 57885.54580000002,
+      "preparationMs": 993834.5532000001
+    }
+  },
+  "finishedUtc": "2026-10-30T06:32:40.901Z"
+}

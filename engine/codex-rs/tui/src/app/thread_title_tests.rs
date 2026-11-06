@@ -269,6 +269,7 @@ async fn check_thread_title_generation(scenario: TitleScenario) -> color_eyre::R
         .turns
         .push(Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
             id: "existing-turn".to_string(),
             root_turn_id: None,
             parent_turn_id: None,

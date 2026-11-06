@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-03T22:01:31.148Z",
+  "groups": [
+    {
+      "id": "run:FA-01-deployment-fixture-validation:fixture17o",
+      "producer": {
+        "lifecycleId": "run:FA-01-deployment-fixture-validation:fixture17o",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-deployment-fixture-validation\\runs\\fixture17o",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Isolated test fixture controller and all tracked pwsh children actual close; no product build",
+        "children": [
+          {
+            "pid": 55488,
+            "closed": true
+          },
+          {
+            "pid": 37084,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "result": {
+        "schema": 1,
+        "lifecycleId": "run:FA-01-deployment-fixture-validation:fixture17o",
+        "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17n",
+        "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\fd17",
+        "selectedTestSha256": "9eca5db33bf6c645fb1c0490ba7a6421e6df1ba81b16cda282782b4d72b6ee6f",
+        "patchSha256": "965b1012c5d3779f180cf73ff46b9ec9702fbeaa9f6d296150b9f131f8c7f5d1",
+        "startedUtc": "2026-11-03T21:48:28.628Z",
+        "calls": [
+          {
+            "name": "affected-case",
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "name": "deployment-suite",
+            "exitCode": 1,
+            "signal": null
+          }
+        ],
+        "productCompilation": false,
+        "active": null,
+        "error": "Error: deployment-suite failed 1\n    at invoke ([stdin]:20:119)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async [stdin]:33:2",
+        "finishedUtc": "2026-11-03T21:48:51.054Z"
+      },
+      "resultSha256": "106c61cca1ca4cf3451e67e715c06068f891cc97d4eaf0c9cbd59fca28527c3c",
+      "rawLogs": [
+        {
+          "name": "affected-case.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "name": "affected-case.stdout.log",
+          "sha256": "08f8e1a1d308cb462e469a72e52a5d2b5d3b25e2c08c6bf3d430b91ac7b67b03",
+          "bytes": 611
+        },
+        {
+          "name": "deployment-suite.stderr.log",
+          "sha256": "a40eb4aa66a47f96307d7b43fa6518497bd7214ae0fd85c2a39c7b521fc35e90",
+          "bytes": 461
+        },
+        {
+          "name": "deployment-suite.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "firstCausalDiagnostic": "Exception: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\fd17\\scripts\\test-deploy-azrael.ps1:63\r\nLine |\r\n  63 |  … dition, [string]$Message) { if (-not $Condition) { throw $Message } }\r\n     |                                                       ~~~~~~~~~~~~~~에서\r\n     | large args-file launch failed: Cannot find module 'typescript' Require stack: -\r\n     | C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\fd17\\scripts\\test-project.cjs\r\n",
+      "reason": "Superseded scripts-only fixture attempts. Existing source/patch and next attempt preserve selected inputs; failing outcomes independently retained here."
+    },
+    {
+      "id": "run:FA-01-deployment-fixture-validation:fixture17o2",
+      "producer": {
+        "lifecycleId": "run:FA-01-deployment-fixture-validation:fixture17o2",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-deployment-fixture-validation\\runs\\fixture17o2",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Isolated test fixture controller and all tracked pwsh children actual close; no product build",
+        "children": [
+          {
+            "pid": 30272,
+            "closed": true
+          },
+          {
+            "pid": 12488,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "result": {
+        "schema": 1,
+        "lifecycleId": "run:FA-01-deployment-fixture-validation:fixture17o2",
+        "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17n",
+        "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\fd18",
+        "selectedTestSha256": "9eca5db33bf6c645fb1c0490ba7a6421e6df1ba81b16cda282782b4d72b6ee6f",
+        "patchSha256": "965b1012c5d3779f180cf73ff46b9ec9702fbeaa9f6d296150b9f131f8c7f5d1",
+        "startedUtc": "2026-11-03T21:50:15.757Z",
+        "calls": [
+          {
+            "name": "affected-case",
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "name": "deployment-suite",
+            "exitCode": 1,
+            "signal": null
+          }
+        ],
+        "productCompilation": false,
+        "typescript": {
+          "sourcePackage": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17n\\extensions\\azrael-ex\\node_modules\\typescript",
+          "version": "5.9.3",
+          "packageSha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6"
+        },
+        "active": null,
+        "error": "Error: deployment-suite failed 1\n    at invoke ([stdin]:20:119)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async [stdin]:35:2",
+        "finishedUtc": "2026-11-03T21:58:53.290Z"
+      },
+      "resultSha256": "5ef3e7309813c973f5809be64af3867134e2288e6ecb016658cb31bae593c935",
+      "rawLogs": [
+        {
+          "name": "affected-case.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "name": "affected-case.stdout.log",
+          "sha256": "b3950fc48eacbf9f916898221619138fb58e2cfdce397c149f7f85fbf3f3c5bf",
+          "bytes": 611
+        },
+        {
+          "name": "deployment-suite.stderr.log",
+          "sha256": "234e322daf935bd3fa4387b7b271c70bfc1f45ddffae479afff8c181bf2731e9",
+          "bytes": 1807
+        },
+        {
+          "name": "deployment-suite.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "firstCausalDiagnostic": "[eval]:1\r\nconst path=require(\"node:path\"),l=require(process.argv[1]);const r=l.catalog(process.argv[2]).find(r=>r.id===process.argv[3]);if(!r||r.kind!==\"version\"||r.owner!==\"azrael-release\"||![\"pending\",\"complete\"].includes(r.state)||!JSON.parse(process.argv[4]).every(p=>r.members.some(m=>{const x=path.relative(m.path,path.resolve(p));return !path.isAbsolute(x)&&x!==\"..\"&&!x.startsWith(\"..\"+path.sep)})))throw Error(\"Exact parent release must own cleanup report and evidence\");\r\n                                                                                                                                                                                                                                                                                                                                                                                                             ^\r\n\r\nError: Exact parent release must own cleanup report and evidence\r\n    at [eval]:1:404\r\n    at runScriptInThisContext (node:internal/vm:219:10)\r\n    at node:internal/process/execution:483:12\r\n    at [eval]-wrapper:6:24\r\n    at runScriptInContext (node:internal/process/execution:481:60)\r\n    at evalFunction (node:internal/process/execution:315:30)\r\n    at evalTypeScript (node:internal/process/execution:327:3)\r\n    at node:internal/main/eval_string:71:3\r\n\r\nNode.js v26.7.0\r\nException: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\fd18\\scripts\\test-deploy-azrael.ps1:63\r\nLine |\r\n  63 |  … dition, [string]$Message) { if (-not $Condition) { throw $Message } }\r\n     |                                                       ~~~~~~~~~~~~~~에서\r\n     | Unexpected exit code 1 in account-success; see\r\n     | C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\fd18\\artifacts\\d2\\logs/account-success.stderr.log\r\n",
+      "reason": "Superseded scripts-only fixture attempts. Existing source/patch and next attempt preserve selected inputs; failing outcomes independently retained here."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "archive_proof": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\20-reboot-archive-result.json",
+  "archive_proof_sha256": "e4b7d0de43ea7e95b7bff28b1dcf71f47d36cc9f668982b5465fcc7c6aede334",
+  "finalizations": [
+    {
+      "id": "shared:cargo-target:96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\2ccb122b6576446d3d428c7fb4cd7320c0f20cd938681fcf63fadff927ed2752.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\20-reboot-archive-result.json",
+        "sha256": "e4b7d0de43ea7e95b7bff28b1dcf71f47d36cc9f668982b5465fcc7c6aede334",
+        "reason": "Verified later Windows reboot and no current consumers; user requested archive; same-volume rename identity and original absence verified while unknown history retained",
+        "original_state": "pending",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "shared:cargo-pending:dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7c95d4a0df73e2bc6426d49f9487207a2e63eb2eb46073473b48100d09ad52dd.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\20-reboot-archive-result.json",
+        "sha256": "e4b7d0de43ea7e95b7bff28b1dcf71f47d36cc9f668982b5465fcc7c6aede334",
+        "reason": "Verified later Windows reboot and no current consumers; user requested archive; same-volume rename identity and original absence verified while unknown history retained",
+        "original_state": "pending",
+        "original_membership_complete": true
+      }
+    }
+  ],
+  "source_registry_absent": true,
+  "status": "archived-and-finalized"
+}

@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "phase": "source-ready",
+  "pid": 50732,
+  "startedUtc": "2026-10-30T20:10:51.064Z",
+  "parentSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\ms3\\engine-r3",
+  "parentSha256": "9baf7c13bdc1a3c479b6708824bf2c388b0a8bf090c79437304e9266d2967cd3",
+  "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\ms3\\engine-r4",
+  "overlay": "codex-rs/project-maintenance/tests/registry.rs",
+  "overlaySha256": "f2c9d230721ef11cd71645c391d956b04569ce16cf53184bd4e33318d3b3129c",
+  "compilerStarted": false,
+  "priorSelectedExitCode": 101,
+  "priorDriverExitCode": 1,
+  "finishedUtc": "2026-10-30T20:15:56.061Z",
+  "frozenSha256": "85d4e9984fc4d54d9c083c2cfc0353b9972b666e55415ff6351c97d3ad7c15ce",
+  "parentAfterSha256": "9baf7c13bdc1a3c479b6708824bf2c388b0a8bf090c79437304e9266d2967cd3",
+  "identitySha256": "f3156996005c34bd3c561a1db463481f665485ec65413c2ffd19ecb7fc41853c",
+  "fileCount": 9344
+}

@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "ids": [
+    "run:ec01-workspace-owner:r1",
+    "run:ec01-workspace-owner:r2",
+    "run:ec01-workspace-owner:r3"
+  ],
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+  "operations": [
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "elapsedMs": 114499,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "elapsedMs": 110587,
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "exitCode": 0,
+      "elapsedMs": 119006,
+      "stderr": ""
+    },
+    {
+      "operation": "review",
+      "exitCode": 0,
+      "elapsedMs": 17377,
+      "stderr": ""
+    },
+    {
+      "operation": "apply",
+      "exitCode": 0,
+      "elapsedMs": 293598,
+      "stderr": ""
+    }
+  ],
+  "review": {
+    "groups": [
+      {
+        "id": "run:ec01-workspace-owner:r1",
+        "membership_complete": true,
+        "owner": "ec01-workspace-owner",
+        "kind": "run"
+      },
+      {
+        "id": "run:ec01-workspace-owner:r2",
+        "membership_complete": true,
+        "owner": "ec01-workspace-owner",
+        "kind": "run"
+      },
+      {
+        "id": "run:ec01-workspace-owner:r3",
+        "membership_complete": true,
+        "owner": "ec01-workspace-owner",
+        "kind": "run"
+      }
+    ],
+    "items": [
+      {
+        "id": "5b89771bcb0d59bfe63c466d0b92ddfa809a7c117a92417d50b9e6196b12c039",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-workspace-owner\\runs\\r1",
+        "token": "a5bdefbef08608259a8eaa86093795821f9db65b946dff8424d8561e9850f871",
+        "blockers": [],
+        "presence": "present"
+      },
+      {
+        "id": "a7d037e9da117bb9f2dbd0e6fc4bfd24964e4836cbc1f919cfc5d00bd2aabb7f",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-workspace-owner\\runs\\r3",
+        "token": "b8b386b98a43bc2468fdd4b9d52fbe205ab6920f2249a0c49c6faed20f8b1bc0",
+        "blockers": [],
+        "presence": "present"
+      },
+      {
+        "id": "c1e4f505b4139766017b91a003ec3567b2fc3db9cb1f09ca27a304e5718f74d9",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-workspace-owner\\runs\\r2",
+        "token": "2ac7126cd3013da48bd87237eb82039379719f57acfbdacef3735a0ce6f99ce1",
+        "blockers": [],
+        "presence": "present"
+      }
+    ]
+  },
+  "apply": {
+    "results": [
+      {
+        "id": "5b89771bcb0d59bfe63c466d0b92ddfa809a7c117a92417d50b9e6196b12c039",
+        "group": "run:ec01-workspace-owner:r1",
+        "status": "deleted",
+        "group_status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "status": "deleted",
+          "remaining": false,
+          "error": null,
+          "normalizedAttributes": 68
+        },
+        "decision": "delete",
+        "token": "a5bdefbef08608259a8eaa86093795821f9db65b946dff8424d8561e9850f871"
+      },
+      {
+        "id": "a7d037e9da117bb9f2dbd0e6fc4bfd24964e4836cbc1f919cfc5d00bd2aabb7f",
+        "group": "run:ec01-workspace-owner:r3",
+        "status": "deleted",
+        "group_status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "status": "deleted",
+          "remaining": false,
+          "error": null,
+          "normalizedAttributes": 263
+        },
+        "decision": "delete",
+        "token": "b8b386b98a43bc2468fdd4b9d52fbe205ab6920f2249a0c49c6faed20f8b1bc0"
+      },
+      {
+        "id": "c1e4f505b4139766017b91a003ec3567b2fc3db9cb1f09ca27a304e5718f74d9",
+        "group": "run:ec01-workspace-owner:r2",
+        "status": "deleted",
+        "group_status": "deleted",
+        "remaining": false,
+        "deletion": {
+          "status": "deleted",
+          "remaining": false,
+          "error": null,
+          "normalizedAttributes": 167
+        },
+        "decision": "delete",
+        "token": "2ac7126cd3013da48bd87237eb82039379719f57acfbdacef3735a0ce6f99ce1"
+      }
+    ]
+  },
+  "absence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-workspace-owner\\runs\\r1",
+      "exists": false
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-workspace-owner\\runs\\r3",
+      "exists": false
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-workspace-owner\\runs\\r2",
+      "exists": false
+    }
+  ],
+  "finalized": [
+    {
+      "id": "run:ec01-workspace-owner:r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fabdcede943baf84ae2c5d30a29ddd2690eb88b868796559f27a50cb54475e0a.json"
+    },
+    {
+      "id": "run:ec01-workspace-owner:r2",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9ddb575d06459fd75702ef146292406eeadce7b2822d9a6114a7b341d7a63297.json"
+    },
+    {
+      "id": "run:ec01-workspace-owner:r3",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\290b02b80bf34cc8d1bba33e5fef99251eae6df439d638068f2a6210abbd6a73.json"
+    }
+  ],
+  "emptyScaffoldCleanup": {
+    "command": "Remove-Item -LiteralPath <verified empty runs/task directories> (nonrecursive)",
+    "exitCode": 0,
+    "taskDirectory": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/ec01-workspace-owner",
+    "exists": false
+  }
+}

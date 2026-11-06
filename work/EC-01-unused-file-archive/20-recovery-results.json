@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "started_at": "2026-10-28T06:28:50.164Z",
+  "operations": [
+    {
+      "operation": "recoverTargetOwner",
+      "result": {
+        "recovered": true,
+        "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+        "receipt_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\cargo-terminal\\96c960-reboot-20261028-r1-recovery.json",
+        "result": {
+          "status": "unknown",
+          "exitCode": null
+        }
+      }
+    },
+    {
+      "operation": "recoverCleanup",
+      "id": "shared:cargo-target:96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "revision": 6,
+      "state": "pending",
+      "producer": null,
+      "membership_complete": true
+    },
+    {
+      "operation": "recoverCleanup",
+      "id": "shared:cargo-pending:dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+      "revision": 22,
+      "state": "pending",
+      "producer": null,
+      "membership_complete": true
+    }
+  ],
+  "exit_code": 0,
+  "ended_at": "2026-10-28T06:29:00.417Z"
+}

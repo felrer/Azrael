@@ -1,0 +1,676 @@
+{
+  "observedUtc": "2026-10-30T02:48:12.430Z",
+  "ownerSha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+  "exitCode": 0,
+  "result": {
+    "groups": [
+      {
+        "cached_live_members": 8,
+        "cleanup_status": "deferred",
+        "id": "do1-unused-native-outputs-r1",
+        "kind": "work",
+        "members_total": 8,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\native-output-retirement.json",
+        "membership_source_format": null,
+        "membership_source_identity": "20f897ad46d8e240e0c494b813125c741c92f13e9ff146e103a1038d16021890",
+        "owner": "DO-01-codex-version-comparison",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\02-plan.md",
+        "version": null
+      },
+      {
+        "cached_live_members": 4,
+        "cleanup_status": "deferred",
+        "id": "do2-native-outputs-r1",
+        "kind": "work",
+        "members_total": 4,
+        "membership_complete": true,
+        "membership_source": null,
+        "membership_source_format": null,
+        "membership_source_identity": null,
+        "owner": "codex-retained-reasoning",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\02-plan.md",
+        "version": "reasoning-r1"
+      }
+    ],
+    "items": [
+      {
+        "blockers": [
+          "overlapping lifecycle member requires its own whole-group decision",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.pdb"
+        ],
+        "group_token": "abfa2b7d950e51dd4d830c6dd22f7a553618dbeba0cd4e3856f46ac1e5fa9de4",
+        "id": "do1-unused-native-all-c71321a47dbe4ed9.exe",
+        "identity": "9bbe695b257cbc8373cbcc566fc8d181b0ed49270d4d3bf9aa552817db331716",
+        "lifecycle_group_id": "do1-unused-native-outputs-r1",
+        "logical_bytes": 303104000,
+        "measured_at_ms": 1793077540130,
+        "membership_source_observation": {
+          "identity": "20f897ad46d8e240e0c494b813125c741c92f13e9ff146e103a1038d16021890",
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793328492232,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.exe",
+        "presence": "present",
+        "related_items": [
+          {
+            "blockers": [],
+            "id": "do2-all-c71321a47dbe4ed9.exe",
+            "token": "3e9ee0fd94a7228ea3298ea3567bf8f7bb20da70bbfc7459dcbfd2b487786226"
+          }
+        ],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              15,
+              126,
+              31,
+              0,
+              0,
+              0,
+              20,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "47b4950b1908a084fe692dfcfc6093aea571adb5faf8fea3f67cdcfeb7555626",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "overlapping lifecycle member requires its own whole-group decision",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.pdb"
+        ],
+        "group_token": "abfa2b7d950e51dd4d830c6dd22f7a553618dbeba0cd4e3856f46ac1e5fa9de4",
+        "id": "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+        "identity": "6a290d1803d265da8f12a91de1f89d8371145f398097342112638ddfbb5824ee",
+        "lifecycle_group_id": "do1-unused-native-outputs-r1",
+        "logical_bytes": 868913152,
+        "measured_at_ms": 1793077543342,
+        "membership_source_observation": {
+          "identity": "20f897ad46d8e240e0c494b813125c741c92f13e9ff146e103a1038d16021890",
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793328492246,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.pdb",
+        "presence": "present",
+        "related_items": [
+          {
+            "blockers": [],
+            "id": "do2-all-c71321a47dbe4ed9.pdb",
+            "token": "94b22dabaeb5c0e99be6a983f9a16b2a597c2fcabf6b16fc20f71a4693227613"
+          }
+        ],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              158,
+              164,
+              21,
+              0,
+              0,
+              0,
+              72,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "9fac0b3fac39b89968f9cef6812880b607399a4e4ecdae3a14cb092dbc768400",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.pdb"
+        ],
+        "group_token": "abfa2b7d950e51dd4d830c6dd22f7a553618dbeba0cd4e3856f46ac1e5fa9de4",
+        "id": "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+        "identity": "2d42604bc63984550f0b08184e9761f2cf215c8bf9d2873f85a414c6d079f0a2",
+        "lifecycle_group_id": "do1-unused-native-outputs-r1",
+        "logical_bytes": 0,
+        "measured_at_ms": 1792929538939,
+        "membership_source_observation": {
+          "identity": "20f897ad46d8e240e0c494b813125c741c92f13e9ff146e103a1038d16021890",
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793328492257,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_app_server-ab0fa3885fa06f43.exe",
+        "presence": "absent",
+        "related_items": [],
+        "remaining": false,
+        "root_observation": {
+          "presence": "absent"
+        },
+        "token": "48110e23ebf25e7f64dcb196e3ffbbc22fce79abfdcbc911c3b838a18d44f7d0",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.pdb"
+        ],
+        "group_token": "abfa2b7d950e51dd4d830c6dd22f7a553618dbeba0cd4e3856f46ac1e5fa9de4",
+        "id": "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+        "identity": "5325442c7482fab21c2d347b61e04a6100a33ecff481a279d6a056884efd7be7",
+        "lifecycle_group_id": "do1-unused-native-outputs-r1",
+        "logical_bytes": 0,
+        "measured_at_ms": 1792929542342,
+        "membership_source_observation": {
+          "identity": "20f897ad46d8e240e0c494b813125c741c92f13e9ff146e103a1038d16021890",
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793328492266,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_app_server-ab0fa3885fa06f43.pdb",
+        "presence": "absent",
+        "related_items": [],
+        "remaining": false,
+        "root_observation": {
+          "presence": "absent"
+        },
+        "token": "1540fb32749cb82b67388f39131f8e0f9d1ff6002d9740c5c09bfac198cb6e0c",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "overlapping lifecycle member requires its own whole-group decision",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.pdb"
+        ],
+        "group_token": "abfa2b7d950e51dd4d830c6dd22f7a553618dbeba0cd4e3856f46ac1e5fa9de4",
+        "id": "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+        "identity": "f4aa409723b56474d9b8a8668e6694d599c077a3e74a65d3889862b4c4ecc989",
+        "lifecycle_group_id": "do1-unused-native-outputs-r1",
+        "logical_bytes": 321040384,
+        "measured_at_ms": 1793077535339,
+        "membership_source_observation": {
+          "identity": "20f897ad46d8e240e0c494b813125c741c92f13e9ff146e103a1038d16021890",
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793328492275,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.exe",
+        "presence": "present",
+        "related_items": [
+          {
+            "blockers": [],
+            "id": "do2-codex_core-ee1b27bb08f71819.exe",
+            "token": "9cc1ea21d1ec82c3deadaf1e9795033aa315e7027a690fb185f321e257b419f9"
+          }
+        ],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              73,
+              26,
+              178,
+              0,
+              0,
+              0,
+              7,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "0998eaae678d483fbb99d9c3a9b71b4c984d6a12b08a16a46d714ddfb7b180bf",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "overlapping lifecycle member requires its own whole-group decision",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.pdb"
+        ],
+        "group_token": "abfa2b7d950e51dd4d830c6dd22f7a553618dbeba0cd4e3856f46ac1e5fa9de4",
+        "id": "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+        "identity": "3b441c4256839e3f58c01599e6eb3ae1bacc761dacdf154fc291ca2af5e870b2",
+        "lifecycle_group_id": "do1-unused-native-outputs-r1",
+        "logical_bytes": 910495744,
+        "measured_at_ms": 1793077538959,
+        "membership_source_observation": {
+          "identity": "20f897ad46d8e240e0c494b813125c741c92f13e9ff146e103a1038d16021890",
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793328492287,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.pdb",
+        "presence": "present",
+        "related_items": [
+          {
+            "blockers": [],
+            "id": "do2-codex_core-ee1b27bb08f71819.pdb",
+            "token": "309b24e2e45ef47f2e3e0cf11e806cbd782201359d913f958de31e517940e080"
+          }
+        ],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              74,
+              26,
+              178,
+              0,
+              0,
+              0,
+              7,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "0327b4debfdf7c26fd44696d018fc5a4d5ff2c661522e740043030fc09a3906c",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.pdb"
+        ],
+        "group_token": "abfa2b7d950e51dd4d830c6dd22f7a553618dbeba0cd4e3856f46ac1e5fa9de4",
+        "id": "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+        "identity": "2936c30e2d802111881aaae37ff980ecb92ca8011b8477fbe6fb98f91f2a6a2a",
+        "lifecycle_group_id": "do1-unused-native-outputs-r1",
+        "logical_bytes": 0,
+        "measured_at_ms": 1792929544272,
+        "membership_source_observation": {
+          "identity": "20f897ad46d8e240e0c494b813125c741c92f13e9ff146e103a1038d16021890",
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793328492300,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_tui-128ff604062e1c7e.exe",
+        "presence": "absent",
+        "related_items": [],
+        "remaining": false,
+        "root_observation": {
+          "presence": "absent"
+        },
+        "token": "4d3b17ac95c1ab83e72429d08d83a5176f6a3a932734534cb4bd7d289dbb8c04",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+          "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+          "do1-unused-native-codex_tui-128ff604062e1c7e.pdb"
+        ],
+        "group_token": "abfa2b7d950e51dd4d830c6dd22f7a553618dbeba0cd4e3856f46ac1e5fa9de4",
+        "id": "do1-unused-native-codex_tui-128ff604062e1c7e.pdb",
+        "identity": "2f630fd25e0b01de6c65f386e5cc56f43f8d6cf311783c75ec60cf4122aa8d28",
+        "lifecycle_group_id": "do1-unused-native-outputs-r1",
+        "logical_bytes": 0,
+        "measured_at_ms": 1792929548806,
+        "membership_source_observation": {
+          "identity": "20f897ad46d8e240e0c494b813125c741c92f13e9ff146e103a1038d16021890",
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793328492309,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_tui-128ff604062e1c7e.pdb",
+        "presence": "absent",
+        "related_items": [],
+        "remaining": false,
+        "root_observation": {
+          "presence": "absent"
+        },
+        "token": "9b7f6ba9df944913ae760f9bd5e79d33ef8fa8fe9568a1a00b7b7e5e6ec2f8a0",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "overlapping lifecycle member requires its own whole-group decision",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do2-all-c71321a47dbe4ed9.exe",
+          "do2-all-c71321a47dbe4ed9.pdb",
+          "do2-codex_core-ee1b27bb08f71819.exe",
+          "do2-codex_core-ee1b27bb08f71819.pdb"
+        ],
+        "group_token": "961cbc734660f775bec9b852698e348fd65dbf93fbe498888c62f575ee2aa931",
+        "id": "do2-all-c71321a47dbe4ed9.exe",
+        "identity": "9bbe695b257cbc8373cbcc566fc8d181b0ed49270d4d3bf9aa552817db331716",
+        "lifecycle_group_id": "do2-native-outputs-r1",
+        "logical_bytes": 303104000,
+        "measured_at_ms": 1793077475699,
+        "membership_source_observation": null,
+        "observation_error": null,
+        "observed_at_ms": 1793328492322,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.exe",
+        "presence": "present",
+        "related_items": [
+          {
+            "blockers": [],
+            "id": "do1-unused-native-all-c71321a47dbe4ed9.exe",
+            "token": "e301e9d73abc64d81e9097303b16248c4f3b4dbbb84867a915dee2c2e1591134"
+          }
+        ],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              15,
+              126,
+              31,
+              0,
+              0,
+              0,
+              20,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "9d4527b690fb9804ee31ab765a02bcca1dbc6ccfd57734b81b92bda346ad70c9",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "overlapping lifecycle member requires its own whole-group decision",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do2-all-c71321a47dbe4ed9.exe",
+          "do2-all-c71321a47dbe4ed9.pdb",
+          "do2-codex_core-ee1b27bb08f71819.exe",
+          "do2-codex_core-ee1b27bb08f71819.pdb"
+        ],
+        "group_token": "961cbc734660f775bec9b852698e348fd65dbf93fbe498888c62f575ee2aa931",
+        "id": "do2-all-c71321a47dbe4ed9.pdb",
+        "identity": "6a290d1803d265da8f12a91de1f89d8371145f398097342112638ddfbb5824ee",
+        "lifecycle_group_id": "do2-native-outputs-r1",
+        "logical_bytes": 868913152,
+        "measured_at_ms": 1793077479021,
+        "membership_source_observation": null,
+        "observation_error": null,
+        "observed_at_ms": 1793328492335,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.pdb",
+        "presence": "present",
+        "related_items": [
+          {
+            "blockers": [],
+            "id": "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+            "token": "8b3610e3f72a56d0bb59be35160d5599e21f31bc4558eaef51cdfade439e1798"
+          }
+        ],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              158,
+              164,
+              21,
+              0,
+              0,
+              0,
+              72,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "e8893728c8c9b4f2c5282304f5dd367f166ba06bb261410aada56e5049490592",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "overlapping lifecycle member requires its own whole-group decision",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do2-all-c71321a47dbe4ed9.exe",
+          "do2-all-c71321a47dbe4ed9.pdb",
+          "do2-codex_core-ee1b27bb08f71819.exe",
+          "do2-codex_core-ee1b27bb08f71819.pdb"
+        ],
+        "group_token": "961cbc734660f775bec9b852698e348fd65dbf93fbe498888c62f575ee2aa931",
+        "id": "do2-codex_core-ee1b27bb08f71819.exe",
+        "identity": "f4aa409723b56474d9b8a8668e6694d599c077a3e74a65d3889862b4c4ecc989",
+        "lifecycle_group_id": "do2-native-outputs-r1",
+        "logical_bytes": 321040384,
+        "measured_at_ms": 1793077470988,
+        "membership_source_observation": null,
+        "observation_error": null,
+        "observed_at_ms": 1793328492348,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.exe",
+        "presence": "present",
+        "related_items": [
+          {
+            "blockers": [],
+            "id": "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+            "token": "e4931413e37613778a031c59bea4403aa52dc747da9488bb47491bdac87f76c8"
+          }
+        ],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              73,
+              26,
+              178,
+              0,
+              0,
+              0,
+              7,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "efc05c621914d5d800dc1b678c49d3515883e2779334d4d822496ed474ffdc50",
+        "verification": "registered"
+      },
+      {
+        "blockers": [
+          "overlapping lifecycle member requires its own whole-group decision",
+          "a lifecycle group member is protected"
+        ],
+        "group_member_ids": [
+          "do2-all-c71321a47dbe4ed9.exe",
+          "do2-all-c71321a47dbe4ed9.pdb",
+          "do2-codex_core-ee1b27bb08f71819.exe",
+          "do2-codex_core-ee1b27bb08f71819.pdb"
+        ],
+        "group_token": "961cbc734660f775bec9b852698e348fd65dbf93fbe498888c62f575ee2aa931",
+        "id": "do2-codex_core-ee1b27bb08f71819.pdb",
+        "identity": "3b441c4256839e3f58c01599e6eb3ae1bacc761dacdf154fc291ca2af5e870b2",
+        "lifecycle_group_id": "do2-native-outputs-r1",
+        "logical_bytes": 910495744,
+        "measured_at_ms": 1793077474477,
+        "membership_source_observation": null,
+        "observation_error": null,
+        "observed_at_ms": 1793328492361,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.pdb",
+        "presence": "present",
+        "related_items": [
+          {
+            "blockers": [],
+            "id": "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+            "token": "8d3be75f778d220d5237cc48311a67e02c2b6b9db6ef2bb1ebd46621cede6f37"
+          }
+        ],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              74,
+              26,
+              178,
+              0,
+              0,
+              0,
+              7,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "file",
+          "presence": "present"
+        },
+        "token": "1488f3b1deb20b1171de11e6cf7f16be9108dee86b742c541e01a91d4dd74652",
+        "verification": "registered"
+      }
+    ]
+  },
+  "stderr": ""
+}

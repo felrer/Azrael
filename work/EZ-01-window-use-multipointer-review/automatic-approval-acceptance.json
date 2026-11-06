@@ -1,0 +1,336 @@
+{
+  "status": "Source implementation, scoped verification and disposable cleanup complete",
+  "platform": "Windows x64 local verification; no new non-Windows activation",
+  "behavior": {
+    "approval": "Automatic per actual tool; accepted authority revalidated, denied and timed out distinct",
+    "securityApps": "Individual and desktop control blocked; observation approval/masking retained",
+    "desktopAfterFirstApproval": "Existing capture invalidated; recapture needed without new approval",
+    "settings": "Trusted pending-card links, current-app preselection, explicit add/remove and CAS, opening never accepts",
+    "modelTools": 25,
+    "appOnlyTools": 1,
+    "removedTools": [
+      "request_permission",
+      "prepare_permissions"
+    ]
+  },
+  "verification": {
+    "core": {
+      "tests": 206,
+      "initialPass": 204,
+      "skip": 1,
+      "fixtureFailureReplacedByCacheRun": true
+    },
+    "cache": {
+      "tests": 7,
+      "pass": 7,
+      "exitCode": 0
+    },
+    "finalInjectionExitCode": 0,
+    "approval": {
+      "checks": 198,
+      "exitCode": 0,
+      "browserClosed": true
+    },
+    "settings": {
+      "checks": 30,
+      "exitCode": 0,
+      "browserClosed": true
+    },
+    "staticFiles": 9,
+    "verifiedSourceHashMatches": true,
+    "scopedDiffCheckExitCode": 0,
+    "featureInventoryValid": true
+  },
+  "reports": [
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/automatic-approval-verification-04.json",
+      "sha256": "ef30a3f1e5231132400eeab98697875ec650a3fe607d54bfa5a4eac62db8638d"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/automatic-approval-verification-05.json",
+      "sha256": "2148798c8032ea79791ee53971d9c69f5aabdc244116769c1625e8b33a6ea100"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/automatic-approval-verification-06.json",
+      "sha256": "7f982f8edc8df79299bc6275968c0f8b3bd920c216e0c056d39a76fa092f82b5"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/automatic-approval-verification-07.json",
+      "sha256": "1651809be07500b1449c88b0c87795a7b54abb7c77dcd777c283151c7fadf195"
+    },
+    {
+      "path": "work/EZ-01-window-use-multipointer-review/automatic-approval-verification-08.json",
+      "sha256": "e25499c810fa228601031272a7d56d3d1c2032e7e510d37e4000b64579443d8d"
+    }
+  ],
+  "sourceInputs": [
+    {
+      "path": "scripts/check-multiwindow-accounts.mjs",
+      "sha256": "80582cf610f8fa040e25f817db0eb081421857990d9d306a827631fec209afba"
+    },
+    {
+      "path": "scripts/check-usage-window.cjs",
+      "sha256": "b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd"
+    },
+    {
+      "path": "scripts/check-window-approval-native.cjs",
+      "sha256": "525b897176b1c4ca2bd8c91fff09cd61b5f6c211ac874ea0aa02d5397c963325"
+    },
+    {
+      "path": "scripts/check-window-virtual-input-native.cjs",
+      "sha256": "d347dc8400982b93733f5b47cad4ccc0b2cde81699183ef5ae55cd4e1c0e6f58"
+    },
+    {
+      "path": "scripts/inject-computer-use.cjs",
+      "sha256": "ea7a72af8087d844d174ae0dcfd5b1fd559cca04006745040fd03d9a93eeb99f"
+    },
+    {
+      "path": "scripts/inject-team-approvals.cjs",
+      "sha256": "f0ab12140afdb0b7d9706b85e8e8145223287458f22dd071db63f5e06073afff"
+    },
+    {
+      "path": "scripts/inject-window-control.cjs",
+      "sha256": "9812584872cb6f22f6445750e737bfe4c9c30502344b66adf21e045fa408633e"
+    },
+    {
+      "path": "scripts/namespace-azrael-host.cjs",
+      "sha256": "c36185b9885ef4be81c64cb3d49829a6762d79105983ba4a65ca0d0d83eb3eff"
+    },
+    {
+      "path": "scripts/namespace-cache-owner.cjs",
+      "sha256": "822e107d8f9d378e5207d142d8ec7a1ed2ab6645731f1c9eeb9b3ac35b366fc0"
+    },
+    {
+      "path": "scripts/team-approval-routing.cjs",
+      "sha256": "50504464abb66c26ee48fd5f810ca8e432e79a655b7a192c5114355d3310aa43"
+    },
+    {
+      "path": "scripts/test-independent-namespace.cjs",
+      "sha256": "d726c161b409c7447dce2cc566e282812c34794be0f33aeefef13b329e809c4a"
+    },
+    {
+      "path": "scripts/test-namespace-cache-owner.cjs",
+      "sha256": "b91ab9375730bde04f80507246b627af65cedaec544ae31dd85fea90c0f0d892"
+    },
+    {
+      "path": "scripts/test-namespace-performance.cjs",
+      "sha256": "6a0108957597595bacc75c5b70526cc734a7d1e8b6e1a348af116e1fdb07b5cb"
+    },
+    {
+      "path": "scripts/test-namespace-source.cjs",
+      "sha256": "880f3c7bd37be7dcf1cc789eb555a8d86a5a645fcb846ca95385432ee85cfa93"
+    },
+    {
+      "path": "scripts/test-selected-window-authority-engine.mjs",
+      "sha256": "09c1944ea7558dde553e26a31af104ce4b40ba129ce40bd93fc642ddabde74bb"
+    },
+    {
+      "path": "scripts/test-selected-window-native.cjs",
+      "sha256": "2f8a8e02b9427d9330def84898a638a59d82525a86e03a531134bdd2cba3bb61"
+    },
+    {
+      "path": "scripts/test-usage-window-ui.cjs",
+      "sha256": "b8486068cbba97906c3f7297181578ae7fe0d8cb3413af21b0298bbbf5dbf497"
+    },
+    {
+      "path": "scripts/test-use-control-settings.cjs",
+      "sha256": "f2dfa593d0c915a593f6c37abc9d5be13538d9d9161ae7d4f6b26eb6a007f86f"
+    },
+    {
+      "path": "scripts/test-use-settings-host.cjs",
+      "sha256": "1f6236a9390cf7b5fa96f58f3020bf30ea80656e84d3db53f9fec244cf3f7d39"
+    },
+    {
+      "path": "scripts/test-use-settings-ui.cjs",
+      "sha256": "044c8a097946968a6d6d8255f5778603a1066f912c5039169047866085dde73d"
+    },
+    {
+      "path": "scripts/test-window-approval-notifications.cjs",
+      "sha256": "f24b317c29c7d50650d491dacd3f7b7dde27f094d2e713e0e63574b998381de5"
+    },
+    {
+      "path": "scripts/test-window-approval-ui-integration.cjs",
+      "sha256": "4638e934d7397126205e6fdf67a553c473251d8d7b6a15b2551f415be3b707de"
+    },
+    {
+      "path": "scripts/test-window-async-approval-host.cjs",
+      "sha256": "0509dfee32c4ba1f3785a91a4be1c2c38397bf954e150bf626d79d75480569e8"
+    },
+    {
+      "path": "scripts/test-window-control-approval.cjs",
+      "sha256": "99772eeb136f9d302bb6fedfdd741dbc4cd6437fe4f4ea4688bb5d2ecb550571"
+    },
+    {
+      "path": "scripts/test-window-control-backend.cjs",
+      "sha256": "9871c3eab5b49a3f63e59fc546a750a518c356bb8ffc034b495f04ee7ff05e87"
+    },
+    {
+      "path": "scripts/test-window-control-errors.cjs",
+      "sha256": "ddca1d9ad2a96ff51f08c1b9edd17d1ec4216d05c2104d80988ce77a294820e2"
+    },
+    {
+      "path": "scripts/test-window-control-host-errors.cjs",
+      "sha256": "1f4dbe3f3c7a32d69a753a193a398881a550ae1334a0ad6d6807572af9c907f6"
+    },
+    {
+      "path": "scripts/test-window-control-host.cjs",
+      "sha256": "527df28248d45b1d039d6c4417e5eb47e53060e8c59a1a27b01fc3e87ba08231"
+    },
+    {
+      "path": "scripts/test-window-control-injection.cjs",
+      "sha256": "df594abdafca693feeb37f9d115df4b8d481ee5efd2dec88f74fbda36b4ee107"
+    },
+    {
+      "path": "scripts/test-window-control-mcp.cjs",
+      "sha256": "9669fd420c5b59e5a0b1911d4613171ed56e08ed659d97da6c8f49cf33654361"
+    },
+    {
+      "path": "scripts/test-window-control-minimized.cjs",
+      "sha256": "6b13b2a902fb7e8570b44f2c641582b485afc473e1c517f2f78e3d0e9d5b675e"
+    },
+    {
+      "path": "scripts/test-window-control-observation-recovery.cjs",
+      "sha256": "a9f03c1e3b2775142844572695ec1303ddcbfb576ea91f62e727382a71671754"
+    },
+    {
+      "path": "scripts/test-window-control-occupancy.cjs",
+      "sha256": "68028dea5f045afacd5516361114961b7be88d3b47a01565e9f4209c277f285d"
+    },
+    {
+      "path": "scripts/test-window-control-policy.cjs",
+      "sha256": "0f5f92d89741b60ca78ce93a7738272e245979747d7f078241a55e4ee3834a6b"
+    },
+    {
+      "path": "scripts/test-window-control-runtime.cjs",
+      "sha256": "159f69cf71eaa95e44b56fe03eae2b445c340fbf44c316a70c89308333556a12"
+    },
+    {
+      "path": "scripts/test-window-installed-launch.cjs",
+      "sha256": "6f357033c10976ddacb63fa9e654712f1700446afb3c5633aff3cc3fa69d26c7"
+    },
+    {
+      "path": "scripts/test-window-overlay.cjs",
+      "sha256": "5cc616b2798be3598ffcb19091d5f7d2716fe282eadb9871a3d2dbf2611c882d"
+    },
+    {
+      "path": "scripts/test-window-switched-input.cjs",
+      "sha256": "52f412df2d11200b4e4a52bfbf89934b346ccbf52cbc108a29442c9b6f288f67"
+    },
+    {
+      "path": "scripts/test-window-task-macros.cjs",
+      "sha256": "834daed4d25ba9572430a628b4acea86a9a73e07fba502f7814a746b1e5b10c2"
+    },
+    {
+      "path": "scripts/test-window-use-async-approvals.cjs",
+      "sha256": "adf10511a942c424c0a853cc909c7d955070f47329f775f86efa9829297a2b37"
+    },
+    {
+      "path": "scripts/test-window-use-host.cjs",
+      "sha256": "70825ee19e23cb4787fb7192127fcfcfad99086ff8c28dc76d12c7548ac11efb"
+    },
+    {
+      "path": "scripts/test-window-use-native.cjs",
+      "sha256": "526f88bd220afb5155bdc9abc13503970f55729a070b5d4cd556885f28286564"
+    },
+    {
+      "path": "scripts/test-window-virtual-input.cjs",
+      "sha256": "23a6c0a443097c819216786366a95de8c41494fccecf076940688bf933717fda"
+    },
+    {
+      "path": "scripts/test-window-virtual-policy.cjs",
+      "sha256": "b8085c7c09f39c1640d9af04007a663122353f5ce420d87d04f0671f86a99abe"
+    },
+    {
+      "path": "scripts/use-control-settings.cjs",
+      "sha256": "6724f4cb4a5011d620d9da4670a2456bc6851c691efda29530f2728169a1511b"
+    },
+    {
+      "path": "scripts/use-settings-host.cjs",
+      "sha256": "06fe9d8a99bd0eb37c036c2a721f241239f765b292df612d8e0bd8ce3721c527"
+    },
+    {
+      "path": "scripts/verify-use-settings-render.mjs",
+      "sha256": "053096e787cddb9a05fcc062983f5369d855c84e60fd37e5d7bd386d9e9ff208"
+    },
+    {
+      "path": "scripts/verify-window-approval-render.mjs",
+      "sha256": "9bc1b2ef590797e7c69601753cddd176b115e44c8e92ff6e5fc6e4f6b1b8635f"
+    },
+    {
+      "path": "scripts/verify-window-errors-render.mjs",
+      "sha256": "38bec89992746a90988a9e1f322827fff9d22e23dbe52e52f392cfd58e4c60f9"
+    },
+    {
+      "path": "scripts/verify-window-native-approval-render.mjs",
+      "sha256": "ad464137cae3967586044775a34cb778429dca26c1a0cf48b0567c96005b56ef"
+    },
+    {
+      "path": "scripts/window-approval-engine-fixture.cjs",
+      "sha256": "3c477faf10564551f36417772677a1c103d7a90e530a5f90be34b093d9398422"
+    },
+    {
+      "path": "scripts/window-control-backend.cjs",
+      "sha256": "89705e7c6dcd08920592d1a42a586d7e535b5e1b3e2ebe5ff2e38bab1dac3400"
+    },
+    {
+      "path": "scripts/window-control-errors.cjs",
+      "sha256": "20f2c532aae95b0d62338e3dc368ea53400d41b24c093e871d48ff0d5a4315ae"
+    },
+    {
+      "path": "scripts/window-control-host.cjs",
+      "sha256": "b285171ceed3ff04882bbbfddec1cad550afa8c3bead013ce16073afe07c6d3d"
+    },
+    {
+      "path": "scripts/window-control-mcp.cjs",
+      "sha256": "09f496a9fef3b94385449badcbf173f1598325805216fddef1a36200b60624fb"
+    },
+    {
+      "path": "scripts/window-control-occupancy.cjs",
+      "sha256": "10d8a163da3e6dc679eca984c3bbcfbd1c0175723292400433577f1ddd1b538b"
+    },
+    {
+      "path": "scripts/window-control-policy.cjs",
+      "sha256": "143e91c43938a6674ba94bf5f68d60931bdbe68377f3dd7aa08a89c245bec9eb"
+    },
+    {
+      "path": "scripts/window-control-runtime.cjs",
+      "sha256": "ffc052b005a1808f487ae5e616243fe06407b410a7dc07c323803491c2860531"
+    },
+    {
+      "path": "scripts/window-switched-input.cjs",
+      "sha256": "17d7b9ae9ec3795bdbd664cbd836f4d87dd3bb48625da97bdbdd3d6e2a841461"
+    },
+    {
+      "path": "scripts/window-task-macros.cjs",
+      "sha256": "72cdc1a97c18f33e7ddd65ce84c295b6b379fa7ba515eecc9afb064f90620ff2"
+    },
+    {
+      "path": "scripts/window-use-approvals.cjs",
+      "sha256": "ae7c9ef5f840c35f2ad29dbca1383408e0a32d89ce2639ee001d813bd1651ad2"
+    },
+    {
+      "path": "scripts/window-use-async-approvals.cjs",
+      "sha256": "b4f11d0594bb0764795e3bb7f421b0581ac6f2b7cf099f1bd3aa3c4fa8ec8b04"
+    },
+    {
+      "path": "scripts/window-virtual-input.cjs",
+      "sha256": "a0fd61e25584967bf2939cbbf91fd3a3f6c6672ef2857bfd7b89d4127b79d70e"
+    }
+  ],
+  "cleanup": {
+    "groups": 8,
+    "logicalBytes": 1013310592,
+    "remainingPaths": [],
+    "remainingReferences": [],
+    "allRegisterReviewApplyFinalizeExitCodes": 0,
+    "physicalReclaimedBytes": null,
+    "report": "work/EZ-01-window-use-multipointer-review/automatic-approval-cleanup.json",
+    "sha256": "7c5095a997c2f1f87799712ce7ca851ffee016f725509d4a3a38432ee16525f0"
+  },
+  "limitations": [
+    "No product build, deployment or installed-host acceptance",
+    "No actual user-app physical input performed",
+    "No task commit: existing and concurrent changes cannot be safely separated"
+  ],
+  "historicalFailures": "Original preparation/fixture/browser/keyboard failures preserved in per-run reports; passed scopes reused only when relevant production identities matched."
+}

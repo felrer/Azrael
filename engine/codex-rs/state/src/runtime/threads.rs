@@ -2802,6 +2802,7 @@ mod tests {
         );
         let items = vec![RolloutItem::SessionMeta(SessionMetaLine {
             meta: SessionMeta {
+                role_profile: None,
                 computer_use_mode: None,
                 creator_user_id: None,
                 creator_account_id: None,
@@ -2877,6 +2878,7 @@ mod tests {
         );
         let items = vec![RolloutItem::SessionMeta(SessionMetaLine {
             meta: SessionMeta {
+                role_profile: None,
                 computer_use_mode: None,
                 creator_user_id: None,
                 creator_account_id: None,

@@ -25,7 +25,7 @@
       "path": "adapters/anthropic-output-schema.ts"
     },
     {
-      "sha256": "8ca2c46b820091f41b98fe68e629d2e7a73d40d477d09b7df403ebc3b76d6795",
+      "sha256": "c79d72ede942f20cc443c6e93807ab6dfe9cf4a017c9acea9c8d9867d5bbe858",
       "path": "adapters/anthropic.ts"
     },
     {
@@ -321,7 +321,7 @@
       "path": "adapters/google.ts"
     },
     {
-      "sha256": "21a147b96b5c5d6741d1b793be71d8b73944649f84f0c4c351cd149d9bf9e562",
+      "sha256": "75dd4e4769700043ab504b6bcca2342905f667bd8e140e33ecdd9a700928f73a",
       "path": "adapters/identity.ts"
     },
     {
@@ -2721,7 +2721,7 @@
       "path": "oauth/anthropic-routing.ts"
     },
     {
-      "sha256": "e09817a0f46855c12678bb919d01611f5815357ace010940c67533945a0eff62",
+      "sha256": "7617610e6081bc85fe4857df77082a62359906c3ba86acfbe643f724dbf0e044",
       "path": "oauth/anthropic.ts"
     },
     {
@@ -4441,7 +4441,7 @@
       "path": "usage/user-cost-overlays.ts"
     },
     {
-      "sha256": "79ba364be622020e81b176a6c88706b944a1eac247a18b5565cec5101041f274",
+      "sha256": "d1750d69f0184e2e370a29c9d5915cae65ca1ed299fd15aeccb7737d37bade2e",
       "path": "vision/anthropic-describe.ts"
     },
     {
@@ -4481,7 +4481,7 @@
       "path": "vision/timeout-bounds.ts"
     },
     {
-      "sha256": "c5bc05c4444ce46475344f6e74be1f16fd681ba2a7409ea9fac75cabf6324806",
+      "sha256": "7a0499f920724bcb824b24613bb6a5ac0fd120d20d6a0aa58e5eee51b5181e15",
       "path": "web-search/anthropic-executor.ts"
     },
     {
@@ -4547,5 +4547,5 @@
   ],
   "reviewedWindowsManifestSha256": "f73a78c9732186868d169d0646ec6bd425cf43c87a3589fccd95717f58e30d40",
   "schema": 1,
-  "canonicalSha256": "da34f528d847f2e33ec21c41b8ef3d531735d9823710c0b3935f2c1064c7d439"
+  "canonicalSha256": "1b5a2a68692d888412e6b360731b45088dac3b8e4c98be93d9cdfc2e73174743"
 }

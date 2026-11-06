@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "lifecycleId": "run:EZ01:permissions-final-r2-mw0blbxi",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-final-r2-mw0blbxi",
+  "startedAt": "2026-11-03T06:42:08.585Z",
+  "endedAt": "2026-11-03T06:42:56.751Z",
+  "tests": [
+    "test-use-control-settings.cjs",
+    "test-use-settings-host.cjs",
+    "test-use-settings-ui.cjs",
+    "test-window-use-host.cjs",
+    "test-window-async-approval-host.cjs",
+    "test-window-approval-notifications.cjs",
+    "test-window-approval-ui-integration.cjs",
+    "test-window-control-host-errors.cjs",
+    "test-window-control-host.cjs",
+    "test-window-overlay.cjs",
+    "test-window-control-errors.cjs",
+    "test-computer-use-injection.cjs",
+    "test-window-control-approval.cjs",
+    "test-source-test-fixtures.cjs",
+    "test-computer-use-runtime.cjs",
+    "test-window-control-runtime.cjs",
+    "tests/sync-codex-environment.test.cjs",
+    "test-window-control-mcp.cjs",
+    "test-window-control-injection.cjs",
+    "test-window-virtual-policy.cjs"
+  ],
+  "exitCode": 1,
+  "signal": null,
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-final-r2-mw0blbxi\\logs\\tests.log",
+  "summary": [
+    "ℹ tests 197",
+    "ℹ pass 191",
+    "ℹ fail 5",
+    "ℹ skipped 1",
+    "ℹ duration_ms 45038.994"
+  ],
+  "failureCause": "Five cases unable to load extensions/azrael-ex/src/errorPresentation.js in frozen test fixture; no product source changes required"
+}

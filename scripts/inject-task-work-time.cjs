@@ -32,7 +32,7 @@ function azraelUseTaskTime({manager,conversationId,hostId,liveTurns=[]}){
  const React=O(),intl=azraelTimeIntl(),scope=JSON.stringify([hostId,conversationId]);
  const history=React.useMemo(()=>azraelCreateTaskTimeHistory(manager,conversationId,{hostId}),[manager,scope]);
  const snapshot=React.useSyncExternalStore(history.subscribe,history.getSnapshot,history.getSnapshot);
- const revision=JSON.stringify(liveTurns.map(turn=>[turn.turnId,turn.status,turn.turnStartedAtMs,turn.rootTurnId,turn.parentTurnId,turn.turnTrigger,turn.rootResumeWait]));
+ const revision=JSON.stringify(liveTurns.map(turn=>[turn.turnId,turn.status,turn.turnStartedAtMs,turn.rootTurnId,turn.parentTurnId,turn.turnTrigger,turn.rootResumeWait,turn.userWaitTiming?.revision]));
  React.useEffect(()=>{history.refresh();return()=>history.dispose()},[history]);
  const initialRevision=React.useRef({history,revision});
  React.useEffect(()=>{if(initialRevision.current.history!==history){initialRevision.current={history,revision};return}if(initialRevision.current.revision!==revision){initialRevision.current.revision=revision;history.refresh()}},[history,revision]);
@@ -48,7 +48,8 @@ function azraelTaskTimeVirtualList({azraelTaskTime,entries,RowComponent,...props
  const Row=React.useMemo(()=>function AzraelTaskTimeRow(rowProps){
   const {scope,intl,snapshot}=modelRef.current,group=rowProps.entry.azraelTimeGroup,ko=/^ko/i.test(intl.locale);
   const partial=group&&(group.partial||!snapshot.complete||snapshot.loading||snapshot.error||snapshot.availability!=='ready');
-  const value=group?{scope,groupId:group.id,label:(partial?(ko?'확인된 ':'Known '):(ko?'총 ':'Total '))+azraelTaskTimeLabel(group.durationMs,intl.locale)+' · '+group.turnIds.length+(ko?'개 턴':' turns'),title:partial?(ko?'시간 기록 일부 확인 불가':'Some time history unavailable'):undefined}:null;
+  const unmeasured=group?.userWaitUnmeasured;
+  const value=group?{scope,groupId:group.id,label:(unmeasured?(ko?'기록된 ':'Recorded '):partial?(ko?'확인된 ':'Known '):(ko?'총 ':'Total '))+azraelTaskTimeLabel(group.durationMs,intl.locale)+' · '+group.turnIds.length+(ko?'개 턴':' turns'),title:unmeasured?(ko?'사용자 응답 대기가 측정되지 않은 경과 시간 포함':'Includes elapsed time with unmeasured user response waits'):partial?(ko?'시간 기록 일부 확인 불가':'Some time history unavailable'):undefined}:null;
   return jsx.jsx(azraelTaskTimeMessageContext().Provider,{value,children:jsx.jsx(RowComponent,rowProps)});
  },[RowComponent]);
  return jsx.jsx(eu,{...props,entries:rows,RowComponent:Row});

@@ -1,0 +1,391 @@
+{
+  "schema": 1,
+  "authority": "User explicit abandoned cleanup artifact deletion request",
+  "legacy_writer": {
+    "commit": "6b213b06",
+    "path": "scripts/artifact-run.cjs",
+    "sha256": "437adecacee0c46f70ce1d54fba5ceff0950db7a1c8e74ebd6c34cd277d2f2c8",
+    "creation_and_failure_contract": "function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISOString().replace(/[-:.]/g, \"\") + \"-\" + randomUUID(), references = [], paths = {} }) {\n  projectRoot = fs.realpathSync(projectRoot);\n  safeId(workId); safeId(runId);\n  const runRoot = checked(projectRoot, path.join(projectRoot, \"artifacts/tasks\", workId, \"runs\", runId));\n  const run = { projectRoot, workId, owner, runId, lifecycleId: `run:${workId}:${runId}`, runRoot, references, children: new Set(), producerStopped: true };\n  for (const role of [\"temporary\", \"logs\", \"reports\", \"outputs\"]) run[role] = checked(projectRoot, paths[role] ?? path.join(runRoot, role));\n  const members = [{ path: runRoot, role: \"run\" }, ...[\"temporary\", \"logs\", \"reports\", \"outputs\"].map(role => ({ path: run[role], role }))];\n  for (const [role, value] of Object.entries(paths)) {\n    if (![\"temporary\", \"logs\", \"reports\", \"outputs\"].includes(role)) throw Error(\"Unknown artifact role\");\n    if (inside(value, runRoot) || Object.entries(paths).some(([other, otherPath]) => other !== role && (inside(value, otherPath) || inside(otherPath, value)))) throw Error(\"Overlapping artifact destinations\");\n  }\n  const claimDirectory = path.join(projectRoot, \"artifacts/maintenance/lifecycles\");\n  // recordLifecycle validates linked registry paths before writing its own lock.\n  // Check each existing registry ancestor before creating the shared claim lock.\n  let current = projectRoot;\n  for (const part of [\"artifacts\", \"maintenance\", \"lifecycles\"]) {\n    current = path.join(current, part);\n    try { if (fs.lstatSync(current).isSymbolicLink()) throw Error(\"Linked registry path\"); } catch (e) { if (e.code !== \"ENOENT\") throw e; }\n  }\n  fs.mkdirSync(claimDirectory, { recursive: true });\n  const claimPath = path.join(claimDirectory, \".run-claim.lock\");\n  const claim = fs.openSync(claimPath, \"wx\");\n  try {\n  for (const member of members) {\n    if (fs.existsSync(member.path)) throw Error(`Artifact destination already exists: ${member.path}`);\n    if (lifecycle.catalog(projectRoot).some(record => record.members.some(old => inside(old.path, member.path) || inside(member.path, old.path)))) throw Error(`Artifact destination already claimed: ${member.path}`);\n  }\n  run.record = lifecycle.recordLifecycle(projectRoot, { id: run.lifecycleId, kind: \"run\", owner, state: \"pending\", membership_complete: false, members, references, expected_revision: 0 });\n  // Install before directory creation so partial preparation failures are reconciled too.\n  run.onExit = exitCode => {\n    try { finishArtifactRun(run, { exitCode, producerStopped: run.producerStopped && [...run.children].every(child => child.artifactClosed) }); }\n    catch (error) { process.stderr.write(`Artifact lifecycle reconciliation failed: ${error.stack}\\n`); process.exitCode = 1; }\n  };\n  process.once(\"exit\", run.onExit);\n  fs.mkdirSync(path.dirname(runRoot), { recursive: true });\n  fs.mkdirSync(runRoot);\n  for (const role of [\"temporary\", \"logs\", \"reports\", \"outputs\"]) fs.mkdirSync(run[role], { recursive: true });\n  return run;\n  } finally { fs.closeSync(claim); fs.unlinkSync(claimPath); }\n}\nfunction trackArtifactChild(run, child) {\n  run.children.add(child);\n  child.artifactClosed = false;\n  child.once(\"close\", () => { child.artifactClosed = true; });\n  return child;\n}\nfunction finishArtifactRun(run, { exitCode, producerStopped }) {\n  const stopped = producerStopped === true && [...run.children].every(child => child.artifactClosed);\n  const success = exitCode === 0 && stopped;\n  const state = success ? \"complete\" : stopped && Number.isInteger(exitCode) && exitCode !== 0 ? \"failed\" : \"pending\";\n  if (fs.existsSync(run.reports)) fs.writeFileSync(path.join(run.reports, \"producer.json\"), JSON.stringify({ lifecycleId: run.lifecycleId, runRoot: run.runRoot, argv: process.argv, exitCode, producerStopped: stopped, state, membership_complete: success }, null, 2) + \"\\n\");\n  run.record = lifecycle.recordLifecycle(run.projectRoot, { ...run.record, state, membership_complete: success, expected_revision: run.record.revision });\n  process.removeListener(\"exit\", run.onExit);\n  return run.record;\n}\nasync function confirmOwnedBrowserExit(child,profilePath,spawn){"
+  },
+  "groups": [
+    {
+      "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+      "source": {
+        "schema": 1,
+        "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+        "kind": "run",
+        "owner": "BB-01-btw-scope-diagnosis",
+        "version": null,
+        "state": "failed",
+        "membership_complete": false,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+            "role": "run"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba\\temporary",
+            "role": "temporary"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba\\logs",
+            "role": "logs"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba\\reports",
+            "role": "reports"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba\\outputs",
+            "role": "outputs"
+          }
+        ],
+        "references": [
+          {
+            "id": "work/BB-01-btw-scope-diagnosis/03-plan.md",
+            "reason": "Source verification and pending installed acceptance"
+          }
+        ],
+        "revision": 2,
+        "created_at": "2026-10-19T03:41:14.285Z",
+        "updated_at": "2026-10-19T03:42:56.261Z"
+      },
+      "producer_report": {
+        "lifecycleId": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "producerStopped": true,
+        "state": "failed",
+        "membership_complete": false
+      },
+      "producer_report_sha256": "4aba696ea94f7f864e4c8bacffdd92cad5913a605f65966fbd5b19458415955c",
+      "generation_basis": "Predeclared lifecycle run root matches producer report lifecycleId/runRoot and all recorded role paths are nested. Historical helper first rejected pre-existing paths and other ownership claims, recorded the scope, then mkdir created these roots. Reports confirm stopped exit1; historical helper set membership_complete from success rather than actual stop, explaining the old false field.",
+      "external_outputs": "No recorded role override escapes the run root. Only declared owned roots will be reconciled and selected; unrelated paths are outside cleanup authority."
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+      "source": {
+        "schema": 1,
+        "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+        "kind": "run",
+        "owner": "instruction-library-verification",
+        "version": null,
+        "state": "failed",
+        "membership_complete": false,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+            "role": "run"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e\\temporary",
+            "role": "temporary"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e\\logs",
+            "role": "logs"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e\\reports",
+            "role": "reports"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e\\outputs",
+            "role": "outputs"
+          }
+        ],
+        "references": [],
+        "revision": 2,
+        "created_at": "2026-10-19T00:21:39.355Z",
+        "updated_at": "2026-10-19T00:22:22.339Z"
+      },
+      "producer_report": {
+        "lifecycleId": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-library.cjs",
+          "backend"
+        ],
+        "exitCode": 1,
+        "producerStopped": true,
+        "state": "failed",
+        "membership_complete": false
+      },
+      "producer_report_sha256": "740c8546b438cdbfd987bc75a4566242a3cfd6f225fe75e96c582c4874313ef9",
+      "generation_basis": "Predeclared lifecycle run root matches producer report lifecycleId/runRoot and all recorded role paths are nested. Historical helper first rejected pre-existing paths and other ownership claims, recorded the scope, then mkdir created these roots. Reports confirm stopped exit1; historical helper set membership_complete from success rather than actual stop, explaining the old false field.",
+      "external_outputs": "No recorded role override escapes the run root. Only declared owned roots will be reconciled and selected; unrelated paths are outside cleanup authority."
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+      "source": {
+        "schema": 1,
+        "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+        "kind": "run",
+        "owner": "instruction-library-verification",
+        "version": null,
+        "state": "failed",
+        "membership_complete": false,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+            "role": "run"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325\\temporary",
+            "role": "temporary"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325\\logs",
+            "role": "logs"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325\\reports",
+            "role": "reports"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325\\outputs",
+            "role": "outputs"
+          }
+        ],
+        "references": [],
+        "revision": 2,
+        "created_at": "2026-10-19T00:23:05.943Z",
+        "updated_at": "2026-10-19T00:24:18.828Z"
+      },
+      "producer_report": {
+        "lifecycleId": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-library.cjs",
+          "host"
+        ],
+        "exitCode": 1,
+        "producerStopped": true,
+        "state": "failed",
+        "membership_complete": false
+      },
+      "producer_report_sha256": "65c55d8ae40332ae8f66f135ab366c11e8fbda8d04f4c4fae5c4c9ca694113ff",
+      "generation_basis": "Predeclared lifecycle run root matches producer report lifecycleId/runRoot and all recorded role paths are nested. Historical helper first rejected pre-existing paths and other ownership claims, recorded the scope, then mkdir created these roots. Reports confirm stopped exit1; historical helper set membership_complete from success rather than actual stop, explaining the old false field.",
+      "external_outputs": "No recorded role override escapes the run root. Only declared owned roots will be reconciled and selected; unrelated paths are outside cleanup authority."
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+      "source": {
+        "schema": 1,
+        "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+        "kind": "run",
+        "owner": "instruction-library-verification",
+        "version": null,
+        "state": "failed",
+        "membership_complete": false,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+            "role": "run"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626\\temporary",
+            "role": "temporary"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626\\logs",
+            "role": "logs"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626\\reports",
+            "role": "reports"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626\\outputs",
+            "role": "outputs"
+          }
+        ],
+        "references": [],
+        "revision": 2,
+        "created_at": "2026-10-19T00:27:07.237Z",
+        "updated_at": "2026-10-19T00:29:19.012Z"
+      },
+      "producer_report": {
+        "lifecycleId": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-library.cjs",
+          "host"
+        ],
+        "exitCode": 1,
+        "producerStopped": true,
+        "state": "failed",
+        "membership_complete": false
+      },
+      "producer_report_sha256": "df72e8e7d5e670b9e231f8045dacf476da1d8bea0402003c2ebba75917639c82",
+      "generation_basis": "Predeclared lifecycle run root matches producer report lifecycleId/runRoot and all recorded role paths are nested. Historical helper first rejected pre-existing paths and other ownership claims, recorded the scope, then mkdir created these roots. Reports confirm stopped exit1; historical helper set membership_complete from success rather than actual stop, explaining the old false field.",
+      "external_outputs": "No recorded role override escapes the run root. Only declared owned roots will be reconciled and selected; unrelated paths are outside cleanup authority."
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+      "source": {
+        "schema": 1,
+        "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+        "kind": "run",
+        "owner": "scripts/verify-instruction-library-render.mjs",
+        "version": null,
+        "state": "failed",
+        "membership_complete": false,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+            "role": "run"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1\\temporary",
+            "role": "temporary"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1\\logs",
+            "role": "logs"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1\\reports",
+            "role": "reports"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1\\outputs",
+            "role": "outputs"
+          }
+        ],
+        "references": [],
+        "revision": 2,
+        "created_at": "2026-10-19T00:27:51.748Z",
+        "updated_at": "2026-10-19T00:27:55.414Z"
+      },
+      "producer_report": {
+        "lifecycleId": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\verify-instruction-library-render.mjs"
+        ],
+        "exitCode": 1,
+        "producerStopped": true,
+        "state": "failed",
+        "membership_complete": false
+      },
+      "producer_report_sha256": "de31a74567d6c64948c28902beae7291403d7987f117a4257e849437eb73659e",
+      "generation_basis": "Predeclared lifecycle run root matches producer report lifecycleId/runRoot and all recorded role paths are nested. Historical helper first rejected pre-existing paths and other ownership claims, recorded the scope, then mkdir created these roots. Reports confirm stopped exit1; historical helper set membership_complete from success rather than actual stop, explaining the old false field.",
+      "external_outputs": "No recorded role override escapes the run root. Only declared owned roots will be reconciled and selected; unrelated paths are outside cleanup authority."
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+      "source": {
+        "schema": 1,
+        "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+        "kind": "run",
+        "owner": "scripts/verify-instruction-library-render.mjs",
+        "version": null,
+        "state": "failed",
+        "membership_complete": false,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+            "role": "run"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814\\temporary",
+            "role": "temporary"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814\\logs",
+            "role": "logs"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814\\reports",
+            "role": "reports"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814\\outputs",
+            "role": "outputs"
+          }
+        ],
+        "references": [],
+        "revision": 2,
+        "created_at": "2026-10-19T00:33:46.580Z",
+        "updated_at": "2026-10-19T00:33:49.807Z"
+      },
+      "producer_report": {
+        "lifecycleId": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\verify-instruction-library-render.mjs"
+        ],
+        "exitCode": 1,
+        "producerStopped": true,
+        "state": "failed",
+        "membership_complete": false
+      },
+      "producer_report_sha256": "0cafb777bd2e3ae4ccfec729a1cc51c913ad4a466865c8c506f64288360cb419",
+      "generation_basis": "Predeclared lifecycle run root matches producer report lifecycleId/runRoot and all recorded role paths are nested. Historical helper first rejected pre-existing paths and other ownership claims, recorded the scope, then mkdir created these roots. Reports confirm stopped exit1; historical helper set membership_complete from success rather than actual stop, explaining the old false field.",
+      "external_outputs": "No recorded role override escapes the run root. Only declared owned roots will be reconciled and selected; unrelated paths are outside cleanup authority."
+    },
+    {
+      "id": "run:CM-01:host-35dac893",
+      "source": {
+        "schema": 1,
+        "id": "run:CM-01:host-35dac893",
+        "kind": "run",
+        "owner": "instruction-library-verification",
+        "version": null,
+        "state": "failed",
+        "membership_complete": false,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893",
+            "role": "run"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893\\temporary",
+            "role": "temporary"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893\\logs",
+            "role": "logs"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893\\reports",
+            "role": "reports"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893\\outputs",
+            "role": "outputs"
+          }
+        ],
+        "references": [],
+        "revision": 2,
+        "created_at": "2026-10-19T00:30:28.528Z",
+        "updated_at": "2026-10-19T00:32:09.197Z"
+      },
+      "producer_report": {
+        "lifecycleId": "run:CM-01:host-35dac893",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-library.cjs",
+          "host"
+        ],
+        "exitCode": 1,
+        "producerStopped": true,
+        "state": "failed",
+        "membership_complete": false
+      },
+      "producer_report_sha256": "dcd7c4c52fcd9f694efb4c76c1d1ed06ec11cc4bc698c9f03ea3f0df2d0ec14e",
+      "generation_basis": "Predeclared lifecycle run root matches producer report lifecycleId/runRoot and all recorded role paths are nested. Historical helper first rejected pre-existing paths and other ownership claims, recorded the scope, then mkdir created these roots. Reports confirm stopped exit1; historical helper set membership_complete from success rather than actual stop, explaining the old false field.",
+      "external_outputs": "No recorded role override escapes the run root. Only declared owned roots will be reconciled and selected; unrelated paths are outside cleanup authority."
+    }
+  ]
+}

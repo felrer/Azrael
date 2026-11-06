@@ -1,0 +1,418 @@
+{
+  "startedUtc": "2026-10-30T00:53:20.554Z",
+  "id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+  "steps": [
+    {
+      "label": "register",
+      "exitCode": 0,
+      "durationMs": 109848.9205,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+          "kind": "run",
+          "members": [
+            "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "ccce5c1aaeea4da816ea5aa9646c935be33f8eb55907aba92ea62b83608e99bf",
+          "owner": "cold-build-cache-audit",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0d11843c16903ea697b310695dbcef6c3e16ceea67cf730be7851ef3f3eba247.json",
+          "registered_at_ms": 1793321656007,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc",
+            "identity": "5dc2a593d6b28363ced4d2220cd27b58a2ab39467730f628e001e7354dcc74d0",
+            "kind": "run",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 6921648,
+            "measured_at_ms": 1793321639127,
+            "owner": "cold-build-cache-audit",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0d11843c16903ea697b310695dbcef6c3e16ceea67cf730be7851ef3f3eba247.json",
+            "references": [],
+            "registered_at_ms": 1793321639127,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "label": "review",
+      "exitCode": 0,
+      "durationMs": 5978.070999999996,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "ccce5c1aaeea4da816ea5aa9646c935be33f8eb55907aba92ea62b83608e99bf",
+            "owner": "cold-build-cache-audit",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0d11843c16903ea697b310695dbcef6c3e16ceea67cf730be7851ef3f3eba247.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc"
+            ],
+            "group_token": "c3a5c55a46f15727e9e2c525802f9af0c6e4fc75916d4322d579e590f5898449",
+            "id": "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc",
+            "identity": "5dc2a593d6b28363ced4d2220cd27b58a2ab39467730f628e001e7354dcc74d0",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+            "logical_bytes": 6921648,
+            "measured_at_ms": 1793321639127,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "ccce5c1aaeea4da816ea5aa9646c935be33f8eb55907aba92ea62b83608e99bf",
+              "member_references": {
+                "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\reports\\producer-aa2d05ed36df03908a555c0ccb474a516a0252c1420032923ee3199fa6993f65.json",
+                  "evidence_sha256": "aa2d05ed36df03908a555c0ccb474a516a0252c1420032923ee3199fa6993f65",
+                  "reason": "Synchronous preflight commands observed terminal; no product build launched",
+                  "request_sha256": "81c2f634786cab72d61412c590fb6975bf4bf8e21fdbe229eb705579f239fba5"
+                },
+                "created_at": "2026-10-30T00:52:41.492Z",
+                "id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1",
+                "owner": "cold-build-cache-audit",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\reports\\producer-aa2d05ed36df03908a555c0ccb474a516a0252c1420032923ee3199fa6993f65.json",
+                  "evidence_sha256": "aa2d05ed36df03908a555c0ccb474a516a0252c1420032923ee3199fa6993f65",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Synchronous preflight commands observed terminal; no product build launched",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-30T00:52:51.023Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793321711868,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  85,
+                  161,
+                  28,
+                  0,
+                  0,
+                  0,
+                  19,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "9efc092ccb7ee34019795c97a0ccda6e1afff564b4186427e7dea8ab3dca2d72",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "label": "rereview",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 6322.142,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "ccce5c1aaeea4da816ea5aa9646c935be33f8eb55907aba92ea62b83608e99bf",
+            "owner": "cold-build-cache-audit",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0d11843c16903ea697b310695dbcef6c3e16ceea67cf730be7851ef3f3eba247.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc"
+            ],
+            "group_token": "c3a5c55a46f15727e9e2c525802f9af0c6e4fc75916d4322d579e590f5898449",
+            "id": "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc",
+            "identity": "5dc2a593d6b28363ced4d2220cd27b58a2ab39467730f628e001e7354dcc74d0",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+            "logical_bytes": 6921648,
+            "measured_at_ms": 1793321639127,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "ccce5c1aaeea4da816ea5aa9646c935be33f8eb55907aba92ea62b83608e99bf",
+              "member_references": {
+                "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\reports\\producer-aa2d05ed36df03908a555c0ccb474a516a0252c1420032923ee3199fa6993f65.json",
+                  "evidence_sha256": "aa2d05ed36df03908a555c0ccb474a516a0252c1420032923ee3199fa6993f65",
+                  "reason": "Synchronous preflight commands observed terminal; no product build launched",
+                  "request_sha256": "81c2f634786cab72d61412c590fb6975bf4bf8e21fdbe229eb705579f239fba5"
+                },
+                "created_at": "2026-10-30T00:52:41.492Z",
+                "id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1",
+                "owner": "cold-build-cache-audit",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\reports\\producer-aa2d05ed36df03908a555c0ccb474a516a0252c1420032923ee3199fa6993f65.json",
+                  "evidence_sha256": "aa2d05ed36df03908a555c0ccb474a516a0252c1420032923ee3199fa6993f65",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Synchronous preflight commands observed terminal; no product build launched",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-30T00:52:51.023Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793321862970,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  85,
+                  161,
+                  28,
+                  0,
+                  0,
+                  0,
+                  19,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "9efc092ccb7ee34019795c97a0ccda6e1afff564b4186427e7dea8ab3dca2d72",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "label": "apply",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 37410.3385,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-15384-4212-1793321889714",
+            "decision": "delete",
+            "decision_id": "336e0b426dd377a289a9fc4460a52c54c18e11628810ef9b2617dbc37018eed2",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+            "reason": "Preflight completed; required concise evidence independently preserved",
+            "remaining": false,
+            "status": "deleted",
+            "token": "9efc092ccb7ee34019795c97a0ccda6e1afff564b4186427e7dea8ab3dca2d72"
+          }
+        ]
+      }
+    }
+  ],
+  "producerProof": {
+    "lifecycleId": "run:ET-01-cold-build-cache-audit:preflight-r1",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\preflight.cjs"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Synchronous preflight commands observed terminal; no product build launched",
+    "children": [],
+    "state": "complete",
+    "membership_complete": true
+  },
+  "blockedApply": {
+    "exitCode": 1,
+    "code": "maintenance_busy",
+    "operationStarted": false,
+    "lockPath": "artifacts/maintenance/maintenance.lock",
+    "observedOtherOwner": {
+      "pid": 10784,
+      "request": "work/EQ-01-protection-timing/13-apply-run-cleanup-request.json"
+    },
+    "reason": "Official native apply refused occupied lock; no deletion or bypass attempted"
+  }
+}

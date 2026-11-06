@@ -1,0 +1,88 @@
+{
+  "exit_code": 0,
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+        "status": "deleted"
+      },
+      {
+        "id": "version:maintenance-owner:eq01:delete-apply-r1",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-12020-4222-1793324409667",
+        "decision": "delete",
+        "decision_id": "035b2d160ff83f8b0c7842663ee3c2a857434095e984621db7c919815cdfc02b",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "abe610c1ad0edfffdbea51140cc7d2c7271f8ed574803e7eb728f37148d340c0",
+        "lifecycle_group_id": "version:maintenance-owner:eq01:delete-apply-r1",
+        "reason": "Verified replacement and independent acceptance preserved in ef98 candidate verification and work/14-precheck-acceptance.json; completed disposable run and uninstalled superseded candidate have no consumers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "065b7792e6c4ba6bd09cb86c9439314a665195a94a587fc44600b6012b54596f"
+      },
+      {
+        "attempt_id": "attempt-12020-4224-1793324435440",
+        "decision": "delete",
+        "decision_id": "ec7ac145ed73fc5d3e529eff5dac821fe5b957ee0d3fe02ee6e5989aaf519978",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "cc22fc8c60a6dabf67e2424bb2faf455d24552b8fe0a6c3c224fd8b4ec7d5332",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+        "reason": "Verified replacement and independent acceptance preserved in ef98 candidate verification and work/14-precheck-acceptance.json; completed disposable run and uninstalled superseded candidate have no consumers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "ad0b20ed23bfd06b8b90c292824368863e2a3632073dc5f4f65f37110cb8b9f6"
+      }
+    ]
+  },
+  "logical_bytes": 715871740,
+  "finalized": [
+    {
+      "id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1",
+      "path_absent": true,
+      "producer_record_absent": true,
+      "finalize": {
+        "id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\66fc580a06f9a1a7799817114f3602e8991c8d473a028e5a275d3ece9568c4de.json"
+      }
+    },
+    {
+      "id": "version:maintenance-owner:eq01:delete-apply-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6a39e9c6-win-x64-eq01-delete-apply",
+      "path_absent": true,
+      "producer_record_absent": true,
+      "finalize": {
+        "id": "version:maintenance-owner:eq01:delete-apply-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7a88d7c6a0d1735bb90890b7a4acac4fcd4188626acf00619844c57320427009.json"
+      }
+    }
+  ]
+}

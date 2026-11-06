@@ -5,6 +5,7 @@ fn user_verification_server_request(thread_id: ThreadId, request_id: i64) -> Ser
     ServerRequest::McpServerElicitationRequest {
         request_id: AppServerRequestId::Integer(request_id),
         params: McpServerElicitationRequestParams {
+            user_wait_request_id: None,
             thread_id: thread_id.to_string(),
             turn_id: Some("turn-verification".to_string()),
             server_name: "deployments".to_string(),

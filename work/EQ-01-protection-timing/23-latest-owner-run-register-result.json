@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "signal": null,
+  "elapsed_ms": 22013.6022,
+  "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog); pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock (catalog)\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n",
+  "result": null
+}

@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "component": "V8 150.4.0 Windows x64 sandbox source build",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2",
+  "startedUtc": "2026-10-31T12:24:15.509Z",
+  "steps": [
+    {
+      "label": "reuse-pinned-chromium-clang",
+      "durationMs": 2614.2978999999996,
+      "exitCode": 0
+    },
+    {
+      "label": "clang-version",
+      "startedUtc": "2026-10-31T12:24:18.131Z",
+      "completedUtc": "2026-10-31T12:24:18.908Z",
+      "durationMs": 776.8662000000004,
+      "exitCode": 0
+    },
+    {
+      "label": "gn-version",
+      "startedUtc": "2026-10-31T12:24:18.908Z",
+      "completedUtc": "2026-10-31T12:24:18.927Z",
+      "durationMs": 18.728699999999662,
+      "exitCode": 0
+    },
+    {
+      "label": "ninja-version",
+      "startedUtc": "2026-10-31T12:24:18.927Z",
+      "completedUtc": "2026-10-31T12:24:18.939Z",
+      "durationMs": 11.688899999999194,
+      "exitCode": 0
+    },
+    {
+      "label": "v8-rust-tool-version",
+      "startedUtc": "2026-10-31T12:24:18.940Z",
+      "completedUtc": "2026-10-31T12:24:18.971Z",
+      "durationMs": 31.195800000001327,
+      "exitCode": 0
+    },
+    {
+      "label": "libclang-version",
+      "startedUtc": "2026-10-31T12:24:18.971Z",
+      "completedUtc": "2026-10-31T12:24:19.114Z",
+      "durationMs": 142.25940000000082,
+      "exitCode": 0
+    },
+    {
+      "label": "windows-sdk-toolchain",
+      "startedUtc": "2026-10-31T12:24:19.114Z",
+      "completedUtc": "2026-10-31T12:24:19.217Z",
+      "durationMs": 103.01640000000043,
+      "exitCode": 0
+    },
+    {
+      "label": "scratch-lockfile",
+      "startedUtc": "2026-10-31T12:24:19.221Z",
+      "completedUtc": "2026-10-31T12:24:20.807Z",
+      "durationMs": 1586.5162,
+      "exitCode": 0
+    }
+  ],
+  "sourceArchive": {
+    "sha256": "42a978ff11f15b24e5c05a7123cf2b68f41e763546699781a924ef4e2cf43a49"
+  },
+  "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\inputs\\v8-150.4.0",
+  "preparedUtc": "2026-10-31T12:24:20.808Z",
+  "buildEnvironment": {
+    "V8_FROM_SOURCE": "1",
+    "PYTHON": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+    "LIBCLANG_PATH": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\rusty-v8-150.4.0-source\\libclang-23\\bin",
+    "GN": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\outputs\\tools\\gn\\gn.exe",
+    "NINJA": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\outputs\\tools\\ninja\\ninja.exe",
+    "GYP_MSVS_OVERRIDE_PATH": "C:/Program Files/Microsoft Visual Studio/18/Community",
+    "GYP_MSVS_VERSION": "2026",
+    "WINDOWSSDKDIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\rusty-v8-150.4.0-source\\sdk-overlay",
+    "CARGO_TARGET_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t1"
+  },
+  "cargoStartedUtc": "2026-10-31T12:24:20.808Z",
+  "cargoDurationMs": 63277.35590000001,
+  "cargoExitCode": 101,
+  "status": "failed",
+  "failure": "Error: V8 Cargo source build failed: 101\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\resume-v8-source.cjs:28:560)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47",
+  "completedUtc": "2026-10-31T12:25:24.087Z"
+}

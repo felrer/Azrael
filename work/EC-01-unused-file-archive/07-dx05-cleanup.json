@@ -1,0 +1,130 @@
+{
+  "id": "version:maintenance-owner:dx05",
+  "original_state": "retained",
+  "retirement_basis": "Original DX05 retention condition ended after verified installation of f167 replacement; minimal original verification handed off with hashes. This bookkeeping change does not assert a new producer outcome.",
+  "revision": 3,
+  "started_at": "2026-11-01T14:43:22.179Z",
+  "registration_exit_code": 0,
+  "review_exit_code": 0,
+  "items": [
+    {
+      "blockers": [],
+      "group_member_ids": [
+        "13ef51a9a1b91caa11a927558838fa14ce8b2725486614612ae28fd7b8229ca5"
+      ],
+      "group_token": "3d882272e189f1b46c8094613ec9115636f5db83c0b504b1327ea6c2347aa20c",
+      "id": "13ef51a9a1b91caa11a927558838fa14ce8b2725486614612ae28fd7b8229ca5",
+      "identity": "e1a4d9cc16f4efa0faf41906eed8f783a8ee9ca5334750d9b97683c5638d2613",
+      "lifecycle_group_id": "version:maintenance-owner:dx05",
+      "logical_bytes": 1635228,
+      "measured_at_ms": 1793544248281,
+      "membership_source_observation": {
+        "blockers": [],
+        "identity": "38afe0940b11088ca642d9a558f67280b493a7a73839164c44b5b7360b2e8baa",
+        "member_references": {
+          "13ef51a9a1b91caa11a927558838fa14ce8b2725486614612ae28fd7b8229ca5": []
+        },
+        "membership_matches": true,
+        "owner": {
+          "created_at": "2026-10-26T10:40:38.921Z",
+          "id": "version:maintenance-owner:dx05",
+          "kind": "version",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6f6f874e-win-x64-dx05",
+              "protection_known": true,
+              "role": "release"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "DX-05",
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-11-01T14:43:20.708Z",
+          "version": "6f6f874e-windows-x64"
+        },
+        "references": [],
+        "settled": true,
+        "status": "measured"
+      },
+      "observation_error": null,
+      "observed_at_ms": 1793544351979,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6f6f874e-win-x64-dx05",
+      "presence": "present",
+      "related_items": [],
+      "remaining": true,
+      "root_observation": {
+        "identity": {
+          "file_id": [
+            150,
+            211,
+            88,
+            0,
+            0,
+            0,
+            12,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "volume": 14318705318996120000
+        },
+        "kind": "directory",
+        "presence": "present"
+      },
+      "token": "d0e6ee20051924d9044a3bdef9c592806aa8e34d708d057177ddf99a2099bec5",
+      "verification": "registered"
+    }
+  ],
+  "apply_exit_code": 0,
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "version:maintenance-owner:dx05",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-42836-4633-1793544384851",
+        "decision": "delete",
+        "decision_id": "32984271ca973cf9cad6300aec91b74086b0084fed50ab71e84707da331a4964",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "13ef51a9a1b91caa11a927558838fa14ce8b2725486614612ae28fd7b8229ca5",
+        "lifecycle_group_id": "version:maintenance-owner:dx05",
+        "reason": "Explicit abandoned artifact cleanup; old DX05 retention ended with verified current replacement, no consumer or process, original minimum verification preserved independently.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "d0e6ee20051924d9044a3bdef9c592806aa8e34d708d057177ddf99a2099bec5"
+      }
+    ]
+  },
+  "finalize": {
+    "id": "version:maintenance-owner:dx05",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6f1e3c6130011075f8ea4ecfbb7291e4ccf09859d87df4e2fd91c42013187800.json"
+  },
+  "status": "finalized",
+  "ended_at": "2026-11-01T14:46:43.987Z"
+}

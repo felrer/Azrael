@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "phase": "release-register",
+  "status": "failed",
+  "controllerPid": 48160,
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\temp-reset-o-controller.cjs",
+    "release-register"
+  ],
+  "startedUtc": "2026-10-30T17:06:03.508Z",
+  "nativeProject": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+  "producerNamespace": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y",
+  "sourceId": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+  "ownerExecutable": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-duplicate-claims-win-x64/payload/maintenance_owner.exe",
+    "sha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c"
+  },
+  "steps": [],
+  "closedVersion": {
+    "created_at": "2026-10-30T16:31:24.719Z",
+    "id": "version:et1-cold-20261030o",
+    "kind": "version",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\releases\\et1-cold-20261030o",
+        "protection_known": true,
+        "role": "release"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\logs\\et1-cold-20261030o",
+        "protection_known": true,
+        "role": "build-logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\vsix\\et1-cold-20261030o",
+        "protection_known": true,
+        "role": "vsix"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\deployments\\deploy-et1-cold-20261030o",
+        "protection_known": true,
+        "role": "deployment"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\logs\\deploy-et1-cold-20261030o",
+        "protection_known": true,
+        "role": "deploy-logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\logs\\verification-evidence\\deploy-et1-cold-20261030o",
+        "protection_known": true,
+        "role": "verification-evidence"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\logs\\verification-evidence\\account-controls-et1-cold-20261030o",
+        "protection_known": true,
+        "role": "account-evidence"
+      }
+    ],
+    "membership_complete": true,
+    "owner": "azrael-release",
+    "references": [],
+    "release_receipt": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\deployments\\deploy-et1-cold-20261030o\\package\\preparation-state.json",
+      "evidence_sha256": "19b605f2e291d08a58dadbf0e9e6aa902b2d7fbbe8d6acaa7342bdd7f8e7e18b",
+      "reason": "Verified package is complete; preparation tools can be recreated for subsequent checks.",
+      "request_sha256": "1fcc149cfe2e91f1fba09ea5d8d1e9c0c10d16e710c55cfd8d3a97522ba6a9e7"
+    },
+    "revision": 7,
+    "schema": 1,
+    "state": "failed",
+    "updated_at": "2026-10-30T17:06:03.762Z",
+    "version": null,
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\temp-reset-o-terminal.json",
+      "evidence_sha256": "f720ab769ba54e480c049d6df8f4c1f52c7436ff5d2b30dbc8b00cd6e9918100",
+      "reason": "Actual O deployment failure ended; preserve actual failure while reconciling complete owned membership."
+    },
+    "close_receipt": {
+      "request_sha256": "277c67eab8204d949e8a3d16192344f28070c1cbca1a1493b7abf8aa96607b61",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\temp-reset-o-terminal.json",
+      "evidence_sha256": "f720ab769ba54e480c049d6df8f4c1f52c7436ff5d2b30dbc8b00cd6e9918100",
+      "reason": "Actual O deployment failure ended; preserve actual failure while reconciling complete owned membership."
+    }
+  },
+  "closedVerification": {
+    "created_at": "2026-10-30T16:31:25.044Z",
+    "id": "run:verification:et1-cold-20261030o",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\v",
+        "protection_known": true,
+        "role": "fixture"
+      }
+    ],
+    "membership_complete": true,
+    "owner": "azrael-release",
+    "references": [],
+    "revision": 3,
+    "schema": 1,
+    "state": "failed",
+    "updated_at": "2026-10-30T17:06:03.944Z",
+    "version": null,
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\temp-reset-o-terminal.json",
+      "evidence_sha256": "f720ab769ba54e480c049d6df8f4c1f52c7436ff5d2b30dbc8b00cd6e9918100",
+      "reason": "Actual O deployment failure ended; preserve actual failure while reconciling complete owned membership."
+    },
+    "close_receipt": {
+      "request_sha256": "c416f21791a9fe3d8b58c5ec416add3ab4ab886dd91cdb40d0182a0ad8e992c4",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\temp-reset-o-terminal.json",
+      "evidence_sha256": "f720ab769ba54e480c049d6df8f4c1f52c7436ff5d2b30dbc8b00cd6e9918100",
+      "reason": "Actual O deployment failure ended; preserve actual failure while reconciling complete owned membership."
+    }
+  },
+  "finalizedVerification": {
+    "id": "run:verification:et1-cold-20261030o",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\lifecycles\\8d67730c0c45dae5081f81de50947f0f55cf7560f6e31eb2cb7f9225b1f5474f.json"
+  },
+  "error": "Error: Native lease already released\n    at request (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:56:23)\n    at Object.release (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:69:30)\n    at withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:137:77)\n    at mutateLifecycle (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:210:10)\n    at Object.releaseReferences (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:252:10)\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\temp-reset-o-controller.cjs:23:21)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)",
+  "finishedUtc": "2026-10-30T17:06:22.935Z"
+}

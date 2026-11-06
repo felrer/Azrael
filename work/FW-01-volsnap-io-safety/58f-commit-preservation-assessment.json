@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "status": "verified",
+  "original": "58e-recovery-commit-result.json",
+  "originalIdentity": {
+    "bytes": 4543,
+    "sha256": "cfce4a3270d76c49275c70d76867f9d7f54c64f21ef153357ada4f0fd82a51a8"
+  },
+  "correction": "The original collector boolean compared the before map to itself. It is superseded by this independent current-file comparison and the successful transaction mandatory pre/post assertion. Original evidence is preserved.",
+  "commit": "c405bcf4737fbecabc0be11ee91fadb830ff354c",
+  "transactionReport": {
+    "bytes": 48475,
+    "sha256": "d8383341b386850fee2b0974228d953bf809255f29201cb0ad929bf70c421f51"
+  },
+  "transactionSource": {
+    "bytes": 15328,
+    "sha256": "781c7d522fcd4a6123d0082f180fe640b20c5e43013e488a67611aebcc49b579"
+  },
+  "transactionActualExit": 0,
+  "mandatoryPostAssertion": " assert measure(GD/'index')==R['candidateNormalIndex'];assert table(command(['ls-files','--stage','-z']).stdout)==result;assert working()==R['primaryWorkingBefore'];assert measure(INDEX)==R['privateIndexBefore'];R['phase']='committed-and-selectively-reconciled';R['normalIndexAfter']=measure(GD/'index');R['actualExit']=0",
+  "scope": "Selected primary working files only; unselected index preservation is separately checked by the transaction.",
+  "observedUtc": "2026-11-06T06:32:06.251267+00:00",
+  "selectedFileCount": 27,
+  "observed": {
+    "docs/architecture/project-maintenance.md": {
+      "bytes": 122685,
+      "sha256": "3970389e0f6a4135efde05b694631027128dbaa93e4c69b294554269fa2a02c2"
+    },
+    "docs/ops/project-maintenance.md": {
+      "bytes": 64520,
+      "sha256": "18a42cda3ca0622c49cea0296ee004eb0f253363cf05c5a8006873c3d55db8c7"
+    },
+    "engine/SOURCE.json": {
+      "bytes": 5395006,
+      "sha256": "b886c349b0abca7c4ad1b07ad66f3d8f45f5b60404d44f36db38bc889bc652cb"
+    },
+    "engine/codex-rs/project-maintenance/src/admission.rs": {
+      "bytes": 15895,
+      "sha256": "f8c05dc2a2b179cfc444e1be3533afb1fd87e87fcf867f65810883fc0d8077ee"
+    },
+    "engine/codex-rs/project-maintenance/src/groups.rs": {
+      "bytes": 68297,
+      "sha256": "cf558b15f5352b3b1c8b90d01cd92c03078f1d09e73c6f2c2d9fec9785e98c41"
+    },
+    "engine/codex-rs/project-maintenance/src/lib.rs": {
+      "bytes": 50177,
+      "sha256": "cb9b2ceb956473a40e708e88cb52f44b63126ac041e6077339eef06c8e667777"
+    },
+    "engine/codex-rs/project-maintenance/src/registry.rs": {
+      "bytes": 73285,
+      "sha256": "e1ec6ca3e10e27a928e6c41f9714e571a17628a673414eb1c8af9d61ef8e095e"
+    },
+    "engine/codex-rs/project-maintenance/src/reservations.rs": {
+      "bytes": 85722,
+      "sha256": "f5c16dca9ba10f73cdf82794d7ddbb245b6c17f61a6fcf0d242c4ee3a8f139a2"
+    },
+    "scripts/azrael-feature-contracts.json": {
+      "bytes": 187498,
+      "sha256": "2f81864edf998ced2f897f6d4a0eb80dc8245a51c34105b567287ae4bc4346da"
+    },
+    "scripts/deployment-control-retirement-native.cjs": {
+      "bytes": 41113,
+      "sha256": "f1227855ffe1a9eef95978c28d2c265c97e17fc2dc4db229a2340bdff93ff306"
+    },
+    "scripts/deployment-control-retirement.cjs": {
+      "bytes": 46012,
+      "sha256": "739412ba986687573ea02ff69be5f2ccc0d89bb88574a22e0ffc1421a6eff401"
+    },
+    "scripts/lifecycle-empty-publication-recovery.cjs": {
+      "bytes": 18178,
+      "sha256": "13a7abe7a2630a7ed6502061711cc49ef472fbd93e4b369b2c1693679bff2871"
+    },
+    "scripts/test-deployment-control-retirement.cjs": {
+      "bytes": 46516,
+      "sha256": "d9b544edb82a440ab13f32bf276010da72788583c3caac00362725304a3f9918"
+    },
+    "work/FW-01-volsnap-io-safety/02-plan.md": {
+      "bytes": 87932,
+      "sha256": "a16cbccf847666e683cc574a7ca27c43da3789bfe46eadd644a9f183142d0fb4"
+    },
+    "work/FW-01-volsnap-io-safety/45-cleanup-commit-result.json": {
+      "bytes": 8194,
+      "sha256": "303862793e2d3a81e09d75410524b4bcadf2031f94592adf711cca19122935a0"
+    },
+    "work/FW-01-volsnap-io-safety/46-empty-publication-tiny-verification.json": {
+      "bytes": 322467,
+      "sha256": "ddee639ac7345e7f0b813467e2cde1003e219e2f66ee30ba7cc145b6ad9332e0"
+    },
+    "work/FW-01-volsnap-io-safety/47-tiny-reprepare-continuation.json": {
+      "bytes": 481270,
+      "sha256": "c165fb83e14461cd9790958b6e9879eaa3f6d6d77422e19cb11dea10e3c9e5a9"
+    },
+    "work/FW-01-volsnap-io-safety/48-historical-empty-publication-recovery.json": {
+      "bytes": 20880,
+      "sha256": "29bee4defeda6f47209b3b2105e915977c5e6cae03052d30f522e28e4eb2cc57"
+    },
+    "work/FW-01-volsnap-io-safety/49-scoped-reservation-verification.json": {
+      "bytes": 25480,
+      "sha256": "b9ff56e5ed6166899552bba5f9fe109dccd4a921d60260703851f541d679aa9f"
+    },
+    "work/FW-01-volsnap-io-safety/50-task49-fixture-recovery.json": {
+      "bytes": 60980,
+      "sha256": "35f51a8a15455dd88d89fead7cbbcb15077e1de60b04b2660bb1f523f16e7fef"
+    },
+    "work/FW-01-volsnap-io-safety/51-r6-scoped-reservation-tiny.json": {
+      "bytes": 90741,
+      "sha256": "825f9e4f3323315bf72f2fbf34105804fc84b1f4269ffa81456c54c8968cbd60"
+    },
+    "work/FW-01-volsnap-io-safety/57-build-tool-handoff.json": {
+      "bytes": 5454,
+      "sha256": "d8d53a4b3ecc3df9f9f177743d2805df206256e68c1b6468457123673c8fc29a"
+    },
+    "work/FW-01-volsnap-io-safety/58-historical-empty-publication-recovery.json": {
+      "bytes": 11302,
+      "sha256": "83ecb5f1cce156b637e2e939448884ba4c45a75119c31a07511289baca405cc1"
+    },
+    "work/FW-01-volsnap-io-safety/58a-native-source-retirement-verification.json": {
+      "bytes": 13217,
+      "sha256": "a6956877ef9d78bc60e1f03c0f1dd29140f1a760c95c8b196e3ec345c546eeb2"
+    },
+    "work/FW-01-volsnap-io-safety/58b-legacy-source-retirement-result.json": {
+      "bytes": 20324,
+      "sha256": "9a25e94c8f0fe7d4aaf8cd7e1758f7a07dfc7cbb4ba6d22e0d0f73cc49ddb071"
+    },
+    "work/FW-01-volsnap-io-safety/58c-native-source-retirement-integration-verification.json": {
+      "bytes": 13731,
+      "sha256": "2bb750e3c0f68d0c8b9aa75c4046a261b0027dbbe2b4919a80baf9f06c85376f"
+    },
+    "work/FW-01-volsnap-io-safety/58d-retained-recovery-test-integration.json": {
+      "bytes": 2176,
+      "sha256": "f495e661c13ba11fb9f71416e3bf8ee626ac57b05508cde85b1b2f42d9800394"
+    }
+  },
+  "differentFromTransactionBefore": []
+}

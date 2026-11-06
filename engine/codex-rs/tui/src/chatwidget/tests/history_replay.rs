@@ -100,6 +100,7 @@ async fn replayed_failed_turns_preserve_overload_warnings_between_retries() {
     let error_message = "Selected model is at capacity. Please try a different model.";
     let failed_turn = |turn_id: &str, item_id: &str| AppServerTurn {
         root_resume_wait: None,
+        user_wait_timing: None,
         items: vec![AppServerThreadItem::UserMessage {
             id: item_id.to_string(),
             client_id: None,
@@ -353,6 +354,7 @@ async fn replayed_nested_review_prompts_do_not_render_or_seed_composer_history()
     };
     let review_marker = |turn_id: &str| AppServerTurn {
         root_resume_wait: None,
+        user_wait_timing: None,
         items: vec![
             AppServerThreadItem::EnteredReviewMode {
                 id: format!("{turn_id}-start"),
@@ -376,6 +378,7 @@ async fn replayed_nested_review_prompts_do_not_render_or_seed_composer_history()
             review_marker("turn-review-before-steer"),
             AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 items: vec![
                     user_message("interrupted-prompt", review_hint),
                     user_message("interrupted-steer", review_hint),
@@ -391,6 +394,7 @@ async fn replayed_nested_review_prompts_do_not_render_or_seed_composer_history()
             review_marker("turn-review"),
             AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 items: vec![
                     user_message("review-prompt-1", review_prompt),
                     user_message("review-prompt-2", review_prompt),
@@ -965,6 +969,7 @@ async fn prompt_edit_stops_streaming_without_submitting_queued_input() {
 
     let retained_turn = AppServerTurn {
         root_resume_wait: None,
+        user_wait_timing: None,
         items: vec![
             AppServerThreadItem::AgentMessage {
                 id: "retained-response".to_string(),
@@ -1145,6 +1150,7 @@ async fn replayed_retryable_app_server_error_keeps_turn_running() {
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -1484,6 +1490,7 @@ async fn live_reasoning_summary_is_not_rendered_twice_when_item_completes() {
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -1547,6 +1554,7 @@ async fn live_reasoning_summary_drops_empty_parts_without_losing_content() {
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -1650,6 +1658,7 @@ async fn replayed_in_progress_turn_marks_task_running() {
             chat.replay_thread_turns(
                 vec![AppServerTurn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
                     items_view,
                     ..app_server_turn(
                         "turn-1",

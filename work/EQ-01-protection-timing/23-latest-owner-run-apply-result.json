@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "signal": null,
+  "elapsed_ms": 16357.170500000007,
+  "stderr": "{\"error\":\"다른 프로세스가 파일의 한 부분을 잠갔으므로, 프로세스가 해당 파일을 액세스할 수 없습니다. (os error 33); pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock (catalog)\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\"}\n",
+  "result": null
+}

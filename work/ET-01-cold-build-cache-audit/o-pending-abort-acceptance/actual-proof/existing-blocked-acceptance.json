@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "status": "blocked",
+  "recordedUtc": "2026-10-30T17:09:57.822Z",
+  "scope": "Exact O temporary root and absent verification claim; no Y fresh pending namespace",
+  "source": {
+    "created_at": "2026-10-30T15:53:50.828Z",
+    "id": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+    "kind": "work",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\t",
+        "protection_known": true,
+        "role": "temporary"
+      }
+    ],
+    "membership_complete": true,
+    "owner": "azrael-deployment-temporary",
+    "references": [
+      {
+        "id": "version:et1-cold-20261030o",
+        "kind": "execution",
+        "reason": "Deployment temporary inputs",
+        "reference_id": "8ae0aaa926427a37a49ee1f747df0461bb4438d2efa6a478d14e8dd78c7a97c7"
+      }
+    ],
+    "revision": 3,
+    "schema": 1,
+    "state": "complete",
+    "updated_at": "2026-10-30T16:31:47.868Z",
+    "version": null
+  },
+  "version": {
+    "id": "version:et1-cold-20261030o",
+    "revision": 7,
+    "state": "failed",
+    "membership_complete": true,
+    "producer": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\temp-reset-o-terminal.json",
+      "evidence_sha256": "f720ab769ba54e480c049d6df8f4c1f52c7436ff5d2b30dbc8b00cd6e9918100",
+      "exit_code": 1,
+      "outcome": "failure",
+      "reason": "Actual O deployment failure ended; preserve actual failure while reconciling complete owned membership.",
+      "status": "stopped"
+    },
+    "references": []
+  },
+  "verification": {
+    "id": "run:verification:et1-cold-20261030o",
+    "absentFromCatalog": true,
+    "payloadAbsent": true,
+    "closedRevision": 3,
+    "finalized": true
+  },
+  "attempts": [
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/temp-reset-o-release-register.json",
+      "sha256": "aefcaf7107d0b9474cd536c18f61e3a9e67ff7b761049fa8153a135b66f89bd8",
+      "controllerPid": 48160,
+      "startedUtc": "2026-10-30T17:06:03.508Z",
+      "finishedUtc": "2026-10-30T17:06:22.935Z",
+      "actualExitCode": 1,
+      "error": "Error: Native lease already released\n    at request (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:56:23)\n    at Object.release (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:69:30)\n    at withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:137:77)\n    at mutateLifecycle (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:210:10)\n    at Object.releaseReferences (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:252:10)\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\temp-reset-o-controller.cjs:23:21)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/temp-reset-o-resume1-release-register.json",
+      "sha256": "0117feac468cbb7cd66d7b1d4c5af40f547e87163c96743eadefb58caa6f90f5",
+      "controllerPid": 30608,
+      "startedUtc": "2026-10-30T17:09:20.167Z",
+      "finishedUtc": "2026-10-30T17:09:20.779Z",
+      "actualExitCode": 1,
+      "error": "Error: 파일이 있습니다. (os error 80)\n    at leaseError (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:23:24)\n    at wait (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:45:31)\n    at request (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:59:12)\n    at Object.writeRecord (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:64:47)\n    at writeRecord (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:192:11)\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:231:7\n    at withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:137:16)\n    at mutateLifecycle (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:210:10)\n    at Object.releaseReferences (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:252:10)\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\temp-reset-o-resume1-controller.cjs:13:21)"
+    }
+  ],
+  "pending": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\lifecycles\\a04c8c9d6810d95fea4e6f225f8acdba53367ff9a92051fba9e132b348f874d1.pending",
+    "bytes": 938,
+    "sha256": "d649797a2ff95e9eb185401387f807ab9055f3503b94acce5c3025b3e6e1e368",
+    "record": {
+      "created_at": "2026-10-30T15:53:50.828Z",
+      "id": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\t",
+          "protection_known": true,
+          "role": "temporary"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "azrael-deployment-temporary",
+      "references": [],
+      "release_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\temp-reset-o-terminal.json",
+        "evidence_sha256": "f720ab769ba54e480c049d6df8f4c1f52c7436ff5d2b30dbc8b00cd6e9918100",
+        "reason": "Exact O execution dependency has terminated; all unrelated references remain untouched.",
+        "request_sha256": "63d24a4662e07c3c5a38eaea5209530a458c2b5612a2dcfadd1cc0f84f3dd748"
+      },
+      "revision": 4,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-10-30T17:06:12.917Z",
+      "version": null
+    }
+  },
+  "blocker": "Unpublished lifecycle .pending from prior timed-out native write is retained; supported write_record create_new rejects existing pending (os error80). recover_refresh_pending is manifest-only, not a generic lifecycle write recovery.",
+  "remaining": [
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/t",
+      "exists": true
+    }
+  ],
+  "nativeRegisterAttempted": false,
+  "physicalDeletionAttempted": false,
+  "manualPendingOrLockChanges": false,
+  "retainedOPayload": [
+    {
+      "role": "release",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\releases\\et1-cold-20261030o",
+      "exists": true
+    },
+    {
+      "role": "build-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\logs\\et1-cold-20261030o",
+      "exists": true
+    },
+    {
+      "role": "deployment",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\deployments\\deploy-et1-cold-20261030o",
+      "exists": true
+    },
+    {
+      "role": "deploy-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\logs\\deploy-et1-cold-20261030o",
+      "exists": true
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "c34667e54c7d233f5c6bd0163ba165689e2fde0e4d66ff7cd4de0d8750987b73",
+  "lease_owner": {
+    "acquired_at_ms": 1793159589779,
+    "operation": "group_reservation",
+    "pid": 88528,
+    "schema": 2,
+    "token": "88528-1793159589779-c4736bfac618c43f"
+  },
+  "terminal_result": {
+    "operation": "register",
+    "group_id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+    "exit_code": 1,
+    "elapsed_ms": 53811,
+    "stderr": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n",
+    "value": ""
+  },
+  "process_model": "Direct synchronous spawnSync maintenance_owner --project-root ROOT --request REQUEST; terminal actual exit1. Production owner runner/dispatch registration/reservations/groups/lock_recovery do not spawn child processes. Only matching spawn in lock_recovery.rs1109 is cfg(test)1035.",
+  "supplementary_observation": {
+    "command": "Get-CimInstance Win32_Process -Filter 'ProcessId = 88528 OR ParentProcessId = 88528'",
+    "exit_code": 0,
+    "processes": [],
+    "observed_at": "2026-10-28T04:00:30.526Z"
+  }
+}

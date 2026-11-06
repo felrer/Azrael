@@ -1,0 +1,52 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const primary=path.resolve(__dirname,'../..'),B=path.join(primary,'artifacts/e'),W=path.join(B,'artifacts/w');
+const l=require(path.join(primary,'scripts/artifact-lifecycle.cjs')),runs=require(path.join(primary,'scripts/artifact-run.cjs'));
+const digest=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const owner=path.join(primary,'artifacts/versions/maintenance-owner-et01-duplicate-claims-win-x64/payload/maintenance_owner.exe');
+if(digest(owner)!=='3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c')throw Error('Owner changed');
+process.env.AZRAEL_MAINTENANCE_OWNER=owner;
+const capture=JSON.parse(fs.readFileSync(path.join(__dirname,'44-capture-preparation.json'))),m=JSON.parse(fs.readFileSync(capture.manifestPath));
+const ready=JSON.parse(fs.readFileSync(path.join(capture.runRoot,'reports/recording-ready.json')));
+if(ready.nonce!==m.nonce||ready.instanceName!==m.instanceName||ready.startExitCode!==0||ready.statusExitCode!==0||fs.existsSync(path.join(capture.runRoot,'reports/capture-result.json')))throw Error('Live capture readiness not established');
+const retry=process.argv.includes('--retry-source');
+if(retry){const previous=JSON.parse(fs.readFileSync(path.join(__dirname,'45-cold-workspace-preparation.json')));if(previous.status!=='failed'||!previous.error.includes('Destination coverage differs')||!fs.existsSync(B)||fs.existsSync(W))throw Error('Prior source-only preparation failure not verified');}
+else if(fs.existsSync(B))throw Error('Fresh artifact owner already exists');
+const reportPath=path.join(__dirname,retry?'46-cold-workspace-preparation-r2.json':'45-cold-workspace-preparation.json');
+const report={schema:1,status:'preparing',primary,artifactOwner:B,workingRoot:W,controller:{pid:process.pid,startedUtc:new Date().toISOString(),argv:process.argv},capture:{runRoot:capture.runRoot,nonce:m.nonce,recordingReady:ready},steps:[]};
+fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
+const save=()=>fs.writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n');
+const member=(p,role)=>({path:p,role,generated:true,protection_known:true});
+let run;
+(async()=>{
+ const control=retry?l.catalog(primary).find(r=>r.id==='work:ET-01:cold-artifact-owner-control'):l.recordLifecycle(primary,{id:'work:ET-01:cold-artifact-owner-control',kind:'work',owner:'cold-build-cache-audit',state:'pending',membership_complete:false,expected_revision:0,members:[member(path.join(B,'project-maintenance.json'),'configuration'),member(path.join(B,'artifacts/maintenance'),'owner-control')],references:[]});
+ if(!control||control.owner!=='cold-build-cache-audit'||control.state!=='pending'||control.producer)throw Error('Artifact control owner changed');
+ report.control={id:control.id,revision:control.revision};save();
+ fs.mkdirSync(B,{recursive:true});
+ const config=JSON.stringify({schema_version:1,project_id:'azrael-et01-cold-20261030',managed_roots:['artifacts'],protected_paths:[],bundles:[]},null,2)+'\n';
+ if(retry){if(fs.readFileSync(path.join(B,'project-maintenance.json'),'utf8')!==config)throw Error('Artifact owner configuration drift');}else fs.writeFileSync(path.join(B,'project-maintenance.json'),config,{flag:'wx'});
+ const definitions={cargo:'g',cargoHome:'h',npm:'n',bun:'b',dotnetHome:'d',nuget:'u',pending:'p',pip:'pip',temporary:'t',fixtures:'f',windowControl:'wc'};
+ report.caches={};
+ for(const [name,leaf] of Object.entries(definitions)){
+  const p=path.join(B,'artifacts',leaf),id='work:ET-01:cold-cache:'+name;
+  const record=retry?l.catalog(B).find(r=>r.id===id):l.recordLifecycle(B,{id,kind:'work',owner:'cold-build-cache-audit',state:'pending',membership_complete:false,expected_revision:0,members:[member(p,'cache-'+name)],references:[]});
+  if(!record||record.owner!=='cold-build-cache-audit'||record.state!=='pending'||record.producer||record.members.length!==1||record.members[0].path!==p)throw Error('Fresh cache ownership drift: '+name);
+  report.caches[name]={path:p,id,revision:record.revision,absentBefore:true};save();
+ }
+ const c=report.caches;
+ run=runs.beginArtifactRun(B,{workId:'ET-01-cold-build-cache-audit',owner:'cold-build-cache-audit',runId:retry?'inputs-20261030b':'inputs-20261030a',references:Object.values(c).map(x=>({id:x.id,kind:'execution',reason:'Cold input preparation uses exclusively fresh owned cache paths'}))});
+ report.run={id:run.lifecycleId,root:run.runRoot,reports:run.reports,logs:run.logs};
+ for(const name of ['cargoHome','npm','bun','dotnetHome','nuget','pending','pip','temporary'])fs.mkdirSync(c[name].path,{recursive:true});
+ delete process.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT;
+ Object.assign(process.env,{CARGO_HOME:c.cargoHome.path,npm_config_cache:c.npm.path,BUN_INSTALL_CACHE_DIR:c.bun.path,DOTNET_CLI_HOME:c.dotnetHome.path,NUGET_PACKAGES:c.nuget.path,PIP_CACHE_DIR:c.pip.path,TEMP:c.temporary.path,TMP:c.temporary.path,TMPDIR:c.temporary.path,INSTA_UPDATE:'no',INSTA_PENDING_DIR:c.pending.path,DOTNET_CLI_TELEMETRY_OPTOUT:'1',DOTNET_SKIP_FIRST_TIME_EXPERIENCE:'1',PYTHONDONTWRITEBYTECODE:'1'});
+ const dirs=['C:/Users/felre/AppData/Local/Programs/PowerShell/7','C:/Users/felre/AppData/Local/Programs/Python/Python313','C:/Users/felre/.cargo/bin','C:/Program Files/nodejs',path.join(primary,'artifacts/tools/bun-1.4.2/package/bin')];
+ process.env.PATH=[...dirs,...process.env.PATH.split(path.delimiter)].join(path.delimiter);
+ report.environment=Object.fromEntries(['CARGO_HOME','npm_config_cache','BUN_INSTALL_CACHE_DIR','DOTNET_CLI_HOME','NUGET_PACKAGES','PIP_CACHE_DIR','TEMP','TMP','TMPDIR','INSTA_UPDATE','INSTA_PENDING_DIR','DOTNET_CLI_TELEMETRY_OPTOUT','DOTNET_SKIP_FIRST_TIME_EXPERIENCE','PYTHONDONTWRITEBYTECODE','PATH','AZRAEL_MAINTENANCE_OWNER'].map(k=>[k,process.env[k]]));save();
+ console.log(JSON.stringify({stage:'freeze-start',pid:process.pid,artifactOwner:B,workingRoot:W,utc:new Date().toISOString()}));
+ const {prepareDeploymentWorkspace}=require(path.join(primary,'scripts/deployment-workspace.cjs'));
+ const context=await prepareDeploymentWorkspace({projectRoot:primary,artifactProjectRoot:B,inputRoot:path.join(B,retry?'artifacts/i2':'artifacts/i'),workingRoot:W,owner:run.owner,runLifecycleId:run.lifecycleId,reportPath:path.join(run.reports,'workspace.json'),engineSourceRoot:path.join(primary,'engine'),pythonExecutable:'C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe'});
+ report.context={reportPath:context.reportPath,manifestSha256:context.manifestSha256,inputRoot:context.inputRoot,workingRoot:context.workingRoot,immutableProjectRoot:context.immutableProjectRoot,workingEngineRoot:context.workingEngineRoot,immutableEngineRoot:context.immutableEngineRoot,moduleCacheProjectRoot:context.moduleCacheProjectRoot,inputLifecycleId:context.inputLifecycleId,workingLifecycleId:context.workingLifecycleId,projectSha256:context.projectSha256,engine:context.engine,timings:context.timings};
+ report.status='frozen-inputs-ready';report.finishedUtc=new Date().toISOString();save();
+ runs.finishArtifactRun(run,{exitCode:0,producerStopped:true,reason:'Owned synchronous cold-input preparation completed; immutable/working identities verified by existing helper; downstream build has not started'});
+ console.log(JSON.stringify({status:report.status,reportPath,manifest:context.reportPath,manifestSha256:context.manifestSha256,pid:process.pid}));
+})().catch(error=>{report.status='failed';report.error=error.stack;report.finishedUtc=new Date().toISOString();save();if(run)try{runs.finishArtifactRun(run,{exitCode:1,producerStopped:true,reason:'Synchronous cold-input preparation failed; no product compiler launched'});}catch(close){report.closeError=close.stack;save();}console.error(error.stack);process.exitCode=1;});

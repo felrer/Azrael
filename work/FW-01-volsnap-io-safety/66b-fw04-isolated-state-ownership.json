@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "status": "planned-persistent-state-owner-registered",
+  "scope": "Only persistent StateRoot S ownership metadata; no app installation or filesystem state creation",
+  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\s",
+  "physicalBefore": false,
+  "physicalAfter": false,
+  "outcome": {
+    "action": "planned-persistent-state-owner-registered",
+    "owners": [],
+    "record": {
+      "schema": 1,
+      "id": "version:fw04-18-isolated-state",
+      "kind": "version",
+      "owner": "FW04-isolated-installation",
+      "version": null,
+      "state": "pending",
+      "membership_complete": false,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\s",
+          "role": "state",
+          "generated": false,
+          "protection_known": true
+        }
+      ],
+      "references": [],
+      "revision": 1,
+      "created_at": "2026-11-06T14:09:54.126Z",
+      "updated_at": "2026-11-06T14:09:54.127Z"
+    },
+    "profileMembers": [
+      {
+        "generated": false,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "protection_known": true,
+        "role": "vscode-user-data"
+      },
+      {
+        "generated": false,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "protection_known": true,
+        "role": "vscode-extensions"
+      }
+    ]
+  },
+  "canonical": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\00a18789a5a9ed05cc671441dc5c4784cf7b258333c62074ab0f0879d292ee09.json",
+    "sha256": "bc28de30caed5a34fc65148c64e92f118525fefbf2e31e15b341b26b23d57529"
+  },
+  "owningSource": {
+    "lifecycleApi": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs",
+      "sha256": "2a8b18df501c4661bbc23bffd666e12b7a0c46a38e4e169f5dd044ea42270ab8",
+      "operation": "recordLifecycle with exact owner and expected_revision:0 under catalog lease"
+    },
+    "deploy": {
+      "path": "scripts/deploy-azrael.ps1",
+      "meaning": "Version/verification/temporary registrations do not include external StateRoot S; StateRoot is passed to preparation and installation"
+    },
+    "prepare": {
+      "path": "scripts/prepare-ordinary-vscode.ps1",
+      "meaning": "Prepared runtime azrael-runtime.json binds codexHome to selected StateRoot; does not establish a lifecycle S owner"
+    },
+    "installer": {
+      "path": "scripts/install-independent-vscode.ps1",
+      "meaning": "Prepared StateRoot must match requested StateRoot; optional prepare-devin writes state/azrael/devin and config.toml; installer does not auto-register exact persistent S"
+    },
+    "stateWriter": {
+      "path": "scripts/prepare-devin.ps1",
+      "lines": [
+        12,
+        13,
+        24,
+        28
+      ]
+    }
+  },
+  "leases": [
+    {
+      "operation": "lifecycle.reconcile",
+      "owner": {
+        "acquired_at_ms": 1793974188468,
+        "operation": "lifecycle.reconcile",
+        "parent_pid": 19020,
+        "pid": 25732,
+        "schema": 2,
+        "token": "25732-1793974188468-5b2eda03deb673bd"
+      },
+      "release": {
+        "released": true,
+        "reservations_retained": [],
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true
+      }
+    }
+  ],
+  "policy": {
+    "persistentUserDeliverable": true,
+    "generated": false,
+    "protectionKnown": true,
+    "notDisposable": true,
+    "noUEMembershipExpansion": true,
+    "noSFilesCreated": true,
+    "noNewDisposableRun": true,
+    "noAzraelInstall": true,
+    "installationAndRuntimeReferencesToBeAddedByRootAfterActualInstall": true
+  }
+}

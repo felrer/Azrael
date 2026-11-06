@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "action": "recover-cleanup",
+  "source": {
+    "id": "run:ET-01-cold-build-cache-audit:cold-capture-20261030a",
+    "kind": "run",
+    "owner": "cold-build-cache-audit",
+    "version": null,
+    "generation": null,
+    "revision": 4,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\cache-capture-final-failure.json",
+      "evidence_sha256": "328b4f456f289b2dd78ae3c585495415a08153fbf88ad83f857340ee73074e1e",
+      "exit_code": null,
+      "outcome": "unknown",
+      "reason": "Original helper reported1; exact WPR Process.WaitForExit termination observed but native exit unavailable; WPR status0/not recording and all analysis attempts ended. No successful capture inferred.",
+      "status": "stopped"
+    },
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\inputs",
+        "protection_known": true,
+        "role": "inputs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\outputs",
+        "protection_known": true,
+        "role": "outputs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\reports",
+        "protection_known": true,
+        "role": "reports"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\logs",
+        "protection_known": true,
+        "role": "logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\temporary",
+        "protection_known": true,
+        "role": "temporary"
+      }
+    ]
+  },
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "stop_basis": "Exact WPR start instance was held by standard Process.WaitForExit; the following ExitCode getter error proves wait returned. Fixed helper had only its recorded WPR commands, earlier start/status returned0, helper terminal reported1, final status query0 says not recording. All owned analyzer attempts reached real terminal; no native success/exit code invented.",
+  "membership_basis": "Original complete planned run-root ownership and all six generated/protection-known roots retained unchanged; trace output is absent; remaining internal ETL and fixed controls/logs belong to this exact capture. No external member or consumer exists.",
+  "producer_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\cache-capture-final-failure.json",
+      "sha256": "328b4f456f289b2dd78ae3c585495415a08153fbf88ad83f857340ee73074e1e"
+    }
+  ]
+}

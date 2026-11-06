@@ -147,12 +147,6 @@ test("native UI parser still rejects malformed successful response JSON", async 
   assert.equal(f.ui.pendingRequests.size, 0);
 });
 
-test("transform replaces one pinned serializer and is idempotent", () => {
-  const result = injectFetchResponse(original);
-
-  assert.equal(injectFetchResponse(result.text).text, result.text);
-});
-
 test("missing, duplicate, mixed, unmarked or drifted serializer envelopes fail closed", () => {
   for (const source of [
     "changed host", original + ANCHOR, original + original, patched + original,

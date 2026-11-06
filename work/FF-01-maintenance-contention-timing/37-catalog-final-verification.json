@@ -1,0 +1,122 @@
+{
+  "at": "2026-11-02T11:17:34.064Z",
+  "status": "complete_with_approved_retention",
+  "implementation_verification_activation": "passed",
+  "native247_exit0": true,
+  "performance18_native_closes_exit0": true,
+  "actual_default6_native_closes_exit0": true,
+  "verified_platform": "Windows x64",
+  "embedded_app_rebuilt": false,
+  "source_audit_reused": {
+    "proof": "35-catalog-run-close-proof.json",
+    "checked": 42,
+    "unchanged_at_consumer_completion": true
+  },
+  "binary": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "cf9cbd25713cf0a7688d4609271cfe3ec5619635fb1550b7e02e1b59608d56f1",
+    "bytes": 2817024
+  },
+  "pins": {
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\owner-installation.json",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\deployments\\maintenance-owner-dw16\\installation.json"
+    ],
+    "identical": true,
+    "sha256": "f02a535ce05dc7b03d9ab1749d000be89824cc4b34bb3bbd438b03cb4448a0c2"
+  },
+  "cleanup": {
+    "group": "run:ff1:catalog4",
+    "status": "deleted_and_finalized",
+    "logical_bytes": 1143222063,
+    "physical_bytes_reclaimed": null,
+    "remaining_paths": [],
+    "removed_empty_parents": [
+      "artifacts/tasks/ff1/runs",
+      "artifacts/tasks/ff1"
+    ]
+  },
+  "retention": {
+    "path": "artifacts/versions/maintenance-owner-ff01-storage-win-x64-20261102",
+    "files": 12,
+    "bytes": 2915578,
+    "approval": "approved",
+    "other_observed_parents": [
+      12928,
+      23904,
+      32048
+    ],
+    "condition": "Named current jobs finish using old version; recheck all live consumers/references before exact reference release and native owner cleanup, preserve uncertainty and obtain renewal if needed.",
+    "approved_scope": {
+      "path": "artifacts/versions/maintenance-owner-ff01-storage-win-x64-20261102",
+      "files": 12,
+      "bytes": 2915578,
+      "original_consumer_jobs": [
+        12928,
+        23904,
+        32048,
+        56992
+      ],
+      "condition": "Until the named current jobs finish using this executable; recheck actual runtime and references before owner cleanup."
+    },
+    "approval_received_at": "2026-11-02T11:17:34.064Z",
+    "active_original_parent": {
+      "pid": 23904,
+      "created_utc": "2026-11-02T10:49:21.518Z",
+      "command": "C:/Program Files/nodejs/node.exe"
+    },
+    "latest_runtime": {
+      "native_pid": 56192,
+      "parent_pid": 32496,
+      "parent_command": "node.exe -",
+      "note": "Additional live consumer observed; original approved job23904 is still alive. This observation does not broaden the approved condition; recheck all consumers when original condition ends."
+    }
+  },
+  "installation_consumer": {
+    "revision": 27,
+    "references": [
+      {
+        "id": "version:maintenance-owner:ff01:storage-20261102",
+        "reference_id": "76b2b2536dbd77ea647b3cd3ff938cb8d950bf567b828d982662580bffdb1cd2"
+      },
+      {
+        "id": "version:maintenance-owner:ff01:catalog-20261102",
+        "reference_id": "558c6bb54fb4d3d81adc92ff03279e2c8b49699b3fe04315921f8a5cc3b2935a"
+      }
+    ]
+  },
+  "commit": {
+    "created": false,
+    "reason": "Previous uncommitted catalog epoch/reservation/recovery foundations overlap same files; preserve index and verified complete inputs."
+  },
+  "evidence": [
+    {
+      "path": "30-catalog-native-acceptance.json",
+      "sha256": "ab068c30551c720cb62a6e0912b6a49fe663620d99cb3bb69facb8d4d1d4d4c4"
+    },
+    {
+      "path": "31-catalog-performance.json",
+      "sha256": "afdddc3b2c112225ce97d4272fdf5c33367e12d3e026c04b1aff0392d1631ad6"
+    },
+    {
+      "path": "32-catalog-version-preparation.json",
+      "sha256": "61bd4d385e853e80d703e1add7e5073f4ceb293de096e8f7baa3bd5665f84d4b"
+    },
+    {
+      "path": "33-catalog-installation.json",
+      "sha256": "41da6d19f36fa5d480d4b825a2c7157e0f8804ecb32574704f464fa0f39dc91a"
+    },
+    {
+      "path": "34-catalog-default-acceptance.json",
+      "sha256": "2ac672f9615a91d93675a4ce1543b67ccd8547c3529b8a9c45f232188f81654c"
+    },
+    {
+      "path": "35-catalog-run-close-proof.json",
+      "sha256": "add1fff5139aad212b84d0bec80cd7418f9b0c58002a7c079380016d6b0de8ce"
+    },
+    {
+      "path": "36-catalog-cleanup.json",
+      "sha256": "89ca449709ad07c37f063a41300728a34e7691ee02237b3f2ce3171d9538b64c"
+    }
+  ]
+}

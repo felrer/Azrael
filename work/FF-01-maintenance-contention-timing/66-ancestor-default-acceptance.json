@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "Standalone maintenance default pin, Windows x64 local; no full app installation or activation acceptance",
+  "harness_sha256": "280fe6f5ae13edb6ebedc052cbfff32a95d62999042c46610322413eada1b18b",
+  "selection": {
+    "command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    },
+    "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+    "normal_parent_environment": true,
+    "pins": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\owner-installation.json",
+        "sha256": "940697d93d911c46fd632deb7f9f99d39c42262f3f5037b063a1eb28dc4c8d94",
+        "after_sha256": "940697d93d911c46fd632deb7f9f99d39c42262f3f5037b063a1eb28dc4c8d94",
+        "bytes_unchanged": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\deployments\\maintenance-owner-dw16\\installation.json",
+        "sha256": "940697d93d911c46fd632deb7f9f99d39c42262f3f5037b063a1eb28dc4c8d94",
+        "after_sha256": "940697d93d911c46fd632deb7f9f99d39c42262f3f5037b063a1eb28dc4c8d94",
+        "bytes_unchanged": true
+      }
+    ],
+    "final_command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    }
+  },
+  "parent_environment": {
+    "AZRAEL_STATE_ROOT": null,
+    "CODEX_HOME": "C:\\Users\\felre\\.azrael-ex",
+    "AZRAEL_MAINTENANCE_OWNER": null,
+    "AZRAEL_MAINTENANCE_OWNER_MODE": null,
+    "AZRAEL_MAINTENANCE_INSTALLATION": null
+  },
+  "native_environment": {
+    "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\default-smoke\\state-home",
+    "CODEX_HOME": "C:\\Users\\felre\\.azrael-ex",
+    "AZRAEL_MAINTENANCE_OWNER": null,
+    "AZRAEL_MAINTENANCE_OWNER_MODE": null,
+    "AZRAEL_MAINTENANCE_INSTALLATION": null,
+    "AZRAEL_MAINTENANCE_TIMING": "1",
+    "AZRAEL_MAINTENANCE_DETAIL_TIMING": null
+  },
+  "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\default-smoke",
+  "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\default-smoke\\generated\\check.bin",
+  "native": [
+    {
+      "label": "capabilities",
+      "args": [
+        "capabilities"
+      ],
+      "pid": 45864,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 136.8869,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-capabilities.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-capabilities.stderr.log"
+    },
+    {
+      "label": "lease",
+      "args": [
+        "--lease",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\default-smoke\\catalog.lock",
+        "--operation",
+        "ancestor.default.acceptance",
+        "--wait-ms",
+        "0",
+        "--parent-pid",
+        "38652"
+      ],
+      "pid": 55516,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 82.5572,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-lease.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-lease.stderr.log"
+    },
+    {
+      "label": "register",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "pid": 36432,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 324.3132,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-register.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-register.stderr.log"
+    },
+    {
+      "label": "review",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "pid": 34288,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 51.1444,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-review.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-review.stderr.log"
+    },
+    {
+      "label": "apply",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "pid": 34692,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 1094.0567,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-apply.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-apply.stderr.log"
+    },
+    {
+      "label": "inventory",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "pid": 44580,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 59.2235,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-inventory.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\default-inventory.stderr.log"
+    }
+  ],
+  "checks": {
+    "normal_default_resolver": true,
+    "capabilities": true,
+    "direct_lease_acquire_release": true,
+    "no_active_reservation": true,
+    "registered_review_apply_inventory": true,
+    "target_absent": true,
+    "durable_deleted_no_pending": true,
+    "prior_native_history_preserved": true,
+    "current_reviews": 1,
+    "intent_saves": 1,
+    "result_saves": 1,
+    "state_commits": 2,
+    "pins_identical_unchanged": true,
+    "final_resolver_identity_unchanged": true,
+    "six_actual_close_exit0": true,
+    "native_build_target_lease_absent": true
+  },
+  "cleanup": {
+    "owner": "run:ff1:ancestor7",
+    "status": "root outer cleanup pending; fixture/control/log state remains"
+  },
+  "capabilities": {
+    "max_lock_wait_ms": 600000,
+    "operations": [
+      "inventory",
+      "register",
+      "review",
+      "apply",
+      "recover_lock",
+      "recover_reservation",
+      "recover_refresh_pending",
+      "recover_lifecycle_pending",
+      "partition_storage",
+      "compact_storage",
+      "reconcile_duplicate_groups"
+    ],
+    "platform": {
+      "arch": "x64",
+      "os": "win32"
+    },
+    "preferences": true,
+    "protocol": "maintenance-owner-lease-v1",
+    "request_file_policy": "outside-maintenance-state",
+    "request_transports": [
+      "file",
+      "stdin"
+    ],
+    "schema": 1,
+    "storage_formats": [
+      "legacy",
+      "partitioned-v1"
+    ]
+  },
+  "lease_packets": [
+    {
+      "id": 0,
+      "ok": true,
+      "result": {
+        "acquired_at_ms": 1793628759614,
+        "operation": "ancestor.default.acceptance",
+        "parent_pid": 38652,
+        "pid": 55516,
+        "schema": 2,
+        "token": "55516-1793628759614-4c86a6ccd7f4a994"
+      }
+    },
+    {
+      "id": 1,
+      "ok": true,
+      "result": {
+        "released": true,
+        "reservations_retained": []
+      }
+    }
+  ],
+  "active_reservation_records": [],
+  "target_lease_check": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\outputs\\native\\target\\.azrael-cargo-owner",
+    "absent": true
+  }
+}

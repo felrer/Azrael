@@ -1,0 +1,108 @@
+{
+  "status": "complete",
+  "environment": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v26.7.0",
+    "python": "3.12"
+  },
+  "sourceHashes": {
+    "scripts/deployment-workspace.cjs": "1cdb51ff070af76a8f78a0b4df0581025e6ad061b46166432600830d108c45be",
+    "scripts/test-deployment-workspace.cjs": "1e6e40e1e63e239c8d356b1327ccd18e1c387a2e8260eb5d0fb56eaf5ea1ba92",
+    "scripts/test-capture-project-inputs.cjs": "c2edef72de7ff3cb4ab0d30762b36fe62597085750dd335de1447666d702cc05",
+    "scripts/test-deployment-input-snapshot.cjs": "8944bcd4a0025715512df13b17d0cd5a36e57c981933acb023d828d4d0ec529f"
+  },
+  "tests": [
+    {
+      "name": "capture",
+      "started": "2026-11-01T12:20:31.414Z",
+      "completed": "2026-11-01T12:20:52.318Z",
+      "durationMs": 20904.4438,
+      "exitCode": 0,
+      "signal": null,
+      "before": "c2edef72de7ff3cb4ab0d30762b36fe62597085750dd335de1447666d702cc05",
+      "after": "c2edef72de7ff3cb4ab0d30762b36fe62597085750dd335de1447666d702cc05",
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\verify-junction-b\\logs\\capture.log",
+      "passed": 13
+    },
+    {
+      "name": "snapshot",
+      "started": "2026-11-01T04:36:05.385Z",
+      "completed": "2026-11-01T04:36:21.128Z",
+      "elapsedMs": 15743.435200000007,
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\verify-a\\logs\\snapshot.log"
+    },
+    {
+      "name": "workspace",
+      "status": "passed",
+      "checks": [
+        "fresh contained disjoint roots, caller ownership, report role and catalog overlap checks",
+        "independent normal workspaces expose stable artifact owner in manifests and verified contexts, rejecting owner redirection",
+        "tracked/untracked/deleted/nested snapshot, explicit override hashes and new top-level ownership, independent working source, generated artifacts separately owned, later checkout edits excluded",
+        "prepared and verified source finishes through synchronized caller revision; scoped execution references released and working input dependency preserved",
+        "two read-only callers reuse frozen inputs without copying or new producers; absent old working copy and later checkout ignored; hashes, ownership, root identity, tampering, truthful failure closure and scoped cleanup protections enforced",
+        "preparation failure after durable caller reference update closes actual nonzero failure with synchronized revision while incomplete inputs remain pending",
+        "working source, immutable payload and independent manifest changes rejected",
+        "imported engine Git ambiguity rejected before copy",
+        "script delta stores only exact changed files, independently verifies derived source, protects baseline and manifests, rejects tampering and closes prelaunch failures",
+        "invalid imported inventory rejected before deployment copies",
+        "preflight reuse rejects a byte-identical source root replacement before freeze completion",
+        "changed provenance tools use the reviewed frozen validator instead of reusing the old preflight",
+        "reused imported engine receipt verified and immutable imported engine tampering rejected",
+        "actual imported engine fingerprints match; permitted Cargo cache ignored; compiled engine tampering rejected",
+        "tracked embedded imported engine captured once, external conflict refused, canonical roots audited, generated cache accepted and source tamper rejected",
+        "source selection and artifact ownership project roots remain separate"
+      ],
+      "processId": 41132,
+      "exitCode": 0,
+      "exitObservedAt": "2026-11-01T13:46:56.7870372+09:00",
+      "evidence": "External process handle retained through WaitForExit; HasExited true; final JSON status passed"
+    }
+  ],
+  "attempts": [
+    {
+      "run": "verify-a",
+      "workspaceExitCode": 1,
+      "cause": "New root-swap fixture lacked provenance scripts; fixture corrected before final-a"
+    },
+    {
+      "run": "measure-a",
+      "exitCode": 1,
+      "cause": "Overlapping producer/output ownership rejected before copying"
+    },
+    {
+      "run": "final-a",
+      "controller": "interrupted-outcome-unknown",
+      "cause": "One-off controller called trackChild instead of trackArtifactChild; workspace exit independently observed; measurement still running",
+      "recovery": "Stopped tree and complete planned root reconciled through close/recover; unknown outcome preserved"
+    }
+  ],
+  "measurement": {
+    "status": "passed",
+    "exitCode": 0,
+    "fileCount": 26211,
+    "bytes": 579309468,
+    "projectSha256": "05421d66c5b7cc94e16416e4e2006866d8cd40cc0101be700d0536310780fbec",
+    "preparationMs": 785074.6743999999,
+    "totalMs": 914742.2805,
+    "originalPreparationMs": 872692.1224000001,
+    "receipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EW-01-frozen-input-preparation-review\\07-measurement.json",
+    "receiptSha256": "4c8f5adebc3ae18fab877ae2a25907ba29647488a0c7428c9654126e4217dd43",
+    "comparison": "Observed elapsed times use the same selected bytes but different output/catalog paths, cache state and load; do not attribute the elapsed difference solely to the code change"
+  },
+  "finalSourceCheck": {
+    "at": "2026-11-01T14:13:50.549Z",
+    "matched": true,
+    "diffCheckExitCode": 0
+  },
+  "cleanup": {
+    "record": "02-cleanup.json",
+    "groupsDeleted": 5,
+    "logicalBytesDeleted": 2996919175,
+    "actualRootsAbsent": true,
+    "producerRecordsFinalized": true,
+    "rawLogsAndFixtures": "deleted after independent acceptance evidence preserved"
+  }
+}

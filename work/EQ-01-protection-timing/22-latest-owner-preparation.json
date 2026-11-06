@@ -1,0 +1,411 @@
+{
+  "schema": 1,
+  "status": "verified_candidate_not_deployed",
+  "prepared_at_utc": "2026-11-01T17:03:13.098Z",
+  "platform": "windows",
+  "arch": "x64",
+  "binary": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627",
+    "bytes": 2503680
+  },
+  "source": {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine",
+    "frozen_at_work_start": true,
+    "current_matches_frozen": true,
+    "identity_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\verification\\source-inputs.json",
+    "inputs_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\verification\\inputs.json",
+    "standalone_workspace": "workspace package/dependency/lint/profile selection retained; project-maintenance and utils/process copied unchanged",
+    "cargo_lock_sha256": "7746d56b24dd5f63a6949e76c93ebc071253a22eba9c6c0628cbc96115ed724b"
+  },
+  "native_tests_passed": 227,
+  "node_tests_passed": 205,
+  "native": {
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "elapsed_ms": 146825.08490000002,
+    "preflight": {
+      "schema": 2,
+      "compilation": "cargo-test",
+      "testExecution": "nonzero-passed",
+      "contract": "selected-tests-v2",
+      "cargoInvocations": 1,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 71,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 35,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 11,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 28,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 22,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 24,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 8,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          }
+        ],
+        "passed": 227,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0,
+        "executed": 227
+      },
+      "phases": [
+        {
+          "phase": "compilation-and-execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked"
+          ],
+          "startedUtc": "2026-11-01T16:58:00.531Z",
+          "durationMs": 146823,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "immutable_inputs_unchanged": true
+  },
+  "build": {
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "elapsed_ms": 25866.893,
+    "preflight": null,
+    "immutable_inputs_unchanged": true
+  },
+  "node": {
+    "results": [
+      {
+        "script": "scripts/test-artifact-lifecycle.cjs",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 80820.8922,
+        "summary": [
+          "ℹ tests 205",
+          "ℹ suites 0",
+          "ℹ pass 205",
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "ℹ todo 0",
+          "ℹ duration_ms 80728.1103",
+          ""
+        ]
+      },
+      {
+        "script": "scripts/test-maintenance-lock-owner.cjs",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 2945.5619000000006,
+        "summary": [
+          "{\"status\":\"passed\",\"platform\":\"win32\",\"arch\":\"x64\",\"checks\":[\"top-level and encoded busy metadata survive worker packets; transport, permission and corrupt errors stay distinct\",\"real child contention, persistent metadata, reacquisition\",\"bounded wait expires without taking a held lock\",\"parent crash closes native stdin and releases OS exclusion\",\"idle native helper death reports terminal state and releases exclusion\",\"native write failure preserves its primary operation and secondary release error without inventing terminal observation\",\"existing empty, malformed and schema1 markers require recovery\",\"replaced lock inode is preserved and release refuses replacement, or OS denies replacement\",\"symlink/reparse ancestors and non-file lock targets refused\",\"native >1 MiB UTF-8 record CAS/reserve/finish and oversized response preflight without durable fence creation\",\"native hashed-ID CAS, producer reservation/catalog handoff/pinned finish, unsafe member and wrong lock rejection\",\"default installation receipt resolves pinned owner; SHA/protocol/traversal/linked ancestors refuse without execution\",\"malformed protocol fails closed; unknown command refused\"]}",
+          ""
+        ]
+      }
+    ],
+    "immutable_inputs_unchanged": true
+  },
+  "cli": {
+    "calls": [
+      {
+        "name": "register",
+        "exit_code": 0,
+        "signal": null,
+        "result": {
+          "group": {
+            "cleanup_status": null,
+            "id": "candidate-acceptance",
+            "kind": "run",
+            "members": [
+              "payload"
+            ],
+            "membership_complete": true,
+            "membership_source_identity": null,
+            "owner": "EQ-01",
+            "provenance_ref": "receipt:isolated-owned-fixture",
+            "registered_at_ms": 1793552557632,
+            "version": null
+          },
+          "items": [
+            {
+              "cache_schema": null,
+              "created_at_ms": null,
+              "generated": true,
+              "id": "payload",
+              "identity": "789e2724bc976f2924e4638805d475efd75fa06d3dc23652ee2e85d501db8d74",
+              "kind": "fixture",
+              "lifecycle_group_id": "candidate-acceptance",
+              "lifecycle_role": "artifact",
+              "logical_bytes": 1048576,
+              "measured_at_ms": 1793552557632,
+              "owner": "EQ-01",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\temporary\\cli-fixture\\generated\\payload.bin",
+              "presence": "present",
+              "protection_known": true,
+              "provenance": null,
+              "references": [],
+              "registered_at_ms": 1793552557632,
+              "remaining": true,
+              "source_path": null,
+              "tool": null,
+              "version": null
+            }
+          ]
+        },
+        "stderr": ""
+      },
+      {
+        "name": "review",
+        "exit_code": 0,
+        "signal": null,
+        "result": {
+          "groups": [
+            {
+              "cached_live_members": 1,
+              "cleanup_status": null,
+              "id": "candidate-acceptance",
+              "kind": "run",
+              "members_total": 1,
+              "membership_complete": true,
+              "membership_source": null,
+              "membership_source_format": null,
+              "membership_source_identity": null,
+              "owner": "EQ-01",
+              "provenance_ref": "receipt:isolated-owned-fixture",
+              "version": null
+            }
+          ],
+          "items": [
+            {
+              "blockers": [],
+              "group_member_ids": [
+                "payload"
+              ],
+              "group_token": "804cc0b8871a4fa30d84a3f45fb0d680f08c438eac9e57720e0d3122a11b55b9",
+              "id": "payload",
+              "identity": "789e2724bc976f2924e4638805d475efd75fa06d3dc23652ee2e85d501db8d74",
+              "lifecycle_group_id": "candidate-acceptance",
+              "logical_bytes": 1048576,
+              "measured_at_ms": 1793552557632,
+              "membership_source_observation": null,
+              "observation_error": null,
+              "observed_at_ms": 1793552557793,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\temporary\\cli-fixture\\generated\\payload.bin",
+              "presence": "present",
+              "related_items": [],
+              "remaining": true,
+              "root_observation": {
+                "identity": {
+                  "file_id": [
+                    99,
+                    130,
+                    106,
+                    0,
+                    0,
+                    0,
+                    245,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "volume": 14318705318996120000
+                },
+                "kind": "file",
+                "presence": "present"
+              },
+              "token": "577bc51fb87174be21dbc63a6aef98b6a7eebb65df0282111bcf0df0e7323fce",
+              "verification": "registered"
+            }
+          ]
+        },
+        "stderr": ""
+      },
+      {
+        "name": "apply",
+        "exit_code": 0,
+        "signal": null,
+        "result": {
+          "aborted": false,
+          "cancelled": false,
+          "groups": [
+            {
+              "id": "candidate-acceptance",
+              "status": "deleted"
+            }
+          ],
+          "results": [
+            {
+              "attempt_id": "attempt-13412-1-1793552557970",
+              "decision": "delete",
+              "decision_id": "0b8e4bf1e95c3851e1c36eb491a9133329b49d745c80abdf40ca380da5be9dea",
+              "deletion": {
+                "attributes": [],
+                "error": null,
+                "physical_bytes_reclaimed": null,
+                "remaining": false,
+                "status": "deleted"
+              },
+              "group_status": "deleted",
+              "id": "payload",
+              "lifecycle_group_id": "candidate-acceptance",
+              "reason": "Isolated exact executable acceptance completed",
+              "remaining": false,
+              "status": "deleted",
+              "token": "577bc51fb87174be21dbc63a6aef98b6a7eebb65df0282111bcf0df0e7323fce"
+            }
+          ]
+        },
+        "stderr": ""
+      }
+    ],
+    "target_absent": true
+  },
+  "installation": {
+    "selector_unchanged": true,
+    "installation_receipt_unchanged": true,
+    "installed": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe"
+  },
+  "producer_stopped_verified": true,
+  "stop_basis": [
+    {
+      "work_id": "fb1ce265-6da3-495b-9c49-30458f1f0c3b",
+      "exit_code": 0,
+      "scope": "frozen native 227 tests and standalone release build"
+    },
+    {
+      "work_id": "a6de0731-a76d-4fbb-be23-bfe4b0f4dde9",
+      "exit_code": 0,
+      "scope": "exact binary Node lifecycle lease and isolated CLI acceptance"
+    }
+  ],
+  "limitations": [
+    "Candidate preparation only; default selector, installation receipt and installation references were not switched",
+    "Windows x64 verified; Linux/macOS and full application build not selected",
+    "No speed benchmark or actual default-path transition acceptance in this run",
+    "Other tasks must finish before any separately approved default transition"
+  ],
+  "run_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1",
+  "version_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102"
+}

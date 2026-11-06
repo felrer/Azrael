@@ -32,16 +32,19 @@ function selectModel(catalog, name, provider, effort) {
   if (effort != null && !found.supportedReasoningEfforts?.some(e => e.reasoningEffort === effort)) throw Error("Selected reasoning effort is unsupported");
   return found;
 }
-function validateHarness(harness, model) {
+function validateHarness(harness) {
   if (harness == null) return {};
   if (typeof harness !== "object" || Array.isArray(harness) || Object.keys(harness).some(k => !["promptProfile", "toolProfile"].includes(k))) throw Error("Invalid task harness binding");
-  const anthropic = ["managed", "azrael-managed"].includes(model.modelProvider) ? model.model.startsWith("managed/anthropic/") : ["anthropic", "managed/anthropic"].includes(model.modelProvider);
-  if (harness.promptProfile != null && !["builtin/azrael-default", "builtin/anthropic-default", "builtin/claude-lean"].includes(harness.promptProfile)) throw Error("Unknown task prompt profile");
-  if (harness.toolProfile != null && (harness.toolProfile !== (anthropic ? "builtin/claude-code-core" : "builtin/azrael-default"))) throw Error("Task tools are incompatible with the selected provider");
+  if (harness.promptProfile != null && !["builtin/azrael-default", "builtin/anthropic", "builtin/claude-lean"].includes(harness.promptProfile)) throw Error("Unknown task prompt profile");
+  if (harness.toolProfile != null && harness.toolProfile !== "builtin/azrael-default") throw Error("Unknown task tool profile");
   const binding = {};
   if (harness.promptProfile != null) binding.prompt_profile = harness.promptProfile;
   if (harness.toolProfile != null) binding.tool_profile = harness.toolProfile;
   return binding;
+}
+function validateProviderAccount(value) {
+  if (value == null || typeof value !== "object" || Array.isArray(value) || Object.keys(value).length !== 2 || Object.keys(value).some(key => !["providerId", "accountId"].includes(key)) || ["providerId", "accountId"].some(key => typeof value[key] !== "string" || !value[key].trim() || value[key].trim() !== value[key] || /[\x00-\x1f\x7f]/.test(value[key]))) throw Error("Invalid captured provider account scope");
+  return { providerId: value.providerId, accountId: value.accountId };
 }
 class TaskProfileRuntime {
   constructor({ codexHome, request, now = Date.now, ttlMs = 10 * 60 * 1000 }) {
@@ -54,13 +57,20 @@ class TaskProfileRuntime {
     return result;
   }
   async create(value) {
+    const snapshot = await this.materialize(value);
+    const token = crypto.randomUUID(); this.drafts.set(token, { digest: snapshot.digest, expires: this.now() + this.ttlMs, view: null });
+    return { token, model: snapshot.model, profileId: snapshot.profileId };
+  }
+  async materialize(value) {
     verifyPlan(value);
     if (!HASH.test(value.digest) || !Array.isArray(value.packages) || !Array.isArray(value.instructions)) throw Error("Invalid resolved task snapshot");
-    const frozen = JSON.parse(JSON.stringify(value)), catalog = await this.catalog();
+    const frozen = JSON.parse(JSON.stringify(value));
+    const providerAccount = Object.hasOwn(frozen, "providerAccount") ? validateProviderAccount(frozen.providerAccount) : undefined;
+    const catalog = await this.catalog();
     const model = selectModel(catalog, frozen.model, frozen.provider, frozen.reasoningEffort);
     const profile = frozen.packages.find(p => p.id === frozen.profileId && p.kind === "task-profile");
     if (!profile) throw Error("Task profile root is missing");
-    const binding = validateHarness(profile.profile?.harness, model);
+    const binding = validateHarness(profile.profile?.harness);
     if (frozen.packages.some(p => p.kind === "agent-role") && !["v1", "v2"].includes(model.multiAgentVersion)) throw Error("Task root model does not advertise multi-agent capability");
     const files = {}, config = {}, roles = new Set(), skills = new Set();
     const add = (name, data) => { relative(name); if (Object.keys(files).some(k => k.toLowerCase() === name.toLowerCase())) throw Error("Task resource collision"); files[name] = data.toString("base64"); };
@@ -81,12 +91,13 @@ class TaskProfileRuntime {
         else if (parsed.model_reasoning_effort != null) selectModel(catalog, model.model, model.modelProvider, parsed.model_reasoning_effort);
         for (const f of entry.files) add(`roles/${entry.name}/${relative(f.path)}`, Buffer.from(f.content, f.encoding === "base64" ? "base64" : "utf8"));
         config[`agents.${entry.name}.config_file`] = path.join(this.root, frozen.digest, "roles", entry.name, role[0].path);
-        config[`agents.${entry.name}.description`] = parsed.description ?? entry.name;
+        config[`agents.${entry.name}.description`] = entry.roleDisplayName == null ? parsed.description ?? entry.name : [entry.roleDisplayName, parsed.description].filter(Boolean).join(": ");
       } else if (entry.kind === "context") {
         const name = "task-context-" + canonicalDigest({ id: entry.id, digest: entry.digest }).slice(0, 16);
         const links = [];
-        for (const f of entry.files) { add(`skills/${name}/references/${relative(f.path)}`, Buffer.from(f.content, f.encoding === "base64" ? "base64" : "utf8")); if (f.path.endsWith(".md")) links.push(`- [${f.path}](<references/${f.path}>)`); }
-        add(`skills/${name}/SKILL.md`, Buffer.from(`---\nname: ${name}\ndescription: ${JSON.stringify(`Context ${entry.name} selected for this task profile. Read relevant references for this task.`)}\n---\n\nSelected context source: ${entry.id}@${entry.digest}\n\n${links.join("\n")}\n`));
+        for (const f of entry.files) { add(`skills/${name}/references/${relative(f.path)}`, Buffer.from(f.content, f.encoding === "base64" ? "base64" : "utf8")); if (f.path.endsWith(".md") || entry.profileMetadata) links.push(`- [${f.path}](<references/${f.path}>)`); }
+        const metadataNotice = entry.profileMetadata ? "Nested profile metadata is read-only reference material. The active profile alone selects runtime model, provider and dependencies.\n\n" : "";
+        add(`skills/${name}/SKILL.md`, Buffer.from(`---\nname: ${name}\ndescription: ${JSON.stringify(`Context ${entry.name} selected for this task profile. Read relevant references for this task.`)}\n---\n\n${metadataNotice}Selected context source: ${entry.id}@${entry.digest}\n\n${links.join("\n")}\n`));
       }
     }
     for (const context of frozen.instructions) {
@@ -100,6 +111,10 @@ class TaskProfileRuntime {
     if (Object.keys(files).some(f => f.startsWith("skills/"))) config["skills.extra_roots"] = [path.join(this.root, frozen.digest, "skills")];
     if (Object.keys(binding).length) config["harness.models"] = { [model.model]: binding };
     const snapshot = { version: 1, profileId: frozen.profileId, digest: frozen.digest, model: model.model, provider: model.modelProvider, reasoningEffort: frozen.reasoningEffort ?? model.defaultReasoningEffort ?? null, config, context: frozen.instructions.filter(i => i.loading === "persistent").map(i => `[Task profile context: ${i.id}]\n${i.text}`).join("\n\n"), files };
+    if (frozen.resourceSelection) snapshot.resourceSelection = frozen.resourceSelection;
+    if (frozen.inheritModel) snapshot.inheritModel = true;
+    if (frozen.capture?.profile?.allowedRoles) snapshot.allowedRoles = frozen.capture.profile.allowedRoles;
+    if (providerAccount !== undefined) snapshot.providerAccount = providerAccount;
     snapshot.integrity = canonicalDigest(snapshot);
     const snapshotFile = path.join(this.root, frozen.digest, "snapshot.json"); await safe(snapshotFile);
     try { const old = JSON.parse(await fs.readFile(snapshotFile, "utf8")); if (canonicalDigest(old) !== canonicalDigest(snapshot)) throw Error("Immutable task snapshot changed"); } catch (e) { if (e.code !== "ENOENT") throw e;
@@ -107,8 +122,49 @@ class TaskProfileRuntime {
       await fs.mkdir(path.dirname(snapshotFile), { recursive: true }); await fs.writeFile(snapshotFile, JSON.stringify(snapshot), { flag: "wx" });
     }
     await this.readSnapshot(frozen.digest);
-    const token = crypto.randomUUID(); this.drafts.set(token, { digest: frozen.digest, expires: this.now() + this.ttlMs, view: null });
-    return { token, model: snapshot.model, profileId: snapshot.profileId };
+    return snapshot;
+  }
+  async createWorkbench(capture, { cwd = null, config = {} } = {}) {
+    if (!capture || !Number.isSafeInteger(capture.revision) || capture.revision < 0 || (capture.projectId != null && (typeof capture.projectId !== "string" || !capture.projectId)) || !Array.isArray(capture.components)) throw Error("Invalid workbench capture");
+    if (capture.profile == null) return null;
+    const frozen = JSON.parse(JSON.stringify(capture)), profile = frozen.profile;
+    if (profile.diagnostics?.length) throw Error("Profile has unresolved resource diagnostics");
+    if (profile.optionalSelection !== undefined && profile.optionalSelection !== "selected-only") throw Error("Invalid profile resource selection");
+    if (typeof profile.id !== "string" || !profile.id || (profile.model != null && (typeof profile.model !== "string" || !profile.model))) throw Error("Invalid captured profile");
+    const native = (await this.request("config/read", { cwd, includeLayers: false }))?.config ?? {};
+    const model = profile.model ?? config.model ?? native.model ?? (await this.catalog()).find(m => m.isDefault)?.model;
+    if (!model) throw Error("Inherited profile model is unavailable");
+    const packages = frozen.components.map(component => {
+      if (!["skill", "agent-role", "context", "playbook", "task-profile"].includes(component.kind) || !Array.isArray(component.files)) throw Error("Invalid captured component");
+      if (typeof component.id !== "string" || !component.id || typeof component.name !== "string") throw Error("Invalid captured component identity");
+      // Workbench names are display labels; role keys need portable native identifiers.
+      const name = component.kind === "agent-role" ? `workbench_${canonicalDigest({ id: component.id }).slice(0, 20)}` : component.name;
+      // Nested profile dependencies are already flattened by the workbench. Their
+      // metadata is reference material; only capture.profile owns runtime settings.
+      const entry = { id: component.id, kind: component.kind === "task-profile" ? "context" : component.kind, name, sharing: "local", files: component.files, ...(component.kind === "task-profile" ? { profileMetadata: true } : {}), ...(component.kind === "agent-role" ? { roleDisplayName: component.name } : {}) };
+      entry.digest = packageDigest(entry); return entry;
+    });
+    const root = { id: profile.id, kind: "task-profile", name: profile.name, sharing: "local", files: [], profile: { model, ...(profile.harness == null ? {} : { harness: profile.harness }) } };
+    root.digest = packageDigest(root); packages.unshift(root);
+    const instructions = [];
+    if (profile.instructions && !capture.roleProfile) instructions.push({ id: profile.id, text: profile.instructions, loading: "persistent" });
+    const ordered = frozen.components.map((component, index) => ({ component, index })).sort((a, b) => (a.component.order ?? a.index) - (b.component.order ?? b.index));
+    for (const {component} of ordered) if (["context", "playbook", "instruction"].includes(component.kind)) for (const file of component.files) if (file.encoding === "utf8" && /\.md$/i.test(file.path)) instructions.push({ id: component.id, text: file.content, loading: component.loading === "persistent" ? "persistent" : "on-demand" });
+    const plan = { profileId: profile.id, model, ...(profile.provider == null ? {} : { provider: profile.provider }), ...(profile.reasoningEffort == null ? {} : { reasoningEffort: profile.reasoningEffort }), packages, instructions, capture: frozen };
+    if (profile.model == null) plan.inheritModel = true;
+    if (profile.optionalSelection === "selected-only") {
+      const mcpServerIds = profile.mcpServerIds ?? [];
+      if (!Array.isArray(mcpServerIds) || mcpServerIds.some(id => typeof id !== "string" || !id || /[\x00-\x1f\x7f]/.test(id)) || new Set(mcpServerIds).size !== mcpServerIds.length) throw Error("Invalid selected MCP servers");
+      plan.resourceSelection = { mode: "selected-only", mcpServerIds };
+    }
+    if (Object.hasOwn(profile, "providerAccount")) plan.providerAccount = validateProviderAccount(profile.providerAccount);
+    plan.digest = canonicalDigest(plan);
+    for (const entry of packages.filter(p => p.kind === "agent-role")) {
+      if (native.features?.multi_agent === false || config["features.multi_agent"] === false) throw Error("Task roles require enabled native multi-agent capability");
+      if (native.agents?.[entry.name] != null || Object.keys(config).some(k => k.startsWith(`agents.${entry.name}.`))) throw Error("Task role conflicts with an existing native role");
+    }
+    const snapshot = await this.materialize(plan);
+    return { digest: snapshot.digest, ...(capture.projectId == null ? {} : { projectId: capture.projectId }), revision: capture.revision };
   }
   bind(token, view) { const draft = this.drafts.get(token); if (!draft || draft.view != null || draft.expires < this.now() || view == null) throw Error("Task draft transfer is stale or already bound"); draft.view = view; }
   transfer(token, origin, project) {

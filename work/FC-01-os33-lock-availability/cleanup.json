@@ -1,0 +1,65 @@
+{
+  "status": "resolved",
+  "current_receipt": "cleanup-completion.json",
+  "previous_attempts": {
+    "schema": 1,
+    "state": "blocked-awaiting-authority-for-fixed-standalone",
+    "group": "run:FC01:os33-r1",
+    "path": "artifacts/tasks/fc01/r1",
+    "knownBytes": null,
+    "purpose": "Disposable frozen source, compilation target, test temporary data and raw logs; awaiting supported cleanup, no retention approval assumed",
+    "installedOwnerSha256": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627",
+    "attempts": [
+      {
+        "evidence": "cleanup-failure.json",
+        "pid": 30684,
+        "exit_code": 1,
+        "signal": null,
+        "error": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance); pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock (maintenance)\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock\",\"owner\":null,\"retryable\":true}\n"
+      },
+      {
+        "pid": 50288,
+        "exit_code": 1,
+        "signal": null,
+        "error": "Windows OS33 during registration; observed no reservation after terminal result",
+        "evidence": "Observed native result in this task; no recovery required"
+      },
+      {
+        "evidence": "cleanup-register.json",
+        "pid": 33052,
+        "exit_code": 1,
+        "signal": null,
+        "error": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog); lock wait exhausted after 5000 ms; pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock (catalog); lock wait exhausted after 5000 ms\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n"
+      },
+      {
+        "evidence": "cleanup-register-r3.json",
+        "pid": 42164,
+        "exit_code": 1,
+        "signal": null,
+        "error": "{\"error\":\"다른 프로세스가 파일의 한 부분을 잠갔으므로, 프로세스가 해당 파일을 액세스할 수 없습니다. (os error 33)\"}\n"
+      }
+    ],
+    "recoveries": [
+      {
+        "exit_code": 0,
+        "id": "run:FC01:os33-r1",
+        "status": "reservation_recovered",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FC-01-os33-lock-availability\\cleanup-recovery.json",
+        "evidence_sha256": "eef371ca357b032081a6554d3c905e8ccd6d4eae370043bfd1658d27a94ea8c1",
+        "execution_outcome_changed": false,
+        "pending_intents_changed": false
+      },
+      {
+        "exit_code": 0,
+        "id": "run:FC01:os33-r1",
+        "status": "reservation_recovered",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FC-01-os33-lock-availability\\cleanup-recovery-r2.json",
+        "evidence_sha256": "a2170e92d3a8fedbfaf541f89d6a0681f5f98da4969352d36efd4d5901250f47",
+        "execution_outcome_changed": false,
+        "pending_intents_changed": false
+      }
+    ],
+    "reservationAbsent": true,
+    "scope": "No forced removal, lock bypass, installation or default selector change"
+  }
+}

@@ -1,0 +1,281 @@
+{
+  "schema": 1,
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+  "olderThanHours": 24,
+  "observedAt": "2026-10-28T03:45:20.393Z",
+  "errors": [],
+  "records": [
+    {
+      "id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+      "owner": "CR-01-build-legacy-cleanup",
+      "generation": null,
+      "revision": 2,
+      "state": "failed",
+      "membership_complete": true,
+      "producer": {
+        "status": "stopped",
+        "outcome": "failure",
+        "exit_code": 1
+      },
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\incremental",
+          "role": "compiler-incremental-cache",
+          "presence": {
+            "status": "present",
+            "type": "directory"
+          }
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\incremental",
+          "role": "compiler-incremental-cache",
+          "presence": {
+            "status": "present",
+            "type": "directory"
+          }
+        }
+      ],
+      "omitted_member_count": 0,
+      "targets": [
+        {
+          "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\incremental",
+          "presence": {
+            "status": "present",
+            "type": "directory"
+          },
+          "status": "no-lease",
+          "age": {
+            "timestamps": {},
+            "source": "updated_at",
+            "timestamp": "2026-10-20T19:30:50.666Z",
+            "legacy_uncertain": true,
+            "fallback": "lifecycle.updated_at (not producer progress)",
+            "hours": 176.24159083333333,
+            "eligible": true,
+            "errors": []
+          }
+        },
+        {
+          "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\incremental",
+          "presence": {
+            "status": "present",
+            "type": "directory"
+          },
+          "status": "no-lease",
+          "age": {
+            "timestamps": {},
+            "source": "updated_at",
+            "timestamp": "2026-10-20T19:30:50.666Z",
+            "legacy_uncertain": true,
+            "fallback": "lifecycle.updated_at (not producer progress)",
+            "hours": 176.24159083333333,
+            "eligible": true,
+            "errors": []
+          }
+        }
+      ],
+      "target_association": "catalog-member",
+      "age": {
+        "timestamps": {},
+        "source": "updated_at",
+        "timestamp": "2026-10-20T19:30:50.666Z",
+        "legacy_uncertain": true,
+        "fallback": "lifecycle.updated_at (not producer progress)",
+        "hours": 176.24159083333333,
+        "eligible": true,
+        "errors": []
+      },
+      "age_eligible": true,
+      "termination": {
+        "investigation_required": false
+      },
+      "references": {
+        "investigation_required": true,
+        "outgoing_count": 0,
+        "inbound_record_count": 0
+      },
+      "investigation_required": true,
+      "deletion_authorized": false
+    },
+    {
+      "id": "shared:cargo-target:96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "owner": "cargo-shared-cache",
+      "generation": "35a2ef51-ad40-4fc2-87d7-7b53e8c572b2",
+      "revision": 5,
+      "state": "pending",
+      "membership_complete": false,
+      "producer": null,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+          "role": "cargo-cache",
+          "presence": {
+            "status": "present",
+            "type": "directory"
+          }
+        }
+      ],
+      "omitted_member_count": 0,
+      "targets": [
+        {
+          "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+          "presence": {
+            "status": "present",
+            "type": "directory"
+          },
+          "status": "lease-present",
+          "owner_status": "running",
+          "phase": null,
+          "producerStarted": null,
+          "preparingUtc": null,
+          "startedUtc": "2026-10-26T22:47:30.988Z",
+          "lastProgressUtc": null,
+          "spawnAttemptedUtc": null,
+          "resultObservedUtc": null,
+          "age": {
+            "timestamps": {
+              "startedUtc": "2026-10-26T22:47:30.988Z"
+            },
+            "source": "startedUtc",
+            "timestamp": "2026-10-26T22:47:30.988Z",
+            "legacy_uncertain": false,
+            "fallback": null,
+            "hours": 28.96372361111111,
+            "eligible": true,
+            "errors": []
+          }
+        }
+      ],
+      "target_association": "catalog-member",
+      "age": {
+        "timestamps": {},
+        "source": "updated_at",
+        "timestamp": "2026-10-26T22:47:30.953Z",
+        "legacy_uncertain": true,
+        "fallback": "lifecycle.updated_at (not producer progress)",
+        "hours": 28.963733333333334,
+        "eligible": true,
+        "errors": []
+      },
+      "age_eligible": true,
+      "termination": {
+        "investigation_required": true
+      },
+      "references": {
+        "investigation_required": true,
+        "outgoing_count": 0,
+        "inbound_record_count": 0
+      },
+      "investigation_required": true,
+      "deletion_authorized": false
+    },
+    {
+      "id": "shared:cargo-pending:dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+      "owner": "cargo-target-owner",
+      "generation": "5fdf3e98-6425-4179-9ab7-1ff29516f4f9",
+      "revision": 21,
+      "state": "pending",
+      "membership_complete": false,
+      "producer": null,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+          "role": "pending",
+          "presence": {
+            "status": "present",
+            "type": "directory"
+          }
+        }
+      ],
+      "omitted_member_count": 0,
+      "targets": [],
+      "target_association": "unavailable",
+      "age": {
+        "timestamps": {},
+        "source": "updated_at",
+        "timestamp": "2026-10-23T01:47:17.820Z",
+        "legacy_uncertain": true,
+        "fallback": "lifecycle.updated_at (not producer progress)",
+        "hours": 121.9673813888889,
+        "eligible": true,
+        "errors": []
+      },
+      "age_eligible": true,
+      "termination": {
+        "investigation_required": true
+      },
+      "references": {
+        "investigation_required": true,
+        "outgoing_count": 0,
+        "inbound_record_count": 0
+      },
+      "investigation_required": true,
+      "deletion_authorized": false
+    },
+    {
+      "id": "shared:cargo-target:e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388",
+      "owner": "cargo-shared-cache",
+      "generation": "dc42e069-adb8-4870-bed1-ffdc673e6379",
+      "revision": 14,
+      "state": "complete",
+      "membership_complete": true,
+      "producer": {
+        "status": "stopped",
+        "outcome": "success",
+        "exit_code": 0
+      },
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388",
+          "role": "cargo-cache",
+          "presence": {
+            "status": "absent"
+          }
+        }
+      ],
+      "omitted_member_count": 0,
+      "targets": [
+        {
+          "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388\\target",
+          "presence": {
+            "status": "absent"
+          },
+          "status": "target-absent",
+          "age": {
+            "timestamps": {},
+            "source": "updated_at",
+            "timestamp": "2026-10-25T07:11:30.302Z",
+            "legacy_uncertain": true,
+            "fallback": "lifecycle.updated_at (not producer progress)",
+            "hours": 68.56391416666666,
+            "eligible": true,
+            "errors": []
+          }
+        }
+      ],
+      "target_association": "catalog-member",
+      "age": {
+        "timestamps": {},
+        "source": "updated_at",
+        "timestamp": "2026-10-25T07:11:30.302Z",
+        "legacy_uncertain": true,
+        "fallback": "lifecycle.updated_at (not producer progress)",
+        "hours": 68.56391416666666,
+        "eligible": true,
+        "errors": []
+      },
+      "age_eligible": true,
+      "termination": {
+        "investigation_required": false
+      },
+      "references": {
+        "investigation_required": true,
+        "outgoing_count": 0,
+        "inbound_record_count": 0
+      },
+      "investigation_required": true,
+      "deletion_authorized": false
+    }
+  ],
+  "deletion_authorized": false
+}

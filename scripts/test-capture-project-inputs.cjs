@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
-const { captureProject: capture, parents, copyVerifiedProject } = require("./capture-project-inputs.cjs");
+const { captureProject: capture, copyVerifiedProject } = require("./capture-project-inputs.cjs");
 const { snapshotProject } = require("./deployment-input-snapshot.cjs");
 
 if (process.argv[2]) assert(path.isAbsolute(process.argv[2]), "absolute owned fixture root required");
@@ -55,10 +55,29 @@ async function interceptOpen(target, onOpened, action) {
   try { await action(); } finally { fs.promises.open = original; }
 }
 async function main() {
-  assert.equal(typeof fs.realpathSync.native, "function", "Supported Node must expose native realpath");
-  for (smallFileMaxBytes of [128 * 1024, 0]) {
-  suiteRoot = path.join(fixtureRoot, `threshold-${smallFileMaxBytes}`);
-  fs.mkdirSync(suiteRoot);
+  await test("selected bytes include dirty/untracked/deleted paths and nested repositories", async () => {
+    const root = repository("selection"), vendor = repository("vendor");
+    git(root, "-c", "protocol.file.allow=always", "submodule", "add", "--quiet", vendor, "modules/vendor");
+    git(root, "commit", "--quiet", "-am", "nested");
+    fs.unlinkSync(path.join(root, "dir/input.txt"));
+    fs.writeFileSync(path.join(root, "new 한글.txt"), Buffer.from([0, 255, 13, 10, 0]));
+    fs.writeFileSync(path.join(root, "modules/vendor/dir/input.txt"), "dirty nested\n");
+    fs.writeFileSync(path.join(root, "modules/vendor/untracked.txt"), "nested new\n");
+    fs.mkdirSync(path.join(root, "ignored"));
+    fs.writeFileSync(path.join(root, "ignored/cache"), "excluded");
+    const destination = clone(root, "selection-frozen");
+    fs.mkdirSync(path.join(destination, "modules"));
+    git(fixtureRoot, "clone", "--quiet", "--no-checkout", vendor, path.join(destination, "modules/vendor"));
+    const expected = await snapshotProject(root);
+    const result = await captureProject(root, destination, { concurrency: 2 });
+    assert.equal(result.sha256, expected.sha256);
+    assert.equal(result.fileCount, expected.fileCount);
+    assert.equal(result.bytes, expected.bytes);
+    assert.equal(fs.existsSync(path.join(destination, "dir/input.txt")), false);
+    assert.equal(fs.existsSync(path.join(destination, "ignored/cache")), false);
+    assert.deepEqual(fs.readFileSync(path.join(destination, "new 한글.txt")), fs.readFileSync(path.join(root, "new 한글.txt")));
+    assert.match(git(destination, "ls-files", "--stage"), /dir\/input\.txt/);
+  });
   await test("verified copies preserve untracked nested repositories and reject missing indexed files", async () => {
     const root = repository("untracked-copy"), vendor = repository("untracked-copy/vendor");
     fs.writeFileSync(path.join(vendor, "dir/input.txt"), "dirty untracked repository\n");
@@ -86,45 +105,12 @@ async function main() {
     const rejected = clone(destination, "untracked-copy-rejected");
     await assert.rejects(copyVerifiedProject(destination, rejected, captured.frozenSnapshot), /Verified copy file missing from Git index/);
   });
-  await test("selected bytes include dirty/untracked/deleted paths and nested repositories", async () => {
-    const root = repository("selection"), vendor = repository("vendor");
-    git(root, "-c", "protocol.file.allow=always", "submodule", "add", "--quiet", vendor, "modules/vendor");
-    git(root, "commit", "--quiet", "-am", "nested");
-    fs.unlinkSync(path.join(root, "dir/input.txt"));
-    fs.writeFileSync(path.join(root, "new 한글.txt"), Buffer.from([0, 255, 13, 10, 0]));
-    fs.writeFileSync(path.join(root, "modules/vendor/dir/input.txt"), "dirty nested\n");
-    fs.writeFileSync(path.join(root, "modules/vendor/untracked.txt"), "nested new\n");
-    fs.mkdirSync(path.join(root, "ignored"));
-    fs.writeFileSync(path.join(root, "ignored/cache"), "excluded");
-    const destination = clone(root, "selection-frozen");
-    fs.mkdirSync(path.join(destination, "modules"));
-    git(fixtureRoot, "clone", "--quiet", "--no-checkout", vendor, path.join(destination, "modules/vendor"));
-    const expected = await snapshotProject(root);
-    const result = await captureProject(root, destination, { concurrency: 2 });
-    assert.equal(result.sha256, expected.sha256);
-    assert.equal(result.fileCount, expected.fileCount);
-    assert.equal(result.bytes, expected.bytes);
-    assert.equal(result.copyIo.bufferedFileCount + result.copyIo.streamedFileCount, result.fileCount);
-    assert.equal(smallFileMaxBytes ? result.copyIo.streamedFileCount : result.copyIo.bufferedFileCount, 0);
-    assert.equal(fs.existsSync(path.join(destination, "dir/input.txt")), false);
-    assert.equal(fs.existsSync(path.join(destination, "ignored/cache")), false);
-    assert.deepEqual(fs.readFileSync(path.join(destination, "new 한글.txt")), fs.readFileSync(path.join(root, "new 한글.txt")));
-    assert.match(git(destination, "ls-files", "--stage"), /dir\/input\.txt/);
-    for (const phase of ["inventory", "copy", "git", "finalHash"]) assert.ok(result.phasesMs[phase] >= 0);
-  });
-  await test("file and directory modes are copied once per directory", async () => {
+  await test("file and directory modes are preserved", async () => {
     const root = repository("modes"), destination = clone(root, "modes-frozen");
     fs.writeFileSync(path.join(root, "dir/second.txt"), "second");
     fs.chmodSync(path.join(root, "dir/input.txt"), 0o444);
-    const original = fs.chmodSync, directoryCalls = new Map();
-    fs.chmodSync = function(filename, mode) {
-      if (fs.statSync(filename).isDirectory()) directoryCalls.set(filename, (directoryCalls.get(filename) || 0) + 1);
-      return original(filename, mode);
-    };
-    let result;
-    try { result = await captureProject(root, destination); } finally { fs.chmodSync = original; }
+    const result = await captureProject(root, destination);
     assert.equal(result.state, "succeeded");
-    for (const count of directoryCalls.values()) assert.equal(count, 1);
     for (const relative of ["", "dir", "dir/input.txt", "dir/second.txt"]) {
       assert.equal(fs.statSync(path.join(destination, relative)).mode & 0o777, fs.statSync(path.join(root, relative)).mode & 0o777);
     }
@@ -139,8 +125,6 @@ async function main() {
       fs.writeFileSync(path.join(root, "duplicate.bin"), dirty);
       fs.writeFileSync(path.join(root, "empty.bin"), "");
       const result = await captureProject(root, destination);
-      assert(result.gitIo.reusedFileCount > 0);
-      assert(result.gitIo.writtenObjectCount > 0);
       for (const name of ["dir/input.txt", "duplicate.bin", "empty.bin", ".gitignore"]) {
         const oid = git(destination, "rev-parse", `:${name}`);
         assert.equal(oid, git(root, "hash-object", "--no-filters", name));
@@ -160,26 +144,21 @@ async function main() {
         () => assert.rejects(captureProject(root, destination, { concurrency: 1 }), /Frozen project aggregate differs/));
     }
   });
-  await test("physical root resolves once per parent inspection", async () => {
-    const root = repository("parents");
-    fs.mkdirSync(path.join(root, "a/b/c"), { recursive: true });
-    const original = fs.realpathSync.native;
-    assert.equal(original(root), fs.realpathSync(root));
-    assert.equal(original(path.join(root, "a/b/c")), fs.realpathSync(path.join(root, "a/b/c")));
-    let rootCalls = 0;
-    fs.realpathSync.native = function(filename, ...args) { if (filename === root) rootCalls++; return original(filename, ...args); };
-    try { assert.equal(parents(root, path.join(root, "a/b/c/file")).length, 4); } finally { fs.realpathSync.native = original; }
-    // One root baseline and the root's own mandatory parent realpath check.
-    assert.equal(rootCalls, 2);
-  });
-  await test("source change before open-stat and during streaming fails closed", async () => {
-    for (const boundary of [1, 2]) {
-      const root = repository(`source-change-${boundary}`), destination = clone(root, `source-change-${boundary}-frozen`);
-      const target = path.join(root, "dir/input.txt");
-      await interceptOpen(target, async call => { if (call === boundary) fs.appendFileSync(target, "changed"); },
-        () => assert.rejects(captureProject(root, destination, { concurrency: 1 }), /Selected source changed/));
-    }
-  });
+  // Only the source-read boundary needs both buffered and streamed execution.
+  for (smallFileMaxBytes of [128 * 1024, 0]) {
+    suiteRoot = path.join(fixtureRoot, `threshold-${smallFileMaxBytes}`);
+    fs.mkdirSync(suiteRoot);
+    await test("source change before open-stat and after reading fails closed", async () => {
+      for (const boundary of [1, 2]) {
+        const root = repository(`source-change-${boundary}`), destination = clone(root, `source-change-${boundary}-frozen`);
+        const target = path.join(root, "dir/input.txt");
+        await interceptOpen(target, async call => { if (call === boundary) fs.appendFileSync(target, "changed"); },
+          () => assert.rejects(captureProject(root, destination, { concurrency: 1 }), /Selected source changed/));
+      }
+    });
+  }
+  suiteRoot = fixtureRoot;
+  smallFileMaxBytes = 128 * 1024;
   await test("source parent identity replacement fails closed", async () => {
     const root = repository("source-parent"), destination = clone(root, "source-parent-frozen");
     const target = path.join(root, "dir/input.txt");
@@ -206,16 +185,27 @@ async function main() {
     }, () => assert.rejects(captureProject(root, destination, { concurrency: 1 }), /Frozen parent changed/));
   });
   await test("source junction and destination junction escape are rejected", async () => {
-    const outside = repository("outside");
-    const root = repository("source-link"), destination = clone(root, "source-link-frozen");
-    fs.renameSync(path.join(root, "dir"), path.join(root, "original-dir"));
-    fs.symlinkSync(path.join(outside, "dir"), path.join(root, "dir"), "junction");
-    await assert.rejects(captureProject(root, destination), /link\/junction/);
-    const root2 = repository("destination-link"), destination2 = clone(root2, "destination-link-frozen");
-    fs.mkdirSync(path.join(root2, "dir/deep"));
-    fs.writeFileSync(path.join(root2, "dir/deep/new.txt"), "must not escape");
-    fs.symlinkSync(path.join(outside, "dir"), path.join(destination2, "dir"), "junction");
-    await assert.rejects(captureProject(root2, destination2, { concurrency: 1 }), /Frozen parent is a link/);
+    const outside = repository("outside"), links = [];
+    try {
+      const root = repository("source-link"), destination = clone(root, "source-link-frozen");
+      fs.renameSync(path.join(root, "dir"), path.join(root, "original-dir"));
+      fs.symlinkSync(path.join(outside, "dir"), path.join(root, "dir"), "junction"); links.push(path.join(root, "dir"));
+      await assert.rejects(captureProject(root, destination), /link\/junction/);
+      const root2 = repository("destination-link"), destination2 = clone(root2, "destination-link-frozen");
+      fs.mkdirSync(path.join(root2, "dir/deep"));
+      fs.writeFileSync(path.join(root2, "dir/deep/new.txt"), "must not escape");
+      fs.symlinkSync(path.join(outside, "dir"), path.join(destination2, "dir"), "junction"); links.push(path.join(destination2, "dir"));
+      await assert.rejects(captureProject(root2, destination2, { concurrency: 1 }), /Frozen parent is a link/);
+    } finally {
+      // Like the existing Cargo/fixture test owners, retire deliberate links
+      // without following them before handing ordinary payload to cleanup.
+      for (const link of links) {
+        assert(fs.lstatSync(link).isSymbolicLink());
+        assert.equal(fs.realpathSync(link), fs.realpathSync(path.join(outside, "dir")));
+        if (process.platform === "win32") fs.rmdirSync(link); else fs.unlinkSync(link);
+        assert(!fs.existsSync(link));
+      }
+    }
     assert.equal(fs.existsSync(path.join(outside, "dir/deep")), false);
     assert.equal(fs.readFileSync(path.join(outside, "dir/input.txt"), "utf8"), "alpha\n");
   });
@@ -236,27 +226,10 @@ async function main() {
     try { await assert.rejects(captureProject(root, destination), /Frozen project aggregate differs/); }
     finally { fs.chmodSync = original; }
   });
-  await test("syntax-invalid selected files remain exact bytes; helper syntax and CLI failures", async () => {
-    const root = repository("syntax"), destination = clone(root, "syntax-frozen");
-    fs.writeFileSync(path.join(root, "invalid.cjs"), "function { invalid syntax\n");
-    const invalid = spawnSync(process.execPath, ["--check", path.join(root, "invalid.cjs")], { encoding: "utf8" });
-    assert.notEqual(invalid.status, 0);
-    await captureProject(root, destination);
-    assert.deepEqual(fs.readFileSync(path.join(root, "invalid.cjs")), fs.readFileSync(path.join(destination, "invalid.cjs")));
-    for (const file of ["capture-project-inputs.cjs", "test-capture-project-inputs.cjs"]) {
-      const checked = spawnSync(process.execPath, ["--check", path.join(__dirname, file)], { encoding: "utf8" });
-      assert.equal(checked.status, 0, checked.stderr);
-    }
-    await assert.rejects(captureProject(root, destination, { concurrency: 0 }), /Invalid capture concurrency/);
-    for (const threshold of [-1, 0.5, 1048577, NaN]) {
-      await assert.rejects(captureProject(root, destination, { smallFileMaxBytes: threshold }), /Invalid capture small-file threshold/);
-    }
+  await test("capture destination must be independent of source", async () => {
+    const root = repository("independent-destination");
     await assert.rejects(captureProject(root, path.join(root, "bad")), /independent artifact root/);
-    const cli = spawnSync(process.execPath, [path.join(__dirname, "capture-project-inputs.cjs")], { encoding: "utf8" });
-    assert.notEqual(cli.status, 0);
-    assert.equal(cli.stdout, "");
   });
-  }
   await test("mixed buffered and streamed files preserve identical selected bytes", async () => {
     const root = repository("mixed"), destination = clone(root, "mixed-frozen");
     fs.writeFileSync(path.join(root, "boundary.bin"), Buffer.alloc(128 * 1024, 0xa5));

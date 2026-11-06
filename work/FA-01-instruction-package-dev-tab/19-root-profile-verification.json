@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "at": "2026-11-02T13:52:42.593Z",
+  "scope": "Unified profiles; ordinary Root activation and Team role isolation",
+  "authority": "Approved Root-compatible project profile for ordinary conversations, shared Team library and no separate Direct settings",
+  "platform": {
+    "verified": "Windows x64, Node v26.7.0, Chrome",
+    "unverified": [
+      "Rust compilation/native runtime",
+      "generated protocol schemas",
+      "installed Azrael",
+      "macOS/Linux"
+    ]
+  },
+  "checks": {
+    "node": {
+      "startedAt": "2026-11-02T13:47:44.522Z",
+      "endedAt": "2026-11-02T13:48:33.271Z",
+      "exitCode": 0,
+      "signal": null,
+      "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd\\logs\\tests.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd",
+      "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T134733629Z-ca832df4-83a3-4b09-a80a-3074d3c8e1fd",
+      "tests": 76,
+      "pass": 76,
+      "fail": 0,
+      "logSha256": "b75685daa433f884cecd6c5f3c65158721ed05231a53a695d7b8b38ae67657d3",
+      "terminal": true
+    },
+    "types": {
+      "run": "artifacts/tasks/DK-01-instruction-catalog-diagnosis/runs/types-7f3fb87e",
+      "exitCode": 0
+    },
+    "native": {
+      "syntax": "26 changed Rust files via rustfmt --emit stdout --config skip_children=true",
+      "exitCode": 0,
+      "owner": "/root/unified_profile_native",
+      "compile": false
+    },
+    "browser": {
+      "url": "http://127.0.0.1:4318/",
+      "checks": [
+        "one common profile list",
+        "Root-only activation controls",
+        "nonroot profiles remain in list and Team role dropdowns",
+        "Direct settings absent",
+        "light/dark rendering",
+        "narrow viewport no document overflow"
+      ],
+      "userDataPreserved": true,
+      "screenshot": "work/FA-01-instruction-package-dev-tab/20-root-profile-ui.png"
+    }
+  },
+  "retainedTests": "Existing boundary cases extended to prevent repeated omissions of Root checks across import/equip/capture, last-good role transitions, trusted native mode forwarding, snapshot allowedRoles serialization. No new test files.",
+  "live": {
+    "run": "artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261102T135405586Z-4e88809c-f283-43ae-be4d-3b3e4511916a",
+    "pid": 36632,
+    "launch": "PowerShell Start-Process -WindowStyle Hidden, official server CLI",
+    "httpStatus": 200,
+    "purpose": "User-retained development tab using original data185715"
+  },
+  "cleanup": {
+    "evidence": "work/FA-01-instruction-package-dev-tab/18-unified-profile-cleanup.json",
+    "sha256": "0c35bf1f568dd5e28a32164fc42db5ee4fafa611aabb13d4d6e13838b3a3aad5",
+    "deletedAndAbsent": 10,
+    "finalized": 10,
+    "logicalBytes": 25519946,
+    "physicalReclaimedBytes": null,
+    "note": "User explicitly approved retaining the two named uncertain runs until termination evidence permits supported cleanup. Live135405 and original user data185715 remain agreed deliverables. Native build/runtime acceptance is still pending.",
+    "retentionApproval": {
+      "approved": true,
+      "questionId": "[\"request_user_input_async\",\"01a19c94-8acb-7b71-9d36-b69967802499\",0]",
+      "root": "artifacts/tasks/FA-01-instruction-package-dev-tab/runs/",
+      "runs": [
+        "20261102T132246963Z-be1f4a1c-5415-4778-a30d-5ed3b41f9b59",
+        "20261102T133358346Z-b5f140cc-cb84-44a8-b0da-a4e830c29bb8"
+      ],
+      "purpose": "Preserve uncertain prior development runs until owned producer termination evidence is recovered",
+      "knownBytes": null,
+      "reconsiderWhen": "Exact producer/tree termination evidence is recovered; recheck ownership, references and guards through the supported owner before cleanup",
+      "scope": "Only the two named runs; does not authorize deletion or alter their unknown outcome"
+    }
+  },
+  "inputs": {
+    "scripts/instruction-workbench.cjs": "08e0c5c9c60ad5daa43ac2765ac62f476454ce23f2207020eab7cfd9409c4e1c",
+    "scripts/instruction-workbench-view.cjs": "cb91d6a15bfe50ffbecdbffc6fbac832145d970ef0222d4d5a3661ee0b89d0c1",
+    "scripts/instruction-workbench-runtime.cjs": "53ccbb8ef283b2f4fece92222549c4aea615d99947da8aba9d37882f24c4bdfb",
+    "scripts/role-profile-store.cjs": "e5087766a01caf57a94b335d2ed160d55e3a3532111d67b01308a2f021a3bc4d",
+    "scripts/role-profile-runtime.cjs": "8aeb299eb7e21fb7624c6996efbc23583cc8f7b4c46102f59ac0a5489f7516f3",
+    "scripts/task-profile-runtime.cjs": "0c3d15ea40e8d41ed066cace56068d7af174d67afc66a158d6225507eec2f3b2",
+    "scripts/serve-instruction-workbench.cjs": "1da60947e233faeb5eac97fc8470d5974883328b92eba25322158692eb06b0d4",
+    "extensions/azrael-ex/src/instructionWorkbenchService.ts": "baae40ded71cf042263ddf5e59ea2118740960a8f3007397d3ed88402853517a",
+    "engine/codex-rs/protocol/src/agent_profile.rs": "d0ed27fa55afa6d6171026f2a8e6dfd13362974edbe66dfd6d2fd9af25ed483f",
+    "engine/codex-rs/core/src/session/agent_profile.rs": "9048578bf7eb4d142113837b865710bc383d21b42c78b1e6658dbd7b90c09210",
+    "engine/codex-rs/core/src/agent/role_profile.rs": "7b9c92a084d710455407af1cc1ae8959b2d826b29cd29bc51cc119dae1792fd6",
+    "engine/codex-rs/app-server/src/request_processors/thread_processor.rs": "43b0773fe637db83d57dce431ff32fc3a865cc5272b106b0f2869fa7e1d53c77",
+    "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs": "be3fb9aaec2196e61f41fa2cfadbcadd1495512149945c52f902f69982f52aa9"
+  },
+  "stoppedReplacement": {
+    "run": "artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261102T134809291Z-db0d8a54-135f-4564-b3e5-3247a5ec7168",
+    "stopRequestExit": 0,
+    "managedSession": 32883,
+    "actualExit": 0
+  }
+}

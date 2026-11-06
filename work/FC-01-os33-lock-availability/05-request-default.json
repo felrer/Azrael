@@ -1,0 +1,308 @@
+{
+  "at": "2026-11-02T01:40:47.410Z",
+  "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "sha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+  "bytes": 2653184,
+  "calls": [
+    {
+      "args": [
+        "capabilities"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1\\cli",
+        "--request",
+        "-"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1\\cli",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1\\cli\\artifacts\\tasks\\request.json"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1\\cli",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1\\cli\\artifacts\\maintenance\\evidence\\raw-request.json"
+      ],
+      "exit_code": 1,
+      "signal": null,
+      "error": null
+    },
+    {
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1\\cli",
+        "--request",
+        "-"
+      ],
+      "exit_code": 1,
+      "signal": null,
+      "error": null
+    },
+    {
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1\\cli",
+        "--request",
+        "-"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1\\cli",
+        "--request",
+        "-"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1\\cli",
+        "--request",
+        "-"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "scope": "lock owner",
+      "exit_code": 0
+    },
+    {
+      "scope": "PowerShell actual default RecoveryOnly",
+      "exit_code": 0
+    }
+  ],
+  "stdin_register_review_apply": true,
+  "task_file_accepted": true,
+  "management_request_rejected_without_mutation": true,
+  "malformed_stdin_rejected": true,
+  "fixture_absent": true,
+  "capabilities": {
+    "operations": [
+      "inventory",
+      "register",
+      "review",
+      "apply",
+      "recover_lock",
+      "recover_reservation",
+      "recover_refresh_pending",
+      "recover_lifecycle_pending",
+      "partition_storage",
+      "compact_storage",
+      "reconcile_duplicate_groups"
+    ],
+    "platform": {
+      "arch": "x64",
+      "os": "win32"
+    },
+    "protocol": "maintenance-owner-lease-v1",
+    "request_file_policy": "outside-maintenance-state",
+    "request_transports": [
+      "file",
+      "stdin"
+    ],
+    "schema": 1,
+    "storage_formats": [
+      "legacy",
+      "partitioned-v1"
+    ]
+  },
+  "test": {
+    "start": "2026-11-02T01:34:12.290Z",
+    "end": "2026-11-02T01:36:57.077Z",
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "preflight": {
+      "schema": 2,
+      "compilation": "cargo-test",
+      "testExecution": "nonzero-passed",
+      "contract": "selected-tests-v2",
+      "cargoInvocations": 1,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 76,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 35,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 11,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 28,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 22,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 24,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 8,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          }
+        ],
+        "passed": 232,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0,
+        "executed": 232
+      },
+      "phases": [
+        {
+          "phase": "compilation-and-execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked",
+            "--",
+            "--test-threads=4"
+          ],
+          "startedUtc": "2026-11-02T01:34:12.296Z",
+          "durationMs": 164780,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "inputs_unchanged": true
+  },
+  "build": {
+    "start": "2026-11-02T01:37:21.463Z",
+    "end": "2026-11-02T01:38:00.541Z",
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "inputs_unchanged": true
+  }
+}

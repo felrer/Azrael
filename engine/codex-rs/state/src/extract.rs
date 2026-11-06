@@ -525,6 +525,7 @@ mod tests {
             &mut metadata,
             &RolloutItem::SessionMeta(SessionMetaLine {
                 meta: SessionMeta {
+                    role_profile: None,
                     computer_use_mode: None,
                     creator_user_id: None,
                     creator_account_id: None,
@@ -563,6 +564,7 @@ mod tests {
         apply_rollout_item(
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
+                agent_profile: None,
                 harness_profile: None,
                 turn_id: Some("turn-1".to_string()),
                 root_turn_id: None,
@@ -608,6 +610,7 @@ mod tests {
         apply_rollout_item(
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
+                agent_profile: None,
                 harness_profile: None,
                 turn_id: Some("turn-1".to_string()),
                 root_turn_id: None,
@@ -653,6 +656,7 @@ mod tests {
         apply_rollout_item(
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
+                agent_profile: None,
                 harness_profile: None,
                 turn_id: Some("turn-1".to_string()),
                 root_turn_id: None,
@@ -687,6 +691,7 @@ mod tests {
         apply_rollout_item(
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
+                agent_profile: None,
                 harness_profile: None,
                 turn_id: Some("turn-1".to_string()),
                 root_turn_id: None,
@@ -781,6 +786,7 @@ mod tests {
             &mut metadata,
             &RolloutItem::SessionMeta(SessionMetaLine {
                 meta: SessionMeta {
+                    role_profile: None,
                     computer_use_mode: None,
                     creator_user_id: None,
                     creator_account_id: None,

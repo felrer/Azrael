@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "startedUtc": "2026-10-30T20:58:59.818222+00:00",
+  "pid": 31256,
+  "nativeTestsReexecuted": false,
+  "buildExecuted": false,
+  "packageModified": false,
+  "checks": [
+    "Prior actual product six-case0 acceptance preserved",
+    "W/Q TS2 hashes identical to accepted values",
+    "W/Q compiled instruction source/test JS identical; Q source selection actual261pass0 includes test",
+    "g/Q engine build receipt identical",
+    "g/Q all three binary actual hashes match receipt and Q build-info",
+    "prepared actual engine/source identity matches buildreceipt",
+    "actual VSIX SHA and embedded runtime pair match package binding and accepted Q source SHA",
+    "existing package receipt/transform report SHA matches preservation binding"
+  ],
+  "limitations": [
+    "Identity reuse covers existing six-case product instruction acceptance only; current native continuation, host activation and user-profile installation are separate gates.",
+    "No new complete engine source inventory traversal or source compilation was performed."
+  ],
+  "nativeAcceptance": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\completed-engine-instruction-acceptance.json",
+    "sha256": "8faa31032c3f66ecf11976d3641cba2f5b5e0be46b2974db84a0835cc8b4326f",
+    "startedUtc": "2026-10-30T14:50:57.494Z",
+    "finishedUtc": "2026-10-30T14:51:31.973Z",
+    "tests": [
+      "ℹ tests 6",
+      "ℹ pass 6",
+      "ℹ fail 0",
+      "ℹ skipped 0",
+      "ℹ duration_ms 32464.2065"
+    ],
+    "engineSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+    "buildReceipt": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\x86_64-pc-windows-msvc\\release\\azrael-engine-build.json",
+      "sha256": "2841bdc5110030675a6dd6f1ed127bf1620def9440d68d6224244f284774a0db"
+    },
+    "verifiedPlatform": "Windows x64"
+  },
+  "watcherContract": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\check-packaged-engine-reuse-q.cjs",
+    "sha256": "6c1fb7e8cc9432e41114b9d2f311209a02143e53624b8c9b2664e0c508fd789f",
+    "conditions": [
+      "prior actual0 acceptance",
+      "engine/build receipt exact SHA",
+      "two instruction TS exact SHA",
+      "all receipt binaries exact SHA"
+    ],
+    "adaptation": "Original failed deployment readiness remains failed; independent source c actual0 supplies current source readiness. No old failed result was promoted."
+  },
+  "sourceContinuation": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-source-continuation-20261031c\\reports\\continuation.json",
+    "sha256": "2c75aec9c4a8bdae0b6478ab2c8aca1780a5863db84cb8ca2ef917d40df96dd8",
+    "status": "passed",
+    "exitCode": 0,
+    "inputSha256": "43f6ff2ac2f90024f4f3f000d80e1811e76cabcbeeb522b96d60819bc1f4f971",
+    "resultsPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-source-continuation-20261031c\\logs\\source\\results.json",
+    "resultsSha256": "b9d296530af09ca73774a264c1b2245768ae8dfc9f1ee4eb19b7a0de32a40a97",
+    "instructionTestSelected": true,
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\extensions\\azrael-ex",
+    "stdoutPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-source-continuation-20261031c\\logs\\source\\01-extension-changed.stdout.log",
+    "stdoutSha256": "0feadf0f82f249bc61444dce9aa7eeb9afe12889c1e30b4dbd3c86f1922d6f28",
+    "summary": [
+      "ℹ tests 261",
+      "ℹ pass 261",
+      "ℹ fail 0",
+      "ℹ skipped 0"
+    ]
+  },
+  "instructionFiles": [
+    {
+      "relative": "src/instructionService.ts",
+      "expectedSha256": "e346161c6cc5c2b2c8d8a62ddac2372f3402bcb35e4a5a6eef35e016aa3321b4",
+      "same": true,
+      "originalW": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\extensions\\azrael-ex\\src\\instructionService.ts",
+        "sha256": "e346161c6cc5c2b2c8d8a62ddac2372f3402bcb35e4a5a6eef35e016aa3321b4"
+      },
+      "currentQ": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\extensions\\azrael-ex\\src\\instructionService.ts",
+        "sha256": "e346161c6cc5c2b2c8d8a62ddac2372f3402bcb35e4a5a6eef35e016aa3321b4"
+      }
+    },
+    {
+      "relative": "test/instructionService.test.ts",
+      "expectedSha256": "aac25cc4edbb3eed624ebd7b5d8faff1f97b5242d7562a79de8f99745320f001",
+      "same": true,
+      "originalW": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\extensions\\azrael-ex\\test\\instructionService.test.ts",
+        "sha256": "aac25cc4edbb3eed624ebd7b5d8faff1f97b5242d7562a79de8f99745320f001"
+      },
+      "currentQ": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\extensions\\azrael-ex\\test\\instructionService.test.ts",
+        "sha256": "aac25cc4edbb3eed624ebd7b5d8faff1f97b5242d7562a79de8f99745320f001"
+      }
+    }
+  ],
+  "compiledInstructionFiles": [
+    {
+      "relative": "dist/src/instructionService.js",
+      "originalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\extensions\\azrael-ex\\dist\\src\\instructionService.js",
+      "qPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\extensions\\azrael-ex\\dist\\src\\instructionService.js",
+      "originalSha256": "904dae2c66068737a24eff7b5da3faba95496eb0b1640bbb036abea48f819402",
+      "qSha256": "904dae2c66068737a24eff7b5da3faba95496eb0b1640bbb036abea48f819402",
+      "same": true
+    },
+    {
+      "relative": "dist/test/instructionService.test.js",
+      "originalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\extensions\\azrael-ex\\dist\\test\\instructionService.test.js",
+      "qPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\extensions\\azrael-ex\\dist\\test\\instructionService.test.js",
+      "originalSha256": "04d1b1becd16dbdf0bf9624cd057bc60e132b0ebb6fae3e98fe22eed9745d6d1",
+      "qSha256": "04d1b1becd16dbdf0bf9624cd057bc60e132b0ebb6fae3e98fe22eed9745d6d1",
+      "same": true
+    }
+  ],
+  "originalNativeRawLog": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\built-engine-instructions-20261030d\\logs\\instructions.stdout.log",
+    "exists": true,
+    "sha256": "349cc118835ff829193bc24233a44c27ab74034e424b0332309e9a02bd51e86e"
+  },
+  "bundle": {
+    "originalReceipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\x86_64-pc-windows-msvc\\release\\azrael-engine-build.json",
+    "qReceipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\releases\\et1-cold-20261030q\\engine\\azrael-engine-build.json",
+    "receiptSha256": "2841bdc5110030675a6dd6f1ed127bf1620def9440d68d6224244f284774a0db",
+    "buildInfo": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\releases\\et1-cold-20261030q\\build-info.json",
+    "buildInfoSha256": "bfcca1ab7878154614c50b65e7f35108d8c0b9111e927fba0539b38c039e5ffa",
+    "sourceSha256": "f68496044985ca443e5329071bf5c35d044df9e989d135c17ff7e6918c145657",
+    "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\i2\\project\\engine",
+    "buildProfile": "release",
+    "binaries": [
+      {
+        "name": "azrael.exe",
+        "gPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\x86_64-pc-windows-msvc\\release\\azrael.exe",
+        "qPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\releases\\et1-cold-20261030q\\engine\\azrael.exe",
+        "expectedSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+        "gSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+        "qSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+        "same": true
+      },
+      {
+        "name": "azrael-bridge.exe",
+        "gPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\x86_64-pc-windows-msvc\\release\\azrael-bridge.exe",
+        "qPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\releases\\et1-cold-20261030q\\engine\\azrael-bridge.exe",
+        "expectedSha256": "6d973dee8b242bd3ae0911b6d85ab3556c6f1edf0465d5e3a51259d70e01820b",
+        "gSha256": "6d973dee8b242bd3ae0911b6d85ab3556c6f1edf0465d5e3a51259d70e01820b",
+        "qSha256": "6d973dee8b242bd3ae0911b6d85ab3556c6f1edf0465d5e3a51259d70e01820b",
+        "same": true
+      },
+      {
+        "name": "azrael-code-mode-host.exe",
+        "gPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\x86_64-pc-windows-msvc\\release\\azrael-code-mode-host.exe",
+        "qPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\releases\\et1-cold-20261030q\\engine\\azrael-code-mode-host.exe",
+        "expectedSha256": "89713bec82069f1fefc70ec6d52fcb96d79cfd5f0d8d831aedde0b2005a39402",
+        "gSha256": "89713bec82069f1fefc70ec6d52fcb96d79cfd5f0d8d831aedde0b2005a39402",
+        "qSha256": "89713bec82069f1fefc70ec6d52fcb96d79cfd5f0d8d831aedde0b2005a39402",
+        "same": true
+      }
+    ]
+  },
+  "package": {
+    "preparedPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\deploy-et1-cold-20261030q\\package\\independent-prepared.json",
+    "preparedSha256": "564f26a600208b8632df9828b921b5da3d399cb92b11b0a22e81e0d692992c44",
+    "vsixPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\deploy-et1-cold-20261030q\\package\\azrael-host.vsix",
+    "vsixSha256": "c990e9ec1cb251ea93ca6462538b61d7677d49da7b7f4bcdbb67b8c4567d369c",
+    "hostVersion": "2026.0.14",
+    "engineSourceSha256": "f68496044985ca443e5329071bf5c35d044df9e989d135c17ff7e6918c145657",
+    "engineBinarySha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+    "bindingPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\deploy-et1-cold-20261030q\\package\\feature-preservation-package.json",
+    "bindingSha256": "ae8e6db2caab36c3476f570bac496b7aff36f34c4f93f41988e51e1c24a70e7c",
+    "preservationReceiptPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\deploy-et1-cold-20261030q\\package\\feature-preservation\\preservation-JY2MOI\\receipt.json",
+    "preservationReceiptSha256": "62ed3651e82b6b94e0bf21cea4d9e39f98d445c0ca96d2c249d4f595c1c12cc5",
+    "transformReportPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\deploy-et1-cold-20261030q\\package\\stage-3c8e8097952043b9bc80fb6e20670cb5\\staging\\openai.chatgpt-26.1007.21434-win32-x64\\.azrael-independent-host.json",
+    "transformReportSha256": "56a3b27a563de2a2b8e1ff69a3d60bee7312d13145a4c1ab8b775ce3b36cfa7b",
+    "sourceQSha256": "43f6ff2ac2f90024f4f3f000d80e1811e76cabcbeeb522b96d60819bc1f4f971",
+    "actualArchiveRuntime": {
+      "engine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\releases\\et1-cold-20261030q\\engine\\azrael.exe",
+      "bridge": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\releases\\et1-cold-20261030q\\engine\\azrael-bridge.exe"
+    },
+    "provenanceSame": true
+  },
+  "verificationExitCode": 0,
+  "finishedUtc": "2026-10-30T20:59:07.510019+00:00"
+}

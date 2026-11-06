@@ -1,0 +1,46 @@
+{
+  "exit_code": 0,
+  "prior_failures_preserved": true,
+  "logical_bytes": 718938275,
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-35268-4665-1793552935212",
+        "decision": "delete",
+        "decision_id": "02b37519722d7152fee66d060347e4bad46f58e5394ea9a0eee19d8b7d09ce48",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+        "reason": "Verified standalone candidate and independent evidence retained; stopped pre-intent failure recovered; disposable owned run no longer used",
+        "remaining": false,
+        "status": "deleted",
+        "token": "5ac80a1f4c8e497b7259a1bfa20e4438f20263507de8629847b114257218d8b2"
+      }
+    ]
+  },
+  "run_absent": true,
+  "producer_record_absent": true,
+  "finalize": {
+    "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\29c6a2a826d8db61e9deb30a52a3b3bc44161a7fdf3da04e0e29cee62f7f50b3.json"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "at": "2026-11-02T09:49:05.096Z",
+  "run_id": "run:ff1:storage3",
+  "producer_stopped_verified": true,
+  "outcome": "success",
+  "exit_code": 0,
+  "source_matches_accepted": true,
+  "source_files": 39,
+  "native_test": {
+    "exit": 0,
+    "counts": {
+      "passed": 246,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filteredOut": 0,
+      "executed": 246
+    },
+    "prior_attempts_preserved": true
+  },
+  "release": {
+    "exit": 0,
+    "sha256": "f98ae805137e50035a475b2873e7ee5ab71b45c4a9e513ce5a60203625bceb00",
+    "bytes": 2712064
+  },
+  "measurement": {
+    "primary_complete": true,
+    "small_complete": true,
+    "notes": {
+      "per_item_durability": "All tested cases kept40 committed saves for20 actual deletions, history preserved and no pending",
+      "large_history": "Both legacy and partitioned2000 history cases improved in this single paired run",
+      "small_case": "Comparable intent/result save mean2.334742s baseline vs2.356370s candidate; overall apply wall mean7.081879s vs7.741092s. No small-case improvement claim; cause of wall increase unverified.",
+      "limits": "Shared host single primary pair and bounded B,C,C,B small repeats; no guaranteed percentages or equality of old/new commit span boundaries"
+    }
+  },
+  "default_smoke_status": "passed",
+  "inputs": [
+    {
+      "path": "18-storage-native-acceptance.json",
+      "sha256": "c2b62d8f78addc7cb1586f40a56caf1769c2bf6ff03bac88ba8549dd908706b5"
+    },
+    {
+      "path": "19-storage-version-preparation.json",
+      "sha256": "c67ebd241dbc7875045e1001334fb0167ea15b2523f6ceb952c5465820b8451d"
+    },
+    {
+      "path": "20-storage-performance.json",
+      "sha256": "c487101febd25590e2e8dd0b2640a67c52c3955c83c1484759fa5988ad2cd04a"
+    },
+    {
+      "path": "21-storage-installation.json",
+      "sha256": "aba01aa37087179839cd574a5b07654f8685c385a1878b445ea4c87221bb851e"
+    },
+    {
+      "path": "22-storage-default-acceptance.json",
+      "sha256": "a19f55eb131b3c48cf98481bb801e3bcd3ecefe16972c363a859ce273be19242"
+    }
+  ],
+  "stopped_evidence": "All managed compilation/test/release, baseline/candidate/repeat and default smoke producers reported actual terminal. Initial failing test outcome preserved; no run payload producer remains. Direct native lease and contained worker termination verified.",
+  "retirement_policy": {
+    "queued": "Prior approved workbench retention condition ended: recorded server/lease PIDs absent and no queued executable use in independent exact-path process observations. Fresh source/ref review required after release.",
+    "perf": "FG-01 cleanup-early.cjs prepare-later PID38316 caches the perf command; preserve old installation reference. Scoped retention approval requested."
+  },
+  "retired_runtime_observation": {
+    "ProcessId": 38316,
+    "ParentProcessId": 41508,
+    "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" work/FG-01-standalone-app-ui-research/cleanup-early.cjs prepare-later",
+    "CreationUtc": "2026-11-02T09:43:24.6588690Z"
+  }
+}

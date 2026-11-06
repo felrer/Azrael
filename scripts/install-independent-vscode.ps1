@@ -493,6 +493,13 @@ try {
     $receipt.status = 'installed-reload-required'; $receipt.reloadRequired = $true
     Write-Receipt -Receipt $receipt -Path $receiptPath
 
+    if ([version]$receipt.hostVersion -gt [version]'2026.0.14') {
+        $maintenance = & node (Join-Path $PSScriptRoot 'maintenance-owner-config.cjs') publish (Join-Path $release 'engine/azrael.exe') $state $receipt.hostVersion $receiptPath
+        if ($LASTEXITCODE -ne 0) { throw 'Azrael management acceptance or publication failed; inspect the management receipt before retrying.' }
+        $receipt.maintenance = $maintenance | ConvertFrom-Json
+        Write-Receipt -Receipt $receipt -Path $receiptPath
+    }
+
     if (-not $NoLaunch) {
         $null = @(& $resolvedCodePath @codeArguments --reuse-window $workspace)
         if ($LASTEXITCODE -ne 0) { throw "Installed successfully, but VS Code launch failed with exit code $LASTEXITCODE." }

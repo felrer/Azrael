@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-11-01T15:08:35.736Z",
+  "exit_code": 0,
+  "signal": null,
+  "items": [
+    {
+      "id": "be906b29f70c655c7c9d5bb7916e3f3846586033231196e5719b2878794a1210",
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/DH-01-project-storage-review/retention",
+      "logical_bytes": 1947,
+      "blockers": [
+        "lifecycle group membership is incomplete",
+        "producer owner membership is not complete"
+      ]
+    }
+  ],
+  "stderr": ""
+}

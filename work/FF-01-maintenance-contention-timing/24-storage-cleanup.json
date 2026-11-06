@@ -1,0 +1,519 @@
+{
+  "started": "2026-11-02T09:53:01.637Z",
+  "status": "failed",
+  "owner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-storage-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "maxLockWaitMs": 600000
+  },
+  "ids": [
+    "run:ff1:storage3",
+    "version:maintenance-owner:ff01:queued-20261102"
+  ],
+  "stages": [
+    {
+      "name": "inventory-0",
+      "operation": "inventory",
+      "started": "2026-11-02T09:53:01.638Z",
+      "request": {
+        "operation": "inventory",
+        "offset": 0,
+        "limit": 200
+      },
+      "exit_code": 0,
+      "pid": 46980,
+      "signal": null,
+      "close_observed": true,
+      "wall_ms": 861.8399,
+      "finished": "2026-11-02T09:53:02.502Z",
+      "result": {
+        "pagination": {
+          "bundles_total": 58,
+          "decisions_total": 1779,
+          "groups_total": 865,
+          "limit": 200,
+          "offset": 0,
+          "runs_total": 89,
+          "total": 1672
+        },
+        "selected_groups": []
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 0
+        }
+      ]
+    },
+    {
+      "name": "inventory-200",
+      "operation": "inventory",
+      "started": "2026-11-02T09:53:02.505Z",
+      "request": {
+        "operation": "inventory",
+        "offset": 200,
+        "limit": 200
+      },
+      "exit_code": 0,
+      "pid": 9288,
+      "signal": null,
+      "close_observed": true,
+      "wall_ms": 938.5265,
+      "finished": "2026-11-02T09:53:03.444Z",
+      "result": {
+        "pagination": {
+          "bundles_total": 58,
+          "decisions_total": 1779,
+          "groups_total": 865,
+          "limit": 200,
+          "offset": 200,
+          "runs_total": 89,
+          "total": 1672
+        },
+        "selected_groups": []
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 0
+        }
+      ]
+    },
+    {
+      "name": "inventory-400",
+      "operation": "inventory",
+      "started": "2026-11-02T09:53:03.448Z",
+      "request": {
+        "operation": "inventory",
+        "offset": 400,
+        "limit": 200
+      },
+      "exit_code": 0,
+      "pid": 43036,
+      "signal": null,
+      "close_observed": true,
+      "wall_ms": 962.2955999999999,
+      "finished": "2026-11-02T09:53:04.411Z",
+      "result": {
+        "pagination": {
+          "bundles_total": 58,
+          "decisions_total": 1779,
+          "groups_total": 865,
+          "limit": 200,
+          "offset": 400,
+          "runs_total": 89,
+          "total": 1672
+        },
+        "selected_groups": []
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 0
+        }
+      ]
+    },
+    {
+      "name": "inventory-600",
+      "operation": "inventory",
+      "started": "2026-11-02T09:53:04.414Z",
+      "request": {
+        "operation": "inventory",
+        "offset": 600,
+        "limit": 200
+      },
+      "exit_code": 0,
+      "pid": 51228,
+      "signal": null,
+      "close_observed": true,
+      "wall_ms": 1026.7161,
+      "finished": "2026-11-02T09:53:05.441Z",
+      "result": {
+        "pagination": {
+          "bundles_total": 58,
+          "decisions_total": 1779,
+          "groups_total": 865,
+          "limit": 200,
+          "offset": 600,
+          "runs_total": 89,
+          "total": 1672
+        },
+        "selected_groups": []
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 0
+        }
+      ]
+    },
+    {
+      "name": "inventory-800",
+      "operation": "inventory",
+      "started": "2026-11-02T09:53:05.444Z",
+      "request": {
+        "operation": "inventory",
+        "offset": 800,
+        "limit": 200
+      },
+      "exit_code": 0,
+      "pid": 36404,
+      "signal": null,
+      "close_observed": true,
+      "wall_ms": 727.1311999999998,
+      "finished": "2026-11-02T09:53:06.172Z",
+      "result": {
+        "pagination": {
+          "bundles_total": 58,
+          "decisions_total": 1779,
+          "groups_total": 865,
+          "limit": 200,
+          "offset": 800,
+          "runs_total": 89,
+          "total": 1672
+        },
+        "selected_groups": []
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 0
+        }
+      ]
+    },
+    {
+      "name": "register-run:ff1:storage3",
+      "operation": "register",
+      "started": "2026-11-02T09:53:07.655Z",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:ff1:storage3",
+          "kind": "run",
+          "owner": "FF-01-maintenance-contention-timing",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\789d42e6c6fad9b38fb0a8d5e2bad0dcad51eac2439142ab0bb11a34b390e2fe.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "3b74888c28bea4b305e6f71cc73a988aaedc487182ebbe6f51eb7e178e926c14",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3",
+              "role": "run-root",
+              "lifecycle_role": "artifact",
+              "kind": "run-root",
+              "owner": "FF-01-maintenance-contention-timing",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\789d42e6c6fad9b38fb0a8d5e2bad0dcad51eac2439142ab0bb11a34b390e2fe.json"
+            }
+          ]
+        }
+      },
+      "exit_code": 0,
+      "pid": 22452,
+      "signal": null,
+      "close_observed": true,
+      "wall_ms": 186597.2312,
+      "finished": "2026-11-02T09:56:14.253Z",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:ff1:storage3",
+          "kind": "run",
+          "members": [
+            "3b74888c28bea4b305e6f71cc73a988aaedc487182ebbe6f51eb7e178e926c14"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "9497084f71d40544bd522fbd0d804b5e240a2b9858dbfc735d771f733793adf9",
+          "owner": "FF-01-maintenance-contention-timing",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\789d42e6c6fad9b38fb0a8d5e2bad0dcad51eac2439142ab0bb11a34b390e2fe.json",
+          "registered_at_ms": 1793613349811,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "3b74888c28bea4b305e6f71cc73a988aaedc487182ebbe6f51eb7e178e926c14",
+            "identity": "3f3f4ed82e8f8386bf647072b733ac3c2f3f0f2e773333b3debfbd4214d2ebdd",
+            "kind": "run-root",
+            "lifecycle_group_id": "run:ff1:storage3",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1150788744,
+            "measured_at_ms": 1793613317143,
+            "owner": "FF-01-maintenance-contention-timing",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\789d42e6c6fad9b38fb0a8d5e2bad0dcad51eac2439142ab0bb11a34b390e2fe.json",
+            "references": [],
+            "registered_at_ms": 1793613317143,
+            "remaining": true,
+            "role": "run-root",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.queued_wait",
+          "operation": "lock_release",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.prepare_local",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.open_pending",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.serialize",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.write_pending",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.sync_pending",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.rename",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.save",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 0
+        }
+      ]
+    },
+    {
+      "name": "register-version:maintenance-owner:ff01:queued-20261102",
+      "operation": "register",
+      "started": "2026-11-02T09:56:20.235Z",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "version:maintenance-owner:ff01:queued-20261102",
+          "kind": "version",
+          "owner": "FF-01-maintenance-contention-timing",
+          "version": "queued-20261102",
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9ec67cfa8c34dfde1f867b9088f1c19e99fba9abafbda2d1e47d79bbf7978eb2.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "215d8c7c3e4fe96c7e2553f91e8ea62c207919ae3db96451feba355c73d9ed1f",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102",
+              "role": "release",
+              "lifecycle_role": "artifact",
+              "kind": "release",
+              "owner": "FF-01-maintenance-contention-timing",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9ec67cfa8c34dfde1f867b9088f1c19e99fba9abafbda2d1e47d79bbf7978eb2.json"
+            }
+          ]
+        }
+      },
+      "exit_code": 1,
+      "pid": 6860,
+      "signal": null,
+      "close_observed": true,
+      "wall_ms": 253521.6962,
+      "finished": "2026-11-02T10:00:33.758Z",
+      "diagnostics": [
+        {
+          "error": "project config changed during registration"
+        }
+      ],
+      "stdout": "",
+      "stderr": "{\"error\":\"project config changed during registration\"}",
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.queued_wait",
+          "operation": "lock_release",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 1,
+          "elapsed_us_sum": 0
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 0
+        }
+      ]
+    }
+  ],
+  "finalizations": [],
+  "retained_perf": {
+    "id": "version:maintenance-owner:ff01:perf-20261102",
+    "path": "artifacts/versions/maintenance-owner-ff01-perf-win-x64-20261102",
+    "files": 9,
+    "bytes": 2855228,
+    "reason": "FG-01 cleanup producer38316 caches executable; preserve existing installation reference; user retention question pending"
+  },
+  "notes": "Actual process closes recorded. Diagnostic spans overlap; no summing them into wall-time decomposition.",
+  "error": "Error: register-version:maintenance-owner:ff01:queued-20261102 failed 1\n    at request ([stdin]:15:86)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async [stdin]:20:128",
+  "finished": "2026-11-02T10:00:33.777Z",
+  "evidence_compaction": "Raw timing events aggregated by event/operation/outcome; actual close exits, complete native apply results, first causal errors and review identities/tokens preserved. No overlapping span sums treated as wall decomposition."
+}

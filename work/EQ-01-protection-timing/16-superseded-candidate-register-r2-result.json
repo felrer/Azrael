@@ -1,0 +1,6 @@
+{
+  "exit_code": 1,
+  "signal": null,
+  "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance); lock wait exhausted after 5000 ms; pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock (maintenance); lock wait exhausted after 5000 ms\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock\",\"owner\":null,\"retryable\":true}\n",
+  "result": null
+}

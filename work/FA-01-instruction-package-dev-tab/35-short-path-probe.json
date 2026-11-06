@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "lifecycleId": "run:FA-01-windows-build-path:masm17",
+  "result": {
+    "executable": "C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/HostX64/x64/ml64.exe",
+    "args": [
+      "-nologo",
+      "-Zi",
+      "-FoC:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\ma17\\x86_64-pc-windows-msvc\\release\\build\\blake3-c03918d9fd94d15e\\out\\5a6b5937ed079296-blake3_sse41_x86-64_windows_msvc.o",
+      "-c",
+      "c/blake3_sse41_x86-64_windows_msvc.asm"
+    ],
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\ch17\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\blake3-1.8.2",
+    "output": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\ma17\\x86_64-pc-windows-msvc\\release\\build\\blake3-c03918d9fd94d15e\\out\\5a6b5937ed079296-blake3_sse41_x86-64_windows_msvc.o",
+    "outputLength": 170,
+    "exists": true,
+    "exitCode": 0,
+    "signal": null
+  },
+  "producer": {
+    "lifecycleId": "run:FA-01-windows-build-path:masm17",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-windows-build-path\\runs\\masm17",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Synchronous assembler actual return; no detached producer",
+    "children": [],
+    "state": "complete",
+    "membership_complete": true
+  },
+  "sourceReportSha256": "d8e43f2be82ad0bb2fd714a4f2ffa993b7650255aaa8ef512179ccfd832981a3",
+  "stdoutSha256": "557a356b1ba79165ea9385c2ba72376ccdd24c445d5756ebc73becd660c0e9f4",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "retirementReason": "Short-path prerequisite confirmed; actual product build uses new independent target. Disposable probe has no remaining consumers.",
+  "capturedAtUtc": "2026-11-03T18:21:22.241Z"
+}

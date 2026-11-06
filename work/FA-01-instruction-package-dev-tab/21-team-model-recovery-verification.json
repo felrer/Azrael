@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "at": "2026-11-02T23:28:59.860Z",
+  "scope": "Team preset save model unavailable due to account-selection recovery hiding inventory",
+  "rootCause": "nativeAccounts rejected requiresRecovery:true as invalid selection and suppressed all otherwise connected OpenAI metadata/model observations",
+  "change": "Retain eligible connected metadata/cache rows with selected:false while selection requires recovery; preserve malformed/reauth/removed rejection and never switch accounts",
+  "platform": "Windows x64, Node v26.7.0",
+  "tests": {
+    "startedAt": "2026-11-02T23:26:26.496Z",
+    "endedAt": "2026-11-02T23:27:00.739Z",
+    "exitCode": 0,
+    "signal": null,
+    "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T232618072Z-18c4b360-478b-4a6e-af7b-749d20caf451\\logs\\tests.log",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T232618072Z-18c4b360-478b-4a6e-af7b-749d20caf451",
+    "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T232618072Z-18c4b360-478b-4a6e-af7b-749d20caf451",
+    "counts": [
+      "ℹ tests 76",
+      "ℹ pass 76",
+      "ℹ fail 0"
+    ],
+    "logSha256": "a1b224e362e21f729c0a7e3a8a37d4a1eac64c75be8ffd2b1d9c2d4477599c25"
+  },
+  "actualReadOnlyValidation": {
+    "productionStoreAvailableCheck": "passed for current azrael-lead,azrael-root,luna_explorer and review profile against actual readProfileOptions + roleModels",
+    "liveApi": {
+      "models": [
+        "gpt-6.1-sol",
+        "gpt-6-luna"
+      ],
+      "bothFound": true
+    },
+    "credentialsChanged": false,
+    "accountSelectionChanged": false,
+    "userTeamWritten": false
+  },
+  "ui": {
+    "oldTabUntouched": true,
+    "limitation": "Browser debugger not attached to existing user tab; no reload or form restoration performed. User instructed to preserve name and reload before retry because the server session token changed."
+  },
+  "initialRunnerFailure": {
+    "exit": 1,
+    "testsStarted": false,
+    "reason": "Lifecycle catalog ancestor disappeared during observation: minimal-id-kind-check-20261103-b7c5de40",
+    "freshCatalogRead": "succeeded773records",
+    "bypass": false
+  },
+  "stoppedAdapter": {
+    "run": "artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261102T135405586Z-4e88809c-f283-43ae-be4d-3b3e4511916a",
+    "stopExit": 0,
+    "producer": "complete/stopped/success/exit0 via supported lifecycle",
+    "membershipComplete": true
+  },
+  "live": {
+    "run": "artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261102T232737852Z-9d1db26c-0954-4894-95af-b03ef60fc7ed",
+    "pid": 22048,
+    "dataRun": "20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce",
+    "purpose": "User-retained development tab",
+    "httpModelRead": 200
+  },
+  "sourceSha256": {
+    "scripts/instruction-workbench-options.cjs": "d194671fb5c90a8417835362ea0977d7f157c119b0a4bc2ca6e3a2cf397ff26e",
+    "scripts/tests/instruction-workbench.test.cjs": "c24573fc16d4f8c98888d169189f8253804d9f79348635c871cf7d810dd47784"
+  },
+  "cleanup": "Test run and stopped adapter are disposable after independent evidence; live adapter/data retained, earlier approved uncertain2 unchanged"
+}

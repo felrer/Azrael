@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "group_id": "run:EC-01:refresh-lock-r1",
+  "source_outcome_preserved": "failed, exit 101; final verification retry passed exit 0",
+  "closed_revision": 2,
+  "status": "physical payload absent; reservation officially recovered; historical pending intent retained",
+  "registration_exit_code": 0,
+  "review_exit_code": 0,
+  "review_blockers": [],
+  "apply_exit_code": 0,
+  "apply_aborted": true,
+  "result": {
+    "aborted": true,
+    "reason": "result persistence failed; durable intent may remain pending",
+    "results": [
+      {
+        "attempt_id": "attempt-71364-3598-1793140977059",
+        "decision": "delete",
+        "decision_id": "7d903ff5ec620ba562f215bc01507d909e17d6f36676aa82c5a2ddfd72492479",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "fa4eb3675bc2f36ce085a25ed5928716c79e3f424f81f2454dc0fb0c4120ff5e",
+        "lifecycle_group_id": "run:EC-01:refresh-lock-r1",
+        "persistence_error": "OS lock busy: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts/maintenance\\maintenance.lock (maintenance)",
+        "reason": "Owned verification sources/cache/fixtures no longer needed; independent immutable 02-verification.json and installed version acceptance preserve results",
+        "remaining": false,
+        "status": "deleted",
+        "token": "5999ba85eab60d021968d47974eb4d347c1cc7616ba879848ac1411cdf9c959c"
+      }
+    ]
+  },
+  "actual_source_absent": true,
+  "recovery_evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-cleanup-result-persistence-20261028.json",
+  "recovery": {
+    "pid": 83168,
+    "exit_code": 0,
+    "value": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-cleanup-result-persistence-20261028.json",
+      "evidence_sha256": "57a33500ea2ddfe1322a087a7ccb7b650cbeaac24de6856ceac72d22833a20df",
+      "execution_outcome_changed": false,
+      "id": "run:EC-01:refresh-lock-r1",
+      "lease_owner": {
+        "acquired_at_ms": 1793140955660,
+        "operation": "group_reservation",
+        "pid": 71364,
+        "schema": 2,
+        "token": "71364-1793140955660-ed9c421e0202a4d4"
+      },
+      "malformed_publication": false,
+      "pending_intents_changed": false,
+      "prior_bytes": null,
+      "prior_reservation": {
+        "group_scope": {
+          "id": "run:EC-01:refresh-lock-r1",
+          "kind": "run",
+          "members": [
+            "fa4eb3675bc2f36ce085a25ed5928716c79e3f424f81f2454dc0fb0c4120ff5e"
+          ],
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_identity": "0e634eaeb22e3ed7f77b059ca352b42b565b4d7ff842e534481a7e03eba118a4",
+          "owner": "/root",
+          "version": null
+        },
+        "id": "run:EC-01:refresh-lock-r1",
+        "lease_owner": {
+          "acquired_at_ms": 1793140955660,
+          "operation": "group_reservation",
+          "pid": 71364,
+          "schema": 2,
+          "token": "71364-1793140955660-ed9c421e0202a4d4"
+        },
+        "manifest_revision": 3598,
+        "members": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "fa4eb3675bc2f36ce085a25ed5928716c79e3f424f81f2454dc0fb0c4120ff5e",
+            "identity": "f7e0af79d36673e480ea219ae154a023bd149b9d91c7139f887ba55ffece7372",
+            "kind": "verification",
+            "lifecycle_group_id": "run:EC-01:refresh-lock-r1",
+            "lifecycle_role": "evidence",
+            "logical_bytes": 1087227347,
+            "measured_at_ms": 1793140624172,
+            "owner": "/root",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\refresh-lock-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\31ac978765eb7bb254dbf68b3ec08ed502e25e0063b3f255055d99558118b383.json",
+            "references": [],
+            "registered_at_ms": 1793140624172,
+            "remaining": true,
+            "role": "verification",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ],
+        "schema": 1,
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "source_fence": "0e634eaeb22e3ed7f77b059ca352b42b565b4d7ff842e534481a7e03eba118a4",
+        "source_owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\02-verification.json",
+            "evidence_sha256": "90d604e3651dbc586da3986304b3c57d7575768034675c527e03373ad937d52b",
+            "reason": "All synchronous verification/provenance producers and test children ended. Preserve the observed first native failure 101; independent receipt records the final accepted retry exit 0 and unchanged inputs.",
+            "request_sha256": "f3816087ef83d9be071b2f267bf5e0d039b6bbbfd8ab23282c3ca2d02719fe96"
+          },
+          "created_at": "2026-10-27T21:52:19.233Z",
+          "id": "run:EC-01:refresh-lock-r1",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\refresh-lock-r1",
+              "protection_known": true,
+              "role": "verification"
+            }
+          ],
+          "membership_complete": true,
+          "owner": "/root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\02-verification.json",
+            "evidence_sha256": "90d604e3651dbc586da3986304b3c57d7575768034675c527e03373ad937d52b",
+            "exit_code": 101,
+            "outcome": "failure",
+            "reason": "All synchronous verification/provenance producers and test children ended. Preserve the observed first native failure 101; independent receipt records the final accepted retry exit 0 and unchanged inputs.",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 2,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-27T22:24:26.186Z",
+          "version": null
+        },
+        "status": "active",
+        "token": "71364-1793140955660-ed9c421e0202a4d4"
+      },
+      "reason": "Exact native exit and normal contained worker teardown observed; physical deletion completed but terminal persistence lost a maintenance OS acquisition race; release reservation only and preserve pending intent",
+      "reservation_sha256": "c4f82428f0adfafd6f8cab83df87ad5b3cd7054097533b912c8ae40a3c24b6d7",
+      "status": "reservation_recovered"
+    }
+  },
+  "temporary_controls_removed": [
+    "02-cleanup-request.tmp.json",
+    "02-cleanup-register.tmp.json",
+    "02-cleanup-review.tmp.json",
+    "02-cleanup-review-result.tmp.json",
+    "02-cleanup-apply.tmp.json",
+    "02-cleanup-apply-result.tmp.json",
+    "02-cleanup-recovery.tmp.json",
+    "02-cleanup-recovery-result.tmp.json"
+  ],
+  "pending_intent_retained": true,
+  "producer_retained_for_pending_intent": true
+}

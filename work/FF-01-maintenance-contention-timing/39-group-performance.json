@@ -1,0 +1,1948 @@
+{
+  "schema": 1,
+  "at": "2026-11-02T11:52:23.471Z",
+  "complete": true,
+  "scope": "Windows x64 local; one sequential sample per binary; 4 and 80 small sibling files, each 1KiB; no external membership source or catalog background",
+  "baseline": {
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\inputs\\baseline-maintenance_owner.exe",
+    "sha256": "cf9cbd25713cf0a7688d4609271cfe3ec5619635fb1550b7e02e1b59608d56f1",
+    "report": "base.json"
+  },
+  "candidate": {
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\outputs\\native\\attempt03\\candidate-maintenance_owner.exe",
+    "sha256": "31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89",
+    "report": "cand.json"
+  },
+  "harness_sha256": "85c32c84d87d389abd79721539d606c5b5db0ec7b304b34dab45810ac5d095e7",
+  "limitations": [
+    "Single baseline-then-candidate pair on shared host; no controlled cache or confidence interval, no guaranteed improvement.",
+    "Spans overlap: apply.current_review encloses group.current phases; state.save encloses commit and acquisition. Do not add overlapping spans or interpret wall differences as isolated CPU savings.",
+    "maintenance.lock_wait includes acquisition prerequisite/check cost. All attempts=1 and outcomes acquired; no queued_wait spans observed, so actual OS contention-only delay is not established.",
+    "Initial native run/decision history is empty; history preservation assertions have empty input. Each selected member has explicit generated/protection-known ownership and empty references.",
+    "Token-cache-specific timing counters are unavailable in emitted spans; available group.relations.build and group.current.* phases are reported. No source-structure assertions were used.",
+    "Only selected payload files are deleted. Outer fixtures, native control state, harness and logs remain owned by run:ff1:group5 for root cleanup."
+  ],
+  "cases": [
+    {
+      "members": 4,
+      "bytes_per_member": 1024,
+      "configuration_bytes_equal": true,
+      "checks": {
+        "baseline": {
+          "actual_absent": 4,
+          "durable_items_deleted": 4,
+          "durable_group_deleted": true,
+          "durable_deleted_outcomes": 4,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "no_pending": true,
+          "intent_saves": 4,
+          "actual_result_saves": 4,
+          "state_commits": 8,
+          "preintent_current_reviews": 4
+        },
+        "candidate": {
+          "actual_absent": 4,
+          "durable_items_deleted": 4,
+          "durable_group_deleted": true,
+          "durable_deleted_outcomes": 4,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "no_pending": true,
+          "intent_saves": 4,
+          "actual_result_saves": 4,
+          "state_commits": 8,
+          "preintent_current_reviews": 4
+        }
+      },
+      "stages": {
+        "register": {
+          "baseline": {
+            "wall_ms": 573.0598,
+            "pid": 40128,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\base\\group004",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\base-group4-register",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 2,
+                "total_us": 132481,
+                "max_us": 67828,
+                "attempts": 2,
+                "outcomes": {
+                  "acquired": 2
+                }
+              },
+              "maintenance.lock_hold:catalog": {
+                "count": 2,
+                "total_us": 225641,
+                "max_us": 141483,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.lock_hold:maintenance": {
+                "count": 2,
+                "total_us": 312568,
+                "max_us": 182940,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.phase:reservation.verify_sources": {
+                "count": 5,
+                "total_us": 22,
+                "max_us": 8,
+                "attempts": 5,
+                "outcomes": {
+                  "success": 5
+                }
+              },
+              "maintenance.phase:state.read": {
+                "count": 1,
+                "total_us": 2176,
+                "max_us": 2176,
+                "attempts": 1,
+                "outcomes": {
+                  "read": 1
+                }
+              },
+              "maintenance.phase:state.prepare_local": {
+                "count": 1,
+                "total_us": 21,
+                "max_us": 21,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.open_pending": {
+                "count": 1,
+                "total_us": 734,
+                "max_us": 734,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.serialize": {
+                "count": 1,
+                "total_us": 19,
+                "max_us": 19,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.write_pending": {
+                "count": 1,
+                "total_us": 102,
+                "max_us": 102,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.sync_pending": {
+                "count": 1,
+                "total_us": 3321,
+                "max_us": 3321,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.rename": {
+                "count": 1,
+                "total_us": 2095,
+                "max_us": 2095,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.commit": {
+                "count": 1,
+                "total_us": 18832,
+                "max_us": 18832,
+                "attempts": 1,
+                "outcomes": {
+                  "committed": 1
+                }
+              },
+              "maintenance.phase:state.save": {
+                "count": 1,
+                "total_us": 18924,
+                "max_us": 18924,
+                "attempts": 1,
+                "outcomes": {
+                  "committed": 1
+                }
+              },
+              "maintenance.lock_hold:group_reservation": {
+                "count": 1,
+                "total_us": 290921,
+                "max_us": 290921,
+                "attempts": 1,
+                "outcomes": {
+                  "verified": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate": {
+            "wall_ms": 490.6014,
+            "pid": 28936,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\cand\\group004",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\cand-group4-register",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 2,
+                "total_us": 126084,
+                "max_us": 72228,
+                "attempts": 2,
+                "outcomes": {
+                  "acquired": 2
+                }
+              },
+              "maintenance.lock_hold:catalog": {
+                "count": 2,
+                "total_us": 183038,
+                "max_us": 102611,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.lock_hold:maintenance": {
+                "count": 2,
+                "total_us": 257802,
+                "max_us": 136428,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.phase:reservation.verify_sources": {
+                "count": 5,
+                "total_us": 21,
+                "max_us": 6,
+                "attempts": 5,
+                "outcomes": {
+                  "success": 5
+                }
+              },
+              "maintenance.phase:state.read": {
+                "count": 1,
+                "total_us": 1514,
+                "max_us": 1514,
+                "attempts": 1,
+                "outcomes": {
+                  "read": 1
+                }
+              },
+              "maintenance.phase:state.prepare_local": {
+                "count": 1,
+                "total_us": 20,
+                "max_us": 20,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.open_pending": {
+                "count": 1,
+                "total_us": 407,
+                "max_us": 407,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.serialize": {
+                "count": 1,
+                "total_us": 13,
+                "max_us": 13,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.write_pending": {
+                "count": 1,
+                "total_us": 136,
+                "max_us": 136,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.sync_pending": {
+                "count": 1,
+                "total_us": 3521,
+                "max_us": 3521,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.rename": {
+                "count": 1,
+                "total_us": 1566,
+                "max_us": 1566,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.commit": {
+                "count": 1,
+                "total_us": 14434,
+                "max_us": 14434,
+                "attempts": 1,
+                "outcomes": {
+                  "committed": 1
+                }
+              },
+              "maintenance.phase:state.save": {
+                "count": 1,
+                "total_us": 14489,
+                "max_us": 14489,
+                "attempts": 1,
+                "outcomes": {
+                  "committed": 1
+                }
+              },
+              "maintenance.lock_hold:group_reservation": {
+                "count": 1,
+                "total_us": 233220,
+                "max_us": 233220,
+                "attempts": 1,
+                "outcomes": {
+                  "verified": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate_over_baseline_wall_ratio": 0.8561085597000523,
+          "wall_change_percent": -14.389144029994771
+        },
+        "review": {
+          "baseline": {
+            "wall_ms": 80.9542,
+            "pid": 52292,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\base\\group004",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\base-group4-review",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 1,
+                "total_us": 2682,
+                "max_us": 2682,
+                "attempts": 1,
+                "outcomes": {
+                  "acquired": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate": {
+            "wall_ms": 59.5514,
+            "pid": 30540,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\cand\\group004",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\cand-group4-review",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 1,
+                "total_us": 1684,
+                "max_us": 1684,
+                "attempts": 1,
+                "outcomes": {
+                  "acquired": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate_over_baseline_wall_ratio": 0.7356184113980497,
+          "wall_change_percent": -26.438158860195028
+        },
+        "apply": {
+          "baseline": {
+            "wall_ms": 1960.2276,
+            "pid": 25192,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\base\\group004",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\base-group4-apply",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 10,
+                "total_us": 456601,
+                "max_us": 205784,
+                "attempts": 10,
+                "outcomes": {
+                  "acquired": 10
+                }
+              },
+              "maintenance.phase:apply.initial_group_review": {
+                "count": 1,
+                "total_us": 17742,
+                "max_us": 17742,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:apply.reservation.acquire": {
+                "count": 1,
+                "total_us": 41687,
+                "max_us": 41687,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.lock_hold:catalog": {
+                "count": 2,
+                "total_us": 153036,
+                "max_us": 92888,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.lock_hold:maintenance": {
+                "count": 9,
+                "total_us": 661352,
+                "max_us": 274532,
+                "attempts": 9,
+                "outcomes": {
+                  "verified": 9
+                }
+              },
+              "maintenance.phase:apply.normalization_preflight": {
+                "count": 4,
+                "total_us": 25641,
+                "max_us": 6743,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:reservation.verify_sources": {
+                "count": 6,
+                "total_us": 23,
+                "max_us": 8,
+                "attempts": 6,
+                "outcomes": {
+                  "success": 6
+                }
+              },
+              "maintenance.phase:apply.reservation.verify.before_item": {
+                "count": 4,
+                "total_us": 55046,
+                "max_us": 18898,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.current_review": {
+                "count": 4,
+                "total_us": 132360,
+                "max_us": 53985,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.safe_entries.pre_intent": {
+                "count": 4,
+                "total_us": 173553,
+                "max_us": 66081,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:state.prepare_local": {
+                "count": 8,
+                "total_us": 212,
+                "max_us": 41,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.read": {
+                "count": 8,
+                "total_us": 16077,
+                "max_us": 2680,
+                "attempts": 8,
+                "outcomes": {
+                  "read": 8
+                }
+              },
+              "maintenance.phase:state.merge": {
+                "count": 8,
+                "total_us": 275,
+                "max_us": 50,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.open_pending": {
+                "count": 8,
+                "total_us": 2146,
+                "max_us": 364,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.serialize": {
+                "count": 8,
+                "total_us": 146,
+                "max_us": 26,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.write_pending": {
+                "count": 8,
+                "total_us": 798,
+                "max_us": 132,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.sync_pending": {
+                "count": 8,
+                "total_us": 26050,
+                "max_us": 3334,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.rename": {
+                "count": 8,
+                "total_us": 13930,
+                "max_us": 2202,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.commit": {
+                "count": 8,
+                "total_us": 184012,
+                "max_us": 30871,
+                "attempts": 8,
+                "outcomes": {
+                  "committed": 8
+                }
+              },
+              "maintenance.phase:state.save": {
+                "count": 8,
+                "total_us": 405506,
+                "max_us": 72730,
+                "attempts": 8,
+                "outcomes": {
+                  "committed": 8
+                }
+              },
+              "maintenance.phase:apply.intent_save": {
+                "count": 4,
+                "total_us": 217620,
+                "max_us": 72744,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.physical_delete": {
+                "count": 4,
+                "total_us": 846473,
+                "max_us": 795052,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.actual_result_save": {
+                "count": 4,
+                "total_us": 187990,
+                "max_us": 47477,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.final_presence": {
+                "count": 4,
+                "total_us": 7486,
+                "max_us": 2259,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.reservation.finalize": {
+                "count": 1,
+                "total_us": 33183,
+                "max_us": 33183,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.lock_hold:group_reservation": {
+                "count": 1,
+                "total_us": 1633550,
+                "max_us": 1633550,
+                "attempts": 1,
+                "outcomes": {
+                  "verified": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate": {
+            "wall_ms": 1647.0215,
+            "pid": 49764,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\cand\\group004",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\cand-group4-apply",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 10,
+                "total_us": 306781,
+                "max_us": 70761,
+                "attempts": 10,
+                "outcomes": {
+                  "acquired": 10
+                }
+              },
+              "maintenance.phase:apply.initial_group_review": {
+                "count": 1,
+                "total_us": 14691,
+                "max_us": 14691,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:apply.reservation.acquire": {
+                "count": 1,
+                "total_us": 39316,
+                "max_us": 39316,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.lock_hold:catalog": {
+                "count": 2,
+                "total_us": 137821,
+                "max_us": 81406,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.lock_hold:maintenance": {
+                "count": 9,
+                "total_us": 491597,
+                "max_us": 131220,
+                "attempts": 9,
+                "outcomes": {
+                  "verified": 9
+                }
+              },
+              "maintenance.phase:apply.normalization_preflight": {
+                "count": 4,
+                "total_us": 18434,
+                "max_us": 4797,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:reservation.verify_sources": {
+                "count": 6,
+                "total_us": 27,
+                "max_us": 7,
+                "attempts": 6,
+                "outcomes": {
+                  "success": 6
+                }
+              },
+              "maintenance.phase:apply.reservation.verify.before_item": {
+                "count": 4,
+                "total_us": 50799,
+                "max_us": 14954,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:group.relations.build": {
+                "count": 1,
+                "total_us": 48,
+                "max_us": 48,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:group.current.relations": {
+                "count": 4,
+                "total_us": 94,
+                "max_us": 73,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:group.current.members": {
+                "count": 4,
+                "total_us": 108352,
+                "max_us": 37089,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:group.current.combine": {
+                "count": 4,
+                "total_us": 126,
+                "max_us": 38,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.current_review": {
+                "count": 4,
+                "total_us": 118001,
+                "max_us": 37362,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.safe_entries.pre_intent": {
+                "count": 4,
+                "total_us": 156737,
+                "max_us": 48524,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:state.prepare_local": {
+                "count": 8,
+                "total_us": 233,
+                "max_us": 43,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.read": {
+                "count": 8,
+                "total_us": 15568,
+                "max_us": 2334,
+                "attempts": 8,
+                "outcomes": {
+                  "read": 8
+                }
+              },
+              "maintenance.phase:state.merge": {
+                "count": 8,
+                "total_us": 280,
+                "max_us": 46,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.open_pending": {
+                "count": 8,
+                "total_us": 2200,
+                "max_us": 309,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.serialize": {
+                "count": 8,
+                "total_us": 188,
+                "max_us": 43,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.write_pending": {
+                "count": 8,
+                "total_us": 726,
+                "max_us": 107,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.sync_pending": {
+                "count": 8,
+                "total_us": 28235,
+                "max_us": 3645,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.rename": {
+                "count": 8,
+                "total_us": 13279,
+                "max_us": 1866,
+                "attempts": 8,
+                "outcomes": {
+                  "success": 8
+                }
+              },
+              "maintenance.phase:state.commit": {
+                "count": 8,
+                "total_us": 171771,
+                "max_us": 24653,
+                "attempts": 8,
+                "outcomes": {
+                  "committed": 8
+                }
+              },
+              "maintenance.phase:state.save": {
+                "count": 8,
+                "total_us": 377096,
+                "max_us": 51958,
+                "attempts": 8,
+                "outcomes": {
+                  "committed": 8
+                }
+              },
+              "maintenance.phase:apply.intent_save": {
+                "count": 4,
+                "total_us": 187193,
+                "max_us": 47680,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.physical_delete": {
+                "count": 4,
+                "total_us": 765264,
+                "max_us": 724772,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.actual_result_save": {
+                "count": 4,
+                "total_us": 189997,
+                "max_us": 51973,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.final_presence": {
+                "count": 4,
+                "total_us": 7646,
+                "max_us": 2209,
+                "attempts": 4,
+                "outcomes": {
+                  "success": 4
+                }
+              },
+              "maintenance.phase:apply.reservation.finalize": {
+                "count": 1,
+                "total_us": 28505,
+                "max_us": 28505,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.lock_hold:group_reservation": {
+                "count": 1,
+                "total_us": 1485817,
+                "max_us": 1485817,
+                "attempts": 1,
+                "outcomes": {
+                  "verified": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate_over_baseline_wall_ratio": 0.8402195234879869,
+          "wall_change_percent": -15.97804765120131
+        }
+      },
+      "apply_span_comparison": {
+        "apply.current_review": {
+          "baseline_count": 4,
+          "candidate_count": 4,
+          "baseline_total_us": 132360,
+          "candidate_total_us": 118001,
+          "change_percent": -10.8484436385615
+        },
+        "state.save": {
+          "baseline_count": 8,
+          "candidate_count": 8,
+          "baseline_total_us": 405506,
+          "candidate_total_us": 377096,
+          "change_percent": -7.006061562590937
+        },
+        "state.commit": {
+          "baseline_count": 8,
+          "candidate_count": 8,
+          "baseline_total_us": 184012,
+          "candidate_total_us": 171771,
+          "change_percent": -6.652283546725213
+        },
+        "apply.intent_save": {
+          "baseline_count": 4,
+          "candidate_count": 4,
+          "baseline_total_us": 217620,
+          "candidate_total_us": 187193,
+          "change_percent": -13.981711239775752
+        },
+        "apply.actual_result_save": {
+          "baseline_count": 4,
+          "candidate_count": 4,
+          "baseline_total_us": 187990,
+          "candidate_total_us": 189997,
+          "change_percent": 1.0676099792542137
+        }
+      }
+    },
+    {
+      "members": 80,
+      "bytes_per_member": 1024,
+      "configuration_bytes_equal": true,
+      "checks": {
+        "baseline": {
+          "actual_absent": 80,
+          "durable_items_deleted": 80,
+          "durable_group_deleted": true,
+          "durable_deleted_outcomes": 80,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "no_pending": true,
+          "intent_saves": 80,
+          "actual_result_saves": 80,
+          "state_commits": 160,
+          "preintent_current_reviews": 80
+        },
+        "candidate": {
+          "actual_absent": 80,
+          "durable_items_deleted": 80,
+          "durable_group_deleted": true,
+          "durable_deleted_outcomes": 80,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "no_pending": true,
+          "intent_saves": 80,
+          "actual_result_saves": 80,
+          "state_commits": 160,
+          "preintent_current_reviews": 80
+        }
+      },
+      "stages": {
+        "register": {
+          "baseline": {
+            "wall_ms": 1584.1223,
+            "pid": 52368,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\base\\group080",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\base-group80-register",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 2,
+                "total_us": 135198,
+                "max_us": 67655,
+                "attempts": 2,
+                "outcomes": {
+                  "acquired": 2
+                }
+              },
+              "maintenance.lock_hold:catalog": {
+                "count": 2,
+                "total_us": 778971,
+                "max_us": 449143,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.lock_hold:maintenance": {
+                "count": 2,
+                "total_us": 881972,
+                "max_us": 497903,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.phase:reservation.verify_sources": {
+                "count": 5,
+                "total_us": 23,
+                "max_us": 7,
+                "attempts": 5,
+                "outcomes": {
+                  "success": 5
+                }
+              },
+              "maintenance.phase:state.read": {
+                "count": 1,
+                "total_us": 1728,
+                "max_us": 1728,
+                "attempts": 1,
+                "outcomes": {
+                  "read": 1
+                }
+              },
+              "maintenance.phase:state.prepare_local": {
+                "count": 1,
+                "total_us": 261,
+                "max_us": 261,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.open_pending": {
+                "count": 1,
+                "total_us": 827,
+                "max_us": 827,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.serialize": {
+                "count": 1,
+                "total_us": 197,
+                "max_us": 197,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.write_pending": {
+                "count": 1,
+                "total_us": 123,
+                "max_us": 123,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.sync_pending": {
+                "count": 1,
+                "total_us": 3601,
+                "max_us": 3601,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.rename": {
+                "count": 1,
+                "total_us": 2108,
+                "max_us": 2108,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.commit": {
+                "count": 1,
+                "total_us": 21526,
+                "max_us": 21526,
+                "attempts": 1,
+                "outcomes": {
+                  "committed": 1
+                }
+              },
+              "maintenance.phase:state.save": {
+                "count": 1,
+                "total_us": 21844,
+                "max_us": 21844,
+                "attempts": 1,
+                "outcomes": {
+                  "committed": 1
+                }
+              },
+              "maintenance.lock_hold:group_reservation": {
+                "count": 1,
+                "total_us": 1434621,
+                "max_us": 1434621,
+                "attempts": 1,
+                "outcomes": {
+                  "verified": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate": {
+            "wall_ms": 1361.0075,
+            "pid": 28232,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\cand\\group080",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\cand-group80-register",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 2,
+                "total_us": 131378,
+                "max_us": 67524,
+                "attempts": 2,
+                "outcomes": {
+                  "acquired": 2
+                }
+              },
+              "maintenance.lock_hold:catalog": {
+                "count": 2,
+                "total_us": 635897,
+                "max_us": 339403,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.lock_hold:maintenance": {
+                "count": 2,
+                "total_us": 731468,
+                "max_us": 383691,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.phase:reservation.verify_sources": {
+                "count": 5,
+                "total_us": 20,
+                "max_us": 6,
+                "attempts": 5,
+                "outcomes": {
+                  "success": 5
+                }
+              },
+              "maintenance.phase:state.read": {
+                "count": 1,
+                "total_us": 1552,
+                "max_us": 1552,
+                "attempts": 1,
+                "outcomes": {
+                  "read": 1
+                }
+              },
+              "maintenance.phase:state.prepare_local": {
+                "count": 1,
+                "total_us": 228,
+                "max_us": 228,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.open_pending": {
+                "count": 1,
+                "total_us": 363,
+                "max_us": 363,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.serialize": {
+                "count": 1,
+                "total_us": 123,
+                "max_us": 123,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.write_pending": {
+                "count": 1,
+                "total_us": 75,
+                "max_us": 75,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.sync_pending": {
+                "count": 1,
+                "total_us": 3457,
+                "max_us": 3457,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.rename": {
+                "count": 1,
+                "total_us": 1496,
+                "max_us": 1496,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:state.commit": {
+                "count": 1,
+                "total_us": 15520,
+                "max_us": 15520,
+                "attempts": 1,
+                "outcomes": {
+                  "committed": 1
+                }
+              },
+              "maintenance.phase:state.save": {
+                "count": 1,
+                "total_us": 15783,
+                "max_us": 15783,
+                "attempts": 1,
+                "outcomes": {
+                  "committed": 1
+                }
+              },
+              "maintenance.lock_hold:group_reservation": {
+                "count": 1,
+                "total_us": 1225741,
+                "max_us": 1225741,
+                "attempts": 1,
+                "outcomes": {
+                  "verified": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate_over_baseline_wall_ratio": 0.8591555715111138,
+          "wall_change_percent": -14.084442848888623
+        },
+        "review": {
+          "baseline": {
+            "wall_ms": 496.6428,
+            "pid": 34952,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\base\\group080",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\base-group80-review",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 1,
+                "total_us": 7595,
+                "max_us": 7595,
+                "attempts": 1,
+                "outcomes": {
+                  "acquired": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate": {
+            "wall_ms": 334.7823,
+            "pid": 39280,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\cand\\group080",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\cand-group80-review",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 1,
+                "total_us": 2753,
+                "max_us": 2753,
+                "attempts": 1,
+                "outcomes": {
+                  "acquired": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate_over_baseline_wall_ratio": 0.6740907146947465,
+          "wall_change_percent": -32.59092853052535
+        },
+        "apply": {
+          "baseline": {
+            "wall_ms": 61869.4694,
+            "pid": 19360,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\base\\group080",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\base-group80-apply",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 162,
+                "total_us": 4928748,
+                "max_us": 80272,
+                "attempts": 162,
+                "outcomes": {
+                  "acquired": 162
+                }
+              },
+              "maintenance.phase:apply.initial_group_review": {
+                "count": 1,
+                "total_us": 345334,
+                "max_us": 345334,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:apply.reservation.acquire": {
+                "count": 1,
+                "total_us": 43095,
+                "max_us": 43095,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.lock_hold:catalog": {
+                "count": 2,
+                "total_us": 490259,
+                "max_us": 432551,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.lock_hold:maintenance": {
+                "count": 161,
+                "total_us": 8901264,
+                "max_us": 484172,
+                "attempts": 161,
+                "outcomes": {
+                  "verified": 161
+                }
+              },
+              "maintenance.phase:apply.normalization_preflight": {
+                "count": 80,
+                "total_us": 448557,
+                "max_us": 7947,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:reservation.verify_sources": {
+                "count": 82,
+                "total_us": 288,
+                "max_us": 11,
+                "attempts": 82,
+                "outcomes": {
+                  "success": 82
+                }
+              },
+              "maintenance.phase:apply.reservation.verify.before_item": {
+                "count": 80,
+                "total_us": 1115159,
+                "max_us": 19483,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.current_review": {
+                "count": 80,
+                "total_us": 47961792,
+                "max_us": 1054568,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.safe_entries.pre_intent": {
+                "count": 80,
+                "total_us": 48843112,
+                "max_us": 1066486,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:state.prepare_local": {
+                "count": 160,
+                "total_us": 54775,
+                "max_us": 1068,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.read": {
+                "count": 160,
+                "total_us": 414690,
+                "max_us": 4621,
+                "attempts": 160,
+                "outcomes": {
+                  "read": 160
+                }
+              },
+              "maintenance.phase:state.merge": {
+                "count": 160,
+                "total_us": 42095,
+                "max_us": 587,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.open_pending": {
+                "count": 160,
+                "total_us": 51574,
+                "max_us": 944,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.serialize": {
+                "count": 160,
+                "total_us": 32512,
+                "max_us": 468,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.write_pending": {
+                "count": 160,
+                "total_us": 18562,
+                "max_us": 287,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.sync_pending": {
+                "count": 160,
+                "total_us": 557280,
+                "max_us": 4480,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.rename": {
+                "count": 160,
+                "total_us": 291971,
+                "max_us": 2607,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.commit": {
+                "count": 160,
+                "total_us": 3940272,
+                "max_us": 32490,
+                "attempts": 160,
+                "outcomes": {
+                  "committed": 160
+                }
+              },
+              "maintenance.phase:state.save": {
+                "count": 160,
+                "total_us": 8826708,
+                "max_us": 103439,
+                "attempts": 160,
+                "outcomes": {
+                  "committed": 160
+                }
+              },
+              "maintenance.phase:apply.intent_save": {
+                "count": 80,
+                "total_us": 4690931,
+                "max_us": 103468,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.physical_delete": {
+                "count": 80,
+                "total_us": 1813901,
+                "max_us": 691653,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.actual_result_save": {
+                "count": 80,
+                "total_us": 4137740,
+                "max_us": 64533,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.final_presence": {
+                "count": 80,
+                "total_us": 149851,
+                "max_us": 2699,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.reservation.finalize": {
+                "count": 1,
+                "total_us": 29924,
+                "max_us": 29924,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.lock_hold:group_reservation": {
+                "count": 1,
+                "total_us": 61343657,
+                "max_us": 61343657,
+                "attempts": 1,
+                "outcomes": {
+                  "verified": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate": {
+            "wall_ms": 59818.921,
+            "pid": 17872,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "args": [
+              "--project-root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\cand\\group080",
+              "--request",
+              "-"
+            ],
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\cand-group80-apply",
+            "spans": {
+              "maintenance.lock_wait:wait_for_lock": {
+                "count": 162,
+                "total_us": 5572384,
+                "max_us": 252234,
+                "attempts": 162,
+                "outcomes": {
+                  "acquired": 162
+                }
+              },
+              "maintenance.phase:apply.initial_group_review": {
+                "count": 1,
+                "total_us": 286010,
+                "max_us": 286010,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:apply.reservation.acquire": {
+                "count": 1,
+                "total_us": 39620,
+                "max_us": 39620,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.lock_hold:catalog": {
+                "count": 2,
+                "total_us": 442318,
+                "max_us": 368393,
+                "attempts": 2,
+                "outcomes": {
+                  "verified": 2
+                }
+              },
+              "maintenance.lock_hold:maintenance": {
+                "count": 161,
+                "total_us": 9645306,
+                "max_us": 412111,
+                "attempts": 161,
+                "outcomes": {
+                  "verified": 161
+                }
+              },
+              "maintenance.phase:apply.normalization_preflight": {
+                "count": 80,
+                "total_us": 396454,
+                "max_us": 5942,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:reservation.verify_sources": {
+                "count": 82,
+                "total_us": 319,
+                "max_us": 7,
+                "attempts": 82,
+                "outcomes": {
+                  "success": 82
+                }
+              },
+              "maintenance.phase:apply.reservation.verify.before_item": {
+                "count": 80,
+                "total_us": 1097090,
+                "max_us": 18261,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:group.relations.build": {
+                "count": 1,
+                "total_us": 10794,
+                "max_us": 10794,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.phase:group.current.relations": {
+                "count": 80,
+                "total_us": 14161,
+                "max_us": 10825,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:group.current.members": {
+                "count": 80,
+                "total_us": 39787390,
+                "max_us": 1001696,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:group.current.combine": {
+                "count": 80,
+                "total_us": 23077,
+                "max_us": 509,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.current_review": {
+                "count": 80,
+                "total_us": 45276726,
+                "max_us": 1014224,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.safe_entries.pre_intent": {
+                "count": 80,
+                "total_us": 46148552,
+                "max_us": 1023425,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:state.prepare_local": {
+                "count": 160,
+                "total_us": 68895,
+                "max_us": 1315,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.read": {
+                "count": 160,
+                "total_us": 409325,
+                "max_us": 3736,
+                "attempts": 160,
+                "outcomes": {
+                  "read": 160
+                }
+              },
+              "maintenance.phase:state.merge": {
+                "count": 160,
+                "total_us": 48219,
+                "max_us": 713,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.open_pending": {
+                "count": 160,
+                "total_us": 50109,
+                "max_us": 619,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.serialize": {
+                "count": 160,
+                "total_us": 41051,
+                "max_us": 473,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.write_pending": {
+                "count": 160,
+                "total_us": 20479,
+                "max_us": 280,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.sync_pending": {
+                "count": 160,
+                "total_us": 780694,
+                "max_us": 219703,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.rename": {
+                "count": 160,
+                "total_us": 305520,
+                "max_us": 2618,
+                "attempts": 160,
+                "outcomes": {
+                  "success": 160
+                }
+              },
+              "maintenance.phase:state.commit": {
+                "count": 160,
+                "total_us": 4104632,
+                "max_us": 243973,
+                "attempts": 160,
+                "outcomes": {
+                  "committed": 160
+                }
+              },
+              "maintenance.phase:state.save": {
+                "count": 160,
+                "total_us": 9652319,
+                "max_us": 277396,
+                "attempts": 160,
+                "outcomes": {
+                  "committed": 160
+                }
+              },
+              "maintenance.phase:apply.intent_save": {
+                "count": 80,
+                "total_us": 5233642,
+                "max_us": 277410,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.physical_delete": {
+                "count": 80,
+                "total_us": 1771817,
+                "max_us": 662017,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.actual_result_save": {
+                "count": 80,
+                "total_us": 4421165,
+                "max_us": 272737,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.final_presence": {
+                "count": 80,
+                "total_us": 147289,
+                "max_us": 2541,
+                "attempts": 80,
+                "outcomes": {
+                  "success": 80
+                }
+              },
+              "maintenance.phase:apply.reservation.finalize": {
+                "count": 1,
+                "total_us": 41840,
+                "max_us": 41840,
+                "attempts": 1,
+                "outcomes": {
+                  "success": 1
+                }
+              },
+              "maintenance.lock_hold:group_reservation": {
+                "count": 1,
+                "total_us": 59373418,
+                "max_us": 59373418,
+                "attempts": 1,
+                "outcomes": {
+                  "verified": 1
+                }
+              }
+            },
+            "non_timing_stderr": []
+          },
+          "candidate_over_baseline_wall_ratio": 0.96685686139083,
+          "wall_change_percent": -3.3143138609169953
+        }
+      },
+      "apply_span_comparison": {
+        "apply.current_review": {
+          "baseline_count": 80,
+          "candidate_count": 80,
+          "baseline_total_us": 47961792,
+          "candidate_total_us": 45276726,
+          "change_percent": -5.598343781650195
+        },
+        "state.save": {
+          "baseline_count": 160,
+          "candidate_count": 160,
+          "baseline_total_us": 8826708,
+          "candidate_total_us": 9652319,
+          "change_percent": 9.353555141962321
+        },
+        "state.commit": {
+          "baseline_count": 160,
+          "candidate_count": 160,
+          "baseline_total_us": 3940272,
+          "candidate_total_us": 4104632,
+          "change_percent": 4.17128563713367
+        },
+        "apply.intent_save": {
+          "baseline_count": 80,
+          "candidate_count": 80,
+          "baseline_total_us": 4690931,
+          "candidate_total_us": 5233642,
+          "change_percent": 11.569366507416113
+        },
+        "apply.actual_result_save": {
+          "baseline_count": 80,
+          "candidate_count": 80,
+          "baseline_total_us": 4137740,
+          "candidate_total_us": 4421165,
+          "change_percent": 6.8497537302972145
+        }
+      }
+    }
+  ],
+  "actual_native_close_exit0": 12
+}

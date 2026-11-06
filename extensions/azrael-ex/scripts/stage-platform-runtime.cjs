@@ -10,7 +10,7 @@ function stagePlatformRuntime(projectRoot = path.resolve(__dirname, ".."), sourc
     throw new Error("Platform staging requires the project's own dist directory.");
   }
   fs.mkdirSync(destination, { recursive: true });
-  for (const filename of ["platform-runtime.cjs", "azrael-platforms.json"]) {
+  for (const filename of ["platform-runtime.cjs","azrael-platforms.json","maintenance-preferences-host.cjs","maintenance-owner-config.cjs","maintenance-lock-owner.cjs","maintenance-lock-worker.cjs"]) {
     const target = path.join(destination, filename);
     if (fs.existsSync(target) && fs.lstatSync(target).isSymbolicLink()) {
       throw new Error("Platform staging cannot replace a linked output.");

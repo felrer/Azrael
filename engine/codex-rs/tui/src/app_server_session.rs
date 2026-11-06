@@ -1437,6 +1437,7 @@ impl AppServerSession {
             .request_typed(ClientRequest::TurnStart {
                 request_id,
                 params: TurnStartParams {
+                    agent_profile: None,
                     disabled_plugin_ids: None,
                     thread_id: thread_id.to_string(),
                     turn_trigger: Some("user".to_string()),
@@ -4125,6 +4126,7 @@ mod tests {
                 name: None,
                 turns: vec![Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: "turn-1".to_string(),
                     root_turn_id: None,

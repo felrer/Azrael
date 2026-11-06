@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "runId": "run:EZ01:permissions-source-r3-mw0aif3c",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-source-r3-mw0aif3c",
+  "startedAt": "2026-11-03T06:11:52.442Z",
+  "tests": [
+    "test-use-control-settings.cjs",
+    "test-use-settings-host.cjs",
+    "test-use-settings-ui.cjs",
+    "test-window-use-host.cjs",
+    "test-window-async-approval-host.cjs",
+    "test-window-control-policy.cjs",
+    "test-window-control-mcp.cjs",
+    "test-computer-use-runtime.cjs",
+    "test-window-control-runtime.cjs",
+    "tests/sync-codex-environment.test.cjs"
+  ],
+  "status": "failed",
+  "preparationFailures": [
+    {
+      "phase": "r1",
+      "reason": "Installed lease release timeout before producer/run creation"
+    },
+    {
+      "phase": "r2",
+      "reason": "Nonexistent root package.json assumed; no tests launched; actual exit1 retained"
+    }
+  ],
+  "exitCode": 1,
+  "signal": null,
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-source-r3-mw0aif3c\\logs\\source-tests.log",
+  "endedAt": "2026-11-03T06:11:55.165Z"
+}

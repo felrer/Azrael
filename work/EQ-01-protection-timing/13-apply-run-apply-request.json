@@ -1,0 +1,11 @@
+{
+  "operation": "apply",
+  "decisions": [
+    {
+      "id": "4e8e64144f220f276eafd5d89bf0b80c7aa56e4bd036426c2e72e596633cf8ab",
+      "token": "76ab8a008dfe173d99215f1ab0808502888f154cb216b776dfa6e36f3f2f80cd",
+      "decision": "delete",
+      "reason": "Completed verified profiling run; independent acceptance and required evidence preserved outside the run in work/12-apply-acceptance.json and new candidate verification"
+    }
+  ]
+}

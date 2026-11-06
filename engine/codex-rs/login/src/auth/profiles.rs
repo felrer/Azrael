@@ -556,6 +556,13 @@ impl AzraelProfileAuth {
 }
 
 impl ExternalAuth for AzraelProfileAuth {
+    fn requires_original_host_connection(&self) -> bool {
+        false
+    }
+
+    fn azrael_profile_id(&self) -> Option<&str> {
+        Some(self.id())
+    }
     fn is_available(&self) -> bool {
         self.status()
             .is_ok_and(|status| status == AzraelProfileStatus::Available)

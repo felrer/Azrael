@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "startedUtc": "2026-10-31T11:56:52.124Z",
+  "steps": [
+    {
+      "label": "git-dir",
+      "durationMs": 55.363100000002305,
+      "exitCode": 0
+    },
+    {
+      "label": "git-head",
+      "durationMs": 59.79820000000473,
+      "exitCode": 0
+    },
+    {
+      "label": "git-init",
+      "durationMs": 96.33000000000175,
+      "exitCode": 0
+    },
+    {
+      "label": "git-head-bind",
+      "durationMs": 64.04299999999785,
+      "exitCode": 0
+    },
+    {
+      "label": "lock-refresh",
+      "durationMs": 1594.3148,
+      "exitCode": 0
+    }
+  ],
+  "originalPrimaryLockSha256": "ddae2e76bff1b29cf223c4c74563e864d7173d20900b51c59213e96d69e858f9",
+  "updatedLockSha256": "ddae2e76bff1b29cf223c4c74563e864d7173d20900b51c59213e96d69e858f9",
+  "diff": "",
+  "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\inputs\\engine",
+  "frozenScripts": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\inputs\\scripts",
+  "status": "lock-refreshed-awaiting-review",
+  "completedUtc": "2026-10-31T11:57:50.358Z"
+}

@@ -18,7 +18,7 @@ function args(argv) {
   for (let i = 0; i < argv.length; i++) {
     if (!/^--[a-z-]+$/.test(argv[i]) || Object.hasOwn(result, argv[i].slice(2))) throw new Error("Invalid or duplicate option.");
     const name = argv[i].slice(2);
-    result[name] = name === "prepare-only" ? true : argv[++i];
+    result[name] = ["prepare-only","resume"].includes(name) ? true : argv[++i];
     if (result[name] === undefined) throw new Error(`Missing --${name} value.`);
   }
   return result;
@@ -174,7 +174,14 @@ function install(options) {
   disjoint(state,ordinary); disjoint(releases,ordinary); disjoint(releases,state); disjoint(source,releases); disjoint(source,state);
   const destination=path.join(releases,`${manifest.version}-${platform.resolvePlatform().vsixTarget}`);
   inspectPath(destination);
-  if (fs.existsSync(destination)) throw new Error("Selected installation already exists. Choose an explicit different version for side-by-side installation/rollback.");
+  if (fs.existsSync(destination) && !options.resume) throw new Error("Selected installation already exists. Choose an explicit different version for side-by-side installation/rollback.");
+  fs.mkdirSync(releases,{recursive:true});
+  const lock=destination+".install-lock",token=crypto.randomUUID();
+  fs.mkdirSync(lock);
+  fs.writeFileSync(path.join(lock,"owner.json"),encode({token,pid:process.pid}),{flag:"wx"});
+  let pipeline;
+  try {
+  const packageSha256=sha(fs.readFileSync(path.join(source,"release-manifest.json")));
   const files=readZip(fs.readFileSync(fileAt(source,"host-template.vsix")));
   const configEntry=files.get("extension/out/azrael-runtime.json");
   if (!configEntry) throw new Error("Host runtime configuration missing.");
@@ -197,6 +204,14 @@ function install(options) {
   }
   // All inputs and rewritten host are verified before creating any destination.
   fs.mkdirSync(destination,{recursive:true});
+  pipeline=require("./pipeline-state.cjs").openPipelineState({file:path.join(destination,"installation-state.json"),identity:{source,destination,state,packageSha256},resume:!!options.resume,lockHeld:true,reuseDecisionsPath:options['reuse-decisions-path']});
+  const prepareInputs={producerSha256:sha(fs.readFileSync(__filename)),stateHelperSha256:sha(fs.readFileSync(path.join(__dirname,"pipeline-state.cjs")))};
+  const reusable=pipeline.lookup("prepare",{inputs:prepareInputs});
+  if(!reusable && pipeline.snapshot.stages.prepare?.at(-1)?.status==="succeeded") throw new Error("Prepared installation changed; select a new version/destination.");
+  let receipt;
+  const selectedVsix=path.join(destination,"azrael-host.vsix");
+  if(!reusable) {
+  pipeline.start("prepare",{inputs:prepareInputs});
   for (const item of manifest.files.filter(item=>item.path.startsWith("runtime/"))) {
     const target=path.join(destination,item.path); fs.mkdirSync(path.dirname(target),{recursive:true}); fs.copyFileSync(fileAt(source,item.path),target); fs.chmodSync(target,item.mode);
   }
@@ -207,16 +222,34 @@ function install(options) {
     transformations.push({path:"runtime/build-info.json",sourceSha256:manifest.files.find(item=>item.path==="runtime/build-info.json").sha256,installedSha256:sha(bytes)});
   }
   verifyBuild(runtime);
-  const selectedVsix=path.join(destination,"azrael-host.vsix"); fs.writeFileSync(selectedVsix,vsix,{flag:"wx"});
-  const receipt={schema:1,version:manifest.version,platform:manifest.platform,packageSha256:sha(fs.readFileSync(path.join(source,"release-manifest.json"))),runtime,stateRoot:state,hostVsix:selectedVsix,hostSha256:sha(vsix),transformations,preparedOnly:!!options["prepare-only"]};
-  fs.writeFileSync(path.join(destination,"installation.json"),encode(receipt),{flag:"wx"});
+  fs.writeFileSync(selectedVsix,vsix);
+  receipt={schema:1,version:manifest.version,platform:manifest.platform,packageSha256,runtime,stateRoot:state,hostVsix:selectedVsix,hostSha256:sha(vsix),transformations,preparedOnly:!!options["prepare-only"]};
+  fs.writeFileSync(path.join(destination,"installation.json"),encode(receipt));
+  pipeline.finish("prepare",{exitCode:0,outputs:[selectedVsix,...walk(runtime).map(name=>fileAt(runtime,name))],data:receipt});
+  } else receipt=json(path.join(destination,"installation.json"));
+  if(receipt.packageSha256!==packageSha256 || receipt.version!==manifest.version || !isDeepStrictEqual(receipt.platform,manifest.platform) || receipt.runtime!==runtime || receipt.stateRoot!==state || receipt.hostVsix!==selectedVsix || receipt.hostSha256!==sha(fs.readFileSync(selectedVsix)) || !isDeepStrictEqual(receipt.transformations,reusable ? reusable.data.transformations : transformations)) throw new Error("Installed selection differs from the verified package.");
+  verifyBuild(runtime);
   if (!options["prepare-only"]) {
     const invocation=codeInvocation(options.code || "code",selectedVsix);
+    const inputs={command:invocation.command,args:invocation.args,electronRunAsNode:invocation.env?.ELECTRON_RUN_AS_NODE || null};
+    // VS Code owns registration outside this destination. Re-run that command
+    // until its current installed identity can be verified independently.
+    {
+    pipeline.start("install",{inputs,dependencies:["prepare"]});
     const result=spawnSync(invocation.command,invocation.args,{stdio:"inherit",shell:false,env:invocation.env});
+    pipeline.finish("install",{exitCode:result.status,...(["ENOENT","EACCES"].includes(result.error?.code) ? {outcome:"failed"} : {}),outputs:[],error:result.error?.message || (result.status!==0 ? "VS Code installation failed" : null)});
     if (result.error || result.status!==0) throw new Error(`VS Code installation failed (${result.status ?? result.error?.code}). Prepared runtime retained for review.`);
-    receipt.installed=true; fs.writeFileSync(path.join(destination,"installation.json"),encode(receipt));
+    }
+    receipt.installed=true; receipt.preparedOnly=false; fs.writeFileSync(path.join(destination,"installation.json"),encode(receipt));
   }
   return receipt;
+  } catch(error) {
+    if(pipeline) for(const [name,attempts] of Object.entries(pipeline.snapshot.stages)) if(attempts.at(-1).status==="running") pipeline.finish(name,{exitCode:null,outcome:"failed",error:error.message});
+    throw error;
+  } finally {
+    if(json(path.join(lock,"owner.json")).token!==token) throw new Error("Installation lease ownership changed; recovery required.");
+    fs.unlinkSync(path.join(lock,"owner.json")); fs.rmdirSync(lock);
+  }
 }
 module.exports={sha,json,encode,args,absolute,relative,inspectPath,fileAt,walk,verifyHash,verifyBuild,verifyPackage,version,within,disjoint,readZip,writeZip,relocateValue,codeInvocation,install};
-if (require.main===module) { try { console.log(JSON.stringify(install(args(process.argv.slice(2))))); } catch(error) { console.error(error.message); process.exitCode=1; } }
+if (require.main===module) { try { console.log(JSON.stringify(install(args(process.argv.slice(2))))); } catch(error) { require('./verification-reuse-policy.cjs').reportCliError(error); } }

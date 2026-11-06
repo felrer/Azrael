@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "controllerPid": 52324,
+  "startedUtc": "2026-10-30T20:25:42.394Z",
+  "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\payload\\maintenance_owner.exe",
+  "binarySha256": "eb264506d1aaa93024bc8ef51c17a64622952284368dd1aa2df707ca9d9e304f",
+  "request": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\abort-cli-request.json",
+    "sha256": "71a1102e3d8479cdd8ff0bb06048c4b50ee42766670c3edcd52d0a784c925a6d"
+  },
+  "record": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\lifecycles\\a04c8c9d6810d95fea4e6f225f8acdba53367ff9a92051fba9e132b348f874d1.json",
+    "sha256": "1068e1868fdf63420022221b4161f536be502fff75c87ab043cd2e1e2f944e8f"
+  },
+  "pending": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\lifecycles\\a04c8c9d6810d95fea4e6f225f8acdba53367ff9a92051fba9e132b348f874d1.pending",
+    "sha256": "d649797a2ff95e9eb185401387f807ab9055f3503b94acce5c3025b3e6e1e368"
+  },
+  "stopProofAcceptedByRoot": true,
+  "stopBasis": "Original parent actual terminal + exact synchronous native writer boundary + independent successful OS lease reacquisition. PID absence alone is not the basis; original native exit remains null.",
+  "originalNativeExitCode": null,
+  "native": {
+    "pid": 54328,
+    "exitCode": 0,
+    "signal": null,
+    "error": null
+  },
+  "response": {
+    "operation": "recover_lifecycle_pending",
+    "pending_absent": true,
+    "receipt_ref": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/abort-receipt.json",
+    "receipt_sha256": "976f03ed3d5d456a3f379135ae6bf28bd6e2bd9276a117c82d723e2996a65357",
+    "record_id": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+    "record_sha256": "1068e1868fdf63420022221b4161f536be502fff75c87ab043cd2e1e2f944e8f",
+    "status": "aborted"
+  },
+  "receipt": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/abort-receipt.json",
+    "sha256": "976f03ed3d5d456a3f379135ae6bf28bd6e2bd9276a117c82d723e2996a65357",
+    "value": {
+      "base_revision": 3,
+      "expected_pending_sha256": "d649797a2ff95e9eb185401387f807ab9055f3503b94acce5c3025b3e6e1e368",
+      "expected_record_sha256": "1068e1868fdf63420022221b4161f536be502fff75c87ab043cd2e1e2f944e8f",
+      "operation": "recover_lifecycle_pending",
+      "original_request_ref": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/reconstructed-original-release-request.json",
+      "original_request_sha256": "c338ea910b511f1e818e15af3461134f9c73d9c9e87bf46e5977d34a21293f6a",
+      "owner": "azrael-deployment-temporary",
+      "pending_identity": [
+        14318705318996120000,
+        28147497679471120,
+        0
+      ],
+      "pending_revision": 4,
+      "producer_stopped_verified": true,
+      "reason": "Abort only the exact unpublished O execution-reference release after original writer stopped; preserve authoritative revision3 and every reference. Original owner must issue a separate fresh release later.",
+      "record_id": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+      "record_identity": [
+        14318705318996120000,
+        10977524093083300,
+        0
+      ],
+      "recorded_at_ms": 1793391942712,
+      "release_request_sha256": "63d24a4662e07c3c5a38eaea5209530a458c2b5612a2dcfadd1cc0f84f3dd748",
+      "schema": 1,
+      "status": "authorized_abort_attempt",
+      "writer_pid": 50388,
+      "writer_stop_ref": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/writer-stop-proof.json",
+      "writer_stop_sha256": "b56725e4e10cae76012bb4c62f0f0e441c6d5b7f40d3c1dcaa2ff7d2485d2198"
+    }
+  },
+  "authoritativeUnchanged": true,
+  "referencesUnchanged": true,
+  "pendingAbsent": true,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-30T20:25:42.804Z"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "run:eg01:handoff-r2",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "59b2042f4408ec5c98ec2a6533deb77c9884451c91daf23dbb04d5de363966ca",
+  "lease_owner": {
+    "acquired_at_ms": 1793198719943,
+    "operation": "group_reservation",
+    "pid": 43100,
+    "schema": 2,
+    "token": "43100-1793198719943-3215968cac83102e"
+  },
+  "executionSession": 52961,
+  "actualExitCode": 1,
+  "error": "OS lock busy at lifecycle catalog",
+  "verification": "Exact native registration invocation returned terminal exit 1; registration operation launches no child producers. Subsequent Win32_Process observation found no maintenance_owner executable. No active native owner was terminated."
+}

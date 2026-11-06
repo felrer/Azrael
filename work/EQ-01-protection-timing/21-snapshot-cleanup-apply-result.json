@@ -1,0 +1,45 @@
+{
+  "exit_code": 0,
+  "signal": null,
+  "stderr": "",
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:EQ-01-protection-timing:locked-catalog-snapshot-r1",
+        "status": "blocked"
+      },
+      {
+        "id": "version:maintenance-owner:eq01:precheck-removal-r1",
+        "status": "blocked"
+      }
+    ],
+    "results": [
+      {
+        "decision": "delete",
+        "decision_id": "5463e5fea37ad3fa7be562d6ec22acd80832a19cd4c6502fd7cdf4fda01aea43",
+        "error": "config changed during review",
+        "group_status": "blocked",
+        "id": "045a676dc7a6763794c37ad6918ea870c2751e60888e4cfe26fd57bcb0877ecc",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:locked-catalog-snapshot-r1",
+        "reason": "Completed verification and performance run; eef3 candidate and work/18-locked-catalog-acceptance.json preserve independent evidence; old uninstalled ef98 candidate has no consumers",
+        "remaining": true,
+        "status": "blocked",
+        "token": "32a4afb5446576672031ab2267f30e5930b02a843a7fcf6b278d5a12d6cae825"
+      },
+      {
+        "decision": "delete",
+        "decision_id": "ff17887c3b20b2feda116bb41b8cbe98129b0530b0d2ea44b6b7b50fc630f3fa",
+        "error": "config changed during review",
+        "group_status": "blocked",
+        "id": "41d34eb5e044ddb128e5eef04136f577ee8ce35fc0439fea267e6f491de2e1be",
+        "lifecycle_group_id": "version:maintenance-owner:eq01:precheck-removal-r1",
+        "reason": "Completed verification and performance run; eef3 candidate and work/18-locked-catalog-acceptance.json preserve independent evidence; old uninstalled ef98 candidate has no consumers",
+        "remaining": true,
+        "status": "blocked",
+        "token": "c053d81d62267375f05179d8ee9122db126b9cf1eb0d8b5fb4507a6e9c35d495"
+      }
+    ]
+  }
+}

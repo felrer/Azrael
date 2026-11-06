@@ -1,0 +1,36 @@
+{
+  "at": "2026-11-02T11:53:39.837Z",
+  "status": "activated",
+  "before": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "cf9cbd25713cf0a7688d4609271cfe3ec5619635fb1550b7e02e1b59608d56f1",
+    "version_id": "version:maintenance-owner:ff01:catalog-20261102",
+    "version": "catalog-20261102",
+    "acceptance_sha256": "afdddc3b2c112225ce97d4272fdf5c33367e12d3e026c04b1aff0392d1631ad6",
+    "max_lock_wait_ms": 600000
+  },
+  "after": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89",
+    "version_id": "version:maintenance-owner:ff01:group-20261102",
+    "version": "group-20261102",
+    "acceptance_sha256": "b590b9791650710745906275c1317b591a9596ae1bfbdaf88378a634a6f64ffb",
+    "max_lock_wait_ms": 600000
+  },
+  "pin_paths": [
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\owner-installation.json",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\deployments\\maintenance-owner-dw16\\installation.json"
+  ],
+  "pins_equal": true,
+  "resolved": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "maxLockWaitMs": 600000
+  },
+  "consumer_revision": 28,
+  "retired_references_preserved": true
+}

@@ -4453,6 +4453,13 @@
             "string",
             "null"
           ]
+        },
+        "userWaitRequestId": {
+          "description": "Exact engine user-wait identity for this MCP request, when measured.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -5277,6 +5284,26 @@
             "params"
           ],
           "title": "Turn/startedNotification",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "method": {
+              "enum": [
+                "turn/userWaitTiming/updated"
+              ],
+              "title": "Turn/userWaitTiming/updatedNotificationMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/v2/UserWaitTimingUpdatedNotification"
+            }
+          },
+          "required": [
+            "method",
+            "params"
+          ],
+          "title": "Turn/userWaitTiming/updatedNotification",
           "type": "object"
         },
         {
@@ -7396,6 +7423,40 @@
       },
       "AgentPath": {
         "type": "string"
+      },
+      "AgentProfileExecutionMode": {
+        "enum": [
+          "direct",
+          "team",
+          "role"
+        ],
+        "type": "string"
+      },
+      "AgentProfileRef": {
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "digest"
+        ],
+        "type": "object"
       },
       "AllowDenyRequirement": {
         "enum": [
@@ -19311,6 +19372,17 @@
       },
       "QueuedSubmission": {
         "properties": {
+          "agentProfile": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/AgentProfileRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Immutable profile captured by the host when this request was accepted."
+          },
           "clientUserMessageId": {
             "type": "string"
           },
@@ -20905,12 +20977,7 @@
       },
       "ResponseMinuteSample": {
         "properties": {
-          "minute": {
-            "format": "uint64",
-            "minimum": 0.0,
-            "type": "integer"
-          },
-          "mode": {
+          "actualMode": {
             "anyOf": [
               {
                 "$ref": "#/definitions/v2/ResponseSpeedMode"
@@ -20920,6 +20987,11 @@
               }
             ],
             "default": null
+          },
+          "minute": {
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
           },
           "outputTokens": {
             "format": "uint64",
@@ -21358,6 +21430,17 @@
       "RootResumeReasoningSettings": {
         "description": "Effective effort captured by the step that requested deferral. The wrapper distinguishes a captured unset effort from an older reservation.",
         "properties": {
+          "agentProfile": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/AgentProfileRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Profile of the deferred request, independent of current project selection."
+          },
           "effort": {
             "anyOf": [
               {
@@ -25421,6 +25504,17 @@
       "ThreadReadResponse": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "properties": {
+          "agentProfileMode": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/AgentProfileExecutionMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Trusted execution mode; only ordinary roots accept project profile snapshots."
+          },
           "thread": {
             "$ref": "#/definitions/v2/Thread"
           }
@@ -27217,6 +27311,17 @@
                 ],
                 "title": "TurnCompletedThreadTimelineEntryType",
                 "type": "string"
+              },
+              "user_wait_timing": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/v2/UserWaitTiming"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
               }
             },
             "required": [
@@ -27750,6 +27855,17 @@
               "string",
               "null"
             ]
+          },
+          "userWaitTiming": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/UserWaitTiming"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           }
         },
         "required": [
@@ -28006,6 +28122,17 @@
       "TurnStartParams": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "properties": {
+          "agentProfile": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/AgentProfileRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Immutable profile captured by the host when this request was accepted."
+          },
           "approvalPolicy": {
             "anyOf": [
               {
@@ -28501,6 +28628,124 @@
             "type": "object"
           }
         ]
+      },
+      "UserWaitInterval": {
+        "description": "A period with pending human input and no running leaf activity.",
+        "properties": {
+          "endedAtMs": {
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "startedAtMs": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "startedAtMs"
+        ],
+        "type": "object"
+      },
+      "UserWaitRequest": {
+        "description": "Raw request waiting time, independent of concurrent work.",
+        "properties": {
+          "callId": {
+            "type": "string"
+          },
+          "durationMs": {
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "endedAtMs": {
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "startedAtMs": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "callId",
+          "kind",
+          "requestId",
+          "startedAtMs"
+        ],
+        "type": "object"
+      },
+      "UserWaitTiming": {
+        "description": "Measured human-response waits and the union of intervals that blocked work. An absent timing value on an older turn is distinct from an empty measurement.",
+        "properties": {
+          "blockedIntervals": {
+            "items": {
+              "$ref": "#/definitions/v2/UserWaitInterval"
+            },
+            "type": "array"
+          },
+          "requests": {
+            "items": {
+              "$ref": "#/definitions/v2/UserWaitRequest"
+            },
+            "type": "array"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "startedAtMs": {
+            "default": null,
+            "description": "Exact turn origin for subtracting millisecond intervals from coarse history timestamps.",
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "blockedIntervals",
+          "requests",
+          "revision"
+        ],
+        "type": "object"
+      },
+      "UserWaitTimingUpdatedNotification": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "description": "Revisioned engine-owned user response wait measurements for a turn.",
+        "properties": {
+          "threadId": {
+            "type": "string"
+          },
+          "timing": {
+            "$ref": "#/definitions/v2/UserWaitTiming"
+          },
+          "turnId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "threadId",
+          "timing",
+          "turnId"
+        ],
+        "title": "UserWaitTimingUpdatedNotification",
+        "type": "object"
       },
       "Verbosity": {
         "description": "Controls output length/detail on GPT-5 models via the Responses API. Serialized with lowercase values to match the OpenAI API.",

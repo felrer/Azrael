@@ -1,0 +1,234 @@
+{
+  "schema": 1,
+  "status": "verified_candidate_not_deployed",
+  "platform": "windows",
+  "arch": "x64",
+  "binary_sha256": "6a39e9c6c6002f3eee110a1822403108b803869e586498ae15ce8dda02b39b92",
+  "native_tests_passed": 212,
+  "native": {
+    "exit_code": 0,
+    "signal": null,
+    "elapsed_ms": 385649.2157,
+    "immutable_inputs_unchanged": true,
+    "preflight": {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-30T00:38:29.880Z",
+          "durationMs": 3618,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-30T00:38:33.498Z",
+          "durationMs": 27886,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 212
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-30T00:39:01.384Z",
+          "durationMs": 354128,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    }
+  },
+  "build": {
+    "exit_code": 0,
+    "signal": null,
+    "elapsed_ms": 22966.960700000003,
+    "immutable_inputs_unchanged": true
+  },
+  "node_lifecycle_tests_passed": 205,
+  "node": {
+    "results": [
+      {
+        "name": "lifecycle",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 89866.6479
+      },
+      {
+        "name": "lock-owner",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 2976.9260000000068
+      }
+    ],
+    "inputs_unchanged": true
+  },
+  "comparison": {
+    "baseline": {
+      "samples": 3,
+      "review_ms": 1790.7144,
+      "apply_ms": 12945.4943,
+      "total_ms": 14719.5025,
+      "range_total_ms": [
+        12859.403,
+        19157.4321
+      ]
+    },
+    "improved": {
+      "samples": 3,
+      "review_ms": 1682.3742,
+      "apply_ms": 10578.8014,
+      "total_ms": 12300.8147,
+      "range_total_ms": [
+        11755.571500000002,
+        12642.5815
+      ]
+    }
+  },
+  "diagnostic": {
+    "nested_totals_not_additive": true,
+    "operations": [
+      {
+        "operation": "registry.catalog",
+        "count": 12,
+        "total_ms": 8698.922999999999
+      },
+      {
+        "operation": "registry.observe",
+        "count": 3,
+        "total_ms": 4385.052
+      },
+      {
+        "operation": "apply.current_review",
+        "count": 2,
+        "total_ms": 2941.408
+      },
+      {
+        "operation": "reservation.verify_sources",
+        "count": 4,
+        "total_ms": 2919.445
+      },
+      {
+        "operation": "apply.safe_entries.post_intent",
+        "count": 1,
+        "total_ms": 1479.708
+      },
+      {
+        "operation": "apply.safe_entries.pre_intent",
+        "count": 1,
+        "total_ms": 1478.419
+      },
+      {
+        "operation": "apply.initial_group_review",
+        "count": 1,
+        "total_ms": 1465.684
+      },
+      {
+        "operation": "apply.reservation.acquire",
+        "count": 1,
+        "total_ms": 1465.571
+      },
+      {
+        "operation": "apply.reservation.finalize",
+        "count": 1,
+        "total_ms": 1458.138
+      },
+      {
+        "operation": "apply.reservation.verify.before_item",
+        "count": 1,
+        "total_ms": 772.446
+      },
+      {
+        "operation": "apply.reservation.verify.before_delete",
+        "count": 1,
+        "total_ms": 737.34
+      },
+      {
+        "operation": "apply.physical_delete",
+        "count": 1,
+        "total_ms": 635.484
+      },
+      {
+        "operation": "apply.actual_result_save",
+        "count": 1,
+        "total_ms": 51.283
+      },
+      {
+        "operation": "apply.intent_save",
+        "count": 1,
+        "total_ms": 42.794
+      },
+      {
+        "operation": "state.commit",
+        "count": 2,
+        "total_ms": 37.209
+      },
+      {
+        "operation": "apply.normalization_preflight",
+        "count": 1,
+        "total_ms": 4.362
+      },
+      {
+        "operation": "state.read",
+        "count": 2,
+        "total_ms": 3.28
+      },
+      {
+        "operation": "apply.final_presence",
+        "count": 1,
+        "total_ms": 1.511
+      }
+    ]
+  },
+  "baseline_binary_sha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+  "dependency_lock_sha256": "7746d56b24dd5f63a6949e76c93ebc071253a22eba9c6c0628cbc96115ed724b",
+  "release_profile": {
+    "lto": "thin",
+    "debug": "line-tables-only",
+    "split_debuginfo": "off",
+    "strip": false,
+    "codegen_units": 4
+  },
+  "safety": "All catalog/fresh byte/auth callback observations, leaf metadata, durable intent/result and unknown protection retained; no metadata cache",
+  "limitations": [
+    "3 samples per candidate; baseline variance substantial; no universal speed claim",
+    "Isolated 100-record catalog and 1 MiB file; Windows x64 only",
+    "No default selector, installation reference, or app/embedded engine changed"
+  ],
+  "producer_stopped_verified": true,
+  "stop_basis": "Managed native/test/build/fixture/Node/comparison executions all returned terminal success. Synchronous CLI requests completed, deletion workers completed, every comparison fixture removed; no timeout or unknown producer.",
+  "timestamp": "2026-10-30T00:52:15.232Z",
+  "run_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1",
+  "version_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6a39e9c6-win-x64-eq01-delete-apply"
+}

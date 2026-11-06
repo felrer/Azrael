@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "phase": "finalize",
+  "status": "complete",
+  "controllerPid": 37108,
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\o-temp-cleanup-final-20261031a.cjs",
+    "finalize"
+  ],
+  "startedUtc": "2026-10-30T20:28:05.758Z",
+  "nativeProject": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+  "sourceNamespace": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y",
+  "sourceId": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+  "ownerExecutable": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+    "sha256": "2a14a04c64ae2752f1cb98be27fe1d102855a780190b3f32729ea201a11259be"
+  },
+  "steps": [],
+  "finalized": {
+    "id": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\lifecycles\\a04c8c9d6810d95fea4e6f225f8acdba53367ff9a92051fba9e132b348f874d1.json"
+  },
+  "originalProofs": [
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/reconstructed-original-release-request.json",
+      "sha256": "c338ea910b511f1e818e15af3461134f9c73d9c9e87bf46e5977d34a21293f6a",
+      "bytes": 502
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-controller-failure.json",
+      "sha256": "aefcaf7107d0b9474cd536c18f61e3a9e67ff7b761049fa8153a135b66f89bd8",
+      "bytes": 7428
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/existing-blocked-acceptance.json",
+      "sha256": "bf212623ca855de70bc9f61316cda56fc24d264db7f2341873b0d55dc71e2274",
+      "bytes": 7600
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/successful-os-lease-reacquire.json",
+      "sha256": "334b525e1479b7a4bac9b05b3f7ecee04e560c0e11c005761952e88729c1becd",
+      "bytes": 485
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-native-lease-source.rs",
+      "sha256": "e0f9a822ae1243e9b1695de0ba4e0f068ee3df9c7b288e5bb5eba2fb8c87738c",
+      "bytes": 17928
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-native-cli-source.rs",
+      "sha256": "101328eb4f2d8038a2a5981e9fef2e6037426189c11db343c8f5047e057ea5d3",
+      "bytes": 4564
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-native-source-identity.json",
+      "sha256": "4adb6083ccfb9a5bb4ab51f156a4f5b30825494d32e51c9b5fb43f7784cc64ce",
+      "bytes": 9616
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/javascript-lease-worker-source.cjs",
+      "sha256": "67a9029b8a05234736d2e92b18a09a0d9b0dd9aeab7b02f2be45ca4df90edd67",
+      "bytes": 2435
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/parent-terminal-and-stop-basis.json",
+      "sha256": "1afa3daa552c505e17fb27116bd5ed762533c16d5358adf3543b649003835a4d",
+      "bytes": 1811
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/synchronous-native-writer-boundary.json",
+      "sha256": "3abf78af876e5fc498b101a52de0d2ab0b56abfa098c25dd5636561daeadc64a",
+      "bytes": 2539
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/writer-stop-proof.json",
+      "sha256": "b56725e4e10cae76012bb4c62f0f0e441c6d5b7f40d3c1dcaa2ff7d2485d2198",
+      "bytes": 3544
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/abort-cli-request.json",
+      "sha256": "71a1102e3d8479cdd8ff0bb06048c4b50ee42766670c3edcd52d0a784c925a6d",
+      "bytes": 1403
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/request-reconstruction-provenance.json",
+      "sha256": "6052e8540a7d96c7db4a7777111508e59461e31fb7d47feb41ae5d16652d5942",
+      "bytes": 1191
+    }
+  ],
+  "originalNativeWriterExitCode": null,
+  "abortNativeExitCode": 0,
+  "freshReferenceRelease": {
+    "startedUtc": "2026-10-30T20:27:50.454Z",
+    "finishedUtc": "2026-10-30T20:27:50.568Z",
+    "completed": true,
+    "fromRevision": 3,
+    "toRevision": 4,
+    "referenceIds": [
+      "8ae0aaa926427a37a49ee1f747df0461bb4438d2efa6a478d14e8dd78c7a97c7"
+    ],
+    "nativeExitCode": null,
+    "note": "API completed; no separately captured native writer exit code is asserted."
+  },
+  "deleted": [
+    {
+      "id": "7be74dfb5e50d839421507bcdceb985d5fd19501353843b9c9f4c5883631a140",
+      "status": "deleted",
+      "remaining": false,
+      "attributes": []
+    }
+  ],
+  "actualAbsence": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/t",
+    "absent": true
+  },
+  "freshPendingCreated": false,
+  "abortReceipt": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/abort-receipt.json",
+    "sha256": "976f03ed3d5d456a3f379135ae6bf28bd6e2bd9276a117c82d723e2996a65357"
+  },
+  "versionPreserved": true,
+  "evidence": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-temp-cleanup-final-20261031a.json",
+    "sha256": "cae8ee605f8bc75aef2b7defca44c615871f29d1c1924420c302cce0a4bbc932",
+    "bytes": 9185
+  },
+  "nativeExecutions": [
+    {
+      "label": "register",
+      "executable": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/o-temp-cleanup-final-20261031a-register-request.json"
+      ],
+      "pid": 56376,
+      "startedUtc": "2026-10-30T20:27:50.596Z",
+      "finishedUtc": "2026-10-30T20:27:53.115Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/o-temp-cleanup-final-20261031a-register.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/o-temp-cleanup-final-20261031a-register.stderr.log"
+    },
+    {
+      "label": "review",
+      "executable": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/o-temp-cleanup-final-20261031a-review-request.json"
+      ],
+      "pid": 34900,
+      "startedUtc": "2026-10-30T20:27:55.668Z",
+      "finishedUtc": "2026-10-30T20:27:55.902Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/o-temp-cleanup-final-20261031a-review.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/o-temp-cleanup-final-20261031a-review.stderr.log"
+    },
+    {
+      "label": "apply",
+      "executable": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/o-temp-cleanup-final-20261031a-apply-request.json"
+      ],
+      "pid": 55608,
+      "startedUtc": "2026-10-30T20:28:00.641Z",
+      "finishedUtc": "2026-10-30T20:28:03.088Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/o-temp-cleanup-final-20261031a-apply.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/o-temp-cleanup-final-20261031a-apply.stderr.log"
+    }
+  ],
+  "finishedUtc": "2026-10-30T20:28:05.900Z",
+  "independentAbortEvidence": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/tasks/ET-01-cold-build-cache-audit/runs/o-pending-abort-20261031b/reports/actual-cli-acceptance.json",
+    "sha256": "5925ee0b759eeade24b5d5dc945a952fc18e0ddd4d10307a2cc3d5b080c57f7b",
+    "controllerPid": 52324,
+    "startedUtc": "2026-10-30T20:25:42.394Z",
+    "finishedUtc": "2026-10-30T20:25:42.804Z",
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\payload\\maintenance_owner.exe",
+    "binarySha256": "eb264506d1aaa93024bc8ef51c17a64622952284368dd1aa2df707ca9d9e304f",
+    "native": {
+      "pid": 54328,
+      "exitCode": 0,
+      "signal": null,
+      "error": null
+    },
+    "status": "passed",
+    "exitCode": 0,
+    "originalNativeWriterExitCode": null,
+    "authoritativeUnchanged": true,
+    "referencesUnchanged": true,
+    "pendingAbsent": true,
+    "response": {
+      "operation": "recover_lifecycle_pending",
+      "pending_absent": true,
+      "receipt_ref": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/abort-receipt.json",
+      "receipt_sha256": "976f03ed3d5d456a3f379135ae6bf28bd6e2bd9276a117c82d723e2996a65357",
+      "record_id": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+      "record_sha256": "1068e1868fdf63420022221b4161f536be502fff75c87ab043cd2e1e2f944e8f",
+      "status": "aborted"
+    },
+    "receipt": {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/abort-receipt.json",
+      "sha256": "976f03ed3d5d456a3f379135ae6bf28bd6e2bd9276a117c82d723e2996a65357",
+      "value": {
+        "base_revision": 3,
+        "expected_pending_sha256": "d649797a2ff95e9eb185401387f807ab9055f3503b94acce5c3025b3e6e1e368",
+        "expected_record_sha256": "1068e1868fdf63420022221b4161f536be502fff75c87ab043cd2e1e2f944e8f",
+        "operation": "recover_lifecycle_pending",
+        "original_request_ref": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/reconstructed-original-release-request.json",
+        "original_request_sha256": "c338ea910b511f1e818e15af3461134f9c73d9c9e87bf46e5977d34a21293f6a",
+        "owner": "azrael-deployment-temporary",
+        "pending_identity": [
+          14318705318996120000,
+          28147497679471120,
+          0
+        ],
+        "pending_revision": 4,
+        "producer_stopped_verified": true,
+        "reason": "Abort only the exact unpublished O execution-reference release after original writer stopped; preserve authoritative revision3 and every reference. Original owner must issue a separate fresh release later.",
+        "record_id": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+        "record_identity": [
+          14318705318996120000,
+          10977524093083300,
+          0
+        ],
+        "recorded_at_ms": 1793391942712,
+        "release_request_sha256": "63d24a4662e07c3c5a38eaea5209530a458c2b5612a2dcfadd1cc0f84f3dd748",
+        "schema": 1,
+        "status": "authorized_abort_attempt",
+        "writer_pid": 50388,
+        "writer_stop_ref": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/writer-stop-proof.json",
+        "writer_stop_sha256": "b56725e4e10cae76012bb4c62f0f0e441c6d5b7f40d3c1dcaa2ff7d2485d2198"
+      }
+    }
+  },
+  "resultSeparation": {
+    "originalODeploymentOutcome": "failure1 retained",
+    "originalNativeWriter50388ExitCode": null,
+    "supportedAbortNative54328ExitCode": 0,
+    "freshReferenceReleaseApiCompleted": true,
+    "freshReleaseNativeExitCode": null,
+    "temporaryOrdinaryDeletion": "deleted; remaining=false; actual absence verified",
+    "sourceMetadata": "finalized; no fresh pending declaration"
+  }
+}

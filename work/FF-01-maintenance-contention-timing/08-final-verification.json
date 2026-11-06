@@ -1,0 +1,24 @@
+{
+  "at": "2026-11-02T06:40:25.603Z",
+  "source_matches_verified": true,
+  "selector_and_installation_equal": true,
+  "binary_sha256": "474ec68c553dbea5babcdc4ebf79a84a045b7fa6d2ff3574d3ee14f4778d27c3",
+  "max_lock_wait_ms": 600000,
+  "retired_source_records_absent": true,
+  "old_reference_absent": true,
+  "controller_absent": true,
+  "ff1_parent_absent": true,
+  "installation_reference": [
+    {
+      "id": "version:maintenance-owner:ff01:queued-20261102",
+      "kind": "installation",
+      "member_paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102"
+      ],
+      "reason": "User approved queued maintenance default after exact acceptance",
+      "reference_id": "3ffe0e2bb9c11df4ef00ffa936cdf91d393934c5f4810d9ea67a1d32b8a9af63",
+      "target_version": "queued-20261102"
+    }
+  ],
+  "cleanup_proof_inputs_unchanged": true
+}

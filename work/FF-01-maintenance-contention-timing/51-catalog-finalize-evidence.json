@@ -1,0 +1,251 @@
+{
+  "started": "2026-11-02T12:03:07.482Z",
+  "status": "payload_deleted",
+  "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "stages": [
+    {
+      "name": "refresh",
+      "request": {
+        "operation": "register",
+        "refresh_group": {
+          "id": "version:maintenance-owner:ff01:catalog-20261102"
+        },
+        "lock_wait_ms": 600000
+      },
+      "pid": 30228,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 3250,
+      "stderr": "",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "version:maintenance-owner:ff01:catalog-20261102",
+          "kind": "version",
+          "members": [
+            "a327659c2224793d2163c6bf205abc97cf98439faf5686293fac2a668dee29c6"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "e13a6baeca8897e01c9b5cec4e43b5ec6a6a56d3b5b031924488e0373fa75ea4",
+          "owner": "FF-01-maintenance-contention-timing",
+          "protection_revision": "e13a6baeca8897e01c9b5cec4e43b5ec6a6a56d3b5b031924488e0373fa75ea4",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4b782dda499ac31a6408a9ed4bc7284b2628f503e334278969021e731ed97553.json",
+          "registered_at_ms": 1793620719351,
+          "version": "catalog-20261102"
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "a327659c2224793d2163c6bf205abc97cf98439faf5686293fac2a668dee29c6",
+            "identity": "1b6ac551e3ae88ae2fe82069d9daa5cbe82181161344889414834a93b1744d3a",
+            "kind": "release",
+            "lifecycle_group_id": "version:maintenance-owner:ff01:catalog-20261102",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 3063050,
+            "measured_at_ms": 1793620714020,
+            "owner": "FF-01-maintenance-contention-timing",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102",
+            "presence": "present",
+            "protection_known": true,
+            "protection_revision": "e13a6baeca8897e01c9b5cec4e43b5ec6a6a56d3b5b031924488e0373fa75ea4",
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4b782dda499ac31a6408a9ed4bc7284b2628f503e334278969021e731ed97553.json",
+            "references": [],
+            "registered_at_ms": 1793620714020,
+            "remaining": true,
+            "role": "release",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "review",
+      "request": {
+        "operation": "review",
+        "group_ids": [
+          "version:maintenance-owner:ff01:catalog-20261102"
+        ],
+        "verification": "registered",
+        "lock_wait_ms": 600000
+      },
+      "pid": 40476,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 5496,
+      "stderr": "",
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "version:maintenance-owner:ff01:catalog-20261102",
+            "kind": "version",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "e13a6baeca8897e01c9b5cec4e43b5ec6a6a56d3b5b031924488e0373fa75ea4",
+            "owner": "FF-01-maintenance-contention-timing",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4b782dda499ac31a6408a9ed4bc7284b2628f503e334278969021e731ed97553.json",
+            "version": "catalog-20261102"
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "a327659c2224793d2163c6bf205abc97cf98439faf5686293fac2a668dee29c6"
+            ],
+            "group_token": "88900776b9dc5eb6a17d26ba821761e9f011cb7335c0879d47f540f82dc9371b",
+            "id": "a327659c2224793d2163c6bf205abc97cf98439faf5686293fac2a668dee29c6",
+            "identity": "1b6ac551e3ae88ae2fe82069d9daa5cbe82181161344889414834a93b1744d3a",
+            "lifecycle_group_id": "version:maintenance-owner:ff01:catalog-20261102",
+            "logical_bytes": 3063050,
+            "measured_at_ms": 1793620714020,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "e13a6baeca8897e01c9b5cec4e43b5ec6a6a56d3b5b031924488e0373fa75ea4",
+              "member_references": {
+                "a327659c2224793d2163c6bf205abc97cf98439faf5686293fac2a668dee29c6": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\32-catalog-version-preparation.json",
+                  "evidence_sha256": "61bd4d385e853e80d703e1add7e5073f4ceb293de096e8f7baa3bd5665f84d4b",
+                  "reason": "Exact immutable standalone copy process observed exit0; native247tests and paired performance accepted; binary identity pinned.",
+                  "request_sha256": "35189a4fb8a9bcfe74b096ddb3a3bc27bf82cd565e3a7f9e7cb15502aaf82116"
+                },
+                "created_at": "2026-11-02T10:48:27.900Z",
+                "id": "version:maintenance-owner:ff01:catalog-20261102",
+                "kind": "version",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102",
+                    "protection_known": true,
+                    "role": "release"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "FF-01-maintenance-contention-timing",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\32-catalog-version-preparation.json",
+                  "evidence_sha256": "61bd4d385e853e80d703e1add7e5073f4ceb293de096e8f7baa3bd5665f84d4b",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Exact immutable standalone copy process observed exit0; native247tests and paired performance accepted; binary identity pinned.",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-02T10:50:25.305Z",
+                "version": "catalog-20261102"
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793620990976,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  59,
+                  178,
+                  232,
+                  0,
+                  0,
+                  0,
+                  6,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "fff97c155c68fe06a69a632a797f6850604d00a02e35fc64bc16373bb69343ca",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "name": "apply",
+      "request": {
+        "operation": "apply",
+        "verification": "registered",
+        "lock_wait_ms": 600000,
+        "decisions": [
+          {
+            "id": "a327659c2224793d2163c6bf205abc97cf98439faf5686293fac2a668dee29c6",
+            "token": "fff97c155c68fe06a69a632a797f6850604d00a02e35fc64bc16373bb69343ca",
+            "decision": "delete",
+            "reason": "Retired standalone replaced and accepted; observed consumer finished, exact installation reference released and fresh review clear."
+          }
+        ]
+      },
+      "pid": 36612,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 15295,
+      "stderr": "",
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "version:maintenance-owner:ff01:catalog-20261102",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-36612-5270-1793621022932",
+            "decision": "delete",
+            "decision_id": "304f136f16d78c41634a4fc6c7785645f3c76ca9f558904bbdd726bc9205ccd2",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "a327659c2224793d2163c6bf205abc97cf98439faf5686293fac2a668dee29c6",
+            "lifecycle_group_id": "version:maintenance-owner:ff01:catalog-20261102",
+            "reason": "Retired standalone replaced and accepted; observed consumer finished, exact installation reference released and fresh review clear.",
+            "remaining": false,
+            "status": "deleted",
+            "token": "fff97c155c68fe06a69a632a797f6850604d00a02e35fc64bc16373bb69343ca"
+          }
+        ]
+      }
+    }
+  ]
+}

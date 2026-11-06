@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "action": "recover-cleanup",
+  "source": {
+    "id": "run:EW01-fixed-input:final-a",
+    "kind": "run",
+    "owner": "EW01-fixed-input",
+    "version": null,
+    "generation": null,
+    "revision": 3,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EW-01-frozen-input-preparation-review\\05-interrupted-producer-stop.json",
+      "evidence_sha256": "fecc8d2e61d8916e6dcb1c415e0ba7e4509f1d1f07cfe831ca17543ab330a8b4",
+      "exit_code": null,
+      "outcome": "unknown",
+      "reason": "Bounded producer/helper execution reviewed against complete current process snapshot; old tree stopped, original terminal exit lost; all planned generated writes contained by the claimed run root",
+      "status": "stopped"
+    },
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\final-a",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\final-a\\inputs",
+        "protection_known": true,
+        "role": "inputs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\final-a\\temporary",
+        "protection_known": true,
+        "role": "temporary"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\final-a\\logs",
+        "protection_known": true,
+        "role": "logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\final-a\\reports",
+        "protection_known": true,
+        "role": "reports"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\final-a\\outputs",
+        "protection_known": true,
+        "role": "outputs"
+      }
+    ]
+  },
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "stop_basis": "Complete process snapshot reconciled with the reviewed bounded executable chain and separately observed workspace child exit; no surviving old producer or unexplained candidates; original terminal exit remains unknown",
+  "membership_basis": "Producer plan owns the entire fixed final-a run root including partial nested measurement fixture outputs; top-level owned roles reconciled, all generated writes in reviewed controller remain within that root; external inputs are read-only references",
+  "producer_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EW-01-frozen-input-preparation-review\\05-interrupted-producer-stop.json",
+      "sha256": "fecc8d2e61d8916e6dcb1c415e0ba7e4509f1d1f07cfe831ca17543ab330a8b4"
+    }
+  ]
+}

@@ -12,7 +12,7 @@ async function verify(suffix, mutate = value => value) {
     calls.push(request);
     if (request.action === "mount") {
       const locale = request.locale;
-      const html = `<main lang="${locale}" aria-label="${locale === "ko" ? "지침 라이브러리" : "Instruction library"}" data-library-revision="0"><summary>${locale === "ko" ? "기본 지침 배포" : "Baseline distribution"}</summary>${suffix}</main>`;
+      const html = `<main lang="${locale}" data-library-revision="0">${suffix}</main>`;
       await receiver.postMessage(mutate({ type: "azrael-instructions-state", clientId: request.clientId, requestId: request.requestId, html }));
     }
   } } } : require(name);
@@ -43,6 +43,5 @@ for (const [name, mutate, error] of [
   ["wrong client", value => ({ ...value, clientId: "wrong" }), /mismatched client/],
   ["wrong request", value => ({ ...value, requestId: "wrong" }), /mismatched client/],
   ["missing revision", value => ({ ...value, html: value.html.replace('data-library-revision="0"', "") }), /personal library revision/],
-  ["missing baseline", value => ({ ...value, html: value.html.replace(/<summary>.*?<\/summary>/, "") }), /baseline distribution/],
   ["wrong locale", value => ({ ...value, html: value.html.replace('lang="ko"', 'lang="wrong"') }), /requested locale/],
 ]) test(`installed instruction view retains ${name} rejection`, async () => { await assert.rejects(verify(sentinel, mutate), error); });

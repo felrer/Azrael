@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "kind": "native-cursor-live-acceptance",
+  "runtimeManifestSha256": "1393ec4b4381e05f25248137f278b55f07db9400b33a94de01055bb846d8e486",
+  "sourceSha256": "6b832a44dd573456fb66d57207f3cf34460a0b97c8e6d9aab5b277e015772c3f",
+  "runId": "run:EZ01:cursor-live-mw08oz9h",
+  "environment": {
+    "platform": "Windows x64",
+    "desktop": "local Default",
+    "paintVersion": "11.2605.81.0",
+    "dpi": 144,
+    "targetHwnd": "0xc03d4"
+  },
+  "method": "Direct MCP tool calls, one native input operation at a time; no automated app scenario, UIA input or clipboard",
+  "accepted": {
+    "userCursorGeneralAppearance": true,
+    "twoModelCursorsDotDuringDrag": true,
+    "twoModelCursorsTranslucentArrowAfterDrag": true,
+    "waitingSaveIcon": true,
+    "queuedHumanClickAtIntendedPosition": true
+  },
+  "userResponses": [
+    "Initial drag not seen; otherwise no problem",
+    "Both model cursors confirmed normal",
+    "Save icon and click location both normal"
+  ],
+  "queueTrial": {
+    "beforeCompleted": 1,
+    "afterCompleted": 8,
+    "beforeSkipped": 6,
+    "afterSkipped": 6,
+    "queuedAtVioletEnd": 5,
+    "finalQueued": 0,
+    "lastFailure": "none",
+    "offHidden": false,
+    "offSuppression": false
+  },
+  "limits": [
+    "Earlier trial had6 intent_changed skips while user was doing other work; broad input reliability not established",
+    "Two preparation timeouts had no actuation; bounded same-call motion wait then succeeded",
+    "Installed product runtime unchanged",
+    "Teleport ghost was covered by native render checks, not separately live-confirmed"
+  ],
+  "termination": {
+    "native": {
+      "exitCode": 0,
+      "signal": null,
+      "terminationVerified": true
+    },
+    "witness": {
+      "exitCode": 0,
+      "signal": null
+    },
+    "observedProcessHandles": {
+      "allTerminated": true,
+      "exitCodes": [
+        0,
+        0
+      ],
+      "identities": [
+        {
+          "pid": 30768,
+          "bornMs": 1793683265909,
+          "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\outputs\\runtime\\azrael-multi-pointer.exe"
+        },
+        {
+          "pid": 22164,
+          "bornMs": 1793683329657,
+          "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\outputs\\runtime\\azrael-multi-pointer.exe"
+        }
+      ]
+    },
+    "producerStoppedVerified": true,
+    "reason": "Exact native broker and its guard handles were opened after PID/creation-time/executable checks; both handles signaled and both observed exits0; witness child closed0."
+  },
+  "cleanup": {
+    "action": "Release live-run dependency and satisfied user-check recovery refs, then owner-delete both exact test groups",
+    "groups": [
+      "run:EZ01:cursor-live-mw08oz9h",
+      "run:EZ01:cursor-check-mw07po24"
+    ]
+  }
+}

@@ -934,8 +934,9 @@ async fn future_environment_mcp_policy_applies_on_the_next_turn() -> anyhow::Res
         &server,
         vec![
             responses::sse(vec![
-                responses::ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "pause",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({
                         "questions": [{

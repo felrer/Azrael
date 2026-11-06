@@ -2,19 +2,47 @@
 
 상태: `partial`. Windows Rust51(debug/release)·native core8/prompt1, 프로젝트 어댑터·지침·Windows 정리 및 모의 배포 검사를 확인했다. 실제 수용 범위와 한계는 [작업 기록](../../work/BI-01-project-maintenance/01-plan.md)에 기록한다. 실행 중인 설치본의 도구 가용성은 소스 변경과 구분한다.
 
+## 개인 맞춤 설정 운영
+
+상태: `partial` — [FE-01 작업](../../work/FE-01-maintenance-preferences/01-plan.md)의 소스 및 검증 범위다. 아래 설정 명령은 `capabilities.preferences: true`인 실행기에서 지원하며 현재 설치 실행기의 지원 여부와 구분한다.
+
+설정 위치는 **Azrael 설정 → 개인 맞춤 설정 → 프로젝트 유지관리**다. 실제 runtime의 사용자 상태 루트가 설정을 소유하고, 원격 프로젝트를 선택하더라도 다른 사용자 홈에 쓰지 않는다. standalone은 `AZRAEL_STATE_ROOT`, `CODEX_HOME`, OS 사용자 홈의 `.azrael-ex` 순서로 선택한다. UI host는 runtime 상태 루트를 명시한다.
+
+검증된 실행기로 `preferences read`를 호출해 현재 revision·선택·실제 적용·종료 대기를 확인한다. 변경은 `preferences write`의 stdin에 `{ "expected_revision": <현재 revision>, "groups": true, "locks": false, "deletion": true }`처럼 모든 선택을 보낸다. 저장 충돌은 다시 읽은 후 판단하고, 지원하지 않는 구형 실행기나 손상된 상태에서 켬으로 자동 대체하지 않는다.
+
+잠금을 끄면 묶음·삭제의 실제 적용은 꺼지지만 각 선택값은 보존된다. 기존 작업의 handle이 남으면 종료 대기를 표시하며 재활성화는 기다린다. 이미 실행 중인 작업의 정상 종료·결과 기록·참조 반환은 가능하다. 다른 세션의 잠금 파일 삭제, PID만을 근거로 한 반환, 종료 미확인 보호의 제거를 시도하지 않는다. 이전 실행기의 보호·예약은 기존 owner 복구가 소유한다. 다시 켠 뒤 삭제는 새 검토 토큰으로 명시적으로 결정하며 과거 보류 요청을 재실행하지 않는다.
+
 ## 이 체크아웃의 정리 실행기
 
-상태: `current` (Windows x64). 정리에는 `artifacts/versions/maintenance-owner-08180d46-win-x64-dw17-release/payload/maintenance_owner.exe`를 사용한다. 설치·검증 결과는 [작업 기록](../../work/DW-01-build-preflight-timing/16-plan.md), 입력·실행파일 identity와 실제 수용 결과는 같은 version의 `verification/optimization-acceptance.json`과 `verification/installation-verification.json`에서 확인한다. 이 실행기는 최적화된 실제 `maintenance_owner`이며 benchmark example이 아니다. 실행파일과 최소 검증 영수증은 계속 사용하는 설치물로 관리하고, 교체 또는 사용 종료 시 참조를 해제한 뒤 정리한다.
+기본 선택은 `scripts/maintenance-owner-config.cjs`의 `resolveMaintenanceCommand()`가 소유한다. Windows `2026.0.14` 이후 릴리스는 실제 설치·관리 CLI 수용 후 `<AZRAEL_STATE_ROOT 또는 ~/.azrael-ex>/maintenance-installation.json`에 앱 실행파일 identity를 게시한다. 이 영수증이 있으면 Node/PowerShell은 앱 실행파일과 `maintenance` 접두 인자를 함께 사용한다. 영수증이 없는 기존 설치에서만 아래 standalone pin을 사용하며 손상된 앱 영수증에서 자동 fallback하지 않는다. `-PrepareOnly`는 선택을 바꾸지 않는다. 명령·다른 OS 수용 경계는 [관리 명령 계약](../architecture/project-maintenance.md#maintenance-platform-modules), 설치 절차는 [앱 릴리스](app-release.md#package-and-installation-contract)를 따른다.
+
+상태: `current` (Windows x64). 정리에는 `artifacts/versions/maintenance-owner-ff01-reservation-win-x64-20261102/payload/maintenance_owner.exe`를 사용한다(SHA-256 `c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680`). 설치·실측 결과는 [현재 작업 기록](../../work/FF-01-maintenance-contention-timing/05-plan.md), 고정 입력·native 254개 검사·예약 중복 순회 전후 측정·기본 경로 수용은 같은 version의 `verification/`에서 확인한다. Node producer catalog·run claim·시작/종료 기록·cleanup client는 검증된 capability에 따라 최대 600000ms를 기다리며 구형 실행기는 5000ms를 유지한다. 직접 CLI는 미지정 기본 0을 유지하므로 장기 대기가 필요한 호출은 `lock_wait_ms:600000`을 명시한다. 명시적 0과 기존 5000ms 요청을 자동으로 늘리지 않는다. 저장·삭제·권한·CAS·unknown 오류는 재실행하지 않는다. 기존 stdin·OS33·소유권·참조·revision·복구 보호를 유지한다. 기존 Catalog 관측·그룹 순수 계산 최적화에 더해 예약 존재 확인과 직후 읽기의 중복 초기 metadata 순회를 합쳤다. 두 번의 bounded 읽기·내용 비교, 읽기 직전 권한과 중간 경로·마지막 identity 검사는 유지한다. 80항목 최근 기준54.61초 대비 후보 평균48.42초였으며 실제 표본과 변동 한계는 version verification이 소유한다. 삭제 전 최신 보호 검사와 항목별 저장도 유지한다. 앱 내장 도구 교체나 물리 삭제 처리량 개선을 뜻하지 않는다. 실행파일과 최소 검증 근거는 사용하는 설치물로 관리한다.
 
 ```powershell
 $projectRoot = 'C:/Users/felre/Desktop/pi-harness-init'
-$ownerExecutable = "$projectRoot/artifacts/versions/maintenance-owner-08180d46-win-x64-dw17-release/payload/maintenance_owner.exe"
+$ownerExecutable = "$projectRoot/artifacts/versions/maintenance-owner-ff01-reservation-win-x64-20261102/payload/maintenance_owner.exe"
 & $ownerExecutable --project-root $projectRoot --request "$projectRoot/정리작업의-요청.json"
 ```
 
-요청 JSON은 선택 프로젝트 안의 일반 파일로 만들고 해당 작업 묶음에서 관리한다. `operation`은 `inventory`, `register`, `review`, `apply`, `recover_lock`, `recover_reservation`을 지원한다. 먼저 기존 등록 그룹을 조회하고, 현재 소유·참조·보호와 membership을 확인한 뒤 fresh review token으로 명시한 결정을 적용한다. unchanged 그룹은 재등록하지 않으며 `registered` 검증을 기본으로 한다. 실제 항목별 결과와 부재를 확인한다. 점유 잠금 해제나 실패한 보호 검사를 우회하는 용도로 사용하지 않는다.
+일회용 요청 JSON·raw 응답·stderr는 호출자의 작업 묶음에서 관리하고, `artifacts/maintenance`에는 저장하지 않는다. 선택 실행기의 `capabilities.request_transports`에 `stdin`이 있으면 `--request -`에 단일 JSON과 EOF를 전달해 요청 파일 생성을 피한다. 파일 전송도 지원하며 선택 프로젝트 안의 작업 소유 일반 파일을 사용한다. 원본 요청과 응답을 보존해야 하면 삭제 대상 밖의 caller run에 기록하고 최소 독립 결과를 확보한 뒤 기존 owner로 정리한다. 입력은 두 전송 모두 64MiB 이하이며 오류의 실제 exit와 stderr를 확인한다. 지원하지 않는 구형 실행기는 작업 폴더의 파일 방식을 사용한다.
+
+```powershell
+@{operation='inventory'} | ConvertTo-Json -Compress | & $ownerExecutable --project-root $projectRoot --request -
+```
+
+관리 상태·예약·참조되는 최소 수용/복구 evidence와 receipt는 기존 보호 경로·SHA·소유·참조 규칙을 유지한다. 예를 들어 `Save-ArtifactCleanupEvidence`의 출력은 예약 finish가 참조하는 종료 근거이므로 일회용 전송 결과로 취급하지 않는다. 기존 관리 영역의 JSON은 이름으로 분류하거나 보호 밖으로 옮겨 삭제하지 않는다. 해당 owner의 지원되는 참조 기반 폐기 절차가 없으면 계속 보호한다.
+
+`operation`은 `inventory`, `register`, `review`, `apply`, `recover_lock`, `recover_reservation`, `recover_refresh_pending`을 지원한다. 먼저 기존 등록 그룹을 조회하고, 현재 소유·참조·보호와 membership을 확인한 뒤 fresh review token으로 명시한 결정을 적용한다. unchanged 그룹은 재등록하지 않으며 `registered` 검증을 기본으로 한다. 실제 항목별 결과와 부재를 확인한다. 점유 잠금 해제나 실패한 보호 검사를 우회하는 용도로 사용하지 않는다.
+
+Node lease는 OS 잠금 획득 대기와 초기 응답 여유, 명령 응답 대기를 구분한다. 초기 응답은 지정한 잠금 대기 시간에 실행기 시작·잠금 초기화를 위한 60초 응답 여유를 더해 기다린다. native에 전달하는 `waitMs`와 명시적 0·5000은 바꾸지 않는다. 명령 응답은 기본60초이며 초기 응답을 포함해10초를 넘으면 `response-delayed` 진단을 남기고 같은 요청을 계속 기다린다. 응답 기한 초과 후에는 EOF·제한된 배출 대기·실제 child 종료 관측을 수행하며, 최초 시간 초과는 성공으로 바꾸지 않는다. `native_exit_observed`와 `native_close_observed`가 없으면 종료를 확정하지 않는다. `late_response`는 늦은 응답의 관측 정보이며 재실행 허가가 아니다. 이 경우 잠금 파일을 삭제하거나 저장을 재전송하지 말고 원래 owner의 결과와 보호를 확인한다.
 
 앱 내장 `project_*`는 엔진에 정적으로 연결되어 있어 이 설치로 교체되지 않는다. 테스트·빌드 실행과 프로젝트 별칭은 기존 내장 도구를 사용한다. 별도 실행기는 OS 권한과 선택 프로젝트 경계를 적용하며, 내장 도구의 turn별 sandbox/grant 검사를 자체적으로 재현하지 않는다. 명령 실행 환경의 실제 권한·승인과 삭제 안전장치를 그대로 지킨다. 다른 OS/CPU용 설치물은 제공하지 않는다.
+
+### Lifecycle 미게시 참조 해제 복구
+
+상태: `partial` (Windows x64 별도 standalone 실제 복구 검증 완료, 현재 기본 standalone에 포함, 앱 내장 도구는 이 작업에서 미전환). `recover_lifecycle_pending`은 참조 해제 중 남은 lifecycle pending의 명시적 abort만 다룬다. 기본 실행기 선택은 바꾸지 않는다. 일회성 검증 실행파일은 사용 종료 후 정리하며, 실제 수용과 고정 실행파일·검증 identity는 [소유 작업](../../work/ET-01-cold-build-cache-audit/01-plan.md)에서 확인한다.
+
+정상 JSON/pending의 raw SHA, 원래 6필드 참조 해제 요청 및 그 SHA, 독립 writer 종료 증거와 process-tree 종료 근거를 선택 프로젝트의 `artifacts/maintenance/evidence/` 안에 별도 일반 파일로 보존한다. 검증 파일은 read-only이며 각각 SHA로 고정한다. nullable native 종료값을 추정하지 않는다. 요청은 정확한 record ID·owner·writer PID·두 record SHA·증거 경로/SHA·새 receipt 경로 및 `decision:"abort"`를 명시한다. 성공 후 정상 JSON과 참조가 byte 동일하고 정확한 pending만 부재인지 확인한다. 실제 참조 해제와 payload 삭제는 이후 기존 지원 절차로 별도 수행한다. 수동 pending/lock 삭제나 실패 결과의 성공 변경은 허용하지 않는다.
 
 ### OS 잠금과 기본 실행기 선택
 
@@ -46,6 +74,14 @@ Windows 명시적 복구는 프로세스 객체가 조회된다는 이유만으�
 
 기존 custody가 native 그룹으로도 등록됐다면 그 독립 소유 이력부터 확인한다. record type만 바꿔 native 등록이나 다른 consumer의 보호가 없어졌다고 간주하지 않는다. 전환 후 생성자에 fresh 등록/보호 refresh·검토를 적용하고 실제 보호 참조와 사용 종료를 확인한 대상만 별도 archive/정리 절차로 처리한다. 관찰 전환이나 hold 해제는 파일 이동·삭제 결과가 아니다. 원본 JSON을 수동 편집해 type·보호·소비 관계를 없애지 않는다.
 
+## 빌드 캐시의 명시적 무효화
+
+상태: Windows x64에서 정책 회귀 검증과 실제 준비 도구 참조 해제를 확인했다. 적용 범위와 실제 삭제 결과는 [전체 캐시 정리 작업](../../work/ET-01-cold-build-cache-audit/01-plan.md)이 소유한다. 다른 OS 실행은 미검증이다. 일반 정리와 복구의 보호 검사는 유지한다. 재생성 가능한 빌드 캐시 전체 무효화를 사용자가 승인한 경우에만 별도 권한 증거에 정확한 경로·현재 SHA·이유를 고정한다.
+
+`Remove-BuildCacheAbsentProjectRegistration`은 물리 cache lease 아래에서 사라진 작업 사본의 정확한 등록만 해제한다. 현재 registry SHA, 프로젝트 부재, 살아 있는 소비자와 프로세스, 권한 증거를 다시 확인하고 변경 전 registry와 원래 `unknown` 이력을 독립 영수증에 보존한다. 과거 생성자의 종료나 알려지지 않은 소비자 해제를 성공으로 꾸미지 않으며 실제 캐시·현재 다른 프로젝트의 참조는 삭제하지 않는다. 기존의 엄격한 과거 이력 복구 명령은 별도로 유지한다.
+
+`preparation-state.releaseTools`의 명시적 `cacheInvalidation`은 완성된 VSIX와 독립 준비 manifest의 SHA 및 정확한 release/tool binding을 검증한 뒤 `dependency/companion-tool` 참조만 무효화한다. 권한 증거는 source와 proxy의 영수증에 연결한다. 실패·미확정 release의 결과, 설치·복구·엔진 참조는 유지한다. 실제 캐시 삭제는 이후 cache owner의 lease·프로세스·현재 소비자 검사와 일반 정리로 수행한다. 기본 자동 해제 정책은 변경하지 않는다.
+
 ## 프로젝트 등록
 
 저장소의 `project-maintenance.json`에 `schema_version: 1`, `project_id`, `managed_roots`, `protected_paths`, `bundles`를 둔다. 각 묶음은 `id`, `kind` (`test`, `prepare`, `build`), `purpose` (`one_off`, `retained`), `argv`를 가진다. `cwd`는 프로젝트 기준 상대 경로, `env`는 환경 변수, `depends_on`은 선행 묶음 ID, `inputs`는 명시한 입력 경로다. 현재 설정의 예는 [Azrael 설정](../../project-maintenance.json)을 따른다.
@@ -76,14 +112,6 @@ Windows 명시적 복구는 프로세스 객체가 조회된다는 이유만으�
 `await prepareDeploymentControlRetirement(options)` 결과의 계획 경로와 SHA를 그대로 적용한다. 선택한 검증 실행기는 `run_status`와 stdin 요청을 지원하고 `storage_formats`에 `legacy`만 광고해야 한다. 분할 저장 형식은 이 절차로 처리하지 않는다. 기존 기본 실행기가 이를 지원하지 않으면 자동 설치·교체하지 않고 명시한 검증 실행기만 사용한다. native 목록은 metadata만 읽으며 전체 페이지·실행 입력·manifest 및 설정의 불변성을 확인한다. 상태 잠금을 먼저 잡고 catalog 잠금을 취득하며 상태 잠금 보유 중 native 목록 조회를 중첩하지 않는다.
 
 이미 intent가 있거나 partial/unknown이면 자동 재개하지 않는다. 실제 결과에서 worker exit/close, native exit/close, 예약 finish, 경로 부재와 lifecycle finalize를 각각 확인한다. 시작한 작업은 종료까지 drain하므로 호출 시간이 길어질 수 있다. 미확인 종료에는 원래 fence와 증거를 보존하고 지원되는 예약 복구 절차를 사용한다. 정확한 결과를 별도 작업 근거로 이관한 다음 caller run의 일회용 계획·로그·fixture를 기존 소유자 절차로 정리한다.
-
-#### 비게시 빈 lifecycle 파일의 전용 복구와 재준비
-
-상태: `partial` — Windows x64 실제 수용과 원래 실패·후속 결과는 [FW-01 작업](../../work/FW-01-volsnap-io-safety/02-plan.md)에서 구분한다. `scripts/deployment-control-retirement.cjs`의 `prepareEmptyLifecyclePublicationRecovery({artifactProjectRoot,requestPath,requestSha256})`와 `applyEmptyLifecyclePublicationRecovery({planPath,planSha256})`를 명시적으로 사용한다. 승인 request는 정확한 두 `.pending`의 project/file identity·0바이트 SHA·단일 hardlink와 caller revision/reports를 묶고 `original_writer:"unknown"`을 유지한다. canonical `.json`, 다른 pending·보호·소유·참조 또는 대상과 관련되거나 해석할 수 없는 활성 native 예약이 있거나 선택이 달라지면 중단한다. 무관한 예약은 owner가 도출한 정확한 scope와 검증된 namespace/owner 형상으로만 분류하고 상태·원문은 보존한다. 일반 pending/비어 있지 않은 파일의 삭제 절차로 확장하지 않는다.
-
-실제 maintenance/catalog custody가 확인한 `supported_publication_critical_section_excluded`는 지원 publication 구간의 배제이며 원래 writer나 전체 producer 종료를 뜻하지 않는다. 이전 unknown의 stop 플래그를 만들거나 승격하지 않는다. 새 worker와 두 native의 exit/close, 승인된 두 파일 부재 및 원래 writer unknown을 각각 남긴다. 원래 실패와 후속 실제 평가는 작업 근거에서 원문을 보존해 별도로 읽는다. 삭제는 승인된 두 파일의 identity와 canonical·owner 연결 부재를 다시 확인한 ordinary unlink에 한정하며 ACL·소유권 변경이나 force 삭제로 실패를 우회하지 않는다.
-
-`reprepareBlockedDeploymentControlRetirement({priorPlanPath,priorPlanSha256,stopEvidencePath,stopEvidenceSha256})`는 정확한 pre-reservation·physical-zero blocked 원문과 journal, 독립 child-only stop 근거를 검증한 새 명시 시도다. 원래 실패·intent/result는 그대로 두고 새 reprepare intent/plan으로 연결한다. 부분 삭제나 미확인 적용의 자동 재개에 사용하지 않으며 outer caller가 계속 살아 있으면 whole-producer stop으로 기록하지 않는다.
 
 ## 중첩 소유 항목의 단계적 폐기
 
@@ -183,6 +211,16 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 <a id="registered-group-cleanup"></a>
 ## 등록된 묶음 정리
 
+### 경합 진단과 상태 분할 전환
+
+상태: 새 소스 검증용 절차이며 설치 실행기 교체·실제 관리 기록 이관은 별도 작업이다. `AZRAEL_MAINTENANCE_TIMING=1`로 새 native 실행기의 stderr JSONL에서 `maintenance.lock_wait`, `maintenance.lock_hold`, `maintenance.phase`를 수집한다. phase의 `state.read`와 `state.commit`을 전체 완료 시간과 구분한다. hold의 outcome은 해제 검증 결과이며 작업 성공을 뜻하지 않는다. 기본 stdout JSON과 보호·복구 계약은 유지한다.
+
+최신 멤버 검사 세분 진단은 새 소스의 `AZRAEL_MAINTENANCE_DETAIL_TIMING=1`로 별도 활성화한다. `group.current.members` 한 관측 안에서 정적 구간별 호출 수(`count`)·누적 시간(`elapsed_us`)·최대 시간(`max_us`)을 집계해 `maintenance.detail`로 stderr JSONL에 출력한다. 멤버 예약/내용 검토/삭제 완료 멤버의 부재 검사와 그 안의 metadata·권한 callback·조상/leaf 관측·예약 파일 읽기/해석·보호/run 판단·증거·토큰·응답 생성 구간을 구분한다. `scope_exit`은 시간 관측이며 성공·권한 근거가 아니다. 부모와 자식 시간은 중첩되므로 합산하지 않는다. 식별자·경로·요청·권한 결과는 추가 수집하지 않고, 출력 실패는 기존 진단 경계처럼 작업 결과를 바꾸지 않는다. 파일 수·경과 시간에 비례한 로그 대신 관측별 구간 집계를 사용하며 OFF/ON 대조로 계측 영향을 확인한다. task-owned raw log는 분석 후 owner 절차로 정리하고 최소 근거만 work에 보존한다. 이 진단 소스의 검증·측정 상태는 [현재 작업 기록](../../work/FF-01-maintenance-contention-timing/05-plan.md)이 소유하며 기존 설치 실행기의 자동 갱신을 뜻하지 않는다.
+
+새 소스의 `partition_storage` 요청에는 `writers_stopped_verified:true`, `reason`, 정확한 `expected_manifest_sha256`, `evidence_ref`, `evidence_sha256`이 필요하다. 근거는 선택 프로젝트의 `artifacts/maintenance/evidence/` 안에 둔다. 먼저 같은 저장소의 내장 엔진·standalone·모든 writer를 함께 전환할 계획과 정확한 종료 근거를 확보한다. pending·예약·미종료 실행·원본 drift가 있으면 중단한다. 구형 실행기는 새 형식을 거절하므로 실행기 혼용 상태에서 이관하지 않는다. 일반 등록은 자동 이관하지 않는다.
+
+새 형식의 실패한 prepare가 남긴 미참조 blob은 pending 복구·종료 확인 후 `compact_storage`로 회수한다. 요청 필드와 종료·SHA·예약 검증은 이관과 같으며 참조 중인 blob을 삭제하지 않는다. 임의 파일 삭제나 원시 인덱스 편집으로 실패를 우회하지 않는다. 분할 저장은 공용 인덱스 반영의 직렬화를 유지하므로 실물 전환 전 실제 데이터와 동시 부하에서 전체 지연을 별도로 수용 검증한다.
+
 ### 관리 sentinel 복구
 
 새 소스의 검증된 `maintenance_owner`는 `operation:"recover_lock"`을 별도 지원한다. 설치된 `project_*` 도구의 `recover`는 실행 수명 복구이며 sentinel 해제와 다르다. 현재 점유 작업의 잠금을 삭제하거나 보호 정책을 우회하는 용도로 사용하지 않는다.
@@ -190,6 +228,12 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 요청은 `lock_kind` (`maintenance`/`catalog`/`run_claim`), 정확한 `expected_lock_sha256`, `expected_token` (구형 marker는 null), `producer_stopped_verified:true`, `reason`, `evidence_ref`, `evidence_sha256`, `receipt_ref`를 가진다. evidence와 미존재 receipt 경로는 선택 프로젝트의 `artifacts/maintenance/evidence/` 안에 둔다. 실행 전에 정확한 producer와 전체 자식 종료를 별도로 확인하고, 원래 unknown/실패 결과를 보존한다. 살아 있는 PID·미확인 조회·pending manifest·변경된 identity는 거부한다. 빈 lock 파일이나 PID 부재만으로 확인을 선언하지 않는다.
 
 기존 owner CLI와 같은 `--project-root ABSOLUTE_ROOT --request ABSOLUTE_IN_ROOT_JSON` 형식을 사용한다. 검증한 source/binary identity를 작업 기록에 고정하고 receipt의 실제 결과와 대상 부재를 확인한다. 부분 실패는 영수증과 현재 경로를 유지한 채 재검토한다. 복구 guard는 OS 잠금용 영속 파일이므로 존재 자체를 stale sentinel로 제거하지 않는다.
+
+### 미커밋 보호 revision 갱신 복구
+
+`recover_refresh_pending`은 정상 manifest를 보존하면서 보호 revision만 바뀐 미커밋 pending을 폐기하는 명시적 owner 작업이다. 범용 상태 복구나 삭제 결과 확정에 사용하지 않는다. 요청은 `group_id`, `expected_manifest_sha256`, `expected_pending_sha256`, `producer_pid`, `producer_stopped_verified:true`, `reason`, `evidence_ref`, `evidence_sha256`, 새 `receipt_ref`를 가진다. evidence와 receipt는 선택 프로젝트의 `artifacts/maintenance/evidence/` 안의 서로 다른 plain 파일이어야 한다.
+
+정확한 실패 producer와 전체 자식의 실제 종료를 먼저 확인한다. maintenance 잠금이나 복구 guard를 얻지 못하거나, SHA·연속 revision·그룹/구성이 다르거나, 변경이 해당 그룹/구성원의 `protection_revision`을 넘으면 중단한다. 영수증을 먼저 동기 저장한 뒤 일반 삭제하며 실패하면 실제 상태와 영수증을 보존한다. 성공 응답과 pending의 실제 부재, 정상 manifest의 원래 SHA를 확인하고 보호 갱신·fresh review를 다시 수행한다. 같은 요청을 무조건 재실행하지 않는다. 설치 수용 및 다른 OS 미검증 범위는 [현재 작업](../../work/EC-01-unused-file-archive/01-plan.md)이 소유한다.
 
 등록된 묶음은 `project_inventory`의 현재 기록에서 시작해 `project_cleanup_review`로 검토하고 `project_cleanup_apply`로 명시적인 삭제·보류 결정을 적용한다. 모델은 허용 범위와 결정을 담당하고, 도구가 구현한 identity·구성·소유·참조·권한·보호 검사는 도구에 맡긴다. 동일 검사를 별도 셸 목록, 재귀 해시 또는 두 번째 관리 명세로 반복하지 않는다.
 
@@ -257,6 +301,10 @@ node scripts/artifact-lifecycle.cjs finalize --project-root C:/work/example --id
 진단이 끝난 실패·미확인 실행은 필요한 결과를 먼저 독립적으로 보존하고 전체 producer 종료와 실제 구성 범위를 확인한 후 모델이 삭제를 결정한다. native에는 그 근거 파일을 `membership_source`로 둔 완결된 검토 묶음을 제출할 수 있으며 원래 command exit와 상태를 근거에 그대로 보존한다. 실제 삭제 결과·부재·참조 해제를 확인한 다음 Node API `finalize(root,id,{producer_stopped_verified:true,reason,evidence_ref})`로 빈 기록을 조정한다. 증거 파일은 삭제 묶음과 registry 밖에 있어야 한다. 종료 근거가 없거나 실제 파일·소비 참조가 남으면 축약하지 않는다.
 
 legacy release/verification cleaner의 Apply는 미등록 후보를 `lifecycle-membership-unreviewed`로 차단한다. 기존 명세·설치 영수증·현재 실행을 대조해 전체 수명 묶음을 등록한 뒤 기존 보호 검사를 통과해야 한다. 파일명으로 로그를 추측해 삭제하거나 관리 디렉터리 밖의 원본을 묶음에 넣지 않는다. 공유 cache cleaner는 기존 cache owner의 잠금·회수 조건을 계속 적용한다.
+
+PowerShell owner의 `New-ArtifactRemovalContext -InspectionPaths`는 확인할 하위 경로만 제한한다. `GroupPaths`는 검증된 전체 소유 경계로 유지하며 하드링크·속성 변경 권한을 확장하지 않는다. 각 경로는 정확한 검사 root와 현재 물리 identity를 다시 확인한다. 생략하면 기존 전체 경로 검사와 같다. `Invoke-ArtifactLifecycleCleanup -ContinueOnMemberFailure`의 기본값은 false다. 명시적으로 켜도 확인된 일반 삭제 실패에만 다음 독립 구성원으로 진행하며, 보호·예약·권한 검사 오류, 취소와 사용자 callback 오류는 중단한다. Windows x64의 선택된 하위 경로·링크·실패 처리 fixture로 검증했으며 다른 OS의 검증을 의미하지 않는다.
+
+대규모 캐시 정리에서는 소유 그룹과 실제 작업 단위를 구분한다. metadata 갱신은 단일 writer로 조정하고, 현재 소유 예약 안에서 서로 겹치지 않는 하위 경로의 읽기 검사와 삭제를 제한적으로 병행한다. 등록 측정이나 물리 삭제가 전역 잠금을 놓더라도 다른 writer의 짧은 source 관측·commit과 경합할 수 있다. 잠금 오류를 내용 변경이나 삭제 성공으로 간주하지 않으며, 실제 결과를 확인한 뒤 지원 절차로 복구한다.
 
 `scripts/check-artifact-lifecycle.cjs --stage source`는 lifecycle·build 소스 계약과 작은 포장 fixture를 검사한다. `--stage windows`는 PowerShell 7.4 이상에서 정리 fixture 세 종류와 `verify only`, `account-success`, `build-fail` 모의 배포 사례를 검사한다. 실제 앱 빌드·설치 명령은 실행하지 않는다. 검사 진입점도 실행 전에 `artifacts/tasks/lifecycle-checks/runs/<id>/`를 등록하고 로그와 실제 종료 코드를 같은 실행에 기록한다. 성공·실패 결과를 읽은 모델이 해당 실행 묶음의 삭제/보류를 결정한다. 이 묶음은 설정의 `maintenance-lifecycle-source`, `maintenance-lifecycle-windows`로도 호출할 수 있다.
 

@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "item_id": "64ca36af8abeeb4137b9723b5a22de129b0d47ca60960cf3561ea63e9b936834",
+  "decisions": [
+    {
+      "attempt_id": "attempt-1252-3284-1793044831115",
+      "decision": "delete",
+      "group_status": "deleted",
+      "id": "64ca36af8abeeb4137b9723b5a22de129b0d47ca60960cf3561ea63e9b936834",
+      "lifecycle_group_id": "work:DW14:pty-unmanaged-cache-r3",
+      "reason": "Stopped scoped r5 fixture or independently verified root PTY task cache; original source gate version remains protected for r6.",
+      "remaining": false,
+      "status": "deleted",
+      "token": "1c573b261009f21ba5974dde28c63a0caade3e1e92f96c4ee0033331d4afa38a"
+    }
+  ]
+}

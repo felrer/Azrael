@@ -4,28 +4,31 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 
-// These are reviewed command recipes, never evaluated wrapper source. A wrapper
+// These are reviewed command recipes and reviewed side-effect-free selections. A wrapper
 // change requires reviewing its commands/environment and updating this identity;
 // otherwise cache eligibility reports a gap rather than silently using stale commands.
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
-  'check-deletion-approval-native': '83c94db058a7b764f5c9bfe9e2d0e2b1cdb2033dcc690dee30dd1813df5d5070',
+  'check-role-profiles-native': '74d340d26d6801f63c260c772f1afaba8ed0506d18abf5be353432184bd0b0bc',
+  'check-executor-completion': 'fbba5203634989dcdd30802d2f58af11418b8f32d9b8613ef05cbf7f80a28c09',
+  'check-deletion-approval-native': '139f05599adda7215de9fd9c67a986803fc08a7b081dc9fc3184441ac8631829',
   'check-mcp-lazy-startup': '58cd264045141212a0ddad17f4d36c89e18401c687edbb7f23ed43c407844a86',
-  'check-selected-upstream-native': '38f8d1f82c73fd06d4126c4b15f2e102c22d525541f47e5abfb54495519ed1eb',
+  'check-selected-upstream-native': 'a7fa615e86f518362907b887f1fac221d16a2cf7f6c5568127f943f4a8fdd91a',
   'check-usage-window': 'b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd',
   'check-api-context': '29a883f035865ade22a579c238e33d7c33e7931795115f949f0f597a08af6d37',
-  'check-model-harness-profiles': '7166d157c6d9de907e2dcf5f11dfd64952de8b4edcfb81d6c7a9bc280b1ecb16',
+  'check-model-harness-profiles': 'c4f2c63c2034e2ee134431573739132a16d550a7a1e097a7bac256b01b3a24fa',
   'check-root-resume-reasoning': '0158f4af4864a884036821e42228d0d74e4396a7d9cc3856bcd7f4db190a76e4',
-  'check-task-work-time-native': '63cb1e6655af44990874fbf20c2158470631e25397c9a72ba24b96233354f973',
+  'check-task-work-time-native': '858d85c4c4b199b8567c251bec58e3b95779d3851e0e8d3c0ea3992590e3813e',
   'check-thread-auto-compaction': '45538fd544446ae4af9453e6cde0b4cd62e9ba87b1b62e5f2c57ea80723bb053',
   'check-parent-requests': 'aa2456ae2edc5a2e3df68815594a0d01b6e1de202bebe50a2fe9ce7ac819a368',
   'check-capacity-recovery': 'ca6cccb3d50df005500d5ceeedbba0c064806a74aa4c089c880f82186b6d4c37',
   'check-task-profile-skills': '8b917134a02db256c4b5940e8611aaf37da7699934382563a4a34a0c895923e5',
-  'check-shared-engine-native': 'b3afbb0f8410ae3177bbe00f88a914518816665bf2b9ca6af9c3de47b17581bf',
+  'check-shared-engine-native': '99fa4ff0be0f2306361bab0a4e29af83b1f2c9d7a8de78c35887774b682075b1',
+  'check-task-memory': 'f436acee6c3aa87b6cf2b41d81350fae0f577cde4d76a0ff506bf8ba31b80f51',
   'check-question-withdrawal-native': 'b17ee0244ec76cb3fa54d0384dfdb260bd8d8055a5ff32958bd1305d5bf22080',
   'check-mcp-oauth-store': '1b2d990b48a5bdcd038fc6a58cfa56f587797681823e3c10d41e43513cfdddfa',
   'check-startup-performance-native': '5cb7624493f45adf3e04f8d3cc4c51b55f0386b735e87a001c99afede7c947e2',
-  'check-response-tps-native': 'ff6fd89fe8103a7da51f5555f0c704bd37d056b3f5017f10251d7285563b74e0',
+  'check-response-tps-native': 'a9c935f67afaf2f6bc6395c66311f481b12690548e93fafdbafee162ef620e6a',
   'check-task-recovery-native': 'bf1efa7f6b25732bd964d4181df234a5420a60ce327fa95753d341e4cde18728',
   'check-project-maintenance': '79877d89003169e5e5744e3fb8f87b80a6332ff953a0aeccb2c59a5e72d94492',
   'check-error-classification-native': '338386a3b633c8364fae67e268c86405328b60f809e951f193edc8a533c1d616',
@@ -46,19 +49,38 @@ function reviewedRecipes(wrapper, tail, platform) {
     return Object.hasOwn(choices, name) ? choices[name] : undefined;
   };
   switch (wrapper) {
+    case 'check-role-profiles-native':
+      if (!tail.length) args = ['role_profile', 'spawn_agent_fork',
+        'multi_agent_v2_spawn_fork_turns_all_applies_agent_type_override',
+        'spawn_agent_can_fork_parent_thread_history_with_sanitized_items',
+        'root_coordination', 'defer_root_registration', 'config::schema::tests::config_schema_matches_fixture'].map(filter =>
+        ['test', '-p', 'codex-core', '--lib', '--locked', '--offline', filter, '--', '--test-threads=1'])
+        .concat([['test', '-p', 'codex-app-server-protocol', '--lib', '--locked', '--offline', 'schema_fixtures_tests::', '--', '--test-threads=1']]);
+      break;
+    case 'check-executor-completion':
+      if (!tail.length) args = ['session::work_completion::', 'unified_exec::', 'tools::handlers::unified_exec::']
+        .map(filter => finish(['-p', 'codex-core', '--lib', filter]));
+      break;
     case 'check-mcp-lazy-startup':
       if (!tail.length) args = [finish(['-p', 'codex-core', '--features', 'integration-tests', '--test', 'all', 'suite::mcp_tool_cache::']),
         finish(['-p', 'codex-mcp', '--lib'])];
       break;
     case 'check-selected-upstream-native': {
       const [scope, runtime, ...extra] = tail;
-      if (extra.length || (scope === 'core-integration' ? !runtime : tail.length !== 1)) break;
+      const needsHost = ['core-integration', 'code-mode-trace'].includes(scope);
+      if (extra.length || (needsHost ? !runtime : tail.length !== 1)) break;
       const choices = {
+        'catalog-retention': [['codex-models-manager', '--lib', ''], ['codex-model-provider', '--lib', 'shared_state::tests::'], ['codex-protocol', '--lib', 'error::'], ['codex-prompts', '--lib', 'model_instructions'], ['codex-core', '--lib', 'model_resolution_preserves_startup_overrides_and_instruction_provenance']],
+        'analytics-bound': [['codex-analytics', '--lib', ''], ['codex-app-server', '--lib', 'outgoing_message::tests']],
+        'code-mode-trace': [['codex-code-mode', '--lib', ''], ['codex-core', '--test', 'code_mode_tracing', 'stdio_callbacks_preserve_context_across_overlapping_yielded_cells']],
+        'catalog-retention-integration': [['codex-core', '--test', 'all', 'suite::models_cache_auth::failed_catalog_refresh_preserves_tool_search_on_the_next_turn'], ['codex-core', '--test', 'all', 'suite::personality::config_personality_'], ...(platform === 'win32' ? [] : [['codex-core', '--test', 'all', 'suite::remote_models']])],
+        'catalog-refresh': [['codex-mcp-extension', '--lib', 'cloud_'], ['codex-mcp-extension', '--test', 'plugin_mcp', ''], ['codex-skills-extension', '--lib', 'cloud_cache_tests'], ['codex-core', '--lib', 'turn_start_refreshes_dirty_mcp_reuses_clean_runtime_and_cancels_discovery']],
+        'catalog-refresh-integration': [['codex-core', '--test', 'all', 'suite::skills_extension::cloud_lifecycle_tests']],
         network: [['codex-network-proxy', '--lib', '']], protocol: [['codex-protocol', '--lib', 'permissions::']],
         sandbox: [['codex-sandboxing', '--lib', '']], 'thread-store': [['codex-thread-store', '--lib', 'resolve_requested_rollout_path_']],
-        'core-lib': ['unified_exec::', 'persisted_permissions_initialize_proxy_with_expandable_managed_allowlist',
+        'core-lib': ['recompute_token_usage', 'context_manager::history::', 'context::instruction_state_projection::tests::', 'unified_exec::', 'persisted_permissions_initialize_proxy_with_expandable_managed_allowlist',
           'explicit_permission_overrides_win_over_saved_unnamed_permissions', 'initial_settings_remain_pending_until_persistence_succeeds'].map(f => ['codex-core', '--lib', f]),
-        'core-integration': ['compaction_preserves_history_after_restart', 'manual_compact_emits_context_compaction_items',
+        'core-integration': ['auto_compact_accounts_for_encrypted_reasoning', 'auto_compact_accounts_for_unreported_reasoning', 'code_mode_dynamic_tool_calls_pending_together_resolve_in_reverse_order', 'compaction_preserves_history_after_restart', 'manual_compact_emits_context_compaction_items',
           'manual_compact_records_durable_and_local_token_usage', 'exec_command_consumes_pushed_remote_process_events',
           'cloud_skill_reads_run_in_parallel', 'code_mode_interrupt_terminates_active_cells_and_nested_tools',
           ...(platform === 'win32' ? [] : ['shell_snapshot_v2_returns_before_inherited_output_closes', 'agent_started_proxy_denies_brokered_provider_alias']),
@@ -70,12 +92,13 @@ function reviewedRecipes(wrapper, tail, platform) {
       };
       if (Object.hasOwn(choices, scope)) args = choices[scope].map(([crate, target, ...selection]) => finish(['-p', crate, target,
         ...selection.filter(Boolean), ...(['codex-core', 'codex-app-server'].includes(crate) && target === '--test' ? ['--features', 'integration-tests'] : [])]));
-      if (scope === 'core-integration') envRecipe = 'code-mode-host';
+      if (needsHost) envRecipe = 'code-mode-host';
       break;
     }
     case 'check-deletion-approval-native':
       if (!tail.length) args = [lib('codex-shell-command', 'command_safety::'),
-        ...['exec_policy::tests::', 'tools::approvals::tests::deletion_approval_', 'apply_patch::tests::'].map(filter => lib('codex-core', filter))];
+        ...['exec_policy::tests::', ...(platform === 'win32' ? [] : ['tools::approvals::tests::deletion_approval_']),
+          'apply_patch::tests::'].map(filter => lib('codex-core', filter))];
       break;
     case 'check-usage-window':
       if (!tail.length) args = [lib('codex-app-server', 'account_processor')];
@@ -88,15 +111,17 @@ function reviewedRecipes(wrapper, tail, platform) {
       break;
     case 'check-model-harness-profiles':
       isolateHostEnvironment = false;
-      args = scoped({ config: [lib('codex-config', 'harness'), lib('codex-prompts', 'model_instructions')],
-        context: ['context::world_state::model::tests', 'session::provider_handoff::tests', 'instruction_state_projection'].map(f => lib('codex-core', f)).concat([integration('suite::model_switching')]),
-        tools: ['claude', 'anthropic_azrael_tools_patch_read_and_execute', 'tools::router::tests::chat_discovery', 'mcp_and_tool_search_follow_direct_and_deferred_tool_exposure'].map(f => lib('codex-core', f)) });
+      args = scoped({ config: [lib('codex-config', 'harness'), lib('codex-prompts', 'model_instructions'), lib('codex-prompts', 'multi_agent_instructions')],
+        context: ['context::world_state::model::tests', 'context::world_state::multi_agent_mode::tests', 'session::provider_handoff::tests', 'instruction_state_projection'].map(f => lib('codex-core', f)).concat([integration('suite::model_switching')]),
+        tools: ['anthropic_shared_tools', 'anthropic_common_discovery', 'anthropic_azrael_tools_patch_read_and_execute', 'tools::router::tests::chat_discovery', 'mcp_and_tool_search_follow_direct_and_deferred_tool_exposure', 'retired_model_harness_is_rejected_during_config_load'].map(f => lib('codex-core', f)) });
       break;
     case 'check-root-resume-reasoning':
       if (!tail.length) args = [libs(['codex-core', 'codex-protocol', 'codex-state'], 'root_resume')];
       break;
     case 'check-task-work-time-native':
       args = scoped({ protocol: [lib('codex-app-server-protocol', 'thread_history')],
+        'user-wait': [lib('codex-core', 'user_wait'), lib('codex-mcp', 'elicitation'),
+          ...['codex-app-server-protocol', 'codex-thread-store', 'codex-app-server'].map(p => lib(p, 'user_wait'))],
         store: ['recorded_turn_attribution', 'deferred_turn_duration_stays_frozen_after_a_new_turn'].map(f => lib('codex-thread-store', f)),
         appserver: ['bespoke_event_handling::tests::test_handle_turn_', 'test_emit_turn_deferred_preserves_frozen_timing'].map(f => lib('codex-app-server', f)) });
       break;
@@ -113,6 +138,14 @@ function reviewedRecipes(wrapper, tail, platform) {
     case 'check-capacity-recovery':
       if (!tail.length) args = [lib('codex-core', 'capacity')];
       break;
+    case 'check-task-memory': {
+      // This wrapper owns its freeze/environment and derives projectRoot/engine;
+      // its argv contains only an optional scope, never a source-root argument.
+      const storage = ['test', '-p', 'azrael-task-memory', '--lib', '--locked', '--offline', '--', '--test-threads=1'];
+      const core = ['test', '-p', 'codex-core', '--lib', '--locked', '--offline', 'task_memory', '--', '--test-threads=1'];
+      args = scoped({ all: [storage, core], storage: [storage], core: [core] }, 'all');
+      break;
+    }
     case 'check-task-profile-skills':
       if (!tail.length) args = [
         ['codex-config', ['--lib'], 'skills_config'],
@@ -128,30 +161,12 @@ function reviewedRecipes(wrapper, tail, platform) {
           'session::agent_profile::tests::materializer_snapshot_contract_fixture', '--', '--ignored', '--exact']]);
       break;
     case 'check-shared-engine-native': {
-      const appserver = [];
-      // Windows native launch tests have a special executor. These arguments are
-      // its explicit preflightCommands input, before --no-run/JSON compilation.
-      if (platform === 'win32') for (const f of ['windows_tests::', 'win::process_tree::tests::', 'pipe::tests::process_fallback_interrupt_terminates_root']) appserver.push(['test', '-p', 'codex-utils-pty', '--lib', f, '--locked', '--offline']);
-      for (const f of ['azrael::tests::', 'azrael_lifecycle::tests::', 'registration::tests::', 'azrael_storage::tests::', 'backend::pid::tests::']) {
-        appserver.push(platform === 'win32' && f === 'backend::pid::tests::' ? ['test', '-p', 'codex-app-server-daemon', '--lib', f, '--locked', '--offline'] : lib('codex-app-server-daemon', f));
-      }
-      for (const f of ['azrael_shared_server::tests::', 'azrael_shutdown::tests::', 'azrael_shared_server::instance_tests::', 'azrael_thread_engines::tests::', 'azrael_state::', 'config_manager::window_context_tests::']) appserver.push(lib('codex-app-server', f));
-      appserver.push(lib('codex-install-context', 'azrael_entry_resolves_its_own_code_mode_host'));
-      for (const f of ['entry::tests::', 'entry::endpoint_tests::']) appserver.push(finish(['-p', 'codex-app-server', '--bin', 'azrael', f]));
-      args = scoped({ appserver,
-        accounts: [lib('codex-login', 'auth::manager::profiles::tests::'), lib('codex-app-server', 'config_manager::window_context_tests::'),
-          lib('codex-app-server', 'request_processors::account_processor::azrael_state::durable_recovery_tests::'),
-          lib('codex-app-server', 'request_processors::account_processor::azrael::tests::'),
-          lib('codex-app-server', 'request_processors::account_processor::retirement::durable_recovery_tests::'),
-          lib('codex-app-server', 'azrael_shared_server::tests::')],
-        handoff: [lib('codex-app-server-daemon', 'session_handoff::tests::'),
-          lib('codex-core', 'session::handoff::tests::'),
-          lib('codex-app-server', 'azrael_session_handoff::tests::'),
-          lib('codex-app-server', 'azrael_thread_engines::tests::'),
-          lib('codex-app-server', 'azrael_shared_server::tests::')],
-        bridge: [finish(['-p', 'codex-app-server-client', '--no-default-features', '--lib', 'remote::tests::']),
-          finish(['-p', 'codex-app-server-client', '--no-default-features', '--bin', 'azrael-bridge', 'terminal_'])],
-        manual: [lib('codex-core', 'azrael_manual_resume::tests::'), lib('codex-core', 'manual_resume_marker'), finish(['-p', 'codex-queue-extension', '--test', 'queue_service', 'manual_resume_marker'])] });
+      // Share reviewed selections with the side-effect-free runner export so
+      // early preparation cannot reintroduce retired broad test targets.
+      const choices = require('./check-shared-engine-native.cjs').selectedScopes();
+      args = scoped(Object.fromEntries(Object.entries(choices).map(([name, entries]) => [name,
+        entries.map(([crate, filter, target]) => finish(['-p', crate,
+          ...(Array.isArray(target) ? target : target ? ['--test', target] : ['--lib']), filter]))])));
       break;
     }
     case 'check-question-withdrawal-native': {
@@ -187,7 +202,7 @@ function reviewedRecipes(wrapper, tail, platform) {
       break;
     }
     case 'check-response-tps-native':
-      args = scoped({ protocol: [lib('codex-protocol', 'response_performance')], core: [lib('codex-core', 'turn_timing::tests'), lib('codex-core', 'session::tests::response_performance')], appserver: [lib('codex-app-server-protocol', 'response_performance')] });
+      args = scoped({ protocol: [lib('codex-protocol', 'response_performance')], core: [lib('codex-core', 'turn_timing::tests'), lib('codex-core', 'session::tests::response_performance'), lib('codex-core', 'client::tests::response_stream_records_last_model_feedback_ids')], appserver: [lib('codex-app-server-protocol', 'response_performance'), lib('codex-app-server-protocol', 'schema_fixtures_tests')], api: [lib('codex-api', 'completed_preserves_server_service_tier'), finish(['-p', 'codex-api', '--test', 'sse_end_to_end', 'responses_stream_parses_items_and_completed_end_to_end'])] });
       break;
     case 'check-task-recovery-native':
       if (!tail.length) args = ['host_approval', 'async_question', 'session::accepted_user_inputs::tests', 'context_manager::history::tests::normalize_', 'context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history', 'tasks::panic_tests::', 'tasks::tests::'].map(f => lib('codex-core', f));
@@ -208,18 +223,23 @@ function reviewedRecipes(wrapper, tail, platform) {
 function recipesForCheck(config, check) {
   const fail = reason => ({ cargoPreparations: [], gaps: [{ checkId: check.id, reason }] });
   const argv = check.args || [];
-  if (check.executable !== 'node' || check.cargoPreflight !== 'selected-tests-v1') return fail('unsupported Cargo preflight declaration or executable');
+  if (check.executable !== 'node' || check.cargoPreflight !== 'selected-tests-v2') return fail('unsupported Cargo preflight declaration or executable');
   if (!/^scripts\/check-[a-z-]+\.cjs$/.test(argv[0] || '')) return fail('unsupported wrapper path');
   const wrapper = path.basename(argv[0], '.cjs');
   if (!Object.hasOwn(wrapperHashes, wrapper)) return fail('no reviewed Cargo recipe for wrapper');
-  if (argv[1] !== '{engineSourceRoot}' && argv[1] !== config.engineSourceRoot) return fail('wrapper does not select the configured engine source root');
-  if (wrapper === 'check-selected-upstream-native' && argv[2] === 'core-integration' &&
+  if (wrapper === 'check-task-memory') {
+    if (typeof config.engineSourceRoot !== 'string' || !path.isAbsolute(config.engineSourceRoot) ||
+        path.resolve(config.engineSourceRoot) !== path.resolve(config.projectRoot, 'engine')) {
+      return fail('task-memory wrapper does not derive the configured engine source root');
+    }
+  } else if (argv[1] !== '{engineSourceRoot}' && argv[1] !== config.engineSourceRoot) return fail('wrapper does not select the configured engine source root');
+  if (wrapper === 'check-selected-upstream-native' && ['core-integration', 'code-mode-trace'].includes(argv[2]) &&
       argv[3] !== '{engineDirectory}' && argv[3] !== config.engineDirectory) return fail('wrapper does not select the configured engine runtime directory');
   let source;
   try { source = fs.readFileSync(path.join(config.projectRoot, argv[0]), 'utf8'); }
   catch (error) { return fail(`cannot read wrapper: ${error.code || error.message}`); }
   if (createHash('sha256').update(source.replace(/\r\n/g, '\n')).digest('hex') !== wrapperHashes[wrapper]) return fail('wrapper source changed; review its recipe and update the recorded source hash');
-  const recipes = reviewedRecipes(wrapper, argv.slice(2), process.platform);
+  const recipes = reviewedRecipes(wrapper, argv.slice(wrapper === 'check-task-memory' ? 1 : 2), process.platform);
   if (!recipes?.length) return fail('unsupported wrapper scope or arguments');
   return { cargoPreparations: recipes.map((recipe, index) => ({ checkId: check.id, ...recipe,
     ...(wrapper === 'check-task-profile-skills' && index === recipes.length - 1

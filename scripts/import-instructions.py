@@ -156,6 +156,11 @@ def components(paths, legacy=False):
     for name in (["work", "app-logging"] if legacy else ["app-logging"]):
         result.append(component("playbook-" + name, name, "playbook", "workspace", False,
                                 [(f"skills/project-bootstrap/assets/playbooks/{name}.md", f"docs/playbooks/{name}.md")]))
+    if not legacy:
+        for role in ["root", "subagent"]:
+            result.append(component("task-memory-" + role, "Task memory: " + role, "instructions", "home", False,
+                                    [("task-memory/shared.md", f"skills/task-memory-{role}/shared.md"),
+                                     (f"task-memory/{role}.md", f"skills/task-memory-{role}/role.md")]))
     config = component("agent-config", "Agent configuration", "config", "home", True,
                        [("config.example.toml", "config.toml")])
     config["configKeys"] = ["enabled", "default_subagent_model", "default_subagent_reasoning_effort", "max_concurrent_threads_per_session"]

@@ -611,6 +611,7 @@ pub enum ThreadStoreConfig {
 /// Application configuration loaded from disk and merged with overrides.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Config {
+    pub role_profile: Option<codex_protocol::protocol::RoleProfilePolicy>,
     /// Validated harness catalog with eagerly captured behavior templates.
     pub harness_profiles: codex_config::harness_profiles::HarnessProfiles,
     /// App-server-owned destination policy; other runtimes remain unmanaged.
@@ -1785,6 +1786,26 @@ impl Config {
         self.to_mcp_config_with_loaded_plugins(&loaded_plugins, additional_plugin_registrations)
     }
 
+    pub(crate) fn profile_mcp_server_ids(&self) -> Option<Vec<String>> {
+        let effective = self.config_layer_stack.effective_config();
+        let selection = effective.get("agent_profile_resources").filter(|v| v.get("enabled").and_then(toml::Value::as_bool) == Some(true))?;
+        Some(selection.get("mcp_server_ids").and_then(toml::Value::as_array).into_iter().flatten().filter_map(toml::Value::as_str).map(str::to_owned).collect())
+    }
+
+    pub(crate) fn profile_allows_mcp_server(&self, name: &str) -> bool {
+        matches!(name, "node_repl" | "azrael_window") || self.profile_mcp_server_ids().is_none_or(|ids| ids.iter().any(|id| id == name))
+    }
+
+    pub(crate) fn filter_profile_mcp_config(&self, config: &mut McpConfig) {
+        if self.profile_mcp_server_ids().is_some() {
+            let mut catalog = config.mcp_server_catalog.to_builder();
+            for name in config.mcp_server_catalog.configured_servers().keys() {
+                if !self.profile_allows_mcp_server(name) { catalog.disable(name.clone()); }
+            }
+            config.mcp_server_catalog = catalog.build();
+        }
+    }
+
     pub(crate) fn to_mcp_config_with_loaded_plugins(
         &self,
         loaded_plugins: &PluginLoadOutcome,
@@ -1833,6 +1854,16 @@ impl Config {
                 name.clone(),
                 server.clone(),
             ));
+        }
+
+        let effective = self.config_layer_stack.effective_config();
+        if let Some(selection) = effective.get("agent_profile_resources").filter(|v| v.get("enabled").and_then(toml::Value::as_bool) == Some(true)) {
+            let allowed: std::collections::HashSet<_> = selection.get("mcp_server_ids").and_then(toml::Value::as_array).into_iter().flatten().filter_map(toml::Value::as_str).collect();
+            for name in catalog.clone().build().configured_servers().keys() {
+                if !matches!(name.as_str(), "node_repl" | "azrael_window") && !allowed.contains(name.as_str()) {
+                    catalog.disable(name.clone());
+                }
+            }
         }
 
         McpConfig {
@@ -4443,6 +4474,7 @@ impl Config {
             base_instructions_provenance,
             personality,
             developer_instructions,
+            role_profile: cfg.role_profile,
             compact_prompt,
             include_permissions_instructions,
             include_apps_instructions,
@@ -5091,7 +5123,7 @@ mod harness_config_tests {
     use super::*;
 
     #[tokio::test]
-    async fn selected_model_harness_isolation_is_rejected_during_config_load() {
+    async fn retired_model_harness_is_rejected_during_config_load() {
         let home = tempfile::tempdir().unwrap();
         let cfg: ConfigToml = toml::from_str(
             "model = 'direct-model'\nmodel_provider = 'openai'\n\
@@ -5109,7 +5141,7 @@ mod harness_config_tests {
         assert!(
             error
                 .to_string()
-                .contains("incompatible with provider openai model direct-model")
+                .contains("unknown harness profile anthropic-default")
         );
     }
 }

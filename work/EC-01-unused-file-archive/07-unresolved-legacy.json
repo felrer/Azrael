@@ -1,0 +1,92 @@
+[
+  {
+    "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+    "owner": "BB-01-btw-scope-diagnosis",
+    "source_state": "failed",
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba"
+    ],
+    "last_registered_logical_bytes": 53196,
+    "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation."
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+    "owner": "instruction-library-verification",
+    "source_state": "pending",
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f"
+    ],
+    "last_registered_logical_bytes": 84477,
+    "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation."
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+    "owner": "instruction-library-verification",
+    "source_state": "failed",
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e"
+    ],
+    "last_registered_logical_bytes": 98216,
+    "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation."
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+    "owner": "instruction-library-verification",
+    "source_state": "failed",
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325"
+    ],
+    "last_registered_logical_bytes": 54334,
+    "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation."
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+    "owner": "instruction-library-verification",
+    "source_state": "failed",
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626"
+    ],
+    "last_registered_logical_bytes": 42294,
+    "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation."
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+    "owner": "scripts/verify-instruction-library-render.mjs",
+    "source_state": "failed",
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1"
+    ],
+    "last_registered_logical_bytes": 224266,
+    "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation."
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+    "owner": "scripts/verify-instruction-library-render.mjs",
+    "source_state": "failed",
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814"
+    ],
+    "last_registered_logical_bytes": 83066,
+    "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation."
+  },
+  {
+    "id": "run:CM-01:host-35dac893",
+    "owner": "instruction-library-verification",
+    "source_state": "failed",
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893"
+    ],
+    "last_registered_logical_bytes": 38460,
+    "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation."
+  },
+  {
+    "id": "work:engine-check-retirement-r1",
+    "owner": "root",
+    "source_state": "pending",
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r1"
+    ],
+    "last_registered_logical_bytes": 20971,
+    "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation."
+  }
+]

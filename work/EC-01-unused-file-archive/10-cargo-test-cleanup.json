@@ -1,0 +1,830 @@
+{
+  "schema": 1,
+  "platform": "Windows x64",
+  "owner": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh\\payload\\maintenance_owner.exe",
+    "sha256": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529"
+  },
+  "runs": [
+    {
+      "id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\reports\\producer-b0765ff39ac2af1b113e21b4b9b4f973103cfab4e79982f21bd19a163cbabca9.json",
+        "evidence_sha256": "b0765ff39ac2af1b113e21b4b9b4f973103cfab4e79982f21bd19a163cbabca9",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producer_proof": {
+        "lifecycleId": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "producer_registry_sha256": "c6ec6d0d731654e5d51c004c6f380b1e0d352865c8bd7210232133d2d3e156ba",
+      "test_log_sha256": "041de3e3d578ac58f809b7d40154353ae38ef81f91c1ea890e5272d540b827bb",
+      "test_summary": {
+        "tests": 93,
+        "pass": 90,
+        "fail": 3
+      },
+      "failures": [],
+      "failure_context": "\n\n✖ failing tests:\n\ntest at scripts\\test-cargo-target-owner.cjs:263:1\n✖ a second real process cannot enter a target via a junction/symlink or Windows case alias (7547.0183ms)\n  AssertionError [ERR_ASSERTION]: Expected \"actual\" to be strictly unequal to: 0\n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-target-owner.cjs:285:12)\n      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n      at async Test.run (node:internal/test_runner/test:1404:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 0,\n    operator: 'notStrictEqual',\n    diff: 'simple'\n  }\n\ntest at scripts\\test-cargo-target-owner.cjs:366:1\n✖ pending lifecycle registration failure leaves foreign generation unchanged and releases own lease (914.1219ms)\n  Error: ENOENT: no such file or directory, lstat 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\temporary\\cargo-owner\\pending-registration-huiwbC\\artifacts\\maintenance\\owner-installation.json'\n      at Object.lstatSync (node:fs:2055:25)\n      at plainFile (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\temporary\\cargo-owner\\pending-registration-huiwbC\\scripts\\maintenance-owner-config.cjs:10:21)\n      at Object.resolveMaintenanceOwner (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\temporary\\cargo-owner\\pending-registration-huiwbC\\scripts\\maintenance-owner-config.cjs:24:3)\n      at resolveOwner (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\temporary\\cargo-owner\\pending-registration-huiwbC\\scripts\\maintenance-lock-owner.cjs:9:62)\n      at Object.acquire (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\temporary\\cargo-owner\\pending-registration-huiwbC\\scripts\\maintenance-lock-owner.cjs:19:139)\n      at withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\temporary\\cargo-owner\\pending-registration-huiwbC\\scripts\\artifact-lifecycle.cjs:81:39)\n      at Object.recordLifecycle (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\temporary\\cargo-owner\\pending-registration-huiwbC\\scripts\\artifact-lifecycle.cjs:158:50)\n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-target-owner.cjs:376:13)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1397:25) {\n    errno: -4058,\n    code: 'ENOENT',\n    syscall: 'lstat',\n    path: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\EC-01-unused-file-archive\\\\runs\\\\cargo-prestart-r1\\\\temporary\\\\cargo-owner\\\\pending-registration-huiwbC\\\\artifacts\\\\maintenance\\\\owner-installation.json'\n  }\n\ntest at scripts\\test-cargo-target-owner.cjs:520:1\n✖ copied-project default pending lifecycle precedes the producer and reconciles physical alias ownership (471.0763ms)\n  AssertionError [ERR_ASSERTION]: ENOENT: no such file or directory, lstat 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\temporary\\cargo-owner\\default-lifecycle-Dci7Cc\\artifacts\\maintenance\\owner-installation.json'\n  \n  null !== 0\n  \n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-target-owner.cjs:541:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1397:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)\n      at Test.postRun (node:internal/test_runner/test:1537:19)\n      at Test.run (node:internal/test_runner/test:1462:12)\n      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: 0,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+      "actual_absence": true,
+      "finalization": {
+        "id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8cea2219cb2fd8bd426b9947a0e3afeaebcb86ccd61141f3e73e856c85f5d89b.json"
+      },
+      "producer_registry_absence": true
+    },
+    {
+      "id": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r2",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r2\\reports\\producer-0a48cd32fe9a7b1c61e4158c988ac6e35e850b76b46accd5edf92f712553060a.json",
+        "evidence_sha256": "0a48cd32fe9a7b1c61e4158c988ac6e35e850b76b46accd5edf92f712553060a",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producer_proof": {
+        "lifecycleId": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r2",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "producer_registry_sha256": "2642a368fef00a2c402ea2e3dca8d7b188541c9ce0c7bcab0ce25d128521ba1a",
+      "test_log_sha256": "2a117ee67ad8e1694ef8c01752ba0bd35d6862aeb87872509b29ada146153ad0",
+      "test_summary": [
+        "# tests 147",
+        "# pass 141",
+        "# fail 6",
+        "# cancelled 0",
+        "# skipped 0",
+        "# todo 0",
+        "# duration_ms 1108586.6573"
+      ],
+      "failures": [
+        "not ok 59 - audited source-backed checks omit complete product payload identity but retain source and unknown inputs\n  ---\n  duration_ms: 34783.8552\n  type: 'test'\n  location: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\scripts\\\\test-cargo-verification-cache.cjs:145:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    + actual - expected\n    \n    + 'f4a17463e1d401b76bc21b0222712190accae11f545ac8148b5a56cfb45a13ba'\n    - '286527dab346b8faf67afb07f297dd3b3f8b31e08b2be5f8a42ca9a84e3156e7'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: '286527dab346b8faf67afb07f297dd3b3f8b31e08b2be5f8a42ca9a84e3156e7'\n  actual: 'f4a17463e1d401b76bc21b0222712190accae11f545ac8148b5a56cfb45a13ba'\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:160:10)\n    async Test.run (node:internal/test_runner/test:1404:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)\n  ...\n# Subtest: all declared Cargo groups share semantic keys across execution roots and preserve every bound input\nok 60 - all declared Cargo groups share semantic keys across execution roots and preserve every bound input\n  ---\n  duration_ms: 448996.2043\n  type: 'test'\n  ...\n# Subtest: tools, versions, full environment, target/profile/flags and helper defaults bind keys\nok 61 - tools, versions, full environment, target/profile/flags and helper defaults bind keys\n  ---\n  duration_ms: 112246.7823\n  type: 'test'\n  ...\n# Subtest: declared check flags, owners, contract and implementation inputs bind keys\nok 62 - declared check flags, owners, contract and implementation inputs bind keys\n  ---\n  duration_ms: 183969.6974\n  type: 'test'",
+        "not ok 64 - ignored external Cargo configs and absent config sentinels invalidate keys\n  ---\n  duration_ms: 9444.5921\n  type: 'test'\n  location: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\scripts\\\\test-cargo-verification-cache.cjs:312:1'\n  failureType: 'testCodeFailure'\n  error: 'Cannot resolve python on PATH'\n  code: 'ERR_TEST_FAILURE'\n  stack: |-\n    resolveTool (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:84:9)\n    async C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:185:18\n    async cargoConfigs (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:112:9)\n    async Object.runtime (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:181:19)\n    async Object.key (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:62:68)\n    async TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:317:18)\n    async Test.run (node:internal/test_runner/test:1404:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)\n  ...\n# Subtest: config includes, path dependencies, external tools and unparsed config syntax disable reuse\nnot ok 65 - config includes, path dependencies, external tools and unparsed config syntax disable reuse\n  ---\n  duration_ms: 2175.4167\n  type: 'test'\n  location: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\scripts\\\\test-cargo-verification-cache.cjs:335:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    The input did not match the regular expression /unresolved external inputs|unsupported syntax|external specification/. Input:\n    \n    'Error: Cannot resolve python on PATH'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual:\n  error: 'Cannot resolve python on PATH'\n  stack: |-\n    resolveTool (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:84:9)\n    async C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:185:18\n    async cargoConfigs (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:112:9)\n    async Object.runtime (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:181:19)",
+        "not ok 65 - config includes, path dependencies, external tools and unparsed config syntax disable reuse\n  ---\n  duration_ms: 2175.4167\n  type: 'test'\n  location: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\scripts\\\\test-cargo-verification-cache.cjs:335:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    The input did not match the regular expression /unresolved external inputs|unsupported syntax|external specification/. Input:\n    \n    'Error: Cannot resolve python on PATH'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual:\n  error: 'Cannot resolve python on PATH'\n  stack: |-\n    resolveTool (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:84:9)\n    async C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:185:18\n    async cargoConfigs (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:112:9)\n    async Object.runtime (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:181:19)\n    async waitForActual (node:assert:615:5)\n    async strict.rejects (node:assert:738:25)\n    async TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:342:5)\n    async Test.run (node:internal/test_runner/test:1404:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)\n  operator: 'rejects'\n  stack: |-\n    async TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:342:5)\n    async Test.run (node:internal/test_runner/test:1404:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)\n  ...\n# Subtest: current Windows Cargo TOML and equivalent syntax enable config identity\nnot ok 66 - current Windows Cargo TOML and equivalent syntax enable config identity\n  ---\n  duration_ms: 891.9099\n  type: 'test'\n  location: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\scripts\\\\test-cargo-verification-cache.cjs:348:1'\n  failureType: 'testCodeFailure'\n  error: 'Cannot resolve python on PATH'",
+        "not ok 66 - current Windows Cargo TOML and equivalent syntax enable config identity\n  ---\n  duration_ms: 891.9099\n  type: 'test'\n  location: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\scripts\\\\test-cargo-verification-cache.cjs:348:1'\n  failureType: 'testCodeFailure'\n  error: 'Cannot resolve python on PATH'\n  code: 'ERR_TEST_FAILURE'\n  stack: |-\n    resolveTool (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:84:9)\n    async C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:185:18\n    async cargoConfigs (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:112:9)\n    async Object.runtime (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:181:19)\n    async TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:352:20)\n    async Test.run (node:internal/test_runner/test:1404:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)\n  ...\n# Subtest: TOML unknown flags, disguised paths and invalid TOML fail closed\nnot ok 67 - TOML unknown flags, disguised paths and invalid TOML fail closed\n  ---\n  duration_ms: 1179.5839\n  type: 'test'\n  location: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\scripts\\\\test-cargo-verification-cache.cjs:390:1'\n  failureType: 'testCodeFailure'\n  error: 'link-arg=/LIBPATH:C:/external'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual:\n  error: 'Cannot resolve python on PATH'\n  stack: |-\n    resolveTool (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:84:9)\n    async C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:185:18\n    async cargoConfigs (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:112:9)\n    async Object.runtime (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:181:19)\n    async waitForActual (node:assert:615:5)\n    async strict.rejects (node:assert:738:25)\n    async TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:398:5)\n    async Test.run (node:internal/test_runner/test:1404:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)",
+        "not ok 67 - TOML unknown flags, disguised paths and invalid TOML fail closed\n  ---\n  duration_ms: 1179.5839\n  type: 'test'\n  location: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\scripts\\\\test-cargo-verification-cache.cjs:390:1'\n  failureType: 'testCodeFailure'\n  error: 'link-arg=/LIBPATH:C:/external'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n  actual:\n  error: 'Cannot resolve python on PATH'\n  stack: |-\n    resolveTool (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:84:9)\n    async C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:185:18\n    async cargoConfigs (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:112:9)\n    async Object.runtime (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:181:19)\n    async waitForActual (node:assert:615:5)\n    async strict.rejects (node:assert:738:25)\n    async TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:398:5)\n    async Test.run (node:internal/test_runner/test:1404:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)\n  operator: 'rejects'\n  stack: |-\n    async TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:398:5)\n    async Test.run (node:internal/test_runner/test:1404:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)\n  ...\n# Subtest: selected rustc and wrapper executable contents bind keys; relative tools and path flags reject\nok 68 - selected rustc and wrapper executable contents bind keys; relative tools and path flags reject\n  ---\n  duration_ms: 63698.397\n  type: 'test'\n  ...\n# Subtest: existing evidence store enforces cold/warm, corruption, failures and forced invalidation\nok 69 - existing evidence store enforces cold/warm, corruption, failures and forced invalidation\n  ---\n  duration_ms: 71754.9934\n  type: 'test'\n  ...",
+        "not ok 72 - known MALLOC_CONF table is self-contained, byte/env identity bound and unknown env inputs rejected\n  ---\n  duration_ms: 896.2332\n  type: 'test'\n  location: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\scripts\\\\test-cargo-verification-cache.cjs:548:1'\n  failureType: 'testCodeFailure'\n  error: 'Cannot resolve python on PATH'\n  code: 'ERR_TEST_FAILURE'\n  stack: |-\n    resolveTool (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:84:9)\n    async C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:185:18\n    async cargoConfigs (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:112:9)\n    async Object.runtime (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\cargo-verification-cache.cjs:181:19)\n    async Object.key (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:62:68)\n    async TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-cargo-verification-cache.cjs:552:17)\n    async Test.run (node:internal/test_runner/test:1404:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:969:7)\n  ...\n# Subtest: complete zod content identity ignores snapshot path only; unknown and incomplete identity remain bound\nok 73 - complete zod content identity ignores snapshot path only; unknown and incomplete identity remain bound\n  ---\n  duration_ms: 11299.4624\n  type: 'test'\n  ...\n# fixture: test"
+      ],
+      "fixture_teardown": [
+        {
+          "link": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r2\\temporary\\audit\\audit-ixgo6C\\artifacts\\targets\\linked-lease\\.azrael-cargo-owner",
+          "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r2\\temporary\\audit\\audit-ixgo6C\\artifacts\\lease-destination",
+          "link_absent": true,
+          "target_retained": true,
+          "method": "fixture-owner ordinary rmdirSync"
+        }
+      ],
+      "actual_absence": true,
+      "finalization": {
+        "id": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9cf9a8bbb90be49e9c02229ed48d44503513b64520ad6f8bb81cf338fe735f65.json"
+      },
+      "producer_registry_absence": true
+    },
+    {
+      "id": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r3",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r3\\reports\\producer-770737eb5fc410537518db0e6c658c34c79974dc7e140e5b3a3522efbbd5c3a2.json",
+        "evidence_sha256": "770737eb5fc410537518db0e6c658c34c79974dc7e140e5b3a3522efbbd5c3a2",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producer_proof": {
+        "lifecycleId": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r3",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "producer_registry_sha256": "dd6f4b78c980347c7f40664440d8b4defaea966322b33592e01371fd386ef0db",
+      "test_log_sha256": "64c4f3594333b186018ec2f152647392bc4f59adfe7598cb90705904a035579f",
+      "test_summary": [
+        "# tests 147",
+        "# pass 147",
+        "# fail 0",
+        "# cancelled 0",
+        "# skipped 0",
+        "# todo 0",
+        "# duration_ms 78942.57"
+      ],
+      "actual_absence": true,
+      "finalization": {
+        "id": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0cd5173b627540673baf46ea53d795158645d5fefea77bbf251231069ad3f9fd.json"
+      },
+      "producer_registry_absence": true
+    }
+  ],
+  "operations": [
+    {
+      "operation": "inventory",
+      "exit_code": 1,
+      "elapsed_ms": 569,
+      "stderr": "{\"error\":\"limit must be 1..200\"}\n",
+      "error": ""
+    },
+    {
+      "operation": "inventory",
+      "offset": 0,
+      "exit_code": 0,
+      "elapsed_ms": 1101,
+      "stderr": "",
+      "matching_groups": [],
+      "pagination": {
+        "bundles_total": 52,
+        "decisions_total": 1287,
+        "groups_total": 510,
+        "limit": 200,
+        "offset": 0,
+        "runs_total": 75,
+        "total": 1068
+      }
+    },
+    {
+      "operation": "inventory",
+      "offset": 200,
+      "exit_code": 0,
+      "elapsed_ms": 1282,
+      "stderr": "",
+      "matching_groups": [],
+      "pagination": {
+        "bundles_total": 52,
+        "decisions_total": 1287,
+        "groups_total": 510,
+        "limit": 200,
+        "offset": 200,
+        "runs_total": 75,
+        "total": 1068
+      }
+    },
+    {
+      "operation": "inventory",
+      "offset": 400,
+      "exit_code": 0,
+      "elapsed_ms": 887,
+      "stderr": "",
+      "matching_groups": [],
+      "pagination": {
+        "bundles_total": 52,
+        "decisions_total": 1287,
+        "groups_total": 510,
+        "limit": 200,
+        "offset": 400,
+        "runs_total": 75,
+        "total": 1068
+      }
+    },
+    {
+      "operation": "register",
+      "group_id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+      "exit_code": 1,
+      "elapsed_ms": 53811,
+      "stderr": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n",
+      "value": ""
+    },
+    {
+      "operation": "register",
+      "group_id": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+      "pid": 69324,
+      "exit_code": 0,
+      "elapsed_ms": 84782,
+      "stderr": "",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+          "kind": "run",
+          "members": [
+            "9ef486a0a653c7ea46dd0197f26bc734b72f04f5c498e66696f4075bd891972d"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "2abf064d716616d818080a9fc764acece58939048796b1a3b1b1b4480780a875",
+          "owner": "/root",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9cf9a8bbb90be49e9c02229ed48d44503513b64520ad6f8bb81cf338fe735f65.json",
+          "registered_at_ms": 1793159854257,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "9ef486a0a653c7ea46dd0197f26bc734b72f04f5c498e66696f4075bd891972d",
+            "identity": "fec2826d24ae02899ebd4025ccb598e010279d7b605f7fc08a409ba5091f394e",
+            "kind": "run",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 758985,
+            "measured_at_ms": 1793159840769,
+            "owner": "/root",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r2",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9cf9a8bbb90be49e9c02229ed48d44503513b64520ad6f8bb81cf338fe735f65.json",
+            "references": [],
+            "registered_at_ms": 1793159840769,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "register",
+      "group_id": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+      "pid": 74520,
+      "exit_code": 0,
+      "elapsed_ms": 93755,
+      "stderr": "",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+          "kind": "run",
+          "members": [
+            "a5604168e93a0acf5dcadbd72896f683a56936a5817b22f60a037b6f1989bd1a"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "29db3c182aff7d3f1bb65d904fc322bf46d899ca0b21bb16120400755bf6d0fc",
+          "owner": "/root",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0cd5173b627540673baf46ea53d795158645d5fefea77bbf251231069ad3f9fd.json",
+          "registered_at_ms": 1793159941060,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "a5604168e93a0acf5dcadbd72896f683a56936a5817b22f60a037b6f1989bd1a",
+            "identity": "72acc692b4d91916a2df2d83cbedac7d916d1aff535bbcc5459348c72e4b393f",
+            "kind": "run",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 752223,
+            "measured_at_ms": 1793159927349,
+            "owner": "/root",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r3",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0cd5173b627540673baf46ea53d795158645d5fefea77bbf251231069ad3f9fd.json",
+            "references": [],
+            "registered_at_ms": 1793159927349,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "recover_reservation",
+      "group_id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+      "pid": 12540,
+      "exit_code": 0,
+      "elapsed_ms": 14432,
+      "stderr": "",
+      "value": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\10-r1-reservation-recovery.json",
+        "evidence_sha256": "f82426b530009b2508707c4473f4879cc19949c4359d34d73b8f41aed1cbe368",
+        "execution_outcome_changed": false,
+        "id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+        "lease_owner": {
+          "acquired_at_ms": 1793159589779,
+          "operation": "group_reservation",
+          "pid": 88528,
+          "schema": 2,
+          "token": "88528-1793159589779-c4736bfac618c43f"
+        },
+        "malformed_publication": false,
+        "pending_intents_changed": false,
+        "prior_bytes": null,
+        "reason": "Own direct synchronous registration ended actual exit1 with catalog contention; exact process and no-child production model verified stopped; preserve failed outcome",
+        "reservation_sha256": "c34667e54c7d233f5c6bd0163ba165689e2fde0e4d66ff7cd4de0d8750987b73",
+        "status": "reservation_recovered",
+        "prior_reservation_sha256": "c34667e54c7d233f5c6bd0163ba165689e2fde0e4d66ff7cd4de0d8750987b73"
+      }
+    },
+    {
+      "operation": "register",
+      "group_id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+      "pid": 73308,
+      "exit_code": 0,
+      "elapsed_ms": 102640,
+      "stderr": "",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+          "kind": "run",
+          "members": [
+            "599240bba85b3170ed59871e8c8968ca86ecae1453f2f80ca0e705c1a9380d27"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "b73710579f3290eb4a932eddaf138f375bc9e9ffe6c04edc012013e57c00913d",
+          "owner": "/root",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8cea2219cb2fd8bd426b9947a0e3afeaebcb86ccd61141f3e73e856c85f5d89b.json",
+          "registered_at_ms": 1793160104319,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "599240bba85b3170ed59871e8c8968ca86ecae1453f2f80ca0e705c1a9380d27",
+            "identity": "6fdc4800d103c758eda866ee41301bc97c2039a6a0e3ee2dfab707d669dbd90c",
+            "kind": "run",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 695872,
+            "measured_at_ms": 1793160088634,
+            "owner": "/root",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8cea2219cb2fd8bd426b9947a0e3afeaebcb86ccd61141f3e73e856c85f5d89b.json",
+            "references": [],
+            "registered_at_ms": 1793160088634,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "review",
+      "pid": 91252,
+      "exit_code": 0,
+      "elapsed_ms": 16813,
+      "stderr": "",
+      "value": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "b73710579f3290eb4a932eddaf138f375bc9e9ffe6c04edc012013e57c00913d",
+            "owner": "/root",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8cea2219cb2fd8bd426b9947a0e3afeaebcb86ccd61141f3e73e856c85f5d89b.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "2abf064d716616d818080a9fc764acece58939048796b1a3b1b1b4480780a875",
+            "owner": "/root",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9cf9a8bbb90be49e9c02229ed48d44503513b64520ad6f8bb81cf338fe735f65.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "29db3c182aff7d3f1bb65d904fc322bf46d899ca0b21bb16120400755bf6d0fc",
+            "owner": "/root",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0cd5173b627540673baf46ea53d795158645d5fefea77bbf251231069ad3f9fd.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "599240bba85b3170ed59871e8c8968ca86ecae1453f2f80ca0e705c1a9380d27"
+            ],
+            "group_token": "3d3a906a9a3a72d8ee6597f03a0e010ddcfed013be32ccd176e72f0a0167bb71",
+            "id": "599240bba85b3170ed59871e8c8968ca86ecae1453f2f80ca0e705c1a9380d27",
+            "identity": "6fdc4800d103c758eda866ee41301bc97c2039a6a0e3ee2dfab707d669dbd90c",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+            "logical_bytes": 695872,
+            "measured_at_ms": 1793160088634,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "b73710579f3290eb4a932eddaf138f375bc9e9ffe6c04edc012013e57c00913d",
+              "member_references": {
+                "599240bba85b3170ed59871e8c8968ca86ecae1453f2f80ca0e705c1a9380d27": []
+              },
+              "membership_matches": true,
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793160161700,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  220,
+                  105,
+                  149,
+                  0,
+                  0,
+                  0,
+                  9,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "858cfeef840bce5b7a1c0424142db6d24ff6dd18bdeda7812a61bad2bc72554e",
+            "verification": "registered",
+            "producer_observation": {
+              "state": "failed",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r1\\reports\\producer-b0765ff39ac2af1b113e21b4b9b4f973103cfab4e79982f21bd19a163cbabca9.json",
+                "evidence_sha256": "b0765ff39ac2af1b113e21b4b9b4f973103cfab4e79982f21bd19a163cbabca9",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "membership_complete": true
+            }
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "9ef486a0a653c7ea46dd0197f26bc734b72f04f5c498e66696f4075bd891972d"
+            ],
+            "group_token": "981350c3496f7e1ca5bd80124586ef68a62b7d2091cf24ac4fcd50e54ca576ac",
+            "id": "9ef486a0a653c7ea46dd0197f26bc734b72f04f5c498e66696f4075bd891972d",
+            "identity": "fec2826d24ae02899ebd4025ccb598e010279d7b605f7fc08a409ba5091f394e",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+            "logical_bytes": 758985,
+            "measured_at_ms": 1793159840769,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "2abf064d716616d818080a9fc764acece58939048796b1a3b1b1b4480780a875",
+              "member_references": {
+                "9ef486a0a653c7ea46dd0197f26bc734b72f04f5c498e66696f4075bd891972d": []
+              },
+              "membership_matches": true,
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793160167609,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r2",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  70,
+                  253,
+                  151,
+                  0,
+                  0,
+                  0,
+                  19,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "64971331ac4a441e985a09b6c465b0ef00913b31e20003256940fc290aeb719f",
+            "verification": "registered",
+            "producer_observation": {
+              "state": "failed",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r2\\reports\\producer-0a48cd32fe9a7b1c61e4158c988ac6e35e850b76b46accd5edf92f712553060a.json",
+                "evidence_sha256": "0a48cd32fe9a7b1c61e4158c988ac6e35e850b76b46accd5edf92f712553060a",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "membership_complete": true
+            }
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "a5604168e93a0acf5dcadbd72896f683a56936a5817b22f60a037b6f1989bd1a"
+            ],
+            "group_token": "176042506807fba416a18ddefc107e6dd5b7b68b4813ade681ad0ac62dcb3ddb",
+            "id": "a5604168e93a0acf5dcadbd72896f683a56936a5817b22f60a037b6f1989bd1a",
+            "identity": "72acc692b4d91916a2df2d83cbedac7d916d1aff535bbcc5459348c72e4b393f",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+            "logical_bytes": 752223,
+            "measured_at_ms": 1793159927349,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "29db3c182aff7d3f1bb65d904fc322bf46d899ca0b21bb16120400755bf6d0fc",
+              "member_references": {
+                "a5604168e93a0acf5dcadbd72896f683a56936a5817b22f60a037b6f1989bd1a": []
+              },
+              "membership_matches": true,
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793160173413,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r3",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  7,
+                  252,
+                  151,
+                  0,
+                  0,
+                  0,
+                  22,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "dff30afe81c75ec24c16ac4204ba68e9dda43b726e5f6a764fa96ee2f981b85e",
+            "verification": "registered",
+            "producer_observation": {
+              "state": "complete",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\cargo-prestart-r3\\reports\\producer-770737eb5fc410537518db0e6c658c34c79974dc7e140e5b3a3522efbbd5c3a2.json",
+                "evidence_sha256": "770737eb5fc410537518db0e6c658c34c79974dc7e140e5b3a3522efbbd5c3a2",
+                "exit_code": 0,
+                "outcome": "success",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "membership_complete": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "operation": "apply",
+      "pid": 35700,
+      "exit_code": 0,
+      "elapsed_ms": 257561,
+      "stderr": "",
+      "value": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+            "status": "deleted"
+          },
+          {
+            "id": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+            "status": "deleted"
+          },
+          {
+            "id": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-35700-3702-1793160252345",
+            "decision": "delete",
+            "decision_id": "e3ab260b9db9d05e5cbebe89725a5ffa934652d4cead91c4e177fff3e4d0135d",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "599240bba85b3170ed59871e8c8968ca86ecae1453f2f80ca0e705c1a9380d27",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:cargo-prestart-r1",
+            "reason": "Root authorized disposable stopped Cargo test run cleanup; independent producer/test outcome and failure causes preserved in work/EC-01-unused-file-archive/10-cargo-test-cleanup.json; no active consumers or blockers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "858cfeef840bce5b7a1c0424142db6d24ff6dd18bdeda7812a61bad2bc72554e"
+          },
+          {
+            "attempt_id": "attempt-35700-3704-1793160337226",
+            "decision": "delete",
+            "decision_id": "fc7317e722b9df9681f460b509bb9a3d942c8ad4dcfcbbaec28a55eb1037ac5b",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "9ef486a0a653c7ea46dd0197f26bc734b72f04f5c498e66696f4075bd891972d",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:cargo-prestart-r2",
+            "reason": "Root authorized disposable stopped Cargo test run cleanup; independent producer/test outcome and failure causes preserved in work/EC-01-unused-file-archive/10-cargo-test-cleanup.json; no active consumers or blockers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "64971331ac4a441e985a09b6c465b0ef00913b31e20003256940fc290aeb719f"
+          },
+          {
+            "attempt_id": "attempt-35700-3706-1793160392413",
+            "decision": "delete",
+            "decision_id": "96704f060bbb0850a4db33d1fce2f096a9198a810339483a6edd5f281a464163",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "a5604168e93a0acf5dcadbd72896f683a56936a5817b22f60a037b6f1989bd1a",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:cargo-prestart-r3",
+            "reason": "Root authorized disposable stopped Cargo test run cleanup; independent producer/test outcome and failure causes preserved in work/EC-01-unused-file-archive/10-cargo-test-cleanup.json; no active consumers or blockers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "dff30afe81c75ec24c16ac4204ba68e9dda43b726e5f6a764fa96ee2f981b85e"
+          }
+        ]
+      }
+    }
+  ],
+  "temporary_request": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\cargo-cleanup-worker-request.tmp.json",
+    "absent": true
+  },
+  "state": "all three runs deleted; actual absence verified; producer records finalized",
+  "delete_decisions": [
+    {
+      "id": "599240bba85b3170ed59871e8c8968ca86ecae1453f2f80ca0e705c1a9380d27",
+      "token": "858cfeef840bce5b7a1c0424142db6d24ff6dd18bdeda7812a61bad2bc72554e",
+      "decision": "delete",
+      "reason": "Root authorized disposable stopped Cargo test run cleanup; independent producer/test outcome and failure causes preserved in work/EC-01-unused-file-archive/10-cargo-test-cleanup.json; no active consumers or blockers"
+    },
+    {
+      "id": "9ef486a0a653c7ea46dd0197f26bc734b72f04f5c498e66696f4075bd891972d",
+      "token": "64971331ac4a441e985a09b6c465b0ef00913b31e20003256940fc290aeb719f",
+      "decision": "delete",
+      "reason": "Root authorized disposable stopped Cargo test run cleanup; independent producer/test outcome and failure causes preserved in work/EC-01-unused-file-archive/10-cargo-test-cleanup.json; no active consumers or blockers"
+    },
+    {
+      "id": "a5604168e93a0acf5dcadbd72896f683a56936a5817b22f60a037b6f1989bd1a",
+      "token": "dff30afe81c75ec24c16ac4204ba68e9dda43b726e5f6a764fa96ee2f981b85e",
+      "decision": "delete",
+      "reason": "Root authorized disposable stopped Cargo test run cleanup; independent producer/test outcome and failure causes preserved in work/EC-01-unused-file-archive/10-cargo-test-cleanup.json; no active consumers or blockers"
+    }
+  ],
+  "command_contract": {
+    "native_argv": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh\\payload\\maintenance_owner.exe",
+      "--project-root",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "--request",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\cargo-cleanup-worker-request.tmp.json"
+    ],
+    "registration": "scripts/artifact-lifecycle.cjs registerRequest(root,id)",
+    "review": {
+      "operation": "review",
+      "group_ids": [
+        "run:EC-01-unused-file-archive:cargo-prestart-r1",
+        "run:EC-01-unused-file-archive:cargo-prestart-r2",
+        "run:EC-01-unused-file-archive:cargo-prestart-r3"
+      ],
+      "verification": "registered"
+    },
+    "apply": {
+      "operation": "apply",
+      "verification": "registered",
+      "decisions": "delete_decisions"
+    },
+    "finalize": "scripts/artifact-lifecycle.cjs finalize(root,id)"
+  },
+  "harness_limitations": [
+    {
+      "exit_code": 1,
+      "reason": "Initial inventory limit1000 rejected; corrected to max200 and inspected all510 groups."
+    },
+    {
+      "exit_code": 1,
+      "reason": "First quiet retry registerRequest rejected active-cleanup-reservation before native launch; finally unlink ENOENT masked blocker. Diagnosed exact reservation separately, then supported recovery succeeded."
+    }
+  ],
+  "recovery_proof": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\10-r1-reservation-recovery.json",
+    "sha256": "f82426b530009b2508707c4473f4879cc19949c4359d34d73b8f41aed1cbe368",
+    "verified": true
+  },
+  "completed_at": "2026-10-28T04:07:58.658Z"
+}

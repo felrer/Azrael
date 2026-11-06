@@ -1,0 +1,47 @@
+﻿[
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-XSWnIu\\installed\\skills\\example",
+        "linkType":  "Junction",
+        "attributes":  "Directory, ReparsePoint, Compressed"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-WXAW2v\\installed\\skills\\example",
+        "linkType":  "Junction",
+        "attributes":  "Directory, ReparsePoint, Compressed"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-UBvree\\installed\\skills\\example",
+        "linkType":  "Junction",
+        "attributes":  "Directory, ReparsePoint, Compressed"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-tKfuOU\\recorded-restored-link",
+        "linkType":  "Junction",
+        "attributes":  "Directory, ReparsePoint, Compressed"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-tKfuOU\\installed\\skills\\example",
+        "linkType":  "Junction",
+        "attributes":  "Directory, ReparsePoint, Compressed"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-qJ2uv4\\installed\\skills\\example",
+        "linkType":  "Junction",
+        "attributes":  "Directory, ReparsePoint, Compressed"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-J3XLiv\\installed\\skills\\example",
+        "linkType":  "Junction",
+        "attributes":  "Directory, ReparsePoint, Compressed"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-fLN7uX\\installed\\skills\\example\\linked-folder",
+        "linkType":  "Junction",
+        "attributes":  "Directory, ReparsePoint, Compressed"
+    },
+    {
+        "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-6dVa1i\\installed\\skills\\example",
+        "linkType":  "Junction",
+        "attributes":  "Directory, ReparsePoint, Compressed"
+    }
+]

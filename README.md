@@ -8,6 +8,7 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 
 > [!NOTE]
 > Azrael is under active development and each feature has its own verified scope. This README states those limits next to each feature; the [architecture documents](docs/architecture/README.md) are the authoritative source.
+(2026-10-20)
 
 ## Contents
 

@@ -40,6 +40,8 @@ struct RequestFrame<'a> {
     fork_provider_ids: &'a [String],
     #[serde(skip_serializing_if = "Option::is_none")]
     api_options: Option<&'a serde_json::Value>,
+    #[serde(rename = "providerAccount", skip_serializing_if = "Option::is_none")]
+    provider_account: Option<&'a codex_protocol::agent_profile::ProviderAccountScope>,
 }
 
 #[derive(Serialize)]
@@ -48,10 +50,11 @@ struct HarnessProfileFrame<'a> {
     fingerprint: &'a str,
     tool_profile: &'a str,
     prompt_profile: &'a str,
+    instruction_format: codex_config::harness_profiles::InstructionFormat,
 }
 impl<'a> From<&'a codex_config::harness_profiles::ResolvedHarnessProfile> for HarnessProfileFrame<'a> {
     fn from(profile: &'a codex_config::harness_profiles::ResolvedHarnessProfile) -> Self {
-        Self { id: &profile.id, fingerprint: &profile.fingerprint, tool_profile: &profile.tool_profile, prompt_profile: &profile.prompt_profile }
+        Self { id: &profile.id, fingerprint: &profile.fingerprint, tool_profile: &profile.tool_profile, prompt_profile: &profile.prompt_profile, instruction_format: profile.instruction_format }
     }
 }
 
@@ -311,6 +314,7 @@ async fn dispatch(
             forked_from_ordinal_exclusive: metadata.forked_from_ordinal_exclusive,
             fork_provider_ids: &sess.fork_provider_ids,
             api_options: api_options.as_ref(),
+            provider_account: ctx.agent_profile_account.as_ref(),
         },
         request_limit,
     )?;

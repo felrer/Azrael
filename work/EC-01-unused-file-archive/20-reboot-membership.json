@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "started_at": "2026-10-28T06:28:20.593Z",
+  "ended_at": "2026-10-28T06:28:22.990Z",
+  "method": "metadata-only non-following traversal; no payload hashing or content modification",
+  "results": [
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "files": 17673,
+      "directories": 3246,
+      "logical_bytes": 10555078718,
+      "hardlinked_files": 814,
+      "links": [],
+      "other": []
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+      "files": 0,
+      "directories": 1,
+      "logical_bytes": 0,
+      "hardlinked_files": 0,
+      "links": [],
+      "other": []
+    }
+  ],
+  "cache_identity_sha256": "96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+  "cache_compatibility_key_verified": "96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24"
+}

@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "scope": "Windows x64 standalone build and default replacement; embedded engine unchanged",
+  "build": {
+    "scope": "Windows x64 standalone maintenance_owner release only",
+    "source_receipt_sha256": "ebc36ce27a406c17e2c941dd954387872a5f713b16a9da72cf89a07d672d46b5",
+    "steps": [
+      {
+        "name": "source-before",
+        "started": "2026-10-27T22:33:14.920Z",
+        "ended": "2026-10-27T22:35:27.084Z",
+        "exit_code": 0,
+        "signal": null,
+        "error": null
+      },
+      {
+        "name": "release",
+        "started": "2026-10-27T22:35:27.102Z",
+        "ended": "2026-10-27T22:36:10.288Z",
+        "args": [
+          "build",
+          "--release",
+          "-p",
+          "azrael-project-maintenance",
+          "--bin",
+          "maintenance_owner",
+          "--locked",
+          "--offline"
+        ],
+        "exit_code": 0,
+        "pid": 88788,
+        "signal": null,
+        "error": null
+      },
+      {
+        "name": "source-after",
+        "started": "2026-10-27T22:36:10.289Z",
+        "ended": "2026-10-27T22:36:28.133Z",
+        "exit_code": 0,
+        "signal": null,
+        "error": null
+      }
+    ],
+    "before": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9332,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "6ad08b4dc281127cb1ca6c72e1b2bfb71c6a1b37fddbf2f5bc4ecd89c7d7c315",
+      "importedReceiptSha256": "ebc36ce27a406c17e2c941dd954387872a5f713b16a9da72cf89a07d672d46b5",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "5ff02182e6c6b842dac82a7312fc474dc3e4724964c5f1894246b7df720a957e",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "tools": [
+      {
+        "path": "scripts/cargo-target-owner.cjs",
+        "sha256": "6bb5299038040a3dde8440adeec32c686817a37d6bc93c564579a8a0bbc0ef1b"
+      }
+    ],
+    "after": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9332,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "6ad08b4dc281127cb1ca6c72e1b2bfb71c6a1b37fddbf2f5bc4ecd89c7d7c315",
+      "importedReceiptSha256": "ebc36ce27a406c17e2c941dd954387872a5f713b16a9da72cf89a07d672d46b5",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "5ff02182e6c6b842dac82a7312fc474dc3e4724964c5f1894246b7df720a957e",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "unchanged": true,
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\standalone-build-r2\\target\\release\\maintenance_owner.exe",
+    "executable_sha256": "3f10cedc20d10acc36b69c06591150a4a7bf2217df2acdc8eebe6aadaf2f61e0",
+    "passed": true
+  },
+  "publication": {
+    "planned_revision": 1,
+    "versionId": "version:maintenance-owner:ec01:lock-wait",
+    "version": "3f10cedc20d10acc36b69c06591150a4a7bf2217df2acdc8eebe6aadaf2f61e0-windows-x64-refresh-lock-wait-v1",
+    "versionRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3f10cedc-win-x64-ec01-lock-wait",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3f10cedc-win-x64-ec01-lock-wait\\payload\\maintenance_owner.exe",
+    "sha256": "3f10cedc20d10acc36b69c06591150a4a7bf2217df2acdc8eebe6aadaf2f61e0",
+    "acceptance_sha256": "5f5687fa272df744aa617827f97fa62a8dbb2454ec5fc031bdf6facaf76a9f70"
+  },
+  "installation": {
+    "passed": true,
+    "installed": {
+      "schema": 1,
+      "protocol": "maintenance-owner-lease-v1",
+      "executable": "artifacts\\versions\\maintenance-owner-3f10cedc-win-x64-ec01-lock-wait\\payload\\maintenance_owner.exe",
+      "sha256": "3f10cedc20d10acc36b69c06591150a4a7bf2217df2acdc8eebe6aadaf2f61e0",
+      "version_id": "version:maintenance-owner:ec01:lock-wait",
+      "version": "3f10cedc20d10acc36b69c06591150a4a7bf2217df2acdc8eebe6aadaf2f61e0-windows-x64-refresh-lock-wait-v1",
+      "acceptance_sha256": "5f5687fa272df744aa617827f97fa62a8dbb2454ec5fc031bdf6facaf76a9f70"
+    },
+    "installation_revision": 8,
+    "old_reference_released": true,
+    "verification": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3f10cedc-win-x64-ec01-lock-wait\\verification\\installation-verification.json"
+  },
+  "attempts": [
+    {
+      "stage": "binary acceptance r1",
+      "exit_code": 1,
+      "reason": "Harness JSON-escaped path assertion; decoded comparison passed in fresh r2 fixture"
+    },
+    {
+      "stage": "publication r1",
+      "exit_code": 1,
+      "reason": "Initial catalog OS acquisition EEXIST; old verification registration PID 90664 held commit locks; no destination or record created"
+    },
+    {
+      "stage": "binary acceptance r2",
+      "exit_code": 0
+    },
+    {
+      "stage": "publication r2",
+      "exit_code": 0
+    },
+    {
+      "stage": "installation",
+      "exit_code": 0
+    }
+  ],
+  "closed_outcome": "failure exit 1 preserved for run; accepted standalone version succeeded exit 0",
+  "native_lease_terminal": {
+    "evidence": "work/EC-01-unused-file-archive/02-native-lease-verification.json",
+    "sha256": "5dc550894affe757e1b22f2651e6acc6162bf00ef54830790626692cf4298122",
+    "direct_exit": 0,
+    "default_exit": 0
+  }
+}

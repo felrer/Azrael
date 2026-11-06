@@ -1,0 +1,844 @@
+{
+  "schema": 1,
+  "owner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "maxLockWaitMs": 600000
+  },
+  "ownerSha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+  "groups": [
+    {
+      "id": "run:EZ01:auto-approval-mw0ly9n2",
+      "sourceState": "failed",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-mw0ly9n2\\reports\\producer-81a2d42a14b357d784d0f9b763c5151c52fa1b173a4e20a0387ba880edfef30b.json",
+        "evidence_sha256": "81a2d42a14b357d784d0f9b763c5151c52fa1b173a4e20a0387ba880edfef30b",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-mw0ly9n2\\reports\\producer-81a2d42a14b357d784d0f9b763c5151c52fa1b173a4e20a0387ba880edfef30b.json",
+        "evidence_sha256": "81a2d42a14b357d784d0f9b763c5151c52fa1b173a4e20a0387ba880edfef30b",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "fcb10e8c2e28fac091fda06d6cfc34ac5c6ea72120a0a862b0e4225c1046c71e"
+      },
+      "closeEvidence": {
+        "lifecycleId": "run:EZ01:auto-approval-mw0ly9n2",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-mw0ly9n2",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-mw0ly9n2"
+      ],
+      "errorEvidence": {
+        "source": "Root exec session63584 actual exit1",
+        "error": "Preparation tried to copy nonexistent project-root package.json",
+        "childrenOrTestsStarted": false
+      },
+      "registerExitCode": 0,
+      "finalize": {
+        "id": "run:EZ01:auto-approval-mw0ly9n2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ff752b415a637966658bb780434bbb7717f1a66f27305b96a95e82321acfe7bf.json"
+      },
+      "logicalBytes": 10662208,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-19524-5710-1793705706816",
+        "decision": "delete",
+        "decision_id": "8fbdfa02205010e4f6e4b87441aaacf3bf2f9dad70d4e84f3c4fe1f5faac797c",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "8260efb96c85a5b4c2c5a172ce8f3277544f4164750d23bee014f12adc43287b",
+        "lifecycle_group_id": "run:EZ01:auto-approval-mw0ly9n2",
+        "reason": "Failed preparation before any child/test launch; original exit1 and independent close/error evidence preserved; no consumers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "f3a74878048322f50fcf45f6db2f018e75a531d4a7525653084d884123839a62"
+      }
+    },
+    {
+      "id": "run:EZ01:auto-approval-r2-mw0m09z1",
+      "sourceState": "failed",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r2-mw0m09z1\\reports\\producer-bd0f05f6af7f0448be910a7225c21a50de9a01eee4beb6016f1c76a496db35eb.json",
+        "evidence_sha256": "bd0f05f6af7f0448be910a7225c21a50de9a01eee4beb6016f1c76a496db35eb",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r2-mw0m09z1\\reports\\producer-bd0f05f6af7f0448be910a7225c21a50de9a01eee4beb6016f1c76a496db35eb.json",
+        "evidence_sha256": "bd0f05f6af7f0448be910a7225c21a50de9a01eee4beb6016f1c76a496db35eb",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "da157569b08bc8f5a40b9cabf59d4a706a87f6508c182a27ab71dd67ac5cd65f"
+      },
+      "closeEvidence": {
+        "lifecycleId": "run:EZ01:auto-approval-r2-mw0m09z1",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r2-mw0m09z1",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 37584,
+            "closed": true
+          },
+          {
+            "pid": 31356,
+            "closed": true
+          },
+          {
+            "pid": 52604,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r2-mw0m09z1"
+      ],
+      "acceptance": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\automatic-approval-verification-02.json",
+        "sha256": "09e6c60abe1caee741133da3fd6727f5bd9aaa7e607dea22d15708d8459a2435"
+      },
+      "registerExitCode": 0,
+      "reviewExitCode": 0,
+      "applyExitCode": 0,
+      "finalize": {
+        "id": "run:EZ01:auto-approval-r2-mw0m09z1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\bfc27a9222440c4edaea90141190029d5baa7415b330873d82767436b4a70a95.json"
+      },
+      "logicalBytes": 236289417,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-8592-5713-1793706132694",
+        "decision": "delete",
+        "decision_id": "4ce7154a5e3b429398b6cef825aeb75217bc00eb13bd6bf462d2f4aa2097aa72",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "94c35f502080a891e3049ac7093ef67d0b0d3ff2d12e70b67b07e95758fc3c6c",
+        "lifecycle_group_id": "run:EZ01:auto-approval-r2-mw0m09z1",
+        "reason": "Failed source/render verification diagnosed and superseded; stopped producer and three children closed; independent verification02 and close evidence preserved",
+        "remaining": false,
+        "status": "deleted",
+        "token": "d9f6458acc5157290dc2263267861131d057fde61643bb00d7df0a5785156ba5"
+      }
+    },
+    {
+      "id": "run:EZ01:auto-approval-r3-mw0m7u2a",
+      "sourceState": "failed",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r3-mw0m7u2a\\reports\\producer-3880f73e618f843137b55fe5d157eaa70e9a6dd487816b16c34b4bfe71e84d55.json",
+        "evidence_sha256": "3880f73e618f843137b55fe5d157eaa70e9a6dd487816b16c34b4bfe71e84d55",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r3-mw0m7u2a\\reports\\producer-3880f73e618f843137b55fe5d157eaa70e9a6dd487816b16c34b4bfe71e84d55.json",
+        "evidence_sha256": "3880f73e618f843137b55fe5d157eaa70e9a6dd487816b16c34b4bfe71e84d55",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "131287b14263b7ded87426b36ea3ca2d42368f1b1266d30fcdc70df2003ee22e"
+      },
+      "closeEvidence": {
+        "lifecycleId": "run:EZ01:auto-approval-r3-mw0m7u2a",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r3-mw0m7u2a",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r3-mw0m7u2a"
+      ],
+      "acceptance": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\automatic-approval-verification-04.json",
+        "sha256": "ef30a3f1e5231132400eeab98697875ec650a3fe607d54bfa5a4eac62db8638d"
+      },
+      "independentOutcome": [
+        {
+          "runId": "run:EZ01:auto-approval-r3-mw0m7u2a",
+          "session": 45278,
+          "exitCode": 1,
+          "cause": "Verification controller called resolveMaintenanceCommand with object instead of string; failed before any children. Corrected invocation and reused fixed frozen inputs."
+        }
+      ],
+      "registerExitCode": 0,
+      "finalize": {
+        "id": "run:EZ01:auto-approval-r3-mw0m7u2a",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9ae9db4e3539fc8a0a58e5c5845e9119f4ffadae28b1e6663a56ac97f5ee6ef9.json"
+      },
+      "logicalBytes": 239090741,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-3788-5722-1793706647747",
+        "decision": "delete",
+        "decision_id": "18440178d957025ccf7bcff36f95ecacb409befb75c9b27d6cb89485dc1e1869",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "ea9fda16e8fac7d15a75db7014620428433eaa25ebf4c54c4d74cb4623f44305",
+        "lifecycle_group_id": "run:EZ01:auto-approval-r3-mw0m7u2a",
+        "reason": "Diagnosed failed preparation/source/render attempts; producer and owned children/browsers stopped; all consumers finished; independent verification04 and close evidence preserved",
+        "remaining": false,
+        "status": "deleted",
+        "token": "d8a303d04e4a21533cb727f7dcd3743a3c3f570e2f7a77719495e3594af2a06c"
+      }
+    },
+    {
+      "id": "run:EZ01:auto-approval-r4-mw0m9jkb",
+      "sourceState": "failed",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r4-mw0m9jkb\\reports\\producer-958f18fbc7c28ac0cfbec9fe0c93618e4da3d74c455293f7ff12373c999ca216.json",
+        "evidence_sha256": "958f18fbc7c28ac0cfbec9fe0c93618e4da3d74c455293f7ff12373c999ca216",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r4-mw0m9jkb\\reports\\producer-958f18fbc7c28ac0cfbec9fe0c93618e4da3d74c455293f7ff12373c999ca216.json",
+        "evidence_sha256": "958f18fbc7c28ac0cfbec9fe0c93618e4da3d74c455293f7ff12373c999ca216",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "4fe8014957674ce41bb4a1471350ceee8e915648dd1a7df3215fc5eee354095f"
+      },
+      "closeEvidence": {
+        "lifecycleId": "run:EZ01:auto-approval-r4-mw0m9jkb",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r4-mw0m9jkb",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 45880,
+            "closed": true
+          },
+          {
+            "pid": 20060,
+            "closed": true
+          },
+          {
+            "pid": 31604,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r4-mw0m9jkb"
+      ],
+      "acceptance": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\automatic-approval-verification-04.json",
+        "sha256": "ef30a3f1e5231132400eeab98697875ec650a3fe607d54bfa5a4eac62db8638d"
+      },
+      "independentOutcome": {
+        "sourceSummary": {
+          "tests": 206,
+          "pass": 204,
+          "fail": 1,
+          "skip": 1,
+          "failure": "test-namespace-cache-owner.cjs pinned asset path ignored external immutable UI root; expected fixture assets not found",
+          "productFailures": 0
+        },
+        "approvalBrowser": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        },
+        "settingsBrowser": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        }
+      },
+      "registerExitCode": 0,
+      "finalize": {
+        "id": "run:EZ01:auto-approval-r4-mw0m9jkb",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\bf07a8f7f4aee6b9ea364660e06aaecc9bc3961f213bbe439b5b42896c983320.json"
+      },
+      "logicalBytes": 251175243,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-3788-5720-1793706617976",
+        "decision": "delete",
+        "decision_id": "2771618581997d5f16253318a020347135c91fd9bc57a206e13d9c8cbe889b6c",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "9303d114e7e5591d05ef087271df4a679266e4c1debf2719fe028de2ae200837",
+        "lifecycle_group_id": "run:EZ01:auto-approval-r4-mw0m9jkb",
+        "reason": "Diagnosed failed preparation/source/render attempts; producer and owned children/browsers stopped; all consumers finished; independent verification04 and close evidence preserved",
+        "remaining": false,
+        "status": "deleted",
+        "token": "bb4b148781f7e49be7f888fa9f9edcf96ce008702f71274837c60de4927fe681"
+      }
+    },
+    {
+      "id": "run:EZ01:auto-approval-r5-mw0mehcl",
+      "sourceState": "failed",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r5-mw0mehcl\\reports\\producer-77c8d2a06e17c5501b9fb8263ba09d962cfae51f2d302a53c7bea5db4840445b.json",
+        "evidence_sha256": "77c8d2a06e17c5501b9fb8263ba09d962cfae51f2d302a53c7bea5db4840445b",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r5-mw0mehcl\\reports\\producer-77c8d2a06e17c5501b9fb8263ba09d962cfae51f2d302a53c7bea5db4840445b.json",
+        "evidence_sha256": "77c8d2a06e17c5501b9fb8263ba09d962cfae51f2d302a53c7bea5db4840445b",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "3b2aba9289f14b6ece72ba0f5f867133dcf20b5054f4db9118d1719c881b9b55"
+      },
+      "closeEvidence": {
+        "lifecycleId": "run:EZ01:auto-approval-r5-mw0mehcl",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r5-mw0mehcl",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 54368,
+            "closed": true
+          },
+          {
+            "pid": 40520,
+            "closed": true
+          },
+          {
+            "pid": 47936,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r5-mw0mehcl"
+      ],
+      "acceptance": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\automatic-approval-verification-05.json",
+        "sha256": "2148798c8032ea79791ee53971d9c69f5aabdc244116769c1625e8b33a6ea100"
+      },
+      "independentOutcome": {
+        "cacheSummary": {
+          "tests": 7,
+          "pass": 6,
+          "fail": 1,
+          "cause": "Lean frozen environment omitted media/content-font-policy.cjs; next preparation includes policy and verified font files"
+        },
+        "approvalBrowser": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        },
+        "settingsBrowser": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        },
+        "notes": [
+          "Settings renderer passed30 checks, actual light/dark UI inspected, ownedbrowserexit0 confirmed",
+          "Native approval browser timedout beforechecks; short owned fixture path and startup flags permit actual rendering in r6"
+        ]
+      },
+      "registerExitCode": 0,
+      "reviewExitCode": 0,
+      "applyExitCode": 0,
+      "finalize": {
+        "id": "run:EZ01:auto-approval-r5-mw0mehcl",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d3201d7497c85f814f5d2dd02a862a5aefb4afacdd8f9b250c7e9901d3107eaf.json"
+      },
+      "logicalBytes": 34854606,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-20672-5728-1793706804629",
+        "decision": "delete",
+        "decision_id": "67632dc8e236ce776fcdaae13e904863caf9cdc852c0ad416a1c280019f38174",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "524cf3a4ebd73110bbc3fd40a0a5a1ac8fe630961cb7cbff060bae4725c89cd5",
+        "lifecycle_group_id": "run:EZ01:auto-approval-r5-mw0mehcl",
+        "reason": "r5 diagnosis and visual review completed; producer, all three children and both browsers closed; no consumers; independent verification05 preserved",
+        "remaining": false,
+        "status": "deleted",
+        "token": "d5649be18b4965447b09b7f8bcbef3bd6c22452cb2f176d7b7a936c24cfe809e"
+      }
+    },
+    {
+      "id": "run:EZ01:auto-approval-r6-mw0mkva4",
+      "sourceState": "failed",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4\\reports\\producer-4cf709fbba6e038fb91ead3e8b92ba0e09acd4bad4ec41924dfa94ddcf9f8568.json",
+        "evidence_sha256": "4cf709fbba6e038fb91ead3e8b92ba0e09acd4bad4ec41924dfa94ddcf9f8568",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4\\reports\\producer-4cf709fbba6e038fb91ead3e8b92ba0e09acd4bad4ec41924dfa94ddcf9f8568.json",
+        "evidence_sha256": "4cf709fbba6e038fb91ead3e8b92ba0e09acd4bad4ec41924dfa94ddcf9f8568",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "6b1bac40605a2b157f30fc483ef79baf2198d919568bd11d5333df0b2549a1ae"
+      },
+      "closeEvidence": {
+        "lifecycleId": "run:EZ01:auto-approval-r6-mw0mkva4",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 49344,
+            "closed": true
+          },
+          {
+            "pid": 35396,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4"
+      ],
+      "acceptance": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\automatic-approval-verification-06.json",
+        "sha256": "7f982f8edc8df79299bc6275968c0f8b3bd920c216e0c056d39a76fa092f82b5"
+      },
+      "independentOutcome": {
+        "approvalBrowser": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        },
+        "steps": [
+          {
+            "name": "cache",
+            "args": [
+              "--test",
+              "scripts/test-namespace-cache-owner.cjs"
+            ],
+            "exitCode": 0,
+            "signal": null,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4\\logs\\cache.log"
+          },
+          {
+            "name": "approval-render",
+            "args": [
+              "scripts/verify-window-native-approval-render.mjs"
+            ],
+            "exitCode": 1,
+            "signal": null,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4\\logs\\approval-render.log"
+          }
+        ]
+      },
+      "registerExitCode": 0,
+      "reviewExitCode": 0,
+      "applyExitCode": 0,
+      "finalize": {
+        "id": "run:EZ01:auto-approval-r6-mw0mkva4",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8d0c9fc0004953eb04848eb3850e73712e941dd5ffb9c93668c660ac9adad8e0.json"
+      },
+      "logicalBytes": 72330061,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-48252-5731-1793707003274",
+        "decision": "delete",
+        "decision_id": "81f88a3476a838d688bef2acf20cffc0a18f6aabfd6d3112e39b295f19bb458e",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "97516c75952fc68fe24e9231be17062d20be45352c97b62d2ded3621ab3455af",
+        "lifecycle_group_id": "run:EZ01:auto-approval-r6-mw0mkva4",
+        "reason": "r6 keyboard predicate diagnosis completed and corrected in later run; original failure and all owned child/browser closure independently preserved; no remaining consumers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "75343cfa19dc22f6c47300a871dbdf4ba98e435b7aa29300ccc8933cac4381ff"
+      }
+    },
+    {
+      "id": "run:EZ01:auto-approval-r7-mw0mpn1h",
+      "sourceState": "complete",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r7-mw0mpn1h\\reports\\producer-16727fe08d96476c940845a66223816b679483c49dfcfd0c5651e11710a912ff.json",
+        "evidence_sha256": "16727fe08d96476c940845a66223816b679483c49dfcfd0c5651e11710a912ff",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r7-mw0mpn1h\\reports\\producer-16727fe08d96476c940845a66223816b679483c49dfcfd0c5651e11710a912ff.json",
+        "evidence_sha256": "16727fe08d96476c940845a66223816b679483c49dfcfd0c5651e11710a912ff",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "3172ec6cdd22c2446970dd4cf5cffd2ef6a21514c2d6a4b7f7ba2a01820eb509"
+      },
+      "closeEvidence": {
+        "lifecycleId": "run:EZ01:auto-approval-r7-mw0mpn1h",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r7-mw0mpn1h",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 44512,
+            "closed": true
+          },
+          {
+            "pid": 20068,
+            "closed": true
+          }
+        ],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r7-mw0mpn1h"
+      ],
+      "acceptance": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\automatic-approval-verification-07.json",
+        "sha256": "1651809be07500b1449c88b0c87795a7b54abb7c77dcd777c283151c7fadf195"
+      },
+      "independentOutcome": {
+        "approvalBrowser": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        },
+        "passedChecks": 182,
+        "steps": [
+          {
+            "name": "injection",
+            "args": [
+              "--test",
+              "scripts/test-computer-use-injection.cjs",
+              "scripts/test-window-control-injection.cjs"
+            ],
+            "exitCode": 0,
+            "signal": null,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r7-mw0mpn1h\\logs\\injection.log"
+          },
+          {
+            "name": "approval-render",
+            "args": [
+              "scripts/verify-window-native-approval-render.mjs"
+            ],
+            "exitCode": 0,
+            "signal": null,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r7-mw0mpn1h\\logs\\approval-render.log"
+          }
+        ]
+      },
+      "registerExitCode": 0,
+      "finalize": {
+        "id": "run:EZ01:auto-approval-r7-mw0mpn1h",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7df95ad63c8197ddcfb344e9525d7a6d0be324c809b65dc8c82ba34743e378ec.json"
+      },
+      "logicalBytes": 84420083,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-11880-5738-1793707237508",
+        "decision": "delete",
+        "decision_id": "1cf5e233b16492e7badd76f7cd7d014f8248faf4c290771d6f982bde475012d8",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "570637b2c36a40d4b4cb0b065c7f69b732c81bd1f0a42d64033fa7121da576e7",
+        "lifecycle_group_id": "run:EZ01:auto-approval-r7-mw0mpn1h",
+        "reason": "Final r7/r8 verification and visual acceptance complete; all producer children and browsers stopped; independent verification07/08 preserved; no remaining consumers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "ce4bfbdc01a644e589692e9a11f43e9289fec8b48c281c6aa0294a9bcfeb7a64"
+      }
+    },
+    {
+      "id": "run:EZ01:auto-approval-r8-mw0mte9l",
+      "sourceState": "complete",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l\\reports\\producer-7013b83d0244873f1eca7a30d07138e975cd4a04c41fc77d338220ddf0228fea.json",
+        "evidence_sha256": "7013b83d0244873f1eca7a30d07138e975cd4a04c41fc77d338220ddf0228fea",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l\\reports\\producer-7013b83d0244873f1eca7a30d07138e975cd4a04c41fc77d338220ddf0228fea.json",
+        "evidence_sha256": "7013b83d0244873f1eca7a30d07138e975cd4a04c41fc77d338220ddf0228fea",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "eabd222c465a1fb8fa2b004fca47b0f780292c262ad491fb4bd862241154e6f7"
+      },
+      "closeEvidence": {
+        "lifecycleId": "run:EZ01:auto-approval-r8-mw0mte9l",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 39484,
+            "closed": true
+          },
+          {
+            "pid": 52680,
+            "closed": true
+          }
+        ],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l"
+      ],
+      "acceptance": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\automatic-approval-verification-08.json",
+        "sha256": "e25499c810fa228601031272a7d56d3d1c2032e7e510d37e4000b64579443d8d"
+      },
+      "independentOutcome": {
+        "approvalBrowser": {
+          "confirmed": true,
+          "exitCode": 0,
+          "signalCode": null,
+          "processInspectionExitCode": 0,
+          "processIds": []
+        },
+        "passedChecks": 198,
+        "steps": [
+          {
+            "name": "injection",
+            "args": [
+              "--test",
+              "scripts/test-computer-use-injection.cjs",
+              "scripts/test-window-control-injection.cjs"
+            ],
+            "exitCode": 0,
+            "signal": null,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l\\logs\\injection.log"
+          },
+          {
+            "name": "approval-render",
+            "args": [
+              "scripts/verify-window-native-approval-render.mjs"
+            ],
+            "exitCode": 0,
+            "signal": null,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r8-mw0mte9l\\logs\\approval-render.log"
+          }
+        ]
+      },
+      "registerExitCode": 0,
+      "finalize": {
+        "id": "run:EZ01:auto-approval-r8-mw0mte9l",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\efb347b7e3fe4bfbce5fa17b441748c5482d1b3057c029110804f379b012e48c.json"
+      },
+      "logicalBytes": 84488233,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-11880-5735-1793707210439",
+        "decision": "delete",
+        "decision_id": "0795eb915a0b24689495cd3e7524f410502fe17dfa5042fc0fa8ff35cf6df1d3",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "51d1eaad8b03f5ee797dfc965e8ec950b517c8969b1029eb5c69c9926887d816",
+        "lifecycle_group_id": "run:EZ01:auto-approval-r8-mw0mte9l",
+        "reason": "Final r7/r8 verification and visual acceptance complete; all producer children and browsers stopped; independent verification07/08 preserved; no remaining consumers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "bc214e89e40596a0e9de913ebaeb98191707c7de4b8926d4ff50fe24966e16f9"
+      }
+    }
+  ],
+  "phase": "complete",
+  "reviewExitCode": 0,
+  "applyExitCode": 0,
+  "logicalBytesDeleted": 1013310592,
+  "remainingPaths": [],
+  "physicalBytesReclaimed": null,
+  "currentReviewExitCode": 0,
+  "currentApplyExitCode": 0
+}

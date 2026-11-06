@@ -1,0 +1,221 @@
+{
+  "schema": 1,
+  "status": "verified_candidate_not_deployed",
+  "platform": "windows",
+  "arch": "x64",
+  "binary_sha256": "ef98c385803703783a2fda63b182837ed2d47a6a571c48a3137fc71cc922ad84",
+  "contract": "Retain review, initial reservation and pre-intent approval; remove post-intent safe_entries and reservation.verify.before_delete; preserve cancellation, physical approved-tree/OS/link handling, durable intent/result, final presence and reservation release",
+  "native_tests_passed": 212,
+  "node_lifecycle_tests_passed": 205,
+  "native": {
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "elapsed_ms": 161655.4755,
+    "preflight": {
+      "schema": 1,
+      "typeCheck": "selected-tests",
+      "testSelection": "nonzero",
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-30T01:16:15.089Z",
+          "durationMs": 17155,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked",
+            "--",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-30T01:16:32.244Z",
+          "durationMs": 19323,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 212
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--offline",
+            "--locked"
+          ],
+          "startedUtc": "2026-10-30T01:16:51.567Z",
+          "durationMs": 125175,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "immutable_inputs_unchanged": true
+  },
+  "build": {
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "elapsed_ms": 28105.165500000003,
+    "preflight": null,
+    "immutable_inputs_unchanged": true
+  },
+  "node": {
+    "results": [
+      {
+        "script": "scripts/test-artifact-lifecycle.cjs",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 85183.0866,
+        "summary": [
+          "ℹ fail 0",
+          "ℹ cancelled 0",
+          "ℹ skipped 0",
+          "ℹ todo 0",
+          "ℹ duration_ms 85091.1045",
+          ""
+        ]
+      },
+      {
+        "script": "scripts/test-maintenance-lock-owner.cjs",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 2926.938500000004,
+        "summary": [
+          "{\"status\":\"passed\",\"platform\":\"win32\",\"arch\":\"x64\",\"checks\":[\"top-level and encoded busy metadata survive worker packets; transport, permission and corrupt errors stay distinct\",\"real child contention, persistent metadata, reacquisition\",\"bounded wait expires without taking a held lock\",\"parent crash closes native stdin and releases OS exclusion\",\"idle native helper death reports terminal state and releases exclusion\",\"existing empty, malformed and schema1 markers require recovery\",\"replaced lock inode is preserved and release refuses replacement, or OS denies replacement\",\"symlink/reparse ancestors and non-file lock targets refused\",\"native >1 MiB UTF-8 record CAS/reserve/finish and oversized response preflight without durable fence creation\",\"native hashed-ID CAS, producer reservation/catalog handoff/pinned finish, unsafe member and wrong lock rejection\",\"default installation receipt resolves pinned owner; SHA/protocol/traversal/linked ancestors refuse without execution\",\"malformed protocol fails closed; unknown command refused\"]}",
+          ""
+        ]
+      }
+    ],
+    "immutable_inputs_unchanged": true
+  },
+  "comparison": {
+    "condition": {
+      "records": 100,
+      "payload_bytes": 1048576,
+      "unrelated_payloads": "absent",
+      "samples_each": 3,
+      "timing_diagnostics": false
+    },
+    "results": [
+      {
+        "name": "baseline-01",
+        "review_ms": 1553.9769,
+        "apply_ms": 9909.133899999999,
+        "total_ms": 11463.110799999999,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "improved-01",
+        "review_ms": 1559.8409999999985,
+        "apply_ms": 8340.778299999998,
+        "total_ms": 9900.619299999997,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "improved-02",
+        "review_ms": 1668.3418999999994,
+        "apply_ms": 7996.7045,
+        "total_ms": 9665.0464,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "baseline-02",
+        "review_ms": 1667.0260000000017,
+        "apply_ms": 10405.114500000003,
+        "total_ms": 12072.140500000005,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "baseline-03",
+        "review_ms": 1549.7373999999982,
+        "apply_ms": 9909.306599999996,
+        "total_ms": 11459.043999999994,
+        "exit_code": 0,
+        "target_absent": true
+      },
+      {
+        "name": "improved-03",
+        "review_ms": 1574.0521999999983,
+        "apply_ms": 8086.734299999996,
+        "total_ms": 9660.786499999995,
+        "exit_code": 0,
+        "target_absent": true
+      }
+    ]
+  },
+  "medians": {
+    "baseline": {
+      "review_ms": 1553.9769,
+      "apply_ms": 9909.306599999996,
+      "total_ms": 11463.110799999999,
+      "total_range_ms": [
+        11459.043999999994,
+        12072.140500000005
+      ]
+    },
+    "improved": {
+      "review_ms": 1574.0521999999983,
+      "apply_ms": 8086.734299999996,
+      "total_ms": 9665.0464,
+      "total_range_ms": [
+        9660.786499999995,
+        9900.619299999997
+      ]
+    }
+  },
+  "source_current_matches_frozen": true,
+  "producer_stopped_verified": true,
+  "stop_basis": [
+    {
+      "work_id": "667603e2-3319-4651-87b1-c834b00030be",
+      "exit_code": 0
+    },
+    {
+      "work_id": "5876798a-539d-4d8a-9115-f250d865e017",
+      "exit_code": 0
+    },
+    {
+      "work_id": "52fd6a98-d360-49bb-8df4-58509c38c95d",
+      "exit_code": 0
+    },
+    {
+      "work_id": "371d9fe7-d7fe-4313-b135-6f38998ac72b",
+      "exit_code": 0
+    }
+  ],
+  "rerun": {
+    "work_id": "11f3dfcd-dcaf-4417-8fb4-e8c31cf25b2a",
+    "exit_code": 1,
+    "cause": "Disposable Node log summary parser syntax error before tests; fixed runner and repeated successfully"
+  },
+  "limits": [
+    "Three samples per binary in one isolated Windows x64 100-record 1MiB condition",
+    "No Linux/macOS or application embedded engine acceptance",
+    "No installation change; external mutations after intent are not re-reviewed"
+  ],
+  "run_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1",
+  "version_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ef98c385-win-x64-eq01-precheck-removal"
+}

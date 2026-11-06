@@ -1,0 +1,36 @@
+{
+  "runId": "run:EZ01:window-targets-mw1j7aiz",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-mw1j7aiz",
+  "frozen": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-mw1j7aiz\\temporary\\source",
+  "startedAt": "2026-11-04T03:02:59.193Z",
+  "steps": [
+    {
+      "name": "focused",
+      "files": [
+        "test-window-request-targets.cjs",
+        "test-window-control-occupancy.cjs",
+        "test-window-control-policy.cjs",
+        "test-window-control-mcp.cjs",
+        "test-window-virtual-policy.cjs",
+        "test-window-control-observation-recovery.cjs",
+        "test-window-control-minimized.cjs",
+        "test-window-task-macros.cjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-mw1j7aiz\\logs\\focused.log"
+    }
+  ],
+  "endedAt": "2026-11-04T03:03:09.760Z",
+  "summary": {
+    "tests": 68,
+    "pass": 65,
+    "fail": 3,
+    "skip": 0,
+    "causes": [
+      "Stop removed candidate map on resume (product fixed)",
+      "Explicit binding peek missing in minimized fixture (fixed)",
+      "Desktop Stop preflight missing recovery metadata (product fixed)"
+    ]
+  }
+}

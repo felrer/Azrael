@@ -160,7 +160,7 @@ function selectedConfig(sourceText, destinationText, manifest, replacements, own
         NODE_REPL_NODE_PATH: path.join(ownedRuntime.directory, "node.exe"),
         NODE_REPL_NODE_MODULE_DIRS: path.join(ownedRuntime.directory, "node_modules"),
         NODE_REPL_TRUSTED_CODE_PATHS: [...new Set([ownedRuntime.directory, ownedRuntime.home, ...trustedPaths])].join(";"),
-        NODE_REPL_TRUSTED_SERVICES: JSON.stringify({ ...retainedServices, sky: path.join(ownedRuntime.directory, "sky-controlled-service.mjs") }),
+        NODE_REPL_TRUSTED_SERVICES: JSON.stringify(retainedServices),
         CODEX_CLI_PATH: ownedRuntime.engine,
         CODEX_HOME: ownedRuntime.home,
       },
@@ -312,6 +312,34 @@ function localMarketplacePath(home, name) {
     : path.join(home, "azrael", "codex-environment", "marketplaces", name);
 }
 
+// The marketplace may advance while the source home still names an older cache
+// version. Bind runtime references to the payload verified by materialize().
+function rebindPluginRuntimePaths(configText, home, pluginResults) {
+  const config = parseToml(configText);
+  const environment = config.mcp_servers?.node_repl?.env;
+  if (!environment) return configText;
+  const replacements = pluginResults.map(({ plugin, result }) => {
+    const [name, marketplace] = plugin.split("@");
+    if (!/^[A-Za-z0-9_-]+@[A-Za-z0-9_-]+$/.test(plugin) || !/^[A-Za-z0-9][A-Za-z0-9._+-]*$/.test(result.version)) fail("Invalid materialized plugin identity");
+    const prefix = path.join(home, "plugins", "cache", marketplace, name);
+    const pattern = prefix.split(/[\\/]+/).map(regexEscape).join("[\\\\/]+");
+    return [new RegExp("(^|[\\s;\"'\\x60(\\[=])" + pattern + "[\\\\/][A-Za-z0-9][A-Za-z0-9._+-]*(?=$|[\\\\/;\\\"'\\s])", "g" + (process.platform === "win32" ? "i" : "")), path.join(prefix, result.version)];
+  });
+  function transform(value) {
+    if (typeof value === "string") {
+      try {
+        const embedded = JSON.parse(value);
+        if (embedded && typeof embedded === "object") return JSON.stringify(transform(embedded));
+      } catch { /* ordinary string */ }
+      for (const [pattern, target] of replacements) value = value.replace(pattern, (_, boundary) => boundary + target);
+    } else if (Array.isArray(value)) return value.map(transform);
+    else if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, transform(item)]));
+    return value;
+  }
+  config.mcp_servers.node_repl.env = transform(environment);
+  return stringifyToml(config);
+}
+
 async function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   const sourceHome = path.resolve(args["source-home"] || path.join(os.homedir(), ".codex"));
@@ -322,7 +350,6 @@ async function main(argv = process.argv.slice(2)) {
   const computerUseDirectory = args["computer-use-directory"] ? path.resolve(args["computer-use-directory"]) : null;
   const windowControlDirectory = args["window-control-directory"] ? path.resolve(args["window-control-directory"]) : null;
   let windowControl = null;
-  let unifiedWindowUse = false;
   const ownedSourceStates = new Map();
   if (windowControlDirectory) {
     if (!computerUseDirectory) fail("Window Control requires owned Node runtime.");
@@ -334,7 +361,7 @@ async function main(argv = process.argv.slice(2)) {
     for (const target of [computerUseDirectory, ...["manifest.json", "node_repl.exe", "node.exe"].map((name) => path.join(computerUseDirectory, name))]) {
       ownedSourceStates.set(target, pathState(target));
     }
-    unifiedWindowUse = require("./computer-use-runtime.cjs").verifyRuntime(computerUseDirectory).manifest.windowUseGuidanceVersion === 1;
+    require("./computer-use-runtime.cjs").verifyRuntime(computerUseDirectory);
     assertUnchanged(ownedSourceStates);
   }
   if (isWithin(stateRoot, sourceHome) || isWithin(sourceHome, stateRoot)) fail("Azrael and ordinary Codex state must not overlap, including filesystem aliases.");
@@ -344,7 +371,7 @@ async function main(argv = process.argv.slice(2)) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   if (manifest.schema !== 1) fail("Unsupported Codex environment manifest schema.");
   if (computerUseDirectory && manifest.personalSkills.some((skill) => skill.name === "computer-use")) fail("Computer Use skill has conflicting snapshot ownership.");
-  if ((windowControl || unifiedWindowUse) && manifest.personalSkills.some((skill) => skill.name === "window-use")) fail("Window Use skill has conflicting snapshot ownership.");
+  if (computerUseDirectory && manifest.personalSkills.some((skill) => skill.name === "window-use")) fail("Window Use skill has conflicting snapshot ownership.");
   const copyGlobalInstructions = manifest.copyGlobalInstructions !== false;
   for (const name of [...manifest.agentRoles, ...manifest.generatedAgentRoles.map((role) => role.name), ...manifest.personalSkills.map((skill) => skill.name)]) {
     if (!/^[A-Za-z0-9_-]+$/.test(name)) fail(`Invalid managed name: ${name}`);
@@ -358,13 +385,20 @@ async function main(argv = process.argv.slice(2)) {
     : "";
   const sourceMarketplaces = marketplaceSources(sourceConfig);
   const receiptPath = path.join(stateRoot, "azrael", "codex-environment", "snapshot.json");
+  const priorReceipt = fs.existsSync(receiptPath) ? JSON.parse(fs.readFileSync(receiptPath, 'utf8')) : null;
+  const retiredSkills = computerUseDirectory ? ['computer-use', 'window-use'].map(name => path.join(stateRoot, 'skills', name)) : [];
+  for (const target of retiredSkills) {
+    const current = pathState(target);
+    if (!fs.existsSync(target)) continue;
+    const owned = priorReceipt?.managedStates?.[path.relative(stateRoot, target)];
+    if (!owned || JSON.stringify(current) !== JSON.stringify(owned)) fail('Retired skill is unmanaged or modified; resolve conflict before applying: ' + target);
+  }
   const managedTargets = [
     path.join(stateRoot, "config.toml"),
     ...(copyGlobalInstructions ? [path.join(stateRoot, "AGENTS.md")] : []),
     ...[...manifest.agentRoles, ...manifest.generatedAgentRoles.map((role) => role.name)].map((name) => path.join(stateRoot, "agents", `${name}.toml`)),
     ...manifest.personalSkills.map((skill) => path.join(stateRoot, "skills", skill.name)),
-    ...(computerUseDirectory && !unifiedWindowUse ? [path.join(stateRoot, "skills", "computer-use")] : []),
-    ...(windowControl || unifiedWindowUse ? [path.join(stateRoot, "skills", "window-use")] : []),
+    ...retiredSkills,
     ...[...sourceMarketplaces.keys()].map((name) => localMarketplacePath(stateRoot, name)),
     ...enabledPlugins(sourceConfig).map((plugin) => { const [name, marketplace] = plugin.split("@"); return path.join(stateRoot, "plugins", "cache", marketplace, name); }),
     receiptPath,
@@ -440,58 +474,7 @@ async function main(argv = process.argv.slice(2)) {
     fs.mkdirSync(skillsDirectory, { recursive: true });
     const skillHashes = {};
     const computerUseFiles = new Map();
-    if (computerUseDirectory) {
-      if (unifiedWindowUse) {
-        // Existing standalone entries may still have active consumers. Preserve them
-        // until stage-4 acceptance and runtime reference protection permit retirement.
-        const legacy = path.join(stateRoot, 'skills', 'computer-use');
-        if (fs.existsSync(legacy)) warnings.push('Standalone Computer Use entry retained: stage-4 acceptance and active-consumer retirement checks are pending.');
-      } else {
-      const skillDirectory = path.join(skillsDirectory, "computer-use");
-      copyDirectory(path.join(computerUseDirectory, "skills", "computer-use"), skillDirectory);
-      copyDirectory(path.join(computerUseDirectory, "docs"), path.join(skillDirectory, "docs"));
-      const instructions = path.join(skillDirectory, "SKILL.md");
-      const visibleDesktopNote = "## Azrael foreground mode visible desktop requirement\n\n" +
-        "This requirement applies to foreground Computer Use mode. " +
-        (windowControl ? "Window Use is a separate skill using azrael_window tools. " : "") +
-        "Activate the exact selected target window and obtain a fresh observation before capture or input. " +
-        "Verify foreground focus before typing and verify that each returned screenshot shows the selected target's content. " +
-        "Discard unexpected screenshot content and pause if physical user activity or an unexpected other foreground window is observed. " +
-        "Do not repeatedly steal focus. Capture of occluded windows is not an established capability of this integration.\n\n";
-      const adaptCaptureClaim = (text) => text.replaceAll("screenshots that work even when windows are occluded", "screenshots subject to the Azrael visible desktop requirement");
-      let skillText = adaptCaptureClaim(fs.readFileSync(instructions, "utf8")).replaceAll("../../docs", "./docs");
-      const frontmatter = skillText.match(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/)?.[0] || "";
-      skillText = frontmatter + "\n" + visibleDesktopNote + skillText.slice(frontmatter.length);
-      fs.writeFileSync(instructions, skillText, "utf8");
-      for (const name of fs.readdirSync(path.join(skillDirectory, "docs"))) {
-        if (!name.endsWith(".md")) continue;
-        const target = path.join(skillDirectory, "docs", name);
-        const text = adaptCaptureClaim(fs.readFileSync(target, "utf8"));
-        fs.writeFileSync(target, (name === "guidance.md" ? visibleDesktopNote : "") + text, "utf8");
-      }
-      function collect(directory) {
-        for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-          const target = path.join(directory, entry.name);
-          if (entry.isDirectory()) collect(target);
-          else if (entry.isFile()) computerUseFiles.set(path.join(stateRoot, "skills", "computer-use", path.relative(skillDirectory, target)), fs.readFileSync(target));
-          else fail(`Computer Use instructions must be regular files: ${target}`);
-        }
-      }
-      collect(skillDirectory);
-      skillHashes["computer-use"] = directoryHash(skillDirectory);
-      }
-      runtimeEvidence.computerUse = { path: computerUseDirectory, sha256: ownedSourceStates.get(computerUseDirectory).sha256,
-        manifestSha256: fileHash(path.join(computerUseDirectory, "manifest.json")) };
-      if (windowControl || unifiedWindowUse) {
-        const windowSkillSource = path.join(computerUseDirectory, 'skills', 'window-use');
-        assertFile(path.join(windowSkillSource, 'SKILL.md'), 'owned Window Use skill');
-        const windowSkillDestination = path.join(skillsDirectory, 'window-use');
-        copyDirectory(windowSkillSource, windowSkillDestination);
-        const windowInstructions = path.join(windowSkillDestination, 'SKILL.md');
-        computerUseFiles.set(path.join(stateRoot, 'skills', 'window-use', 'SKILL.md'), fs.readFileSync(windowInstructions));
-        skillHashes['window-use'] = directoryHash(windowSkillDestination);
-      }
-    }
+    if (computerUseDirectory) runtimeEvidence.nodeRepl = { path: computerUseDirectory, sha256: ownedSourceStates.get(computerUseDirectory).sha256, manifestSha256: fileHash(path.join(computerUseDirectory, 'manifest.json')) };
     for (const skill of manifest.personalSkills) {
       const source = skill.source === "shared" ? path.join(sharedSkills, skill.name) : path.join(sourceHome, "skills", skill.name);
       assertDirectory(source, `personal skill ${skill.name}`);
@@ -539,6 +522,9 @@ async function main(argv = process.argv.slice(2)) {
     const pluginResults = await nativeEngine.materialize(stageHome, enabledPlugins(sourceConfig),
       new Map([...sourceMarketplaces.keys()].map(name => [name, localMarketplacePath(stageHome, name)])),
       { copyDirectory, directoryHash });
+    stageConfig = rebindPluginRuntimePaths(stageConfig, stageHome, pluginResults);
+    finalConfig = rebindPluginRuntimePaths(finalConfig, stateRoot, pluginResults);
+    fs.writeFileSync(path.join(stageHome, "config.toml"), stageConfig, "utf8");
     await nativeEngine.validate(stageHome);
     const stagedNodeEnvironment = configSections(stageConfig, "mcp_servers.node_repl.env")[0]?.lines.join("\n");
     if (!stagedNodeEnvironment) fail("Staged node_repl environment is missing.");
@@ -551,11 +537,6 @@ async function main(argv = process.argv.slice(2)) {
     const trustedServices = JSON.parse(assignment(stagedNodeEnvironment, "NODE_REPL_TRUSTED_SERVICES"));
     for (const [service, target] of Object.entries(trustedServices)) {
       if (path.isAbsolute(target)) assertFile(target, `node_repl trusted service ${service}`);
-    }
-    if (!computerUseDirectory) {
-      const nativePipe = assignment(stagedNodeEnvironment, "SKY_CUA_NATIVE_PIPE_DIRECTORY");
-      if (!/^\\\\\.\\pipe\\[A-Za-z0-9._-]+$/.test(nativePipe || "")) fail("Invalid native computer-use pipe name.");
-      runtimeEvidence.nativeComputerUsePipe = { path: nativePipe, kind: "ephemeral-external-runtime-endpoint" };
     }
 
     const fingerprint = sha256(JSON.stringify({
@@ -673,4 +654,4 @@ if (require.main === module) {
   main().catch(error => { process.stderr.write(`${error.stack || error.message}\n`); process.exitCode = 1; });
 }
 
-module.exports = { assertManagedTarget, assertUnchanged, assignment, directoryHash, enabledPlugins, generatedRole, instructionBody, marketplaceSources, parseToml, pathState, replaceAssignment, selectedConfig, splitToml, stringifyToml, assertDirectory, assertFile, copyDirectory, fail, fileHash, isWithin, parseArgs, run, sha256 };
+module.exports = { assertManagedTarget, assertUnchanged, assignment, directoryHash, enabledPlugins, generatedRole, instructionBody, marketplaceSources, parseToml, pathState, rebindPluginRuntimePaths, replaceAssignment, selectedConfig, splitToml, stringifyToml, assertDirectory, assertFile, copyDirectory, fail, fileHash, isWithin, parseArgs, run, sha256 };

@@ -412,6 +412,9 @@ function scriptOwners(candidates, root, owners = new Map(), evidence = new Map()
     for (const [source, tests] of owners) if (tests.has(test)) {
       const kinds = evidence.get(`${source}\0${test}`);
       if (kinds?.has("manifest-data") && !kinds.has("manifest-owner") && !kinds.has("static-import")) continue;
+      // A shared preservation gate owns feature checks without making each
+      // declared feature consume all of the gate's cache helpers.
+      if (source === "scripts/feature-preservation.cjs" && kinds?.has("manifest-owner") && !kinds.has("static-import")) continue;
       visit(source);
     }
   }
@@ -459,6 +462,9 @@ function selectChanged(options, root) {
     ["extensions/azrael-ex/scripts/build-incremental.cjs", "scripts/test-incremental-extension-build.cjs"],
     ["scripts/build-metrics.ps1", "scripts/test-build-metrics.ps1"],
     ["scripts/build-module-cache.ps1", "scripts/test-build-module-cache.ps1"],
+    ["scripts/window-control-cache.ps1", "scripts/test-build-module-cache.ps1"],
+    ["scripts/build-window-control.ps1", "scripts/test-build-module-cache.ps1"],
+    ["scripts/build-azrael.ps1", "scripts/test-build-module-cache.ps1"],
     ["scripts/deploy-azrael.ps1", "scripts/test-deploy-azrael.ps1"],
     ["scripts/verification-state.ps1", "scripts/test-verification-state.ps1"],
     ["scripts/check-independent-vscode.ps1", "scripts/test-verification-state.ps1"],
@@ -500,6 +506,10 @@ function selectChanged(options, root) {
       reasons.push({ path: file, reason });
       separateChecks.add(`${file}: ${reason}`);
       continue;
+    }
+    else if (/^extensions\/azrael-ex\/test\/.*\.test\.ts$/.test(file)) {
+      // A direct test edit selects that test below, not every feature check
+      // that happens to list it among its implementation owners.
     }
     else {
       for (const test of owners.get(file) || []) {
@@ -565,6 +575,7 @@ function selectChanged(options, root) {
 }
 
 async function runCommand(command, directory, index, environment) {
+  await require('./build-resource-admission.cjs').waitForBuildMemory({ label: command.name });
   const stem = `${String(index + 1).padStart(2, "0")}-${command.name}`;
   const stdout = path.join(directory, `${stem}.stdout.log`);
   const stderr = path.join(directory, `${stem}.stderr.log`);
@@ -595,11 +606,27 @@ function checkedWorkId(value) {
   return value;
 }
 
+function fixtureFiles(selection, root = ROOT) {
+  const files = new Set([...(selection.files || []), ...(selection.extensionFiles || [])]);
+  // Partition commands do not list their TypeScript files in selection.files.
+  // Inspect the same discovered partition that the child runner will execute.
+  for (const command of selection.commands || []) {
+    if (command.executable !== "npm" || command.args?.[0] !== "run" ||
+        !["test:current", "test:standalone", "test:all"].includes(command.args[1])) continue;
+    const extension = extensionOwners(root);
+    const standalone = new Set(require(path.join(extension.extension, "scripts/run-tests.cjs")).STANDALONE_FILES);
+    for (const file of extension.tests) {
+      const retained = standalone.has(path.basename(file).replace(/\.ts$/, ".js"));
+      if (command.args[1] === "test:all" || retained === (command.args[1] === "test:standalone")) files.add(file);
+    }
+  }
+  return [...files].sort();
+}
+
 async function runSelection(selection, options = {}) {
   const root = path.resolve(options.root || ROOT);
   if (options.sourcePreflightReceipt && !options.sourcePreflightConfig)
     throw new Error('--source-preflight-receipt requires --source-preflight-config');
-  require('./source-test-fixtures.cjs').assertSourceFixtures({ root, files: selection.files });
   let sourcePreflight;
   if (options.sourcePreflightConfig) {
     const config = JSON.parse(fs.readFileSync(options.sourcePreflightConfig, 'utf8').replace(/^\uFEFF/, ''));
@@ -609,6 +636,7 @@ async function runSelection(selection, options = {}) {
     sourcePreflight = await require('./source-preflight-reuse.cjs').bindSourcePreflight(selection, config, root);
     selection = sourcePreflight.selection;
   }
+  require('./source-test-fixtures.cjs').assertSourceFixtures({ root, files: fixtureFiles(selection, root), env: sourcePreflight?.environment || process.env });
   const managed = !options.directory && !options.logDirectory;
   let runRoot, lifecycleRecord;
   if (managed) {
@@ -671,7 +699,7 @@ async function runSelection(selection, options = {}) {
       checkpoint();
       let outcome;
       try { outcome = await (options.runCommand || runCommand)(command, directory, index,
-        command.name === 'source' ? sourcePreflight?.environment : undefined); }
+        sourcePreflight?.environment); }
       catch (error) { outcome = { status: "runner-error", exitCode: null, error: error.message }; }
       const completed = Date.now();
       const result = { ...command, ...outcome, startedUtc: new Date(commandStarted).toISOString(),
@@ -728,7 +756,7 @@ async function main(args = process.argv.slice(2)) {
   if (options.argumentIdentity) selection.argumentIdentity = options.argumentIdentity;
   if (options.list) { console.log(JSON.stringify(selection, null, 2)); return 0; }
   if (options.checkFixtures) {
-    const readiness = require('./source-test-fixtures.cjs').inspectSourceFixtures({ root: ROOT, files: selection.files });
+    const readiness = require('./source-test-fixtures.cjs').inspectSourceFixtures({ root: ROOT, files: fixtureFiles(selection) });
     console.log(JSON.stringify(readiness, null, 2));
     return readiness.status === 'ready' ? 0 : 1;
   }
@@ -742,5 +770,5 @@ async function main(args = process.argv.slice(2)) {
   return report.exitCode;
 }
 
-module.exports = { AREAS, parseArgs, discover, changedFiles, select, scriptOwners, runCommand, runSelection, main };
-if (require.main === module) main().then(code => { process.exitCode = code; }, error => { console.error(error.message); process.exitCode = 1; });
+module.exports = { AREAS, parseArgs, discover, changedFiles, select, scriptOwners, fixtureFiles, runCommand, runSelection, main };
+if (require.main === module) main().then(code => { process.exitCode = code; }, require('./verification-reuse-policy.cjs').reportCliError);

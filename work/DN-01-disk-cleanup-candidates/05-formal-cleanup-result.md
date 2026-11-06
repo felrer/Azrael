@@ -11,7 +11,7 @@
 | 문자열 혼재/오류 후보 | 0 | 0 | 1 |
 | 합계 | 673 | 1,981,269,692 (약 1.98GB / 1.85GiB) | 156 |
 
-남은 후보는 원래 목록 기준 972,168,721바이트다. 이전 r2의 별도 AV/BZ 두 그룹·세 경로 503,838바이트 삭제는 위 수치에 포함하지 않았다. 상세 경로·분류·삭제 영수증·보류 사유·재검토 조건: [최종 대조 JSON](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/grouped-relocation-20261024-r4/reports/final-reconciliation.json). native는 실제 회수 allocation을 측정하지 않아 물리 확보량을 확정할 수 없다.
+남은 후보는 원래 목록 기준 972,168,721바이트다. 이전 r2의 별도 AV/BZ 두 그룹·세 경로 503,838바이트 삭제는 위 수치에 포함하지 않았다. 상세 경로·분류·삭제 영수증·보류 사유·재검토 조건: [최종 대조 JSON](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/DN-01-disk-cleanup-candidates/runs/grouped-relocation-20261024-r4/reports/final-reconciliation.json). native는 실제 회수 allocation을 측정하지 않아 물리 확보량을 확정할 수 없다.
 
 # 범위와 절차
 

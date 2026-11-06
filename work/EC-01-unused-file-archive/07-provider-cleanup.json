@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "scope": "two exact unused providers module-cache entries",
+  "platform": "Windows x64 local",
+  "powershell": "7.6.9",
+  "startedUtc": "2026-10-29T23:49:58.5280268Z",
+  "ownerExecutable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+  "ownerSha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+  "status": "deleted",
+  "logicalBytes": null,
+  "logicalBytesReason": "cache.json records outputs and hashes but no payload byte sizes; no new recursive measurement",
+  "physicalBytesReclaimed": null,
+  "priorHarnessFailure": "shell parameter was ignored; Windows PowerShell5.1 rejected dot-source before any payload mutation; explicit pwsh7.6.9 used without policy change",
+  "entries": [
+    {
+      "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+      "initialPresent": true,
+      "preview": {
+        "status": "selected",
+        "reason": null,
+        "groups": [
+          "run:module-cache:providers:96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+            "role": "cache-entry",
+            "status": "selected"
+          }
+        ],
+        "finalization": [],
+        "errors": []
+      },
+      "apply": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:module-cache:providers:96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+            "role": "cache-entry",
+            "status": "deleted"
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:module-cache:providers:96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15\\artifacts\\maintenance\\lifecycles\\64049b1b118adda4b2394a8029cad15ae207bd0d3dff74acafc6d05f785348bc.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "sha256": "0d6c9cc1858ee50d14ed28471849f962b48ac8564a41fe934394f43d5ae2e4da",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15\\artifacts\\maintenance\\evidence\\cleanup\\1e1eb465916f4ff29eaeb015262ef374.json"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      },
+      "remaining": false,
+      "leaseReleased": true,
+      "elapsedSeconds": 13.719,
+      "error": null,
+      "before": {
+        "id": "run:module-cache:providers:96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+        "owner": "module-build-cache",
+        "state": "complete",
+        "membershipComplete": true,
+        "revision": 2
+      }
+    },
+    {
+      "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+      "initialPresent": true,
+      "preview": {
+        "status": "selected",
+        "reason": null,
+        "groups": [
+          "run:module-cache:providers:96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+            "role": "cache-entry",
+            "status": "selected"
+          }
+        ],
+        "finalization": [],
+        "errors": []
+      },
+      "apply": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:module-cache:providers:96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+            "role": "cache-entry",
+            "status": "deleted"
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:module-cache:providers:96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17\\artifacts\\maintenance\\lifecycles\\64049b1b118adda4b2394a8029cad15ae207bd0d3dff74acafc6d05f785348bc.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "sha256": "bfcf10d5c15dec3100fe43bda3191f6137e9ed8de7f8e9b719196fe608908871",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17\\artifacts\\maintenance\\evidence\\cleanup\\eff8d12299af4f8d9b7338ff6f97bb7b.json"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      },
+      "remaining": false,
+      "leaseReleased": true,
+      "elapsedSeconds": 12.346,
+      "error": null,
+      "before": {
+        "id": "run:module-cache:providers:96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+        "owner": "module-build-cache",
+        "state": "complete",
+        "membershipComplete": true,
+        "revision": 2
+      }
+    }
+  ],
+  "error": null,
+  "finishedUtc": "2026-10-29T23:50:24.6603667Z",
+  "elapsedSeconds": 26.095,
+  "executionObservation": {
+    "exitCode": 0,
+    "sessionId": 65714,
+    "terminalObserved": true,
+    "supportClients": "Existing Invoke-ArtifactLifecycleCleanup waits for support client exit zero before finalize; both finalized",
+    "observedUtc": "2026-10-29T23:50:33.670Z"
+  },
+  "finalAbsence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+      "exists": false
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+      "exists": false
+    }
+  ]
+}

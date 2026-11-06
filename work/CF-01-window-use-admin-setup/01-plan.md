@@ -241,7 +241,7 @@ root가 요청 계약·통합·최종 수용을 소유한다. 계약 확정 → 
 
 진단·검증 자료는 `artifacts/tasks/DU-01-window-use-stages/runs/20261018-diagnostic-r1`에 소속됩니다. `reproduction.json`, `guard-binding-result-r3.json`, `process-closure.json`, `logs/window-error-details-tests-r4.log`, `logs/window-control-host-manual.log`가 주요 근거입니다. 프로필과 로그를 같은 lifecycle group `run:window-use-diagnostic-20261018-r1`으로 등록하고 native review/apply에서 두 멤버 모두 defer 완료했습니다. 자료는 보존되어 있으며 네이티브 해결안의 실제 검증·비교가 끝나고 후속 소비가 종료된 뒤 재검토합니다. 이 원인 진단을 Windows Home이나 계정 암호 문제의 증거로 확대하지 않습니다.
 
-사용자는 코드 수정, 관리자 권한 요청을 통한 자식 세션 준비, 런타임 반영을 승인했습니다. 기존 실험 기록은 [직접 진단 기록](../../artifacts/tasks/DU-01-window-use-stages/runs/20261017-direct-admin-r1/plan-body.md)에 보존합니다. 직접 관리자 연결은 성공했지만 제품 경로는 TEMP 및 자동 준비 부재로 실패했습니다.
+사용자는 코드 수정, 관리자 권한 요청을 통한 자식 세션 준비, 런타임 반영을 승인했습니다. 기존 실험 기록은 [직접 진단 기록](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/DU-01-window-use-stages/runs/20261017-direct-admin-r1/plan-body.md)에 보존합니다. 직접 관리자 연결은 성공했지만 제품 경로는 TEMP 및 자동 준비 부재로 실패했습니다.
 
 대상은 Windows x64 로컬 대화형 사용자 세션입니다. 공통 단계 권한·취소·앱 승인 의미와 Linux/macOS의 기존 지원 범위는 유지합니다. 엔진은 설치된 검증 배포판의 동결 소스와 바이너리를 재사용하며 현재 다른 작업의 engine 변경을 포함하지 않습니다. 앱 버전은 유지합니다.
 

@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "owner": "EC-01-user-archive-custody",
+  "archive_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-post-reboot-unknown-20261028-r1",
+  "parent_identity": {
+    "dev": "3057815611",
+    "ino": "13792273858883491",
+    "birthtimeNs": "1792989938617950000"
+  },
+  "planned": [
+    {
+      "id": "shared:cargo-target:96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-post-reboot-unknown-20261028-r1\\cargo-cache-96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "before": {
+        "dev": "3057815611",
+        "ino": "9288674234038435",
+        "birthtimeNs": "1793045074238002800"
+      }
+    },
+    {
+      "id": "shared:cargo-pending:dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-post-reboot-unknown-20261028-r1\\cargo-pending-dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+      "before": {
+        "dev": "3057815611",
+        "ino": "2251799823766469",
+        "birthtimeNs": "1792687549718821700"
+      }
+    }
+  ],
+  "source_records": [
+    {
+      "cleanup_recovery": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\20-cleanup-recovery-0.json",
+        "evidence_sha256": "042ca7beb57c20fb54b63a8e50155571ef008ee9147c64a106eb0b1559fc3ca9",
+        "generation": "35a2ef51-ad40-4fc2-87d7-7b53e8c572b2",
+        "id": "shared:cargo-target:96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+        "kind": "work",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+            "protection_known": true,
+            "role": "cargo-cache"
+          }
+        ],
+        "membership_complete_verified": true,
+        "original_membership_complete": false,
+        "original_producer": null,
+        "original_state": "pending",
+        "owner": "cargo-shared-cache",
+        "producer_stopped_verified": true,
+        "reason": "User requested archival after verified reboot; keep historical pending/unknown result, only release cleanup protection",
+        "schema": 1,
+        "source_revision": 5,
+        "verified_at": "2026-10-28T06:28:55.490Z",
+        "version": null
+      },
+      "created_at": "2026-10-26T20:04:34.231Z",
+      "generation": "35a2ef51-ad40-4fc2-87d7-7b53e8c572b2",
+      "id": "shared:cargo-target:96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+          "protection_known": true,
+          "role": "cargo-cache"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "cargo-shared-cache",
+      "recover_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\20-cleanup-recovery-0.json",
+        "evidence_sha256": "042ca7beb57c20fb54b63a8e50155571ef008ee9147c64a106eb0b1559fc3ca9",
+        "reason": "User requested archival after verified reboot; keep historical pending/unknown result, only release cleanup protection",
+        "request_sha256": "5adcf055297a00ff4951e33c86e04e3ce3e1182d79d57a959a64dd63b8d38b1d"
+      },
+      "references": [],
+      "revision": 6,
+      "schema": 1,
+      "state": "pending",
+      "updated_at": "2026-10-28T06:28:55.493Z",
+      "version": null
+    },
+    {
+      "cleanup_recovery": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\20-cleanup-recovery-1.json",
+        "evidence_sha256": "b9d931081bb6701cdc6d5aecf48b43a6cc0d9029c656faaf0fcbe69a99a9c4fe",
+        "generation": "5fdf3e98-6425-4179-9ab7-1ff29516f4f9",
+        "id": "shared:cargo-pending:dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+        "kind": "work",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+            "protection_known": true,
+            "role": "pending"
+          }
+        ],
+        "membership_complete_verified": true,
+        "original_membership_complete": false,
+        "original_producer": null,
+        "original_state": "pending",
+        "owner": "cargo-target-owner",
+        "producer_stopped_verified": true,
+        "reason": "User requested archival after verified reboot; keep historical pending/unknown result, only release cleanup protection",
+        "schema": 1,
+        "source_revision": 21,
+        "verified_at": "2026-10-28T06:28:58.746Z",
+        "version": null
+      },
+      "created_at": "2026-10-22T16:45:49.706Z",
+      "generation": "5fdf3e98-6425-4179-9ab7-1ff29516f4f9",
+      "id": "shared:cargo-pending:dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+          "protection_known": true,
+          "role": "pending"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "cargo-target-owner",
+      "recover_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\20-cleanup-recovery-1.json",
+        "evidence_sha256": "b9d931081bb6701cdc6d5aecf48b43a6cc0d9029c656faaf0fcbe69a99a9c4fe",
+        "reason": "User requested archival after verified reboot; keep historical pending/unknown result, only release cleanup protection",
+        "request_sha256": "8ca559897c6305c34d046fed13519577af091f2366ee38a8f1fce7fda7d61b25"
+      },
+      "references": [],
+      "revision": 22,
+      "schema": 1,
+      "state": "pending",
+      "updated_at": "2026-10-28T06:28:58.748Z",
+      "version": null
+    }
+  ],
+  "retention": "Explicit user archive instruction; preserve unknown history; no deletion until future formal registration and review"
+}

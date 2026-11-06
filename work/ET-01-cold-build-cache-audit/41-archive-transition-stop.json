@@ -1,0 +1,17 @@
+﻿{
+    "schema":  1,
+    "reason":  "User changed remaining cache disposal to same-volume archive handoff; stop existing deletion",
+    "startedUtc":  "2026-10-30T05:41:40.4583038Z",
+    "native":  {
+                   "startUtc":  "2026-10-30T05:13:10.4651128Z",
+                   "pid":  37576
+               },
+    "containedDeletionWorker":  {
+                                    "startUtc":  "2026-10-30T05:26:59.1934409Z",
+                                    "pid":  2860
+                                },
+    "operation":  "Stop exact native owner; its kill-on-close Job Object terminates deletion worker and descendants",
+    "nativeStopped":  true,
+    "workerStopped":  true,
+    "finishedUtc":  "2026-10-30T05:41:40.6357396Z"
+}

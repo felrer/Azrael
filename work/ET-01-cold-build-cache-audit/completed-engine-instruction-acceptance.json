@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "exitCode": 0,
+  "startedUtc": "2026-10-30T14:50:57.494Z",
+  "finishedUtc": "2026-10-30T14:51:31.973Z",
+  "engine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\x86_64-pc-windows-msvc\\release\\azrael.exe",
+  "engineSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+  "buildReceipt": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\x86_64-pc-windows-msvc\\release\\azrael-engine-build.json",
+    "sha256": "2841bdc5110030675a6dd6f1ed127bf1620def9440d68d6224244f284774a0db"
+  },
+  "tests": [
+    "ℹ tests 6",
+    "ℹ pass 6",
+    "ℹ fail 0",
+    "ℹ skipped 0",
+    "ℹ duration_ms 32464.2065"
+  ],
+  "testLogSha256": "349cc118835ff829193bc24233a44c27ab74034e424b0332309e9a02bd51e86e",
+  "verifiedPlatform": "Windows x64",
+  "fixture": "short owned isolated CODEX_HOME under original frozen checkout; no user profile change",
+  "sourceInstructionSha256": "e346161c6cc5c2b2c8d8a62ddac2372f3402bcb35e4a5a6eef35e016aa3321b4",
+  "testSourceSha256": "aac25cc4edbb3eed624ebd7b5d8faff1f97b5242d7562a79de8f99745320f001"
+}

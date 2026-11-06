@@ -361,6 +361,47 @@ async fn test_queue() -> anyhow::Result<(Arc<dyn QueueStore>, TempDir)> {
     Ok((queue, home))
 }
 
+#[tokio::test]
+async fn captured_profile_survives_queue_restart_and_content_edit() -> anyhow::Result<()> {
+    let (store, _home) = test_queue().await?;
+    let thread_id = ThreadId::new();
+    let profile = codex_protocol::agent_profile::AgentProfileRef {
+        digest: "a".repeat(64),
+        project_id: Some("project-a".into()),
+        revision: Some(7),
+    };
+    let service = QueuedItemService::new(
+        Arc::clone(&store),
+        Weak::new(),
+        Arc::new(NoopExtensionEventSink),
+    );
+    let item = service
+        .enqueue_with_profile(thread_id, user_input("first"), Some(profile.clone()))
+        .await?;
+    let compaction = service
+        .enqueue_compaction_with_profile(thread_id, "compact-id".into(), Some(profile.clone()))
+        .await?;
+    drop(service);
+    let resumed = QueuedItemService::new(store, Weak::new(), Arc::new(NoopExtensionEventSink));
+    let updated = resumed
+        .update(thread_id, item.id, user_input("edited"))
+        .await?
+        .context("queued item missing")?;
+    let (input, captured) = updated.input.into_profile_parts()?;
+    assert_eq!(captured, Some(profile.clone()));
+    assert!(
+        matches!(input, QueuedInput::UserInput { content, .. } if matches!(&content[0], UserInput::Text { text, .. } if text == "edited"))
+    );
+    let persisted = resumed.list(thread_id).await?;
+    assert_eq!(persisted[1].id, compaction.id);
+    let (input, captured) = persisted[1].input.clone().into_profile_parts()?;
+    assert_eq!(captured, Some(profile));
+    assert!(
+        matches!(input, QueuedInput::ContextCompaction { client_id } if client_id == "compact-id")
+    );
+    Ok(())
+}
+
 fn loaded_thread_queue(test: &TestCodex) -> anyhow::Result<Arc<dyn QueueStore>> {
     let runtime = test.codex.state_db().context("state runtime unavailable")?;
     Ok(Arc::new(LocalQueueStore::new(runtime)))

@@ -1,0 +1,136 @@
+{
+  "request": {
+    "operation": "review",
+    "group_ids": [
+      "run:fw03v:internal-junction63-01"
+    ],
+    "verification": "registered",
+    "lock_wait_ms": 600000
+  },
+  "observed": {
+    "pid": 40124,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "error": null,
+    "close_observed": true,
+    "stdout_drained": true,
+    "stderr_drained": true
+  },
+  "result": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:fw03v:internal-junction63-01",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "6fd76287ac03b720a75f5bdc5b290478ab36153769828c2bf7b20bddcda5540c",
+        "owner": "FW-01/internal-junction63",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a064b650d7d36e7e1e51a5a8ff7f6687514fc2733b244ee77c6b3ad02aecbec6.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99"
+        ],
+        "group_token": "daff1459fc4c92b19efd01a1eef808bfdadc048c56ee048793b36019e9e9e97a",
+        "id": "f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99",
+        "identity": "400f2bcbe41c13fae0e62960e0811ec039e9e4ee5fadcaf0c9292a03713baa09",
+        "lifecycle_group_id": "run:fw03v:internal-junction63-01",
+        "logical_bytes": 1080802,
+        "measured_at_ms": 1793950273106,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "6fd76287ac03b720a75f5bdc5b290478ab36153769828c2bf7b20bddcda5540c",
+          "member_references": {
+            "f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\63-caller-terminal-proof.json",
+              "evidence_sha256": "db12317ebbc5f28082fd6525f2280034069ceb6be300e9f85da392500c3bd9a7",
+              "reason": "Exact new caller controller47632 actual0 and PS53712 close/drain; targeted11 pass/fixture absence; root consumed projection objects and all original run input readers ended",
+              "request_sha256": "94ec72867f50868eb76e3e7394bfd2af0d9627d8f1028389131700b228b8537c"
+            },
+            "created_at": "2026-11-06T07:20:56.301Z",
+            "id": "run:fw03v:internal-junction63-01",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\internal-junction63-01",
+                "protection_known": true,
+                "role": "run"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\internal-junction63-01",
+            "owner": "FW-01/internal-junction63",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\63-caller-terminal-proof.json",
+              "evidence_sha256": "db12317ebbc5f28082fd6525f2280034069ceb6be300e9f85da392500c3bd9a7",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Exact new caller controller47632 actual0 and PS53712 close/drain; targeted11 pass/fixture absence; root consumed projection objects and all original run input readers ended",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-11-06T07:30:48.890Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793950286789,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\internal-junction63-01",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              213,
+              165,
+              22,
+              0,
+              0,
+              0,
+              16,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "d6b075a8b0a027aed19212f7d6438acf5b373e93055662284ae046723a66483b",
+        "verification": "registered"
+      }
+    ]
+  },
+  "stdout": "{\"groups\":[{\"cached_live_members\":1,\"cleanup_status\":null,\"id\":\"run:fw03v:internal-junction63-01\",\"kind\":\"run\",\"members_total\":1,\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_format\":\"producer_registry_v1\",\"membership_source_identity\":\"6fd76287ac03b720a75f5bdc5b290478ab36153769828c2bf7b20bddcda5540c\",\"owner\":\"FW-01/internal-junction63\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\a064b650d7d36e7e1e51a5a8ff7f6687514fc2733b244ee77c6b3ad02aecbec6.json\",\"version\":null}],\"items\":[{\"blockers\":[],\"group_member_ids\":[\"f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99\"],\"group_token\":\"daff1459fc4c92b19efd01a1eef808bfdadc048c56ee048793b36019e9e9e97a\",\"id\":\"f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99\",\"identity\":\"400f2bcbe41c13fae0e62960e0811ec039e9e4ee5fadcaf0c9292a03713baa09\",\"lifecycle_group_id\":\"run:fw03v:internal-junction63-01\",\"logical_bytes\":1080802,\"measured_at_ms\":1793950273106,\"membership_source_observation\":{\"blockers\":[],\"identity\":\"6fd76287ac03b720a75f5bdc5b290478ab36153769828c2bf7b20bddcda5540c\",\"member_references\":{\"f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99\":[]},\"membership_matches\":true,\"owner\":{\"close_receipt\":{\"evidence_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\work\\\\FW-01-volsnap-io-safety\\\\63-caller-terminal-proof.json\",\"evidence_sha256\":\"db12317ebbc5f28082fd6525f2280034069ceb6be300e9f85da392500c3bd9a7\",\"reason\":\"Exact new caller controller47632 actual0 and PS53712 close/drain; targeted11 pass/fixture absence; root consumed projection objects and all original run input readers ended\",\"request_sha256\":\"94ec72867f50868eb76e3e7394bfd2af0d9627d8f1028389131700b228b8537c\"},\"created_at\":\"2026-11-06T07:20:56.301Z\",\"id\":\"run:fw03v:internal-junction63-01\",\"kind\":\"run\",\"members\":[{\"generated\":true,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\internal-junction63-01\",\"protection_known\":true,\"role\":\"run\"}],\"membership_complete\":true,\"owned_root\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\internal-junction63-01\",\"owner\":\"FW-01/internal-junction63\",\"ownership_scope\":\"run-root\",\"producer\":{\"evidence_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\work\\\\FW-01-volsnap-io-safety\\\\63-caller-terminal-proof.json\",\"evidence_sha256\":\"db12317ebbc5f28082fd6525f2280034069ceb6be300e9f85da392500c3bd9a7\",\"exit_code\":0,\"outcome\":\"success\",\"reason\":\"Exact new caller controller47632 actual0 and PS53712 close/drain; targeted11 pass/fixture absence; root consumed projection objects and all original run input readers ended\",\"status\":\"stopped\"},\"references\":[],\"revision\":2,\"schema\":1,\"state\":\"complete\",\"updated_at\":\"2026-11-06T07:30:48.890Z\",\"version\":null},\"references\":[],\"settled\":true,\"status\":\"measured\"},\"observation_error\":null,\"observed_at_ms\":1793950286789,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\internal-junction63-01\",\"presence\":\"present\",\"related_items\":[],\"remaining\":true,\"root_observation\":{\"identity\":{\"file_id\":[213,165,22,0,0,0,16,0,0,0,0,0,0,0,0,0],\"volume\":14318705318996119611},\"kind\":\"directory\",\"presence\":\"present\"},\"token\":\"d6b075a8b0a027aed19212f7d6438acf5b373e93055662284ae046723a66483b\",\"verification\":\"registered\"}]}\n",
+  "stderr": ""
+}

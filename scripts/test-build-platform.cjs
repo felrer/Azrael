@@ -109,15 +109,17 @@ test("native target plans never reuse cross-platform executables", () => {
   try {
     const options = { "project-root": root, "ui-root": root, bun: path.join(root, "bun"), output: path.join(root, "new-release"), "target-directory": root };
     for (const [osName, arch, target, suffix] of [["win32", "x64", "x86_64-pc-windows-msvc", ".exe"], ["linux", "x64", "x86_64-unknown-linux-gnu", ""], ["darwin", "arm64", "aarch64-apple-darwin", ""]]) {
-      const plan = buildPlan({ ...options, target }, osName, arch);
+      const plan = buildPlan({ ...options, target }, osName, arch, {});
       assert.equal(plan.engineReuse, false);
       assert.deepEqual(plan.binaries, ["azrael", "azrael-bridge", "azrael-code-mode-host"].map(name => name + suffix));
       assert.deepEqual(plan.sourceBinaries, ["azrael", "azrael-bridge", "codex-code-mode-host"].map(name => name + suffix));
-      assert.throws(() => buildPlan({ ...options, target: "foreign-target" }, osName, arch), /Native-only/);
+      assert.throws(() => buildPlan({ ...options, target: "foreign-target" }, osName, arch, {}), /Native-only/);
     }
-    assert.throws(() => buildPlan(options, "linux", "arm64"), /Unsupported/);
-    assert.throws(() => buildPlan({ ...options, output: root }), /new path/);
+    assert.throws(() => buildPlan(options, "linux", "arm64", {}), /Unsupported/);
+    assert.throws(() => buildPlan({ ...options, output: root }, process.platform, process.arch, {}), /new path/);
     assert.throws(() => parse(["--engine-reuse", "yes"]), /Invalid/);
+    assert.deepEqual(parse(["--resume"]), {resume:true});
+    assert.throws(() => parse(["--resume","--resume"]), /Duplicate/);
   } finally { fs.rmSync(root, { recursive: true }); }
 });
 test("safe internal file and directory links survive immutable and working copies", t => {

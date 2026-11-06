@@ -4,9 +4,34 @@ const repo=path.join(__dirname,".."), artifactRun=process.env.AZRAEL_PACKAGING_T
 const fixtureProject=path.join(process.env.AZRAEL_PACKAGING_TEST_ROOT || artifactRun.temporary,"portable-packaging-"+crypto.randomUUID()), root=path.join(fixtureProject,"artifacts/fixture");
 fs.mkdirSync(root,{recursive:true});
 const frozen=path.join(root,"scripts"); fs.mkdirSync(frozen);
-for(const name of ["install-platform-release.cjs","package-platform-release.cjs","artifact-lifecycle.cjs","artifact-observations.cjs","maintenance-lock-owner.cjs","maintenance-lock-worker.cjs","maintenance-owner-config.cjs","prepare-platform-host.cjs","platform-runtime.cjs","azrael-platforms.json","prepare-official-ui.ps1","prepare-ordinary-vscode.ps1"]) fs.copyFileSync(path.join(__dirname,name),path.join(frozen,name));
+for(const name of ["install-platform-release.cjs","pipeline-state.cjs","verification-reuse-policy.cjs","package-platform-release.cjs","artifact-lifecycle.cjs","artifact-observations.cjs","maintenance-lock-owner.cjs","maintenance-preferences.cjs","maintenance-lock-worker.cjs","maintenance-owner-config.cjs","prepare-platform-host.cjs","platform-runtime.cjs","azrael-platforms.json","prepare-official-ui.ps1","prepare-ordinary-vscode.ps1"]) fs.copyFileSync(path.join(__dirname,name),path.join(frozen,name));
 const s=require(path.join(frozen,"install-platform-release.cjs")), p=require(path.join(frozen,"platform-runtime.cjs")), pack=require(path.join(frozen,"package-platform-release.cjs"));
 const lifecycle=require(path.join(frozen,"artifact-lifecycle.cjs"));
+function bootstrapFixtureMaintenance(destinationRoot) {
+  const sourceRoot = path.resolve(__dirname, ".."), config = require("./maintenance-owner-config.cjs");
+  const selected = config.resolveMaintenanceCommand(sourceRoot);
+  if (!selected.args.length && !process.env.AZRAEL_MAINTENANCE_OWNER) {
+    const relative = "artifacts/maintenance/owner-installation.json";
+    const pin = JSON.parse(fs.readFileSync(path.join(sourceRoot, relative), "utf8"));
+    const versionRoot = path.dirname(path.dirname(pin.executable));
+    const executable = path.join(destinationRoot, "m.exe");
+    assert.ok(process.platform !== "win32" || executable.length < 260, "Fixture executable must fit Windows launch paths");
+    assert.equal(fs.existsSync(executable), false, "Fresh fixture executable required");
+    require("./freeze-platform-inputs.cjs").copyTree(path.join(sourceRoot, pin.executable), executable);
+    const files = [relative, ...["performance.json", "native-acceptance.json"].map(name => path.join(versionRoot, "verification", name)).filter(name => fs.existsSync(path.join(sourceRoot, name)))];
+    for (const name of files) {
+      const target = path.join(destinationRoot, name);
+      assert.equal(fs.existsSync(target), false, "Fresh standalone fixture metadata required");
+      require("./freeze-platform-inputs.cjs").copyTree(path.join(sourceRoot, name), target);
+    }
+    fs.writeFileSync(path.join(destinationRoot, relative), JSON.stringify({ ...pin, executable: "m.exe" }, null, 2) + "\n");
+  }
+  const actual = config.resolveMaintenanceCommand(destinationRoot);
+  assert.deepEqual(actual.args, selected.args);
+  assert.equal(actual.maxLockWaitMs, selected.maxLockWaitMs, "Fixture must preserve the installed queue capability");
+  return actual;
+}
+bootstrapFixtureMaintenance(root);
 let checks=0; function check(name,fn) {fn(); checks++;console.log("PASS "+name);}
 function put(root,name,data) {const file=path.join(root,name); fs.mkdirSync(path.dirname(file),{recursive:true}); fs.writeFileSync(file,data);return file;}
 // On Mac this is explicitly a public-packaging metadata fixture. It validates
@@ -53,6 +78,20 @@ check("imported input owner is reused without promoting its retained state",()=>
   pack.packageRelease({"project-root":fixtureProject,release,"host-vsix":host,output:destination,version:"1.2.3"});
   assert.equal(packageRecord(destination).references[0].id,before.id);assert.deepEqual(lifecycle.catalog(fixtureProject).find(record=>record.id===before.id),before);
   assert(before.members.every(member=>member.path!==unknown));assert.equal(fs.readFileSync(unknown,"utf8"),"original source sentinel");
+});
+check("completed package resume reuses inventory and archive without rewriting",()=>{
+  const archive=output+(selected.os==="win32" ? ".zip" : ".tar.gz"),before=fs.statSync(archive).mtimeMs;
+  pack.packageRelease({"project-root":fixtureProject,release,"host-vsix":host,output,version:"1.2.3",resume:true});
+  const job=s.json(output+".pipeline.json");assert.equal(job.stages.package.length,1);assert.equal(job.stages.archive.length,1);assert.equal(fs.statSync(archive).mtimeMs,before);s.verifyPackage(output);
+});
+check("failed archive publication resumes its own partial without repackaging",()=>{
+  const destination=path.join(root,"archive-resume-package"),options={"project-root":fixtureProject,release,"host-vsix":host,output:destination,version:"1.2.3"};
+  const rename=fs.renameSync;let injected=false;
+  fs.renameSync=(source,target)=>{if(!injected && source.endsWith(".partial")) {injected=true;throw new Error("fixture archive publication failure");}return rename(source,target);};
+  try {assert.throws(()=>pack.packageRelease(options),/archive publication failure/);} finally {fs.renameSync=rename;}
+  const failed=s.json(destination+".pipeline.json");assert.equal(failed.stages.archive[0].status,"failed");assert.equal(failed.stages.archive[0].exitCode,null);
+  const before=fs.statSync(path.join(destination,"release-manifest.json")).mtimeMs,result=pack.packageRelease({...options,resume:true}),done=s.json(destination+".pipeline.json");
+  assert.equal(done.stages.package.length,1);assert.equal(done.stages.archive.length,2);assert.equal(fs.statSync(path.join(destination,"release-manifest.json")).mtimeMs,before);assert.equal(fs.existsSync(result.archive+".partial"),false);s.verifyPackage(destination);
 });
 check("failed packaging records pending before output and preserves the failed outcome",()=>{
   const destination=path.join(root,"failed-package"),archive=destination+(selected.os==="win32" ? ".zip" : ".tar.gz"),record=lifecycle.recordLifecycle,seen=[];
@@ -161,6 +200,41 @@ const moved=path.join(root,"relocated-package");fs.renameSync(output,moved);
 const state=path.join(root,"state"),stateFile=put(state,"auth.json","existing state sentinel");
 check("relocated prepare-only install preserves state and binds runtime",()=>{const receipt=s.install({package:moved,"install-root":path.join(root,"installations"),"state-root":state,"prepare-only":true,code:path.join(root,"nonexistent-code")});assert.equal(receipt.preparedOnly,true);assert.equal(fs.readFileSync(stateFile,"utf8"),"existing state sentinel");const actual=JSON.parse(s.readZip(fs.readFileSync(receipt.hostVsix)).get("extension/out/azrael-runtime.json").data);assert.equal(actual.engine,path.join(receipt.runtime,"engine",p.executableName("azrael")));assert.equal(actual.devinNative.node,path.join(receipt.runtime,"node",p.executableName("node")));assert.equal(actual.codexHome,state);assert.equal(s.json(path.join(receipt.runtime,"devin-native-build.json")).node.path,actual.devinNative.node);assert.equal(receipt.transformations.length,2);s.verifyBuild(receipt.runtime);});
 check("side-by-side destination cannot be overwritten",()=>assert.throws(()=>s.install({package:moved,"install-root":path.join(root,"installations"),"state-root":state,"prepare-only":true}),/already exists/));
+check("explicit install resume reuses verified preparation and preserves existing state",()=>{
+  const options={package:moved,"install-root":path.join(root,"installations"),"state-root":state,"prepare-only":true,resume:true};
+  const receipt=s.install(options),job=s.json(path.join(path.dirname(receipt.runtime),"installation-state.json"));
+  assert.equal(job.stages.prepare.length,1); assert.equal(fs.readFileSync(stateFile,"utf8"),"existing state sentinel");
+  assert.equal(fs.existsSync(path.dirname(receipt.runtime)+".install-lock"),false);
+});
+check("active install lease refuses resume without touching selected runtime",()=>{
+  const destination=path.join(root,"installations",`1.2.3-${selected.vsixTarget}`),lock=destination+".install-lock";
+  fs.mkdirSync(lock); try {assert.throws(()=>s.install({package:moved,"install-root":path.join(root,"installations"),"state-root":state,"prepare-only":true,resume:true}),/EEXIST/);} finally {fs.rmdirSync(lock);}
+});
+check("synchronous partial installation failure remains failed and resumes in its own destination",()=>{
+  const options={package:moved,"install-root":path.join(root,"partial-installations"),"state-root":state,"prepare-only":true};
+  const copy=fs.copyFileSync; let injected=false;
+  fs.copyFileSync=(source,target,...rest)=>{if(!injected && target.includes("partial-installations")) {injected=true;throw new Error("fixture synchronous copy failure");} return copy(source,target,...rest);};
+  try {assert.throws(()=>s.install(options),/synchronous copy failure/);} finally {fs.copyFileSync=copy;}
+  const destination=path.join(options["install-root"],`1.2.3-${selected.vsixTarget}`),failed=s.json(path.join(destination,"installation-state.json"));
+  assert.equal(failed.stages.prepare[0].status,"failed");assert.equal(failed.stages.prepare[0].exitCode,null);
+  const receipt=s.install({...options,resume:true});assert.equal(receipt.preparedOnly,true);assert.equal(s.json(path.join(destination,"installation-state.json")).stages.prepare.length,2);
+});
+check("changed prepared installation requires a new destination without overwriting",()=>{
+  const destination=path.join(root,"installations",`1.2.3-${selected.vsixTarget}`),vsix=path.join(destination,"azrael-host.vsix"),bytes=fs.readFileSync(vsix);
+  fs.writeFileSync(vsix,"changed installation");
+  try {assert.throws(()=>s.install({package:moved,"install-root":path.join(root,"installations"),"state-root":state,"prepare-only":true,resume:true}),/Pipeline output integrity changed: prepare/);assert.equal(fs.readFileSync(vsix,"utf8"),"changed installation");} finally {fs.writeFileSync(vsix,bytes);}
+});
+if(process.platform==="win32") check("failed VS Code install resumes prepared runtime without recreating it",()=>{
+  const codeRoot=path.join(root,"fixture-code"),command=put(codeRoot,"bin/code.cmd","fixture"),cli=put(codeRoot,"resources/app/out/cli.js","process.exit(17)");
+  fs.copyFileSync(process.execPath,path.join(codeRoot,"Code.exe"));
+  const options={package:moved,"install-root":path.join(root,"retry-installations"),"state-root":state,code:command};
+  assert.throws(()=>s.install(options),/installation failed \(17\)/);
+  const destination=path.join(options["install-root"],`1.2.3-${selected.vsixTarget}`),before=s.json(path.join(destination,"installation-state.json"));
+  assert.equal(before.stages.install[0].exitCode,17);
+  fs.writeFileSync(cli,"process.exit(0)"); const receipt=s.install({...options,resume:true});
+  const after=s.json(path.join(destination,"installation-state.json")); assert.equal(after.stages.prepare.length,1); assert.equal(after.stages.install.length,2); assert.equal(after.stages.install[1].exitCode,0); assert.equal(receipt.installed,true);
+  assert.equal(fs.readFileSync(stateFile,"utf8"),"existing state sentinel");
+});
 check("ordinary Codex state refused",()=>assert.throws(()=>s.install({package:moved,"install-root":path.join(root,"other-installations"),"state-root":path.join(require("node:os").homedir(),".codex"),"prepare-only":true}),/overlap/));
 check("state/runtime overlap refused",()=>assert.throws(()=>s.install({package:moved,"install-root":state,"state-root":state,"prepare-only":true}),/overlap/));
 check("ZIP archive traversal rejected",()=>assert.throws(()=>s.writeZip(new Map([["../evil",{data:Buffer.from("bad")}]])),/Unsafe/));

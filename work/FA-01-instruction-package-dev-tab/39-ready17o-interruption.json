@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "executionStart": {
+    "pid": 57780,
+    "startedAt": "2026-11-03T23:00:53.109Z",
+    "recipeSha256": "a0afa8d897f2e1f8329a9c3a925b2411db04ece086fbc5ed228f84509214ebd9"
+  },
+  "workCompletion": {
+    "workId": "ae6ec05b-fd4c-4008-9cf6-52f5085b65d9",
+    "state": "cancelled",
+    "executorExitCode": 1,
+    "summary": "Execution cancelled; executor exit observed"
+  },
+  "reportSha256": "102fd739165d34d9dbeb0b4a2df74d676531966af026ba8304a4da07d5cd9a1a",
+  "calls": 0,
+  "copiesRecorded": 0,
+  "processQuery": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "stopBasis": "Executor recorded cancellation and exit; exact controller identity absent; partial first dependency copy and absent second dependency/UI/pin roots prove pre-command stage. The selected copyTree uses synchronous fs operations and spawns no child. No native compiler or readiness command was reached.",
+  "observedAtUtc": "2026-11-03T23:15:06.489Z"
+}

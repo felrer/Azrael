@@ -90,6 +90,9 @@ fn append_mcp_tools(
     let mut registered_tools = HashSet::new();
     let mut agent_plugin_bytes = 0usize;
     for tool in non_app_tools.chain(app_tools) {
+        if !config.profile_allows_mcp_server(&tool.server_name) {
+            continue;
+        }
         let tool_name = tool.canonical_tool_name();
         let server = mcp_server_catalog.server(&tool.server_name);
         if registry.tool_policy.selected_window_only

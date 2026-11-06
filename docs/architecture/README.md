@@ -12,9 +12,10 @@ Each document or owning section labels its own state (see [document states](../R
 - [Queued context compaction](queued-compaction.md): ordered compaction, execution thresholds, queue receipt ownership and progress.
 - [Root resume scheduling](root-resume.md): durable reservations, completion signals, defer clocks and work-segment presentation.
 - [Root coordination](root-coordination.md): root-only investigation, scheduling, resource ownership, waiting and intervention policy.
+- [Task memory](task-memory.md): work-scoped root/subagent records, immutable revisions, explicit context reads and optional role-profile instruction components.
 - [Task work time](task-work-time.md): continuous work time and turn count below the initial user message, user-wait exclusions and partial-history display.
 - [Side questions with /btw](side-questions.md): tool-free side execution, main-task isolation and explicit result delivery.
-- [Work orchestration](work-orchestration.md): draft/target Lead and Team design, isolated worktrees and handoff boundaries.
+- [Work orchestration](work-orchestration.md): draft/target Lead and Team design, Team/Direct profile-based creation and approval routing, isolated worktrees and handoff boundaries.
 
 ## Accounts, providers and models
 
@@ -23,6 +24,7 @@ Each document or owning section labels its own state (see [document states](../R
 - [Devin and mixed-provider agents](devin.md): native inference, tool contracts, catalog/agent selection and provider continuity.
 - [Managed providers and provider switching](managed-providers.md): inference projection, model/reasoning controls, bounded tool discovery and handoff.
 - [Model harness profiles](model-harness-profiles.md): provider/model prompt composition, compatible tool isolation and request snapshots.
+- [Declaration name search](code-navigation.md): compact JS/TS declaration-name search, native tool exposure, parser runtime and file-read boundaries.
 - [Provider context policy](context-policy.md): context capacities, compaction thresholds, pricing tiers and settings/gauge behavior.
 - [Custom API models](custom-api-models.md): user-owned endpoints/models, protocol and tool discovery, picker/subagent selection and failure boundaries.
 - [Provider brand assets](provider-brand-assets.md): original assets, provider identities, theme variants and refresh constraints.
@@ -38,7 +40,7 @@ Each document or owning section labels its own state (see [document states](../R
 - [Project maintenance](project-maintenance.md): project-owned test bundles, separate build execution, artifact/backup inventory and model-directed cleanup.
 
 - [Computer Use backend](computer-use.md): package-owned desktop runtime, selected-window backend, tool ceiling, consent and lifetime.
-- [Window Use](window-use.md): staged product authority, current-window/whole-desktop requirements, app approvals, capture, task macros and concurrency boundaries.
+- [Window Use](window-use.md): app-based observation/control permissions, masked desktop capture, current-window control, task macros and collaboration boundaries.
 - [Window Use visualization](window-use-visualization.md): overlays, visible stop/recovery and target-specific observation/control presentation.
 - [Auto-Review](auto-review.md): OpenAI permission policy, turn admission and reviewer boundary.
 - [Diagnostic logging](diagnostic-logging.md): default-on diagnostic controls, optional instrumentation and mandatory evidence preservation.
@@ -49,6 +51,8 @@ Each document or owning section labels its own state (see [document states](../R
 - [Instruction distribution and settings](instructions.md): maintained library, acquisition/integrity, application conflicts and protected settings.
 - [Azrael runtime and providers](azrael-runtime.md): target runtime/provider architecture; existing implementation owners remain authoritative until each replacement boundary is accepted.
 - [Upstream feature preservation](upstream-preservation.md): architecture-to-inventory connection, upgrade scope review and candidate-specific acceptance.
+
+- [Switched multi-pointer experiment](multi-pointer.md): standalone target-bound Windows multi-cursor MCP and shared-input limits.
 
 ## Reference
 

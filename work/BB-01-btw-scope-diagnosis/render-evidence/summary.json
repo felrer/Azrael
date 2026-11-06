@@ -1,0 +1,92 @@
+{
+  "scope": "Production /btw command configuration and panel wrapper, native slash row/button, React and CSS in light/dark; synthetic chat/host state. Full slash popup, installed app and model requests remain separate.",
+  "checks": [
+    "light native styled control",
+    "light slash entry opens empty side panel without a chat message",
+    "light keyboard slash entry remains an action",
+    "light explicit answer transfer",
+    "light selected text transfer",
+    "light active side answer prevents transfer",
+    "light failed delivery is visible and retry is manual",
+    "light keyboard transfer",
+    "dark native styled control",
+    "dark slash entry opens empty side panel without a chat message",
+    "dark keyboard slash entry remains an action",
+    "dark explicit answer transfer",
+    "dark selected text transfer",
+    "dark active side answer prevents transfer",
+    "dark failed delivery is visible and retry is manual",
+    "dark keyboard transfer",
+    "theme foreground changes",
+    "narrow panel has no horizontal overflow",
+    "empty answer prevents transfer",
+    "no browser exceptions"
+  ],
+  "light": {
+    "text": "답변을 본 작업에 전달",
+    "disabled": false,
+    "color": "rgb(26, 28, 31)",
+    "background": "oklab(0.22559 -0.00131416 -0.00642684 / 0.05)",
+    "width": 127.234375,
+    "height": 24,
+    "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "bodyWidth": 1000
+  },
+  "dark": {
+    "text": "답변을 본 작업에 전달",
+    "disabled": false,
+    "color": "rgb(223, 223, 223)",
+    "background": "oklab(0.903646 0.0000412762 0.0000180602 / 0.05)",
+    "width": 127.234375,
+    "height": 24,
+    "font": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "bodyWidth": 1000
+  },
+  "events": [
+    {
+      "id": "parent",
+      "prompt": "The retry policy keeps the task running. Only confirmed failures trigger recovery."
+    },
+    {
+      "id": "parent",
+      "prompt": "The retry policy"
+    },
+    {
+      "id": "parent",
+      "prompt": "The retry policy keeps the task running. Only confirmed failures trigger recovery."
+    },
+    {
+      "id": "parent",
+      "prompt": "The retry policy keeps the task running. Only confirmed failures trigger recovery."
+    },
+    {
+      "id": "parent",
+      "prompt": "The retry policy keeps the task running. Only confirmed failures trigger recovery."
+    },
+    {
+      "id": "parent",
+      "prompt": "The retry policy"
+    },
+    {
+      "id": "parent",
+      "prompt": "The retry policy keeps the task running. Only confirmed failures trigger recovery."
+    },
+    {
+      "id": "parent",
+      "prompt": "The retry policy keeps the task running. Only confirmed failures trigger recovery."
+    }
+  ],
+  "outcome": "passed",
+  "browserExit": {
+    "confirmed": true,
+    "exitCode": 0,
+    "signalCode": null,
+    "processInspectionExitCode": 0,
+    "processIds": []
+  },
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-btw-render\\runs\\20261019T034132436Z-a89e20a2-6070-4d0b-a1ab-339c4604c294",
+  "lifecycleId": "run:verify-btw-render:20261019T034132436Z-a89e20a2-6070-4d0b-a1ab-339c4604c294",
+  "fixtureRemoved": false,
+  "retentionReason": "Retained fixture, profile and raw results for lifecycle review",
+  "exitCode": 0
+}

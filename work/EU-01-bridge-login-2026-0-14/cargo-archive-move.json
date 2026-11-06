@@ -1,0 +1,10 @@
+{
+    "size":  "Partial remainder; registered pre-deletion group was 2984187554 bytes; remaining bytes not rescanned",
+    "reason":  "User explicitly requested archive instead of continued deletion",
+    "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\v8-source",
+    "completedUtc":  "2026-10-31T15:54:11.8347519Z",
+    "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source",
+    "sourceAbsent":  true,
+    "status":  "moved",
+    "destinationPresent":  true
+}

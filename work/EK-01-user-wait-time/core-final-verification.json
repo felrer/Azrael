@@ -1,0 +1,278 @@
+{
+  "schema": 1,
+  "recordedUtc": "2026-10-29T05:02:45.243Z",
+  "runId": "core03",
+  "rawSourceIdentity": {
+    "sha256": "b17d1f02038f8177f91f32476c9fc76712e1de1938e208fae76c51b0d53feab8",
+    "fileCount": 10870,
+    "bytes": 192369846,
+    "capturedUtc": "2026-10-29T04:32:07.240Z",
+    "sourceReceipt": "SOURCE.json copied unchanged; raw source identity only; no product provenance assertion"
+  },
+  "sourceAfter": {
+    "sha256": "b17d1f02038f8177f91f32476c9fc76712e1de1938e208fae76c51b0d53feab8",
+    "unchanged": true
+  },
+  "controller": {
+    "sessionId": 6727,
+    "exitCode": 0,
+    "producerStopped": true
+  },
+  "lifecycle": {
+    "id": "run:EK01-user-wait-native:core03",
+    "revision": 2,
+    "state": "complete",
+    "referenceCount": 1
+  },
+  "targetOwnerObservation": {
+    "exists": false,
+    "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target",
+    "targetStat": {
+      "dev": "3057815611",
+      "ino": "9288674232793547",
+      "birthtimeNs": "1792128893220322200"
+    }
+  },
+  "results": [
+    {
+      "crate": "codex-core",
+      "filter": "user_wait",
+      "label": "core-user-wait",
+      "status": 0,
+      "error": null,
+      "signal": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-29T04:32:15.296Z",
+            "durationMs": 438165,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "user_wait",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-29T04:39:33.462Z",
+            "durationMs": 980829,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 15
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "user_wait",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-29T04:55:54.291Z",
+            "durationMs": 39305,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      "executionResults": [
+        "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 3127 filtered out; finished in 1.17s"
+      ],
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\core03\\logs\\core-user-wait.log"
+    },
+    {
+      "crate": "codex-core",
+      "filter": "turn_timing",
+      "label": "core-turn-timing",
+      "status": 0,
+      "error": null,
+      "signal": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-29T04:56:42.843Z",
+            "durationMs": 13556,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "turn_timing",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-29T04:56:56.399Z",
+            "durationMs": 5992,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 16
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "turn_timing",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-29T04:57:02.391Z",
+            "durationMs": 6673,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      "executionResults": [
+        "test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 3126 filtered out; finished in 0.67s"
+      ],
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\core03\\logs\\core-turn-timing.log"
+    },
+    {
+      "crate": "codex-mcp",
+      "filter": "elicitation",
+      "label": "mcp-elicitation",
+      "status": 0,
+      "error": null,
+      "signal": null,
+      "preflight": {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-mcp",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-29T04:57:16.459Z",
+            "durationMs": 56280,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-mcp",
+              "--lib",
+              "elicitation",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-29T04:58:12.739Z",
+            "durationMs": 212719,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 29
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-mcp",
+              "--lib",
+              "elicitation",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-29T05:01:45.459Z",
+            "durationMs": 25623,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      "executionResults": [
+        "test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 228 filtered out; finished in 0.02s"
+      ],
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\core03\\logs\\mcp-elicitation.log"
+    }
+  ],
+  "platform": "Windows x64 local Rust1.95.0 MSVC; no Linux/macOS execution; no product build/install",
+  "scopeLimits": [
+    "Managed native processes remain running until lifecycle exit; idle live shells are not separately observable.",
+    "External MCP requests lacking original invocation metadata remain unattributed rather than attaching arbitrary current turns.",
+    "Consumer bins and downstream appserver/protocol/store preservation are separate pending integration checks."
+  ],
+  "evidence": {
+    "verification": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\core03\\reports\\verification.json",
+    "verificationSha256": "100e0e01dc31ee1a2549e5224a904c09c5817addea02ed661892a27c3fa482f2",
+    "producer": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\core03\\reports\\producer.json"
+  },
+  "preliminaryEvidence": "work/EK-01-user-wait-time/core-verification.json (unchanged; core01 failure101, core02 controller1 after execution0 with missing actual summary stdout)"
+}

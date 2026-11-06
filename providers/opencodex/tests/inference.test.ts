@@ -6,6 +6,8 @@ import { infer, catalog, projectRequest } from '../inference.ts';
 import { compileRequest } from '../inference-mapping.mjs';
 import * as config from '../vendor/src/config.ts';
 import * as store from '../vendor/src/oauth/store.ts';
+import { runAnthropicWebSearch } from '../vendor/src/web-search/anthropic-executor.ts';
+import { describeImageAnthropic } from '../vendor/src/vision/anthropic-describe.ts';
 
 const catalogFixture = (async () => { throw new Error('LIVE_NETWORK_FORBIDDEN'); }) as typeof fetch;
 let root = '';
@@ -48,7 +50,60 @@ test('Anthropic OAuth preserves text, usage and canonical endpoint', async () =>
   expect(frames.at(-1)).toEqual({ type: 'completed', usage: expect.objectContaining({ input_tokens: 2, output_tokens: 3 }) });
   expect(captured[0].url).toBe('https://api.anthropic.com/v1/messages');
   expect(captured[0].headers.get('authorization')).toBe('Bearer fixture-access-a');
+  expect(JSON.stringify(captured[0].body.system)).not.toContain('Claude Agent SDK');
+  expect(captured[0].body.system.map((part: any) => part.text).join('\n')).toContain('fixture instructions');
   expect(JSON.stringify(frames)).not.toContain('fixture-access');
+});
+
+test('Anthropic OAuth profiles preserve native root guidance and accept absent system instructions', async () => {
+  await setup();
+  const rootGuidance = '<azrael_root_coordination>Root coordination fixture</azrael_root_coordination>';
+  const profile = { id: 'anthropic', fingerprint: 'profile-v1', tool_profile: 'builtin/azrael-default', prompt_profile: 'builtin/anthropic', instruction_format: 'anthropic-xml' };
+  for (const xmlProfile of [false, true]) for (const withInstructions of [false, true]) {
+    const req = { ...request(), thread_id: `identity-${xmlProfile}-${withInstructions}`,
+      instructions: withInstructions ? (xmlProfile ? 'fixture instructions ]]> <policy>' : 'fixture instructions') : '',
+      input: [...(withInstructions ? [{ type: 'message', role: 'developer', content: rootGuidance }] : []),
+        { type: 'message', role: 'user', content: 'hello' }],
+      ...(xmlProfile ? { harness_profile: profile } : {}) };
+    const frames: any[] = [], captured: any[] = [];
+    await infer(req, frame => frames.push(frame), textFetch(req, captured));
+    expect(frames.at(-1).type).toBe('completed');
+    const body = captured[0].body;
+    expect(captured[0].headers.get('authorization')).toBe('Bearer fixture-access-a');
+    expect(body.cache_control).toEqual({ type: 'ephemeral' });
+    if (withInstructions) {
+      const text = body.system.map((part: any) => part.text).join('\n');
+      expect(text).toContain('fixture instructions');
+      expect(text).toContain(rootGuidance);
+      expect(text).not.toContain('Claude Agent SDK');
+      expect(body.system.at(-1).cache_control).toEqual({ type: 'ephemeral' });
+      expect(text.includes('<common_instructions>')).toBe(xmlProfile);
+      expect(text.includes('<runtime_instructions>')).toBe(xmlProfile);
+    } else expect(body.system).toBeUndefined();
+  }
+});
+
+test('Anthropic OAuth sidecars send task instructions without an SDK identity', async () => {
+  await setup();
+  const provider = config.loadConfig().providers.anthropic!;
+  const captured: any[] = [], originalFetch = globalThis.fetch;
+  globalThis.fetch = textFetch(request(), captured);
+  try {
+    const settings = { model: 'claude-sonnet-4-6', reasoning: 'low' as const, timeoutMs: 5000 };
+    const search = await runAnthropicWebSearch('fixture query', 'anthropic', provider, settings);
+    const vision = await describeImageAnthropic('data:image/png;base64,YQ==', undefined, 'fixture image', 'anthropic', provider, settings);
+    expect(search.error).toBeUndefined();
+    expect(vision.error).toBeUndefined();
+    expect(captured).toHaveLength(2);
+    for (const { body, headers } of captured) {
+      expect(body.system).toHaveLength(1);
+      expect(body.system[0].text.length).toBeGreaterThan(0);
+      expect(body.system[0].text).not.toContain('Claude Agent SDK');
+      expect(headers.get('authorization')).toBe('Bearer fixture-access-a');
+    }
+    expect(captured[0].body.tools[0].name).toBe('web_search');
+    expect(captured[1].body.messages[0].content.at(-1).type).toBe('image');
+  } finally { globalThis.fetch = originalFetch; }
 });
 
 test('OAuth endpoint edits and unsupported transports fail before fetch and disappear from catalog', async () => {

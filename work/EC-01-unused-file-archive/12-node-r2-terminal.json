@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "id": "run:EC-01-unused-file-archive:unknown-recovery-node-r2",
+  "execution_session": 34144,
+  "wrapper_exit_code": 1,
+  "wrapper_terminal_observed": true,
+  "producer_stopped_verified": true,
+  "children": [
+    {
+      "name": "node",
+      "args": [
+        "--test",
+        "--test-reporter=tap",
+        "scripts/test-artifact-lifecycle.cjs",
+        "scripts/test-build-platform.cjs",
+        "scripts/test-cargo-target-owner.cjs",
+        "scripts/test-cargo-shared-cache.cjs",
+        "scripts/test-cargo-owner-audit.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "name": "writer",
+      "args": [
+        "scripts/test-artifact-run.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-node-r2\\temporary\\writer"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null
+    }
+  ],
+  "tree_basis": "Direct wrapper synchronously awaited each child command; both children returned actual exit0 without signal/error. The owning execution session then observed wrapper exit1 at catalog-lock failure. No asynchronous producer launched by this wrapper.",
+  "tests": {
+    "total": 241,
+    "pass": 240,
+    "fail": 0,
+    "skip": 1,
+    "skip_reason": "Unix executable mode test on Windows"
+  },
+  "bookkeeping_failure": "finishArtifactRun catalog lock acquisition exhausted5000ms; onExit retry also exhausted5000ms; original wrapper exit1 preserved"
+}

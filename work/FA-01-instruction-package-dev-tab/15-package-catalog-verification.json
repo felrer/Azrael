@@ -1,0 +1,70 @@
+{
+  "at": "2026-11-02T07:32:15.390Z",
+  "scope": "Development package catalog grouping and expanded package detail",
+  "platform": "Windows x64 / Chrome / Node",
+  "tests": [
+    {
+      "id": "20261102T072401443Z-dc9bda43-6c9c-4a7c-9ee9-f6f55b5f7b78",
+      "startedAt": "2026-11-02T07:24:23.107Z",
+      "endedAt": "2026-11-02T07:25:01.425Z",
+      "exitCode": 0,
+      "signal": null,
+      "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T072401443Z-dc9bda43-6c9c-4a7c-9ee9-f6f55b5f7b78\\logs\\tests.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T072401443Z-dc9bda43-6c9c-4a7c-9ee9-f6f55b5f7b78",
+      "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T072401443Z-dc9bda43-6c9c-4a7c-9ee9-f6f55b5f7b78",
+      "pass": 49,
+      "fail": 0,
+      "logSha256": "809efe623cb46da766831120236b63e0f0548925ae497249117e2cffdc961cda"
+    },
+    {
+      "id": "20261102T072930718Z-9446fe1c-fe67-459e-b0e5-763905fae7cf",
+      "startedAt": "2026-11-02T07:29:58.007Z",
+      "endedAt": "2026-11-02T07:30:35.420Z",
+      "exitCode": 0,
+      "signal": null,
+      "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T072930718Z-9446fe1c-fe67-459e-b0e5-763905fae7cf\\logs\\tests.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T072930718Z-9446fe1c-fe67-459e-b0e5-763905fae7cf",
+      "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T072930718Z-9446fe1c-fe67-459e-b0e5-763905fae7cf",
+      "pass": 49,
+      "fail": 0,
+      "logSha256": "82650a8957ec9fa9453e558748fab237f063d97d57bd5e35591372ca71d72e27"
+    }
+  ],
+  "browser": {
+    "liveRun": "20261102T072620379Z-bbfddb5e-7dae-456d-897b-3512954c4c59",
+    "url": "http://127.0.0.1:4318/",
+    "pid": 51840,
+    "dataRun": "20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce",
+    "checks": [
+      "Catalog has one baseline package containing13 components and one existing personal package",
+      "Component-name query design-collaboration matches baseline package, not individual cards",
+      "Skill type filter returns containing packages",
+      "Detail displays source/version/component counts and type counts",
+      "Expanded skill files preview original SKILL.md text",
+      "Personal package shows2 components,1 profile and referenced component names",
+      "Light and dark screenshots inspected",
+      "Narrow viewport stacks file panes; no document horizontal overflow"
+    ],
+    "userProfileMutations": false
+  },
+  "oldAdapter": {
+    "id": "20261102T064601174Z-835f0d11-542a-44fc-ad43-fccfeea4e3b2",
+    "session": 49086,
+    "stop": "supported stop returned200; managed session actual exit0"
+  },
+  "corrections": [
+    "PowerShell-to-Node source snippet initially lost Korean; Unicode patch repaired it and related work-record text",
+    "A broad separator repair briefly broke a ternary; node --check detected it; repaired before final49 tests and rendered checks"
+  ],
+  "sources": {
+    "scripts/instruction-workbench.cjs": "399ef9478a85bfd2c0c847a4a3fd25ab67079dc8812fe509133292571cc7e3e1",
+    "scripts/instruction-workbench-view.cjs": "cd7a6a45348a204e5bfb2262673e1846ee13604009200b06886e8d450f971393",
+    "scripts/tests/instruction-workbench.test.cjs": "1061838909826c0f7124b8aace149a28b21ecaaaa314b3e60b838e3bdc9b6b33"
+  },
+  "retainedTestReason": "Extend existing baseline boundary to prevent future catalog grouping from breaking stable composer resource identities or reintroducing eager support-file reads",
+  "remaining": [
+    "Installed Azrael/native activation unchanged and unverified",
+    "Other-platform execution not performed",
+    "Dispose exact stopped old adapter and2 test runs through supported owner; preserve prior protected/uncertain materials"
+  ]
+}

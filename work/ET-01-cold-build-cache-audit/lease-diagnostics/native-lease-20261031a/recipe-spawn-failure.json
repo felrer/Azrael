@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031a",
+  "wrapper_actual_exit": 1,
+  "child_pid": null,
+  "spawn_error": {
+    "code": "ENOENT",
+    "path": "C:/Program Files/PowerShell/7/pwsh.exe"
+  },
+  "child_started": false,
+  "producer_stopped_verified": true,
+  "stop_basis": "Execution manager session 5647 observed wrapper exit1 after failed spawn; ChildProcess pid null means no PowerShell child was created; no fixture or compiler execution occurred.",
+  "fixture_remaining": false,
+  "producer_report": {
+    "lifecycleId": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031a",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031a",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "producerStopped": false,
+    "reason": "Owned producer and tracked children stopped",
+    "children": [
+      {
+        "pid": null,
+        "closed": false
+      }
+    ],
+    "state": "pending",
+    "membership_complete": false
+  }
+}

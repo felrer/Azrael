@@ -1,0 +1,76 @@
+{
+  "at": "2026-11-02T13:23:57.954Z",
+  "status": "measurement_complete",
+  "members": 80,
+  "member_processing_seconds": 54.152173,
+  "rows": [
+    {
+      "operation": "member.live",
+      "count": 3240,
+      "seconds": 46.330231,
+      "relation": "direct child of member processing"
+    },
+    {
+      "operation": "member.completed",
+      "count": 3160,
+      "seconds": 7.7796,
+      "relation": "direct child of member processing"
+    },
+    {
+      "operation": "member.reservation",
+      "count": 3240,
+      "seconds": 38.351489,
+      "relation": "nested within member.live"
+    },
+    {
+      "operation": "member.contents",
+      "count": 3240,
+      "seconds": 7.968279,
+      "relation": "nested within member.live"
+    },
+    {
+      "operation": "metadata.total",
+      "count": 19360,
+      "seconds": 49.404183,
+      "relation": "shared nested calls across reservation/observation/completed; do not add to direct children"
+    },
+    {
+      "operation": "metadata.ancestor",
+      "count": 329280,
+      "seconds": 45.1442,
+      "relation": "nested within metadata.total; path preparation + OS lookup/fallback + checks"
+    },
+    {
+      "operation": "metadata.leaf",
+      "count": 19360,
+      "seconds": 3.144293,
+      "relation": "nested within metadata.total"
+    },
+    {
+      "operation": "metadata.authorize",
+      "count": 348640,
+      "seconds": 0.302985,
+      "relation": "nested within metadata.total; fixture callback only"
+    },
+    {
+      "operation": "single.token",
+      "count": 3240,
+      "seconds": 0.035175,
+      "relation": "nested within member.contents/single.total"
+    }
+  ],
+  "conclusion": "Main observed cost is repeated fresh ancestor-path validation, especially within reservation verification. Token serialization/hash is small in this fixture. No safety checks removed.",
+  "correction": {
+    "prior_report": "54-member-detail-measurement.json",
+    "field": "interpretation.static_call_accounting",
+    "reason": "Its claim of exactly17 ancestors per metadata walk was a calculation error: 19360*17 is329120, not329280. Observed aggregate is329280; individual path depth distribution was not collected. This analysis supersedes that uniform-depth inference; recorded native timing/counts remain unchanged."
+  },
+  "limitations": [
+    "Nested rows overlap and must not be summed.",
+    "Single OFF/ON pair severely confounded by host/order variation; diagnostic overhead cannot be quantified.",
+    "Absolute times are sample wall times, not guaranteed latency.",
+    "Permission callback cost is standalone fixture only, not embedded app backend.",
+    "Ancestor preparation, Win32 query/fallback and result checks not separately timed."
+  ],
+  "next_investigation": "Reduce pure path preparation or redundant traversal structure while preserving every required fresh permission/identity/change boundary; further optimization requires separate implementation authorization."
+}

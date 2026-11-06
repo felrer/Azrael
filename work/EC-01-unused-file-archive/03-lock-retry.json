@@ -1,0 +1,56 @@
+{
+  "observed_at": "2026-10-27T23:16:04.899Z",
+  "status": "awaiting-supported-pending-state-recovery",
+  "controller_exit_code": 0,
+  "refresh": {
+    "attempted": 77,
+    "exit_zero": 49,
+    "exit_one": 28,
+    "failures": {
+      "membership_changed": 1,
+      "owner_missing": 1,
+      "access_denied": 1,
+      "pending_exists": 25
+    }
+  },
+  "review": {
+    "calls": 6,
+    "exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "groups": 125,
+    "items": 192,
+    "present": 185,
+    "absent": 7
+  },
+  "payload_moved": 0,
+  "payload_deleted": 0,
+  "states": [
+    {
+      "path": "artifacts\\maintenance\\manifest.json",
+      "bytes": 19925606,
+      "sha256": "a15e926fe1b3ad4ed06d51bf92187d3fe36088c2b00d43408bf75d03d4124228",
+      "revision": 3653
+    },
+    {
+      "path": "artifacts\\maintenance\\manifest.pending",
+      "bytes": 19925784,
+      "sha256": "61c7167102f05b84ef7212924fc1dfa9cc6e08c4c3124650f8a8cd37bd4e77aa",
+      "revision": 3654
+    }
+  ],
+  "active_diagnostic_bundle": {
+    "path": "artifacts/tasks/EC-01-unused-file-archive/runs/archive-lock-retry-r1",
+    "files": 89,
+    "bytes": 1241974,
+    "purpose": "Pending-state recovery and failed refresh diagnosis; remove through owner after recovery and re-verification"
+  },
+  "logs": "artifacts/tasks/EC-01-unused-file-archive/runs/archive-lock-retry-r1/logs",
+  "summary": "artifacts/tasks/EC-01-unused-file-archive/runs/archive-lock-retry-r1/review-summary.json",
+  "next_requirement": "Supported pending manifest recovery; do not remove or overwrite pending state manually"
+}

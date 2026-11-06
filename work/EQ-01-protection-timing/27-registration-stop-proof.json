@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "id": "run:eq-cli:r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "110438a2b865aacaf8888ddf8c250e5ea63edc4b605bd59a8a4fc3968033102b",
+  "lease_owner": {
+    "acquired_at_ms": 1793560836207,
+    "operation": "group_reservation",
+    "pid": 32448,
+    "schema": 2,
+    "token": "32448-1793560836207-f20106de983d34f4"
+  },
+  "reason": "Owned synchronous registration child returned actual exit1 with drained streams and its managed controller terminated exit1. The registration request binds this exact group and its retained pre-intent fence; registration performs synchronous measurements and does not launch deletion workers or other producer children. Termination is not inferred from PID absence.",
+  "execution": {
+    "work_id": "d99d936f-ab27-430f-bdf0-3dd96ef18dc7",
+    "observed_exit_code": 1,
+    "native_pid": 32448,
+    "request": {
+      "operation": "register",
+      "group": {
+        "id": "run:eq-cli:r1",
+        "kind": "run",
+        "owner": "azrael-maintenance-cli-integration",
+        "version": null,
+        "membership_complete": true,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "members": [
+          {
+            "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+            "role": "run",
+            "lifecycle_role": "artifact",
+            "kind": "run",
+            "owner": "azrael-maintenance-cli-integration",
+            "generated": true,
+            "protection_known": true,
+            "references": [],
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json"
+          }
+        ]
+      }
+    },
+    "request_sha256": "55cce4b814bc1aef0882f43d14ed2b5199d87eeb5497a47b93e77f3f81bfd530"
+  },
+  "reservation": {
+    "group_scope": {
+      "id": "run:eq-cli:r1",
+      "kind": "run",
+      "members": [
+        "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d"
+      ],
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_identity": null,
+      "owner": "azrael-maintenance-cli-integration",
+      "version": null
+    },
+    "id": "run:eq-cli:r1",
+    "lease_owner": {
+      "acquired_at_ms": 1793560836207,
+      "operation": "group_reservation",
+      "pid": 32448,
+      "schema": 2,
+      "token": "32448-1793560836207-f20106de983d34f4"
+    },
+    "manifest_revision": 4705,
+    "members": [
+      {
+        "generated": true,
+        "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+        "kind": "run",
+        "lifecycle_role": "artifact",
+        "owner": "azrael-maintenance-cli-integration",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+        "protection_known": true,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+        "references": [],
+        "role": "run"
+      }
+    ],
+    "purpose": "registration",
+    "registration_sources": [
+      {
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "source_fence": "479c0bf73e799b440b5385a66bf8206c2e450e86971eeb13cdb6ba708bee99ae",
+        "source_owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+            "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+            "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+            "request_sha256": "528afb411166ce6fbe8c117d892401a3c78476c5bb4837407447b902971dcda9"
+          },
+          "created_at": "2026-11-01T18:55:54.691Z",
+          "id": "run:eq-cli:r1",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+          "owner": "azrael-maintenance-cli-integration",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+            "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 2,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-11-01T19:19:05.312Z",
+          "version": null
+        }
+      }
+    ],
+    "schema": 1,
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "source_fence": "479c0bf73e799b440b5385a66bf8206c2e450e86971eeb13cdb6ba708bee99ae",
+    "source_owner": {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+        "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+        "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+        "request_sha256": "528afb411166ce6fbe8c117d892401a3c78476c5bb4837407447b902971dcda9"
+      },
+      "created_at": "2026-11-01T18:55:54.691Z",
+      "id": "run:eq-cli:r1",
+      "kind": "run",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ],
+      "membership_complete": true,
+      "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+      "owner": "azrael-maintenance-cli-integration",
+      "ownership_scope": "run-root",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+        "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-11-01T19:19:05.312Z",
+      "version": null
+    },
+    "status": "active",
+    "token": "32448-1793560836207-f20106de983d34f4"
+  }
+}

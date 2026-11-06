@@ -44,6 +44,7 @@ fn reasoning(id: &str) -> ThreadItem {
 fn turn(items: Vec<ThreadItem>) -> Turn {
     Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: "turn".to_owned(),
         root_turn_id: None,

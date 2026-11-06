@@ -1,0 +1,416 @@
+{
+  "at": "2026-11-02T07:27:11.475Z",
+  "platform": "Windows x64 MSVC local Rust1.98.0",
+  "source_identity_report": "source_inputs in this document",
+  "source_unchanged": true,
+  "test_command": [
+    "test",
+    "-p",
+    "azrael-project-maintenance",
+    "--locked",
+    "--offline",
+    "--",
+    "--test-threads=4"
+  ],
+  "isolateHostEnvironment": true,
+  "tests": {
+    "exit_code": 0,
+    "passed": 240,
+    "failed": 0,
+    "selected_tests_v2_accepted": true
+  },
+  "release": {
+    "exit_code": 0,
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\candidate-maintenance-owner.exe",
+    "bytes": 2726912,
+    "sha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee"
+  },
+  "source_inputs": [
+    {
+      "path": "codex-rs\\.cargo\\config.toml",
+      "bytes": 645,
+      "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b"
+    },
+    {
+      "path": "codex-rs\\Cargo.lock",
+      "bytes": 18124,
+      "sha256": "b7e5a8e4695cf1f18f8368379cfc35322381bcda36c44e4bfd78ca515aef8681"
+    },
+    {
+      "path": "codex-rs\\Cargo.toml",
+      "bytes": 17289,
+      "sha256": "e227853a4b95766f609b8b38eb9ce622bf03772868fe7123c432e858cfb1affa"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\Cargo.toml",
+      "bytes": 591,
+      "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\examples\\maintenance_dispatch.rs",
+      "bytes": 1406,
+      "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\apply.rs",
+      "bytes": 28893,
+      "sha256": "4c1d045738aa66aff479b3894366524789510cd1882e840e4cdd46cb3f792d3c"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\bin\\maintenance_owner.rs",
+      "bytes": 192,
+      "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\cli.rs",
+      "bytes": 13991,
+      "sha256": "9ae3851660bb0826012ee73817149f044dce16fa33de023d75bda9513f43c6f3"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\duplicate_claims.rs",
+      "bytes": 17277,
+      "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\groups.rs",
+      "bytes": 27731,
+      "sha256": "7bb89d82d50a66d6ba487361ace838d9c56d28e2538fe5fe3e0858313ae4aaf5"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\lease.rs",
+      "bytes": 39699,
+      "sha256": "96b1dd485d7098300ba3d876476b1fe033b3cc18e029248ac4e150563a3a60c9"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\lib.rs",
+      "bytes": 49871,
+      "sha256": "44ff675af5dd8c569314d87ab2f81120f6f469927808d9002ba712ac9c6f626a"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\lock_recovery.rs",
+      "bytes": 66894,
+      "sha256": "5adb7f4f7fb6f105000bbc4567a29298091e8301b0a1203324131656703402c5"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\lock_wait.rs",
+      "bytes": 6758,
+      "sha256": "268e547a4128e2cdec28ace5e5266539f37a17c973e43a7259959012352a05be"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\nested_retirement.rs",
+      "bytes": 4200,
+      "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\partitioned_storage.rs",
+      "bytes": 39718,
+      "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\paths.rs",
+      "bytes": 55423,
+      "sha256": "e816e59a38f52d805bb0697fc51326d1f02198ded3bbf08ffd0c080f7a7e7626"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\planning.rs",
+      "bytes": 6150,
+      "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\preferences.rs",
+      "bytes": 13433,
+      "sha256": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\registration.rs",
+      "bytes": 8497,
+      "sha256": "c6d0a2bc7f5739b119345d0b378ede53ad335d0ce8e2a37dc79c3b326cc52aaa"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\registry.rs",
+      "bytes": 68272,
+      "sha256": "c41cdbe83dd7973607ff5d042cc4fa5c5ae051602fd6da97430519c77e305fb0"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\reservations.rs",
+      "bytes": 79316,
+      "sha256": "e18b5e0ce5faa20ae2aba418095d641ef64473a13cb12ee2a84dfb07bcd8a800"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\retirement.rs",
+      "bytes": 7485,
+      "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\storage.rs",
+      "bytes": 28089,
+      "sha256": "d6ffa50122edd8c7e8e7ed6958a857150003472e1d3ff479ad400c51046ab421"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\timing.rs",
+      "bytes": 5471,
+      "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\windows_delete.rs",
+      "bytes": 42315,
+      "sha256": "8f3308ffe43b141c366ab3b9c4c3b9cb506be7a1cecca0a649f412ccb0e9bfd2"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\absent_adoption.rs",
+      "bytes": 8168,
+      "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\contention.rs",
+      "bytes": 9780,
+      "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\contracts.rs",
+      "bytes": 47299,
+      "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\duplicate_claims.rs",
+      "bytes": 18149,
+      "sha256": "d810b614551801330d5b0a993eadb4d45b99aac5d9939f8e4f9945984f465683"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\groups.rs",
+      "bytes": 49259,
+      "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\hardlink_normalization.rs",
+      "bytes": 6856,
+      "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\lock_recovery.rs",
+      "bytes": 36653,
+      "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\nested_retirement.rs",
+      "bytes": 9610,
+      "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\partitioned.rs",
+      "bytes": 7418,
+      "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\registry.rs",
+      "bytes": 60328,
+      "sha256": "aff5e86643a3f9cbe2346bd3c64552ca6e7a19d349a6a9a6664ab801cb37c262"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\root_retirement.rs",
+      "bytes": 14037,
+      "sha256": "31cc0a35e98b3aec4e7aae8cab04a0a8ad8ef90785e2cb8b8c88aaa5a438690f"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\verified_junctions.rs",
+      "bytes": 7832,
+      "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2"
+    },
+    {
+      "path": "codex-rs\\utils\\process\\BUILD.bazel",
+      "bytes": 123,
+      "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da"
+    },
+    {
+      "path": "codex-rs\\utils\\process\\Cargo.toml",
+      "bytes": 321,
+      "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f"
+    },
+    {
+      "path": "codex-rs\\utils\\process\\src\\background_command_tests.rs",
+      "bytes": 2301,
+      "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6"
+    },
+    {
+      "path": "codex-rs\\utils\\process\\src\\lib.rs",
+      "bytes": 991,
+      "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90"
+    }
+  ],
+  "execution": {
+    "exit_code": 0,
+    "signal": null,
+    "startedUtc": "2026-11-02T07:23:32.954Z",
+    "endedUtc": "2026-11-02T07:26:04.025Z",
+    "preflight": {
+      "schema": 2,
+      "compilation": "cargo-test",
+      "testExecution": "nonzero-passed",
+      "contract": "selected-tests-v2",
+      "cargoInvocations": 1,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 84,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 35,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 11,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 28,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 22,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 24,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 8,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          }
+        ],
+        "passed": 240,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0,
+        "executed": 240
+      },
+      "phases": [
+        {
+          "phase": "compilation-and-execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=4"
+          ],
+          "startedUtc": "2026-11-02T07:23:32.959Z",
+          "durationMs": 151045,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "sourceUnchanged": true
+  },
+  "build_execution": {
+    "exit_code": 0,
+    "signal": null,
+    "startedUtc": "2026-11-02T07:26:04.027Z",
+    "endedUtc": "2026-11-02T07:26:04.377Z",
+    "sourceUnchanged": true
+  },
+  "toolchain": "C:/Users/felre/.rustup/toolchains/stable-x86_64-pc-windows-msvc/bin",
+  "previous_preparatory_execution": {
+    "tests": "Full package240pass0fail; initially omitted owner wrapper isolation/thread settings",
+    "release": "exit0; treated as preparation only",
+    "reason_for_rerun": "Mandatory exact invocation with isolateHostEnvironment:true and test-threads=4"
+  }
+}

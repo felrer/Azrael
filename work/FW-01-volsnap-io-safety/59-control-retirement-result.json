@@ -1,0 +1,551 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "Exact cw02 original blocked33 explicit reprepare then cw03 fresh control retirement; Windows x64 local actual",
+  "original33": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\33-control-retirement-result.json",
+    "sha256": "17b95655beb67991477f2acd70879f1acc79608032dadf6db3a5ed8e5dd25da4"
+  },
+  "historical58": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58-historical-empty-publication-recovery.json",
+    "sha256": "83ecb5f1cce156b637e2e939448884ba4c45a75119c31a07511289baca405cc1"
+  },
+  "originalAggregate": {
+    "producer_stopped_verified": false,
+    "process_tree_stopped_verified": false
+  },
+  "originalFailureIntentResultJournalUnchanged": true,
+  "originalWorkRecordReuse": {
+    "id": "work:deployment-control-retirement:30a3d18a-a732-4fd4-ace7-7c9801c56898",
+    "revision": 1,
+    "owner": "control-retirement-test",
+    "generation": "30a3d18a-a732-4fd4-ace7-7c9801c56898"
+  },
+  "childStopProof": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\original33-child-stop.json",
+    "sha256": "47302aadb236fac4a11aafe47786bc0e05e019a783f9c51eff8c5bfaf52983de",
+    "scope": "original-attempt-child-only",
+    "outerCallerRemainsActive": true,
+    "reviewedSource7": [
+      {
+        "role": "lifecycle",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\source-proof7\\lifecycle.cjs",
+        "sha256": "e8f60f0c1c0eb1ed149c153fd4226b33259a1d6c68bb839ad6ac9cab8381bdee"
+      },
+      {
+        "role": "controlOwner",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\source-proof7\\controlOwner.cjs",
+        "sha256": "ef4b4741c94e802c513b74a8071be2beb5827353335e42e1c226562b29425c65"
+      },
+      {
+        "role": "nativeGuard",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\source-proof7\\nativeGuard.cjs",
+        "sha256": "7b2e5cbb984888a2b4fc7778176f9ade17a94e9c0b00b948fbfdeeac7b7571fb"
+      },
+      {
+        "role": "leaseOwner",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\source-proof7\\leaseOwner.cjs",
+        "sha256": "35103189b0d552f3b59c516faee011cbe30fb9820682ca4547947c31f295162e"
+      },
+      {
+        "role": "leaseWorker",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\source-proof7\\leaseWorker.cjs",
+        "sha256": "eed5162daa6c3951cd610dcd8fd1b8986a85a7a2172c4a39a48ddc60aaeebf54"
+      },
+      {
+        "role": "resolver",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\source-proof7\\resolver.cjs",
+        "sha256": "14a1cc5ed75f389fd5e883ae69916064388284fb4fafb5b2a137c6da6d89cafb"
+      },
+      {
+        "role": "controller",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\source-proof7\\controller.cjs",
+        "sha256": "17fc00b04c56447bb3314c83bcfea2f872699164e53fde922ca9991719c5faaa"
+      }
+    ],
+    "originalSupervisor": {
+      "pid": 42068,
+      "exit": {
+        "code": 1,
+        "signal": null
+      },
+      "error": null,
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    },
+    "originalApplyWorker": {
+      "pid": 54368,
+      "exit_observed": true,
+      "exit_code": 1,
+      "signal": null,
+      "close_observed": true
+    },
+    "originalQueryCount": 236,
+    "originalAttributeHelpers": 2,
+    "originalMaintenancePid": 51176,
+    "preparationCatalog": {
+      "evidenceType": "source-enforced-synchronous-return",
+      "native_pid": null,
+      "exit_event": null,
+      "close_event": null
+    }
+  },
+  "execution": {
+    "command": [
+      "node",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\controller.cjs",
+      "--execute",
+      "63d044f88a7ee88d35e3c958e559f308a33e7776760b60389d2869f6140d9ec6"
+    ],
+    "controller": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\controller.cjs",
+      "sha256": "1109ba4c6aa9c5ebfb238c76c8e1160da0b5a4489b202a0a7de85713aca73b5c"
+    },
+    "plan": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\execution-plan.json",
+      "sha256": "63d044f88a7ee88d35e3c958e559f308a33e7776760b60389d2869f6140d9ec6"
+    },
+    "preflight": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\final-preflight.json",
+      "sha256": "16eeeccbdff6724ce9f5204da3a82af5d7d1d9db906e3eb1fa9ac81ccaef3e44"
+    },
+    "unit": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit10-maintenance_owner.exe",
+      "sha256": "0155093a85dc2622909f281785c1e96903d279d4336ff4d5ddc9f713b4e5ebfd"
+    },
+    "controllerActualExitCode": 0,
+    "supervisorObservedWorker": {
+      "pid": 34872,
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    },
+    "attemptCount": 1,
+    "targetsSequential": true,
+    "metadataQueryCount": 472,
+    "allQueriesActualExit0CloseDrained": true,
+    "exposedNativeLeases": [
+      {
+        "stage": "preparation-catalog",
+        "owner": {
+          "acquired_at_ms": 1793945622186,
+          "operation": "deployment.control-prepare",
+          "parent_pid": 34872,
+          "pid": 6152,
+          "schema": 2,
+          "token": "6152-1793945622186-4e8e87f586dd8679"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      },
+      {
+        "stage": "preparation-catalog",
+        "owner": {
+          "acquired_at_ms": 1793945982499,
+          "operation": "deployment.control-prepare",
+          "parent_pid": 34872,
+          "pid": 36624,
+          "schema": 2,
+          "token": "36624-1793945982499-7a3750cbb7653d39"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      },
+      {
+        "target": "fw03cw02",
+        "stage": "apply-catalog",
+        "owner": {
+          "acquired_at_ms": 1793945770498,
+          "operation": "lifecycle.cleanup",
+          "parent_pid": 26948,
+          "pid": 48844,
+          "schema": 2,
+          "token": "48844-1793945770498-a4ddde394667b56c"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      },
+      {
+        "target": "fw03cw02",
+        "stage": "apply-maintenance",
+        "owner": {
+          "acquired_at_ms": 1793945770196,
+          "operation": "deployment.control-retirement",
+          "parent_pid": 26948,
+          "pid": 50908,
+          "schema": 2,
+          "token": "50908-1793945770196-5e5bbdbea53ceb9a"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      },
+      {
+        "target": "fw03cw03",
+        "stage": "apply-catalog",
+        "owner": {
+          "acquired_at_ms": 1793946141931,
+          "operation": "lifecycle.cleanup",
+          "parent_pid": 21836,
+          "pid": 54980,
+          "schema": 2,
+          "token": "54980-1793946141931-c1894f71159f2e6f"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      },
+      {
+        "target": "fw03cw03",
+        "stage": "apply-maintenance",
+        "owner": {
+          "acquired_at_ms": 1793946141654,
+          "operation": "deployment.control-retirement",
+          "parent_pid": 21836,
+          "pid": 44700,
+          "schema": 2,
+          "token": "44700-1793946141654-9d197c48fd640c5f"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      }
+    ]
+  },
+  "targets": [
+    {
+      "name": "fw03cw02",
+      "scope": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw02",
+      "preparationKind": "explicit-original33-blocked-plan-reprepare",
+      "preparedRecord": {
+        "schema": 1,
+        "id": "work:deployment-control-retirement:30a3d18a-a732-4fd4-ace7-7c9801c56898",
+        "kind": "work",
+        "owner": "control-retirement-test",
+        "version": "30a3d18a-a732-4fd4-ace7-7c9801c56898",
+        "state": "complete",
+        "membership_complete": true,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw02",
+            "role": "deployment-control-container",
+            "generated": true,
+            "protection_known": true
+          }
+        ],
+        "references": [],
+        "generation": "30a3d18a-a732-4fd4-ace7-7c9801c56898",
+        "revision": 1,
+        "created_at": "2026-11-06T01:44:29.437Z",
+        "updated_at": "2026-11-06T01:44:29.438Z"
+      },
+      "priorRecordIdentity": {
+        "dev": "3057815611",
+        "ino": "1688849877704998",
+        "mode": "33206",
+        "nlink": "1",
+        "size": "561"
+      },
+      "preparedPlan": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-c300cd16-937f-4386-969e-d967c1ab112d.plan.json",
+        "sha256": "682b0be95b0db77dd09789c1da5eff47c222bbf7523692ca7d383592047328bb"
+      },
+      "preparedPacket": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\fw03cw02-prepared-packet.json",
+        "sha256": "24879947f38f1474573a5b1505e1705b4e521a234ebd4b016c8f6d2b4772a034"
+      },
+      "applyPacket": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\fw03cw02-apply-packet.json",
+        "sha256": "06eccc14bbbcf0bfffbb8b70690a0fe833d7c2c887445aacd7a421c50e24bb68"
+      },
+      "applyWorker": {
+        "pid": 26948,
+        "exit_observed": true,
+        "exit_code": 0,
+        "signal": null,
+        "close_observed": true
+      },
+      "applyPipeDrainingEvidence": "source-enforced applyDeploymentControlRetirement close callback drains stdout and stderr; explicit worker drain fields are not exposed",
+      "removed": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw02\\.git",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw02"
+      ],
+      "removedGitfileBytes": 78,
+      "nativeLeaseOwner": {
+        "acquired_at_ms": 1793945770498,
+        "operation": "lifecycle.cleanup",
+        "parent_pid": 26948,
+        "pid": 48844,
+        "schema": 2,
+        "token": "48844-1793945770498-a4ddde394667b56c"
+      },
+      "maintenanceLeaseOwner": {
+        "acquired_at_ms": 1793945770196,
+        "operation": "deployment.control-retirement",
+        "parent_pid": 26948,
+        "pid": 50908,
+        "schema": 2,
+        "token": "50908-1793945770196-5e5bbdbea53ceb9a"
+      },
+      "reservationFinalization": {
+        "finished": true,
+        "reservations_retained": []
+      },
+      "finalization": {
+        "id": "work:deployment-control-retirement:30a3d18a-a732-4fd4-ace7-7c9801c56898",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4acac89e2d206ab60cae80c56bd0c5c7afea61a4c24d7a4ff47583df7bf81ace.json"
+      },
+      "workspaceAbsent": true,
+      "workRecordAbsent": true,
+      "querySummary": [
+        {
+          "stage": "prepare",
+          "count": 118,
+          "allActualExit0CloseDrained": true
+        },
+        {
+          "stage": "apply",
+          "count": 118,
+          "allActualExit0CloseDrained": true
+        }
+      ],
+      "productArtifacts": {
+        "plan": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-c300cd16-937f-4386-969e-d967c1ab112d.plan.json",
+          "sha256": "682b0be95b0db77dd09789c1da5eff47c222bbf7523692ca7d383592047328bb"
+        },
+        "journal": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-c300cd16-937f-4386-969e-d967c1ab112d.journal.json",
+          "sha256": "d7f63a27b2d92d3afd69fafecaa59e0b5c6e1ce4cf421968701520bb9f2373e1"
+        },
+        "intent": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-c300cd16-937f-4386-969e-d967c1ab112d.intent.json",
+          "sha256": "e020fa091c6d565b379a2c12918ffe59aa52a7451bb2fad97385da1533b3186d"
+        },
+        "evidence": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-c300cd16-937f-4386-969e-d967c1ab112d.evidence.json",
+          "sha256": "13a446fe5c7dfe60307690a2ec6aa4c2d3400da564bbc3ba240d364d93354534"
+        },
+        "result": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-c300cd16-937f-4386-969e-d967c1ab112d.result.json",
+          "sha256": "2093bb87b055f7d4ca9317b1e424ce801a9a9b494e9a259f73539b4c8a820a04"
+        }
+      }
+    },
+    {
+      "name": "fw03cw03",
+      "scope": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03",
+      "preparationKind": "fresh-control-prepare",
+      "preparedRecord": {
+        "schema": 1,
+        "id": "work:deployment-control-retirement:98b3dac8-5fbe-448f-916f-d873ad4242fd",
+        "kind": "work",
+        "owner": "control-retirement-test",
+        "version": "98b3dac8-5fbe-448f-916f-d873ad4242fd",
+        "state": "complete",
+        "membership_complete": true,
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03",
+            "role": "deployment-control-container",
+            "generated": true,
+            "protection_known": true
+          }
+        ],
+        "references": [],
+        "generation": "98b3dac8-5fbe-448f-916f-d873ad4242fd",
+        "revision": 1,
+        "created_at": "2026-11-06T06:19:48.895Z",
+        "updated_at": "2026-11-06T06:19:48.897Z"
+      },
+      "priorRecordIdentity": null,
+      "preparedPlan": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-98b3dac8-5fbe-448f-916f-d873ad4242fd.plan.json",
+        "sha256": "5e1bfc868233dc55ccbf68d39046532b2ea371888720eff2bf5845e91919e080"
+      },
+      "preparedPacket": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\fw03cw03-prepared-packet.json",
+        "sha256": "d65d3138314042f3b6fcac7aa89120bdd9401dfbb90f317142cb9ea4bd8e8322"
+      },
+      "applyPacket": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\fw03cw03-apply-packet.json",
+        "sha256": "978d120d3d455e4d95fa58feb3e2524e4433735efe34d08185f1127547751fb6"
+      },
+      "applyWorker": {
+        "pid": 21836,
+        "exit_observed": true,
+        "exit_code": 0,
+        "signal": null,
+        "close_observed": true
+      },
+      "applyPipeDrainingEvidence": "source-enforced applyDeploymentControlRetirement close callback drains stdout and stderr; explicit worker drain fields are not exposed",
+      "removed": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\.git",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\logs\\project-maintenance",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\logs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\tasks",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\upstream-ui",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\verification",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03"
+      ],
+      "removedGitfileBytes": 78,
+      "nativeLeaseOwner": {
+        "acquired_at_ms": 1793946141931,
+        "operation": "lifecycle.cleanup",
+        "parent_pid": 21836,
+        "pid": 54980,
+        "schema": 2,
+        "token": "54980-1793946141931-c1894f71159f2e6f"
+      },
+      "maintenanceLeaseOwner": {
+        "acquired_at_ms": 1793946141654,
+        "operation": "deployment.control-retirement",
+        "parent_pid": 21836,
+        "pid": 44700,
+        "schema": 2,
+        "token": "44700-1793946141654-9d197c48fd640c5f"
+      },
+      "reservationFinalization": {
+        "finished": true,
+        "reservations_retained": []
+      },
+      "finalization": {
+        "id": "work:deployment-control-retirement:98b3dac8-5fbe-448f-916f-d873ad4242fd",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\33f9af7434388510b21f920e4810cf63a486fccc905b7fce7cfb4e3186477469.json"
+      },
+      "workspaceAbsent": true,
+      "workRecordAbsent": true,
+      "querySummary": [
+        {
+          "stage": "prepare",
+          "count": 118,
+          "allActualExit0CloseDrained": true
+        },
+        {
+          "stage": "apply",
+          "count": 118,
+          "allActualExit0CloseDrained": true
+        }
+      ],
+      "productArtifacts": {
+        "plan": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-98b3dac8-5fbe-448f-916f-d873ad4242fd.plan.json",
+          "sha256": "5e1bfc868233dc55ccbf68d39046532b2ea371888720eff2bf5845e91919e080"
+        },
+        "journal": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-98b3dac8-5fbe-448f-916f-d873ad4242fd.journal.json",
+          "sha256": "d100f5b8f5c12148ebf4fda0e50dd6a9ba9679f1dd77db5ae1c9f71e2f22db4d"
+        },
+        "intent": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-98b3dac8-5fbe-448f-916f-d873ad4242fd.intent.json",
+          "sha256": "5d1bfc4dacf805caa1588b1c2f43ac8e5c86f33124aa34bf3cbc54a3a17ae06c"
+        },
+        "evidence": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-98b3dac8-5fbe-448f-916f-d873ad4242fd.evidence.json",
+          "sha256": "7917949da0df2125446109ca75764dd9c6f0271ccd657ef90ec34b00f6f4183c"
+        },
+        "result": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-98b3dac8-5fbe-448f-916f-d873ad4242fd.result.json",
+          "sha256": "87e1b6faa2f8fda14a955824d1f2e7e454c890621035f01e92e43db28cc6a54e"
+        }
+      }
+    }
+  ],
+  "preservation": {
+    "all92ImmutableInputsUnchanged": true,
+    "source22AndNative45Unchanged": true,
+    "foreign43ActiveNamesIdentitiesAndRawSHAUnchanged": true,
+    "callerPendingRevision1Unchanged": true,
+    "mainManifestConfigUnchanged": true,
+    "original33And58ResultsUnchanged": true,
+    "original33AggregateFalseNotRewritten": true,
+    "noWholeOuterStopClaim": true
+  },
+  "actualDeletion": {
+    "gitfiles": 2,
+    "gitfileBytes": 156,
+    "structuralDirectories": 8,
+    "totalExactPaths": 10,
+    "outsideApprovedPaths": 0,
+    "forceDeletionUsed": false
+  },
+  "artifacts": {
+    "workerResult": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\worker-result.json",
+      "sha256": "503ce7c4e4299ae193b3d6ac5b371c8285d46190d37e7091d30a218f8dcaf10e"
+    },
+    "supervisorStop": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\supervisor-stop.json",
+      "sha256": "9806946efcb00701d23cf4781fb4cf75ea8ebb297f35a1e2c0ad418cd6f882e4"
+    },
+    "finalResult": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\result.json",
+      "sha256": "d53625937800eaf451eacf17f39a5673a16bd65108deab375f8a9b0752f66914"
+    },
+    "priorReprepareIntent": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\control-retirement-30a3d18a-a732-4fd4-ace7-7c9801c56898.plan.json.reprepare-intent.json",
+      "sha256": "5d6fed0acfd32fa0c4766c98c27d91cbaa8e24849ce7a95942cbe91102020804"
+    },
+    "auditDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59\\audit"
+  },
+  "limits": [
+    "Existing apply API exposes worker close, whose source callback drains stdout and stderr; separate worker stdout_drained fields are not returned",
+    "Successful finalize catalog lease is source-enforced synchronous return; PID/exit/close events are not publicly exposed for that finalization call",
+    "Original33 remains blocked exit1 with aggregate false; these are separately linked successful continuations",
+    "Outer CONTROL close/cleanup60, global/native61 and app build remain HOLD"
+  ],
+  "retention": {
+    "owner": "run:fw03r:control-01",
+    "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\cw59",
+    "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\temporary\\cw59-state",
+    "outerCallerRemainsPending": true,
+    "cleanupPendingRootConsumerRelease": true
+  }
+}

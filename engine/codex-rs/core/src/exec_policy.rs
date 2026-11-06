@@ -370,11 +370,48 @@ impl ExecPolicyManager {
             && commands
                 .iter()
                 .any(|cmd| is_deletion_command(cmd, command_platform));
+        let baseline_fallback = |cmd: &[String]| {
+            render_decision_for_unmatched_command_for_platform(
+                cmd,
+                UnmatchedCommandContext {
+                    approval_policy,
+                    permission_profile: &permission_profile,
+                    windows_sandbox_level,
+                    sandbox_permissions,
+                    command_origin,
+                },
+                command_platform,
+            )
+        };
+        let match_options = MatchOptions {
+            resolve_host_executables: true,
+        };
+        let baseline_decision = |cmd: &Vec<String>| {
+            exec_policy
+                .check_multiple_with_options(
+                    std::iter::once(cmd),
+                    &baseline_fallback,
+                    &match_options,
+                )
+                .decision
+        };
+        let deletion_needs_approval = deletion_approval
+            && commands.iter().any(|cmd| {
+                is_deletion_command(cmd, command_platform)
+                    && baseline_decision(cmd) != Decision::Allow
+            })
+            && commands
+                .iter()
+                .filter(|cmd| !is_deletion_command(cmd, command_platform))
+                .all(|cmd| baseline_decision(cmd) == Decision::Allow)
+            && !commands
+                .iter()
+                .any(|cmd| has_non_deletion_dangerous_command(cmd, command_platform));
         let exec_policy_fallback = |cmd: &[String]| {
             render_decision_for_unmatched_command_for_platform(
                 cmd,
                 UnmatchedCommandContext {
-                    approval_policy: if deletion_approval
+                    approval_policy: if deletion_needs_approval
                         && is_deletion_command(cmd, command_platform)
                         && !has_non_deletion_dangerous_command(cmd, command_platform)
                     {
@@ -390,18 +427,14 @@ impl ExecPolicyManager {
                 command_platform,
             )
         };
-        let match_options = MatchOptions {
-            resolve_host_executables: true,
-        };
         let evaluation = exec_policy.check_multiple_with_options(
             commands.iter(),
             &exec_policy_fallback,
             &match_options,
         );
 
-        // Explicit forbidden rules and other forbidden commands still win. An
-        // allow prefix must not silently waive the user's deletion decision.
-        if deletion_approval && evaluation.decision != Decision::Forbidden {
+        // Preserve previously allowed calls; explicit forbidden rules still win.
+        if deletion_needs_approval && evaluation.decision != Decision::Forbidden {
             return ExecApprovalRequirement::NeedsApproval {
                 reason: Some(DELETION_APPROVAL_REASON.to_string()),
                 proposed_execpolicy_amendment: None,

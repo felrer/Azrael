@@ -12,7 +12,7 @@ use std::sync::Arc;
 use tempfile::tempdir;
 
 #[tokio::test]
-async fn deletion_approval_patch_requires_user_but_addition_does_not() {
+async fn full_access_patch_deletion_and_addition_are_auto_approved() {
     let (_, turn) = make_session_and_context().await;
     let mut step = StepContext::for_test(Arc::new(turn));
     let settings = &mut Arc::get_mut(&mut step).expect("unshared step").settings;
@@ -51,14 +51,11 @@ async fn deletion_approval_patch_requires_user_but_addition_does_not() {
             .expect("matching");
     let deleted =
         prepare_apply_patch(&step, &environment, &matching, deletion).expect("prepare deletion");
-    assert!(!deleted.auto_approved);
-    assert_eq!(
+    assert!(deleted.auto_approved);
+    assert!(matches!(
         deleted.exec_approval_requirement,
-        ExecApprovalRequirement::NeedsApproval {
-            reason: Some(DELETION_APPROVAL_REASON.to_string()),
-            proposed_execpolicy_amendment: None,
-        }
-    );
+        ExecApprovalRequirement::Skip { .. }
+    ));
     let added =
         prepare_apply_patch(&step, &environment, &matching, addition).expect("prepare addition");
     assert!(added.auto_approved);

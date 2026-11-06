@@ -1,0 +1,567 @@
+{
+  "schemaVersion": 1,
+  "scope": "Immutable preliminary downstream failure/pass and final derivation evidence",
+  "finalAcceptance": false,
+  "platform": {
+    "os": "Windows",
+    "arch": "x64",
+    "abi": "MSVC",
+    "toolchain": "1.95.0",
+    "cargoBuildJobs": 1
+  },
+  "attempts": [
+    {
+      "id": "downstream01",
+      "exitCode": 101,
+      "sourceSha256": "b17d1f02038f8177f91f32476c9fc76712e1de1938e208fae76c51b0d53feab8",
+      "postSourceSha256": "b17d1f02038f8177f91f32476c9fc76712e1de1938e208fae76c51b0d53feab8",
+      "sourceUnchanged": true,
+      "elapsedMs": 443734,
+      "checks": [
+        {
+          "name": "appserver-user-wait",
+          "crate": "codex-app-server",
+          "filter": "user_wait",
+          "status": 101,
+          "error": null,
+          "signal": null,
+          "selectedTests": null,
+          "actualTestSummaries": [],
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-29T05:05:19.169Z",
+              "durationMs": 436505,
+              "exitCode": 101,
+              "signal": null
+            }
+          ]
+        }
+      ],
+      "causalFailure": {
+        "phase": "typeCheck",
+        "code": "E0599",
+        "file": "codex-rs/app-server/src/bespoke_event_handling.rs",
+        "line": 1703,
+        "description": "Interrupted-turn metadata path still used Option.as_ref on HashMap; corrected to get(&event_turn_id).cloned()."
+      },
+      "remainingScopesNotRun": 5
+    },
+    {
+      "id": "downstream02",
+      "exitCode": 101,
+      "sourceAudit": {
+        "baseSourceSha256": "b17d1f02038f8177f91f32476c9fc76712e1de1938e208fae76c51b0d53feab8",
+        "sha256": "8bfd609c4c6b7a3e0e6ae1037d1aa82a80dc0ea092bdb2ce033eb2ac7b290e8b",
+        "fileCount": 10870,
+        "bytes": 192369771,
+        "deltas": [
+          {
+            "path": "codex-rs/app-server/src/bespoke_event_handling.rs",
+            "before": {
+              "path": "codex-rs/app-server/src/bespoke_event_handling.rs",
+              "sha256": "be1a622ab3d0096be6ab96c39202ee6b79c1179ac48f859ea80cab092c4fa46c",
+              "mode": 438,
+              "kind": "file"
+            },
+            "after": {
+              "path": "codex-rs/app-server/src/bespoke_event_handling.rs",
+              "sha256": "c2fe710e528d03f472b323b01023c982e9c66009d97e9e4b9bfbbd102bcba387",
+              "mode": 438,
+              "kind": "file"
+            }
+          }
+        ],
+        "sourceReceiptUnchanged": true,
+        "productProvenanceAsserted": false
+      },
+      "postSourceSha256": "8bfd609c4c6b7a3e0e6ae1037d1aa82a80dc0ea092bdb2ce033eb2ac7b290e8b",
+      "sourceUnchanged": true,
+      "elapsedMs": 1807064,
+      "checks": [
+        {
+          "name": "appserver-user-wait",
+          "crate": "codex-app-server",
+          "filter": "user_wait",
+          "status": 0,
+          "error": null,
+          "signal": null,
+          "selectedTests": 3,
+          "actualTestSummaries": [
+            {
+              "result": "ok",
+              "passed": 3,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 497,
+              "durationSeconds": 0
+            }
+          ],
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-29T05:20:13.595Z",
+              "durationMs": 404376,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "user_wait",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-29T05:26:57.971Z",
+              "durationMs": 1226000,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 3
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "user_wait",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-29T05:47:23.972Z",
+              "durationMs": 40498,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "name": "appserver-turn-preservation",
+          "crate": "codex-app-server",
+          "filter": "bespoke_event_handling::tests::test_handle_turn_",
+          "status": 0,
+          "error": null,
+          "signal": null,
+          "selectedTests": 5,
+          "actualTestSummaries": [
+            {
+              "result": "ok",
+              "passed": 5,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 495,
+              "durationSeconds": 0
+            }
+          ],
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-29T05:48:04.475Z",
+              "durationMs": 14308,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "bespoke_event_handling::tests::test_handle_turn_",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-29T05:48:18.783Z",
+              "durationMs": 6017,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 5
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "bespoke_event_handling::tests::test_handle_turn_",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-29T05:48:24.800Z",
+              "durationMs": 5908,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "name": "appserver-deferred-preservation",
+          "crate": "codex-app-server",
+          "filter": "test_emit_turn_deferred_preserves_frozen_timing",
+          "status": 101,
+          "error": null,
+          "signal": null,
+          "selectedTests": 1,
+          "actualTestSummaries": [
+            {
+              "result": "FAILED",
+              "passed": 0,
+              "failed": 1,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 499,
+              "durationSeconds": 0
+            }
+          ],
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-29T05:48:30.712Z",
+              "durationMs": 5735,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "test_emit_turn_deferred_preserves_frozen_timing",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-29T05:48:36.447Z",
+              "durationMs": 5918,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 1
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "test_emit_turn_deferred_preserves_frozen_timing",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-29T05:48:42.365Z",
+              "durationMs": 6052,
+              "exitCode": 101,
+              "signal": null
+            }
+          ]
+        }
+      ],
+      "causalFailure": {
+        "phase": "execution",
+        "test": "bespoke_event_handling::tests::test_emit_turn_deferred_preserves_frozen_timing",
+        "description": "Fixture supplied timing None while expecting Some(empty). Product forwarded supplied value correctly. Corrected only fixture input to Some(UserWaitTiming::default()), preserving expectation."
+      },
+      "remainingScopesNotRun": [
+        "protocol-history",
+        "store-attribution",
+        "store-deferred",
+        "consumer-bins"
+      ]
+    },
+    {
+      "id": "final01",
+      "producerExitCode": 1,
+      "cargoStarted": false,
+      "sourceAudit": {
+        "baseSourceSha256": "8bfd609c4c6b7a3e0e6ae1037d1aa82a80dc0ea092bdb2ce033eb2ac7b290e8b",
+        "sha256": "6400ac51435342ca567b0829e99dcf4a54f5b08164e8161366acc5668bdc5612",
+        "fileCount": 10870,
+        "bytes": 192384479,
+        "deltas": [
+          {
+            "path": "codex-rs/app-server/src/bespoke_event_handling.rs",
+            "before": {
+              "path": "codex-rs/app-server/src/bespoke_event_handling.rs",
+              "sha256": "c2fe710e528d03f472b323b01023c982e9c66009d97e9e4b9bfbbd102bcba387",
+              "mode": 438,
+              "kind": "file"
+            },
+            "after": {
+              "path": "codex-rs/app-server/src/bespoke_event_handling.rs",
+              "sha256": "efd4692ef022f07dac7c44b9f37adb1ade08a769296d545e625cb344a78a2f66",
+              "mode": 438,
+              "kind": "file"
+            }
+          },
+          {
+            "path": "codex-rs/core/src/tools/router.rs",
+            "before": {
+              "path": "codex-rs/core/src/tools/router.rs",
+              "sha256": "16d170b7cf55dcf80d7e8ba2b09478b2865195f0dcbd0d775f5a6c55d9a9c0f6",
+              "mode": 438,
+              "kind": "file"
+            },
+            "after": {
+              "path": "codex-rs/core/src/tools/router.rs",
+              "sha256": "8153e244b199570a522a22391b70e7e9ef92ee709ba98032d6f8d039a95ebd16",
+              "mode": 438,
+              "kind": "file"
+            }
+          },
+          {
+            "path": "codex-rs/core/src/tools/router_tests.rs",
+            "before": {
+              "path": "codex-rs/core/src/tools/router_tests.rs",
+              "sha256": "978ea8761cb0688adcfb1fbbb779f0e40528bcfd71dc23e4f5f855ab00d09ed9",
+              "mode": 438,
+              "kind": "file"
+            },
+            "after": {
+              "path": "codex-rs/core/src/tools/router_tests.rs",
+              "sha256": "9123d344356ff9181bcf688c36574115c4ec82553078da0c59dbebc957821783",
+              "mode": 438,
+              "kind": "file"
+            }
+          },
+          {
+            "path": "codex-rs/core/src/user_wait_runtime.rs",
+            "before": {
+              "path": "codex-rs/core/src/user_wait_runtime.rs",
+              "sha256": "5ab53b7d40d1553c7db4955967c446fe6feb30f5a8a65e34bc98684387eee339",
+              "mode": 438,
+              "kind": "file"
+            },
+            "after": {
+              "path": "codex-rs/core/src/user_wait_runtime.rs",
+              "sha256": "607953458e976ed9c08572280ae345ed3ccfc85aff822684c0b0481aa7e34964",
+              "mode": 438,
+              "kind": "file"
+            }
+          },
+          {
+            "path": "codex-rs/core/src/user_wait_timing.rs",
+            "before": {
+              "path": "codex-rs/core/src/user_wait_timing.rs",
+              "sha256": "f58740fbb174b54594d6e5da2a5ec74bc83568d9fbcefbbe0a41edbb3deb4f0a",
+              "mode": 438,
+              "kind": "file"
+            },
+            "after": {
+              "path": "codex-rs/core/src/user_wait_timing.rs",
+              "sha256": "849f1857afea71b52f0c4207fa2ebfbbe62bdb7626f7203b56aec0eb507c2874",
+              "mode": 438,
+              "kind": "file"
+            }
+          }
+        ],
+        "sourceReceiptUnchanged": true,
+        "productProvenanceAsserted": false
+      },
+      "causalFailure": {
+        "phase": "targetOwnershipGuard",
+        "description": "Unrelated active managed Cargo coordinator61320 owned primary target; guard blocked before any Cargo spawn. Valid immutable source retained for execution-only retry."
+      }
+    }
+  ],
+  "mcpReuseEvidence": {
+    "originalSourceSha256": "b17d1f02038f8177f91f32476c9fc76712e1de1938e208fae76c51b0d53feab8",
+    "crate": "codex-mcp",
+    "filter": "elicitation",
+    "exitCode": 0,
+    "actualExecutionSummaries": [
+      "test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 228 filtered out; finished in 0.02s"
+    ],
+    "phases": [
+      {
+        "phase": "typeCheck",
+        "args": [
+          "check",
+          "-p",
+          "codex-mcp",
+          "--lib",
+          "--locked",
+          "--offline",
+          "--tests",
+          "--profile",
+          "test"
+        ],
+        "startedUtc": "2026-10-29T04:57:16.459Z",
+        "durationMs": 56280,
+        "exitCode": 0,
+        "signal": null
+      },
+      {
+        "phase": "selection",
+        "args": [
+          "test",
+          "-p",
+          "codex-mcp",
+          "--lib",
+          "elicitation",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--list",
+          "--format=terse"
+        ],
+        "startedUtc": "2026-10-29T04:58:12.739Z",
+        "durationMs": 212719,
+        "exitCode": 0,
+        "signal": null,
+        "selectedTests": 29
+      },
+      {
+        "phase": "execution",
+        "args": [
+          "test",
+          "-p",
+          "codex-mcp",
+          "--lib",
+          "elicitation",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1"
+        ],
+        "startedUtc": "2026-10-29T05:01:45.459Z",
+        "durationMs": 25623,
+        "exitCode": 0,
+        "signal": null
+      }
+    ],
+    "freshAudit": {
+      "includesRootDevDependencies": true,
+      "excludesTransitiveDevOnlyDependencies": true,
+      "packageCount": 910,
+      "previousSignature": "167b59189ef115a0ab4119bd859a3e5f0e9a2d66edecc039498dd83feba05e6e",
+      "currentSignature": "167b59189ef115a0ab4119bd859a3e5f0e9a2d66edecc039498dd83feba05e6e",
+      "packageContentUnchanged": true,
+      "changedOwners": [
+        {
+          "path": "codex-rs/app-server/src/bespoke_event_handling.rs",
+          "package": "codex-app-server"
+        },
+        {
+          "path": "codex-rs/core/src/tools/router.rs",
+          "package": "codex-core"
+        },
+        {
+          "path": "codex-rs/core/src/tools/router_tests.rs",
+          "package": "codex-core"
+        },
+        {
+          "path": "codex-rs/core/src/user_wait_runtime.rs",
+          "package": "codex-core"
+        },
+        {
+          "path": "codex-rs/core/src/user_wait_timing.rs",
+          "package": "codex-core"
+        }
+      ],
+      "reuseAllowed": true,
+      "lineage": "core03 -> downstream02 changed only appserver implementation; downstream02 -> final01 changes the five audited overlays; no MCP test package input changed when closure/content checks pass"
+    }
+  },
+  "producerTerminalEvidence": [
+    {
+      "id": "downstream01",
+      "exitCode": 101,
+      "producerStopped": true,
+      "state": "failed",
+      "membershipComplete": true
+    },
+    {
+      "id": "downstream02",
+      "exitCode": 101,
+      "producerStopped": true,
+      "state": "failed",
+      "membershipComplete": true
+    },
+    {
+      "id": "final01",
+      "exitCode": 1,
+      "producerStopped": true,
+      "state": "failed",
+      "membershipComplete": true
+    }
+  ],
+  "retention": {
+    "obsoleteInputsAndRawLogsRequired": false,
+    "final01StillRequired": true,
+    "sharedPrimaryTargetCleanupAuthorized": false,
+    "reason": "Final01 owns complete corrected input and derivation/dependency audit; this work deliverable retains independent preliminary results. Retire obsolete core03/downstream source/log groups only after supported reference releases."
+  }
+}

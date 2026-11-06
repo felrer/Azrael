@@ -1,0 +1,134 @@
+[
+  {
+    "id": "run:DC-01-queue-question-wait-diagnosis:native-2",
+    "logical_bytes": 100238159,
+    "exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-2",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-39416-4576-1793536584023",
+          "decision": "delete",
+          "decision_id": "5c339fc60f6da67c49f125579b720b181055065c3e80c8dc91e5515238454dbb",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "440726894d12631238b703e0a0a337a2425b47aec35d3b60cafe11e906adbda5",
+          "lifecycle_group_id": "run:DC-01-queue-question-wait-diagnosis:native-2",
+          "reason": "Explicit user cleanup request; supported recovery verified preboot process termination, current nonuse and complete generated membership; unknown/null outcome retained.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "9e1de59d59741467a1f4cd9797777cadb9d2a31c284743b0e94a2429a765624b"
+        }
+      ]
+    },
+    "finalized": {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-2",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fd4704d85209f3ff3cfbb6db3949ccb0fe5d6e830c21b408831394047217322b.json"
+    }
+  },
+  {
+    "id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+    "logical_bytes": 3611,
+    "exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-53004-4579-1793536793768",
+          "decision": "delete",
+          "decision_id": "9c885c81e2f0708a76ccbb9c809d4c65e805467ad8fe1f0f96068562c1351563",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "ad0eb15ef4253ec46a81e264337b09284f91ff2133cba14d6e33d5a82e526db6",
+          "lifecycle_group_id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+          "reason": "Explicit user cleanup request; supported recovery verified preboot process termination, current nonuse and complete generated membership; unknown/null outcome retained.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "a20822a3b95bb19526b5ccfa64acca8a02b0acb1a6d64316d172a33c9fa30d01"
+        }
+      ]
+    },
+    "finalized": {
+      "id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8aaa0d51d491df3593dc97948c98eca58cd449f3d9360f7e57370ebcf8972bf8.json"
+    }
+  },
+  {
+    "id": "run:DM-01-boundary-pilot:unknown-proof-refusal-20261023T144746673Z",
+    "logical_bytes": 2583,
+    "exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:DM-01-boundary-pilot:unknown-proof-refusal-20261023T144746673Z",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-53904-4582-1793536860103",
+          "decision": "delete",
+          "decision_id": "234b976597599490c935ba53d005107517bac58989bf08b4ed091106671d2081",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "c651050f2dd90c849b6961f3a7977be7f4dd3c29fa9c2ce087d96437c7b20463",
+          "lifecycle_group_id": "run:DM-01-boundary-pilot:unknown-proof-refusal-20261023T144746673Z",
+          "reason": "Explicit user cleanup request; supported recovery verified preboot process termination, current nonuse and complete generated membership; unknown/null outcome retained.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "d18db34a55cdd3da2c9da79de006576e50519d16763c0795cf7299c5d9e6bdd9"
+        }
+      ]
+    },
+    "finalized": {
+      "id": "run:DM-01-boundary-pilot:unknown-proof-refusal-20261023T144746673Z",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\650194a655e2f20ec1304a34f78a063d57a40974a296754d01b87ec0afa1e0e7.json"
+    }
+  }
+]

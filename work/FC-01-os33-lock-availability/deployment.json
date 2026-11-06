@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-02T01:14:28.358Z",
+  "status": "switched_pending_default_acceptance",
+  "id": "version:maintenance-owner:fc01:os33-20261102",
+  "version": "480e125e26c1c6955a8ed013935a1b06f542472f71d226614047656ab1e50855-windows-x64-20261102",
+  "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc01-os33-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "sha256": "480e125e26c1c6955a8ed013935a1b06f542472f71d226614047656ab1e50855",
+  "previous": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627",
+    "version_id": "version:maintenance-owner:eq01:latest-20261102-r1",
+    "version": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627-windows-x64-20261102",
+    "acceptance_sha256": "f37927f747d4ff1f0d9fdc747a053fa956d0460b4c8ab0219c4a50551718df1b"
+  },
+  "selector_sha256": "5295f3a45dd8f62196896432e337d5dcd1ecdb1da9323bde77e96beb18845d41",
+  "receipt_sha256": "5295f3a45dd8f62196896432e337d5dcd1ecdb1da9323bde77e96beb18845d41"
+}

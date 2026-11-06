@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "id": "run:CX-01:shutdown-r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "a87303bf0bd4189c2d1ebe9ac05149b8d21afc1b19be48920fe87be594b3b7b9",
+  "lease_owner": {
+    "acquired_at_ms": 1793537502591,
+    "operation": "group_reservation",
+    "pid": 40776,
+    "schema": 2,
+    "token": "40776-1793537502591-04f740e867372382"
+  },
+  "observed_native_exit_code": 1,
+  "observed_controller_exit_code": 1,
+  "stop_basis": "Native standalone registration was invoked synchronously by the sole CX registration controller in managed session16501. spawnSync returned actual native status1 with the matching registration request, then the Node controller exited1; the completed tool session independently observed controller exit1. The standalone owner registration operation has no external child execution and the supported CLI excludes test/build execution. This binds the exact one-process registration writer, not merely PID absence.",
+  "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\cx-register-request.json",
+  "native_stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance); pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock (maintenance)\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock\",\"owner\":null,\"retryable\":true}\n",
+  "record_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\f9f9a13221e315dfbca3a737ffe8e7d8a4f979bfc5a1a6e86e141097b26cbc5f.json"
+}

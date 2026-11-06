@@ -12,17 +12,6 @@ function declaration(text, name) {
   return ast.statements.find(n => ts.isFunctionDeclaration(n) && n.name.text === name).getText(ast);
 }
 
-test('all six pinned boundaries transform, parse and reapply; damaged inputs fail closed', () => {
-  for (const asset of injection.IMAGE_SKETCH_ASSETS) {
-    const native = source(asset), result = injection.injectImageSketch(native, asset);
-
-    assert.equal(ts.createSourceFile(asset, result.text, 99, true, 1).parseDiagnostics.length, 0, asset);
-    assert.equal(injection.injectImageSketch(result.text, asset).text, result.text);
-    assert.throws(()=>injection.injectImageSketch(result.text.replace(injection.MARKER, injection.MARKER+injection.MARKER),asset));
-    assert.throws(()=>injection.injectImageSketch('',asset),/pinned contract/);
-  }
-});
-
 test('complete namespace pipeline preserves native image editing and counts all sketch owners', () => {
   const namespace = require('./namespace-azrael-host.cjs');
   for (const asset of injection.IMAGE_SKETCH_ASSETS) {

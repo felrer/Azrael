@@ -148,7 +148,14 @@ Json Broker::snapshot(){
   Json held=Json::array();for(int i=1;i<256;++i)if(packet_->keys[i]&0x80)held.push_back(i);
   POINT local=packet_->position;ScreenToClient(window_,&local);
   POINT origin{0,0};ClientToScreen(window_,&origin);
-  return {{"attached",true},{"position",{{"x",local.x},{"y",local.y},{"screenX",packet_->position.x},{"screenY",packet_->position.y}}},{"heldKeys",held},{"heldButtons",{{"left",bool(packet_->keys[VK_LBUTTON]&0x80)},{"right",bool(packet_->keys[VK_RBUTTON]&0x80)},{"middle",bool(packet_->keys[VK_MBUTTON]&0x80)}}},{"window",{{"hwnd",Hex(reinterpret_cast<uint64_t>(window_))},{"pid",pid_},{"processCreated",Hex(created_)},{"executable",Utf8(executable_)}}},{"client",{{"x",origin.x},{"y",origin.y},{"width",packet_->client.right},{"height",packet_->client.bottom},{"coordinateSpace","physical-client-pixels"}}}};
+  wchar_t recipientClass[256]{};
+  HWND recipient=reinterpret_cast<HWND>(packet_->lastRecipient);
+  if(recipient)GetClassNameW(recipient,recipientClass,256);
+  Json delivery={{"model","synchronous-window-messages"},{"applicationEffectVerified",false},
+    {"messageCount",packet_->deliveredMessages},{"lastMessage",packet_->lastMessage},
+    {"lastResult",packet_->lastMessageResult},{"recipientHwnd",Hex(packet_->lastRecipient)},
+    {"recipientClass",Utf8(recipientClass)}};
+  return {{"attached",true},{"deliveryDiagnostics",delivery},{"position",{{"x",local.x},{"y",local.y},{"screenX",packet_->position.x},{"screenY",packet_->position.y}}},{"heldKeys",held},{"heldButtons",{{"left",bool(packet_->keys[VK_LBUTTON]&0x80)},{"right",bool(packet_->keys[VK_RBUTTON]&0x80)},{"middle",bool(packet_->keys[VK_MBUTTON]&0x80)}}},{"window",{{"hwnd",Hex(reinterpret_cast<uint64_t>(window_))},{"pid",pid_},{"processCreated",Hex(created_)},{"executable",Utf8(executable_)}}},{"client",{{"x",origin.x},{"y",origin.y},{"width",packet_->client.right},{"height",packet_->client.bottom},{"coordinateSpace","physical-client-pixels"}}}};
 }
 void Broker::detach(){
   if(!process_)return;

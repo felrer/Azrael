@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "nativeTestsExcluded": true,
+  "fullBuildAndInstallExcluded": true,
+  "baseline": [
+    {
+      "path": "scripts/test-ordered-asset-reader.cjs",
+      "sha256": "04b32518d920b26f6ebcff8946b710a55e6878dda6c9696ce1737f487a747a46"
+    },
+    {
+      "path": "scripts/test-pipeline-preflight.cjs",
+      "sha256": "136510bdeb187e9f9d15df9c7f2db5c5ed5e6063883fb2359fceb5fc034cdd77"
+    },
+    {
+      "path": "scripts/test-capture-project-inputs.cjs",
+      "sha256": "c2edef72de7ff3cb4ab0d30762b36fe62597085750dd335de1447666d702cc05"
+    },
+    {
+      "path": "scripts/test-deployment-input-snapshot.cjs",
+      "sha256": "8944bcd4a0025715512df13b17d0cd5a36e57c981933acb023d828d4d0ec529f"
+    },
+    {
+      "path": "scripts/test-deployment-workspace.cjs",
+      "sha256": "1e6e40e1e63e239c8d356b1327ccd18e1c387a2e8260eb5d0fb56eaf5ea1ba92"
+    },
+    {
+      "path": "scripts/test-build-module-cache.ps1",
+      "sha256": "e062833fcebfe6553c3046d2b01dde5c8d6838be479b15b23b2a108078060e7a"
+    },
+    {
+      "path": "scripts/test-incremental-extension-build.cjs",
+      "sha256": "f3ab4d1449523c73ad876fe55d0b7570b71af3caabc1cc480dc234c85fa477d2"
+    },
+    {
+      "path": "scripts/test-build-metrics.ps1",
+      "sha256": "f29f2642ee6322554780b8126eb3f552c4b36b4db5c0b2d53551c57e45b17af1"
+    },
+    {
+      "path": "scripts/test-deploy-azrael.ps1",
+      "sha256": "c1d413744b706c083663b33142b1166a4ad19600be3c85b32524e34200c85910"
+    },
+    {
+      "path": "scripts/test-verification-state.ps1",
+      "sha256": "2201687baff8a2a0ab910e90b34f7ec54f5f2cd385d48585beab7e63e7d81ff1"
+    },
+    {
+      "path": "scripts/independent-vscode-host-check.cjs",
+      "sha256": "c4efe4839f7709282d06b97a56b0635b8ddcc2bd24f57c80434f2072da3d699f"
+    },
+    {
+      "path": "scripts/test-independent-host-instructions.cjs",
+      "sha256": "5a36d2dbd2d6aec9a2cda2a7475b8754d97b4b23e315153523a1bc84811e4da8"
+    }
+  ],
+  "stages": [
+    {
+      "stage": 1,
+      "status": "complete",
+      "changed": [
+        "scripts/test-ordered-asset-reader.cjs"
+      ],
+      "removed": [
+        "success concurrency 1/8 duplicates",
+        "internal replacement/start order",
+        "high-water and metric echoes",
+        "invalid option matrix",
+        "empty metric counters"
+      ],
+      "retained": [
+        "parallel completion consumed in original order",
+        "read/consumer/iterator failures drain all pending reads and close iterator without unhandled rejection"
+      ],
+      "retentionReason": "Later read-pipeline throughput edits can consume completion order or reject before draining other reads.",
+      "pipelinePreflight": "Retained lockfile/frozen install, selected SDK/tool import, identity invalidation, PATH compatibility and actual child environment forwarding; Cargo-related cases untouched and not executed.",
+      "executions": [
+        {
+          "command": "node scripts/test-ordered-asset-reader.cjs",
+          "exit": 1,
+          "cause": "test edit left removed started/highWater locals referenced; corrected before rerun"
+        },
+        {
+          "command": "node scripts/test-ordered-asset-reader.cjs",
+          "exit": 0,
+          "scenarios": 4,
+          "platform": "Windows x64"
+        }
+      ],
+      "cleanup": "No generated outputs.",
+      "additionalRemoved": [
+        "capture native-realpath existence assertion",
+        "capture copy/Git counters and phase timer shape",
+        "capture duplicate syntax-invalid fixture verification",
+        "snapshot elapsed timer shape",
+        "invalid numeric capture options/missing-argument CLI with no production caller; retained independent destination boundary",
+        "snapshot no-report CLI mode absent from actual deployment invocation"
+      ],
+      "additionalChanged": [
+        "scripts/test-capture-project-inputs.cjs",
+        "scripts/test-deployment-input-snapshot.cjs"
+      ],
+      "verification": "Both edited files node --check exit0; prior capture13/snapshot9/workspace16 behavior evidence reused for unchanged boundaries. Capture invalid-options case no longer sets up redundant malformed-source transfer.",
+      "unchanged": [
+        "scripts/test-pipeline-preflight.cjs",
+        "scripts/test-deployment-workspace.cjs"
+      ]
+    },
+    {
+      "stage": 2,
+      "status": "complete",
+      "changed": [
+        "scripts/test-incremental-extension-build.cjs"
+      ],
+      "removed": [
+        "initial output existence case (compilation setup remains)",
+        "rename duplicate of source deletion and new source creation",
+        "TypeScript invalid-config rejection (compiler responsibility)"
+      ],
+      "retainedReason": "Later incremental-cache and pruning edits can skip changed inputs, trust missing JS/maps, suppress compiler failures, or traverse unowned outputs. Exact output/asset preservation, nonzero failure, ownership and symlink checks retained.",
+      "execution": {
+        "command": "node scripts/test-incremental-extension-build.cjs",
+        "exit": 0,
+        "checks": 9,
+        "skips": 0,
+        "elapsedSeconds": 6.188,
+        "typescript": "5.9.3",
+        "platform": "Windows x64",
+        "expectedDiagnostic": "TS2322 inside actual compiler failure case"
+      },
+      "cleanup": "Removed force-delete option from existing test owner. finally removed mkdtemp; subsequent exact-prefix enumeration returned no remaining fixture directories.",
+      "additionalChanged": [
+        "scripts/test-build-module-cache.ps1",
+        "scripts/test-build-metrics.ps1"
+      ],
+      "additionalRemoved": [
+        "moduleInputs AST/source shape and identical runner-key comparison",
+        "exact provider command inventory count",
+        "production-script syntax-only retained case",
+        "top-level/try/move inventory counts and control-flow wording"
+      ],
+      "retained": [
+        "recipe/helper invalidation",
+        "all provider log-path forwarding",
+        "final provenance before latest-pointer publication, failure rethrow and success ordering",
+        "deployment caller options/cache owners/selected policy"
+      ],
+      "additionalVerification": [
+        {
+          "command": "PowerShell7 parser edited two scripts",
+          "exit": 0
+        },
+        {
+          "command": "test-build-module-cache.ps1 -RecipeOnly -FixtureRoot artifacts/tasks/ew01-other-stage-module-recipe",
+          "exit": 0,
+          "scope": "companion recipe fixture commands and cleanup; no Rust build or native IPC"
+        },
+        {
+          "command": "release-selection-provenance-guard survivor body extracted through PowerShell AST",
+          "exit": 0,
+          "scope": "actual assertion body executed with explicit scripts root; first probes returned block/empty automatic script root, not counted as passes"
+        }
+      ],
+      "cleanupAdditional": {
+        "fixture": "artifacts/tasks/ew01-other-stage-module-recipe",
+        "absent": true
+      },
+      "unchanged": [
+        "scripts/test-deploy-azrael.ps1"
+      ]
+    },
+    {
+      "stage": 3,
+      "status": "complete",
+      "changes": [],
+      "reuse": "04-plan.md /11-source-test-retirement.json: source-suite audit already includes feature preservation/cache/integration and package-local-host; do not rerun unchanged sources.",
+      "retained": "package-azrael.ps1 checks actual VSIX identity, engine/bridge same build, source and retained-source provenance before and after copying, then hashes actual package bytes. These are production acceptance boundaries, not fixture existence tests.",
+      "excluded": "test-verification-state.ps1 discovered to cover Windows IPC socket path UTF-8 boundary and early host rejection; leave untouched and unexecuted under native/IPC exclusion.",
+      "verification": "Read-only review of package owner checks and existing source-audit scope; no product build/install or fixture."
+    },
+    {
+      "stage": 4,
+      "status": "complete",
+      "changed": [
+        "scripts/independent-vscode-host-check.cjs",
+        "scripts/test-independent-host-instructions.cjs"
+      ],
+      "removed": [
+        "fixed baseline summary copy predicate",
+        "exact aria-label copy predicate",
+        "missing-baseline rejection fixture case and unused summary/aria fixture markup"
+      ],
+      "retained": [
+        "actual installed package version/path/command registrations and contribution namespace separation",
+        "instruction mount response type/correlation and error/missing-module detection",
+        "library revision identity and locale lang forwarding"
+      ],
+      "verification": [
+        {
+          "command": "node --check scripts/independent-vscode-host-check.cjs",
+          "exit": 0
+        },
+        {
+          "command": "node --test scripts/test-independent-host-instructions.cjs",
+          "exit": 0,
+          "tests": 14,
+          "skipped": 0,
+          "elapsedMs": 98.9637,
+          "scope": "actual validator under synthetic VS Code receiver, no installed-host execution"
+        }
+      ],
+      "excluded": "Engine, bridge, IPC and AccountService startup assertions unchanged. Full installed VS Code host wrapper not run.",
+      "cleanup": "No filesystem fixtures generated."
+    }
+  ],
+  "platform": "Windows x64 verified; other supported platforms not executed",
+  "limits": [
+    "No full build/install/VS Code host/native tests executed",
+    "Unchanged capture/snapshot/workspace behavioral results reused; syntax checks only after assertion/duplicate fixture removals",
+    "Time savings not measured across comparable full builds",
+    "No task commit: overlapping pre-existing/concurrent source and staged changes preserved"
+  ],
+  "finalInputs": [
+    {
+      "path": "scripts/test-ordered-asset-reader.cjs",
+      "sha256": "4ab753b9fff9ca3e812afd2ad9c8d1f70b58b0bc8b38a54d6334c6531ea39eb1"
+    },
+    {
+      "path": "scripts/test-capture-project-inputs.cjs",
+      "sha256": "669a73bca203ba3e26b1b0ded49857c8f85a2ed810262b62d43db6b2052e0629"
+    },
+    {
+      "path": "scripts/test-deployment-input-snapshot.cjs",
+      "sha256": "9cb5103d550649ef52ff3dba82878f238810d0a1976760b877dd751a7c58f2d9"
+    },
+    {
+      "path": "scripts/test-incremental-extension-build.cjs",
+      "sha256": "688253ef3d5c7b4b7496ea78528d4e6e87fe3485f47d0c058db8328b6dccad86"
+    },
+    {
+      "path": "scripts/test-build-module-cache.ps1",
+      "sha256": "d1ac243280f8d7c94bb0cf3cf7fdbe43f8677fe4dc8156d348cb18fe63d84438"
+    },
+    {
+      "path": "scripts/test-build-metrics.ps1",
+      "sha256": "c4ab0cc1eebc35a3c7c880880e30cc568acbdf092c0039c672a2665cc8a0497e"
+    },
+    {
+      "path": "scripts/independent-vscode-host-check.cjs",
+      "sha256": "057ff014481a3e83260783ef825c282c17e8d1c57132733134b706bbb9a89719"
+    },
+    {
+      "path": "scripts/test-independent-host-instructions.cjs",
+      "sha256": "30d6ef58cf27a996771d81d270693ba6c2d9c40544d7ff469dd9243ee560680f"
+    }
+  ],
+  "unchangedExcluded": [
+    {
+      "path": "scripts/test-pipeline-preflight.cjs",
+      "sha256": "136510bdeb187e9f9d15df9c7f2db5c5ed5e6063883fb2359fceb5fc034cdd77",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/test-deployment-workspace.cjs",
+      "sha256": "1e6e40e1e63e239c8d356b1327ccd18e1c387a2e8260eb5d0fb56eaf5ea1ba92",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/test-deploy-azrael.ps1",
+      "sha256": "c1d413744b706c083663b33142b1166a4ad19600be3c85b32524e34200c85910",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/test-verification-state.ps1",
+      "sha256": "2201687baff8a2a0ab910e90b34f7ec54f5f2cd385d48585beab7e63e7d81ff1",
+      "unchanged": true
+    }
+  ],
+  "finalVerification": {
+    "javascriptSyntax": {
+      "files": 6,
+      "exit": 0
+    },
+    "powershellSyntax": {
+      "files": 3,
+      "exit": 0
+    },
+    "diffCheck": {
+      "exit": 0
+    },
+    "runnerReferences": [
+      {
+        "path": "scripts/test-incremental-extension-build.cjs",
+        "selected": true
+      },
+      {
+        "path": "scripts/test-ordered-asset-reader.cjs",
+        "selected": true
+      },
+      {
+        "path": "scripts/test-deployment-input-snapshot.cjs",
+        "selected": true
+      },
+      {
+        "path": "scripts/test-build-module-cache.ps1",
+        "selected": true
+      },
+      {
+        "path": "scripts/test-build-metrics.ps1",
+        "selected": true
+      }
+    ],
+    "instructionFeatureRegistration": true,
+    "sourceFilesRetired": 0,
+    "temporaryFilesRetained": 0
+  }
+}

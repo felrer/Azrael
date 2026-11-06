@@ -176,3 +176,86 @@ test("ended waits never reopen even with a higher incoming revision", () => {
   assert.equal(merged.rootResumeWait.state, "cancelled");
   assert.equal(merged.rootResumeWait.waitEndedAtMs, 3000);
 });
+
+const userTiming = (revision, endedAtMs = 3000) => ({ revision,
+  requests: [{ requestId: "approval", callId: "call", kind: "commandApproval", startedAtMs: 1000,
+    endedAtMs, durationMs: endedAtMs == null ? null : endedAtMs - 1000 }],
+  blockedIntervals: [{ startedAtMs: 1000, endedAtMs }] });
+
+test("history normalizes the user wait snapshot and missing legacy metadata separately", async () => {
+  const snapshot = userTiming(3);
+  const store = azraelCreateTaskTimeHistory({ async listThreadTurns() {
+    return { response: { data: [{ id: "a", userWaitTiming: snapshot }, { id: "b" }] } };
+  } }, "thread");
+  await store.refresh();
+  assert.deepEqual(store.getSnapshot().turns[0].userWaitTiming, snapshot);
+  assert.equal(store.getSnapshot().turns[1].userWaitTiming, null);
+  store.dispose();
+});
+
+test("user wait snapshots require strictly higher revisions and absent live data cannot erase history", () => {
+  const snapshot = userTiming(3);
+  const saved = [{ turnId: "a", status: "inProgress", userWaitTiming: snapshot }];
+  for (const incoming of [undefined, userTiming(2, null), userTiming(3, null)]) {
+    assert.deepEqual(azraelMergeTaskTimeTurns(saved, [{ turnId: "a", userWaitTiming: incoming }])[0].userWaitTiming, snapshot);
+  }
+  const newer = userTiming(4, 4000);
+  assert.deepEqual(azraelMergeTaskTimeTurns(saved, [{ turnId: "a", userWaitTiming: newer }])[0].userWaitTiming, newer);
+  assert.deepEqual(azraelMergeTaskTimeTurns([], saved)[0].userWaitTiming, snapshot);
+});
+
+test("closed user waits cannot reopen and higher revision recovery can close a frozen snapshot", () => {
+  const closed = userTiming(3);
+  const saved = [{ turnId: "a", status: "completed", durationMs: 4000, userWaitTiming: closed }];
+  const stale = { turnId: "a", status: "inProgress", durationMs: 99000, userWaitTiming: userTiming(99, null) };
+  const merged = azraelMergeTaskTimeTurns(saved, [stale])[0];
+  assert.deepEqual(merged.userWaitTiming, closed);
+  assert.equal(merged.status, "completed");
+  assert.equal(merged.durationMs, 4000);
+  const openSaved = [{ ...saved[0], userWaitTiming: userTiming(2, null) }];
+  assert.deepEqual(azraelMergeTaskTimeTurns(openSaved, [{ ...stale, userWaitTiming: closed }])[0].userWaitTiming, closed);
+  const different = userTiming(100, null); different.requests[0].requestId = "another";
+  different.blockedIntervals[0].startedAtMs = 5000;
+  assert.deepEqual(azraelMergeTaskTimeTurns(saved, [{ ...stale, userWaitTiming: different }])[0].userWaitTiming, closed);
+});
+
+test("terminal turns accept new raw requests and their closure without reopening work", () => {
+  const original = { ...userTiming(3), startedAtMs: 999 };
+  const terminalTurn = { turnId: "a", status: "completed", turnStartedAtMs: 999, durationMs: 4000,
+    userWaitTiming: original };
+  const request = { requestId: "late-approval", callId: "retained-cell", kind: "commandApproval",
+    startedAtMs: 6000, endedAtMs: null, durationMs: null };
+  const pending = { ...original, revision: 4, requests: [...original.requests, request] };
+  const live = { turnId: "a", status: "inProgress", turnStartedAtMs: 90000, durationMs: 99000,
+    userWaitTiming: pending };
+  const merged = azraelMergeTaskTimeTurns([terminalTurn], [live])[0];
+  assert.deepEqual(merged.userWaitTiming, pending);
+  assert.equal(merged.status, "completed");
+  assert.equal(merged.durationMs, 4000);
+  assert.equal(merged.turnStartedAtMs, 999);
+  assert.equal(merged.userWaitTiming.startedAtMs, 999);
+  assert.deepEqual(merged.userWaitTiming.requests[0], original.requests[0]);
+  assert.deepEqual(merged.userWaitTiming.blockedIntervals, original.blockedIntervals);
+  for (const endedAtMs of [7000, 8000]) { // Answer and cancellation both close the raw timer.
+    const closed = { ...pending, revision: 5, requests: [original.requests[0],
+      { ...request, endedAtMs, durationMs: endedAtMs - request.startedAtMs }] };
+    const final = azraelMergeTaskTimeTurns([merged], [{ ...live, userWaitTiming: closed }])[0];
+    assert.deepEqual(final.userWaitTiming, closed);
+    assert.equal(final.status, "completed");
+    assert.equal(final.durationMs, 4000);
+    const reopened = { ...pending, revision: 6 };
+    assert.deepEqual(azraelMergeTaskTimeTurns([final], [{ ...live, userWaitTiming: reopened }])[0].userWaitTiming, closed);
+  }
+  for (const revision of [2, 3]) {
+    assert.deepEqual(azraelMergeTaskTimeTurns([terminalTurn], [{ ...live,
+      userWaitTiming: { ...pending, revision } }])[0].userWaitTiming, original);
+  }
+  const reopenedWork = { ...pending, revision: 6,
+    blockedIntervals: [...original.blockedIntervals, { startedAtMs: 6000, endedAtMs: null }] };
+  assert.deepEqual(azraelMergeTaskTimeTurns([merged], [{ ...live,
+    userWaitTiming: reopenedWork }])[0].userWaitTiming, pending);
+  const reopenedOriginal = { ...pending, revision: 6,
+    requests: [{ ...original.requests[0], endedAtMs: null, durationMs: null }, request] };
+  assert.deepEqual(azraelMergeTaskTimeTurns([merged], [{ ...live,
+    userWaitTiming: reopenedOriginal }])[0].userWaitTiming, pending);
+});

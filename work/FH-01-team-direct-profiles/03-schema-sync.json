@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "status": "applied",
+  "authority": "User: 기존 스키마 동기화 포함",
+  "generatorLifecycle": "run:FH-01-role-profile-schemas:20261102T102405900Z-76134e05-bf14-4e52-b76b-8dad4fcf76df",
+  "generatorResults": {
+    "configExitCode": 0,
+    "stable": {
+      "exitCode": 0,
+      "passed": 1
+    },
+    "experimental": {
+      "exitCode": 0,
+      "passed": 1
+    }
+  },
+  "preservedUnrelatedChanges": [
+    "codex-rs/project-maintenance/src/registry.rs"
+  ],
+  "scope": "Existing public/harness schema synchronization with current source; no runtime feature added",
+  "updates": [
+    {
+      "path": "engine/codex-rs/core/config.schema.json",
+      "beforeSha256": "3ceed992f926294ecf090600067ba10067f1e9cfacf5ac8f856bf9c7cc8b67d7",
+      "sha256": "c41aef38c9a0d353143d057492f913b7b510bac173bf2b5a742b2b490276a4c7"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/AgentProfileRef.ts",
+      "beforeSha256": null,
+      "sha256": "18c8e91b506c4f56b6f044dbe1a0848e5aa45f33514099f546d692545b86842e"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/json/ClientRequest.json",
+      "beforeSha256": "2ee095969f19b993b30fff51c9e19bae29c2a95b171e354d1a362b854da49081",
+      "sha256": "ced769742371c16045120272dac33e6e01c90866efae773e30f31da8a1d331b8"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.schemas.json",
+      "beforeSha256": "67d9d5e04e18565aa510ddcb0b0f4831b72762363c8fbc9e7456c14a1c797b81",
+      "sha256": "944c48245d5919803822be44a21501bcb2569cbddc77b02d551311abae5e85f6"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json",
+      "beforeSha256": "628a54bf617f7d6773652de2dcba303d5e64c393f41b496be0c82fa90d39d9be",
+      "sha256": "7e03136af4383ca667041da2e1c809ababfd36b95312fcc140db1cf3946b810a"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/RootResumeResponse.json",
+      "beforeSha256": "37b89f722b51dceb9a015d79cea03435b5cdcd2fd337dca6ab7ac71d8490148c",
+      "sha256": "7103484d4c155f19b00d1f18c7d3f5e15c6ddf021ac50247bfe2d50d40267d78"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/TurnStartParams.json",
+      "beforeSha256": "583aff13e7a2da43fbb0150e0edc3c73171f374f0aa745dddba256166988a005",
+      "sha256": "40b384635a8828bf7f26cc9b26bfb49ea9d618be62d4a0d5cca0e64ff6a3bbc4"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/RootResumeReasoningSettings.ts",
+      "beforeSha256": "9e8f3f1be8aecea38dae1bec99b51c1e66d743512388aa7c4bf9e98b6f909892",
+      "sha256": "e4d3ce11248b4187b0d28dbf78ce75208b274a053ec48ea3f1c0376abf5de363"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/QueuedSubmission.ts",
+      "beforeSha256": "ccc2280727069713d06b6b9497fd5709813fb8d2089aad7344493cdc4765c81f",
+      "sha256": "3d45cefb340f854bba87e290e855e98c5d337cb21e4d0787ac303bdffa431e8d"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/TurnStartParams.ts",
+      "beforeSha256": "abaede48b0df0c0c597dc120331b88558bf000630ddca49901cf015208bfff08",
+      "sha256": "7f98698c9f699d8d58b684e1fa26bf7ffb344af31cfc1d39e55d3539f693df11"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/index.ts",
+      "beforeSha256": "90c6543150cf0d427a1291053ec5b9536f1beb5b76d2bc7749cf3287e8b6f168",
+      "sha256": "2b0a35edb083e4d343854536cb145792614968a489d0e3756dac5ed874e43bbc"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst",
+      "beforeSha256": "02deb00f817078867c0ffaa12fe2de0a482dc9fa05282aa61ceca70abd0363d2",
+      "sha256": "f4cda3eefff3a0c68b34ac023cb056fe19b279db5fd517b10fefe508afe3d69a"
+    },
+    {
+      "path": "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst",
+      "beforeSha256": "1c53be4ef89dda1ae3eaf49e282be1ee87b07942e2b9c9a414b5f12898625f99",
+      "sha256": "7ef2ac1dc2c922dc9d023978ca7ff0a35dff55e80700268269125b8769741fb1"
+    }
+  ]
+}

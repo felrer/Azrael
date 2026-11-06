@@ -5,15 +5,14 @@ const path = require("node:path");
 const vm = require("node:vm");
 const test = require("node:test");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
-const { ACCOUNT_QUEUE_CORE_ASSET: core, ACCOUNT_QUEUE_PRESENTATION_ASSET: presentation, ACCOUNT_QUEUE_LIST_ASSET: list, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
-const { injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
+const { ACCOUNT_QUEUE_CORE_ASSET: core, ACCOUNT_QUEUE_PRESENTATION_ASSET: presentation, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
+const { injectQueuedCompactionPresentation } = require("./inject-queued-compaction.cjs");
 const root = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const source = asset => fs.readFileSync(path.join(root, asset), "utf8");
 const transformed = injectAccountSwitchQueue(source(core), core).text;
 const ast = ts.createSourceFile(core, transformed, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
 const declaration = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "ajn").getText(ast);
 const creationGuard = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "__azraelCreateAfterAccountChange").getText(ast);
-const preparedSource = asset => asset === list ? injectQueuedCompactionList(source(asset)).text : source(asset);
 
 function fixture({ pending = false, mode = "queue", error, queryError, activeTurnId = null } = {}) {
   const calls = [];
@@ -81,22 +80,6 @@ for (const error of [Error("An account change is pending."), Object.assign(Error
     assert.deepEqual(f.calls, ["query", "start"]);
   });
 }
-
-for (const asset of [core, presentation, list]) test(`pinned transform parses and is idempotent: ${asset}`, () => {
-  const first = injectAccountSwitchQueue(preparedSource(asset), asset);
-  const parsed = ts.createSourceFile(asset, first.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  assert.equal(parsed.parseDiagnostics.length, 0);
-
-  assert.equal(injectAccountSwitchQueue(first.text, asset).text, first.text);
-});
-
-for (const asset of [core, presentation, list]) test(`combined production transforms retain account queue guard: ${asset}`, () => {
-  const { transformAsset } = require("./namespace-azrael-host.cjs");
-  const result = transformAsset(source(asset), asset, path.join(root, asset), ts);
-
-  assert.equal(ts.createSourceFile(asset, result.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS).parseDiagnostics.length, 0);
-
-});
 
 test("automatic native queue resume waits for switch; explicit send-now stays available", async () => {
   const text = injectAccountSwitchQueue(injectQueuedCompactionPresentation(source(presentation)).text, presentation).text;

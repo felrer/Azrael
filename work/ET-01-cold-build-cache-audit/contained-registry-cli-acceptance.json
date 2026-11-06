@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "controllerPid": 26568,
+  "startedUtc": "2026-10-30T16:28:06.745Z",
+  "finishedUtc": "2026-10-30T16:28:07.042Z",
+  "ownerExecutable": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+    "sha256": "2a14a04c64ae2752f1cb98be27fe1d102855a780190b3f32729ea201a11259be"
+  },
+  "nativeProject": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+  "producerNamespace": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/w",
+  "sourceId": "run:ET-01-cold-build-cache-audit:completed-engine-native-fixture-20261030b",
+  "sourceRevision": 3,
+  "sourceOutcome": "success",
+  "sourceExitCode": 0,
+  "context": "Ordinary B-context contained producer_registry_v1 registration/review/application with source-relative reservations guard; no configuration or default-owner change.",
+  "nativeExecutions": [
+    {
+      "label": "register",
+      "projectRoot": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-requests/register.json"
+      ],
+      "pid": 16876,
+      "startedUtc": "2026-10-30T16:27:43.432Z",
+      "finishedUtc": "2026-10-30T16:27:50.867Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-register.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-register.stderr.log",
+      "requestPath": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-requests/register.json",
+      "requestBytes": 2006
+    },
+    {
+      "label": "review",
+      "projectRoot": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-requests/review.json"
+      ],
+      "pid": 30904,
+      "startedUtc": "2026-10-30T16:27:53.637Z",
+      "finishedUtc": "2026-10-30T16:27:54.836Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-review.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-review.stderr.log",
+      "requestPath": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-requests/review.json",
+      "requestBytes": 163
+    },
+    {
+      "label": "apply",
+      "projectRoot": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-requests/apply.json"
+      ],
+      "pid": 44896,
+      "startedUtc": "2026-10-30T16:28:00.452Z",
+      "finishedUtc": "2026-10-30T16:28:04.699Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-apply.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-apply.stderr.log",
+      "requestPath": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-requests/apply.json",
+      "requestBytes": 812
+    }
+  ],
+  "deleted": [
+    {
+      "id": "1d7c83030a7d2273d17fe74cdea6cae0e3e7660456ef4fba3dad3c3ad9159488",
+      "status": "deleted",
+      "remaining": false
+    },
+    {
+      "id": "88730f1900ad47bb119c621eb3c255eb27393c8c877c901f13ae931e35bb355f",
+      "status": "deleted",
+      "remaining": false
+    }
+  ],
+  "actualAbsence": [
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/w/artifacts/tasks/ET-01-cold-build-cache-audit/runs/completed-engine-native-fixture-20261030b",
+      "absent": true
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/w/artifacts/iv",
+      "absent": true
+    }
+  ],
+  "finalized": {
+    "id": "run:ET-01-cold-build-cache-audit:completed-engine-native-fixture-20261030b",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\artifacts\\maintenance\\lifecycles\\f46559c8643df1a7996c69793d01b10b903f498036b3f1a27452cc8dd5b3fb0d.json"
+  },
+  "preservedEvidence": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-preserved-evidence.json",
+    "sha256": "1619c7e32a00c2bfbe9c1b027fe75f96654f7ca58216ed0dcf5f8e03201efdfb"
+  },
+  "rawAcceptance": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/contained-fixture-acceptance-20261031a-acceptance.json",
+    "sha256": "d85021bf029bc2c9da55a9c011f35a9d89b909be003500facd42eae5c68daa0c"
+  },
+  "wNativeControlNote": "Prior W native protected group retained for parent control retirement; no W native mutation requested. Source-relative reservations guard is validated by ordinary B-context register/review/apply."
+}

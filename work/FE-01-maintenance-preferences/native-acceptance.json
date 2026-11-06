@@ -1,0 +1,1453 @@
+{
+  "schema": 1,
+  "platform": "win32",
+  "arch": "x64",
+  "toolchain": "cargo 1.98.0 (797e8a9bc 2026-08-05)",
+  "candidate": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\outputs\\maintenance_owner.exe",
+    "sha256": "7fa1e2222e1fa641e642596cd6e807b234a4f8ce50080a15b8c52d5a45d322af",
+    "bytes": 4369408
+  },
+  "nativeTestsPassed": 235,
+  "nativeTestsExitCode": 0,
+  "debugBuildExitCode": 0,
+  "cli": {
+    "lifecycleId": "run:FE01:cli-r1",
+    "revision": 2,
+    "exitCode": 0,
+    "signal": null,
+    "checks": [
+      "real-host-default-read",
+      "off-blocks-new-native-work-and-reenable-during-drain",
+      "existing-native-lease-releases-after-disable",
+      "existing-producer-reconciliation-only-and-no-new-run-side-effects",
+      "reenable-current-state-and-real-host-cas",
+      "off-on-invalidates-earlier-delete-token",
+      "fresh-review-explicit-deletion-verified-absent"
+    ],
+    "commands": [
+      {
+        "args": [
+          "--project-root",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\temporary\\cli-integration\\project",
+          "--request",
+          "-"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "stderr": ""
+      },
+      {
+        "args": [
+          "--project-root",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\temporary\\cli-integration\\project",
+          "--request",
+          "-"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "stderr": ""
+      },
+      {
+        "args": [
+          "--project-root",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\temporary\\cli-integration\\project",
+          "--request",
+          "-"
+        ],
+        "exit_code": 1,
+        "signal": null,
+        "error": null,
+        "stderr": "{\"error\":\"maintenance groups/locks are disabled; ordinary command execution remains available\"}\n"
+      },
+      {
+        "args": [
+          "--project-root",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\temporary\\cli-integration\\project",
+          "--request",
+          "-"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "stderr": ""
+      },
+      {
+        "args": [
+          "--project-root",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\temporary\\cli-integration\\project",
+          "--request",
+          "-"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "stderr": ""
+      },
+      {
+        "args": [
+          "--project-root",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\temporary\\cli-integration\\project",
+          "--request",
+          "-"
+        ],
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "stderr": ""
+      }
+    ],
+    "producer": {
+      "lifecycleId": "run:FE01:cli-r1",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\.native-cli-run.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [
+        {
+          "pid": 37800,
+          "closed": true
+        }
+      ],
+      "state": "complete",
+      "membership_complete": true
+    }
+  },
+  "outcomes": [
+    {
+      "runId": "native-r1",
+      "lifecycleId": "run:FE01:native-r1",
+      "producer": {
+        "lifecycleId": "run:FE01:native-r1",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\.native-check.cjs"
+        ],
+        "exitCode": 101,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "tests failed",
+        "children": [
+          {
+            "pid": 55292,
+            "closed": true
+          },
+          {
+            "pid": 35648,
+            "closed": true
+          },
+          {
+            "pid": 40808,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "metadata": {
+        "args": [
+          "metadata",
+          "--offline",
+          "--format-version",
+          "1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 2048,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1\\logs\\metadata.log"
+      },
+      "tests": {
+        "args": [
+          "test",
+          "-p",
+          "azrael-project-maintenance",
+          "--offline",
+          "--locked",
+          "--",
+          "--test-threads=4"
+        ],
+        "exitCode": 101,
+        "signal": null,
+        "durationMs": 242,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1\\logs\\tests.log"
+      },
+      "selectedTests": null,
+      "build": null,
+      "cli": null,
+      "dependencies": {
+        "original": 1475,
+        "selected": 79,
+        "additions": [],
+        "lockSha256": "c3fdf97f1c5f70a8f9c2d2f1cdc6d36889b4e897fc63cf298f0a0b3c5ff3fde8",
+        "manifestSha256": "f68a7066a88fe779951cb62860dd6e3213bafea769366dfbe4087a14c110bc3a"
+      },
+      "inputFingerprint": "9ae4f57f54438c1fd3e2b21ee56939d49928190e73bb40e1b0dac0d34e82e337",
+      "finalInputsUnchanged": null
+    },
+    {
+      "runId": "native-r2",
+      "lifecycleId": "run:FE01:native-r2",
+      "producer": {
+        "lifecycleId": "run:FE01:native-r2",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\.native-check.cjs",
+          "native-r2"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [
+          {
+            "pid": 48100,
+            "closed": true
+          },
+          {
+            "pid": 11456,
+            "closed": true
+          },
+          {
+            "pid": 38952,
+            "closed": true
+          },
+          {
+            "pid": 18420,
+            "closed": true
+          }
+        ],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "metadata": {
+        "args": [
+          "metadata",
+          "--offline",
+          "--format-version",
+          "1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 1438,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2\\logs\\metadata.log"
+      },
+      "tests": {
+        "args": [
+          "test",
+          "-p",
+          "azrael-project-maintenance",
+          "--offline",
+          "--locked",
+          "--",
+          "--test-threads=4"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 237763,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2\\logs\\tests.log"
+      },
+      "selectedTests": {
+        "schema": 2,
+        "contract": "selected-tests-v2",
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "cargoInvocations": 1,
+        "accepted": true,
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 78,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 6,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 35,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 11,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 28,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 22,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 24,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 8,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0
+          }
+        ],
+        "actualExitCode": 0
+      },
+      "build": {
+        "args": [
+          "build",
+          "-p",
+          "azrael-project-maintenance",
+          "--bin",
+          "maintenance_owner",
+          "--offline",
+          "--locked"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 434,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2\\logs\\build.log"
+      },
+      "cli": null,
+      "dependencies": {
+        "original": 1475,
+        "selected": 79,
+        "additions": [],
+        "lockSha256": "b7e5a8e4695cf1f18f8368379cfc35322381bcda36c44e4bfd78ca515aef8681",
+        "manifestSha256": "e227853a4b95766f609b8b38eb9ce622bf03772868fe7123c432e858cfb1affa"
+      },
+      "inputFingerprint": "9ae4f57f54438c1fd3e2b21ee56939d49928190e73bb40e1b0dac0d34e82e337",
+      "finalInputsUnchanged": true
+    },
+    {
+      "runId": "native-r3",
+      "lifecycleId": "run:FE01:native-r3",
+      "producer": {
+        "lifecycleId": "run:FE01:native-r3",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\.native-check.cjs",
+          "native-r3",
+          "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/FE01/runs/native-r2/temporary/target"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "cli failed",
+        "children": [
+          {
+            "pid": 35324,
+            "closed": true
+          },
+          {
+            "pid": 31076,
+            "closed": true
+          },
+          {
+            "pid": 32584,
+            "closed": true
+          },
+          {
+            "pid": 6052,
+            "closed": true
+          },
+          {
+            "pid": 26164,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "metadata": {
+        "executable": "C:/Users/felre/.rustup/toolchains/stable-x86_64-pc-windows-msvc/bin/cargo.exe",
+        "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\temporary\\native",
+        "args": [
+          "metadata",
+          "--offline",
+          "--format-version",
+          "1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 7824,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\logs\\metadata.log"
+      },
+      "tests": {
+        "executable": "C:/Users/felre/.rustup/toolchains/stable-x86_64-pc-windows-msvc/bin/cargo.exe",
+        "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\temporary\\native",
+        "args": [
+          "test",
+          "-p",
+          "azrael-project-maintenance",
+          "--offline",
+          "--locked",
+          "--",
+          "--test-threads=4"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 288667,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\logs\\tests.log"
+      },
+      "selectedTests": {
+        "schema": 2,
+        "contract": "selected-tests-v2",
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "cargoInvocations": 1,
+        "accepted": true,
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 79,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 6,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 35,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 11,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 28,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 22,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 24,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 8,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0
+          }
+        ],
+        "actualExitCode": 0
+      },
+      "build": {
+        "executable": "C:/Users/felre/.rustup/toolchains/stable-x86_64-pc-windows-msvc/bin/cargo.exe",
+        "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\temporary\\native",
+        "args": [
+          "build",
+          "-p",
+          "azrael-project-maintenance",
+          "--bin",
+          "maintenance_owner",
+          "--offline",
+          "--locked"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 830,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\logs\\build.log"
+      },
+      "cli": {
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "args": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\.cli-check.cjs",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\outputs\\maintenance_owner.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "durationMs": 1646,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\logs\\cli.log"
+      },
+      "dependencies": {
+        "original": 1475,
+        "selected": 79,
+        "additions": [],
+        "lockSha256": "b7e5a8e4695cf1f18f8368379cfc35322381bcda36c44e4bfd78ca515aef8681",
+        "manifestSha256": "e227853a4b95766f609b8b38eb9ce622bf03772868fe7123c432e858cfb1affa"
+      },
+      "inputFingerprint": "94b68bc3df817116d3d21a9364ac69b0408773bf965c7fbe4be1b4182c55d454",
+      "finalInputsUnchanged": true
+    }
+  ],
+  "finalSourceIdentity": {
+    "fingerprint": "94b68bc3df817116d3d21a9364ac69b0408773bf965c7fbe4be1b4182c55d454",
+    "selectedFileCount": 43,
+    "liveBefore": {
+      "Cargo.toml": {
+        "sha256": "bb964889aee08665a28a187800effec52935800909dcdcb9e914af0d99e95ce1",
+        "bytes": 21414
+      },
+      "Cargo.lock": {
+        "sha256": "28ba826e9155d63dbea9723e75281fe7566f52decd93339a34f05bb2f139711e",
+        "bytes": 408952
+      },
+      "rust-toolchain.toml": {
+        "sha256": "029fd8fde748bb7dd75f20e21576e36f1f567bba8149af4602310086a2a0dc58",
+        "bytes": 81
+      },
+      ".cargo/audit.toml": {
+        "sha256": "6730ec9c5cb6ae9b77ba80388a6ae1dec9485a1beb5c0a9e087ce50298f8a5f6",
+        "bytes": 1231
+      },
+      ".cargo/config.toml": {
+        "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b",
+        "bytes": 645
+      },
+      "project-maintenance/Cargo.toml": {
+        "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b",
+        "bytes": 591
+      },
+      "project-maintenance/examples/maintenance_dispatch.rs": {
+        "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8",
+        "bytes": 1406
+      },
+      "project-maintenance/src/apply.rs": {
+        "sha256": "33a4838706d04031392a70a446163c8906f1bb4c9a5bb84502e645752632b533",
+        "bytes": 28882
+      },
+      "project-maintenance/src/bin/maintenance_owner.rs": {
+        "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+        "bytes": 192
+      },
+      "project-maintenance/src/cli.rs": {
+        "sha256": "d8d60fd5deee32be8ffb156ee42baae067044d232d0bf33f5639248b9d9efb03",
+        "bytes": 13955
+      },
+      "project-maintenance/src/duplicate_claims.rs": {
+        "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709",
+        "bytes": 17277
+      },
+      "project-maintenance/src/groups.rs": {
+        "sha256": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca",
+        "bytes": 25169
+      },
+      "project-maintenance/src/lease.rs": {
+        "sha256": "5f837333924c8f950951119f0956e6830517d2784ed54b603f34180f50f02e16",
+        "bytes": 36528
+      },
+      "project-maintenance/src/lib.rs": {
+        "sha256": "8a40e2c4bacc115271373453653318632058f6b5584deeff2a37277d085c96e1",
+        "bytes": 49727
+      },
+      "project-maintenance/src/lock_recovery.rs": {
+        "sha256": "b692b2c1289a2573b9c84adf766a73b71ba983a3671131082445ec918c0439be",
+        "bytes": 59627
+      },
+      "project-maintenance/src/nested_retirement.rs": {
+        "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06",
+        "bytes": 4200
+      },
+      "project-maintenance/src/partitioned_storage.rs": {
+        "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35",
+        "bytes": 39718
+      },
+      "project-maintenance/src/paths.rs": {
+        "sha256": "1c39690ad2c409cbe95f590fe689bf5973ab81151dd2bfe8b024e3f733bfc380",
+        "bytes": 55555
+      },
+      "project-maintenance/src/planning.rs": {
+        "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2",
+        "bytes": 6150
+      },
+      "project-maintenance/src/preferences.rs": {
+        "sha256": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541",
+        "bytes": 13433
+      },
+      "project-maintenance/src/registration.rs": {
+        "sha256": "2748badd373a327ff883f31d95e942a5d7bd1c54f0024b1502ad5c7074983d21",
+        "bytes": 8397
+      },
+      "project-maintenance/src/registry.rs": {
+        "sha256": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104",
+        "bytes": 65744
+      },
+      "project-maintenance/src/reservations.rs": {
+        "sha256": "6ef5d28d0d8adc6d52ca8802be32c91bbd4f47f4be842dcc9e849f05faa8d6d9",
+        "bytes": 76938
+      },
+      "project-maintenance/src/retirement.rs": {
+        "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807",
+        "bytes": 7485
+      },
+      "project-maintenance/src/storage.rs": {
+        "sha256": "afb3f433c5405d0160f503e7b5c7ba13461456caefedbb9de8ccbc2053bc4a6f",
+        "bytes": 27024
+      },
+      "project-maintenance/src/timing.rs": {
+        "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692",
+        "bytes": 5471
+      },
+      "project-maintenance/src/windows_delete.rs": {
+        "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+        "bytes": 39891
+      },
+      "project-maintenance/tests/absent_adoption.rs": {
+        "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a",
+        "bytes": 8168
+      },
+      "project-maintenance/tests/contention.rs": {
+        "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d",
+        "bytes": 9780
+      },
+      "project-maintenance/tests/contracts.rs": {
+        "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df",
+        "bytes": 47299
+      },
+      "project-maintenance/tests/duplicate_claims.rs": {
+        "sha256": "0333ffd08a43b6d94b1537ca3905086af93d9b3a1a23a26bae6718106015f699",
+        "bytes": 18070
+      },
+      "project-maintenance/tests/groups.rs": {
+        "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e",
+        "bytes": 49259
+      },
+      "project-maintenance/tests/hardlink_normalization.rs": {
+        "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf",
+        "bytes": 6856
+      },
+      "project-maintenance/tests/lock_recovery.rs": {
+        "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab",
+        "bytes": 36653
+      },
+      "project-maintenance/tests/nested_retirement.rs": {
+        "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec",
+        "bytes": 9610
+      },
+      "project-maintenance/tests/partitioned.rs": {
+        "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031",
+        "bytes": 7418
+      },
+      "project-maintenance/tests/registry.rs": {
+        "sha256": "f2c9d230721ef11cd71645c391d956b04569ce16cf53184bd4e33318d3b3129c",
+        "bytes": 60187
+      },
+      "project-maintenance/tests/root_retirement.rs": {
+        "sha256": "e680a45636be409f186cf0e6d5e218ae7fc3ef47100b824a219520f3cce1740d",
+        "bytes": 13958
+      },
+      "project-maintenance/tests/verified_junctions.rs": {
+        "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2",
+        "bytes": 7832
+      },
+      "utils/process/BUILD.bazel": {
+        "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da",
+        "bytes": 123
+      },
+      "utils/process/Cargo.toml": {
+        "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f",
+        "bytes": 321
+      },
+      "utils/process/src/background_command_tests.rs": {
+        "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6",
+        "bytes": 2301
+      },
+      "utils/process/src/lib.rs": {
+        "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+        "bytes": 991
+      }
+    },
+    "frozen": {
+      "Cargo.toml": {
+        "sha256": "bb964889aee08665a28a187800effec52935800909dcdcb9e914af0d99e95ce1",
+        "bytes": 21414
+      },
+      "Cargo.lock": {
+        "sha256": "28ba826e9155d63dbea9723e75281fe7566f52decd93339a34f05bb2f139711e",
+        "bytes": 408952
+      },
+      "rust-toolchain.toml": {
+        "sha256": "029fd8fde748bb7dd75f20e21576e36f1f567bba8149af4602310086a2a0dc58",
+        "bytes": 81
+      },
+      ".cargo/audit.toml": {
+        "sha256": "6730ec9c5cb6ae9b77ba80388a6ae1dec9485a1beb5c0a9e087ce50298f8a5f6",
+        "bytes": 1231
+      },
+      ".cargo/config.toml": {
+        "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b",
+        "bytes": 645
+      },
+      "project-maintenance/Cargo.toml": {
+        "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b",
+        "bytes": 591
+      },
+      "project-maintenance/examples/maintenance_dispatch.rs": {
+        "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8",
+        "bytes": 1406
+      },
+      "project-maintenance/src/apply.rs": {
+        "sha256": "33a4838706d04031392a70a446163c8906f1bb4c9a5bb84502e645752632b533",
+        "bytes": 28882
+      },
+      "project-maintenance/src/bin/maintenance_owner.rs": {
+        "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+        "bytes": 192
+      },
+      "project-maintenance/src/cli.rs": {
+        "sha256": "d8d60fd5deee32be8ffb156ee42baae067044d232d0bf33f5639248b9d9efb03",
+        "bytes": 13955
+      },
+      "project-maintenance/src/duplicate_claims.rs": {
+        "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709",
+        "bytes": 17277
+      },
+      "project-maintenance/src/groups.rs": {
+        "sha256": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca",
+        "bytes": 25169
+      },
+      "project-maintenance/src/lease.rs": {
+        "sha256": "5f837333924c8f950951119f0956e6830517d2784ed54b603f34180f50f02e16",
+        "bytes": 36528
+      },
+      "project-maintenance/src/lib.rs": {
+        "sha256": "8a40e2c4bacc115271373453653318632058f6b5584deeff2a37277d085c96e1",
+        "bytes": 49727
+      },
+      "project-maintenance/src/lock_recovery.rs": {
+        "sha256": "b692b2c1289a2573b9c84adf766a73b71ba983a3671131082445ec918c0439be",
+        "bytes": 59627
+      },
+      "project-maintenance/src/nested_retirement.rs": {
+        "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06",
+        "bytes": 4200
+      },
+      "project-maintenance/src/partitioned_storage.rs": {
+        "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35",
+        "bytes": 39718
+      },
+      "project-maintenance/src/paths.rs": {
+        "sha256": "1c39690ad2c409cbe95f590fe689bf5973ab81151dd2bfe8b024e3f733bfc380",
+        "bytes": 55555
+      },
+      "project-maintenance/src/planning.rs": {
+        "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2",
+        "bytes": 6150
+      },
+      "project-maintenance/src/preferences.rs": {
+        "sha256": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541",
+        "bytes": 13433
+      },
+      "project-maintenance/src/registration.rs": {
+        "sha256": "2748badd373a327ff883f31d95e942a5d7bd1c54f0024b1502ad5c7074983d21",
+        "bytes": 8397
+      },
+      "project-maintenance/src/registry.rs": {
+        "sha256": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104",
+        "bytes": 65744
+      },
+      "project-maintenance/src/reservations.rs": {
+        "sha256": "6ef5d28d0d8adc6d52ca8802be32c91bbd4f47f4be842dcc9e849f05faa8d6d9",
+        "bytes": 76938
+      },
+      "project-maintenance/src/retirement.rs": {
+        "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807",
+        "bytes": 7485
+      },
+      "project-maintenance/src/storage.rs": {
+        "sha256": "afb3f433c5405d0160f503e7b5c7ba13461456caefedbb9de8ccbc2053bc4a6f",
+        "bytes": 27024
+      },
+      "project-maintenance/src/timing.rs": {
+        "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692",
+        "bytes": 5471
+      },
+      "project-maintenance/src/windows_delete.rs": {
+        "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+        "bytes": 39891
+      },
+      "project-maintenance/tests/absent_adoption.rs": {
+        "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a",
+        "bytes": 8168
+      },
+      "project-maintenance/tests/contention.rs": {
+        "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d",
+        "bytes": 9780
+      },
+      "project-maintenance/tests/contracts.rs": {
+        "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df",
+        "bytes": 47299
+      },
+      "project-maintenance/tests/duplicate_claims.rs": {
+        "sha256": "0333ffd08a43b6d94b1537ca3905086af93d9b3a1a23a26bae6718106015f699",
+        "bytes": 18070
+      },
+      "project-maintenance/tests/groups.rs": {
+        "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e",
+        "bytes": 49259
+      },
+      "project-maintenance/tests/hardlink_normalization.rs": {
+        "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf",
+        "bytes": 6856
+      },
+      "project-maintenance/tests/lock_recovery.rs": {
+        "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab",
+        "bytes": 36653
+      },
+      "project-maintenance/tests/nested_retirement.rs": {
+        "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec",
+        "bytes": 9610
+      },
+      "project-maintenance/tests/partitioned.rs": {
+        "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031",
+        "bytes": 7418
+      },
+      "project-maintenance/tests/registry.rs": {
+        "sha256": "f2c9d230721ef11cd71645c391d956b04569ce16cf53184bd4e33318d3b3129c",
+        "bytes": 60187
+      },
+      "project-maintenance/tests/root_retirement.rs": {
+        "sha256": "e680a45636be409f186cf0e6d5e218ae7fc3ef47100b824a219520f3cce1740d",
+        "bytes": 13958
+      },
+      "project-maintenance/tests/verified_junctions.rs": {
+        "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2",
+        "bytes": 7832
+      },
+      "utils/process/BUILD.bazel": {
+        "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da",
+        "bytes": 123
+      },
+      "utils/process/Cargo.toml": {
+        "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f",
+        "bytes": 321
+      },
+      "utils/process/src/background_command_tests.rs": {
+        "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6",
+        "bytes": 2301
+      },
+      "utils/process/src/lib.rs": {
+        "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+        "bytes": 991
+      }
+    },
+    "workspace": {
+      "Cargo.toml": {
+        "sha256": "e227853a4b95766f609b8b38eb9ce622bf03772868fe7123c432e858cfb1affa",
+        "bytes": 17289
+      },
+      "Cargo.lock": {
+        "sha256": "b7e5a8e4695cf1f18f8368379cfc35322381bcda36c44e4bfd78ca515aef8681",
+        "bytes": 18124
+      },
+      "rust-toolchain.toml": {
+        "sha256": "029fd8fde748bb7dd75f20e21576e36f1f567bba8149af4602310086a2a0dc58",
+        "bytes": 81
+      },
+      ".cargo/audit.toml": {
+        "sha256": "6730ec9c5cb6ae9b77ba80388a6ae1dec9485a1beb5c0a9e087ce50298f8a5f6",
+        "bytes": 1231
+      },
+      ".cargo/config.toml": {
+        "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b",
+        "bytes": 645
+      },
+      "project-maintenance/Cargo.toml": {
+        "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b",
+        "bytes": 591
+      },
+      "project-maintenance/examples/maintenance_dispatch.rs": {
+        "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8",
+        "bytes": 1406
+      },
+      "project-maintenance/src/apply.rs": {
+        "sha256": "33a4838706d04031392a70a446163c8906f1bb4c9a5bb84502e645752632b533",
+        "bytes": 28882
+      },
+      "project-maintenance/src/bin/maintenance_owner.rs": {
+        "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+        "bytes": 192
+      },
+      "project-maintenance/src/cli.rs": {
+        "sha256": "d8d60fd5deee32be8ffb156ee42baae067044d232d0bf33f5639248b9d9efb03",
+        "bytes": 13955
+      },
+      "project-maintenance/src/duplicate_claims.rs": {
+        "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709",
+        "bytes": 17277
+      },
+      "project-maintenance/src/groups.rs": {
+        "sha256": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca",
+        "bytes": 25169
+      },
+      "project-maintenance/src/lease.rs": {
+        "sha256": "5f837333924c8f950951119f0956e6830517d2784ed54b603f34180f50f02e16",
+        "bytes": 36528
+      },
+      "project-maintenance/src/lib.rs": {
+        "sha256": "8a40e2c4bacc115271373453653318632058f6b5584deeff2a37277d085c96e1",
+        "bytes": 49727
+      },
+      "project-maintenance/src/lock_recovery.rs": {
+        "sha256": "b692b2c1289a2573b9c84adf766a73b71ba983a3671131082445ec918c0439be",
+        "bytes": 59627
+      },
+      "project-maintenance/src/nested_retirement.rs": {
+        "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06",
+        "bytes": 4200
+      },
+      "project-maintenance/src/partitioned_storage.rs": {
+        "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35",
+        "bytes": 39718
+      },
+      "project-maintenance/src/paths.rs": {
+        "sha256": "1c39690ad2c409cbe95f590fe689bf5973ab81151dd2bfe8b024e3f733bfc380",
+        "bytes": 55555
+      },
+      "project-maintenance/src/planning.rs": {
+        "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2",
+        "bytes": 6150
+      },
+      "project-maintenance/src/preferences.rs": {
+        "sha256": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541",
+        "bytes": 13433
+      },
+      "project-maintenance/src/registration.rs": {
+        "sha256": "2748badd373a327ff883f31d95e942a5d7bd1c54f0024b1502ad5c7074983d21",
+        "bytes": 8397
+      },
+      "project-maintenance/src/registry.rs": {
+        "sha256": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104",
+        "bytes": 65744
+      },
+      "project-maintenance/src/reservations.rs": {
+        "sha256": "6ef5d28d0d8adc6d52ca8802be32c91bbd4f47f4be842dcc9e849f05faa8d6d9",
+        "bytes": 76938
+      },
+      "project-maintenance/src/retirement.rs": {
+        "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807",
+        "bytes": 7485
+      },
+      "project-maintenance/src/storage.rs": {
+        "sha256": "afb3f433c5405d0160f503e7b5c7ba13461456caefedbb9de8ccbc2053bc4a6f",
+        "bytes": 27024
+      },
+      "project-maintenance/src/timing.rs": {
+        "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692",
+        "bytes": 5471
+      },
+      "project-maintenance/src/windows_delete.rs": {
+        "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+        "bytes": 39891
+      },
+      "project-maintenance/tests/absent_adoption.rs": {
+        "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a",
+        "bytes": 8168
+      },
+      "project-maintenance/tests/contention.rs": {
+        "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d",
+        "bytes": 9780
+      },
+      "project-maintenance/tests/contracts.rs": {
+        "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df",
+        "bytes": 47299
+      },
+      "project-maintenance/tests/duplicate_claims.rs": {
+        "sha256": "0333ffd08a43b6d94b1537ca3905086af93d9b3a1a23a26bae6718106015f699",
+        "bytes": 18070
+      },
+      "project-maintenance/tests/groups.rs": {
+        "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e",
+        "bytes": 49259
+      },
+      "project-maintenance/tests/hardlink_normalization.rs": {
+        "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf",
+        "bytes": 6856
+      },
+      "project-maintenance/tests/lock_recovery.rs": {
+        "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab",
+        "bytes": 36653
+      },
+      "project-maintenance/tests/nested_retirement.rs": {
+        "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec",
+        "bytes": 9610
+      },
+      "project-maintenance/tests/partitioned.rs": {
+        "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031",
+        "bytes": 7418
+      },
+      "project-maintenance/tests/registry.rs": {
+        "sha256": "f2c9d230721ef11cd71645c391d956b04569ce16cf53184bd4e33318d3b3129c",
+        "bytes": 60187
+      },
+      "project-maintenance/tests/root_retirement.rs": {
+        "sha256": "e680a45636be409f186cf0e6d5e218ae7fc3ef47100b824a219520f3cce1740d",
+        "bytes": 13958
+      },
+      "project-maintenance/tests/verified_junctions.rs": {
+        "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2",
+        "bytes": 7832
+      },
+      "utils/process/BUILD.bazel": {
+        "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da",
+        "bytes": 123
+      },
+      "utils/process/Cargo.toml": {
+        "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f",
+        "bytes": 321
+      },
+      "utils/process/src/background_command_tests.rs": {
+        "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6",
+        "bytes": 2301
+      },
+      "utils/process/src/lib.rs": {
+        "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+        "bytes": 991
+      }
+    },
+    "liveAfterBuild": {
+      "Cargo.toml": {
+        "sha256": "bb964889aee08665a28a187800effec52935800909dcdcb9e914af0d99e95ce1",
+        "bytes": 21414
+      },
+      "Cargo.lock": {
+        "sha256": "28ba826e9155d63dbea9723e75281fe7566f52decd93339a34f05bb2f139711e",
+        "bytes": 408952
+      },
+      "rust-toolchain.toml": {
+        "sha256": "029fd8fde748bb7dd75f20e21576e36f1f567bba8149af4602310086a2a0dc58",
+        "bytes": 81
+      },
+      ".cargo/audit.toml": {
+        "sha256": "6730ec9c5cb6ae9b77ba80388a6ae1dec9485a1beb5c0a9e087ce50298f8a5f6",
+        "bytes": 1231
+      },
+      ".cargo/config.toml": {
+        "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b",
+        "bytes": 645
+      },
+      "project-maintenance/Cargo.toml": {
+        "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b",
+        "bytes": 591
+      },
+      "project-maintenance/examples/maintenance_dispatch.rs": {
+        "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8",
+        "bytes": 1406
+      },
+      "project-maintenance/src/apply.rs": {
+        "sha256": "33a4838706d04031392a70a446163c8906f1bb4c9a5bb84502e645752632b533",
+        "bytes": 28882
+      },
+      "project-maintenance/src/bin/maintenance_owner.rs": {
+        "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+        "bytes": 192
+      },
+      "project-maintenance/src/cli.rs": {
+        "sha256": "d8d60fd5deee32be8ffb156ee42baae067044d232d0bf33f5639248b9d9efb03",
+        "bytes": 13955
+      },
+      "project-maintenance/src/duplicate_claims.rs": {
+        "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709",
+        "bytes": 17277
+      },
+      "project-maintenance/src/groups.rs": {
+        "sha256": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca",
+        "bytes": 25169
+      },
+      "project-maintenance/src/lease.rs": {
+        "sha256": "5f837333924c8f950951119f0956e6830517d2784ed54b603f34180f50f02e16",
+        "bytes": 36528
+      },
+      "project-maintenance/src/lib.rs": {
+        "sha256": "8a40e2c4bacc115271373453653318632058f6b5584deeff2a37277d085c96e1",
+        "bytes": 49727
+      },
+      "project-maintenance/src/lock_recovery.rs": {
+        "sha256": "b692b2c1289a2573b9c84adf766a73b71ba983a3671131082445ec918c0439be",
+        "bytes": 59627
+      },
+      "project-maintenance/src/nested_retirement.rs": {
+        "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06",
+        "bytes": 4200
+      },
+      "project-maintenance/src/partitioned_storage.rs": {
+        "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35",
+        "bytes": 39718
+      },
+      "project-maintenance/src/paths.rs": {
+        "sha256": "1c39690ad2c409cbe95f590fe689bf5973ab81151dd2bfe8b024e3f733bfc380",
+        "bytes": 55555
+      },
+      "project-maintenance/src/planning.rs": {
+        "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2",
+        "bytes": 6150
+      },
+      "project-maintenance/src/preferences.rs": {
+        "sha256": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541",
+        "bytes": 13433
+      },
+      "project-maintenance/src/registration.rs": {
+        "sha256": "2748badd373a327ff883f31d95e942a5d7bd1c54f0024b1502ad5c7074983d21",
+        "bytes": 8397
+      },
+      "project-maintenance/src/registry.rs": {
+        "sha256": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104",
+        "bytes": 65744
+      },
+      "project-maintenance/src/reservations.rs": {
+        "sha256": "6ef5d28d0d8adc6d52ca8802be32c91bbd4f47f4be842dcc9e849f05faa8d6d9",
+        "bytes": 76938
+      },
+      "project-maintenance/src/retirement.rs": {
+        "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807",
+        "bytes": 7485
+      },
+      "project-maintenance/src/storage.rs": {
+        "sha256": "afb3f433c5405d0160f503e7b5c7ba13461456caefedbb9de8ccbc2053bc4a6f",
+        "bytes": 27024
+      },
+      "project-maintenance/src/timing.rs": {
+        "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692",
+        "bytes": 5471
+      },
+      "project-maintenance/src/windows_delete.rs": {
+        "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+        "bytes": 39891
+      },
+      "project-maintenance/tests/absent_adoption.rs": {
+        "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a",
+        "bytes": 8168
+      },
+      "project-maintenance/tests/contention.rs": {
+        "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d",
+        "bytes": 9780
+      },
+      "project-maintenance/tests/contracts.rs": {
+        "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df",
+        "bytes": 47299
+      },
+      "project-maintenance/tests/duplicate_claims.rs": {
+        "sha256": "0333ffd08a43b6d94b1537ca3905086af93d9b3a1a23a26bae6718106015f699",
+        "bytes": 18070
+      },
+      "project-maintenance/tests/groups.rs": {
+        "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e",
+        "bytes": 49259
+      },
+      "project-maintenance/tests/hardlink_normalization.rs": {
+        "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf",
+        "bytes": 6856
+      },
+      "project-maintenance/tests/lock_recovery.rs": {
+        "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab",
+        "bytes": 36653
+      },
+      "project-maintenance/tests/nested_retirement.rs": {
+        "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec",
+        "bytes": 9610
+      },
+      "project-maintenance/tests/partitioned.rs": {
+        "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031",
+        "bytes": 7418
+      },
+      "project-maintenance/tests/registry.rs": {
+        "sha256": "f2c9d230721ef11cd71645c391d956b04569ce16cf53184bd4e33318d3b3129c",
+        "bytes": 60187
+      },
+      "project-maintenance/tests/root_retirement.rs": {
+        "sha256": "e680a45636be409f186cf0e6d5e218ae7fc3ef47100b824a219520f3cce1740d",
+        "bytes": 13958
+      },
+      "project-maintenance/tests/verified_junctions.rs": {
+        "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2",
+        "bytes": 7832
+      },
+      "utils/process/BUILD.bazel": {
+        "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da",
+        "bytes": 123
+      },
+      "utils/process/Cargo.toml": {
+        "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f",
+        "bytes": 321
+      },
+      "utils/process/src/background_command_tests.rs": {
+        "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6",
+        "bytes": 2301
+      },
+      "utils/process/src/lib.rs": {
+        "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+        "bytes": 991
+      }
+    },
+    "liveAfterCli": {
+      "Cargo.toml": {
+        "sha256": "bb964889aee08665a28a187800effec52935800909dcdcb9e914af0d99e95ce1",
+        "bytes": 21414
+      },
+      "Cargo.lock": {
+        "sha256": "28ba826e9155d63dbea9723e75281fe7566f52decd93339a34f05bb2f139711e",
+        "bytes": 408952
+      },
+      "rust-toolchain.toml": {
+        "sha256": "029fd8fde748bb7dd75f20e21576e36f1f567bba8149af4602310086a2a0dc58",
+        "bytes": 81
+      },
+      ".cargo/audit.toml": {
+        "sha256": "6730ec9c5cb6ae9b77ba80388a6ae1dec9485a1beb5c0a9e087ce50298f8a5f6",
+        "bytes": 1231
+      },
+      ".cargo/config.toml": {
+        "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b",
+        "bytes": 645
+      },
+      "project-maintenance/Cargo.toml": {
+        "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b",
+        "bytes": 591
+      },
+      "project-maintenance/examples/maintenance_dispatch.rs": {
+        "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8",
+        "bytes": 1406
+      },
+      "project-maintenance/src/apply.rs": {
+        "sha256": "33a4838706d04031392a70a446163c8906f1bb4c9a5bb84502e645752632b533",
+        "bytes": 28882
+      },
+      "project-maintenance/src/bin/maintenance_owner.rs": {
+        "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+        "bytes": 192
+      },
+      "project-maintenance/src/cli.rs": {
+        "sha256": "d8d60fd5deee32be8ffb156ee42baae067044d232d0bf33f5639248b9d9efb03",
+        "bytes": 13955
+      },
+      "project-maintenance/src/duplicate_claims.rs": {
+        "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709",
+        "bytes": 17277
+      },
+      "project-maintenance/src/groups.rs": {
+        "sha256": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca",
+        "bytes": 25169
+      },
+      "project-maintenance/src/lease.rs": {
+        "sha256": "5f837333924c8f950951119f0956e6830517d2784ed54b603f34180f50f02e16",
+        "bytes": 36528
+      },
+      "project-maintenance/src/lib.rs": {
+        "sha256": "8a40e2c4bacc115271373453653318632058f6b5584deeff2a37277d085c96e1",
+        "bytes": 49727
+      },
+      "project-maintenance/src/lock_recovery.rs": {
+        "sha256": "b692b2c1289a2573b9c84adf766a73b71ba983a3671131082445ec918c0439be",
+        "bytes": 59627
+      },
+      "project-maintenance/src/nested_retirement.rs": {
+        "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06",
+        "bytes": 4200
+      },
+      "project-maintenance/src/partitioned_storage.rs": {
+        "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35",
+        "bytes": 39718
+      },
+      "project-maintenance/src/paths.rs": {
+        "sha256": "1c39690ad2c409cbe95f590fe689bf5973ab81151dd2bfe8b024e3f733bfc380",
+        "bytes": 55555
+      },
+      "project-maintenance/src/planning.rs": {
+        "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2",
+        "bytes": 6150
+      },
+      "project-maintenance/src/preferences.rs": {
+        "sha256": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541",
+        "bytes": 13433
+      },
+      "project-maintenance/src/registration.rs": {
+        "sha256": "2748badd373a327ff883f31d95e942a5d7bd1c54f0024b1502ad5c7074983d21",
+        "bytes": 8397
+      },
+      "project-maintenance/src/registry.rs": {
+        "sha256": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104",
+        "bytes": 65744
+      },
+      "project-maintenance/src/reservations.rs": {
+        "sha256": "6ef5d28d0d8adc6d52ca8802be32c91bbd4f47f4be842dcc9e849f05faa8d6d9",
+        "bytes": 76938
+      },
+      "project-maintenance/src/retirement.rs": {
+        "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807",
+        "bytes": 7485
+      },
+      "project-maintenance/src/storage.rs": {
+        "sha256": "afb3f433c5405d0160f503e7b5c7ba13461456caefedbb9de8ccbc2053bc4a6f",
+        "bytes": 27024
+      },
+      "project-maintenance/src/timing.rs": {
+        "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692",
+        "bytes": 5471
+      },
+      "project-maintenance/src/windows_delete.rs": {
+        "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+        "bytes": 39891
+      },
+      "project-maintenance/tests/absent_adoption.rs": {
+        "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a",
+        "bytes": 8168
+      },
+      "project-maintenance/tests/contention.rs": {
+        "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d",
+        "bytes": 9780
+      },
+      "project-maintenance/tests/contracts.rs": {
+        "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df",
+        "bytes": 47299
+      },
+      "project-maintenance/tests/duplicate_claims.rs": {
+        "sha256": "0333ffd08a43b6d94b1537ca3905086af93d9b3a1a23a26bae6718106015f699",
+        "bytes": 18070
+      },
+      "project-maintenance/tests/groups.rs": {
+        "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e",
+        "bytes": 49259
+      },
+      "project-maintenance/tests/hardlink_normalization.rs": {
+        "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf",
+        "bytes": 6856
+      },
+      "project-maintenance/tests/lock_recovery.rs": {
+        "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab",
+        "bytes": 36653
+      },
+      "project-maintenance/tests/nested_retirement.rs": {
+        "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec",
+        "bytes": 9610
+      },
+      "project-maintenance/tests/partitioned.rs": {
+        "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031",
+        "bytes": 7418
+      },
+      "project-maintenance/tests/registry.rs": {
+        "sha256": "f2c9d230721ef11cd71645c391d956b04569ce16cf53184bd4e33318d3b3129c",
+        "bytes": 60187
+      },
+      "project-maintenance/tests/root_retirement.rs": {
+        "sha256": "e680a45636be409f186cf0e6d5e218ae7fc3ef47100b824a219520f3cce1740d",
+        "bytes": 13958
+      },
+      "project-maintenance/tests/verified_junctions.rs": {
+        "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2",
+        "bytes": 7832
+      },
+      "utils/process/BUILD.bazel": {
+        "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da",
+        "bytes": 123
+      },
+      "utils/process/Cargo.toml": {
+        "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f",
+        "bytes": 321
+      },
+      "utils/process/src/background_command_tests.rs": {
+        "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6",
+        "bytes": 2301
+      },
+      "utils/process/src/lib.rs": {
+        "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+        "bytes": 991
+      }
+    }
+  },
+  "cleanupPending": {
+    "runs": [
+      "native-r1",
+      "native-r2",
+      "native-r3",
+      "cli-r1"
+    ],
+    "owner": "maintenance-preferences",
+    "reason": "Root acceptance review and owner-based cleanup pending"
+  }
+}

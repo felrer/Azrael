@@ -1,0 +1,107 @@
+{
+  "observed_at": "2026-11-01T14:08:31.910Z",
+  "id": "archive:primary-7ef6aaf5f453e6843dce",
+  "source_revision": 2,
+  "members": [
+    {
+      "generated": true,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf",
+      "protection_known": true,
+      "role": "source-fixture"
+    }
+  ],
+  "dirs": 82,
+  "files": 28,
+  "links": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-XSWnIu\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-XSWnIu\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-XSWnIu\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968368880",
+      "birthtimeNs": "1793505539469028000",
+      "ctimeNs": "1793505539470027000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-WXAW2v\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-WXAW2v\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-WXAW2v\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968368578",
+      "birthtimeNs": "1793505539073022800",
+      "ctimeNs": "1793505539073022800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-UBvree\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-UBvree\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-UBvree\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968368324",
+      "birthtimeNs": "1793505538728687400",
+      "ctimeNs": "1793505538728687400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-tKfuOU\\recorded-restored-link",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-tKfuOU\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-tKfuOU\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968369051",
+      "birthtimeNs": "1793505539718040000",
+      "ctimeNs": "1793505539749100300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-tKfuOU\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-tKfuOU\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-tKfuOU\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968369072",
+      "birthtimeNs": "1793505539749100300",
+      "ctimeNs": "1793505539749100300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-qJ2uv4\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-qJ2uv4\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-qJ2uv4\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968368172",
+      "birthtimeNs": "1793505538512357400",
+      "ctimeNs": "1793505538513564700"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-J3XLiv\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-J3XLiv\\other",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-J3XLiv\\other",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "1407374898499962",
+      "birthtimeNs": "1793505538417613000",
+      "ctimeNs": "1793505538417613000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-fLN7uX\\installed\\skills\\example\\linked-folder",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-fLN7uX\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-fLN7uX\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968368160",
+      "birthtimeNs": "1793505538505272400",
+      "ctimeNs": "1793505538505272400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7ef6aaf5f453e6843dce\\00-axf\\migration\\migration-6dVa1i\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-6dVa1i\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\axf\\migration\\migration-6dVa1i\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968368709",
+      "birthtimeNs": "1793505539235150300",
+      "ctimeNs": "1793505539235150300"
+    }
+  ]
+}

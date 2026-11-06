@@ -1,0 +1,67 @@
+{
+  "observed_at": "2026-11-01T14:30:51.828Z",
+  "id": "CF-01-cache-lease-r1",
+  "source": {
+    "schema": 1,
+    "id": "CF-01-cache-lease-r1",
+    "kind": "run",
+    "owner": "cache_lease_recovery",
+    "version": "20261019-cache-lease-r1",
+    "state": "retained",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1",
+        "role": "verification-run",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [
+      {
+        "id": "cache-lease-implementation",
+        "reason": "Focused verification pending; retain output until integration review"
+      }
+    ],
+    "revision": 2,
+    "created_at": "2026-10-19T12:19:15.570Z",
+    "updated_at": "2026-10-19T12:22:46.643Z"
+  },
+  "files": [
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1\\reports\\verification.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cf-retirement-evidence\\verification.json",
+      "sha256": "e95982642c37f97c7b05bf9b940fbad46693df1c84c5ac0b81ae1fa0695e92b7",
+      "bytes": 1994
+    },
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1\\logs\\storage-r1.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cf-retirement-evidence\\storage-r1.log",
+      "sha256": "5e7c9336a2d8cbc10372990b49593198fd5bfa027d724e421363d9e0925d6aff",
+      "bytes": 2522
+    },
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1\\logs\\storage-r2.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cf-retirement-evidence\\storage-r2.log",
+      "sha256": "04c6915e5eb519ad907114c4db11f671d6d6317be85cbe1438d0b10cb05f7325",
+      "bytes": 2708
+    },
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1\\logs\\storage-r3.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cf-retirement-evidence\\storage-r3.log",
+      "sha256": "04c6915e5eb519ad907114c4db11f671d6d6317be85cbe1438d0b10cb05f7325",
+      "bytes": 2708
+    }
+  ],
+  "integration_owner_plan": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\CF-01-window-use-admin-setup\\04-plan.md",
+  "integration_owner_plan_sha256": "0602e7145a66b3eb22690456b8b82c85b8b9baef7f99573cbb28ceb6697dc13f",
+  "final_acceptance": "\n최종 상태: 캐시 관리 구현과 집중 검증을 완료했다. 통합 실행의 보존 13개·파이프라인 8개 기능 assertion은 통과했다. lifecycle의 테스트 인수 재사용 오류는 수정 후 전체 15개 exit 0으로 확인했다. 보존 suite after-hook은 PATH에 pwsh가 없어 실패했고, 남은 13개 소유 fixture는 Windows PowerShell의 357자 경로 제한을 확인한 뒤 같은 Remove-Item에 extended-length 경로를 사용해 ordinary deletion으로 제거했다. pwsh 7 경로를 설정한 신규 동작/정리 재시험은 exit 0이며 잔여 fixture 0개다. 배치 최초 exit 1과 원인·재시험을 verification.json에 구분했다.\n\n후속 native maintenance 등록/검토는 성공했다(초기 lock 오류는 더 이상 재현되지 않음). 세 run 전체를 명시적으로 defer하여 검증/실패/복구 증거를 보존했다. storage의 retained 상태에 따른 incomplete projection, module log의 protection 미확정은 삭제 우회 없이 보호 상태로 둔다. 원본 source 변경이 기존 미커밋 작업과 섞여 있어 임의 stage/commit하지 않았다. 제품 빌드·설치·실사용 검증은 수행하지 않았다.\n",
+  "basis": "The owning plan final state confirms integration acceptance and subsequent native maintenance registration/review succeeded. The focused storage verification report, all three focused logs and their original outcomes are preserved independently. Its sole explicit reference condition was to retain until integration review, which the owning plan now records complete; remaining unrelated Cargo locks are outside this focused run and untouched.",
+  "integration_owner_plan_sha256_before_reader_handoff": "5c1fae48fff113fbd14b41b6abf78c0e661041ce6ec4671fd68b8dad760e270b",
+  "reader_handoff_reconciliation": {
+    "observed_at": "2026-11-01T14:47:18.416Z",
+    "original_document_bytes_unchanged": true,
+    "change": "Only appended EC-01 evidence-reader handoff section; original plan prefix plus its original final newline matches the frozen SHA256 exactly.",
+    "previous_attempt": "0b70a2f5-10b7-4489-88a1-e0a5ea537e7b exited1 before CF source changes"
+  }
+}

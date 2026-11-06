@@ -42,6 +42,7 @@ doctest = false
 workspace = true
 
 [dependencies]
+azrael-project-maintenance = { workspace = true }
 codex-app-server-daemon = { workspace = true }
 codex-utils-process = { workspace = true }
 anyhow = { workspace = true }

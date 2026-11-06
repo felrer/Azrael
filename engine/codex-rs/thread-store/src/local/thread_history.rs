@@ -9,7 +9,7 @@ use super::LocalThreadStore;
 use crate::ThreadStoreError;
 use crate::ThreadStoreResult;
 
-pub(super) const CURRENT_PROJECTION_VERSION: i64 = 5;
+pub(super) const CURRENT_PROJECTION_VERSION: i64 = 6;
 
 mod read;
 mod realtime;
@@ -384,6 +384,13 @@ async fn apply_change_set(
     fallback_created_at_ms: Option<i64>,
     changes: ThreadHistoryChangeSet,
 ) -> ThreadStoreResult<()> {
+    for update in changes.user_wait_timing_updates {
+        // Revisioned timing snapshots never alter lifecycle status or raw duration.
+        sqlx::query("UPDATE thread_turns SET user_wait_timing_json = ? WHERE thread_id = ? AND turn_id = ? AND (user_wait_timing_json IS NULL OR json_extract(user_wait_timing_json, '$.revision') < CAST(? AS NUMERIC))")
+            .bind(serde_json::to_string(&update.timing).map_err(thread_history_error)?)
+            .bind(thread_id).bind(&update.turn_id).bind(update.timing.revision.to_string())
+            .execute(&mut **transaction).await.map_err(thread_history_error)?;
+    }
     for update in changes.root_resume_wait_updates {
         // Wait revisions do not change turn status, work duration, or terminal rollout bounds.
         sqlx::query("UPDATE thread_turns SET root_resume_wait_json = ? WHERE thread_id = ? AND turn_id = ? AND (root_resume_wait_json IS NULL OR json_extract(root_resume_wait_json, '$.revision') < ?)")
@@ -426,8 +433,9 @@ INSERT INTO thread_turns (
     started_at,
     completed_at,
     duration_ms,
-    root_resume_wait_json
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    root_resume_wait_json,
+    user_wait_timing_json
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT(thread_id, turn_id) DO UPDATE SET
     root_turn_id = COALESCE(thread_turns.root_turn_id, excluded.root_turn_id),
     parent_turn_id = COALESCE(thread_turns.parent_turn_id, excluded.parent_turn_id),
@@ -435,6 +443,7 @@ ON CONFLICT(thread_id, turn_id) DO UPDATE SET
     rollout_end_ordinal = excluded.rollout_end_ordinal,
     rollout_end_byte_offset = excluded.rollout_end_byte_offset,
     root_resume_wait_json = COALESCE(excluded.root_resume_wait_json, thread_turns.root_resume_wait_json),
+    user_wait_timing_json = CASE WHEN thread_turns.user_wait_timing_json IS NULL OR json_extract(excluded.user_wait_timing_json, '$.revision') > json_extract(thread_turns.user_wait_timing_json, '$.revision') THEN COALESCE(excluded.user_wait_timing_json, thread_turns.user_wait_timing_json) ELSE thread_turns.user_wait_timing_json END,
     status = excluded.status,
     error_json = excluded.error_json,
     started_at = COALESCE(excluded.started_at, thread_turns.started_at),
@@ -467,6 +476,7 @@ WHERE (thread_turns.rollout_end_ordinal IS NULL AND thread_turns.status = 'inPro
         .bind(turn.completed_at)
         .bind(turn.duration_ms)
         .bind(turn.root_resume_wait.as_ref().map(serde_json::to_string).transpose().map_err(thread_history_error)?)
+        .bind(turn.user_wait_timing.as_ref().map(serde_json::to_string).transpose().map_err(thread_history_error)?)
         .bind(fallback_created_at_ms)
         .bind(fallback_created_at_ms)
         .execute(&mut **transaction)

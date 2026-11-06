@@ -1,0 +1,2600 @@
+{
+  "schema": 1,
+  "status": "source-verified-cleanup-complete",
+  "scope": "source-only; no installation or real state migration",
+  "verifiedPlatform": "Windows x64 local",
+  "unverifiedPlatforms": [
+    "Linux x64/glibc",
+    "macOS ARM64"
+  ],
+  "finalSnapshot": {
+    "sha256": "451a3444b363eda55e967ac339023e8707129d31542f481340e3e22ddd597c3f",
+    "fileCount": 9348,
+    "bytes": 101303315
+  },
+  "sourceFiles": [
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lib.rs",
+      "sha256": "8b69b8173dd067d62224164273ef4fcf7e0531bda2ac87af3e747c960a498ce5"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/storage.rs",
+      "sha256": "2b1a0f1de868046b2611dcd4e9c2756ec9c8bba3d9c637c46496766017edbc7d"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/registration.rs",
+      "sha256": "874265c861fd8249026b71d76ccb263346b8a1670f8ed654d6b9319d50023f85"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/reservations.rs",
+      "sha256": "600e5d4df99a010259e367b758b335a2d0d0fb7ddb0cf8e804f6eeeaaf65a58b"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/apply.rs",
+      "sha256": "22097ec26632c593bc34e886cea85876b4432e580538455b46e8b07bfcc0847d"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+      "sha256": "8229c419ca87aad589aa2213ac057403ffabeb06a39571537b160680cfbd288e"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/timing.rs",
+      "sha256": "8cd2311daf8d6a5fdf0f739cdb2829c48d0b36655dab5d8f0f2dec1609cff8f9"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/partitioned_storage.rs",
+      "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+      "sha256": "0393f50b0ed5994672f22878ed08e1e6a7fc0f7a5c803ed1ada750250f4add21"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/tests/contention.rs",
+      "sha256": "9a7f29ed398f413a7052ec85b939e9190b46946ab54b8d5e86738e159d79ceae"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/tests/partitioned.rs",
+      "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/tests/lock_recovery.rs",
+      "sha256": "73d9fee4907d21de92879fbf038f5cf64bef65fc7ece2db2a7176f0dcde638eb"
+    }
+  ],
+  "previousVerification": [
+    {
+      "scope": "native-r1 package",
+      "tests": 181,
+      "exitCode": 0
+    },
+    {
+      "scope": "native-r2 contention",
+      "tests": 3,
+      "exitCode": 0
+    },
+    {
+      "scope": "native-r3 backend and integration",
+      "tests": 14,
+      "exitCode": 0
+    },
+    {
+      "scope": "Node project-maintenance adapter",
+      "tests": 10,
+      "exitCode": 0
+    }
+  ],
+  "measurements": {
+    "contention-baseline": {
+      "status": "baseline-reproduced",
+      "platform": "win32",
+      "arch": "x64",
+      "binary": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+        "sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26"
+      },
+      "observations": [
+        {
+          "scenario": "maintenance",
+          "actual_exit": 1,
+          "elapsed_ms": 48.141399999999976,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793245102626,
+              "operation": "test.contention",
+              "parent_pid": 43420,
+              "pid": 49172,
+              "schema": 2,
+              "token": "49172-1793245102626-e55831c28d45cdf1"
+            }
+          }
+        },
+        {
+          "scenario": "catalog",
+          "actual_exit": 1,
+          "elapsed_ms": 82.85230000000001,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793245102850,
+              "operation": "test.contention",
+              "parent_pid": 43420,
+              "pid": 57404,
+              "schema": 2,
+              "token": "57404-1793245102850-f7494223a5b0a83e"
+            }
+          }
+        },
+        {
+          "scenario": "uncontended",
+          "actual_exit": 0,
+          "elapsed_ms": 385.56230000000005
+        },
+        {
+          "scenario": "parallel",
+          "total_elapsed_ms": 477.27510000000007,
+          "success_count": 1,
+          "results": [
+            {
+              "actual_exit": 1,
+              "elapsed_ms": 87.24840000000017
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 464.3665000000001
+            },
+            {
+              "actual_exit": 1,
+              "elapsed_ms": 78.48649999999998
+            },
+            {
+              "actual_exit": 1,
+              "elapsed_ms": 73.92020000000002
+            },
+            {
+              "actual_exit": 1,
+              "elapsed_ms": 85.72489999999993
+            },
+            {
+              "actual_exit": 1,
+              "elapsed_ms": 81.88420000000019
+            }
+          ]
+        }
+      ],
+      "timing": {
+        "maintenance.lock_wait": {
+          "count": 0,
+          "total_us": 0,
+          "max_us": 0,
+          "outcomes": []
+        },
+        "maintenance.lock_hold": {
+          "count": 0,
+          "total_us": 0,
+          "max_us": 0,
+          "outcomes": []
+        }
+      },
+      "timing_off_stdout_json": true,
+      "fixture_removed": true
+    },
+    "contention-candidate-2": {
+      "status": "passed",
+      "platform": "win32",
+      "arch": "x64",
+      "binary": {
+        "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/EL-01/runs/lock-improvement-r1/temporary/target/debug/maintenance_owner.exe",
+        "sha256": "15a5f72a486b0930a3c576172b16b6c466e5dd1060984047fdaecf8e88f51fca"
+      },
+      "observations": [
+        {
+          "scenario": "maintenance",
+          "actual_exit": 0,
+          "elapsed_ms": 519.7450000000001,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793245717594,
+              "operation": "test.contention",
+              "parent_pid": 56824,
+              "pid": 54276,
+              "schema": 2,
+              "token": "54276-1793245717594-b7c7c54443f0231e"
+            }
+          }
+        },
+        {
+          "scenario": "catalog",
+          "actual_exit": 0,
+          "elapsed_ms": 552.5164000000002,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793245718898,
+              "operation": "test.contention",
+              "parent_pid": 56824,
+              "pid": 43180,
+              "schema": 2,
+              "token": "43180-1793245718898-09434a7c064a6d6e"
+            }
+          }
+        },
+        {
+          "scenario": "uncontended",
+          "actual_exit": 0,
+          "elapsed_ms": 390.6037000000001
+        },
+        {
+          "scenario": "parallel",
+          "total_elapsed_ms": 2296.3257999999996,
+          "success_count": 6,
+          "results": [
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1083.0798
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1943.4522000000002
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1439.8144000000002
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1761.6502999999998
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1246.8696
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 2251.5343
+            }
+          ]
+        }
+      ],
+      "timing": {
+        "maintenance.lock_wait": {
+          "count": 18,
+          "total_us": 8721464,
+          "max_us": 1939560,
+          "p50_us": 237989,
+          "p95_us": 1939560,
+          "outcomes": [
+            "acquired"
+          ],
+          "attempts": {
+            "count": 18,
+            "total": 442,
+            "max": 100,
+            "counts": {
+              "1": 6,
+              "3": 1,
+              "9": 2,
+              "12": 1,
+              "18": 1,
+              "28": 2,
+              "30": 1,
+              "44": 1,
+              "72": 1,
+              "83": 1,
+              "100": 1
+            }
+          },
+          "groups": [
+            {
+              "key": "[null,\"wait_for_lock\"]",
+              "path": null,
+              "operation": "wait_for_lock",
+              "count": 18,
+              "total_us": 8721464,
+              "max_us": 1939560,
+              "p50_us": 237989,
+              "p95_us": 1939560,
+              "outcomes": [
+                "acquired"
+              ],
+              "attempts": {
+                "count": 18,
+                "total": 442,
+                "max": 100,
+                "counts": {
+                  "1": 6,
+                  "3": 1,
+                  "9": 2,
+                  "12": 1,
+                  "18": 1,
+                  "28": 2,
+                  "30": 1,
+                  "44": 1,
+                  "72": 1,
+                  "83": 1,
+                  "100": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.lock_hold": {
+          "count": 47,
+          "total_us": 10360410,
+          "max_us": 1383195,
+          "p50_us": 163570,
+          "p95_us": 660453,
+          "outcomes": [
+            "verified"
+          ],
+          "attempts": {
+            "count": 47,
+            "total": 47,
+            "max": 1,
+            "counts": {
+              "1": 47
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/catalog.lock\",\"catalog\"]",
+              "path": "artifacts/maintenance/lifecycles/catalog.lock",
+              "operation": "catalog",
+              "count": 18,
+              "total_us": 2229072,
+              "max_us": 166473,
+              "p50_us": 122977,
+              "p95_us": 166473,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 18,
+                "total": 18,
+                "max": 1,
+                "counts": {
+                  "1": 18
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/maintenance.lock\",\"maintenance\"]",
+              "path": "artifacts/maintenance/maintenance.lock",
+              "operation": "maintenance",
+              "count": 20,
+              "total_us": 3254111,
+              "max_us": 218733,
+              "p50_us": 167630,
+              "p95_us": 208289,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 20,
+                "total": 20,
+                "max": 1,
+                "counts": {
+                  "1": 20
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 229957,
+              "max_us": 229957,
+              "p50_us": 229957,
+              "p95_us": 229957,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 240549,
+              "max_us": 240549,
+              "p50_us": 240549,
+              "p95_us": 240549,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 241634,
+              "max_us": 241634,
+              "p50_us": 241634,
+              "p95_us": 241634,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 897190,
+              "max_us": 897190,
+              "p50_us": 897190,
+              "p95_us": 897190,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 370546,
+              "max_us": 370546,
+              "p50_us": 370546,
+              "p95_us": 370546,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/82925870d0d79e74e3731ef96a21a36689f1be5f714e1a50548f0540f47d33b4.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/82925870d0d79e74e3731ef96a21a36689f1be5f714e1a50548f0540f47d33b4.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 624062,
+              "max_us": 624062,
+              "p50_us": 624062,
+              "p95_us": 624062,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/31e0be077090a8b7aca05e2ed02e5fc1990b36ac46d97a5ea5074598c2424ace.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/31e0be077090a8b7aca05e2ed02e5fc1990b36ac46d97a5ea5074598c2424ace.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1383195,
+              "max_us": 1383195,
+              "p50_us": 1383195,
+              "p95_us": 1383195,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/1875665166828bf3a30542c4e7b14b45eef003a0d04ba738a7628744733d433e.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/1875665166828bf3a30542c4e7b14b45eef003a0d04ba738a7628744733d433e.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 660453,
+              "max_us": 660453,
+              "p50_us": 660453,
+              "p95_us": 660453,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/a7ca5ef950f29310355541616110d894b262a72dd855c46adbc93cf3d004c590.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/a7ca5ef950f29310355541616110d894b262a72dd855c46adbc93cf3d004c590.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 229641,
+              "max_us": 229641,
+              "p50_us": 229641,
+              "p95_us": 229641,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "timing_off_stdout_json": true,
+      "fixture_removed": true
+    },
+    "contention-legacy-1312-r3": {
+      "status": "passed",
+      "platform": "win32",
+      "arch": "x64",
+      "binary": {
+        "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/EL-01/runs/lock-improvement-r1/temporary/target/debug/maintenance_owner.exe",
+        "sha256": "2661fbc1757b3f6a8e1a5087582b0e2d1ca0d4a66ce21f5fe4ca221085557d10"
+      },
+      "state": {
+        "model": "synthetic item metadata; seed clones share one valid payload path",
+        "records": 1312,
+        "padding_bytes": 20000000,
+        "initial_manifest_bytes": 20834893,
+        "final_manifest_bytes": 20838658,
+        "blob_count": 0,
+        "blob_bytes": 0
+      },
+      "partition": null,
+      "parallel": 2,
+      "observations": [
+        {
+          "scenario": "maintenance",
+          "actual_exit": 0,
+          "elapsed_ms": 1791.5155999999997,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793247420639,
+              "operation": "test.contention",
+              "parent_pid": 59672,
+              "pid": 60652,
+              "schema": 2,
+              "token": "60652-1793247420639-b8621b9f35189fbb"
+            }
+          }
+        },
+        {
+          "scenario": "catalog",
+          "actual_exit": 0,
+          "elapsed_ms": 1654.5768000000003,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793247422478,
+              "operation": "test.contention",
+              "parent_pid": 59672,
+              "pid": 49484,
+              "schema": 2,
+              "token": "49484-1793247422478-dc19434da7ea976d"
+            }
+          }
+        },
+        {
+          "scenario": "uncontended",
+          "actual_exit": 0,
+          "elapsed_ms": 1871.1668
+        },
+        {
+          "scenario": "parallel",
+          "total_elapsed_ms": 3700.3480999999992,
+          "success_count": 2,
+          "results": [
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 2206.4847999999993
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 3690.4045000000006
+            }
+          ]
+        }
+      ],
+      "timing": {
+        "maintenance.lock_wait": {
+          "count": 10,
+          "total_us": 5285566,
+          "max_us": 1710053,
+          "p50_us": 304830,
+          "p95_us": 1710053,
+          "outcomes": [
+            "acquired"
+          ],
+          "attempts": {
+            "count": 10,
+            "total": 176,
+            "max": 109,
+            "counts": {
+              "1": 6,
+              "10": 1,
+              "22": 1,
+              "29": 1,
+              "109": 1
+            }
+          },
+          "groups": [
+            {
+              "key": "[null,\"wait_for_lock\"]",
+              "path": null,
+              "operation": "wait_for_lock",
+              "count": 10,
+              "total_us": 5285566,
+              "max_us": 1710053,
+              "p50_us": 304830,
+              "p95_us": 1710053,
+              "outcomes": [
+                "acquired"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 176,
+                "max": 109,
+                "counts": {
+                  "1": 6,
+                  "10": 1,
+                  "22": 1,
+                  "29": 1,
+                  "109": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.lock_hold": {
+          "count": 25,
+          "total_us": 23204022,
+          "max_us": 2927185,
+          "p50_us": 1029967,
+          "p95_us": 1823010,
+          "outcomes": [
+            "verified"
+          ],
+          "attempts": {
+            "count": 25,
+            "total": 25,
+            "max": 1,
+            "counts": {
+              "1": 25
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/catalog.lock\",\"catalog\"]",
+              "path": "artifacts/maintenance/lifecycles/catalog.lock",
+              "operation": "catalog",
+              "count": 10,
+              "total_us": 5749817,
+              "max_us": 1185086,
+              "p50_us": 123886,
+              "p95_us": 1185086,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 10,
+                "max": 1,
+                "counts": {
+                  "1": 10
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/maintenance.lock\",\"maintenance\"]",
+              "path": "artifacts/maintenance/maintenance.lock",
+              "operation": "maintenance",
+              "count": 10,
+              "total_us": 8586464,
+              "max_us": 1483523,
+              "p50_us": 379689,
+              "p95_us": 1483523,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 10,
+                "max": 1,
+                "counts": {
+                  "1": 10
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1298424,
+              "max_us": 1298424,
+              "p50_us": 1298424,
+              "p95_us": 1298424,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1297199,
+              "max_us": 1297199,
+              "p50_us": 1297199,
+              "p95_us": 1297199,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1521923,
+              "max_us": 1521923,
+              "p50_us": 1521923,
+              "p95_us": 1521923,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1823010,
+              "max_us": 1823010,
+              "p50_us": 1823010,
+              "p95_us": 1823010,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 2927185,
+              "max_us": 2927185,
+              "p50_us": 2927185,
+              "p95_us": 2927185,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.phase": {
+          "count": 10,
+          "total_us": 5519220,
+          "max_us": 1087902,
+          "p50_us": 163537,
+          "p95_us": 1087902,
+          "outcomes": [
+            "read",
+            "committed"
+          ],
+          "attempts": {
+            "count": 10,
+            "total": 10,
+            "max": 1,
+            "counts": {
+              "1": 10
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/manifest.json\",\"state.read\"]",
+              "path": "artifacts/maintenance/manifest.json",
+              "operation": "state.read",
+              "count": 5,
+              "total_us": 787006,
+              "max_us": 163537,
+              "p50_us": 157600,
+              "p95_us": 163537,
+              "outcomes": [
+                "read"
+              ],
+              "attempts": {
+                "count": 5,
+                "total": 5,
+                "max": 1,
+                "counts": {
+                  "1": 5
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance\",\"state.commit\"]",
+              "path": "artifacts/maintenance",
+              "operation": "state.commit",
+              "count": 5,
+              "total_us": 4732214,
+              "max_us": 1087902,
+              "p50_us": 922289,
+              "p95_us": 1087902,
+              "outcomes": [
+                "committed"
+              ],
+              "attempts": {
+                "count": 5,
+                "total": 5,
+                "max": 1,
+                "counts": {
+                  "1": 5
+                }
+              }
+            }
+          ]
+        }
+      },
+      "timing_off_stdout_json": true,
+      "fixture_removed": true
+    },
+    "contention-partitioned-1312-r3": {
+      "status": "passed",
+      "platform": "win32",
+      "arch": "x64",
+      "binary": {
+        "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/EL-01/runs/lock-improvement-r1/temporary/target/debug/maintenance_owner.exe",
+        "sha256": "2661fbc1757b3f6a8e1a5087582b0e2d1ca0d4a66ce21f5fe4ca221085557d10"
+      },
+      "state": {
+        "model": "synthetic item metadata; seed clones share one valid payload path",
+        "records": 1312,
+        "padding_bytes": 20000000,
+        "initial_manifest_bytes": 20841453,
+        "final_manifest_bytes": 103164,
+        "blob_count": 16,
+        "blob_bytes": 20845203
+      },
+      "partition": {
+        "actual_exit": 0,
+        "elapsed_ms": 2197.9158,
+        "result": {
+          "evidence_sha256": "55eaaee80bc350bcf8beff05674de2a1445d7ed5dcd9b387ebfdd058fa7a56a4",
+          "previous_manifest_sha256": "d6579b51d640a60a00fab3502f9938cc72d2778568272ac5447e5c313f5d3aad",
+          "previous_revision": 1,
+          "revision": 2,
+          "status": "partitioned",
+          "storage_format": "partitioned-v1"
+        }
+      },
+      "parallel": 2,
+      "observations": [
+        {
+          "scenario": "maintenance",
+          "actual_exit": 0,
+          "elapsed_ms": 1900.1513,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793247473614,
+              "operation": "test.contention",
+              "parent_pid": 58792,
+              "pid": 60232,
+              "schema": 2,
+              "token": "60232-1793247473614-3b42cabf9a599bc0"
+            }
+          }
+        },
+        {
+          "scenario": "catalog",
+          "actual_exit": 0,
+          "elapsed_ms": 2150.9399999999996,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793247475564,
+              "operation": "test.contention",
+              "parent_pid": 58792,
+              "pid": 55740,
+              "schema": 2,
+              "token": "55740-1793247475564-6a6bdc2c4f8975a3"
+            }
+          }
+        },
+        {
+          "scenario": "uncontended",
+          "actual_exit": 0,
+          "elapsed_ms": 1725.7213000000002
+        },
+        {
+          "scenario": "parallel",
+          "total_elapsed_ms": 3911.0124000000014,
+          "success_count": 2,
+          "results": [
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 2344.1152
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 3902.6749999999993
+            }
+          ]
+        }
+      ],
+      "timing": {
+        "maintenance.lock_wait": {
+          "count": 10,
+          "total_us": 8019207,
+          "max_us": 1637212,
+          "p50_us": 564889,
+          "p95_us": 1637212,
+          "outcomes": [
+            "acquired"
+          ],
+          "attempts": {
+            "count": 10,
+            "total": 187,
+            "max": 82,
+            "counts": {
+              "1": 6,
+              "10": 1,
+              "39": 1,
+              "50": 1,
+              "82": 1
+            }
+          },
+          "groups": [
+            {
+              "key": "[null,\"wait_for_lock\"]",
+              "path": null,
+              "operation": "wait_for_lock",
+              "count": 10,
+              "total_us": 8019207,
+              "max_us": 1637212,
+              "p50_us": 564889,
+              "p95_us": 1637212,
+              "outcomes": [
+                "acquired"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 187,
+                "max": 82,
+                "counts": {
+                  "1": 6,
+                  "10": 1,
+                  "39": 1,
+                  "50": 1,
+                  "82": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.lock_hold": {
+          "count": 25,
+          "total_us": 21184993,
+          "max_us": 2620327,
+          "p50_us": 644520,
+          "p95_us": 1702017,
+          "outcomes": [
+            "verified"
+          ],
+          "attempts": {
+            "count": 25,
+            "total": 25,
+            "max": 1,
+            "counts": {
+              "1": 25
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/catalog.lock\",\"catalog\"]",
+              "path": "artifacts/maintenance/lifecycles/catalog.lock",
+              "operation": "catalog",
+              "count": 10,
+              "total_us": 3856331,
+              "max_us": 951813,
+              "p50_us": 124000,
+              "p95_us": 951813,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 10,
+                "max": 1,
+                "counts": {
+                  "1": 10
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/maintenance.lock\",\"maintenance\"]",
+              "path": "artifacts/maintenance/maintenance.lock",
+              "operation": "maintenance",
+              "count": 10,
+              "total_us": 9297590,
+              "max_us": 1558538,
+              "p50_us": 644520,
+              "p95_us": 1558538,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 10,
+                "max": 1,
+                "counts": {
+                  "1": 10
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1124200,
+              "max_us": 1124200,
+              "p50_us": 1124200,
+              "p95_us": 1124200,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1506424,
+              "max_us": 1506424,
+              "p50_us": 1506424,
+              "p95_us": 1506424,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1078104,
+              "max_us": 1078104,
+              "p50_us": 1078104,
+              "p95_us": 1078104,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1702017,
+              "max_us": 1702017,
+              "p50_us": 1702017,
+              "p95_us": 1702017,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 2620327,
+              "max_us": 2620327,
+              "p50_us": 2620327,
+              "p95_us": 2620327,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.phase": {
+          "count": 10,
+          "total_us": 5041813,
+          "max_us": 846546,
+          "p50_us": 428802,
+          "p95_us": 846546,
+          "outcomes": [
+            "read",
+            "committed"
+          ],
+          "attempts": {
+            "count": 10,
+            "total": 10,
+            "max": 1,
+            "counts": {
+              "1": 10
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/manifest.json\",\"state.read\"]",
+              "path": "artifacts/maintenance/manifest.json",
+              "operation": "state.read",
+              "count": 5,
+              "total_us": 2184391,
+              "max_us": 459322,
+              "p50_us": 432222,
+              "p95_us": 459322,
+              "outcomes": [
+                "read"
+              ],
+              "attempts": {
+                "count": 5,
+                "total": 5,
+                "max": 1,
+                "counts": {
+                  "1": 5
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance\",\"state.commit\"]",
+              "path": "artifacts/maintenance",
+              "operation": "state.commit",
+              "count": 5,
+              "total_us": 2857422,
+              "max_us": 846546,
+              "p50_us": 417726,
+              "p95_us": 846546,
+              "outcomes": [
+                "committed"
+              ],
+              "attempts": {
+                "count": 5,
+                "total": 5,
+                "max": 1,
+                "counts": {
+                  "1": 5
+                }
+              }
+            }
+          ]
+        }
+      },
+      "timing_off_stdout_json": true,
+      "fixture_removed": true
+    },
+    "contention-legacy-1312-r4": {
+      "status": "passed",
+      "platform": "win32",
+      "arch": "x64",
+      "binary": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EL-01\\runs\\lock-improvement-r1\\temporary\\target\\debug\\maintenance_owner.exe",
+        "sha256": "34bac93948956dd151aaa7370e6943f19a7db10afb009b47c363c4faedd978fd"
+      },
+      "state": {
+        "model": "synthetic item metadata; seed clones share one valid payload path",
+        "records": 1312,
+        "padding_bytes": 20000000,
+        "initial_manifest_bytes": 20824397,
+        "final_manifest_bytes": 20828114,
+        "blob_count": 0,
+        "blob_bytes": 0
+      },
+      "partition": null,
+      "parallel": 2,
+      "observations": [
+        {
+          "scenario": "maintenance",
+          "actual_exit": 0,
+          "elapsed_ms": 1780.3606000000002,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793248424955,
+              "operation": "test.contention",
+              "parent_pid": 52424,
+              "pid": 32564,
+              "schema": 2,
+              "token": "32564-1793248424955-66ffb9437a1d252d"
+            }
+          }
+        },
+        {
+          "scenario": "catalog",
+          "actual_exit": 0,
+          "elapsed_ms": 1727.5832,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793248426790,
+              "operation": "test.contention",
+              "parent_pid": 52424,
+              "pid": 47976,
+              "schema": 2,
+              "token": "47976-1793248426790-c5c6ff4f5d4470ea"
+            }
+          }
+        },
+        {
+          "scenario": "uncontended",
+          "actual_exit": 0,
+          "elapsed_ms": 1658.2715000000003
+        },
+        {
+          "scenario": "parallel",
+          "total_elapsed_ms": 3219.412699999999,
+          "success_count": 2,
+          "results": [
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 3216.6198000000004
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1930.4352
+            }
+          ]
+        }
+      ],
+      "timing": {
+        "maintenance.lock_wait": {
+          "count": 10,
+          "total_us": 4874582,
+          "max_us": 1525256,
+          "p50_us": 317775,
+          "p95_us": 1525256,
+          "outcomes": [
+            "acquired"
+          ],
+          "attempts": {
+            "count": 10,
+            "total": 162,
+            "max": 99,
+            "counts": {
+              "1": 6,
+              "10": 1,
+              "21": 1,
+              "26": 1,
+              "99": 1
+            }
+          },
+          "groups": [
+            {
+              "key": "[null,\"wait_for_lock\"]",
+              "path": null,
+              "operation": "wait_for_lock",
+              "count": 10,
+              "total_us": 4874582,
+              "max_us": 1525256,
+              "p50_us": 317775,
+              "p95_us": 1525256,
+              "outcomes": [
+                "acquired"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 162,
+                "max": 99,
+                "counts": {
+                  "1": 6,
+                  "10": 1,
+                  "21": 1,
+                  "26": 1,
+                  "99": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.lock_hold": {
+          "count": 25,
+          "total_us": 21345363,
+          "max_us": 2529699,
+          "p50_us": 967259,
+          "p95_us": 1579726,
+          "outcomes": [
+            "verified"
+          ],
+          "attempts": {
+            "count": 25,
+            "total": 25,
+            "max": 1,
+            "counts": {
+              "1": 25
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/catalog.lock\",\"catalog\"]",
+              "path": "artifacts/maintenance/lifecycles/catalog.lock",
+              "operation": "catalog",
+              "count": 10,
+              "total_us": 5396631,
+              "max_us": 972120,
+              "p50_us": 186419,
+              "p95_us": 972120,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 10,
+                "max": 1,
+                "counts": {
+                  "1": 10
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/maintenance.lock\",\"maintenance\"]",
+              "path": "artifacts/maintenance/maintenance.lock",
+              "operation": "maintenance",
+              "count": 10,
+              "total_us": 7968657,
+              "max_us": 1268517,
+              "p50_us": 413813,
+              "p95_us": 1268517,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 10,
+                "max": 1,
+                "counts": {
+                  "1": 10
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1285938,
+              "max_us": 1285938,
+              "p50_us": 1285938,
+              "p95_us": 1285938,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1287560,
+              "max_us": 1287560,
+              "p50_us": 1287560,
+              "p95_us": 1287560,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1297152,
+              "max_us": 1297152,
+              "p50_us": 1297152,
+              "p95_us": 1297152,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 2529699,
+              "max_us": 2529699,
+              "p50_us": 2529699,
+              "p95_us": 2529699,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1579726,
+              "max_us": 1579726,
+              "p50_us": 1579726,
+              "p95_us": 1579726,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.phase": {
+          "count": 10,
+          "total_us": 5041567,
+          "max_us": 873062,
+          "p50_us": 154679,
+          "p95_us": 873062,
+          "outcomes": [
+            "read",
+            "committed"
+          ],
+          "attempts": {
+            "count": 10,
+            "total": 10,
+            "max": 1,
+            "counts": {
+              "1": 10
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/manifest.json\",\"state.read\"]",
+              "path": "artifacts/maintenance/manifest.json",
+              "operation": "state.read",
+              "count": 5,
+              "total_us": 753831,
+              "max_us": 154679,
+              "p50_us": 149834,
+              "p95_us": 154679,
+              "outcomes": [
+                "read"
+              ],
+              "attempts": {
+                "count": 5,
+                "total": 5,
+                "max": 1,
+                "counts": {
+                  "1": 5
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance\",\"state.commit\"]",
+              "path": "artifacts/maintenance",
+              "operation": "state.commit",
+              "count": 5,
+              "total_us": 4287736,
+              "max_us": 873062,
+              "p50_us": 863558,
+              "p95_us": 873062,
+              "outcomes": [
+                "committed"
+              ],
+              "attempts": {
+                "count": 5,
+                "total": 5,
+                "max": 1,
+                "counts": {
+                  "1": 5
+                }
+              }
+            }
+          ]
+        }
+      },
+      "timing_off_stdout_json": true,
+      "fixture_removed": true
+    },
+    "contention-partitioned-1312-r4": {
+      "status": "passed",
+      "platform": "win32",
+      "arch": "x64",
+      "binary": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EL-01\\runs\\lock-improvement-r1\\temporary\\target\\debug\\maintenance_owner.exe",
+        "sha256": "34bac93948956dd151aaa7370e6943f19a7db10afb009b47c363c4faedd978fd"
+      },
+      "state": {
+        "model": "synthetic item metadata; seed clones share one valid payload path",
+        "records": 1312,
+        "padding_bytes": 20000000,
+        "initial_manifest_bytes": 20830957,
+        "final_manifest_bytes": 103164,
+        "blob_count": 16,
+        "blob_bytes": 20834659
+      },
+      "partition": {
+        "actual_exit": 0,
+        "elapsed_ms": 2669.1901,
+        "result": {
+          "evidence_sha256": "1e6745d801234698d0f4ad7778758e5412f19327f18eaa7eaedf2f55c1a48788",
+          "previous_manifest_sha256": "248f4df19ba7d71acda985e4d8c0b25d844a82d2e48fdccb5185e5ce389bacc5",
+          "previous_revision": 1,
+          "revision": 2,
+          "status": "partitioned",
+          "storage_format": "partitioned-v1"
+        }
+      },
+      "parallel": 2,
+      "observations": [
+        {
+          "scenario": "maintenance",
+          "actual_exit": 0,
+          "elapsed_ms": 1698.0900000000001,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793248445475,
+              "operation": "test.contention",
+              "parent_pid": 53704,
+              "pid": 61356,
+              "schema": 2,
+              "token": "61356-1793248445475-6f114fb5c152cf91"
+            }
+          }
+        },
+        {
+          "scenario": "catalog",
+          "actual_exit": 0,
+          "elapsed_ms": 1593.8835999999992,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793248447228,
+              "operation": "test.contention",
+              "parent_pid": 53704,
+              "pid": 56404,
+              "schema": 2,
+              "token": "56404-1793248447228-61f1f6500dee42fd"
+            }
+          }
+        },
+        {
+          "scenario": "uncontended",
+          "actual_exit": 0,
+          "elapsed_ms": 1658.1542000000009
+        },
+        {
+          "scenario": "parallel",
+          "total_elapsed_ms": 3120.0296,
+          "success_count": 2,
+          "results": [
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 2255.6222
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 3111.2446
+            }
+          ]
+        }
+      ],
+      "timing": {
+        "maintenance.lock_wait": {
+          "count": 10,
+          "total_us": 8037828,
+          "max_us": 1518592,
+          "p50_us": 585266,
+          "p95_us": 1518592,
+          "outcomes": [
+            "acquired"
+          ],
+          "attempts": {
+            "count": 10,
+            "total": 180,
+            "max": 76,
+            "counts": {
+              "1": 6,
+              "10": 1,
+              "39": 1,
+              "49": 1,
+              "76": 1
+            }
+          },
+          "groups": [
+            {
+              "key": "[null,\"wait_for_lock\"]",
+              "path": null,
+              "operation": "wait_for_lock",
+              "count": 10,
+              "total_us": 8037828,
+              "max_us": 1518592,
+              "p50_us": 585266,
+              "p95_us": 1518592,
+              "outcomes": [
+                "acquired"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 180,
+                "max": 76,
+                "counts": {
+                  "1": 6,
+                  "10": 1,
+                  "39": 1,
+                  "49": 1,
+                  "76": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.lock_hold": {
+          "count": 25,
+          "total_us": 15985825,
+          "max_us": 1862528,
+          "p50_us": 615683,
+          "p95_us": 1614947,
+          "outcomes": [
+            "verified"
+          ],
+          "attempts": {
+            "count": 25,
+            "total": 25,
+            "max": 1,
+            "counts": {
+              "1": 25
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/catalog.lock\",\"catalog\"]",
+              "path": "artifacts/maintenance/lifecycles/catalog.lock",
+              "operation": "catalog",
+              "count": 10,
+              "total_us": 2092130,
+              "max_us": 355185,
+              "p50_us": 111303,
+              "p95_us": 355185,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 10,
+                "max": 1,
+                "counts": {
+                  "1": 10
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/maintenance.lock\",\"maintenance\"]",
+              "path": "artifacts/maintenance/maintenance.lock",
+              "operation": "maintenance",
+              "count": 10,
+              "total_us": 7654238,
+              "max_us": 965644,
+              "p50_us": 728120,
+              "p95_us": 965644,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 10,
+                "total": 10,
+                "max": 1,
+                "counts": {
+                  "1": 10
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 897274,
+              "max_us": 897274,
+              "p50_us": 897274,
+              "p95_us": 897274,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 965718,
+              "max_us": 965718,
+              "p50_us": 965718,
+              "p95_us": 965718,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 898990,
+              "max_us": 898990,
+              "p50_us": 898990,
+              "p95_us": 898990,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1614947,
+              "max_us": 1614947,
+              "p50_us": 1614947,
+              "p95_us": 1614947,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1862528,
+              "max_us": 1862528,
+              "p50_us": 1862528,
+              "p95_us": 1862528,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.phase": {
+          "count": 10,
+          "total_us": 3335651,
+          "max_us": 476880,
+          "p50_us": 253005,
+          "p95_us": 476880,
+          "outcomes": [
+            "read",
+            "committed"
+          ],
+          "attempts": {
+            "count": 10,
+            "total": 10,
+            "max": 1,
+            "counts": {
+              "1": 10
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/manifest.json\",\"state.read\"]",
+              "path": "artifacts/maintenance/manifest.json",
+              "operation": "state.read",
+              "count": 5,
+              "total_us": 2186857,
+              "max_us": 476880,
+              "p50_us": 428675,
+              "p95_us": 476880,
+              "outcomes": [
+                "read"
+              ],
+              "attempts": {
+                "count": 5,
+                "total": 5,
+                "max": 1,
+                "counts": {
+                  "1": 5
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance\",\"state.commit\"]",
+              "path": "artifacts/maintenance",
+              "operation": "state.commit",
+              "count": 5,
+              "total_us": 1148794,
+              "max_us": 253005,
+              "p50_us": 220442,
+              "p95_us": 253005,
+              "outcomes": [
+                "committed"
+              ],
+              "attempts": {
+                "count": 5,
+                "total": 5,
+                "max": 1,
+                "counts": {
+                  "1": 5
+                }
+              }
+            }
+          ]
+        }
+      },
+      "timing_off_stdout_json": true,
+      "fixture_removed": true
+    },
+    "contention-final-r4": {
+      "status": "passed",
+      "platform": "win32",
+      "arch": "x64",
+      "binary": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EL-01\\runs\\lock-improvement-r1\\temporary\\target\\debug\\maintenance_owner.exe",
+        "sha256": "34bac93948956dd151aaa7370e6943f19a7db10afb009b47c363c4faedd978fd"
+      },
+      "state": {
+        "model": "synthetic item metadata; seed clones share one valid payload path",
+        "records": 1,
+        "padding_bytes": 0,
+        "initial_manifest_bytes": 654,
+        "final_manifest_bytes": 6832,
+        "blob_count": 0,
+        "blob_bytes": 0
+      },
+      "partition": null,
+      "parallel": 6,
+      "observations": [
+        {
+          "scenario": "maintenance",
+          "actual_exit": 0,
+          "elapsed_ms": 447.76249999999993,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793248460610,
+              "operation": "test.contention",
+              "parent_pid": 50496,
+              "pid": 50804,
+              "schema": 2,
+              "token": "50804-1793248460610-e5ce6800f63b25e3"
+            }
+          }
+        },
+        {
+          "scenario": "catalog",
+          "actual_exit": 0,
+          "elapsed_ms": 470.8421000000001,
+          "ready": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793248461111,
+              "operation": "test.contention",
+              "parent_pid": 50496,
+              "pid": 20916,
+              "schema": 2,
+              "token": "20916-1793248461111-674178ce66863871"
+            }
+          }
+        },
+        {
+          "scenario": "uncontended",
+          "actual_exit": 0,
+          "elapsed_ms": 346.5716
+        },
+        {
+          "scenario": "parallel",
+          "total_elapsed_ms": 2311.8034000000002,
+          "success_count": 6,
+          "results": [
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1986.9456
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1825.2329999999997
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1656.8615
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 2285.2830000000004
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 1466.4612
+            },
+            {
+              "actual_exit": 0,
+              "elapsed_ms": 2106.1378999999997
+            }
+          ]
+        }
+      ],
+      "timing": {
+        "maintenance.lock_wait": {
+          "count": 18,
+          "total_us": 10140171,
+          "max_us": 1778734,
+          "p50_us": 223632,
+          "p95_us": 1778734,
+          "outcomes": [
+            "acquired"
+          ],
+          "attempts": {
+            "count": 18,
+            "total": 608,
+            "max": 127,
+            "counts": {
+              "1": 5,
+              "3": 1,
+              "8": 1,
+              "10": 1,
+              "13": 1,
+              "17": 1,
+              "19": 1,
+              "28": 1,
+              "38": 1,
+              "53": 1,
+              "66": 1,
+              "103": 1,
+              "118": 1,
+              "127": 1
+            }
+          },
+          "groups": [
+            {
+              "key": "[null,\"wait_for_lock\"]",
+              "path": null,
+              "operation": "wait_for_lock",
+              "count": 18,
+              "total_us": 10140171,
+              "max_us": 1778734,
+              "p50_us": 223632,
+              "p95_us": 1778734,
+              "outcomes": [
+                "acquired"
+              ],
+              "attempts": {
+                "count": 18,
+                "total": 608,
+                "max": 127,
+                "counts": {
+                  "1": 5,
+                  "3": 1,
+                  "8": 1,
+                  "10": 1,
+                  "13": 1,
+                  "17": 1,
+                  "19": 1,
+                  "28": 1,
+                  "38": 1,
+                  "53": 1,
+                  "66": 1,
+                  "103": 1,
+                  "118": 1,
+                  "127": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.lock_hold": {
+          "count": 47,
+          "total_us": 13339310,
+          "max_us": 1950003,
+          "p50_us": 151427,
+          "p95_us": 1592617,
+          "outcomes": [
+            "verified"
+          ],
+          "attempts": {
+            "count": 47,
+            "total": 47,
+            "max": 1,
+            "counts": {
+              "1": 47
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/catalog.lock\",\"catalog\"]",
+              "path": "artifacts/maintenance/lifecycles/catalog.lock",
+              "operation": "catalog",
+              "count": 18,
+              "total_us": 2231201,
+              "max_us": 204799,
+              "p50_us": 119203,
+              "p95_us": 204799,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 18,
+                "total": 18,
+                "max": 1,
+                "counts": {
+                  "1": 18
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/maintenance.lock\",\"maintenance\"]",
+              "path": "artifacts/maintenance/maintenance.lock",
+              "operation": "maintenance",
+              "count": 20,
+              "total_us": 3136030,
+              "max_us": 256155,
+              "p50_us": 155478,
+              "p95_us": 255135,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 20,
+                "total": 20,
+                "max": 1,
+                "counts": {
+                  "1": 20
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f55b3f9f2e86c8d3ace658ebaba4fdb364186ce587269d6c0baf9e321c36a984.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 188270,
+              "max_us": 188270,
+              "p50_us": 188270,
+              "p95_us": 188270,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/9310b93d05bb5dbbbdb6a58e96a71b00ca83127e32f7149df129f377a5ec6765.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 209644,
+              "max_us": 209644,
+              "p50_us": 209644,
+              "p95_us": 209644,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/f99415b0f779f3a5c8ba8999dc83192dfca475d08d53fd158a61001beae94c18.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 219505,
+              "max_us": 219505,
+              "p50_us": 219505,
+              "p95_us": 219505,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/5b1d4317ac2ac6b548fa9a83e82ccd8ce908519f2f642b4b8b75376d55623b6d.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1826100,
+              "max_us": 1826100,
+              "p50_us": 1826100,
+              "p95_us": 1826100,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/333a4dbdb5204902b12532f2956bdcb8b9f79009ee52e2b75b5d45b4ded291b0.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1088764,
+              "max_us": 1088764,
+              "p50_us": 1088764,
+              "p95_us": 1088764,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/82925870d0d79e74e3731ef96a21a36689f1be5f714e1a50548f0540f47d33b4.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/82925870d0d79e74e3731ef96a21a36689f1be5f714e1a50548f0540f47d33b4.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 404605,
+              "max_us": 404605,
+              "p50_us": 404605,
+              "p95_us": 404605,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/31e0be077090a8b7aca05e2ed02e5fc1990b36ac46d97a5ea5074598c2424ace.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/31e0be077090a8b7aca05e2ed02e5fc1990b36ac46d97a5ea5074598c2424ace.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1950003,
+              "max_us": 1950003,
+              "p50_us": 1950003,
+              "p95_us": 1950003,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/1875665166828bf3a30542c4e7b14b45eef003a0d04ba738a7628744733d433e.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/1875665166828bf3a30542c4e7b14b45eef003a0d04ba738a7628744733d433e.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 492571,
+              "max_us": 492571,
+              "p50_us": 492571,
+              "p95_us": 492571,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance/lifecycles/reservations/a7ca5ef950f29310355541616110d894b262a72dd855c46adbc93cf3d004c590.lock\",\"group_reservation\"]",
+              "path": "artifacts/maintenance/lifecycles/reservations/a7ca5ef950f29310355541616110d894b262a72dd855c46adbc93cf3d004c590.lock",
+              "operation": "group_reservation",
+              "count": 1,
+              "total_us": 1592617,
+              "max_us": 1592617,
+              "p50_us": 1592617,
+              "p95_us": 1592617,
+              "outcomes": [
+                "verified"
+              ],
+              "attempts": {
+                "count": 1,
+                "total": 1,
+                "max": 1,
+                "counts": {
+                  "1": 1
+                }
+              }
+            }
+          ]
+        },
+        "maintenance.phase": {
+          "count": 18,
+          "total_us": 163200,
+          "max_us": 19173,
+          "p50_us": 2477,
+          "p95_us": 19173,
+          "outcomes": [
+            "read",
+            "committed"
+          ],
+          "attempts": {
+            "count": 18,
+            "total": 18,
+            "max": 1,
+            "counts": {
+              "1": 18
+            }
+          },
+          "groups": [
+            {
+              "key": "[\"artifacts/maintenance/manifest.json\",\"state.read\"]",
+              "path": "artifacts/maintenance/manifest.json",
+              "operation": "state.read",
+              "count": 9,
+              "total_us": 18588,
+              "max_us": 2477,
+              "p50_us": 2019,
+              "p95_us": 2477,
+              "outcomes": [
+                "read"
+              ],
+              "attempts": {
+                "count": 9,
+                "total": 9,
+                "max": 1,
+                "counts": {
+                  "1": 9
+                }
+              }
+            },
+            {
+              "key": "[\"artifacts/maintenance\",\"state.commit\"]",
+              "path": "artifacts/maintenance",
+              "operation": "state.commit",
+              "count": 9,
+              "total_us": 144612,
+              "max_us": 19173,
+              "p50_us": 15552,
+              "p95_us": 19173,
+              "outcomes": [
+                "committed"
+              ],
+              "attempts": {
+                "count": 9,
+                "total": 9,
+                "max": 1,
+                "counts": {
+                  "1": 9
+                }
+              }
+            }
+          ]
+        }
+      },
+      "timing_off_stdout_json": true,
+      "fixture_removed": true
+    }
+  },
+  "remaining": [],
+  "cleanup": {
+    "state": "complete",
+    "groups": [
+      {
+        "id": "run:EL-01:lock-improvement-r1",
+        "logicalBytes": 1251233020,
+        "status": "deleted",
+        "remaining": false,
+        "finalization": "finalized",
+        "evidence": "04-cleanup.json"
+      },
+      {
+        "id": "run:account-catalog-checks:20261029T042725234Z-a619cb1e-b707-43af-afc2-0041df204582",
+        "logicalBytes": 1322,
+        "status": "deleted",
+        "remaining": false,
+        "finalization": "finalized",
+        "evidence": "05-account-cleanup.json"
+      }
+    ],
+    "totalLogicalBytes": 1251234342,
+    "physicalBytesReclaimed": null,
+    "temporaryRequestFilesRemoved": 4,
+    "rawLogsAndSnapshotsRemoved": true,
+    "completedUtc": "2026-10-29T05:04:35.626Z",
+    "ownerExecutableSha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+    "workIds": [
+      "aeada593-9967-4c25-afd3-61f0e26030ee",
+      "a109f9da-ebc6-4bc1-9b6d-1d73c2cdc746"
+    ]
+  },
+  "finalNative": {
+    "tests": 200,
+    "typeCheckExit": 0,
+    "selectionExit": 0,
+    "executionExit": 0,
+    "executionDurationMs": 440776,
+    "startedUtc": "2026-10-29T04:25:13.214Z",
+    "completedUtc": "2026-10-29T04:33:00.422Z",
+    "originalLog": "artifacts/tasks/EL-01/runs/lock-improvement-r1/logs/native-r4-full.log",
+    "command": "node scripts/check-project-maintenance.cjs <frozen native-r4 engine> --stage library"
+  },
+  "adapterInitial": {
+    "exitCode": 1,
+    "tests": 287,
+    "passed": 285,
+    "failed": 2,
+    "failures": [
+      {
+        "file": "scripts/test-source-test-fixtures.cjs",
+        "cause": "AZRAEL_SOURCE_FIXTURE_TEST_ROOT was missing; real project run-claim contention before tests"
+      },
+      {
+        "file": "scripts/test-artifact-lifecycle.cjs",
+        "cause": "installed pwsh missing from PATH"
+      }
+    ],
+    "rerun": "only failing files, existing explicit fixture root and installed PowerShell7 PATH"
+  },
+  "adapterRerun": {
+    "files": [
+      "scripts/test-artifact-lifecycle.cjs",
+      "scripts/test-source-test-fixtures.cjs"
+    ],
+    "tests": 208,
+    "passed": 208,
+    "failed": 0,
+    "exitCode": 0,
+    "durationMs": 122008.1228,
+    "environmentCorrections": [
+      "C:/Users/felre/AppData/Local/Programs/PowerShell/7 added to process PATH",
+      "AZRAEL_SOURCE_FIXTURE_TEST_ROOT set inside task run"
+    ],
+    "originalLog": "artifacts/tasks/EL-01/runs/lock-improvement-r1/logs/adapter-retry.log"
+  },
+  "commit": {
+    "status": "blocked-by-shared-uncommitted-base",
+    "reason": "Own changes depend on prior uncommitted recovery/catalog/reservation APIs; including full files would mix another task. No staging or commit performed."
+  },
+  "actualMigration": "not performed by approved scope; transition requires separate work",
+  "finalSourceIdentityCheck": "12 final native source/test hashes unchanged after cleanup"
+}

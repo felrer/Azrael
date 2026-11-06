@@ -1,0 +1,34 @@
+{
+  "status": "deleted",
+  "reason": null,
+  "groups": [
+    "run:ET-01-cold-build-cache-audit:pending-tool-versions-cleanup-20261031a"
+  ],
+  "members": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\pending-tool-versions-cleanup-20261031a",
+      "role": "run",
+      "status": "deleted",
+      "attributes": []
+    }
+  ],
+  "finalization": [
+    {
+      "id": "run:ET-01-cold-build-cache-audit:pending-tool-versions-cleanup-20261031a",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\561681105a4bb02e265d209b7276a3baa0bfc4401cbe81ce007c8235a67ffc47.json"
+    }
+  ],
+  "errors": [],
+  "evidence": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\dd888913b45048d1bd2480a7026d6b5c.json",
+    "sha256": "670737b830068480da8312f5fdb8c5934e5184709bb1d51ead3df7daa65a1126"
+  },
+  "reservationFinalization": {
+    "finished": true,
+    "reservations_retained": []
+  }
+}

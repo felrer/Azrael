@@ -1,0 +1,16 @@
+{
+  "exitCode": 0,
+  "durationMs": 20341.9951,
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1",
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1\\logs\\stable-source.log",
+  "actualCounts": {
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0
+  },
+  "sourceHashes": {
+    "cargoOwner": "df3700e9b780cc6645a8bd700db6721f793014d07bfd0a1a420ac62397c4ae0a",
+    "stableTests": "d04350f17fc49f139d71146377575fcaca8a9663682f2fdea05c9b7f86d34ac1"
+  }
+}

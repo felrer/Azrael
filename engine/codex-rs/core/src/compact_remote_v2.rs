@@ -1263,6 +1263,7 @@ mod tests {
             ))),
             Ok(ResponseEvent::OutputItemDone(compaction.clone())),
             Ok(ResponseEvent::Completed {
+                service_tier: None,
                 response_id: "resp-compact".to_string(),
                 token_usage: Some(TokenUsage {
                     input_tokens: 123_456,

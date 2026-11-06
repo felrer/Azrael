@@ -1,0 +1,147 @@
+{
+  "exit_code": 0,
+  "stderr": "",
+  "result": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:EQ-01-protection-timing:delete-apply-profile-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "05a3ea806054feaf9b8b67524004c35e70e6d7d8ed17e2ffab17bb7142ee60d8",
+        "owner": "delete-apply-improvement",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\011c58cb779d6b31dc166fde446b6609d39b8082559b0d9773938a2563603cf1.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "4e8e64144f220f276eafd5d89bf0b80c7aa56e4bd036426c2e72e596633cf8ab"
+        ],
+        "group_token": "bf88b63efd1004ac544d899e5bfea445606b599e33d8546263b7c31ac33f0c0c",
+        "id": "4e8e64144f220f276eafd5d89bf0b80c7aa56e4bd036426c2e72e596633cf8ab",
+        "identity": "d3a075939888cb77c5fb555a7406b28c7b0911523d5481a809d15d27909569f8",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:delete-apply-profile-r1",
+        "logical_bytes": 796955073,
+        "measured_at_ms": 1793321781537,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "05a3ea806054feaf9b8b67524004c35e70e6d7d8ed17e2ffab17bb7142ee60d8",
+          "member_references": {
+            "4e8e64144f220f276eafd5d89bf0b80c7aa56e4bd036426c2e72e596633cf8ab": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1\\reports\\producer-10c2039acb5450f921c028ffddea28cc2c16ae858de5111b6483c93bf108bad2.json",
+              "evidence_sha256": "10c2039acb5450f921c028ffddea28cc2c16ae858de5111b6483c93bf108bad2",
+              "reason": "Verified optimized source, 212 native tests, Node integration and six comparison requests completed",
+              "request_sha256": "053e8cc37c81a0986eb9cee537f334c2c58a5b37a97b302ef7e25e5be1228dff"
+            },
+            "created_at": "2026-10-30T00:30:44.789Z",
+            "id": "run:EQ-01-protection-timing:delete-apply-profile-r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1",
+            "owner": "delete-apply-improvement",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1\\reports\\producer-10c2039acb5450f921c028ffddea28cc2c16ae858de5111b6483c93bf108bad2.json",
+              "evidence_sha256": "10c2039acb5450f921c028ffddea28cc2c16ae858de5111b6483c93bf108bad2",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Verified optimized source, 212 native tests, Node integration and six comparison requests completed",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-30T00:53:40.420Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793321924096,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-apply-profile-r1",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              146,
+              158,
+              23,
+              0,
+              0,
+              0,
+              78,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "76ab8a008dfe173d99215f1ab0808502888f154cb216b776dfa6e36f3f2f80cd",
+        "verification": "registered"
+      }
+    ]
+  }
+}

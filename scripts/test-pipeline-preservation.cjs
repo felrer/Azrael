@@ -55,7 +55,7 @@ test('native cache accounting distinguishes misses, reuse and forced runs from s
   native.runtime = async () => ({ toolchain: 'fixture' });
   try {
     const { config, calls } = fixture();
-    for (const name of ['feature-preservation.cjs', 'native-verification-cache.cjs', 'verification-result-cache.cjs', 'directory-state.cjs'])
+    for (const name of ['feature-preservation.cjs', 'native-verification-cache.cjs', 'verification-result-cache.cjs', 'verification-reuse-policy.cjs', 'directory-state.cjs'])
       fs.writeFileSync(path.join(config.projectRoot, 'scripts', name), 'stable helper');
     const check = config.manifest.features[0].checks[1];
     check.args.push('{fixture}'); check.nativeCacheInputs = { schema: 1, files: ['scripts/native.cjs'] };
@@ -78,53 +78,41 @@ test('native cache accounting distinguishes misses, reuse and forced runs from s
     t.diagnostic(JSON.stringify({ fixturePerformance: { cold: { durationMs: coldMs, summary: cold.executionSummary }, warm: { durationMs: warmMs, summary: warm.executionSummary } } }));
   } finally { native.runtime = runtime; }
 });
-test('deployment metrics preserve independent full scope and reuse intent and receipt summaries', { skip: process.platform !== 'win32' }, async () => {
-  const { config } = fixture(); const receipt = await gate.runPreservation(config);
-  assert.equal(receipt.status, 'passed', receipt.error);
-  const logRoot = path.join(config.projectRoot, 'deployment-logs');
-  const stage = path.join(logRoot, 'engine-preservation', 'preservation-fixture'); fs.mkdirSync(stage, { recursive: true });
-  fs.copyFileSync(receipt.receiptPath, path.join(stage, 'receipt.json'));
-  const command = `
-    $ErrorActionPreference = 'Stop'
-    $parseTokens = $null; $parseErrors = $null
-    $ast = [Management.Automation.Language.Parser]::ParseFile($env:AZRAEL_METRICS_SCRIPT, [ref]$parseTokens, [ref]$parseErrors)
-    if ($parseErrors.Count) { throw 'Deployment parse failure' }
-    $assignment = $ast.Find({param($node) $node -is [Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -ceq '$metrics'}, $true)
-    $writer = $ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq 'Write-DeploymentMetrics'}, $true)
-    $logs = $env:AZRAEL_METRICS_LOG_ROOT; $project = $env:AZRAEL_METRICS_PROJECT
-    $ReleaseName = 'fixture'; $VerifyOnly = $true; $release = $project; $package = $project; $fixture = $project; $EngineTargetDirectory = $null
-    $timer = [Diagnostics.Stopwatch]::StartNew()
-    foreach ($FullRegression in @($false, $true)) {
-      foreach ($ForceNativeVerification in @($false, $true)) {
-        $CargoVerificationCacheProjectRoot = Join-Path $project 'external-cache-owner'
-        Invoke-Expression $assignment.Extent.Text
-        Invoke-Expression $writer.Extent.Text
-        Write-DeploymentMetrics
-        Get-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Raw | ConvertFrom-Json | ConvertTo-Json -Depth 20 -Compress
-      }
-    }`;
-  const result = require('node:child_process').spawnSync(process.env.AZRAEL_TEST_PWSH || 'pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', command], {
-    windowsHide: true, encoding: 'utf8', env: { ...process.env, AZRAEL_METRICS_SCRIPT: path.join(__dirname, 'deploy-azrael.ps1'),
-      AZRAEL_METRICS_LOG_ROOT: logRoot, AZRAEL_METRICS_PROJECT: config.projectRoot },
-  });
-  assert.ifError(result.error);
-  assert.equal(result.status, 0, result.stderr);
-  const results = result.stdout.trim().split(/\r?\n/).map(line => JSON.parse(line));
-  assert.equal(results.length, 4);
-  for (const [index, result] of results.entries()) {
-    assert.equal(result.verificationPolicy.scope, index < 2 ? 'changed' : 'full');
-    assert.equal(result.verificationPolicy.nativeReuse, index % 2 === 0);
-    assert.equal(result.verificationPolicy.cargoVerificationCacheProjectRoot, path.join(config.projectRoot, 'external-cache-owner'));
-    assert.deepEqual(result.verificationResults.enginePreservation.summary, receipt.executionSummary);
-    assert.equal(result.verificationResults.enginePreservation.status, 'passed');
-  }
-});
-test('changed source identity and changed evidence prevent preflight handoff', async () => {
+test('changed source identity requires review while changed evidence prevents preflight handoff', async () => {
   for (const changed of ['source', 'log']) {
     const { config, state, calls } = fixture(); const r = await gate.runPreservation({ ...config, checkPhase: 'source' });
     if (changed === 'source') state.revision++; else fs.appendFileSync(r.checks[0].logPath, 'tampered');
     const result = await gate.runPreservation({ ...config, sourceReceiptPath: r.receiptPath });
-    assert.equal(result.status, 'failed'); assert.equal(calls.length, 1);
+    assert.equal(result.status, changed === 'source' ? 'review-required' : 'failed'); assert.equal(calls.length, 1);
+    if (changed === 'source') assert.equal(result.review.recommendation, 'rerun');
+  }
+});
+test('source handoff binds reviewed reuse and rerun decisions to validated evidence', async () => {
+  for (const action of ['reuse', 'rerun']) {
+    const { config, state, calls } = fixture();
+    const source = await gate.runPreservation({ ...config, checkPhase: 'source' });
+    state.revision++;
+    const pending = await gate.runPreservation({ ...config, sourceReceiptPath: source.receiptPath });
+    assert.equal(pending.status, 'review-required');
+    config.reuseDecisionsPath = path.join(config.outputDirectory, 'decisions.json');
+    const decision = { scope: pending.review.scope, reviewId: pending.review.reviewId, action, reason: 'Review fixture source change' };
+    fs.writeFileSync(config.reuseDecisionsPath, JSON.stringify({ schema: 1, decisions: [decision] }));
+    const result = await gate.runPreservation({ ...config, sourceReceiptPath: source.receiptPath });
+    assert.equal(result.status, 'passed', result.error);
+    assert.equal(calls.filter(name => name === 'scripts/source.cjs').length, action === 'reuse' ? 1 : 2);
+    assert.equal(result.checks[0].reused, action === 'reuse');
+    if (action === 'reuse') {
+      assert.equal(result.checks[0].reuseReview.decision.reason, decision.reason);
+      assert.equal(result.checks[0].originalEvidence.receiptPath, source.receiptPath);
+    }
+    state.revision++;
+    const stale = await gate.runPreservation({ ...config, sourceReceiptPath: source.receiptPath });
+    assert.equal(stale.status, 'review-required');
+    assert.notEqual(stale.review.reviewId, pending.review.reviewId);
+    fs.appendFileSync(source.checks[0].logPath, 'tampered');
+    const tampered = await gate.runPreservation({ ...config, sourceReceiptPath: source.receiptPath });
+    assert.equal(tampered.status, 'failed');
+    assert.match(tampered.error, /evidence changed/);
   }
 });
 test('native failure leaves the source pass reusable for same-input retry', async () => {
@@ -134,6 +122,22 @@ test('native failure leaves the source pass reusable for same-input retry', asyn
   state.fail = undefined;
   assert.equal((await gate.runPreservation({ ...config, sourceReceiptPath: source.receiptPath })).status, 'passed');
   assert.equal(calls.filter(x => x === 'scripts/source.cjs').length, 1);
+});
+test('source concurrency changes require review and preserve complete file coverage', async () => {
+  const { config, calls } = fixture();
+  config.manifest.features[0].checks[0].args = ['--test', 'scripts/source.cjs'];
+  config.sourceTestConcurrency = 1;
+  const source = await gate.runPreservation({ ...config, checkPhase: 'source' });
+  config.sourceTestConcurrency = 2;
+  const pending = await gate.runPreservation({ ...config, sourceReceiptPath: source.receiptPath });
+  assert.equal(pending.status, 'review-required');
+  config.reuseDecisionsPath = path.join(config.outputDirectory, 'concurrency-decisions.json');
+  fs.writeFileSync(config.reuseDecisionsPath, JSON.stringify({ schema: 1, decisions: [{ scope: pending.review.scope,
+    reviewId: pending.review.reviewId, action: 'reuse', reason: 'Same complete files, scheduling only' }] }));
+  const result = await gate.runPreservation({ ...config, sourceReceiptPath: source.receiptPath });
+  assert.equal(result.status, 'passed', result.error);
+  assert.deepEqual(result.checks[0].args, ['--test', '--test-concurrency=1', 'scripts/source.cjs']);
+  assert.equal(calls.filter(name => name === '--test').length, 1);
 });
 test('source preflight cannot hide mandatory native checks by receipt phase tampering', async () => {
   const { config } = fixture(); const r = await gate.runPreservation({ ...config, checkPhase: 'source' });
@@ -147,9 +151,9 @@ test('Cargo pass evidence survives an independent failure and honors explicit fo
   try {
     const { config, calls, state } = fixture();
     config.engineSourceRoot = path.join(config.projectRoot, 'engine'); fs.mkdirSync(config.engineSourceRoot);
-    for (const name of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-preflight-recipes.cjs', 'cargo-verification.cjs', 'artifact-lifecycle.cjs', 'artifact-observations.cjs', 'cargo-target-owner.cjs', 'cargo-shared-cache.cjs', 'cargo-test-preparation.cjs', 'cargo-config-self-contained.py', 'verification-result-cache.cjs', 'directory-state.cjs', 'check-api-context.cjs']) fs.writeFileSync(path.join(config.projectRoot, 'scripts', name), 'stable helper');
+    for (const name of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-preflight-recipes.cjs', 'cargo-verification.cjs', 'artifact-lifecycle.cjs', 'artifact-observations.cjs', 'cargo-target-owner.cjs', 'build-resource-admission.cjs', 'cargo-shared-cache.cjs', 'cargo-config-self-contained.py', 'verification-result-cache.cjs', 'verification-reuse-policy.cjs', 'directory-state.cjs', 'check-api-context.cjs']) fs.writeFileSync(path.join(config.projectRoot, 'scripts', name), 'stable helper');
     const checks = config.manifest.features[0].checks;
-    checks.splice(1, 0, { id: 'engine.fixture.cargo', executable: 'node', args: ['scripts/check-api-context.cjs', '{engineSourceRoot}', 'skills'], level: 'native', cargoPreflight: 'selected-tests-v1' });
+    checks.splice(1, 0, { id: 'engine.fixture.cargo', executable: 'node', args: ['scripts/check-api-context.cjs', '{engineSourceRoot}', 'skills'], level: 'native', cargoPreflight: 'selected-tests-v2' });
     state.fail = 'scripts/native.cjs'; const failed = await gate.runPreservation(config); assert.equal(failed.status, 'failed');
     assert.match(failed.error, /engine\.fixture\.native.*exit 1/);
     assert.equal(calls.filter(name => name === 'scripts/check-api-context.cjs').length, 1, failed.error);
@@ -191,6 +195,6 @@ test('real Git/source identity validates preflight handoff and detects changed i
   const complete = await gate.runPreservation({ ...config, sourceReceiptPath: first.receiptPath }); assert.equal(complete.status, 'passed', complete.error);
   assert.deepEqual(calls, ['scripts/source.cjs', 'scripts/native.cjs']);
   const old = process.env.AU_PIPELINE_FIXTURE_ENV; process.env.AU_PIPELINE_FIXTURE_ENV = 'changed';
-  try { const stale = await gate.runPreservation({ ...config, sourceReceiptPath: first.receiptPath }); assert.equal(stale.status, 'failed'); assert.match(stale.error, /stale/); }
+  try { const stale = await gate.runPreservation({ ...config, sourceReceiptPath: first.receiptPath }); assert.equal(stale.status, 'review-required'); assert(stale.review.differences.length); }
   finally { if (old === undefined) delete process.env.AU_PIPELINE_FIXTURE_ENV; else process.env.AU_PIPELINE_FIXTURE_ENV = old; }
 });

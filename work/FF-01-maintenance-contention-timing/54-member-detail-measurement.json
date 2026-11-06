@@ -1,0 +1,3784 @@
+{
+  "measurement": {
+    "schema": 1,
+    "at": "2026-11-02T13:08:46.576Z",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\outputs\\native\\attempt02\\candidate-maintenance_owner.exe",
+    "sha256": "656aec26f1096ee6b62be6bf17dfd5d1a469267e56dd3cd5a1f2943b016a1956",
+    "harness_sha256": "9cee2ff39b8a15823a8f979baff287d20c0c25ee29eec72e3c241c737cf7ff1c",
+    "scope": "instrumented candidate only; local Windows x64 shared host; one sample per case",
+    "cases": [
+      {
+        "label": "read",
+        "members": 4,
+        "detail": true,
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\read\\group004",
+        "register": {
+          "wall_ms": 1686.5249,
+          "pid": 43880,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "detail_enabled": true,
+          "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\read\\group004\\state-home",
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\read-register",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 2,
+              "total_us": 414543,
+              "max_us": 291197,
+              "attempts": 2,
+              "outcomes": {
+                "acquired": 2
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 629154,
+              "max_us": 323170,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 2,
+              "total_us": 835422,
+              "max_us": 426179,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 5,
+              "total_us": 33,
+              "max_us": 9,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 1,
+              "total_us": 5397,
+              "max_us": 5397,
+              "attempts": 1,
+              "outcomes": {
+                "read": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 1,
+              "total_us": 36,
+              "max_us": 36,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 1,
+              "total_us": 805,
+              "max_us": 805,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 1,
+              "total_us": 21,
+              "max_us": 21,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 1,
+              "total_us": 452,
+              "max_us": 452,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 1,
+              "total_us": 4292,
+              "max_us": 4292,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 1,
+              "total_us": 2486,
+              "max_us": 2486,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 1,
+              "total_us": 31203,
+              "max_us": 31203,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 1,
+              "total_us": 31297,
+              "max_us": 31297,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 823544,
+              "max_us": 823544,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "details": {},
+          "non_timing_stderr": []
+        },
+        "review": {
+          "wall_ms": 395.3007,
+          "pid": 59064,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "detail_enabled": true,
+          "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\read\\group004\\state-home",
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\read-review",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 1,
+              "total_us": 6719,
+              "max_us": 6719,
+              "attempts": 1,
+              "outcomes": {
+                "acquired": 1
+              }
+            }
+          },
+          "details": {},
+          "non_timing_stderr": []
+        },
+        "apply": {
+          "wall_ms": 32166.1603,
+          "pid": 59184,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "detail_enabled": true,
+          "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\read\\group004\\state-home",
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\read-apply",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 10,
+              "total_us": 14412482,
+              "max_us": 2898087,
+              "attempts": 10,
+              "outcomes": {
+                "acquired": 10
+              }
+            },
+            "maintenance.phase:apply.initial_group_review": {
+              "count": 1,
+              "total_us": 29369,
+              "max_us": 29369,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.acquire": {
+              "count": 1,
+              "total_us": 220431,
+              "max_us": 220431,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 2993703,
+              "max_us": 2528593,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 9,
+              "total_us": 16034586,
+              "max_us": 4216057,
+              "attempts": 9,
+              "outcomes": {
+                "verified": 9
+              }
+            },
+            "maintenance.phase:apply.normalization_preflight": {
+              "count": 4,
+              "total_us": 35408,
+              "max_us": 10157,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 6,
+              "total_us": 42,
+              "max_us": 10,
+              "attempts": 6,
+              "outcomes": {
+                "success": 6
+              }
+            },
+            "maintenance.phase:apply.reservation.verify.before_item": {
+              "count": 4,
+              "total_us": 677191,
+              "max_us": 439241,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:group.relations.build": {
+              "count": 1,
+              "total_us": 84,
+              "max_us": 84,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:group.current.relations": {
+              "count": 4,
+              "total_us": 164,
+              "max_us": 126,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:group.current.members": {
+              "count": 4,
+              "total_us": 645737,
+              "max_us": 311752,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:group.current.combine": {
+              "count": 4,
+              "total_us": 284,
+              "max_us": 113,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:apply.current_review": {
+              "count": 4,
+              "total_us": 687003,
+              "max_us": 318129,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:apply.safe_entries.pre_intent": {
+              "count": 4,
+              "total_us": 1148070,
+              "max_us": 566572,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 8,
+              "total_us": 407,
+              "max_us": 64,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 8,
+              "total_us": 172763,
+              "max_us": 87863,
+              "attempts": 8,
+              "outcomes": {
+                "read": 8
+              }
+            },
+            "maintenance.phase:state.merge": {
+              "count": 8,
+              "total_us": 932,
+              "max_us": 305,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 8,
+              "total_us": 5945,
+              "max_us": 2929,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 8,
+              "total_us": 294,
+              "max_us": 68,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 8,
+              "total_us": 2794,
+              "max_us": 1906,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 8,
+              "total_us": 2463303,
+              "max_us": 1024678,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 8,
+              "total_us": 106651,
+              "max_us": 57644,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 8,
+              "total_us": 4011950,
+              "max_us": 1322681,
+              "attempts": 8,
+              "outcomes": {
+                "committed": 8
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 8,
+              "total_us": 15566469,
+              "max_us": 4220897,
+              "attempts": 8,
+              "outcomes": {
+                "committed": 8
+              }
+            },
+            "maintenance.phase:apply.intent_save": {
+              "count": 4,
+              "total_us": 6719593,
+              "max_us": 3473928,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:apply.physical_delete": {
+              "count": 4,
+              "total_us": 10155660,
+              "max_us": 9530116,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:apply.actual_result_save": {
+              "count": 4,
+              "total_us": 8847008,
+              "max_us": 4220916,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:apply.final_presence": {
+              "count": 4,
+              "total_us": 79284,
+              "max_us": 65397,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:apply.reservation.finalize": {
+              "count": 1,
+              "total_us": 271373,
+              "max_us": 271373,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 30597054,
+              "max_us": 30597054,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "details": {
+            "group.current.members:contents.combine": {
+              "scope": "group.current.members",
+              "operation": "contents.combine",
+              "records": 4,
+              "count": 10,
+              "total_us": 82,
+              "max_us": 20
+            },
+            "group.current.members:contents.related": {
+              "scope": "group.current.members",
+              "operation": "contents.related",
+              "records": 4,
+              "count": 10,
+              "total_us": 1,
+              "max_us": 1
+            },
+            "group.current.members:member.contents": {
+              "scope": "group.current.members",
+              "operation": "member.contents",
+              "records": 4,
+              "count": 10,
+              "total_us": 130067,
+              "max_us": 85116
+            },
+            "group.current.members:member.live": {
+              "scope": "group.current.members",
+              "operation": "member.live",
+              "records": 4,
+              "count": 10,
+              "total_us": 560008,
+              "max_us": 141752
+            },
+            "group.current.members:member.reservation": {
+              "scope": "group.current.members",
+              "operation": "member.reservation",
+              "records": 4,
+              "count": 10,
+              "total_us": 429910,
+              "max_us": 84732
+            },
+            "group.current.members:metadata.ancestor": {
+              "scope": "group.current.members",
+              "operation": "metadata.ancestor",
+              "records": 4,
+              "count": 960,
+              "total_us": 522112,
+              "max_us": 54105
+            },
+            "group.current.members:metadata.authorize": {
+              "scope": "group.current.members",
+              "operation": "metadata.authorize",
+              "records": 4,
+              "count": 1016,
+              "total_us": 2552,
+              "max_us": 903
+            },
+            "group.current.members:metadata.leaf": {
+              "scope": "group.current.members",
+              "operation": "metadata.leaf",
+              "records": 4,
+              "count": 56,
+              "total_us": 20366,
+              "max_us": 6898
+            },
+            "group.current.members:metadata.total": {
+              "scope": "group.current.members",
+              "operation": "metadata.total",
+              "records": 4,
+              "count": 56,
+              "total_us": 548488,
+              "max_us": 70937
+            },
+            "group.current.members:observation.identity": {
+              "scope": "group.current.members",
+              "operation": "observation.identity",
+              "records": 4,
+              "count": 10,
+              "total_us": 82789,
+              "max_us": 79772
+            },
+            "group.current.members:observation.nested_junctions": {
+              "scope": "group.current.members",
+              "operation": "observation.nested_junctions",
+              "records": 4,
+              "count": 10,
+              "total_us": 1,
+              "max_us": 1
+            },
+            "group.current.members:reservation.ownership": {
+              "scope": "group.current.members",
+              "operation": "reservation.ownership",
+              "records": 4,
+              "count": 10,
+              "total_us": 110,
+              "max_us": 17
+            },
+            "group.current.members:reservation.parse_validate": {
+              "scope": "group.current.members",
+              "operation": "reservation.parse_validate",
+              "records": 4,
+              "count": 10,
+              "total_us": 624,
+              "max_us": 104
+            },
+            "group.current.members:reservation.read_bytes": {
+              "scope": "group.current.members",
+              "operation": "reservation.read_bytes",
+              "records": 4,
+              "count": 10,
+              "total_us": 267064,
+              "max_us": 47298
+            },
+            "group.current.members:reservation.read_payload": {
+              "scope": "group.current.members",
+              "operation": "reservation.read_payload",
+              "records": 4,
+              "count": 20,
+              "total_us": 8935,
+              "max_us": 1496
+            },
+            "group.current.members:single.measurement": {
+              "scope": "group.current.members",
+              "operation": "single.measurement",
+              "records": 4,
+              "count": 10,
+              "total_us": 38,
+              "max_us": 5
+            },
+            "group.current.members:single.observation": {
+              "scope": "group.current.members",
+              "operation": "single.observation",
+              "records": 4,
+              "count": 10,
+              "total_us": 129245,
+              "max_us": 85056
+            },
+            "group.current.members:single.proofs": {
+              "scope": "group.current.members",
+              "operation": "single.proofs",
+              "records": 4,
+              "count": 10,
+              "total_us": 0,
+              "max_us": 0
+            },
+            "group.current.members:single.protection": {
+              "scope": "group.current.members",
+              "operation": "single.protection",
+              "records": 4,
+              "count": 10,
+              "total_us": 183,
+              "max_us": 21
+            },
+            "group.current.members:single.recovery": {
+              "scope": "group.current.members",
+              "operation": "single.recovery",
+              "records": 4,
+              "count": 10,
+              "total_us": 0,
+              "max_us": 0
+            },
+            "group.current.members:single.response": {
+              "scope": "group.current.members",
+              "operation": "single.response",
+              "records": 4,
+              "count": 10,
+              "total_us": 76,
+              "max_us": 10
+            },
+            "group.current.members:single.runs": {
+              "scope": "group.current.members",
+              "operation": "single.runs",
+              "records": 4,
+              "count": 10,
+              "total_us": 0,
+              "max_us": 0
+            },
+            "group.current.members:single.token": {
+              "scope": "group.current.members",
+              "operation": "single.token",
+              "records": 4,
+              "count": 10,
+              "total_us": 338,
+              "max_us": 84
+            },
+            "group.current.members:single.total": {
+              "scope": "group.current.members",
+              "operation": "single.total",
+              "records": 4,
+              "count": 10,
+              "total_us": 129959,
+              "max_us": 85105
+            },
+            "group.current.members:member.completed": {
+              "scope": "group.current.members",
+              "operation": "member.completed",
+              "records": 3,
+              "count": 6,
+              "total_us": 82368,
+              "max_us": 31331
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "checks": {
+          "actual_absent": 4,
+          "durable_items_deleted": 4,
+          "durable_deleted_outcomes": 4,
+          "durable_group_deleted": true,
+          "no_pending": true,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "state_commits": 8,
+          "intent_saves": 4,
+          "actual_result_saves": 4,
+          "preintent_current_reviews": 4
+        }
+      },
+      {
+        "label": "ctrl",
+        "members": 80,
+        "detail": false,
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\ctrl\\group080",
+        "register": {
+          "wall_ms": 26911.1002,
+          "pid": 27600,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "detail_enabled": false,
+          "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\ctrl\\group080\\state-home",
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\ctrl-register",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 2,
+              "total_us": 5794813,
+              "max_us": 5584675,
+              "attempts": 2,
+              "outcomes": {
+                "acquired": 2
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 15583438,
+              "max_us": 13327246,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 2,
+              "total_us": 18772585,
+              "max_us": 16351381,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 5,
+              "total_us": 34,
+              "max_us": 8,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 1,
+              "total_us": 4906,
+              "max_us": 4906,
+              "attempts": 1,
+              "outcomes": {
+                "read": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 1,
+              "total_us": 3311,
+              "max_us": 3311,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 1,
+              "total_us": 2370,
+              "max_us": 2370,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 1,
+              "total_us": 273,
+              "max_us": 273,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 1,
+              "total_us": 149,
+              "max_us": 149,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 1,
+              "total_us": 3726,
+              "max_us": 3726,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 1,
+              "total_us": 24870,
+              "max_us": 24870,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 1,
+              "total_us": 77793,
+              "max_us": 77793,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 1,
+              "total_us": 81499,
+              "max_us": 81499,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 20764380,
+              "max_us": 20764380,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "details": {},
+          "non_timing_stderr": []
+        },
+        "review": {
+          "wall_ms": 1382.9658,
+          "pid": 38720,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "detail_enabled": false,
+          "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\ctrl\\group080\\state-home",
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\ctrl-review",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 1,
+              "total_us": 5147,
+              "max_us": 5147,
+              "attempts": 1,
+              "outcomes": {
+                "acquired": 1
+              }
+            }
+          },
+          "details": {},
+          "non_timing_stderr": []
+        },
+        "apply": {
+          "wall_ms": 491789.6008,
+          "pid": 37796,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "detail_enabled": false,
+          "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\ctrl\\group080\\state-home",
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\ctrl-apply",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 162,
+              "total_us": 220987336,
+              "max_us": 8475169,
+              "attempts": 162,
+              "outcomes": {
+                "acquired": 162
+              }
+            },
+            "maintenance.phase:apply.initial_group_review": {
+              "count": 1,
+              "total_us": 1320251,
+              "max_us": 1320251,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.acquire": {
+              "count": 1,
+              "total_us": 4036979,
+              "max_us": 4036979,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 10229689,
+              "max_us": 10167769,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 161,
+              "total_us": 360998399,
+              "max_us": 11670257,
+              "attempts": 161,
+              "outcomes": {
+                "verified": 161
+              }
+            },
+            "maintenance.phase:apply.normalization_preflight": {
+              "count": 80,
+              "total_us": 2914049,
+              "max_us": 314354,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 82,
+              "total_us": 435,
+              "max_us": 10,
+              "attempts": 82,
+              "outcomes": {
+                "success": 82
+              }
+            },
+            "maintenance.phase:apply.reservation.verify.before_item": {
+              "count": 80,
+              "total_us": 1974536,
+              "max_us": 111412,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:group.relations.build": {
+              "count": 1,
+              "total_us": 27415,
+              "max_us": 27415,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:group.current.relations": {
+              "count": 80,
+              "total_us": 47315,
+              "max_us": 41897,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:group.current.members": {
+              "count": 80,
+              "total_us": 104547405,
+              "max_us": 6924586,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:group.current.combine": {
+              "count": 80,
+              "total_us": 34983,
+              "max_us": 2976,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.current_review": {
+              "count": 80,
+              "total_us": 115152206,
+              "max_us": 7098775,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.safe_entries.pre_intent": {
+              "count": 80,
+              "total_us": 117009504,
+              "max_us": 7118774,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 160,
+              "total_us": 95382,
+              "max_us": 1398,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 160,
+              "total_us": 700745,
+              "max_us": 26658,
+              "attempts": 160,
+              "outcomes": {
+                "read": 160
+              }
+            },
+            "maintenance.phase:state.merge": {
+              "count": 160,
+              "total_us": 77134,
+              "max_us": 2358,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 160,
+              "total_us": 10271066,
+              "max_us": 2893051,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 160,
+              "total_us": 50792,
+              "max_us": 2673,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 160,
+              "total_us": 62125,
+              "max_us": 11586,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 160,
+              "total_us": 91344716,
+              "max_us": 3091043,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 160,
+              "total_us": 3087466,
+              "max_us": 1147775,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 160,
+              "total_us": 133209157,
+              "max_us": 6221251,
+              "attempts": 160,
+              "outcomes": {
+                "committed": 160
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 160,
+              "total_us": 351274210,
+              "max_us": 11675029,
+              "attempts": 160,
+              "outcomes": {
+                "committed": 160
+              }
+            },
+            "maintenance.phase:apply.intent_save": {
+              "count": 80,
+              "total_us": 185565201,
+              "max_us": 9613892,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.physical_delete": {
+              "count": 80,
+              "total_us": 7581816,
+              "max_us": 2508893,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.actual_result_save": {
+              "count": 80,
+              "total_us": 165711896,
+              "max_us": 11675045,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.final_presence": {
+              "count": 80,
+              "total_us": 267605,
+              "max_us": 15468,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.reservation.finalize": {
+              "count": 1,
+              "total_us": 31578,
+              "max_us": 31578,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 485101403,
+              "max_us": 485101403,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "details": {},
+          "non_timing_stderr": []
+        },
+        "checks": {
+          "actual_absent": 80,
+          "durable_items_deleted": 80,
+          "durable_deleted_outcomes": 80,
+          "durable_group_deleted": true,
+          "no_pending": true,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "state_commits": 160,
+          "intent_saves": 80,
+          "actual_result_saves": 80,
+          "preintent_current_reviews": 80
+        }
+      },
+      {
+        "label": "deta",
+        "members": 80,
+        "detail": true,
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\deta\\group080",
+        "register": {
+          "wall_ms": 1658.8289,
+          "pid": 58692,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "detail_enabled": true,
+          "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\deta\\group080\\state-home",
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\deta-register",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 2,
+              "total_us": 148378,
+              "max_us": 78391,
+              "attempts": 2,
+              "outcomes": {
+                "acquired": 2
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 732657,
+              "max_us": 395634,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 2,
+              "total_us": 839715,
+              "max_us": 447310,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 5,
+              "total_us": 19,
+              "max_us": 5,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 1,
+              "total_us": 2189,
+              "max_us": 2189,
+              "attempts": 1,
+              "outcomes": {
+                "read": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 1,
+              "total_us": 219,
+              "max_us": 219,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 1,
+              "total_us": 690,
+              "max_us": 690,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 1,
+              "total_us": 116,
+              "max_us": 116,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 1,
+              "total_us": 82,
+              "max_us": 82,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 1,
+              "total_us": 3977,
+              "max_us": 3977,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 1,
+              "total_us": 1562,
+              "max_us": 1562,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 1,
+              "total_us": 16228,
+              "max_us": 16228,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 1,
+              "total_us": 16482,
+              "max_us": 16482,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 1497862,
+              "max_us": 1497862,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "details": {},
+          "non_timing_stderr": []
+        },
+        "review": {
+          "wall_ms": 398.7228,
+          "pid": 21712,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "detail_enabled": true,
+          "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\deta\\group080\\state-home",
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\deta-review",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 1,
+              "total_us": 2716,
+              "max_us": 2716,
+              "attempts": 1,
+              "outcomes": {
+                "acquired": 1
+              }
+            }
+          },
+          "details": {},
+          "non_timing_stderr": []
+        },
+        "apply": {
+          "wall_ms": 97230.8476,
+          "pid": 35568,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "detail_enabled": true,
+          "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\temporary\\measurement\\deta\\group080\\state-home",
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\deta-apply",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 162,
+              "total_us": 21829938,
+              "max_us": 2124555,
+              "attempts": 162,
+              "outcomes": {
+                "acquired": 162
+              }
+            },
+            "maintenance.phase:apply.initial_group_review": {
+              "count": 1,
+              "total_us": 352548,
+              "max_us": 352548,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.acquire": {
+              "count": 1,
+              "total_us": 44501,
+              "max_us": 44501,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 547495,
+              "max_us": 436597,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 161,
+              "total_us": 28924210,
+              "max_us": 2148391,
+              "attempts": 161,
+              "outcomes": {
+                "verified": 161
+              }
+            },
+            "maintenance.phase:apply.normalization_preflight": {
+              "count": 80,
+              "total_us": 441052,
+              "max_us": 7061,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 82,
+              "total_us": 399,
+              "max_us": 13,
+              "attempts": 82,
+              "outcomes": {
+                "success": 82
+              }
+            },
+            "maintenance.phase:apply.reservation.verify.before_item": {
+              "count": 80,
+              "total_us": 1325954,
+              "max_us": 38580,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:group.relations.build": {
+              "count": 1,
+              "total_us": 10493,
+              "max_us": 10493,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:group.current.relations": {
+              "count": 80,
+              "total_us": 16558,
+              "max_us": 10527,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:group.current.members": {
+              "count": 80,
+              "total_us": 54152173,
+              "max_us": 1449080,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:group.current.combine": {
+              "count": 80,
+              "total_us": 29528,
+              "max_us": 902,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.current_review": {
+              "count": 80,
+              "total_us": 62290902,
+              "max_us": 1465903,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.safe_entries.pre_intent": {
+              "count": 80,
+              "total_us": 63453797,
+              "max_us": 1486212,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 160,
+              "total_us": 94188,
+              "max_us": 1956,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 160,
+              "total_us": 543764,
+              "max_us": 14557,
+              "attempts": 160,
+              "outcomes": {
+                "read": 160
+              }
+            },
+            "maintenance.phase:state.merge": {
+              "count": 160,
+              "total_us": 68890,
+              "max_us": 3360,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 160,
+              "total_us": 62995,
+              "max_us": 3618,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 160,
+              "total_us": 40324,
+              "max_us": 807,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 160,
+              "total_us": 24720,
+              "max_us": 444,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 160,
+              "total_us": 2899164,
+              "max_us": 1135882,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 160,
+              "total_us": 379535,
+              "max_us": 11434,
+              "attempts": 160,
+              "outcomes": {
+                "success": 160
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 160,
+              "total_us": 7195485,
+              "max_us": 1158682,
+              "attempts": 160,
+              "outcomes": {
+                "committed": 160
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 160,
+              "total_us": 29007343,
+              "max_us": 2150435,
+              "attempts": 160,
+              "outcomes": {
+                "committed": 160
+              }
+            },
+            "maintenance.phase:apply.intent_save": {
+              "count": 80,
+              "total_us": 21490887,
+              "max_us": 2150447,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.physical_delete": {
+              "count": 80,
+              "total_us": 2054945,
+              "max_us": 659141,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.actual_result_save": {
+              "count": 80,
+              "total_us": 7518870,
+              "max_us": 1585842,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.final_presence": {
+              "count": 80,
+              "total_us": 172430,
+              "max_us": 3543,
+              "attempts": 80,
+              "outcomes": {
+                "success": 80
+              }
+            },
+            "maintenance.phase:apply.reservation.finalize": {
+              "count": 1,
+              "total_us": 59002,
+              "max_us": 59002,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 96677993,
+              "max_us": 96677993,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "details": {
+            "group.current.members:contents.combine": {
+              "scope": "group.current.members",
+              "operation": "contents.combine",
+              "records": 80,
+              "count": 3240,
+              "total_us": 25285,
+              "max_us": 137
+            },
+            "group.current.members:contents.related": {
+              "scope": "group.current.members",
+              "operation": "contents.related",
+              "records": 80,
+              "count": 3240,
+              "total_us": 23,
+              "max_us": 1
+            },
+            "group.current.members:member.contents": {
+              "scope": "group.current.members",
+              "operation": "member.contents",
+              "records": 80,
+              "count": 3240,
+              "total_us": 7968279,
+              "max_us": 43858
+            },
+            "group.current.members:member.live": {
+              "scope": "group.current.members",
+              "operation": "member.live",
+              "records": 80,
+              "count": 3240,
+              "total_us": 46330231,
+              "max_us": 95852
+            },
+            "group.current.members:member.reservation": {
+              "scope": "group.current.members",
+              "operation": "member.reservation",
+              "records": 80,
+              "count": 3240,
+              "total_us": 38351489,
+              "max_us": 84208
+            },
+            "group.current.members:metadata.ancestor": {
+              "scope": "group.current.members",
+              "operation": "metadata.ancestor",
+              "records": 80,
+              "count": 329280,
+              "total_us": 45144200,
+              "max_us": 45051
+            },
+            "group.current.members:metadata.authorize": {
+              "scope": "group.current.members",
+              "operation": "metadata.authorize",
+              "records": 80,
+              "count": 348640,
+              "total_us": 302985,
+              "max_us": 4705
+            },
+            "group.current.members:metadata.leaf": {
+              "scope": "group.current.members",
+              "operation": "metadata.leaf",
+              "records": 80,
+              "count": 19360,
+              "total_us": 3144293,
+              "max_us": 48943
+            },
+            "group.current.members:metadata.total": {
+              "scope": "group.current.members",
+              "operation": "metadata.total",
+              "records": 80,
+              "count": 19360,
+              "total_us": 49404183,
+              "max_us": 51410
+            },
+            "group.current.members:observation.identity": {
+              "scope": "group.current.members",
+              "operation": "observation.identity",
+              "records": 80,
+              "count": 3240,
+              "total_us": 495062,
+              "max_us": 2554
+            },
+            "group.current.members:observation.nested_junctions": {
+              "scope": "group.current.members",
+              "operation": "observation.nested_junctions",
+              "records": 80,
+              "count": 3240,
+              "total_us": 122,
+              "max_us": 18
+            },
+            "group.current.members:reservation.ownership": {
+              "scope": "group.current.members",
+              "operation": "reservation.ownership",
+              "records": 80,
+              "count": 3240,
+              "total_us": 306598,
+              "max_us": 5943
+            },
+            "group.current.members:reservation.parse_validate": {
+              "scope": "group.current.members",
+              "operation": "reservation.parse_validate",
+              "records": 80,
+              "count": 3240,
+              "total_us": 1443408,
+              "max_us": 15131
+            },
+            "group.current.members:reservation.read_bytes": {
+              "scope": "group.current.members",
+              "operation": "reservation.read_bytes",
+              "records": 80,
+              "count": 3240,
+              "total_us": 27618902,
+              "max_us": 66056
+            },
+            "group.current.members:reservation.read_payload": {
+              "scope": "group.current.members",
+              "operation": "reservation.read_payload",
+              "records": 80,
+              "count": 6480,
+              "total_us": 1813637,
+              "max_us": 14165
+            },
+            "group.current.members:single.measurement": {
+              "scope": "group.current.members",
+              "operation": "single.measurement",
+              "records": 80,
+              "count": 3240,
+              "total_us": 9210,
+              "max_us": 21
+            },
+            "group.current.members:single.observation": {
+              "scope": "group.current.members",
+              "operation": "single.observation",
+              "records": 80,
+              "count": 3240,
+              "total_us": 7803883,
+              "max_us": 43793
+            },
+            "group.current.members:single.proofs": {
+              "scope": "group.current.members",
+              "operation": "single.proofs",
+              "records": 80,
+              "count": 3240,
+              "total_us": 68,
+              "max_us": 12
+            },
+            "group.current.members:single.protection": {
+              "scope": "group.current.members",
+              "operation": "single.protection",
+              "records": 80,
+              "count": 3240,
+              "total_us": 46730,
+              "max_us": 371
+            },
+            "group.current.members:single.recovery": {
+              "scope": "group.current.members",
+              "operation": "single.recovery",
+              "records": 80,
+              "count": 3240,
+              "total_us": 38,
+              "max_us": 16
+            },
+            "group.current.members:single.response": {
+              "scope": "group.current.members",
+              "operation": "single.response",
+              "records": 80,
+              "count": 3240,
+              "total_us": 20127,
+              "max_us": 313
+            },
+            "group.current.members:single.runs": {
+              "scope": "group.current.members",
+              "operation": "single.runs",
+              "records": 80,
+              "count": 3240,
+              "total_us": 15,
+              "max_us": 8
+            },
+            "group.current.members:single.token": {
+              "scope": "group.current.members",
+              "operation": "single.token",
+              "records": 80,
+              "count": 3240,
+              "total_us": 35175,
+              "max_us": 360
+            },
+            "group.current.members:single.total": {
+              "scope": "group.current.members",
+              "operation": "single.total",
+              "records": 80,
+              "count": 3240,
+              "total_us": 7937525,
+              "max_us": 43844
+            },
+            "group.current.members:member.completed": {
+              "scope": "group.current.members",
+              "operation": "member.completed",
+              "records": 79,
+              "count": 3160,
+              "total_us": 7779600,
+              "max_us": 38787
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "checks": {
+          "actual_absent": 80,
+          "durable_items_deleted": 80,
+          "durable_deleted_outcomes": 80,
+          "durable_group_deleted": true,
+          "no_pending": true,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "state_commits": 160,
+          "intent_saves": 80,
+          "actual_result_saves": 80,
+          "preintent_current_reviews": 80
+        }
+      }
+    ],
+    "complete": true,
+    "limitations": [
+      "Detail spans may be nested and overlap; aggregate only confirmed nonoverlapping direct-child labels supplied by root.",
+      "Control80 then detail80 use fresh equal-depth equal-prefix-length fixtures and same bytes/config; host/cache/ordering and output overhead can differ. No guaranteed overhead or performance conclusion follows from one sequential pair.",
+      "Initial native history is empty; history preservation assertion has empty input.",
+      "No external membership source or producer catalog background. Default installation, activation and app build are outside scope.",
+      "Fixture/control state and logs remain owned by run:ff1:member6 for root cleanup; only selected payload files are natively deleted."
+    ],
+    "control_vs_detailed": {
+      "same_binary": true,
+      "configuration_bytes_equal": true,
+      "control_apply_wall_ms": 491789.6008,
+      "detailed_apply_wall_ms": 97230.8476,
+      "wall_change_percent": -80.22917779435893,
+      "note": "Observed wall comparison includes shared-host/cache/order effects and diagnostic collection/output overhead; not a guaranteed overhead estimate."
+    }
+  },
+  "hierarchy": {
+    "schema": 1,
+    "at": "2026-11-02T13:21:01.808Z",
+    "complete": true,
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\outputs\\native\\attempt02\\candidate-maintenance_owner.exe",
+    "sha256": "656aec26f1096ee6b62be6bf17dfd5d1a469267e56dd3cd5a1f2943b016a1956",
+    "harness_sha256": "9cee2ff39b8a15823a8f979baff287d20c0c25ee29eec72e3c241c737cf7ff1c",
+    "scope": "instrumented candidate only; local Windows x64 shared host; one sample per case",
+    "control_vs_detailed": {
+      "same_binary": true,
+      "configuration_bytes_equal": true,
+      "control_apply_wall_ms": 491789.6008,
+      "detailed_apply_wall_ms": 97230.8476,
+      "wall_change_percent": -80.22917779435893,
+      "note": "Observed wall comparison includes shared-host/cache/order effects and diagnostic collection/output overhead; not a guaranteed overhead estimate."
+    },
+    "notes": [
+      "Detail spans may be nested and overlap; aggregate only confirmed nonoverlapping direct-child labels supplied by root.",
+      "Control80 then detail80 use fresh equal-depth equal-prefix-length fixtures and same bytes/config; host/cache/ordering and output overhead can differ. No guaranteed overhead or performance conclusion follows from one sequential pair.",
+      "Initial native history is empty; history preservation assertion has empty input.",
+      "No external membership source or producer catalog background. Default installation, activation and app build are outside scope.",
+      "Fixture/control state and logs remain owned by run:ff1:member6 for root cleanup; only selected payload files are natively deleted.",
+      "All detail outcomes are scope_exit timing observations, not success receipts. Native success is established separately by actual close and durable assertions.",
+      "Detail max_us is the maximum single measured operation duration; total_us sums the aggregate elapsed_us fields emitted once per label per current scope. Tiny operations may truncate to zero microseconds.",
+      "metadata.total is shared below reservation, observation and completed paths. Its global sum and ancestor/leaf subtotals must not be added to those parents or assigned wholly to one parent.",
+      "Residuals subtract only declared direct-child aggregates once; partial rows retain unlabeled/shared-metadata work. Parent/children are nested and cannot be summed across levels.",
+      "The parent reported fulltests321s/release117s versus prior160s/33s; measurement also exhibits substantial host variation. Its cause is unverified; no ON/OFF diagnostic overhead attribution follows.",
+      "Every apply acquisition span has one attempt per acquisition and outcome acquired; no queued_wait records were emitted. Acquisition includes prerequisite/check cost and is not measured contention-only waiting.",
+      "Observed apply stderr sizes: control80 1184814 bytes, detailed80 1847309 bytes. Output size and timer collection overhead are not independently isolated."
+    ],
+    "cases": [
+      {
+        "label": "read",
+        "members": 4,
+        "detail_enabled": true,
+        "wall_ms": {
+          "register": 1686.5249,
+          "review": 395.3007,
+          "apply": 32166.1603
+        },
+        "checks": {
+          "actual_absent": 4,
+          "durable_items_deleted": 4,
+          "durable_deleted_outcomes": 4,
+          "durable_group_deleted": true,
+          "no_pending": true,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "state_commits": 8,
+          "intent_saves": 4,
+          "actual_result_saves": 4,
+          "preintent_current_reviews": 4
+        },
+        "native_closes": [
+          {
+            "stage": "register",
+            "pid": 43880,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\read-register"
+          },
+          {
+            "stage": "review",
+            "pid": 59064,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\read-review"
+          },
+          {
+            "stage": "apply",
+            "pid": 59184,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\read-apply"
+          }
+        ],
+        "apply_spans": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 10,
+            "total_us": 14412482,
+            "max_us": 2898087,
+            "attempts": 10,
+            "outcomes": {
+              "acquired": 10
+            }
+          },
+          "maintenance.phase:apply.initial_group_review": {
+            "count": 1,
+            "total_us": 29369,
+            "max_us": 29369,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.reservation.acquire": {
+            "count": 1,
+            "total_us": 220431,
+            "max_us": 220431,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 2993703,
+            "max_us": 2528593,
+            "attempts": 2,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 9,
+            "total_us": 16034586,
+            "max_us": 4216057,
+            "attempts": 9,
+            "outcomes": {
+              "verified": 9
+            }
+          },
+          "maintenance.phase:apply.normalization_preflight": {
+            "count": 4,
+            "total_us": 35408,
+            "max_us": 10157,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:reservation.verify_sources": {
+            "count": 6,
+            "total_us": 42,
+            "max_us": 10,
+            "attempts": 6,
+            "outcomes": {
+              "success": 6
+            }
+          },
+          "maintenance.phase:apply.reservation.verify.before_item": {
+            "count": 4,
+            "total_us": 677191,
+            "max_us": 439241,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:group.relations.build": {
+            "count": 1,
+            "total_us": 84,
+            "max_us": 84,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:group.current.relations": {
+            "count": 4,
+            "total_us": 164,
+            "max_us": 126,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:group.current.members": {
+            "count": 4,
+            "total_us": 645737,
+            "max_us": 311752,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:group.current.combine": {
+            "count": 4,
+            "total_us": 284,
+            "max_us": 113,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:apply.current_review": {
+            "count": 4,
+            "total_us": 687003,
+            "max_us": 318129,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:apply.safe_entries.pre_intent": {
+            "count": 4,
+            "total_us": 1148070,
+            "max_us": 566572,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:state.prepare_local": {
+            "count": 8,
+            "total_us": 407,
+            "max_us": 64,
+            "attempts": 8,
+            "outcomes": {
+              "success": 8
+            }
+          },
+          "maintenance.phase:state.read": {
+            "count": 8,
+            "total_us": 172763,
+            "max_us": 87863,
+            "attempts": 8,
+            "outcomes": {
+              "read": 8
+            }
+          },
+          "maintenance.phase:state.merge": {
+            "count": 8,
+            "total_us": 932,
+            "max_us": 305,
+            "attempts": 8,
+            "outcomes": {
+              "success": 8
+            }
+          },
+          "maintenance.phase:state.open_pending": {
+            "count": 8,
+            "total_us": 5945,
+            "max_us": 2929,
+            "attempts": 8,
+            "outcomes": {
+              "success": 8
+            }
+          },
+          "maintenance.phase:state.serialize": {
+            "count": 8,
+            "total_us": 294,
+            "max_us": 68,
+            "attempts": 8,
+            "outcomes": {
+              "success": 8
+            }
+          },
+          "maintenance.phase:state.write_pending": {
+            "count": 8,
+            "total_us": 2794,
+            "max_us": 1906,
+            "attempts": 8,
+            "outcomes": {
+              "success": 8
+            }
+          },
+          "maintenance.phase:state.sync_pending": {
+            "count": 8,
+            "total_us": 2463303,
+            "max_us": 1024678,
+            "attempts": 8,
+            "outcomes": {
+              "success": 8
+            }
+          },
+          "maintenance.phase:state.rename": {
+            "count": 8,
+            "total_us": 106651,
+            "max_us": 57644,
+            "attempts": 8,
+            "outcomes": {
+              "success": 8
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 8,
+            "total_us": 4011950,
+            "max_us": 1322681,
+            "attempts": 8,
+            "outcomes": {
+              "committed": 8
+            }
+          },
+          "maintenance.phase:state.save": {
+            "count": 8,
+            "total_us": 15566469,
+            "max_us": 4220897,
+            "attempts": 8,
+            "outcomes": {
+              "committed": 8
+            }
+          },
+          "maintenance.phase:apply.intent_save": {
+            "count": 4,
+            "total_us": 6719593,
+            "max_us": 3473928,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:apply.physical_delete": {
+            "count": 4,
+            "total_us": 10155660,
+            "max_us": 9530116,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:apply.actual_result_save": {
+            "count": 4,
+            "total_us": 8847008,
+            "max_us": 4220916,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:apply.final_presence": {
+            "count": 4,
+            "total_us": 79284,
+            "max_us": 65397,
+            "attempts": 4,
+            "outcomes": {
+              "success": 4
+            }
+          },
+          "maintenance.phase:apply.reservation.finalize": {
+            "count": 1,
+            "total_us": 271373,
+            "max_us": 271373,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 30597054,
+            "max_us": 30597054,
+            "attempts": 1,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "apply_detail_labels": {
+          "contents.combine": {
+            "scope": "group.current.members",
+            "operation": "contents.combine",
+            "records": 4,
+            "count": 10,
+            "total_us": 82,
+            "max_us": 20
+          },
+          "contents.related": {
+            "scope": "group.current.members",
+            "operation": "contents.related",
+            "records": 4,
+            "count": 10,
+            "total_us": 1,
+            "max_us": 1
+          },
+          "member.contents": {
+            "scope": "group.current.members",
+            "operation": "member.contents",
+            "records": 4,
+            "count": 10,
+            "total_us": 130067,
+            "max_us": 85116
+          },
+          "member.live": {
+            "scope": "group.current.members",
+            "operation": "member.live",
+            "records": 4,
+            "count": 10,
+            "total_us": 560008,
+            "max_us": 141752
+          },
+          "member.reservation": {
+            "scope": "group.current.members",
+            "operation": "member.reservation",
+            "records": 4,
+            "count": 10,
+            "total_us": 429910,
+            "max_us": 84732
+          },
+          "metadata.ancestor": {
+            "scope": "group.current.members",
+            "operation": "metadata.ancestor",
+            "records": 4,
+            "count": 960,
+            "total_us": 522112,
+            "max_us": 54105
+          },
+          "metadata.authorize": {
+            "scope": "group.current.members",
+            "operation": "metadata.authorize",
+            "records": 4,
+            "count": 1016,
+            "total_us": 2552,
+            "max_us": 903
+          },
+          "metadata.leaf": {
+            "scope": "group.current.members",
+            "operation": "metadata.leaf",
+            "records": 4,
+            "count": 56,
+            "total_us": 20366,
+            "max_us": 6898
+          },
+          "metadata.total": {
+            "scope": "group.current.members",
+            "operation": "metadata.total",
+            "records": 4,
+            "count": 56,
+            "total_us": 548488,
+            "max_us": 70937
+          },
+          "observation.identity": {
+            "scope": "group.current.members",
+            "operation": "observation.identity",
+            "records": 4,
+            "count": 10,
+            "total_us": 82789,
+            "max_us": 79772
+          },
+          "observation.nested_junctions": {
+            "scope": "group.current.members",
+            "operation": "observation.nested_junctions",
+            "records": 4,
+            "count": 10,
+            "total_us": 1,
+            "max_us": 1
+          },
+          "reservation.ownership": {
+            "scope": "group.current.members",
+            "operation": "reservation.ownership",
+            "records": 4,
+            "count": 10,
+            "total_us": 110,
+            "max_us": 17
+          },
+          "reservation.parse_validate": {
+            "scope": "group.current.members",
+            "operation": "reservation.parse_validate",
+            "records": 4,
+            "count": 10,
+            "total_us": 624,
+            "max_us": 104
+          },
+          "reservation.read_bytes": {
+            "scope": "group.current.members",
+            "operation": "reservation.read_bytes",
+            "records": 4,
+            "count": 10,
+            "total_us": 267064,
+            "max_us": 47298
+          },
+          "reservation.read_payload": {
+            "scope": "group.current.members",
+            "operation": "reservation.read_payload",
+            "records": 4,
+            "count": 20,
+            "total_us": 8935,
+            "max_us": 1496
+          },
+          "single.measurement": {
+            "scope": "group.current.members",
+            "operation": "single.measurement",
+            "records": 4,
+            "count": 10,
+            "total_us": 38,
+            "max_us": 5
+          },
+          "single.observation": {
+            "scope": "group.current.members",
+            "operation": "single.observation",
+            "records": 4,
+            "count": 10,
+            "total_us": 129245,
+            "max_us": 85056
+          },
+          "single.proofs": {
+            "scope": "group.current.members",
+            "operation": "single.proofs",
+            "records": 4,
+            "count": 10,
+            "total_us": 0,
+            "max_us": 0
+          },
+          "single.protection": {
+            "scope": "group.current.members",
+            "operation": "single.protection",
+            "records": 4,
+            "count": 10,
+            "total_us": 183,
+            "max_us": 21
+          },
+          "single.recovery": {
+            "scope": "group.current.members",
+            "operation": "single.recovery",
+            "records": 4,
+            "count": 10,
+            "total_us": 0,
+            "max_us": 0
+          },
+          "single.response": {
+            "scope": "group.current.members",
+            "operation": "single.response",
+            "records": 4,
+            "count": 10,
+            "total_us": 76,
+            "max_us": 10
+          },
+          "single.runs": {
+            "scope": "group.current.members",
+            "operation": "single.runs",
+            "records": 4,
+            "count": 10,
+            "total_us": 0,
+            "max_us": 0
+          },
+          "single.token": {
+            "scope": "group.current.members",
+            "operation": "single.token",
+            "records": 4,
+            "count": 10,
+            "total_us": 338,
+            "max_us": 84
+          },
+          "single.total": {
+            "scope": "group.current.members",
+            "operation": "single.total",
+            "records": 4,
+            "count": 10,
+            "total_us": 129959,
+            "max_us": 85105
+          },
+          "member.completed": {
+            "scope": "group.current.members",
+            "operation": "member.completed",
+            "records": 3,
+            "count": 6,
+            "total_us": 82368,
+            "max_us": 31331
+          }
+        },
+        "apply_stderr_bytes": 96445,
+        "hierarchy": [
+          {
+            "parent": "group.current.members",
+            "parent_total_us": 645737,
+            "children": [
+              {
+                "operation": "member.live",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 560008,
+                "max_us": 141752
+              },
+              {
+                "operation": "member.completed",
+                "scope": "group.current.members",
+                "records": 3,
+                "count": 6,
+                "total_us": 82368,
+                "max_us": 31331
+              }
+            ],
+            "known_direct_children_total_us": 642376,
+            "parent_residual_us": 3361,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "member.live",
+            "parent_total_us": 560008,
+            "children": [
+              {
+                "operation": "member.reservation",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 429910,
+                "max_us": 84732
+              },
+              {
+                "operation": "member.contents",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 130067,
+                "max_us": 85116
+              }
+            ],
+            "known_direct_children_total_us": 559977,
+            "parent_residual_us": 31,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "member.contents",
+            "parent_total_us": 130067,
+            "children": [
+              {
+                "operation": "single.total",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 129959,
+                "max_us": 85105
+              },
+              {
+                "operation": "contents.related",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 1,
+                "max_us": 1
+              },
+              {
+                "operation": "contents.combine",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 82,
+                "max_us": 20
+              }
+            ],
+            "known_direct_children_total_us": 130042,
+            "parent_residual_us": 25,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "single.total",
+            "parent_total_us": 129959,
+            "children": [
+              {
+                "operation": "single.observation",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 129245,
+                "max_us": 85056
+              },
+              {
+                "operation": "single.measurement",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 38,
+                "max_us": 5
+              },
+              {
+                "operation": "single.protection",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 183,
+                "max_us": 21
+              },
+              {
+                "operation": "single.recovery",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 0,
+                "max_us": 0
+              },
+              {
+                "operation": "single.runs",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 0,
+                "max_us": 0
+              },
+              {
+                "operation": "single.proofs",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 0,
+                "max_us": 0
+              },
+              {
+                "operation": "single.token",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 338,
+                "max_us": 84
+              },
+              {
+                "operation": "single.response",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 76,
+                "max_us": 10
+              }
+            ],
+            "known_direct_children_total_us": 129880,
+            "parent_residual_us": 79,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "metadata.total",
+            "parent_total_us": 548488,
+            "children": [
+              {
+                "operation": "metadata.authorize",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 1016,
+                "total_us": 2552,
+                "max_us": 903
+              },
+              {
+                "operation": "metadata.ancestor",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 960,
+                "total_us": 522112,
+                "max_us": 54105
+              },
+              {
+                "operation": "metadata.leaf",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 56,
+                "total_us": 20366,
+                "max_us": 6898
+              }
+            ],
+            "known_direct_children_total_us": 545030,
+            "parent_residual_us": 3458,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "member.reservation",
+            "parent_total_us": 429910,
+            "children": [
+              {
+                "operation": "reservation.read_bytes",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 267064,
+                "max_us": 47298
+              },
+              {
+                "operation": "reservation.parse_validate",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 624,
+                "max_us": 104
+              },
+              {
+                "operation": "reservation.ownership",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 110,
+                "max_us": 17
+              }
+            ],
+            "known_direct_children_total_us": 267798,
+            "parent_residual_us": 162112,
+            "coverage": "partial: residual includes metadata checks outside read_bytes and other local work"
+          },
+          {
+            "parent": "reservation.read_bytes",
+            "parent_total_us": 267064,
+            "children": [
+              {
+                "operation": "reservation.read_payload",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 20,
+                "total_us": 8935,
+                "max_us": 1496
+              }
+            ],
+            "known_direct_children_total_us": 8935,
+            "parent_residual_us": 258129,
+            "coverage": "partial: metadata.total also occurs inside this parent, but its global aggregate includes other parents and cannot be assigned here"
+          },
+          {
+            "parent": "single.observation",
+            "parent_total_us": 129245,
+            "children": [
+              {
+                "operation": "observation.nested_junctions",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 1,
+                "max_us": 1
+              },
+              {
+                "operation": "observation.identity",
+                "scope": "group.current.members",
+                "records": 4,
+                "count": 10,
+                "total_us": 82789,
+                "max_us": 79772
+              }
+            ],
+            "known_direct_children_total_us": 82790,
+            "parent_residual_us": 46455,
+            "coverage": "partial: metadata.total also occurs inside this parent, but its global aggregate includes other parents and cannot be assigned here"
+          }
+        ]
+      },
+      {
+        "label": "ctrl",
+        "members": 80,
+        "detail_enabled": false,
+        "wall_ms": {
+          "register": 26911.1002,
+          "review": 1382.9658,
+          "apply": 491789.6008
+        },
+        "checks": {
+          "actual_absent": 80,
+          "durable_items_deleted": 80,
+          "durable_deleted_outcomes": 80,
+          "durable_group_deleted": true,
+          "no_pending": true,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "state_commits": 160,
+          "intent_saves": 80,
+          "actual_result_saves": 80,
+          "preintent_current_reviews": 80
+        },
+        "native_closes": [
+          {
+            "stage": "register",
+            "pid": 27600,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\ctrl-register"
+          },
+          {
+            "stage": "review",
+            "pid": 38720,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\ctrl-review"
+          },
+          {
+            "stage": "apply",
+            "pid": 37796,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\ctrl-apply"
+          }
+        ],
+        "apply_spans": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 162,
+            "total_us": 220987336,
+            "max_us": 8475169,
+            "attempts": 162,
+            "outcomes": {
+              "acquired": 162
+            }
+          },
+          "maintenance.phase:apply.initial_group_review": {
+            "count": 1,
+            "total_us": 1320251,
+            "max_us": 1320251,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.reservation.acquire": {
+            "count": 1,
+            "total_us": 4036979,
+            "max_us": 4036979,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 10229689,
+            "max_us": 10167769,
+            "attempts": 2,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 161,
+            "total_us": 360998399,
+            "max_us": 11670257,
+            "attempts": 161,
+            "outcomes": {
+              "verified": 161
+            }
+          },
+          "maintenance.phase:apply.normalization_preflight": {
+            "count": 80,
+            "total_us": 2914049,
+            "max_us": 314354,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:reservation.verify_sources": {
+            "count": 82,
+            "total_us": 435,
+            "max_us": 10,
+            "attempts": 82,
+            "outcomes": {
+              "success": 82
+            }
+          },
+          "maintenance.phase:apply.reservation.verify.before_item": {
+            "count": 80,
+            "total_us": 1974536,
+            "max_us": 111412,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:group.relations.build": {
+            "count": 1,
+            "total_us": 27415,
+            "max_us": 27415,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:group.current.relations": {
+            "count": 80,
+            "total_us": 47315,
+            "max_us": 41897,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:group.current.members": {
+            "count": 80,
+            "total_us": 104547405,
+            "max_us": 6924586,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:group.current.combine": {
+            "count": 80,
+            "total_us": 34983,
+            "max_us": 2976,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.current_review": {
+            "count": 80,
+            "total_us": 115152206,
+            "max_us": 7098775,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.safe_entries.pre_intent": {
+            "count": 80,
+            "total_us": 117009504,
+            "max_us": 7118774,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:state.prepare_local": {
+            "count": 160,
+            "total_us": 95382,
+            "max_us": 1398,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.read": {
+            "count": 160,
+            "total_us": 700745,
+            "max_us": 26658,
+            "attempts": 160,
+            "outcomes": {
+              "read": 160
+            }
+          },
+          "maintenance.phase:state.merge": {
+            "count": 160,
+            "total_us": 77134,
+            "max_us": 2358,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.open_pending": {
+            "count": 160,
+            "total_us": 10271066,
+            "max_us": 2893051,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.serialize": {
+            "count": 160,
+            "total_us": 50792,
+            "max_us": 2673,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.write_pending": {
+            "count": 160,
+            "total_us": 62125,
+            "max_us": 11586,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.sync_pending": {
+            "count": 160,
+            "total_us": 91344716,
+            "max_us": 3091043,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.rename": {
+            "count": 160,
+            "total_us": 3087466,
+            "max_us": 1147775,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 160,
+            "total_us": 133209157,
+            "max_us": 6221251,
+            "attempts": 160,
+            "outcomes": {
+              "committed": 160
+            }
+          },
+          "maintenance.phase:state.save": {
+            "count": 160,
+            "total_us": 351274210,
+            "max_us": 11675029,
+            "attempts": 160,
+            "outcomes": {
+              "committed": 160
+            }
+          },
+          "maintenance.phase:apply.intent_save": {
+            "count": 80,
+            "total_us": 185565201,
+            "max_us": 9613892,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.physical_delete": {
+            "count": 80,
+            "total_us": 7581816,
+            "max_us": 2508893,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.actual_result_save": {
+            "count": 80,
+            "total_us": 165711896,
+            "max_us": 11675045,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.final_presence": {
+            "count": 80,
+            "total_us": 267605,
+            "max_us": 15468,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.reservation.finalize": {
+            "count": 1,
+            "total_us": 31578,
+            "max_us": 31578,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 485101403,
+            "max_us": 485101403,
+            "attempts": 1,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "apply_detail_labels": {},
+        "apply_stderr_bytes": 1184814,
+        "hierarchy": []
+      },
+      {
+        "label": "deta",
+        "members": 80,
+        "detail_enabled": true,
+        "wall_ms": {
+          "register": 1658.8289,
+          "review": 398.7228,
+          "apply": 97230.8476
+        },
+        "checks": {
+          "actual_absent": 80,
+          "durable_items_deleted": 80,
+          "durable_deleted_outcomes": 80,
+          "durable_group_deleted": true,
+          "no_pending": true,
+          "prior_native_runs_preserved": true,
+          "prior_native_decisions_preserved": 0,
+          "state_commits": 160,
+          "intent_saves": 80,
+          "actual_result_saves": 80,
+          "preintent_current_reviews": 80
+        },
+        "native_closes": [
+          {
+            "stage": "register",
+            "pid": 58692,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\deta-register"
+          },
+          {
+            "stage": "review",
+            "pid": 21712,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\deta-review"
+          },
+          {
+            "stage": "apply",
+            "pid": 35568,
+            "exit_code": 0,
+            "signal": null,
+            "actual_close": true,
+            "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\member6\\logs\\measurement\\deta-apply"
+          }
+        ],
+        "apply_spans": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 162,
+            "total_us": 21829938,
+            "max_us": 2124555,
+            "attempts": 162,
+            "outcomes": {
+              "acquired": 162
+            }
+          },
+          "maintenance.phase:apply.initial_group_review": {
+            "count": 1,
+            "total_us": 352548,
+            "max_us": 352548,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.reservation.acquire": {
+            "count": 1,
+            "total_us": 44501,
+            "max_us": 44501,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 547495,
+            "max_us": 436597,
+            "attempts": 2,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 161,
+            "total_us": 28924210,
+            "max_us": 2148391,
+            "attempts": 161,
+            "outcomes": {
+              "verified": 161
+            }
+          },
+          "maintenance.phase:apply.normalization_preflight": {
+            "count": 80,
+            "total_us": 441052,
+            "max_us": 7061,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:reservation.verify_sources": {
+            "count": 82,
+            "total_us": 399,
+            "max_us": 13,
+            "attempts": 82,
+            "outcomes": {
+              "success": 82
+            }
+          },
+          "maintenance.phase:apply.reservation.verify.before_item": {
+            "count": 80,
+            "total_us": 1325954,
+            "max_us": 38580,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:group.relations.build": {
+            "count": 1,
+            "total_us": 10493,
+            "max_us": 10493,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:group.current.relations": {
+            "count": 80,
+            "total_us": 16558,
+            "max_us": 10527,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:group.current.members": {
+            "count": 80,
+            "total_us": 54152173,
+            "max_us": 1449080,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:group.current.combine": {
+            "count": 80,
+            "total_us": 29528,
+            "max_us": 902,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.current_review": {
+            "count": 80,
+            "total_us": 62290902,
+            "max_us": 1465903,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.safe_entries.pre_intent": {
+            "count": 80,
+            "total_us": 63453797,
+            "max_us": 1486212,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:state.prepare_local": {
+            "count": 160,
+            "total_us": 94188,
+            "max_us": 1956,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.read": {
+            "count": 160,
+            "total_us": 543764,
+            "max_us": 14557,
+            "attempts": 160,
+            "outcomes": {
+              "read": 160
+            }
+          },
+          "maintenance.phase:state.merge": {
+            "count": 160,
+            "total_us": 68890,
+            "max_us": 3360,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.open_pending": {
+            "count": 160,
+            "total_us": 62995,
+            "max_us": 3618,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.serialize": {
+            "count": 160,
+            "total_us": 40324,
+            "max_us": 807,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.write_pending": {
+            "count": 160,
+            "total_us": 24720,
+            "max_us": 444,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.sync_pending": {
+            "count": 160,
+            "total_us": 2899164,
+            "max_us": 1135882,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.rename": {
+            "count": 160,
+            "total_us": 379535,
+            "max_us": 11434,
+            "attempts": 160,
+            "outcomes": {
+              "success": 160
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 160,
+            "total_us": 7195485,
+            "max_us": 1158682,
+            "attempts": 160,
+            "outcomes": {
+              "committed": 160
+            }
+          },
+          "maintenance.phase:state.save": {
+            "count": 160,
+            "total_us": 29007343,
+            "max_us": 2150435,
+            "attempts": 160,
+            "outcomes": {
+              "committed": 160
+            }
+          },
+          "maintenance.phase:apply.intent_save": {
+            "count": 80,
+            "total_us": 21490887,
+            "max_us": 2150447,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.physical_delete": {
+            "count": 80,
+            "total_us": 2054945,
+            "max_us": 659141,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.actual_result_save": {
+            "count": 80,
+            "total_us": 7518870,
+            "max_us": 1585842,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.final_presence": {
+            "count": 80,
+            "total_us": 172430,
+            "max_us": 3543,
+            "attempts": 80,
+            "outcomes": {
+              "success": 80
+            }
+          },
+          "maintenance.phase:apply.reservation.finalize": {
+            "count": 1,
+            "total_us": 59002,
+            "max_us": 59002,
+            "attempts": 1,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 96677993,
+            "max_us": 96677993,
+            "attempts": 1,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "apply_detail_labels": {
+          "contents.combine": {
+            "scope": "group.current.members",
+            "operation": "contents.combine",
+            "records": 80,
+            "count": 3240,
+            "total_us": 25285,
+            "max_us": 137
+          },
+          "contents.related": {
+            "scope": "group.current.members",
+            "operation": "contents.related",
+            "records": 80,
+            "count": 3240,
+            "total_us": 23,
+            "max_us": 1
+          },
+          "member.contents": {
+            "scope": "group.current.members",
+            "operation": "member.contents",
+            "records": 80,
+            "count": 3240,
+            "total_us": 7968279,
+            "max_us": 43858
+          },
+          "member.live": {
+            "scope": "group.current.members",
+            "operation": "member.live",
+            "records": 80,
+            "count": 3240,
+            "total_us": 46330231,
+            "max_us": 95852
+          },
+          "member.reservation": {
+            "scope": "group.current.members",
+            "operation": "member.reservation",
+            "records": 80,
+            "count": 3240,
+            "total_us": 38351489,
+            "max_us": 84208
+          },
+          "metadata.ancestor": {
+            "scope": "group.current.members",
+            "operation": "metadata.ancestor",
+            "records": 80,
+            "count": 329280,
+            "total_us": 45144200,
+            "max_us": 45051
+          },
+          "metadata.authorize": {
+            "scope": "group.current.members",
+            "operation": "metadata.authorize",
+            "records": 80,
+            "count": 348640,
+            "total_us": 302985,
+            "max_us": 4705
+          },
+          "metadata.leaf": {
+            "scope": "group.current.members",
+            "operation": "metadata.leaf",
+            "records": 80,
+            "count": 19360,
+            "total_us": 3144293,
+            "max_us": 48943
+          },
+          "metadata.total": {
+            "scope": "group.current.members",
+            "operation": "metadata.total",
+            "records": 80,
+            "count": 19360,
+            "total_us": 49404183,
+            "max_us": 51410
+          },
+          "observation.identity": {
+            "scope": "group.current.members",
+            "operation": "observation.identity",
+            "records": 80,
+            "count": 3240,
+            "total_us": 495062,
+            "max_us": 2554
+          },
+          "observation.nested_junctions": {
+            "scope": "group.current.members",
+            "operation": "observation.nested_junctions",
+            "records": 80,
+            "count": 3240,
+            "total_us": 122,
+            "max_us": 18
+          },
+          "reservation.ownership": {
+            "scope": "group.current.members",
+            "operation": "reservation.ownership",
+            "records": 80,
+            "count": 3240,
+            "total_us": 306598,
+            "max_us": 5943
+          },
+          "reservation.parse_validate": {
+            "scope": "group.current.members",
+            "operation": "reservation.parse_validate",
+            "records": 80,
+            "count": 3240,
+            "total_us": 1443408,
+            "max_us": 15131
+          },
+          "reservation.read_bytes": {
+            "scope": "group.current.members",
+            "operation": "reservation.read_bytes",
+            "records": 80,
+            "count": 3240,
+            "total_us": 27618902,
+            "max_us": 66056
+          },
+          "reservation.read_payload": {
+            "scope": "group.current.members",
+            "operation": "reservation.read_payload",
+            "records": 80,
+            "count": 6480,
+            "total_us": 1813637,
+            "max_us": 14165
+          },
+          "single.measurement": {
+            "scope": "group.current.members",
+            "operation": "single.measurement",
+            "records": 80,
+            "count": 3240,
+            "total_us": 9210,
+            "max_us": 21
+          },
+          "single.observation": {
+            "scope": "group.current.members",
+            "operation": "single.observation",
+            "records": 80,
+            "count": 3240,
+            "total_us": 7803883,
+            "max_us": 43793
+          },
+          "single.proofs": {
+            "scope": "group.current.members",
+            "operation": "single.proofs",
+            "records": 80,
+            "count": 3240,
+            "total_us": 68,
+            "max_us": 12
+          },
+          "single.protection": {
+            "scope": "group.current.members",
+            "operation": "single.protection",
+            "records": 80,
+            "count": 3240,
+            "total_us": 46730,
+            "max_us": 371
+          },
+          "single.recovery": {
+            "scope": "group.current.members",
+            "operation": "single.recovery",
+            "records": 80,
+            "count": 3240,
+            "total_us": 38,
+            "max_us": 16
+          },
+          "single.response": {
+            "scope": "group.current.members",
+            "operation": "single.response",
+            "records": 80,
+            "count": 3240,
+            "total_us": 20127,
+            "max_us": 313
+          },
+          "single.runs": {
+            "scope": "group.current.members",
+            "operation": "single.runs",
+            "records": 80,
+            "count": 3240,
+            "total_us": 15,
+            "max_us": 8
+          },
+          "single.token": {
+            "scope": "group.current.members",
+            "operation": "single.token",
+            "records": 80,
+            "count": 3240,
+            "total_us": 35175,
+            "max_us": 360
+          },
+          "single.total": {
+            "scope": "group.current.members",
+            "operation": "single.total",
+            "records": 80,
+            "count": 3240,
+            "total_us": 7937525,
+            "max_us": 43844
+          },
+          "member.completed": {
+            "scope": "group.current.members",
+            "operation": "member.completed",
+            "records": 79,
+            "count": 3160,
+            "total_us": 7779600,
+            "max_us": 38787
+          }
+        },
+        "apply_stderr_bytes": 1847309,
+        "hierarchy": [
+          {
+            "parent": "group.current.members",
+            "parent_total_us": 54152173,
+            "children": [
+              {
+                "operation": "member.live",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 46330231,
+                "max_us": 95852
+              },
+              {
+                "operation": "member.completed",
+                "scope": "group.current.members",
+                "records": 79,
+                "count": 3160,
+                "total_us": 7779600,
+                "max_us": 38787
+              }
+            ],
+            "known_direct_children_total_us": 54109831,
+            "parent_residual_us": 42342,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "member.live",
+            "parent_total_us": 46330231,
+            "children": [
+              {
+                "operation": "member.reservation",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 38351489,
+                "max_us": 84208
+              },
+              {
+                "operation": "member.contents",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 7968279,
+                "max_us": 43858
+              }
+            ],
+            "known_direct_children_total_us": 46319768,
+            "parent_residual_us": 10463,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "member.contents",
+            "parent_total_us": 7968279,
+            "children": [
+              {
+                "operation": "single.total",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 7937525,
+                "max_us": 43844
+              },
+              {
+                "operation": "contents.related",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 23,
+                "max_us": 1
+              },
+              {
+                "operation": "contents.combine",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 25285,
+                "max_us": 137
+              }
+            ],
+            "known_direct_children_total_us": 7962833,
+            "parent_residual_us": 5446,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "single.total",
+            "parent_total_us": 7937525,
+            "children": [
+              {
+                "operation": "single.observation",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 7803883,
+                "max_us": 43793
+              },
+              {
+                "operation": "single.measurement",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 9210,
+                "max_us": 21
+              },
+              {
+                "operation": "single.protection",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 46730,
+                "max_us": 371
+              },
+              {
+                "operation": "single.recovery",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 38,
+                "max_us": 16
+              },
+              {
+                "operation": "single.runs",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 15,
+                "max_us": 8
+              },
+              {
+                "operation": "single.proofs",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 68,
+                "max_us": 12
+              },
+              {
+                "operation": "single.token",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 35175,
+                "max_us": 360
+              },
+              {
+                "operation": "single.response",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 20127,
+                "max_us": 313
+              }
+            ],
+            "known_direct_children_total_us": 7915246,
+            "parent_residual_us": 22279,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "metadata.total",
+            "parent_total_us": 49404183,
+            "children": [
+              {
+                "operation": "metadata.authorize",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 348640,
+                "total_us": 302985,
+                "max_us": 4705
+              },
+              {
+                "operation": "metadata.ancestor",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 329280,
+                "total_us": 45144200,
+                "max_us": 45051
+              },
+              {
+                "operation": "metadata.leaf",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 19360,
+                "total_us": 3144293,
+                "max_us": 48943
+              }
+            ],
+            "known_direct_children_total_us": 48591478,
+            "parent_residual_us": 812705,
+            "coverage": "complete declared direct children"
+          },
+          {
+            "parent": "member.reservation",
+            "parent_total_us": 38351489,
+            "children": [
+              {
+                "operation": "reservation.read_bytes",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 27618902,
+                "max_us": 66056
+              },
+              {
+                "operation": "reservation.parse_validate",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 1443408,
+                "max_us": 15131
+              },
+              {
+                "operation": "reservation.ownership",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 306598,
+                "max_us": 5943
+              }
+            ],
+            "known_direct_children_total_us": 29368908,
+            "parent_residual_us": 8982581,
+            "coverage": "partial: residual includes metadata checks outside read_bytes and other local work"
+          },
+          {
+            "parent": "reservation.read_bytes",
+            "parent_total_us": 27618902,
+            "children": [
+              {
+                "operation": "reservation.read_payload",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 6480,
+                "total_us": 1813637,
+                "max_us": 14165
+              }
+            ],
+            "known_direct_children_total_us": 1813637,
+            "parent_residual_us": 25805265,
+            "coverage": "partial: metadata.total also occurs inside this parent, but its global aggregate includes other parents and cannot be assigned here"
+          },
+          {
+            "parent": "single.observation",
+            "parent_total_us": 7803883,
+            "children": [
+              {
+                "operation": "observation.nested_junctions",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 122,
+                "max_us": 18
+              },
+              {
+                "operation": "observation.identity",
+                "scope": "group.current.members",
+                "records": 80,
+                "count": 3240,
+                "total_us": 495062,
+                "max_us": 2554
+              }
+            ],
+            "known_direct_children_total_us": 495184,
+            "parent_residual_us": 7308699,
+            "coverage": "partial: metadata.total also occurs inside this parent, but its global aggregate includes other parents and cannot be assigned here"
+          }
+        ]
+      }
+    ],
+    "actual_native_close_exit0": 9
+  },
+  "interpretation": {
+    "direct_member_seconds": 54.152173,
+    "metadata_seconds": 49.404183,
+    "metadata_share_percent": 91.23213393486537,
+    "ancestor_seconds": 45.1442,
+    "ancestor_share_percent": 83.36544500254865,
+    "ancestor_calls": 329280,
+    "metadata_calls": 19360,
+    "live_member_calls": 3240,
+    "completed_member_calls": 3160,
+    "static_call_accounting": "Each live review makes four reservation checked_metadata passes plus one target observation; each completed member makes one absence check: 3240*5+3160=19360. In this fixture each metadata walk has17ancestor observations: 19360*17=329280.",
+    "limits": [
+      "Ancestor scope includes path preparation/GetFileAttributesW/fallback and result checks; these components not individually timed.",
+      "Single ordered OFF/ON pair is severely confounded; cannot estimate instrumentation overhead or improvement.",
+      "Permission callback duration is measured in standalone fixture authorization, not full embedded app permission backend.",
+      "No verification reduction or performance optimization applied; no installation."
+    ]
+  }
+}

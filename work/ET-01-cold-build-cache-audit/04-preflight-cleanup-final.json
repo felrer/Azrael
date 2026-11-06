@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "completedUtc": "2026-10-30T00:58:28.203Z",
+  "runAbsent": true,
+  "finalize": {
+    "id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0d11843c16903ea697b310695dbcef6c3e16ceea67cf730be7851ef3f3eba247.json",
+    "retirement": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\03-preflight-cleanup.json",
+      "sha256": "5b0b0c6c0b7f63a1159ac276f94b98261c5f03813e346497e2026a808ae83571",
+      "reason": "Actual terminal commands and absence verified; independent evidence retained",
+      "original_state": "complete",
+      "original_membership_complete": true
+    }
+  },
+  "applied": [
+    {
+      "exitCode": 0,
+      "durationMs": 37410.3385,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-15384-4212-1793321889714",
+            "decision": "delete",
+            "decision_id": "336e0b426dd377a289a9fc4460a52c54c18e11628810ef9b2617dbc37018eed2",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "98665db8603544fe1883043e850f443924dff01421e84e966f27156e920021fc",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:preflight-r1",
+            "reason": "Preflight completed; required concise evidence independently preserved",
+            "remaining": false,
+            "status": "deleted",
+            "token": "9efc092ccb7ee34019795c97a0ccda6e1afff564b4186427e7dea8ab3dca2d72"
+          }
+        ]
+      }
+    }
+  ]
+}

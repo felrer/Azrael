@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "producer_stopped_verified": true,
+  "native_pid": 40200,
+  "native_actual_exit_code": null,
+  "native_signal": null,
+  "wrapper_actual_exit": 1,
+  "stop_basis": "Owned synchronous spawnSync call returned ETIMEDOUT after waiting for its direct standalone native40200 process termination; apply cleanup does not spawn child producers. Tool session13217 observed wrapper actual1. PID absence is supplemental only.",
+  "manifest_pending": {
+    "present": false
+  },
+  "groups": [
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031a",
+      "token": "40200-1793392364621-41f54361ece38352",
+      "sha256": "4eadac3ed9c946414d4e728365d3efb51d59fed889c771658003ee25c303d111",
+      "owner": {
+        "acquired_at_ms": 1793392364621,
+        "operation": "group_reservation",
+        "pid": 40200,
+        "schema": 2,
+        "token": "40200-1793392364621-41f54361ece38352"
+      },
+      "remaining": false
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031b",
+      "token": "40200-1793392364863-d642f6c7afc51898",
+      "sha256": "d37ae4e75583c27fbcb5e2fee0872561f754198a32bd150d0c9056b50a5e8425",
+      "owner": {
+        "acquired_at_ms": 1793392364863,
+        "operation": "group_reservation",
+        "pid": 40200,
+        "schema": 2,
+        "token": "40200-1793392364863-d642f6c7afc51898"
+      },
+      "remaining": true
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031c",
+      "token": "40200-1793392365102-31bde95a315d513b",
+      "sha256": "818f7e0437f6ba3b41803db524a7a83d23f3ded9228642e85ab60886d80b22a3",
+      "owner": {
+        "acquired_at_ms": 1793392365102,
+        "operation": "group_reservation",
+        "pid": 40200,
+        "schema": 2,
+        "token": "40200-1793392365102-31bde95a315d513b"
+      },
+      "remaining": false
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031a",
+      "token": "40200-1793392365337-9997d050477bf2dd",
+      "sha256": "31d0dcfc23f31fa5c484ae601739e79abbae2a9a8a43fc9b00b3913386a8ac39",
+      "owner": {
+        "acquired_at_ms": 1793392365337,
+        "operation": "group_reservation",
+        "pid": 40200,
+        "schema": 2,
+        "token": "40200-1793392365337-9997d050477bf2dd"
+      },
+      "remaining": false
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031b",
+      "token": "40200-1793392365581-9ae3a706ff36e822",
+      "sha256": "6ea8e44c2c63572a4e8da1780f3d07aaae2d35fc1ca06f7d9faab945b89e0a27",
+      "owner": {
+        "acquired_at_ms": 1793392365581,
+        "operation": "group_reservation",
+        "pid": 40200,
+        "schema": 2,
+        "token": "40200-1793392365581-9ae3a706ff36e822"
+      },
+      "remaining": false
+    }
+  ],
+  "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031b",
+  "lease_owner": {
+    "acquired_at_ms": 1793392365581,
+    "operation": "group_reservation",
+    "pid": 40200,
+    "schema": 2,
+    "token": "40200-1793392365581-9ae3a706ff36e822"
+  },
+  "reservation_sha256": "6ea8e44c2c63572a4e8da1780f3d07aaae2d35fc1ca06f7d9faab945b89e0a27",
+  "process_tree_stopped_verified": true,
+  "aggregate_evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\lease-diagnostics\\native-lease-20261031a\\cleanup-stop-proof.json",
+  "aggregate_evidence_sha256": "f877d3242b25725866ded53c10b1bcac140ae2c833a2c64cfc9450815614e8e1"
+}

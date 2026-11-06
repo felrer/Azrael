@@ -20,18 +20,37 @@ import { inferApi } from './custom-api.ts';
 import { createToolDiagnostics } from './tool-diagnostics.mjs';
 import { createContextDiagnostics } from '../devin/context-budget.mjs';
 import { estimateTokens } from './vendor/src/lib/token-estimate.ts';
-import { applyClaudeToolPrefix } from './vendor/src/oauth/anthropic.ts';
 
 const supported = MANAGED_PROVIDERS;
 const bindingProvider = (id: unknown) => supported.includes(id as string) || isApiProvider(id);
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
 const safeId = (value: unknown) => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value) && !['__proto__', 'prototype', 'constructor'].includes(value);
 type Pin = { account_id: string; fingerprint: string };
+type ProviderAccountScope = { providerId: string; accountId: string };
 type Binding = { version: 1; thread_id: string; providers: Record<string, Pin>; turns: Record<string, Pin & { provider_id: string; model: string }> };
 const MAX_BINDING_BYTES = 1024 * 1024;
 const object = (value: any) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const validPin = (value: any) => object(value) && typeof value.account_id === 'string' && /^(?:[a-f0-9]{8}|[a-f0-9]{32})$/.test(value.account_id) && typeof value.fingerprint === 'string' && /^[a-f0-9]{64}$/.test(value.fingerprint);
 const validModel = (value: any) => typeof value === 'string' && value.trim().length > 0 && Buffer.byteLength(value) <= 256 && !/[\x00-\x1f\x7f-\x9f]/.test(value);
+
+function capturedAccount(value: unknown, providerId: string): ProviderAccountScope | undefined {
+  if (value === undefined) return undefined;
+  if (!object(value) || Object.keys(value as object).some(key => !['providerId', 'accountId'].includes(key))
+      || typeof (value as any).providerId !== 'string' || (value as any).providerId !== providerId
+      || typeof (value as any).accountId !== 'string' || !/^(?:[a-f0-9]{8}|[a-f0-9]{32})$/.test((value as any).accountId)) fail('profile_account_mismatch');
+  return { providerId: (value as any).providerId, accountId: (value as any).accountId };
+}
+
+function assertCapturedAccount(scope: ProviderAccountScope, providerId: string, actualAccountId: string | undefined, m: any) {
+  if (scope.providerId !== providerId || actualAccountId !== undefined && actualAccountId !== scope.accountId) fail('profile_account_mismatch');
+  let set;
+  try { set = m.store.readAuthStoreForRetirement ? m.store.readAuthStoreForRetirement()[providerId] : m.store.getAccountSet(providerId); }
+  catch { fail('profile_account_unavailable'); }
+  if (!object(set) || !Array.isArray(set.accounts)) fail('profile_account_unavailable');
+  const account = set?.accounts?.find((entry: any) => entry.id === scope.accountId);
+  if (!account || account.needsReauth) fail('profile_account_unavailable');
+  if (set.activeAccountId !== scope.accountId) fail('profile_account_mismatch');
+}
 
 export function readBinding(path: string, thread: string, directory: string): Binding {
   const rel = relative(realpathSync(directory), realpathSync(path));
@@ -76,7 +95,9 @@ async function modules() {
   return { config, router, google, budget, antigravity, oauth, store, anthropic };
 }
 
-export async function resolvePin(config: any, providerId: string, retained: Pin | undefined, m: any) {
+export async function resolvePin(config: any, providerId: string, retained: Pin | undefined, m: any, providerAccount?: ProviderAccountScope) {
+  const restriction = capturedAccount(providerAccount, providerId);
+  if (restriction) withAutoSwitchPolicyMutation(m, () => assertCapturedAccount(restriction, providerId, retained?.account_id, m));
   const provider = config.providers[providerId];
   let accountId: string, routed: any, fingerprint: string;
   if (providerId === 'anthropic') {
@@ -126,12 +147,15 @@ export async function resolvePin(config: any, providerId: string, retained: Pin 
       statelessResponses: true };
     fingerprint = digest(JSON.stringify([providerId, accountId, ...after!]));
   } else fail('provider_unavailable');
+  if (restriction) withAutoSwitchPolicyMutation(m, () => assertCapturedAccount(restriction, providerId, accountId, m));
   return { accountId, routed, fingerprint };
 }
 
 // Auxiliary state owns identity only. Conversation content remains native.
 export async function pinAccount(config: any, request: any, m: any) {
   if (!supported.includes(request.provider_id) || !safeId(request.thread_id) || !safeId(request.turn_id) || !validModel(request.model)) fail('invalid_selection');
+  // Copy admission scope before waiting for the binding owner or OAuth refresh.
+  const restriction = capturedAccount(request.providerAccount, request.provider_id);
   const directory = join(process.env.CODEX_HOME!, 'azrael', 'providers', 'sessions');
   mkdirSync(directory, { recursive: true, mode: 0o700 });
   const physicalRelative = relative(realpathSync(process.env.CODEX_HOME!), realpathSync(directory));
@@ -160,23 +184,30 @@ export async function pinAccount(config: any, request: any, m: any) {
     const previous = binding.turns[request.turn_id];
     if (previous && (previous.provider_id !== request.provider_id || previous.model !== request.model)) fail('turn_selection_mismatch');
     const retained = previous ?? binding.providers[request.provider_id];
+    if (restriction) withAutoSwitchPolicyMutation(m, () => assertCapturedAccount(restriction, request.provider_id, retained?.account_id, m));
     if (retained && m.store.readAuthStoreForRetirement) {
       const account = m.store.readAuthStoreForRetirement()[request.provider_id]?.accounts.find((entry: any) => entry.id === retained.account_id);
       if (!account) fail('provider_account_removed');
       if (account.needsReauth) fail('provider_account_revoked');
     }
-    const { accountId, routed, fingerprint } = await resolvePin(config, request.provider_id, retained, m);
+    const { accountId, routed, fingerprint } = await resolvePin(config, request.provider_id, retained, m, restriction);
     if (retained && retained.fingerprint !== fingerprint) fail('pinned_account_changed');
     const pin = { account_id: accountId, fingerprint };
     if (!validPin(pin)) fail('pinned_account_unavailable');
-    if (!previous || !binding.providers[request.provider_id]) binding.providers[request.provider_id] = pin;
-    binding.turns[request.turn_id] = { ...pin, provider_id: request.provider_id, model: request.model };
-    const temporary = path + '.' + randomUUID() + '.tmp';
-    const serialized = JSON.stringify(binding);
-    if (Buffer.byteLength(serialized) > MAX_BINDING_BYTES) fail('binding_limit');
-    writeFileSync(temporary, serialized, { mode: 0o600 });
-    renameSync(temporary, path);
-    return { provider: routed, fingerprint, accountId };
+    const commit = () => {
+      if (restriction) assertCapturedAccount(restriction, request.provider_id, accountId, m);
+      if (!previous || !binding.providers[request.provider_id]) binding.providers[request.provider_id] = pin;
+      binding.turns[request.turn_id] = { ...pin, provider_id: request.provider_id, model: request.model };
+      const temporary = path + '.' + randomUUID() + '.tmp';
+      const serialized = JSON.stringify(binding);
+      if (Buffer.byteLength(serialized) > MAX_BINDING_BYTES) fail('binding_limit');
+      writeFileSync(temporary, serialized, { mode: 0o600 });
+      renameSync(temporary, path);
+      return { provider: routed, fingerprint, accountId, providerAccount: restriction };
+    };
+    // Selection writers share the config owner. Keep the last comparison and
+    // binding commit synchronous under that owner; never select another account.
+    return restriction ? withAutoSwitchPolicyMutation(m, commit) : commit();
   } finally { guard!.release(); }
 }
 
@@ -187,7 +218,7 @@ function replayToolNameMatches(recorded: string, canonical: string, compiled: an
   catch (error) { if (error instanceof AdapterError) return false; throw error; }
 }
 
-export function projectRequest(request: any, fingerprint: string, promptFormat?: 'anthropic-xml', actualAdapter?: string) {
+export function projectRequest(request: any, fingerprint: string) {
   const opaqueCalls = new Map<string, any>();
   const replayDetails: { details: any[]; callIds: string[]; calls: any[] }[] = [];
   const projected = { ...request, credential_scope: fingerprint, input: request.input.map((item: any) => {
@@ -213,7 +244,7 @@ export function projectRequest(request: any, fingerprint: string, promptFormat?:
     // Public reasoning survives switching; private replay has an exact origin and turn.
     return { ...item, encrypted_content: valid ? item.encrypted_content : null };
   }) };
-  const compiled = compileRequest(projected, { promptFormat, actualAdapter, compactToolSearchResults: isApiProvider(request.provider_id) });
+  const compiled = compileRequest(projected, { compactToolSearchResults: isApiProvider(request.provider_id) });
   for (const replay of replayDetails) for (const original of replay.calls) {
     const call = compiled.messages.flatMap((message: any) => message.tool_calls ?? []).find((call: any) => call.id === original?.id);
     if (!call) fail('reasoning_scope_mismatch_call_missing');
@@ -430,13 +461,13 @@ export function managedDeadlineFailure(error: any, signal: AbortSignal, upstream
 export async function infer(request: any, emit: (frame: any) => void, fetcher = globalThis.fetch, progress?: ReturnType<typeof createProgressMonitor>, options: { deadlineSignal?: AbortSignal; prepareOnly?: boolean } = {}) {
   if (!request || request.type !== 'request' || request.protocol_version !== 1 || typeof request.request_id !== 'string' || !Array.isArray(request.input) || !Array.isArray(request.tools)) fail('invalid_request');
   if (isApiProvider(request.provider_id)) {
+    if (request.providerAccount !== undefined) { capturedAccount(request.providerAccount, request.provider_id); fail('profile_account_unavailable'); }
     if (options.prepareOnly) fail('unsupported_input_budget');
     return inferApi(request, emit, fetcher, progress, options);
   }
   const m = await modules();
   const pinned = await pinAccount(m.config.loadConfig(), request, m);
-  const { compiled, parsed, replayDetails } = projectRequest(request, pinned.fingerprint,
-    pinned.provider.adapter === 'anthropic' ? 'anthropic-xml' : undefined, pinned.provider.adapter);
+  const { compiled, parsed, replayDetails } = projectRequest(request, pinned.fingerprint);
   const toolDiagnostics = progress?.toolDiagnostics;
   toolDiagnostics?.catalog(compiled);
   const meta = request.provider_id === 'meta-muse';
@@ -465,39 +496,8 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
   try {
     if (retirementCode) fail(retirementCode);
     progress?.observe({ kind: 'phase', phase: 'headers' });
-    if (compiled.claudeProfile) {
-      // Managed Anthropic is pinned to OAuth. Match its external-tool escaping
-      // in typed search results; compatible builtins keep their exact names.
-      const searchIds = new Set(request.input.filter((item: any) => item.type === 'tool_search_output').map((item: any) => item.call_id));
-      for (const message of parsed.context.messages) if (message.role === 'toolResult' && searchIds.has(message.toolCallId)) {
-        const result = JSON.parse(message.content);
-        result.tools = result.tools.map((tool: any) => ({ name: tool.name.startsWith('az_') ? applyClaudeToolPrefix(tool.name) : tool.name }));
-        message.content = JSON.stringify(result);
-      }
-    }
     const built = await adapter.buildRequest(parsed, { headers: new Headers(), translatorBudget: budget, abortSignal: signal, providerFetch: fetcher });
     const wireBody = JSON.parse(built.body);
-    if (compiled.claudeProfile) {
-      // The OAuth transport prefixes arbitrary functions. Compatible builtins
-      // retain their exact names; external and other functions retain escaping.
-      const compatibleName = (name: string) => name?.startsWith('custom_') && (compiled.names.has(name.slice(7)) || compiled.historyAliases.has(name.slice(7))) && !name.slice(7).startsWith('az_')
-        ? name.slice(7) : name;
-      for (const tool of wireBody.tools ?? []) tool.name = compatibleName(tool.name);
-      for (const message of wireBody.messages ?? []) for (const part of Array.isArray(message.content) ? message.content : [])
-        if (part.type === 'tool_use') part.name = compatibleName(part.name);
-      if (wireBody.tool_choice?.type === 'tool') wireBody.tool_choice.name = compatibleName(wireBody.tool_choice.name);
-      // Keep the OAuth adapter's transport prefix. Replace only its composed
-      // policy/catalog block so native instructions and compatible tool names
-      // remain authoritative, without dropping the adapter's cache boundary.
-      const transportSystem = wireBody.system?.[0];
-      if (transportSystem?.type !== 'text' || typeof transportSystem.text !== 'string') fail('unsupported_provider_output');
-      const nativeSystem: { type: string; text: string; cache_control?: unknown }[] = parsed.context.systemPrompt
-        .filter(Boolean).map((text: string) => ({ type: 'text', text }));
-      const cacheControl = wireBody.system.at(-1)?.cache_control;
-      if (cacheControl && nativeSystem.length) nativeSystem[nativeSystem.length - 1].cache_control = cacheControl;
-      wireBody.system = [transportSystem, ...nativeSystem];
-      built.body = JSON.stringify(wireBody);
-    }
     if (request.provider_id === 'anthropic' && Array.isArray(wireBody.tools)) {
       // A large custom-tool input is one JSON string. Buffered delivery can
       // hide generation from the native idle watchdog until that string ends.
@@ -508,7 +508,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     if ((wireBody.request ?? wireBody).generationConfig?.responseModalities?.some((modality: string) => modality !== 'TEXT')) fail('unsupported_output_modality');
     if (request.provider_id === 'anthropic' && (typeof request.instructions !== 'string'
       || wireBody.messages?.some((message: any) => typeof message.content !== 'string' && (!Array.isArray(message.content) || message.content.some((part: any) => !['text', 'image', 'tool_use', 'tool_result', 'thinking', 'redacted_thinking'].includes(part.type))))
-      || !wireBody.system?.some((part: any) => typeof part.text === 'string' && part.text.includes(request.instructions)))) fail('unsupported_provider_output');
+      || (request.instructions.length > 0 && !wireBody.system?.some((part: any) => typeof part.text === 'string' && part.text.includes(parsed.context.systemPrompt[0]))))) fail('unsupported_provider_output');
     const context = options.prepareOnly ? createContextDiagnostics(request.model, estimateTokens, 'model_chars') : progress?.contextDiagnostics;
     context?.wire(built.body);
     if (options.prepareOnly) {
@@ -516,6 +516,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
       return;
     }
     stage = 'headers';
+    if (pinned.providerAccount) withAutoSwitchPolicyMutation(m, () => assertCapturedAccount(pinned.providerAccount!, request.provider_id, pinned.accountId, m));
     const response = adapter.fetchResponse ? await adapter.fetchResponse(built, { abortSignal: signal, executor: fetcher, returnRawErrors: true, stream: true }) : await fetcher(built.url, { method: built.method, headers: built.headers, body: built.body, signal, redirect: 'error' });
     tracker.headers?.(response);
     if (!response.ok) fail(await providerHttpError(response, request.provider_id, evidence => tracker.providerError?.(evidence)));
@@ -693,6 +694,7 @@ export async function recoverAccount(request: any, injected?: any) {
       || !Array.isArray(request.excludedAccountIds) || request.excludedAccountIds.length > 1024
       || request.excludedAccountIds.some((id: any) => typeof id !== 'string')
       || (request.expectedAccountId !== undefined && typeof request.expectedAccountId !== 'string')) fail('invalid_selection');
+  if (request.providerAccount !== undefined) { capturedAccount(request.providerAccount, providerId); fail('profile_account_rotation_forbidden'); }
   const directory = join(process.env.CODEX_HOME!, 'azrael', 'providers', 'sessions');
   const path = join(directory, request.threadId + '.json');
   if (!existsSync(path)) fail('invalid_binding');

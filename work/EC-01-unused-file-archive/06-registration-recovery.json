@@ -1,0 +1,17 @@
+{
+  "id": "run:ec01-test-policy:r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "1ef63cf2948a3fc9b2535ed89451489505eef284f4d3fee44dbc51ea9e8d3006",
+  "lease_owner": {
+    "acquired_at_ms": 1793286269261,
+    "operation": "group_reservation",
+    "pid": 34632,
+    "schema": 2,
+    "token": "34632-1793286269261-e14cccb5df90d007"
+  },
+  "reservationOwnerPid": 34632,
+  "operation": "registration",
+  "verification": "Original synchronous registration attempt returned failure. Standalone registration implementation performs filesystem measurement in the owner process; maintenance_owner.rs, lib.rs and registration.rs contain no child process launch in this operation. Win32_Process query found neither exact PID nor direct children; no maintenance_owner.exe remains. Recovery must independently acquire the original OS lease and validate unchanged source/fence.",
+  "observedAt": "2026-10-29T15:18:16.535Z"
+}

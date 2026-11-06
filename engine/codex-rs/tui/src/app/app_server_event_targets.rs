@@ -88,6 +88,9 @@ pub(super) fn server_notification_thread_target(
         ServerNotification::RootResumeWaitUpdated(notification) => {
             Some(notification.thread_id.as_str())
         }
+        ServerNotification::UserWaitTimingUpdated(notification) => {
+            Some(notification.thread_id.as_str())
+        }
         ServerNotification::HookStarted(notification) => Some(notification.thread_id.as_str()),
         ServerNotification::TurnCompleted(notification) => Some(notification.thread_id.as_str()),
         ServerNotification::HookCompleted(notification) => Some(notification.thread_id.as_str()),

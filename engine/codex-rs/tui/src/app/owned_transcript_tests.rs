@@ -598,6 +598,7 @@ async fn owned_details_escape_interrupts_work_without_starting_backtrack() -> Re
             thread_id: thread_id.to_string(),
             turn: codex_app_server_protocol::Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "active-turn".to_string(),
                 root_turn_id: None,

@@ -1,0 +1,568 @@
+{
+  "schema": 1,
+  "work": "EG-01",
+  "status": "native_verification_passed",
+  "platform": "Windows x64; Unix branches not executed",
+  "sourceSha256": "c0f564cc9e22a1444dfaec7f420b228e06506f5bb6c869245ff668ad8dbcdd54",
+  "sourceReceiptSha256": "87531eca9161ade6b1a77ab167a38194d6e2b23c292be4e021ed153480f109fb",
+  "daemonEvidence": "02-verification.json: r2 daemon selection 10 and all phases exit 0",
+  "r3": {
+    "code": 0,
+    "signal": null,
+    "elapsedMs": 2142579,
+    "startedUtc": "2026-10-28T14:02:46.910Z",
+    "endedUtc": "2026-10-28T14:38:29.489Z",
+    "inputInventorySha256": "2837a89ed67aa2111d14589102b9d0ccfe9cdbf176c5aa30dea8db271b975686",
+    "phases": [
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:02:46.919Z",
+            "durationMs": 353299,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:02:46.919Z",
+            "durationMs": 353299,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "session::handoff::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T14:08:40.218Z",
+            "durationMs": 782759,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 10
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:02:46.919Z",
+            "durationMs": 353299,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "session::handoff::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T14:08:40.218Z",
+            "durationMs": 782759,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 10
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "session::handoff::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-28T14:21:42.978Z",
+            "durationMs": 50537,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:22:33.517Z",
+            "durationMs": 271988,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:22:33.517Z",
+            "durationMs": 271988,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "azrael_session_handoff::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T14:27:05.505Z",
+            "durationMs": 592595,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 7
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:22:33.517Z",
+            "durationMs": 271988,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "azrael_session_handoff::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T14:27:05.505Z",
+            "durationMs": 592595,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 7
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "azrael_session_handoff::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-28T14:36:58.100Z",
+            "durationMs": 43364,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:37:41.467Z",
+            "durationMs": 15314,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:37:41.467Z",
+            "durationMs": 15314,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "azrael_thread_engines::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T14:37:56.781Z",
+            "durationMs": 6443,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 5
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:37:41.467Z",
+            "durationMs": 15314,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "azrael_thread_engines::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T14:37:56.781Z",
+            "durationMs": 6443,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 5
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "azrael_thread_engines::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-28T14:38:03.224Z",
+            "durationMs": 7170,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:38:10.396Z",
+            "durationMs": 6199,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:38:10.396Z",
+            "durationMs": 6199,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "azrael_shared_server::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T14:38:16.595Z",
+            "durationMs": 6356,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 18
+          }
+        ]
+      },
+      {
+        "schema": 1,
+        "typeCheck": "selected-tests",
+        "testSelection": "nonzero",
+        "phases": [
+          {
+            "phase": "typeCheck",
+            "args": [
+              "check",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "--locked",
+              "--offline",
+              "--tests",
+              "--profile",
+              "test"
+            ],
+            "startedUtc": "2026-10-28T14:38:10.396Z",
+            "durationMs": 6199,
+            "exitCode": 0,
+            "signal": null
+          },
+          {
+            "phase": "selection",
+            "args": [
+              "test",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "azrael_shared_server::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1",
+              "--list",
+              "--format=terse"
+            ],
+            "startedUtc": "2026-10-28T14:38:16.595Z",
+            "durationMs": 6356,
+            "exitCode": 0,
+            "signal": null,
+            "selectedTests": 18
+          },
+          {
+            "phase": "execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-app-server",
+              "--lib",
+              "azrael_shared_server::tests::",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-10-28T14:38:22.951Z",
+            "durationMs": 6537,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      }
+    ],
+    "outcomes": [
+      "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 3117 filtered out; finished in 3.17s",
+      "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 491 filtered out; finished in 0.02s",
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 493 filtered out; finished in 0.18s",
+      "test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 480 filtered out; finished in 0.10s"
+    ]
+  },
+  "verificationScope": "Existing engine.shared-engine.session-handoff: daemon from unchanged r2 source; remaining four exact package/filter scopes in r3",
+  "productBuildOrInstall": false,
+  "cleanup": "Raw logs/snapshots disposable after independent evidence review"
+}

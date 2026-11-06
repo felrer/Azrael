@@ -1,0 +1,41 @@
+{
+  "testRun": {
+    "startedAt": "2026-11-01T18:56:54.430Z",
+    "endedAt": "2026-11-01T18:57:07.894Z",
+    "exitCode": 0,
+    "signal": null,
+    "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T185642164Z-8ad36a20-2c04-4c4a-b836-ac70a2adf850\\logs\\tests.log",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T185642164Z-8ad36a20-2c04-4c4a-b836-ac70a2adf850",
+    "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261101T185642164Z-8ad36a20-2c04-4c4a-b836-ac70a2adf850"
+  },
+  "counts": {
+    "tests": 11,
+    "pass": 11,
+    "fail": 0
+  },
+  "sourceIdentity": {
+    "scripts/instruction-workbench.cjs": "f18a0808bf201bb4d7a86783f60c48d9bec71987466f363138fea4c765d45a11",
+    "scripts/instruction-workbench-options.cjs": "bf124a1fb57eb86b0a2d7313d3c3e1a32711d62edb265b17ff68f113f113b2be",
+    "scripts/instruction-workbench-view.cjs": "0992c039ea25973a16b85e01b23b165bc04138c99b43680c3312a82508827167",
+    "scripts/serve-instruction-workbench.cjs": "f34097adcfb4597b683d8ae6337db093cb48f27a9e2d5c9018690c5a8231f78c"
+  },
+  "liveLookup": {
+    "providers": 5,
+    "models": 17,
+    "cached": true,
+    "credentialsExposed": false
+  },
+  "scope": "Windows standalone adapter; installed-engine activation remains separate",
+  "browser": {
+    "passed": [
+      "Provider unchecked hides/disabled select and shows all cached models",
+      "Provider checked shows five connected account options",
+      "Account selection filters native versus managed models",
+      "Native supported reasoning list and managed low/medium/high metadata",
+      "Dropdown-only model/provider/effort fields",
+      "Scoped profile save stores native provider plus separate account identity",
+      "Seeded sandbox preserves original global profile and package"
+    ],
+    "screenshot": "artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce/reports/profile-options.jpg"
+  }
+}

@@ -148,7 +148,17 @@ async fn steering_does_not_wait_for_realtime_history() {
                 TurnInputRequest::user_input(vec![UserInput::Text {
                     text: "steer without waiting for persistence".to_string(),
                     text_elements: Vec::new(),
-                }]),
+                }])
+                .on_start(TurnStartOptions {
+                    // A newly equipped profile must never affect an already-running turn.
+                    // Deliberately nonexistent: steering must not resolve a new snapshot.
+                    agent_profile: Some(codex_protocol::agent_profile::AgentProfileRef {
+                        digest: "f".repeat(64),
+                        project_id: Some("other-project".into()),
+                        revision: Some(99),
+                    }),
+                    ..Default::default()
+                }),
                 mode,
                 "steer-submission".to_string(),
             ),

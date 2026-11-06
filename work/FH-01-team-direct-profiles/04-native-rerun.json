@@ -1,0 +1,73 @@
+{
+  "priorRun": "run:FH-01-role-profiles-native:20261102T104407499Z-c7346c5d-d1ba-4a0b-8804-aa0d4bfc8f78",
+  "priorResult": {
+    "sourceSha256": "fae988c271fb2672b479cb4960e86dba4bdc91cb117a28a120c84f707f0e3ad5",
+    "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fh01-34fdc6ea\\engine",
+    "cache": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+    "results": [
+      {
+        "crate": "codex-core",
+        "filter": "role_profile",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 6,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3134
+            }
+          ],
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3134,
+          "executed": 6
+        }
+      },
+      {
+        "crate": "codex-core",
+        "filter": "spawn_agent_fork",
+        "exitCode": 101,
+        "accepted": false,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "FAILED",
+              "passed": 5,
+              "failed": 1,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3134
+            }
+          ],
+          "passed": 5,
+          "failed": 1,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3134,
+          "executed": 6
+        }
+      }
+    ],
+    "exitCode": 1
+  },
+  "generation": "g2-positive-and-current-fork-fixture",
+  "changes": [
+    {
+      "path": "codex-rs/core/src/agent/role_profile.rs",
+      "priorSha256": "01fd85d84920c3d91dde9d82a1636d29957d56f2db43781eb36d72b610648c52",
+      "nextSha256": "09e535fb90d91776ea5c1e7d79b8f1ab51548c0b8490ccaf4a310612dff45614"
+    },
+    {
+      "path": "codex-rs/core/src/agent/control_tests.rs",
+      "priorSha256": "74e6ab9ecf12736cb3612df084a20515fb2e987ba9963aa61a1a57edd563f9e8",
+      "nextSha256": "6ec25550dcd715aa5cd7aa56c275db4868e23419ea8f2f1e6bc6d3fef36e8c06"
+    }
+  ],
+  "reason": "Add actual prepare_agent_spawn_config positive test and correct obsolete V1 fixture to current enabled V2 policy; production unchanged"
+}

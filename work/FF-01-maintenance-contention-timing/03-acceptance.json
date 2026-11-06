@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "at": "2026-11-02T06:14:53.899Z",
+  "accepted": true,
+  "platform": "windows-x64",
+  "binary_sha256": "474ec68c553dbea5babcdc4ebf79a84a045b7fa6d2ff3574d3ee14f4778d27c3",
+  "binary_bytes": 2678272,
+  "source_files": {
+    "Cargo.toml": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b",
+    "examples\\maintenance_dispatch.rs": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8",
+    "src\\apply.rs": "33a4838706d04031392a70a446163c8906f1bb4c9a5bb84502e645752632b533",
+    "src\\bin\\maintenance_owner.rs": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+    "src\\cli.rs": "9ae3851660bb0826012ee73817149f044dce16fa33de023d75bda9513f43c6f3",
+    "src\\duplicate_claims.rs": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709",
+    "src\\groups.rs": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca",
+    "src\\lease.rs": "96b1dd485d7098300ba3d876476b1fe033b3cc18e029248ac4e150563a3a60c9",
+    "src\\lib.rs": "44ff675af5dd8c569314d87ab2f81120f6f469927808d9002ba712ac9c6f626a",
+    "src\\lock_recovery.rs": "5adb7f4f7fb6f105000bbc4567a29298091e8301b0a1203324131656703402c5",
+    "src\\lock_wait.rs": "268e547a4128e2cdec28ace5e5266539f37a17c973e43a7259959012352a05be",
+    "src\\nested_retirement.rs": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06",
+    "src\\partitioned_storage.rs": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35",
+    "src\\paths.rs": "1c39690ad2c409cbe95f590fe689bf5973ab81151dd2bfe8b024e3f733bfc380",
+    "src\\planning.rs": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2",
+    "src\\preferences.rs": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541",
+    "src\\registration.rs": "2748badd373a327ff883f31d95e942a5d7bd1c54f0024b1502ad5c7074983d21",
+    "src\\registry.rs": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104",
+    "src\\reservations.rs": "6ef5d28d0d8adc6d52ca8802be32c91bbd4f47f4be842dcc9e849f05faa8d6d9",
+    "src\\retirement.rs": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807",
+    "src\\storage.rs": "d6ffa50122edd8c7e8e7ed6958a857150003472e1d3ff479ad400c51046ab421",
+    "src\\timing.rs": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692",
+    "src\\windows_delete.rs": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+    "tests\\absent_adoption.rs": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a",
+    "tests\\contention.rs": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d",
+    "tests\\contracts.rs": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df",
+    "tests\\duplicate_claims.rs": "d810b614551801330d5b0a993eadb4d45b99aac5d9939f8e4f9945984f465683",
+    "tests\\groups.rs": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e",
+    "tests\\hardlink_normalization.rs": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf",
+    "tests\\lock_recovery.rs": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab",
+    "tests\\nested_retirement.rs": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec",
+    "tests\\partitioned.rs": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031",
+    "tests\\registry.rs": "aff5e86643a3f9cbe2346bd3c64552ca6e7a19d349a6a9a6664ab801cb37c262",
+    "tests\\root_retirement.rs": "31cc0a35e98b3aec4e7aae8cab04a0a8ad8ef90785e2cb8b8c88aaa5a438690f",
+    "tests\\verified_junctions.rs": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2"
+  },
+  "source_matches_current": true,
+  "dependencies": {
+    "packages": 79,
+    "original_dependency_subset": true,
+    "cargo_home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\temporary\\cargo-home"
+  },
+  "native": {
+    "exit": 0,
+    "passed": 237,
+    "failed": 0,
+    "started": "2026-11-02T06:04:17.154Z",
+    "ended": "2026-11-02T06:07:11.359Z",
+    "source_unchanged": true
+  },
+  "build": {
+    "exit": 0,
+    "started": "2026-11-02T06:07:30.593Z",
+    "ended": "2026-11-02T06:09:02.625Z",
+    "source_unchanged": true
+  },
+  "node": {
+    "adapter_initial_passed": 297,
+    "adapter_setup_failures": 2,
+    "environment_retry_passed": 18,
+    "environment_retry_failed": 0,
+    "candidate_lease_exit": 0,
+    "candidate_lease_checks": [
+      "top-level and encoded busy metadata survive worker packets; transport, permission and corrupt errors stay distinct",
+      "real child contention, persistent metadata, reacquisition",
+      "bounded wait expires without taking a held lock",
+      "parent crash closes native stdin and releases OS exclusion",
+      "idle native helper death reports terminal state and releases exclusion",
+      "native write failure preserves its primary operation and secondary release error without inventing terminal observation",
+      "existing empty, malformed and schema1 markers require recovery",
+      "replaced lock inode is preserved and release refuses replacement, or OS denies replacement",
+      "symlink/reparse ancestors and non-file lock targets refused",
+      "native >1 MiB UTF-8 record CAS/reserve/finish and oversized response preflight without durable fence creation",
+      "native hashed-ID CAS, producer reservation/catalog handoff/pinned finish, unsafe member and wrong lock rejection",
+      "default installation receipt resolves pinned owner; SHA/protocol/traversal/linked ancestors refuse without execution",
+      "malformed protocol fails closed; unknown command refused"
+    ]
+  },
+  "queue": {
+    "ok": true,
+    "cases": [
+      {
+        "name": "baseline-register",
+        "code": 1,
+        "elapsed_ms": 5134.015
+      },
+      {
+        "name": "candidate-register",
+        "code": 0,
+        "elapsed_ms": 7021.803599999999,
+        "probe": {
+          "acquired": true,
+          "owner": {
+            "acquired_at_ms": 1793599943378,
+            "operation": "ff1.queue.check",
+            "parent_pid": 31200,
+            "pid": 12612,
+            "schema": 2,
+            "token": "12612-1793599943378-e47d2914bc2639a0"
+          },
+          "close": {
+            "label": "partial-maintenance-probe",
+            "pid": 12612,
+            "code": 0,
+            "signal": null,
+            "close_observed": true,
+            "elapsed_ms": 437.1259999999993,
+            "output_bytes": 946,
+            "overflow": false,
+            "stdout_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\queue-a2-05-partial-maintenance-probe.stdout.log",
+            "stderr_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\logs\\queue-a2-05-partial-maintenance-probe.stderr.log"
+          }
+        }
+      },
+      {
+        "name": "node-queue",
+        "ok": true,
+        "elapsed_ms": 5591.261799999999,
+        "owner": {
+          "acquired_at_ms": 1793599956285,
+          "operation": "ff1.node.queue",
+          "parent_pid": 53652,
+          "pid": 49736,
+          "schema": 2,
+          "token": "49736-1793599956285-c5eea84c4fd4d04f"
+        },
+        "released": {
+          "released": true,
+          "reservations_retained": []
+        },
+        "client_code": 0,
+        "native_exit": {
+          "pid": 49736,
+          "exit_observed": true,
+          "exit_code": 0
+        }
+      },
+      {
+        "name": "native-explicit-zero",
+        "code": 0,
+        "elapsed_ms": 262.07320000000254,
+        "busy": {
+          "code": "maintenance_busy",
+          "error": "OS lock busy: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\temporary\\queue-fixture-2\\artifacts\\maintenance\\lifecycles\\catalog.lock (ff1.queue.zero)",
+          "id": 0,
+          "lock_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1\\temporary\\queue-fixture-2\\artifacts\\maintenance\\lifecycles\\catalog.lock",
+          "ok": false,
+          "owner": null,
+          "retryable": true
+        }
+      },
+      {
+        "name": "waiting-stdin-eof",
+        "code": 0,
+        "wire": {
+          "error": "maintenance lock wait cancelled",
+          "id": 0,
+          "ok": false
+        },
+        "elapsed_ms": 398.3275999999969,
+        "owner_unchanged": true
+      }
+    ],
+    "direct_process_count": 23,
+    "active_direct_pids": [],
+    "limitations": [],
+    "raw_sha256": "e74dd236f72e083637819f8d9ef2aa3d00a8de129b5202155280feba10abcb66"
+  },
+  "corrections": [
+    "Initial native test handshake expected whole-transaction polling; changed to actual contention/reacquisition contract.",
+    "Cancellation during outcome publication was corrected to retain completed deletion and cancellation bookkeeping; exact case and full package passed.",
+    "Two Node test entrypoints initially lacked caller-owned output roots and failed before execution; both passed after providing those roots."
+  ],
+  "unverified": [
+    "Linux/macOS native execution",
+    "Full Azrael app build/installation",
+    "Strict ticket-order fairness"
+  ]
+}

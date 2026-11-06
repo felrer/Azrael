@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "actualNativeExitCode": 0,
+  "authoritativeUnchanged": true,
+  "referencesUnchanged": true,
+  "pendingAbsent": true,
+  "originalWriterExitCode": null,
+  "executableSha256": "eb264506d1aaa93024bc8ef51c17a64622952284368dd1aa2df707ca9d9e304f",
+  "files": [
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\automated-acceptance.json",
+      "path": "tool-verification/automated-acceptance.json",
+      "bytes": 26832,
+      "sha256": "ccfb00edc779cd54b4409240159ebd991c1835a6b03cc0bae7786896aff138d0"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\native-terminal.json",
+      "path": "tool-verification/native-terminal.json",
+      "bytes": 576,
+      "sha256": "57e8c05cc711c694b822bd5084d510811d2fa857773f5128de475b88ff170642"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\overlay-provenance.json",
+      "path": "tool-verification/overlay-provenance.json",
+      "bytes": 1919,
+      "sha256": "1931ea7601d5c611a60335ab8d381a0723a0674f2ac074c6e43df38a035f1c02"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\promotion-native-terminal.json",
+      "path": "tool-verification/promotion-native-terminal.json",
+      "bytes": 475,
+      "sha256": "eeaeefe1901ed8ca8941193aa5891aaaf60246c5a8b1d0f02d6d62bae1be592f"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\promotion.json",
+      "path": "tool-verification/promotion.json",
+      "bytes": 4406,
+      "sha256": "58be30e3e204f20fdf435cacc3f44abb645b40ea9b499f3835b873621c70a0c2"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\retained-baseline-source-identity.json",
+      "path": "tool-verification/retained-baseline-source-identity.json",
+      "bytes": 9616,
+      "sha256": "4adb6083ccfb9a5bb4ab51f156a4f5b30825494d32e51c9b5fb43f7784cc64ce"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\source-freeze.json",
+      "path": "tool-verification/source-freeze.json",
+      "bytes": 964,
+      "sha256": "5a21361061fb577b1ab15b169b58930a41e99505065a909d46fff153a93f6939"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\source-identity.json",
+      "path": "tool-verification/source-identity.json",
+      "bytes": 2104910,
+      "sha256": "f3156996005c34bd3c561a1db463481f665485ec65413c2ffd19ecb7fc41853c"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\source-run-closure.json",
+      "path": "tool-verification/source-run-closure.json",
+      "bytes": 8381,
+      "sha256": "aa20a2b560fb103b00b0c54c1b20b104ff54436af3c51a14f29636d7509e0ab8"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\abort-cli-request.json",
+      "path": "actual-proof/abort-cli-request.json",
+      "bytes": 1403,
+      "sha256": "71a1102e3d8479cdd8ff0bb06048c4b50ee42766670c3edcd52d0a784c925a6d"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\abort-receipt.json",
+      "path": "actual-proof/abort-receipt.json",
+      "bytes": 1620,
+      "sha256": "976f03ed3d5d456a3f379135ae6bf28bd6e2bd9276a117c82d723e2996a65357"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\existing-blocked-acceptance.json",
+      "path": "actual-proof/existing-blocked-acceptance.json",
+      "bytes": 7600,
+      "sha256": "bf212623ca855de70bc9f61316cda56fc24d264db7f2341873b0d55dc71e2274"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\javascript-lease-worker-source.cjs",
+      "path": "actual-proof/javascript-lease-worker-source.cjs",
+      "bytes": 2435,
+      "sha256": "67a9029b8a05234736d2e92b18a09a0d9b0dd9aeab7b02f2be45ca4df90edd67"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\original-controller-failure.json",
+      "path": "actual-proof/original-controller-failure.json",
+      "bytes": 7428,
+      "sha256": "aefcaf7107d0b9474cd536c18f61e3a9e67ff7b761049fa8153a135b66f89bd8"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\original-native-cli-source.rs",
+      "path": "actual-proof/original-native-cli-source.rs",
+      "bytes": 4564,
+      "sha256": "101328eb4f2d8038a2a5981e9fef2e6037426189c11db343c8f5047e057ea5d3"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\original-native-lease-source.rs",
+      "path": "actual-proof/original-native-lease-source.rs",
+      "bytes": 17928,
+      "sha256": "e0f9a822ae1243e9b1695de0ba4e0f068ee3df9c7b288e5bb5eba2fb8c87738c"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\original-native-source-identity.json",
+      "path": "actual-proof/original-native-source-identity.json",
+      "bytes": 9616,
+      "sha256": "4adb6083ccfb9a5bb4ab51f156a4f5b30825494d32e51c9b5fb43f7784cc64ce"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\parent-terminal-and-stop-basis.json",
+      "path": "actual-proof/parent-terminal-and-stop-basis.json",
+      "bytes": 1811,
+      "sha256": "1afa3daa552c505e17fb27116bd5ed762533c16d5358adf3543b649003835a4d"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\reconstructed-original-release-request.json",
+      "path": "actual-proof/reconstructed-original-release-request.json",
+      "bytes": 502,
+      "sha256": "c338ea910b511f1e818e15af3461134f9c73d9c9e87bf46e5977d34a21293f6a"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\request-reconstruction-provenance.json",
+      "path": "actual-proof/request-reconstruction-provenance.json",
+      "bytes": 1191,
+      "sha256": "6052e8540a7d96c7db4a7777111508e59461e31fb7d47feb41ae5d16652d5942"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\successful-os-lease-reacquire.json",
+      "path": "actual-proof/successful-os-lease-reacquire.json",
+      "bytes": 485,
+      "sha256": "334b525e1479b7a4bac9b05b3f7ecee04e560c0e11c005761952e88729c1becd"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\synchronous-native-writer-boundary.json",
+      "path": "actual-proof/synchronous-native-writer-boundary.json",
+      "bytes": 2539,
+      "sha256": "3abf78af876e5fc498b101a52de0d2ab0b56abfa098c25dd5636561daeadc64a"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\y\\artifacts\\maintenance\\evidence\\o-pending-abort-20261031a\\writer-stop-proof.json",
+      "path": "actual-proof/writer-stop-proof.json",
+      "bytes": 3544,
+      "sha256": "b56725e4e10cae76012bb4c62f0f0e441c6d5b7f40d3c1dcaa2ff7d2485d2198"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\o-pending-abort-20261031b\\reports\\actual-cli-acceptance.json",
+      "path": "actual-cli/actual-cli-acceptance.json",
+      "bytes": 4330,
+      "sha256": "5925ee0b759eeade24b5d5dc945a952fc18e0ddd4d10307a2cc3d5b080c57f7b"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\o-pending-abort-20261031b\\logs\\native.stdout.log",
+      "path": "actual-cli/native.stdout.log",
+      "bytes": 510,
+      "sha256": "06c7198ba089e849eb7161afb9cf795011811e7afebca8131cbde5f622bb0b6d"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\o-pending-abort-20261031b\\logs\\native.stderr.log",
+      "path": "actual-cli/native.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "totalBytes": 2225585,
+  "retention": "Independent task acceptance evidence; executable/source/target disposable copies are excluded"
+}

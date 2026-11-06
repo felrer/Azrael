@@ -75,10 +75,3 @@ test("prepared Linux host ships its supervisor and restarts through the injected
 test("Windows and macOS preparation do not read or alter Linux host inputs", () => {
   for (const os of ["win32", "darwin"]) assert.equal(prepareLinuxSupervision("missing-host", ts, { os }), null);
 });
-
-test("supervision transform accepts the pinned native host before and after namespacing", { skip: !fs.existsSync(path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434/out/extension.js")) }, () => {
-  const source = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434/out/extension.js"), "utf8");
-  const prepared = require("./inject-linux-supervision.cjs").inject(source, ts);
-  const result = require("./namespace-azrael-host.cjs").transformAsset(prepared, "out/extension.js", "extension.js", ts);
-  assert.equal(ts.createSourceFile("extension.js", result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
-});

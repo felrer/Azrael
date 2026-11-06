@@ -1,0 +1,581 @@
+{
+  "schema": 1,
+  "started": "2026-11-02T06:26:32.433Z",
+  "state": "complete",
+  "command": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "maxLockWaitMs": 600000
+  },
+  "proof": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\07-cleanup-proof.json",
+  "steps": [
+    {
+      "operation": "inventory",
+      "started": "2026-11-02T06:26:32.957Z",
+      "ended": "2026-11-02T06:26:33.683Z",
+      "elapsed_ms": 726,
+      "pid": 45492,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 1,
+          "total_us": 237558,
+          "max_us": 237558
+        }
+      }
+    },
+    {
+      "operation": "inventory",
+      "started": "2026-11-02T06:26:33.684Z",
+      "ended": "2026-11-02T06:26:34.553Z",
+      "elapsed_ms": 869,
+      "pid": 41104,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 1,
+          "total_us": 244455,
+          "max_us": 244455
+        }
+      }
+    },
+    {
+      "operation": "inventory",
+      "started": "2026-11-02T06:26:34.554Z",
+      "ended": "2026-11-02T06:26:35.437Z",
+      "elapsed_ms": 883,
+      "pid": 41884,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 1,
+          "total_us": 222764,
+          "max_us": 222764
+        }
+      }
+    },
+    {
+      "operation": "inventory",
+      "started": "2026-11-02T06:26:35.437Z",
+      "ended": "2026-11-02T06:26:36.241Z",
+      "elapsed_ms": 804,
+      "pid": 57872,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 1,
+          "total_us": 223245,
+          "max_us": 223245
+        }
+      }
+    },
+    {
+      "operation": "inventory",
+      "started": "2026-11-02T06:26:36.241Z",
+      "ended": "2026-11-02T06:26:36.776Z",
+      "elapsed_ms": 535,
+      "pid": 54900,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 1,
+          "total_us": 212932,
+          "max_us": 212932
+        }
+      }
+    },
+    {
+      "operation": "register",
+      "group_id": "run:ff1:r1",
+      "started": "2026-11-02T06:26:38.211Z",
+      "ended": "2026-11-02T06:29:15.118Z",
+      "elapsed_ms": 156907,
+      "pid": 35912,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 30,
+          "total_us": 13892962,
+          "max_us": 10092292
+        },
+        "maintenance.phase:registry.catalog_snapshot_load": {
+          "count": 16,
+          "total_us": 62599075,
+          "max_us": 13584988
+        },
+        "maintenance.phase:registry.catalog": {
+          "count": 36,
+          "total_us": 62713896,
+          "max_us": 13585015
+        },
+        "maintenance.phase:registry.catalog_snapshot_hit": {
+          "count": 20,
+          "total_us": 113604,
+          "max_us": 6984
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 12352218,
+          "max_us": 7085368
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 2,
+          "total_us": 14551276,
+          "max_us": 7331281
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 7,
+          "total_us": 53582175,
+          "max_us": 23819982
+        },
+        "maintenance.queued_wait:lock_release": {
+          "count": 1,
+          "total_us": 10088035,
+          "max_us": 10088035
+        },
+        "maintenance.phase:registry.observe": {
+          "count": 2,
+          "total_us": 18619577,
+          "max_us": 18555431
+        },
+        "maintenance.phase:state.read": {
+          "count": 1,
+          "total_us": 116982,
+          "max_us": 116982
+        },
+        "maintenance.phase:state.commit": {
+          "count": 1,
+          "total_us": 272197,
+          "max_us": 272197
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 152683989,
+          "max_us": 152683989
+        }
+      },
+      "registered": [
+        {
+          "id": "f4a84d3e9226485e7d37a6d290bbff1c0699ac64b7e29477342e8b39efc237ab",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1",
+          "logical_bytes": 1318176459
+        }
+      ]
+    },
+    {
+      "operation": "register",
+      "group_id": "run:cargo-cache-tests:20261102T055737747Z-ed4e0a55-16fe-4d54-b955-3c685788d11c",
+      "started": "2026-11-02T06:29:16.461Z",
+      "ended": "2026-11-02T06:30:07.792Z",
+      "elapsed_ms": 51331,
+      "pid": 18716,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 30,
+          "total_us": 860303,
+          "max_us": 594432
+        },
+        "maintenance.phase:registry.catalog_snapshot_load": {
+          "count": 16,
+          "total_us": 48644611,
+          "max_us": 3685523
+        },
+        "maintenance.phase:registry.catalog": {
+          "count": 36,
+          "total_us": 48782343,
+          "max_us": 3685747
+        },
+        "maintenance.phase:registry.catalog_snapshot_hit": {
+          "count": 20,
+          "total_us": 136348,
+          "max_us": 8031
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 8090370,
+          "max_us": 4551340
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 2,
+          "total_us": 8995429,
+          "max_us": 5216316
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 7,
+          "total_us": 39307691,
+          "max_us": 12070751
+        },
+        "maintenance.phase:registry.observe": {
+          "count": 2,
+          "total_us": 18892630,
+          "max_us": 18797511
+        },
+        "maintenance.phase:state.read": {
+          "count": 1,
+          "total_us": 118566,
+          "max_us": 118566
+        },
+        "maintenance.phase:state.commit": {
+          "count": 1,
+          "total_us": 338373,
+          "max_us": 338373
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 47440164,
+          "max_us": 47440164
+        }
+      },
+      "registered": [
+        {
+          "id": "5bb9f794f2d394a8467faab4ad0d74953d2b8a2d690d1d8b8a3fe5df86b6adfd",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\cargo-cache-tests\\runs\\20261102T055737747Z-ed4e0a55-16fe-4d54-b955-3c685788d11c",
+          "logical_bytes": 1204
+        }
+      ]
+    },
+    {
+      "operation": "register",
+      "group_id": "version:maintenance-owner:fc02:stdin-20261102",
+      "started": "2026-11-02T06:30:09.289Z",
+      "ended": "2026-11-02T06:31:06.613Z",
+      "elapsed_ms": 57324,
+      "pid": 51240,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 30,
+          "total_us": 3694971,
+          "max_us": 3426450
+        },
+        "maintenance.phase:registry.catalog_snapshot_load": {
+          "count": 16,
+          "total_us": 51064502,
+          "max_us": 3529839
+        },
+        "maintenance.phase:registry.catalog": {
+          "count": 36,
+          "total_us": 51082087,
+          "max_us": 3529859
+        },
+        "maintenance.phase:registry.catalog_snapshot_hit": {
+          "count": 20,
+          "total_us": 16371,
+          "max_us": 1152
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 9923436,
+          "max_us": 6164768
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 2,
+          "total_us": 12147125,
+          "max_us": 8145801
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 7,
+          "total_us": 42103047,
+          "max_us": 13401237
+        },
+        "maintenance.phase:registry.observe": {
+          "count": 2,
+          "total_us": 18605710,
+          "max_us": 18568568
+        },
+        "maintenance.phase:state.read": {
+          "count": 1,
+          "total_us": 121299,
+          "max_us": 121299
+        },
+        "maintenance.phase:state.commit": {
+          "count": 1,
+          "total_us": 1216910,
+          "max_us": 1216910
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 53228005,
+          "max_us": 53228005
+        }
+      },
+      "registered": [
+        {
+          "id": "e0746ec98521b219179f958ca617c5eb9ddce27138dfce24ed34bc977e1fe4ed",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102",
+          "logical_bytes": 2682062
+        }
+      ]
+    },
+    {
+      "operation": "review",
+      "group_ids": [
+        "run:ff1:r1",
+        "run:cargo-cache-tests:20261102T055737747Z-ed4e0a55-16fe-4d54-b955-3c685788d11c",
+        "version:maintenance-owner:fc02:stdin-20261102"
+      ],
+      "started": "2026-11-02T06:31:06.614Z",
+      "ended": "2026-11-02T06:31:25.725Z",
+      "elapsed_ms": 19111,
+      "pid": 46152,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 13,
+          "total_us": 213036,
+          "max_us": 212943
+        },
+        "maintenance.phase:registry.catalog_snapshot_load": {
+          "count": 6,
+          "total_us": 18685410,
+          "max_us": 3189117
+        },
+        "maintenance.phase:registry.catalog": {
+          "count": 6,
+          "total_us": 18685546,
+          "max_us": 3189146
+        },
+        "maintenance.phase:registry.observe": {
+          "count": 3,
+          "total_us": 18691500,
+          "max_us": 6359083
+        }
+      },
+      "reviewed": [
+        {
+          "id": "5bb9f794f2d394a8467faab4ad0d74953d2b8a2d690d1d8b8a3fe5df86b6adfd",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\cargo-cache-tests\\runs\\20261102T055737747Z-ed4e0a55-16fe-4d54-b955-3c685788d11c",
+          "blockers": []
+        },
+        {
+          "id": "e0746ec98521b219179f958ca617c5eb9ddce27138dfce24ed34bc977e1fe4ed",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102",
+          "blockers": []
+        },
+        {
+          "id": "f4a84d3e9226485e7d37a6d290bbff1c0699ac64b7e29477342e8b39efc237ab",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1",
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "operation": "apply",
+      "started": "2026-11-02T06:31:25.726Z",
+      "ended": "2026-11-02T06:36:24.556Z",
+      "elapsed_ms": 298830,
+      "pid": 54360,
+      "code": 0,
+      "signal": null,
+      "overflow": false,
+      "timing": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 38,
+          "total_us": 8570504,
+          "max_us": 2486876
+        },
+        "maintenance.phase:registry.catalog_snapshot_load": {
+          "count": 17,
+          "total_us": 62065205,
+          "max_us": 5936521
+        },
+        "maintenance.phase:registry.catalog": {
+          "count": 33,
+          "total_us": 62141181,
+          "max_us": 5936549
+        },
+        "maintenance.phase:registry.catalog_snapshot_hit": {
+          "count": 16,
+          "total_us": 74789,
+          "max_us": 14224
+        },
+        "maintenance.phase:registry.observe": {
+          "count": 6,
+          "total_us": 24721417,
+          "max_us": 7290420
+        },
+        "maintenance.phase:apply.initial_group_review": {
+          "count": 3,
+          "total_us": 3930639,
+          "max_us": 3890609
+        },
+        "maintenance.phase:apply.reservation.acquire": {
+          "count": 1,
+          "total_us": 773030,
+          "max_us": 773030
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 9590040,
+          "max_us": 4836159
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 7,
+          "total_us": 24635621,
+          "max_us": 6378130
+        },
+        "maintenance.phase:apply.normalization_preflight": {
+          "count": 3,
+          "total_us": 22198140,
+          "max_us": 22163980
+        },
+        "maintenance.queued_wait:lock_release": {
+          "count": 1,
+          "total_us": 1223579,
+          "max_us": 1223579
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 15,
+          "total_us": 37421555,
+          "max_us": 5936999
+        },
+        "maintenance.phase:apply.reservation.verify.before_item": {
+          "count": 3,
+          "total_us": 33659257,
+          "max_us": 13556345
+        },
+        "maintenance.phase:apply.current_review": {
+          "count": 3,
+          "total_us": 20875095,
+          "max_us": 7308401
+        },
+        "maintenance.phase:apply.safe_entries.pre_intent": {
+          "count": 3,
+          "total_us": 20899203,
+          "max_us": 7315280
+        },
+        "maintenance.phase:state.read": {
+          "count": 6,
+          "total_us": 1045134,
+          "max_us": 426695
+        },
+        "maintenance.phase:state.commit": {
+          "count": 6,
+          "total_us": 12881042,
+          "max_us": 3980613
+        },
+        "maintenance.phase:apply.intent_save": {
+          "count": 3,
+          "total_us": 10816495,
+          "max_us": 6425512
+        },
+        "maintenance.phase:apply.physical_delete": {
+          "count": 3,
+          "total_us": 191979073,
+          "max_us": 190857803
+        },
+        "maintenance.phase:apply.actual_result_save": {
+          "count": 3,
+          "total_us": 9014386,
+          "max_us": 5218909
+        },
+        "maintenance.phase:apply.final_presence": {
+          "count": 3,
+          "total_us": 4154,
+          "max_us": 2046
+        },
+        "maintenance.phase:apply.reservation.finalize": {
+          "count": 1,
+          "total_us": 4754515,
+          "max_us": 4754515
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 3,
+          "total_us": 881212433,
+          "max_us": 293940683
+        }
+      },
+      "results": [
+        {
+          "id": "5bb9f794f2d394a8467faab4ad0d74953d2b8a2d690d1d8b8a3fe5df86b6adfd",
+          "status": "deleted",
+          "remaining": false
+        },
+        {
+          "id": "e0746ec98521b219179f958ca617c5eb9ddce27138dfce24ed34bc977e1fe4ed",
+          "status": "deleted",
+          "remaining": false
+        },
+        {
+          "id": "f4a84d3e9226485e7d37a6d290bbff1c0699ac64b7e29477342e8b39efc237ab",
+          "status": "deleted",
+          "remaining": false
+        }
+      ]
+    }
+  ],
+  "groups": [
+    "run:ff1:r1",
+    "run:cargo-cache-tests:20261102T055737747Z-ed4e0a55-16fe-4d54-b955-3c685788d11c",
+    "version:maintenance-owner:fc02:stdin-20261102"
+  ],
+  "old_installation_reference_released": true,
+  "finalization": [
+    {
+      "id": "run:ff1:r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a719b1aa98670621100b7dd9dad36dbcfcc7769786ff2733b9fcba2bb32cedff.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\07-cleanup-proof.json",
+        "sha256": "ec979727e2a500a5d2016e5a5c68150cfdf401f072ce14b01e33846cea470b31",
+        "reason": "Exact native deletion results and filesystem absence confirmed; no references remain",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "run:cargo-cache-tests:20261102T055737747Z-ed4e0a55-16fe-4d54-b955-3c685788d11c",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e86367ed1b18e9504af5ec2f11b7ca87b91cbc13e3c912286249f8f1741ddb40.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\07-cleanup-proof.json",
+        "sha256": "ec979727e2a500a5d2016e5a5c68150cfdf401f072ce14b01e33846cea470b31",
+        "reason": "Exact native deletion results and filesystem absence confirmed; no references remain",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "version:maintenance-owner:fc02:stdin-20261102",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5022c8b105a32ceddd1f6a69f4c7c41d9f493da06520c8e9fcc13868a0c32954.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\07-cleanup-proof.json",
+        "sha256": "ec979727e2a500a5d2016e5a5c68150cfdf401f072ce14b01e33846cea470b31",
+        "reason": "Exact native deletion results and filesystem absence confirmed; no references remain",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    }
+  ],
+  "ended": "2026-11-02T06:36:30.823Z",
+  "payload_absent": true
+}

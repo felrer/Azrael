@@ -1,0 +1,38 @@
+{
+  "owner": "ET-01-cold-build-cache-audit",
+  "reason": "One-off controller current use complete; durable acceptance and owner deletion receipts preserved independently",
+  "files": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\validate-asset-caches.cjs",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\adopt-asset-caches.cjs",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\prune-verification-cache.cjs",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\invalidate-preparation-tools.cjs",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\upgrade-module-metadata.ps1",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\reconcile-native-claims.cjs",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\recover-preboot-lease.cjs",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\delete-module-caches.ps1",
+      "absent": true
+    }
+  ]
+}

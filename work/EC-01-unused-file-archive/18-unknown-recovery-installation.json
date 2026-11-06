@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "status": "installed",
+  "version_id": "version:maintenance-owner:ec01:unknown-recovery",
+  "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery",
+  "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+  "sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+  "acceptance_sha256": "ac556350d1575c668d78f5b6f6125a74c8e4744f2a7fa38637c2a1bf35e06f36",
+  "installation_proof": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\verification\\installation-verification.json",
+  "installation_proof_sha256": "978922ed849c4904d65873c3e464f8f783e9544814de3b4a7f6bdb534ca36a20",
+  "installation_revision": 12,
+  "old_reference_released": "ad3c4b1b22f471e6f8400ddc935d0ce828d931e2ab83fbc729c71f5d9ff3997b",
+  "default_native_exit_code": 0
+}

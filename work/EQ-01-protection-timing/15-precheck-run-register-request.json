@@ -1,0 +1,27 @@
+{
+  "operation": "register",
+  "group": {
+    "id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+    "kind": "run",
+    "owner": "delete-precheck-removal",
+    "version": null,
+    "membership_complete": true,
+    "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\66fc580a06f9a1a7799817114f3602e8991c8d473a028e5a275d3ece9568c4de.json",
+    "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "membership_source_format": "producer_registry_v1",
+    "members": [
+      {
+        "id": "cc22fc8c60a6dabf67e2424bb2faf455d24552b8fe0a6c3c224fd8b4ec7d5332",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1",
+        "role": "run",
+        "lifecycle_role": "artifact",
+        "kind": "run",
+        "owner": "delete-precheck-removal",
+        "generated": true,
+        "protection_known": true,
+        "references": [],
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\66fc580a06f9a1a7799817114f3602e8991c8d473a028e5a275d3ece9568c4de.json"
+      }
+    ]
+  }
+}

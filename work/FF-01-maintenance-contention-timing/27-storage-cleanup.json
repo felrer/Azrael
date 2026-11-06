@@ -1,0 +1,1130 @@
+{
+  "started": "2026-11-02T10:03:41.190Z",
+  "status": "failed",
+  "prior_attempts": [
+    "24-storage-cleanup.json",
+    "26-storage-cleanup-retry.json"
+  ],
+  "correction": "Prior immediate busy used ignored environment setting. This attempt explicitly supplies supported request lock_wait_ms600000.",
+  "ids": [
+    "run:ff1:storage3",
+    "version:maintenance-owner:ff01:queued-20261102",
+    "version:maintenance-owner:ff01:perf-20261102"
+  ],
+  "stages": [
+    {
+      "name": "refresh-storage-run",
+      "request": {
+        "operation": "register",
+        "refresh_group": {
+          "id": "run:ff1:storage3"
+        },
+        "lock_wait_ms": 600000
+      },
+      "started": "2026-11-02T10:03:41.192Z",
+      "exit_code": 0,
+      "signal": null,
+      "pid": 17780,
+      "close_observed": true,
+      "wall_ms": 6419.1979,
+      "finished": "2026-11-02T10:03:47.614Z",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:ff1:storage3",
+          "kind": "run",
+          "members": [
+            "3b74888c28bea4b305e6f71cc73a988aaedc487182ebbe6f51eb7e178e926c14"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "9497084f71d40544bd522fbd0d804b5e240a2b9858dbfc735d771f733793adf9",
+          "owner": "FF-01-maintenance-contention-timing",
+          "protection_revision": "9497084f71d40544bd522fbd0d804b5e240a2b9858dbfc735d771f733793adf9",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\789d42e6c6fad9b38fb0a8d5e2bad0dcad51eac2439142ab0bb11a34b390e2fe.json",
+          "registered_at_ms": 1793613349811,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "3b74888c28bea4b305e6f71cc73a988aaedc487182ebbe6f51eb7e178e926c14",
+            "identity": "3f3f4ed82e8f8386bf647072b733ac3c2f3f0f2e773333b3debfbd4214d2ebdd",
+            "kind": "run-root",
+            "lifecycle_group_id": "run:ff1:storage3",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1150788744,
+            "measured_at_ms": 1793613317143,
+            "owner": "FF-01-maintenance-contention-timing",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3",
+            "presence": "present",
+            "protection_known": true,
+            "protection_revision": "9497084f71d40544bd522fbd0d804b5e240a2b9858dbfc735d771f733793adf9",
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\789d42e6c6fad9b38fb0a8d5e2bad0dcad51eac2439142ab0bb11a34b390e2fe.json",
+            "references": [],
+            "registered_at_ms": 1793613317143,
+            "remaining": true,
+            "role": "run-root",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "outcome": "acquired",
+          "count": 1,
+          "elapsed_us_sum": 527419
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 5415032
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "outcome": "success",
+          "count": 2,
+          "elapsed_us_sum": 5416668
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 1390
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 5419133
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.prepare_local",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 114677
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.open_pending",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 383
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.serialize",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 54362
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.write_pending",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 19984
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.sync_pending",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 40313
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.rename",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 3836
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "outcome": "committed",
+          "count": 1,
+          "elapsed_us_sum": 169421
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.save",
+          "outcome": "committed",
+          "count": 1,
+          "elapsed_us_sum": 284160
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "outcome": "verified",
+          "count": 1,
+          "elapsed_us_sum": 5741779
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "outcome": "verified",
+          "count": 1,
+          "elapsed_us_sum": 6292481
+        }
+      ]
+    },
+    {
+      "name": "register-version:maintenance-owner:ff01:queued-20261102",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "version:maintenance-owner:ff01:queued-20261102",
+          "kind": "version",
+          "owner": "FF-01-maintenance-contention-timing",
+          "version": "queued-20261102",
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9ec67cfa8c34dfde1f867b9088f1c19e99fba9abafbda2d1e47d79bbf7978eb2.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "215d8c7c3e4fe96c7e2553f91e8ea62c207919ae3db96451feba355c73d9ed1f",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102",
+              "role": "release",
+              "lifecycle_role": "artifact",
+              "kind": "release",
+              "owner": "FF-01-maintenance-contention-timing",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9ec67cfa8c34dfde1f867b9088f1c19e99fba9abafbda2d1e47d79bbf7978eb2.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 600000
+      },
+      "started": "2026-11-02T10:03:50.275Z",
+      "exit_code": 0,
+      "signal": null,
+      "pid": 32012,
+      "close_observed": true,
+      "wall_ms": 49571.8543,
+      "finished": "2026-11-02T10:04:39.851Z",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "version:maintenance-owner:ff01:queued-20261102",
+          "kind": "version",
+          "members": [
+            "215d8c7c3e4fe96c7e2553f91e8ea62c207919ae3db96451feba355c73d9ed1f"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "0953f40c33e6642eeb25a0169cda7c69c967766d46553bd3a9c1b3edf98f7ab8",
+          "owner": "FF-01-maintenance-contention-timing",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9ec67cfa8c34dfde1f867b9088f1c19e99fba9abafbda2d1e47d79bbf7978eb2.json",
+          "registered_at_ms": 1793613873454,
+          "version": "queued-20261102"
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "215d8c7c3e4fe96c7e2553f91e8ea62c207919ae3db96451feba355c73d9ed1f",
+            "identity": "e0e0eeeaf2504b8b89ee5065f6698badc9f4c95bb87d5ad4c1faad576a91b20e",
+            "kind": "release",
+            "lifecycle_group_id": "version:maintenance-owner:ff01:queued-20261102",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 2704492,
+            "measured_at_ms": 1793613862606,
+            "owner": "FF-01-maintenance-contention-timing",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9ec67cfa8c34dfde1f867b9088f1c19e99fba9abafbda2d1e47d79bbf7978eb2.json",
+            "references": [],
+            "registered_at_ms": 1793613862606,
+            "remaining": true,
+            "role": "release",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "outcome": "acquired",
+          "count": 14,
+          "elapsed_us_sum": 3427914
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "outcome": "success",
+          "count": 8,
+          "elapsed_us_sum": 45927960
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "outcome": "success",
+          "count": 18,
+          "elapsed_us_sum": 45939319
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "outcome": "success",
+          "count": 10,
+          "elapsed_us_sum": 10445
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "outcome": "verified",
+          "count": 2,
+          "elapsed_us_sum": 12630336
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "outcome": "verified",
+          "count": 2,
+          "elapsed_us_sum": 14094683
+        },
+        {
+          "event": "maintenance.queued_wait",
+          "operation": "lock_release",
+          "outcome": "released",
+          "count": 2,
+          "elapsed_us_sum": 1972942
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "outcome": "success",
+          "count": 5,
+          "elapsed_us_sum": 28900153
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "outcome": "success",
+          "count": 2,
+          "elapsed_us_sum": 10855669
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "outcome": "read",
+          "count": 1,
+          "elapsed_us_sum": 164371
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.prepare_local",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 85915
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.open_pending",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 272
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.serialize",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 41979
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.write_pending",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 21081
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.sync_pending",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 10863
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.rename",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 3608
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "outcome": "committed",
+          "count": 1,
+          "elapsed_us_sum": 122777
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.save",
+          "outcome": "committed",
+          "count": 1,
+          "elapsed_us_sum": 208763
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "outcome": "verified",
+          "count": 1,
+          "elapsed_us_sum": 41579313
+        }
+      ]
+    },
+    {
+      "name": "register-version:maintenance-owner:ff01:perf-20261102",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "version:maintenance-owner:ff01:perf-20261102",
+          "kind": "version",
+          "owner": "FF-01-maintenance-contention-timing",
+          "version": "perf-20261102",
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\aa7265dc620975c74fa104d174170651b995953df640f34d8e6c118e848291c9.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "7ec7e431182a1acc3af97fdbd76627f11b2b4375e258b4f0eaf247f2f8de5715",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102",
+              "role": "release",
+              "lifecycle_role": "artifact",
+              "kind": "release",
+              "owner": "FF-01-maintenance-contention-timing",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\aa7265dc620975c74fa104d174170651b995953df640f34d8e6c118e848291c9.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 600000
+      },
+      "started": "2026-11-02T10:04:41.579Z",
+      "exit_code": 0,
+      "signal": null,
+      "pid": 39864,
+      "close_observed": true,
+      "wall_ms": 51253.70369999999,
+      "finished": "2026-11-02T10:05:32.833Z",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "version:maintenance-owner:ff01:perf-20261102",
+          "kind": "version",
+          "members": [
+            "7ec7e431182a1acc3af97fdbd76627f11b2b4375e258b4f0eaf247f2f8de5715"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "c7064d15e5615df2d21604d6e34c262cef073442d6aaef82ce03b8f3bf875844",
+          "owner": "FF-01-maintenance-contention-timing",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\aa7265dc620975c74fa104d174170651b995953df640f34d8e6c118e848291c9.json",
+          "registered_at_ms": 1793613922215,
+          "version": "perf-20261102"
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "7ec7e431182a1acc3af97fdbd76627f11b2b4375e258b4f0eaf247f2f8de5715",
+            "identity": "35204566fdbcbe8ae11b257c9b7ceb9946c9bad61af162dbc28860f11a9f8d27",
+            "kind": "release",
+            "lifecycle_group_id": "version:maintenance-owner:ff01:perf-20261102",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 2855228,
+            "measured_at_ms": 1793613912552,
+            "owner": "FF-01-maintenance-contention-timing",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\aa7265dc620975c74fa104d174170651b995953df640f34d8e6c118e848291c9.json",
+            "references": [],
+            "registered_at_ms": 1793613912552,
+            "remaining": true,
+            "role": "release",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "outcome": "acquired",
+          "count": 14,
+          "elapsed_us_sum": 9174048
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "outcome": "success",
+          "count": 8,
+          "elapsed_us_sum": 48140520
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "outcome": "success",
+          "count": 18,
+          "elapsed_us_sum": 48150370
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "outcome": "success",
+          "count": 10,
+          "elapsed_us_sum": 9019
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "outcome": "verified",
+          "count": 2,
+          "elapsed_us_sum": 13959088
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "outcome": "verified",
+          "count": 2,
+          "elapsed_us_sum": 15475674
+        },
+        {
+          "event": "maintenance.queued_wait",
+          "operation": "lock_release",
+          "outcome": "released",
+          "count": 3,
+          "elapsed_us_sum": 7674917
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "outcome": "success",
+          "count": 5,
+          "elapsed_us_sum": 34495228
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "outcome": "success",
+          "count": 2,
+          "elapsed_us_sum": 9669104
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "outcome": "read",
+          "count": 1,
+          "elapsed_us_sum": 176217
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.prepare_local",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 71792
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.open_pending",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 301
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.serialize",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 39623
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.write_pending",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 13646
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.sync_pending",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 11117
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.rename",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 3134
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "outcome": "committed",
+          "count": 1,
+          "elapsed_us_sum": 108368
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.save",
+          "outcome": "committed",
+          "count": 1,
+          "elapsed_us_sum": 180242
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "outcome": "verified",
+          "count": 1,
+          "elapsed_us_sum": 46160546
+        }
+      ]
+    },
+    {
+      "name": "review",
+      "request": {
+        "operation": "review",
+        "group_ids": [
+          "run:ff1:storage3",
+          "version:maintenance-owner:ff01:queued-20261102",
+          "version:maintenance-owner:ff01:perf-20261102"
+        ],
+        "verification": "registered",
+        "lock_wait_ms": 600000
+      },
+      "started": "2026-11-02T10:05:32.834Z",
+      "exit_code": 0,
+      "signal": null,
+      "pid": 31516,
+      "close_observed": true,
+      "wall_ms": 28357.855700000015,
+      "finished": "2026-11-02T10:06:01.194Z",
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:ff1:storage3",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "9497084f71d40544bd522fbd0d804b5e240a2b9858dbfc735d771f733793adf9",
+            "owner": "FF-01-maintenance-contention-timing",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\789d42e6c6fad9b38fb0a8d5e2bad0dcad51eac2439142ab0bb11a34b390e2fe.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "version:maintenance-owner:ff01:perf-20261102",
+            "kind": "version",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "c7064d15e5615df2d21604d6e34c262cef073442d6aaef82ce03b8f3bf875844",
+            "owner": "FF-01-maintenance-contention-timing",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\aa7265dc620975c74fa104d174170651b995953df640f34d8e6c118e848291c9.json",
+            "version": "perf-20261102"
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "version:maintenance-owner:ff01:queued-20261102",
+            "kind": "version",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "0953f40c33e6642eeb25a0169cda7c69c967766d46553bd3a9c1b3edf98f7ab8",
+            "owner": "FF-01-maintenance-contention-timing",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9ec67cfa8c34dfde1f867b9088f1c19e99fba9abafbda2d1e47d79bbf7978eb2.json",
+            "version": "queued-20261102"
+          }
+        ],
+        "items": [
+          {
+            "id": "215d8c7c3e4fe96c7e2553f91e8ea62c207919ae3db96451feba355c73d9ed1f",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102",
+            "token": "98f525826e21e4da23bf9b41d79cb7f9ae8f4f51e2df86ea4f9a8284715b7e26",
+            "blockers": [],
+            "logical_bytes": 2704492,
+            "remaining": true,
+            "presence": "present",
+            "verification": "registered",
+            "lifecycle_group_id": "version:maintenance-owner:ff01:queued-20261102",
+            "group_member_ids": [
+              "215d8c7c3e4fe96c7e2553f91e8ea62c207919ae3db96451feba355c73d9ed1f"
+            ],
+            "group_token": "df1bf5f4940c77e442026666e66de16650509484de766440a9ec17469314f9f5"
+          },
+          {
+            "id": "3b74888c28bea4b305e6f71cc73a988aaedc487182ebbe6f51eb7e178e926c14",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3",
+            "token": "3784eaa1586d91282818033f43bd84efce2a0ac7705dbaebfdf2874fc33aa632",
+            "blockers": [],
+            "logical_bytes": 1150788744,
+            "remaining": true,
+            "presence": "present",
+            "verification": "registered",
+            "lifecycle_group_id": "run:ff1:storage3",
+            "group_member_ids": [
+              "3b74888c28bea4b305e6f71cc73a988aaedc487182ebbe6f51eb7e178e926c14"
+            ],
+            "group_token": "ff74d8be3ed4d7496bf497c225f31b4ba602c9039b4580f7c3dc23a2e1128e18"
+          },
+          {
+            "id": "7ec7e431182a1acc3af97fdbd76627f11b2b4375e258b4f0eaf247f2f8de5715",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102",
+            "token": "efda465a1074733e41af8077b25eb00d52312a0ba02bfa55cc17a4c0eeac1e81",
+            "blockers": [],
+            "logical_bytes": 2855228,
+            "remaining": true,
+            "presence": "present",
+            "verification": "registered",
+            "lifecycle_group_id": "version:maintenance-owner:ff01:perf-20261102",
+            "group_member_ids": [
+              "7ec7e431182a1acc3af97fdbd76627f11b2b4375e258b4f0eaf247f2f8de5715"
+            ],
+            "group_token": "fe1f8035f2c47318824f91482eeaf47c3ff099479c4fd91d6e58a32da7b43274"
+          }
+        ]
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "outcome": "acquired",
+          "count": 13,
+          "elapsed_us_sum": 2377785
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "outcome": "success",
+          "count": 6,
+          "elapsed_us_sum": 27910696
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "outcome": "success",
+          "count": 6,
+          "elapsed_us_sum": 27910874
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "outcome": "success",
+          "count": 3,
+          "elapsed_us_sum": 27917045
+        },
+        {
+          "event": "maintenance.queued_wait",
+          "operation": "lock_release",
+          "outcome": "released",
+          "count": 2,
+          "elapsed_us_sum": 2136779
+        }
+      ]
+    },
+    {
+      "name": "apply",
+      "request": {
+        "operation": "apply",
+        "verification": "registered",
+        "decisions": [
+          {
+            "id": "215d8c7c3e4fe96c7e2553f91e8ea62c207919ae3db96451feba355c73d9ed1f",
+            "token": "98f525826e21e4da23bf9b41d79cb7f9ae8f4f51e2df86ea4f9a8284715b7e26",
+            "decision": "delete",
+            "reason": "Stopped FF-01 disposable inputs and replaced standalone versions; all current consumers released, independent acceptance evidence retained."
+          },
+          {
+            "id": "3b74888c28bea4b305e6f71cc73a988aaedc487182ebbe6f51eb7e178e926c14",
+            "token": "3784eaa1586d91282818033f43bd84efce2a0ac7705dbaebfdf2874fc33aa632",
+            "decision": "delete",
+            "reason": "Stopped FF-01 disposable inputs and replaced standalone versions; all current consumers released, independent acceptance evidence retained."
+          },
+          {
+            "id": "7ec7e431182a1acc3af97fdbd76627f11b2b4375e258b4f0eaf247f2f8de5715",
+            "token": "efda465a1074733e41af8077b25eb00d52312a0ba02bfa55cc17a4c0eeac1e81",
+            "decision": "delete",
+            "reason": "Stopped FF-01 disposable inputs and replaced standalone versions; all current consumers released, independent acceptance evidence retained."
+          }
+        ],
+        "lock_wait_ms": 600000
+      },
+      "started": "2026-11-02T10:06:01.198Z",
+      "exit_code": 0,
+      "signal": null,
+      "pid": 56188,
+      "close_observed": true,
+      "wall_ms": 389621.6074,
+      "finished": "2026-11-02T10:12:30.820Z",
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:ff1:storage3",
+            "status": "deleted"
+          },
+          {
+            "id": "version:maintenance-owner:ff01:perf-20261102",
+            "status": "blocked"
+          },
+          {
+            "id": "version:maintenance-owner:ff01:queued-20261102",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-56188-5056-1793614096777",
+            "decision": "delete",
+            "decision_id": "d7bd0b6646d36ed477261999e4b931fba15d4a071504b768d7a77b2e0679af26",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "215d8c7c3e4fe96c7e2553f91e8ea62c207919ae3db96451feba355c73d9ed1f",
+            "lifecycle_group_id": "version:maintenance-owner:ff01:queued-20261102",
+            "reason": "Stopped FF-01 disposable inputs and replaced standalone versions; all current consumers released, independent acceptance evidence retained.",
+            "remaining": false,
+            "status": "deleted",
+            "token": "98f525826e21e4da23bf9b41d79cb7f9ae8f4f51e2df86ea4f9a8284715b7e26"
+          },
+          {
+            "attempt_id": "attempt-56188-5060-1793614136480",
+            "decision": "delete",
+            "decision_id": "80a29053b547948c47c11aee2d56ad12e0702461e0418034ca6d4e6f185f3be5",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "3b74888c28bea4b305e6f71cc73a988aaedc487182ebbe6f51eb7e178e926c14",
+            "lifecycle_group_id": "run:ff1:storage3",
+            "reason": "Stopped FF-01 disposable inputs and replaced standalone versions; all current consumers released, independent acceptance evidence retained.",
+            "remaining": false,
+            "status": "deleted",
+            "token": "3784eaa1586d91282818033f43bd84efce2a0ac7705dbaebfdf2874fc33aa632"
+          },
+          {
+            "decision": "delete",
+            "decision_id": "96cf6039044ccdd54749b2bb4b1e9b0596852ca83d41edd4eb4e691e901aeeb4",
+            "error": "config changed during review",
+            "group_status": "blocked",
+            "id": "7ec7e431182a1acc3af97fdbd76627f11b2b4375e258b4f0eaf247f2f8de5715",
+            "lifecycle_group_id": "version:maintenance-owner:ff01:perf-20261102",
+            "reason": "Stopped FF-01 disposable inputs and replaced standalone versions; all current consumers released, independent acceptance evidence retained.",
+            "remaining": true,
+            "status": "blocked",
+            "token": "efda465a1074733e41af8077b25eb00d52312a0ba02bfa55cc17a4c0eeac1e81"
+          }
+        ]
+      },
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "outcome": "acquired",
+          "count": 37,
+          "elapsed_us_sum": 37455338
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "outcome": "success",
+          "count": 17,
+          "elapsed_us_sum": 122506024
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "outcome": "success",
+          "count": 33,
+          "elapsed_us_sum": 122529127
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "outcome": "success",
+          "count": 16,
+          "elapsed_us_sum": 21487
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "outcome": "success",
+          "count": 6,
+          "elapsed_us_sum": 40540458
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.initial_group_review",
+          "outcome": "success",
+          "count": 3,
+          "elapsed_us_sum": 5877701
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.acquire",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 16204014
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "outcome": "verified",
+          "count": 2,
+          "elapsed_us_sum": 27580576
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "outcome": "verified",
+          "count": 6,
+          "elapsed_us_sum": 36550699
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.normalization_preflight",
+          "outcome": "success",
+          "count": 3,
+          "elapsed_us_sum": 63066514
+        },
+        {
+          "event": "maintenance.queued_wait",
+          "operation": "lock_release",
+          "outcome": "released",
+          "count": 3,
+          "elapsed_us_sum": 29995367
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "outcome": "success",
+          "count": 15,
+          "elapsed_us_sum": 82018606
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.verify.before_item",
+          "outcome": "success",
+          "count": 3,
+          "elapsed_us_sum": 78074662
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.current_review",
+          "outcome": "success",
+          "count": 3,
+          "elapsed_us_sum": 34798935
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.safe_entries.pre_intent",
+          "outcome": "success",
+          "count": 2,
+          "elapsed_us_sum": 27029374
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.prepare_local",
+          "outcome": "success",
+          "count": 5,
+          "elapsed_us_sum": 451596
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "outcome": "read",
+          "count": 5,
+          "elapsed_us_sum": 792958
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.merge",
+          "outcome": "success",
+          "count": 5,
+          "elapsed_us_sum": 1161682
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.decode_merged",
+          "outcome": "success",
+          "count": 3,
+          "elapsed_us_sum": 139357
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.prepare_merged",
+          "outcome": "success",
+          "count": 3,
+          "elapsed_us_sum": 279784
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.open_pending",
+          "outcome": "success",
+          "count": 5,
+          "elapsed_us_sum": 1896
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.serialize",
+          "outcome": "success",
+          "count": 5,
+          "elapsed_us_sum": 288079
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.write_pending",
+          "outcome": "success",
+          "count": 5,
+          "elapsed_us_sum": 99315
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.sync_pending",
+          "outcome": "success",
+          "count": 5,
+          "elapsed_us_sum": 3495403
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.rename",
+          "outcome": "success",
+          "count": 5,
+          "elapsed_us_sum": 37488
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "outcome": "committed",
+          "count": 5,
+          "elapsed_us_sum": 7108080
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.save",
+          "outcome": "committed",
+          "count": 5,
+          "elapsed_us_sum": 14109625
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.intent_save",
+          "outcome": "success",
+          "count": 2,
+          "elapsed_us_sum": 4745501
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.physical_delete",
+          "outcome": "success",
+          "count": 2,
+          "elapsed_us_sum": 171395064
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.actual_result_save",
+          "outcome": "success",
+          "count": 2,
+          "elapsed_us_sum": 5145026
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.final_presence",
+          "outcome": "success",
+          "count": 3,
+          "elapsed_us_sum": 3290
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.safe_entries.pre_intent",
+          "outcome": "error",
+          "count": 1,
+          "elapsed_us_sum": 7810136
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.final_observation_save",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 4219229
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.finalize",
+          "outcome": "success",
+          "count": 1,
+          "elapsed_us_sum": 4107673
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "outcome": "verified",
+          "count": 3,
+          "elapsed_us_sum": 1133685472
+        }
+      ]
+    }
+  ],
+  "finalizations": [],
+  "reviewed_bytes": 1156348464,
+  "error": "Error: Incomplete native deletion\n    at [stdin]:3:906\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+  "finished": "2026-11-02T10:12:30.823Z",
+  "evidence_compaction": "Raw timing events aggregated by event/operation/outcome; actual close exits, complete native apply results, first causal errors and review identities/tokens preserved. No overlapping span sums treated as wall decomposition."
+}

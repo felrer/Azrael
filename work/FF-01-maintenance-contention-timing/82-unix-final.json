@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "finished_utc": "2026-11-02T22:46:59.008Z",
+  "status": "implemented-verified-cleanup-complete-commit-deferred",
+  "verification": {
+    "path": "work/FF-01-maintenance-contention-timing/79-unix-verification.json",
+    "sha256": "5167165530c3739936ddc2d88bdad775569eb121abf8e9c7fefa374e211b9d88"
+  },
+  "cleanup": {
+    "path": "work/FF-01-maintenance-contention-timing/80-unix-cleanup.json",
+    "sha256": "7d0b902f6cf458013e8c3b27400d84fca2f26bc5c5b9e2368402b72beaf39f97"
+  },
+  "retirement_evidence": {
+    "path": "work/FF-01-maintenance-contention-timing/81-unix-retirement-evidence.json",
+    "sha256": "bb2df6fd7b5a67578e2ddd9592e6e8cf363dcd686e3defd301d863eb5828b358"
+  },
+  "source": {
+    "path": "engine/codex-rs/project-maintenance/src/unix_delete.rs",
+    "sha256": "ba2203f31f4cc48cac301f88c2eaf0d782bfd0da01dbb7b7184b3fdafd1ce5ee"
+  },
+  "native_full_passed": {
+    "linux": 231,
+    "macos": 231,
+    "windows": 254
+  },
+  "remaining_task_payload": [],
+  "installation_changed": false,
+  "commit": "Deferred: inseparable prior/concurrent uncommitted changes and unrelated staged work preserved."
+}

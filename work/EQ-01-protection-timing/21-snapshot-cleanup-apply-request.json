@@ -1,0 +1,17 @@
+{
+  "operation": "apply",
+  "decisions": [
+    {
+      "id": "045a676dc7a6763794c37ad6918ea870c2751e60888e4cfe26fd57bcb0877ecc",
+      "token": "32a4afb5446576672031ab2267f30e5930b02a843a7fcf6b278d5a12d6cae825",
+      "decision": "delete",
+      "reason": "Completed verification and performance run; eef3 candidate and work/18-locked-catalog-acceptance.json preserve independent evidence; old uninstalled ef98 candidate has no consumers"
+    },
+    {
+      "id": "41d34eb5e044ddb128e5eef04136f577ee8ce35fc0439fea267e6f491de2e1be",
+      "token": "c053d81d62267375f05179d8ee9122db126b9cf1eb0d8b5fb4507a6e9c35d495",
+      "decision": "delete",
+      "reason": "Completed verification and performance run; eef3 candidate and work/18-locked-catalog-acceptance.json preserve independent evidence; old uninstalled ef98 candidate has no consumers"
+    }
+  ]
+}

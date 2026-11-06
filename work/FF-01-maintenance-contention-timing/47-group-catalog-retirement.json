@@ -1,0 +1,11 @@
+﻿{
+    "at":  "2026-11-02T12:02:55.3802918Z",
+    "current_users":  [
+
+                      ],
+    "query_exit_code":  0,
+    "known_parent_pid":  20120,
+    "consumer_exit_code":  null,
+    "version_id":  "version:maintenance-owner:ff01:catalog-20261102",
+    "scope":  "Current host snapshot of retired executable and its observed cached-command parent; no inferred exit code"
+}

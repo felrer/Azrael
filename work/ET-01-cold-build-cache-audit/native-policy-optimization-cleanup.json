@@ -1,0 +1,207 @@
+{
+    "schema":  1,
+    "status":  "deleted-and-finalized",
+    "acceptance":  {
+                       "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\native-policy-optimization.json",
+                       "sha256":  "c73379b87c615fd5b91271d9824b9682b70d84524d241c78b42b121ebc7b0bd1"
+                   },
+    "selections":  [
+                       {
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                           "id":  "run:ET-01-cold-build-cache-audit:native-policy-optimization-20261031a",
+                           "expectedPaths":  [
+                                                 "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031a"
+                                             ],
+                           "items":  [
+                                         {
+                                             "id":  "978708d6669f1006215b9877fcd4cb192d4c854dd1b547d8b7295c99f1026ae6",
+                                             "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031a",
+                                             "token":  "6671b5b630d60045558d30bd4e1e948b8dee99e616211adf2c134a98acfc1e60",
+                                             "logicalBytes":  492757
+                                         }
+                                     ]
+                       },
+                       {
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                           "id":  "run:ET-01-cold-build-cache-audit:native-policy-optimization-20261031b",
+                           "expectedPaths":  [
+                                                 "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031b"
+                                             ],
+                           "items":  [
+                                         {
+                                             "id":  "2cee4059a3d5373dc87ebb8c58f9e5624cbb7633ef53b9a0e41fdef99aad81fb",
+                                             "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\native-policy-optimization-20261031b",
+                                             "token":  "062ed4f5fc3695f6b0b461c33523b72ac10f6734645898789e008068df226019",
+                                             "logicalBytes":  5602218
+                                         }
+                                     ]
+                       },
+                       {
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+                           "id":  "run:deploy-checks:126e8a9ca44e410c99a470feac39cdf6",
+                           "expectedPaths":  [
+                                                 "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\deploy-checks\\runs\\126e8a9ca44e410c99a470feac39cdf6",
+                                                 "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t-126e"
+                                             ],
+                           "items":  [
+                                         {
+                                             "id":  "5b08eda49c5795e0790e6b2a151bb4de9f8bd6a6b074753144e7e7f98c812fd2",
+                                             "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\deploy-checks\\runs\\126e8a9ca44e410c99a470feac39cdf6",
+                                             "token":  "443acd7f59c790319a5f9632bec6e215d9b5c65b5a62250b8648db18c5323dac",
+                                             "logicalBytes":  556
+                                         },
+                                         {
+                                             "id":  "e21a46de13118489dc56d7277249c30fd3f186ad405f98c48659e5f9ff2e1c04",
+                                             "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t-126e",
+                                             "token":  "b697b9adb4ba36315d012afdf2f4f3fead3b693b30128caed1011a061bc137a9",
+                                             "logicalBytes":  0
+                                         }
+                                     ]
+                       }
+                   ],
+    "finalized":  [
+                      {
+                          "id":  "run:ET-01-cold-build-cache-audit:native-policy-optimization-20261031a",
+                          "projectRoot":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                          "status":  "finalized",
+                          "remaining":  [
+
+                                        ],
+                          "references":  [
+
+                                         ],
+                          "blockers":  [
+
+                                       ],
+                          "registryPath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\77d1ba456cc47eab0137a3cf931de0398f2ab6e456606faf6a8e70f19692ef17.json"
+                      },
+                      {
+                          "id":  "run:ET-01-cold-build-cache-audit:native-policy-optimization-20261031b",
+                          "projectRoot":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                          "status":  "finalized",
+                          "remaining":  [
+
+                                        ],
+                          "references":  [
+
+                                         ],
+                          "blockers":  [
+
+                                       ],
+                          "registryPath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8622362907414860091af9447634f3006295ae1652ae18a7718dc2f7e1a8340c.json"
+                      },
+                      {
+                          "id":  "run:deploy-checks:126e8a9ca44e410c99a470feac39cdf6",
+                          "projectRoot":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+                          "status":  "finalized",
+                          "remaining":  [
+
+                                        ],
+                          "references":  [
+
+                                         ],
+                          "blockers":  [
+
+                                       ],
+                          "registryPath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\89451eb6449ffefbdfb026962ae6c87124d5e2623f8dc3b65c639407c4ef158a.json"
+                      }
+                  ],
+    "finishedUtc":  "2026-10-31T01:49:26.168Z",
+    "controls":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\native-policy-optimization-cleanup",
+    "executions":  [
+                       {
+                           "name":  "0-apply",
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                           "exe":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+                           "startedUtc":  "2026-10-31T01:47:47.836Z",
+                           "pid":  34436,
+                           "exitCode":  0,
+                           "signal":  null,
+                           "finishedUtc":  "2026-10-31T01:48:28.871Z"
+                       },
+                       {
+                           "name":  "0-register",
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                           "exe":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+                           "startedUtc":  "2026-10-31T01:43:31.164Z",
+                           "pid":  48700,
+                           "exitCode":  0,
+                           "signal":  null,
+                           "finishedUtc":  "2026-10-31T01:45:21.308Z"
+                       },
+                       {
+                           "name":  "0-review",
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                           "exe":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+                           "startedUtc":  "2026-10-31T01:45:21.311Z",
+                           "pid":  35960,
+                           "exitCode":  0,
+                           "signal":  null,
+                           "finishedUtc":  "2026-10-31T01:45:27.571Z"
+                       },
+                       {
+                           "name":  "1-apply",
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                           "exe":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+                           "startedUtc":  "2026-10-31T01:48:28.874Z",
+                           "pid":  38836,
+                           "exitCode":  0,
+                           "signal":  null,
+                           "finishedUtc":  "2026-10-31T01:49:10.356Z"
+                       },
+                       {
+                           "name":  "1-register",
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                           "exe":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+                           "startedUtc":  "2026-10-31T01:45:29.748Z",
+                           "pid":  17716,
+                           "exitCode":  0,
+                           "signal":  null,
+                           "finishedUtc":  "2026-10-31T01:47:20.164Z"
+                       },
+                       {
+                           "name":  "1-review",
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init",
+                           "exe":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+                           "startedUtc":  "2026-10-31T01:47:20.167Z",
+                           "pid":  16148,
+                           "exitCode":  0,
+                           "signal":  null,
+                           "finishedUtc":  "2026-10-31T01:47:26.378Z"
+                       },
+                       {
+                           "name":  "2-apply",
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+                           "exe":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-contained-registry-win-x64\\payload\\maintenance_owner.exe",
+                           "startedUtc":  "2026-10-31T01:49:10.368Z",
+                           "pid":  53128,
+                           "exitCode":  0,
+                           "signal":  null,
+                           "finishedUtc":  "2026-10-31T01:49:15.884Z"
+                       },
+                       {
+                           "name":  "2-register",
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+                           "exe":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-contained-registry-win-x64\\payload\\maintenance_owner.exe",
+                           "startedUtc":  "2026-10-31T01:47:26.769Z",
+                           "pid":  53396,
+                           "exitCode":  0,
+                           "signal":  null,
+                           "finishedUtc":  "2026-10-31T01:47:36.687Z"
+                       },
+                       {
+                           "name":  "2-review",
+                           "root":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+                           "exe":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-contained-registry-win-x64\\payload\\maintenance_owner.exe",
+                           "startedUtc":  "2026-10-31T01:47:36.690Z",
+                           "pid":  10436,
+                           "exitCode":  0,
+                           "signal":  null,
+                           "finishedUtc":  "2026-10-31T01:47:37.806Z"
+                       }
+                   ],
+    "actualRemaining":  [
+
+                        ],
+    "deletedLogicalBytes":  6095531
+}

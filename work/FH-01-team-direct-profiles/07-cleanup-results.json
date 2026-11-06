@@ -1,0 +1,132 @@
+{
+  "scope": [
+    "run:FH-01-role-profiles-native:20261102T104407499Z-c7346c5d-d1ba-4a0b-8804-aa0d4bfc8f78",
+    "run:FH-01-schema-final:20261102T112517595Z-97f518a6-a965-4019-921a-70ba90a3b982"
+  ],
+  "appliedGroups": [
+    {
+      "id": "run:FH-01-role-profiles-native:20261102T104407499Z-c7346c5d-d1ba-4a0b-8804-aa0d4bfc8f78",
+      "status": "deleted"
+    },
+    {
+      "id": "run:FH-01-schema-final:20261102T112517595Z-97f518a6-a965-4019-921a-70ba90a3b982",
+      "status": "deleted"
+    }
+  ],
+  "results": [
+    {
+      "attempt_id": "attempt-54624-5216-1793619214670",
+      "decision": "delete",
+      "decision_id": "937e79779a027936e8e0feb64f76c5f687b1444a9214888bb3ea44eae9f0d55d",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "0f4028bf210461db035e2de98686bba4aa01c7f1e95889f0540d5d810eebabbf",
+      "lifecycle_group_id": "run:FH-01-role-profiles-native:20261102T104407499Z-c7346c5d-d1ba-4a0b-8804-aa0d4bfc8f78",
+      "reason": "All owned native/schema producers ended; actual acceptance results preserved independently in work/FH-01-team-direct-profiles; no remaining consumer or recovery need",
+      "remaining": false,
+      "status": "deleted",
+      "token": "866cda4a4ecbd7882744cd25e8a6469b985ad407a51492a28c5225d160436baf"
+    },
+    {
+      "attempt_id": "attempt-54624-5221-1793619233043",
+      "decision": "delete",
+      "decision_id": "39c489431d38c708d657da5403a2d1f03cff3afd93614b7d23c00c456d821309",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "ad346dfdc7c29a81233fb7a01a5d5645b6959633474ce885fa05c466bfb34588",
+      "lifecycle_group_id": "run:FH-01-role-profiles-native:20261102T104407499Z-c7346c5d-d1ba-4a0b-8804-aa0d4bfc8f78",
+      "reason": "All owned native/schema producers ended; actual acceptance results preserved independently in work/FH-01-team-direct-profiles; no remaining consumer or recovery need",
+      "remaining": false,
+      "status": "deleted",
+      "token": "8fbe885655117ee75bb4ff0f9aec6ce3f26b07256cc1397045a87e8b50d2bc71"
+    },
+    {
+      "attempt_id": "attempt-54624-5226-1793619285610",
+      "decision": "delete",
+      "decision_id": "79a2e5cf10eb0dc51e8725a5894c571dbbcc3cb6bd76993498a6913f5de1c1ff",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "ec08dca8f0d9121e49af6e3ca8d3090adce8b54219a34c4b7c191157f85c1c96",
+      "lifecycle_group_id": "run:FH-01-role-profiles-native:20261102T104407499Z-c7346c5d-d1ba-4a0b-8804-aa0d4bfc8f78",
+      "reason": "All owned native/schema producers ended; actual acceptance results preserved independently in work/FH-01-team-direct-profiles; no remaining consumer or recovery need",
+      "remaining": false,
+      "status": "deleted",
+      "token": "94faf87ad2fa6a13e4bd774947c5f6bcd99d195328c1844d7746fcbdbc161ccb"
+    },
+    {
+      "attempt_id": "attempt-54624-5232-1793619407512",
+      "decision": "delete",
+      "decision_id": "2a3728de679be8c55e0b13a9fcfb590406a23cd119d4cc4db43a1fef83883581",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleting",
+      "id": "1320e42e38f9c008f3c0b65e5d44fa68672469f5b8281548fe58a886acf28a9d",
+      "lifecycle_group_id": "run:FH-01-schema-final:20261102T112517595Z-97f518a6-a965-4019-921a-70ba90a3b982",
+      "reason": "All owned native/schema producers ended; actual acceptance results preserved independently in work/FH-01-team-direct-profiles; no remaining consumer or recovery need",
+      "remaining": false,
+      "status": "deleted",
+      "token": "724b60dc7a6af7513d8f8f335c6691f5d5d28917588d28fdff58b77f8cf7a3e7"
+    },
+    {
+      "attempt_id": "attempt-54624-5234-1793619420216",
+      "decision": "delete",
+      "decision_id": "1b51f4dd87461aed1ca018b0449516f626a5cbff275ee75b31e2caad8342d4dd",
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "c706072f939c5c713143a864691f7e7faca79c2cfd35af1700a45a47eff66be8",
+      "lifecycle_group_id": "run:FH-01-schema-final:20261102T112517595Z-97f518a6-a965-4019-921a-70ba90a3b982",
+      "reason": "All owned native/schema producers ended; actual acceptance results preserved independently in work/FH-01-team-direct-profiles; no remaining consumer or recovery need",
+      "remaining": false,
+      "status": "deleted",
+      "token": "2ba67b20d7dba4bc8568fd6dc3254d8adcf48fd42f72e3c74eeb39b96f7b1992"
+    }
+  ],
+  "finalized": [
+    {
+      "id": "run:FH-01-role-profiles-native:20261102T104407499Z-c7346c5d-d1ba-4a0b-8804-aa0d4bfc8f78",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c6e0b935a9a9aae9353480d281113f772212b83001783e35871af93f4b9fe4f3.json"
+    },
+    {
+      "id": "run:FH-01-schema-final:20261102T112517595Z-97f518a6-a965-4019-921a-70ba90a3b982",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\91bb108a987b9916f7f57fd243c313f5899bb7b1a2576e619f2365c399a109a1.json"
+    }
+  ],
+  "remaining": []
+}

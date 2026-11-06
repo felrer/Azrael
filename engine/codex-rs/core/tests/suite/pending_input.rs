@@ -774,7 +774,7 @@ async fn any_new_input_interrupts_sleep() {
         chunk(ev_response_created("resp-1")),
         chunk(ev_function_call_with_namespace(
             FIRST_SLEEP_CALL_ID,
-            "clock",
+            "legacy_codex_tools",
             "sleep",
             &sleep_arguments,
         )),
@@ -784,7 +784,7 @@ async fn any_new_input_interrupts_sleep() {
         chunk(ev_response_created("resp-2")),
         chunk(ev_function_call_with_namespace(
             SECOND_SLEEP_CALL_ID,
-            "clock",
+            "legacy_codex_tools",
             "sleep",
             &sleep_arguments,
         )),

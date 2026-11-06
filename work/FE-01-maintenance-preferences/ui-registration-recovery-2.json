@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "id": "run:verify-maintenance-preferences-render:20261102T022331738Z-597b7764-f44c-49ba-8e72-730824c13733",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "91c98f2e995edcd4e00c80f951c0d344fbaee94229d1209ba37e82d30800d35a",
+  "lease_owner": {
+    "acquired_at_ms": 1793586723549,
+    "operation": "group_reservation",
+    "pid": 43284,
+    "schema": 2,
+    "token": "43284-1793586723549-d770d900624b0813"
+  },
+  "execution_outcome": "failure",
+  "exit_code": 1,
+  "basis": [
+    "Owned synchronous register returned native exit 1 and maintenance_busy; no pending controller execution remains.",
+    "CIM query exact lease owner PID43284 and ParentProcessId43284 returned no process.",
+    "Register operation directly uses registration::register; no native registration subprocess spawn path. Deletion worker is not reached by register. These observations together establish exact non-spawning registration owner termination."
+  ]
+}

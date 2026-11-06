@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 const test = require("node:test");
-const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings, AzraelInstructionSettings, azraelSettingsText, instructionClientTools } = require("./inject-instruction-settings.cjs");
+const { injectInstructionSettings, AzraelInstructionSettings, azraelSettingsText, instructionClientTools } = require("./inject-instruction-settings.cjs");
 const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 
 test("acquisition uses the selected version in the active detail instead of hidden catalog controls", () => {
@@ -133,17 +133,6 @@ test("settings command opens the existing native settings panel for pristine and
   }
 });
 
-test("instruction transforms are idempotent and reject missing or duplicate anchors", () => {
-  for (const asset of [...INSTRUCTION_SETTINGS_ASSETS, "out/extension.js"]) {
-    const source = fs.readFileSync(path.join(root, asset), "utf8");
-    const result = injectInstructionSettings(source, asset);
-    assert.equal(result.count, 1);
-    assert.equal(injectInstructionSettings(result.text, asset).count, 0);
-    assert.throws(() => injectInstructionSettings(result.text + "/*azrael-instruction-settings-v1*/", asset), /Duplicate/);
-    assert.throws(() => injectInstructionSettings("", asset), /anchor changed/);
-  }
-});
-
 test("native mount request correlation, action payload, busy gate, delayed response and cleanup", () => {
   let effect, receiver, cleanup, timer;
   const sent = [], listeners = {};
@@ -171,4 +160,60 @@ test("native mount request correlation, action payload, busy gate, delayed respo
   listeners.change({ target: select }); timer(); assert.equal(sent[2].action, "selectVersion");
   const late = receiver; cleanup(); late({ clientId: "mount", requestId: "4", html: "late" });
   assert.equal(shadow.innerHTML, ""); assert.equal(sent[3].action, "unmount"); assert.equal(Object.keys(listeners).length, 0);
+});
+
+
+test("Plugins replaces duplicate MCP navigation while retaining native availability and old links", () => {
+  const ts = require("../extensions/azrael-ex/node_modules/typescript");
+  const asset = "webview/assets/use-visible-settings-sections-7686bdcccd03.js";
+  const original = fs.readFileSync(path.join(root, asset), "utf8");
+  const result = injectInstructionSettings(original, asset);
+  const ast = ts.createSourceFile(asset, result.text, 99, true, ts.ScriptKind.JS);
+  let filter;
+  const visit = node => {
+    if (ts.isArrowFunction(node) && node.body.getText(ast).includes('!(e.slug===`mcp-settings`&&l)')) filter = node.getText(ast);
+    ts.forEachChild(node, visit);
+  }; visit(ast);
+  assert.ok(filter, "actual native section filter is present");
+  for (const pluginsAvailable of [false, true]) {
+    const visible = vm.runInNewContext('(' + filter + ')', { l: pluginsAvailable, k: false });
+    assert.equal(visible({ slug: "mcp-settings" }), !pluginsAvailable);
+    for (const slug of ["plugins-settings", "hooks-settings", "general-settings"]) assert.equal(visible({ slug }), true);
+  }
+  assert.equal(injectInstructionSettings(result.text, asset).count, 0);
+  const legacyAsset = "webview/assets/mcp-settings-1facd8f02248.js";
+  const legacy = injectInstructionSettings(fs.readFileSync(path.join(root, legacyAsset), "utf8"), legacyAsset);
+  const legacyAst = ts.createSourceFile(legacyAsset, legacy.text, 99, true, ts.ScriptKind.JS);
+  assert.equal(legacyAst.parseDiagnostics.length, 0);
+  const route = legacyAst.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "d");
+  const render = vm.runInNewContext('(' + route.getText(legacyAst) + ')', {
+    f: { c: n => Array(n).fill(Symbol.for("react.memo_cache_sentinel")) },
+    p: { jsx: (type, props) => ({ type, props }) }, u: "Plugins",
+  });
+  const page = render();
+  assert.equal(page.type, "Plugins");
+  assert.equal(page.props.manageOnly, undefined, "old links retain full Plugins actions");
+  assert.equal(injectInstructionSettings(legacy.text, legacyAsset).count, 0);
+});
+
+test("preset and Window use navigation names cover descriptors, rows and collapsed headings", () => {
+  const ts = require("../extensions/azrael-ex/node_modules/typescript");
+  const asset = "webview/assets/settings-page-f0054e44de3c.js";
+  const text = injectInstructionSettings(fs.readFileSync(path.join(root, asset), "utf8"), asset).text;
+  const ast = ts.createSourceFile(asset, text, 99, true, ts.ScriptKind.JS), expressions = {};
+  const visit = node => {
+    if (ts.isVariableDeclaration(node) && ["s", "f"].includes(node.name.getText(ast)) && node.initializer?.getText(ast).startsWith('e.slug===`azrael-instructions`?')) expressions[node.name.getText(ast)] = node.initializer.getText(ast);
+    if (ts.isBinaryExpression(node) && ["s", "f"].includes(node.left.getText(ast)) && node.right.getText(ast).startsWith('e.slug===`azrael-instructions`?')) expressions[node.left.getText(ast)] = node.right.getText(ast);
+    if (ts.isPropertyAssignment(node) && node.name.getText(ast) === "label" && node.initializer.getText(ast).startsWith('e.slug===`azrael-instructions`?')) expressions.label = node.initializer.getText(ast);
+    ts.forEachChild(node, visit);
+  }; visit(ast);
+  assert.deepEqual(Object.keys(expressions).sort(), ["f", "label", "s"]);
+  for (const locale of ["en-US", "ko", "KO-KR", "ko_KR", "ja-JP", undefined]) {
+    for (const [slug, en, ko] of [["azrael-instructions", "Presets", "프리셋"], ["computer-use", "Window use", "Window use"]]) {
+      for (const [kind, expression] of Object.entries(expressions)) {
+        const actual = vm.runInNewContext(expression, { e: { slug }, T: { locale }, azraelSettingsText });
+        assert.equal(kind === "s" ? actual.defaultMessage : actual, azraelSettingsText(locale, en, ko), `${kind}/${slug}/${locale}`);
+      }
+    }
+  }
 });

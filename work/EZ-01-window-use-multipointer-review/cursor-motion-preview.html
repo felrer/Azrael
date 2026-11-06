@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Azrael · 사용자와 Agent 커서 모션 시안</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f7f7f5; }
+  #cursor-study { --paper:#fff; --ink:#242724; --muted:#6d736e; --rule:#e4e7e1; --wash:#f5f6f3; --agent:#68bc9e; --agent-ink:#194f3d; font:14px/1.6 system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif; color:var(--ink); max-width:1160px; margin:auto; padding:44px 42px 38px; }
+  #cursor-study h1,#cursor-study h2,#cursor-study p { margin:0; }
+  #cursor-study .mast { font-size:11px; letter-spacing:.13em; color:var(--muted); display:flex; justify-content:space-between; gap:12px; }
+  #cursor-study h1 { font-size:30px; letter-spacing:-1.1px; font-weight:600; margin:15px 0 8px; }
+  #cursor-study .intro { color:var(--muted); max-width:760px; }
+  #cursor-study button,#cursor-study select { font:inherit; color:inherit; background:var(--paper); border:1px solid var(--rule); border-radius:8px; padding:7px 12px; min-height:36px; cursor:pointer; }
+  #cursor-study button:hover { background:var(--wash); }
+  #cursor-study button[aria-pressed="true"] { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  #cursor-study :focus-visible { outline:3px solid #5b9c86; outline-offset:3px; }
+  #cursor-study .toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin:25px 0 12px; }
+  #cursor-study .group { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+  #cursor-study .group label { font-size:12px; color:var(--muted); }
+  #cursor-study .stage { border:1px solid var(--rule); border-radius:14px; background:var(--paper); overflow:hidden; position:relative; }
+  #cursor-study .stage.dark { --paper:#222623; --ink:#edf1ec; --muted:#adb6ae; --rule:#424a43; --wash:#2a302b; }
+  #cursor-study .stage-top { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 22px 0; color:var(--muted); font-size:12px; }
+  #cursor-study .live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#53a486; margin-right:7px; }
+  #cursor-study .stage svg.main-scene { display:block; width:100%; height:auto; min-height:270px; }
+  #cursor-study .stage-note { padding:0 22px 18px; color:var(--muted); min-height:42px; font-size:12px; }
+  #cursor-study .scene-ink { fill:var(--ink); }
+  #cursor-study .scene-muted { fill:var(--muted); }
+  #cursor-study .scene-rule { stroke:var(--rule); }
+  #cursor-study .scene-paper { fill:var(--paper); }
+  #cursor-study .scene-wash { fill:var(--wash); }
+  #cursor-study .cursor-shadow { filter:drop-shadow(0px 1.5px 1.3px #12291d30); }
+  #cursor-study .cursor-label { font:500 12px system-ui,"Malgun Gothic",sans-serif; }
+  #cursor-study .transport { display:flex; align-items:center; gap:12px; margin-top:14px; flex-wrap:wrap; }
+  #cursor-study input[type="range"] { accent-color:#387b62; flex:1; min-width:130px; cursor:pointer; }
+  #cursor-study output { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; min-width:70px; }
+  #cursor-study .states { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0 0; }
+  #cursor-study .states button { font-size:12px; padding:5px 10px; min-height:32px; }
+  #cursor-study section { margin-top:36px; border-top:1px solid var(--rule); padding-top:22px; }
+  #cursor-study h2 { font-size:17px; font-weight:600; letter-spacing:-.4px; }
+  #cursor-study .section-note { color:var(--muted); font-size:12px; margin-top:5px; }
+  #cursor-study .specimens { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:18px; }
+  #cursor-study .specimen { min-width:0; background:var(--paper); border:1px solid var(--rule); border-radius:10px; padding:20px; }
+  #cursor-study .specimen h3 { font-size:14px; margin:0; font-weight:600; }
+  #cursor-study .specimen svg { display:block; width:100%; height:128px; }
+  #cursor-study .specimen p { font-size:12px; color:var(--muted); }
+  #cursor-study .variants { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  #cursor-study .variants button { font-size:12px; padding:4px 9px; min-height:30px; }
+  #cursor-study .motion-notes { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:18px; }
+  #cursor-study .motion-notes strong { display:block; font-size:13px; font-weight:600; margin-bottom:5px; }
+  #cursor-study .motion-notes p { color:var(--muted); font-size:12px; }
+  #cursor-study footer { margin-top:30px; padding-top:16px; border-top:1px solid var(--rule); color:var(--muted); font-size:11px; }
+  #cursor-study .sr { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+  #cursor-study .defs { position:absolute; width:0; height:0; overflow:hidden; }
+  #cursor-study .source-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:18px 0; }
+  #cursor-study .source-card { border:1px solid var(--rule); background:var(--paper); border-radius:10px; padding:16px; min-width:0; }
+  #cursor-study .source-card.selected { border-color:#527b68; box-shadow:inset 0 0 0 1px #527b68; }
+  #cursor-study .source-card h3 { font-size:13px; margin:0 0 8px; font-weight:600; }
+  #cursor-study .source-previews { display:flex; align-items:center; justify-content:space-around; gap:12px; height:105px; }
+  #cursor-study .source-original { color:#000; width:78px; height:78px; }
+  #cursor-study .source-original svg { width:100%; height:100%; }
+  #cursor-study .source-colored { width:65px; height:65px; }
+  #cursor-study .source-caption { display:flex; justify-content:space-around; color:var(--muted); font-size:11px; margin-bottom:12px; }
+  #cursor-study .source-card a { color:#466958; font-size:11px; overflow-wrap:anywhere; }
+  #cursor-study .source-card button { display:block; width:100%; margin-top:10px; font-size:12px; }
+  #cursor-study .source-notice { font-size:12px; color:var(--muted); margin-top:8px; max-width:850px; }
+  #cursor-study .palette-panel { padding:16px 18px; border:1px solid var(--rule); border-radius:10px; background:var(--paper); margin:18px 0; }
+  #cursor-study .palette-row { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0; }
+  #cursor-study .palette-row button { display:flex; align-items:center; gap:7px; font-size:12px; padding:5px 9px; }
+  #cursor-study .swatch { width:14px; height:14px; border-radius:50%; background:var(--swatch); border:1px solid #0002; }
+  #cursor-study input[type="color"] { width:42px; height:34px; border:1px solid var(--rule); border-radius:6px; background:var(--paper); padding:3px; cursor:pointer; }
+  #cursor-study input[type="text"] { width:90px; font:13px ui-monospace,monospace; border:1px solid var(--rule); border-radius:6px; padding:8px; background:var(--paper); color:var(--ink); }
+  #cursor-study .palette-settings { display:flex; flex-wrap:wrap; align-items:center; gap:9px; font-size:12px; }
+  #cursor-study .palette-settings label { display:inline-flex; align-items:center; gap:6px; }
+  #cursor-study .palette-summary { font-size:12px; color:var(--muted); margin-left:auto; }
+  #cursor-study details { margin-top:16px; font-size:12px; }
+  #cursor-study summary { cursor:pointer; }
+  #cursor-study details pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:11px; line-height:1.5; max-height:220px; overflow:auto; background:var(--wash); padding:12px; }
+  #cursor-study .agent-fill { fill:var(--agent); }
+  #cursor-study .agent-outline { stroke:var(--agent-ink); stroke-width:0; }
+  #cursor-study .variant-card .source-colored { background:#333b38; border-radius:8px; padding:8px; width:80px; height:80px; }
+  #cursor-study .variant-note { font-size:12px; color:var(--muted); min-height:40px; margin-top:8px; }
+  #cursor-study #variant-gallery { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #cursor-study .palette-tones { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px; font-size:12px; }
+  #cursor-study .comparison-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+  #cursor-study .comparison-grid figure { margin:0; padding:16px; border:1px solid var(--rule); border-radius:10px; background:var(--paper); }
+  #cursor-study .comparison-grid figcaption { font-size:13px; font-weight:600; }
+  #cursor-study .comparison-grid svg { width:100%; height:250px; display:block; background:#f1f3f1; margin-top:12px; }
+  #cursor-study .comparison-grid p { font-size:12px; color:var(--muted); }
+  #cursor-study .comparison-controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-size:12px; margin-top:14px; }
+  #cursor-study .comparison-controls label { display:inline-flex; gap:6px; align-items:center; }
+  #cursor-study .comparison-controls input[type="range"] { flex:0 1 160px; }
+  @media(max-width:650px) {
+    #cursor-study { padding:25px 16px; }
+    #cursor-study h1 { font-size:25px; }
+    #cursor-study .mast { font-size:10px; letter-spacing:.06em; }
+    #cursor-study .specimens,#cursor-study .motion-notes { grid-template-columns:1fr; gap:14px; }
+    #cursor-study .stage svg.main-scene { min-height:220px; }
+    #cursor-study .stage-top { padding:14px 14px 0; }
+    #cursor-study .stage-note { padding:0 14px 14px; }
+    #cursor-study .source-grid { grid-template-columns:1fr; }
+    #cursor-study #variant-gallery { grid-template-columns:1fr; }
+    #cursor-study .comparison-grid { grid-template-columns:1fr; }
+    #cursor-study .palette-summary { width:100%; margin:0; }
+  }
+  @media print {
+    body { background:#fff; }
+    #cursor-study { padding:12px; }
+    #cursor-study .toolbar,#cursor-study .transport,#cursor-study .states,#cursor-study .variants { display:none; }
+    #cursor-study .stage,#cursor-study .specimen, #cursor-study section { break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<main id="cursor-study">
+  <svg class="defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+    <!-- All vector paths use (0,0) as the actual input hotspot. -->
+    <path id="user-before" d="M0.5 0.05195L0.05195 0.5L0.1746 16.5L0.5 16.8254L1.5 16.97746L4.5 14.1164L4.96474 14.5L5.20833 15.5L5.95312 16.5L6.20833 17.5L7.03704 18.5L7.5 18.90698L8.5 18.69304L9.5 17.99355L9.875 17.5L9.88995 16.5L9.00971 15.5L8.89573 14.5L8.04505 13.5L8.5 13.04911L9.5 12.8254L11.5 12.8254L11.8254 12.5L11.8254 11.5Z"/><g id="user-before-fine"><use href="#user-before" fill="#10131c"/><path d="M1.5 1.99854L1.0 2.5L1.02254 15.5L1.5 15.97746L4.5 12.97746L5.5 13.78905L5.99837 14.5L6.15596 15.5L7.0 16.5L7.09446 17.5L7.5 17.90421L8.5 18.00122L9.00157 17.5L8.90576 16.5L8.00139 15.5L7.93493 14.5L7.00145 13.5L7.00146 12.5L7.5 12.00146L10.5 11.93477L10.93477 11.5Z" fill="#ffffff"/></g><path id="user-contour" d="M0.46541 0.37728L11.61836 11.84888A0.48 0.48 0 0 1 11.3284 12.66041L8.18424 13.0177A0.2 0.2 0 0 0 8.02793 13.30586L9.98111 17.21223A0.4 0.4 0 0 1 9.82249 17.73801L7.8021 18.89787A0.4 0.4 0 0 1 7.25313 18.74493L4.75551 14.24029A0.18 0.18 0 0 0 4.48285 14.18929L0.83388 17.2301A0.42 0.42 0 0 1 0.14501 16.9098L0.05334 0.54593A0.24 0.24 0 0 1 0.46541 0.37728Z"/><g id="user-fine"><use href="#user-contour" fill="#10131c" stroke="none"/><path d="M1.26269 2.54583L10.03552 11.56931A0.18 0.18 0 0 1 9.92679 11.87363L6.96958 12.20968A0.36 0.36 0 0 0 6.68824 12.72837L8.83636 17.02462A0.18 0.18 0 0 1 8.76498 17.26122L7.96789 17.71881A0.18 0.18 0 0 1 7.72085 17.64999L5.13213 12.98104A0.36 0.36 0 0 0 4.58682 12.87905L1.37192 15.55813A0.18 0.18 0 0 1 1.07669 15.42086L1.00515 2.65123A0.15 0.15 0 0 1 1.26269 2.54583Z" fill="#ffffff" stroke="none"/></g><image id="windows-arrow-bitmap" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA/0lEQVR4nO3TsWrCQBzH8f/vYkAIJKZQK32LTj5FX9GXaEbtkE1wkYC6BoeIk9ATLR2u/E9rtJq69O6W+07HLf9P/kmIEFci7PbJWYgriM7IHQJxpZRS7hA4ANwhUAPcIHAJsI/ANcAuArcB9hBoBuw/vywg0AzgNpsPwwj8DeBWq7VBBO4DuLJcasR/j2/9vthu9xRFbX0WQfpOxkO9ASl3iiiWb9nw5y8YitbjqxWAPA7n9wwkxWntSArjAHk2XF+JNMvz8XELaWZ0C9AfVj2c02ckcwbMZgvewtQYoCl+ch6ut4DOhGwXhL1n3gLEw0CETy/WAT6fz+fzkaW+AcZfRm/zFXLZAAAAAElFTkSuQmCC" width="32" height="32"/><filter id="comparison-cyan" x="0" y="0" width="100%" height="100%"><feColorMatrix type="matrix" values="0 0 0 0 .137 0 0 0 0 .663 0 0 0 0 .859 0 0 0 1 0"/></filter>
+    <g id="source-fluent16"><path d="M4.00195 2.9984C4.00195 2.17424 4.94294 1.70389 5.60215 2.19855L13.5996 8.1997C14.3682 8.77643 13.9603 9.99956 12.9994 9.99956H9.05418C8.74324 9.99956 8.44999 10.1442 8.26073 10.3909L5.7954 13.6049C5.21383 14.363 4.00195 13.9517 4.00195 12.9962V2.9984Z"/></g>
+<g id="source-fluent24"><path d="M7.92098 2.29927C6.93571 1.53286 5.5 2.23498 5.5 3.48325V20.492C5.5 21.9142 7.2945 22.538 8.17661 21.4224L12.3676 16.1222C12.6806 15.7264 13.1574 15.4956 13.6619 15.4956H20.5143C21.9425 15.4956 22.5626 13.6885 21.4353 12.8116L7.92098 2.29927Z"/></g>
+<g id="source-tabler"><path d="M3.039 4.277l3.904 13.563c.185 .837 .92 1.516 1.831 1.642l.17 .016a2.2 2.2 0 0 0 1.982 -1.006l.045 -.078l1.4 -2.072l4.05 4.05a2.067 2.067 0 0 0 2.924 0l1.047 -1.047c.388 -.388 .606 -.913 .606 -1.461l-.008 -.182a2.067 2.067 0 0 0 -.598 -1.28l-4.047 -4.048l2.103 -1.412c.726 -.385 1.18 -1.278 1.053 -2.189a2.2 2.2 0 0 0 -1.701 -1.845l-13.524 -3.89a1 1 0 0 0 -1.236 1.24z"/></g>
+<g id="source-phosphor"><path d="M220.49,207.8,207.8,220.49a12,12,0,0,1-17,0l-56.57-56.57L115,214.08l-.13.33A15.84,15.84,0,0,1,100.26,224l-.78,0a15.82,15.82,0,0,1-14.41-11L32.8,52.92A15.95,15.95,0,0,1,52.92,32.8L213,85.07a16,16,0,0,1,1.41,29.8l-.33.13-50.16,19.27,56.57,56.56A12,12,0,0,1,220.49,207.8Z"/></g>
+<g id="source-mingcute"><path d="m15.102 13.688 4.676 4.676c.359.41.405 1.009 0 1.414s-1.004.359-1.414 0l-4.676-4.676-1.959 3.918c-.312.548-.923.836-1.538.62-.353-.124-.586-.382-.74-.715L4.217 5.842c-.178-.514-.069-1.062.356-1.421.365-.309.828-.358 1.269-.204L18.926 9.45c.332.154.59.387.714.74.216.616-.072 1.227-.62 1.539Z"/></g>
+    <g id="source-fluent16-w90"><path d="M4.00195 2.998859805A1 1 0 0 1 5.662930136 2.248456407L12.661012404 8.412598761A1 1 0 0 1 12.000032268 10.163002159L8.588736558 10.163002159A1 1 0 0 0 7.751627583 10.615965994L5.839058974 13.542698176A1 1 0 0 1 4.00195 12.995662012Z"/></g>
+<g id="source-fluent16-w80"><path d="M4.00195 2.998859805A1 1 0 0 1 5.731642257 2.315084104L11.729937607 8.716173916A1 1 0 0 1 11.000245349 10.399949617L8.135049367 10.399949617A1 1 0 0 0 7.254919008 10.925217534L5.882080359 13.470394096A1 1 0 0 1 4.00195 12.995662012Z"/></g>
+<g id="source-fluent16-w90-white"><path d="M4.00195 2.998859805A1 1 0 0 1 5.662930136 2.248456407L12.661012404 8.412598761A1 1 0 0 1 12.000032268 10.163002159L8.588736558 10.163002159A1 1 0 0 0 7.751627583 10.615965994L5.839058974 13.542698176A1 1 0 0 1 4.00195 12.995662012Z"/></g>
+<g id="source-fluent16-w80-white"><path d="M4.00195 2.998859805A1 1 0 0 1 5.731642257 2.315084104L11.729937607 8.716173916A1 1 0 0 1 11.000245349 10.399949617L8.135049367 10.399949617A1 1 0 0 0 7.254919008 10.925217534L5.882080359 13.470394096A1 1 0 0 1 4.00195 12.995662012Z"/></g>
+<g id="agent-selected"><use id="agent-vector" href="#source-fluent16"/></g>
+    
+    <pattern id="micro-grid" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".65" fill="#8d998d" opacity=".24"/></pattern>
+    <filter id="ghost-soften" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation=".55"/></filter>
+  </defs></svg>
+  <header>
+    <div class="mast"><span>AZRAEL / POINTER STUDY 07</span><span>채택안 · Windows 커서 정렬</span></div>
+    <h1>정확한 사용자, 부드러운 Agent.</h1>
+    <p class="intro">Agent는 폭 90% + 흰 윤곽선과 LAIO 팔레트를 채택했습니다. 사용자 커서는 Windows 기본 화살표에 맞춰 윤곽을 다시 따고 같은 입력 기준점에서 비교합니다.</p>
+  </header>
+  <section aria-labelledby="user-alignment-heading"><h2 id="user-alignment-heading">01 / Windows 사용자 커서 정렬 확인</h2><p class="source-notice">현재 Windows 기본값 aero_arrow.cur · 96 DPI · 32×32 캔버스 · 입력 기준점 (0,0). 픽셀 경계의 잔굴곡을 걷어내고 원래 화살표를 7개의 직선과 둥근 모서리로 정리했습니다. 아래 두 비교는 모두 같은 기준점에 포갭니다.</p><div class="comparison-controls"><label><input id="compare-difference" type="checkbox" checked>차이를 색으로 표시</label><label for="compare-opacity">SVG 겹침 농도</label><input id="compare-opacity" type="range" min="0" max="1" step="0.05" value="0.5"><span>배경: Windows / 전경: SVG</span></div><div class="comparison-grid"><figure><figcaption>정리 전 · 픽셀 경계 추적</figcaption><svg viewBox="-3 -3 40 40" role="img" aria-label="Windows 기본 커서와 픽셀 경계 추적 벡터 겹침"><use href="#windows-arrow-bitmap" class="windows-comparison-base" filter="url(#comparison-cyan)"/><g id="compare-before-tint" class="comparison-layer" opacity="0.5"><use href="#user-before" fill="#e5469c"/></g><g id="compare-before-real" class="comparison-layer" opacity="0.5" display="none"><use href="#user-before-fine"/></g><path d="M-2 0H-0.5M0-2V-0.5" stroke="#64736b" stroke-width=".15"/></svg><p>실루엣 겹침 100% · 픽셀 경계를 따라 생긴 잔굴곡</p></figure><figure><figcaption>정리 후 · 직선과 둥근 모서리</figcaption><svg viewBox="-3 -3 40 40" role="img" aria-label="Windows 기본 커서와 직선으로 정리한 사용자 벡터 겹침"><use href="#windows-arrow-bitmap" class="windows-comparison-base" filter="url(#comparison-cyan)"/><g id="compare-after-tint" class="comparison-layer" opacity="0.5"><use href="#user-contour" fill="#e5469c"/></g><g id="compare-after-real" class="comparison-layer" opacity="0.5" display="none"><use href="#user-fine"/></g><path d="M-2 0H-0.5M0-2V-0.5" stroke="#64736b" stroke-width=".15"/></svg><p>실루엣 겹침 92.8% · 픽셀 굴곡을 제거하고 모서리를 부드럽게</p></figure></div><p class="source-notice">차이 색상에서 청록은 Windows, 분홍은 SVG, 포개진 부분은 보라로 보입니다. 위 수치는 알파 128 이상 실루엣을 16배 재래스터 후 비교한 결과입니다. 정리 후에는 픽셀 단위 일치보다 원래 기울기와 꼬리 형태를 유지한 직선 윤곽을 우선합니다. 색·안티앨리어싱·그림자 픽셀의 완전 일치는 뜻하지 않습니다. 다른 DPI·접근성 커서 크기는 별도 확인이 필요합니다.</p></section>
+<section aria-labelledby="sources-heading"><h2 id="sources-heading">02 / Agent 채택안과 참고 변형</h2><p class="source-notice">윗줄은 90%, 아랫줄은 80%입니다. 각 줄에서 기본형과 흰 윤곽선형을 비교하세요. 전체 가로 축소 대신 모서리 반경을 1.0 SVG 단위로 고정하고 직선 연결부를 재구성했습니다. 폭 비율은 윤곽선 제외 몸체 기준이며, 높이는 동일합니다.</p><div id="variant-gallery" class="source-grid"><article class="source-card variant-card"><h3>A1 · 폭 90%</h3><div class="source-previews"><svg class="source-colored" viewBox="0 0 16 16" role="img" aria-label="A1 · 폭 90%"><use href="#source-fluent16-w90" class="agent-fill"/></svg><svg width="40" height="40" viewBox="0 0 16 16" role="img" aria-label="A1 · 폭 90% 기본 크기"><use href="#source-fluent16-w90" class="agent-fill"/></svg></div><p class="variant-note">높이와 모서리 반경을 유지한 폭 90% 몸체입니다.</p><button type="button" data-source="fluent16-w90" aria-pressed="true">A1 · 폭 90% 모션에 적용</button></article>
+<article class="source-card variant-card selected"><h3>A3 · 폭 90% + 흰 윤곽선</h3><div class="source-previews"><svg class="source-colored" viewBox="0 0 16 16" role="img" aria-label="A3 · 폭 90% + 흰 윤곽선"><use href="#source-fluent16-w90-white" class="agent-fill" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/></svg><svg width="40" height="40" viewBox="0 0 16 16" role="img" aria-label="A3 · 폭 90% + 흰 윤곽선 기본 크기"><use href="#source-fluent16-w90-white" class="agent-fill" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/></svg></div><p class="variant-note">A1과 같은 몸체에 흰 윤곽선만 더했습니다.</p><button type="button" data-source="fluent16-w90-white" aria-pressed="false">A3 · 폭 90% + 흰 윤곽선 모션에 적용</button></article>
+<article class="source-card variant-card"><h3>A2 · 폭 80%</h3><div class="source-previews"><svg class="source-colored" viewBox="0 0 16 16" role="img" aria-label="A2 · 폭 80%"><use href="#source-fluent16-w80" class="agent-fill"/></svg><svg width="40" height="40" viewBox="0 0 16 16" role="img" aria-label="A2 · 폭 80% 기본 크기"><use href="#source-fluent16-w80" class="agent-fill"/></svg></div><p class="variant-note">높이와 모서리 반경을 유지한 폭 80% 몸체입니다.</p><button type="button" data-source="fluent16-w80" aria-pressed="false">A2 · 폭 80% 모션에 적용</button></article>
+<article class="source-card variant-card"><h3>A4 · 폭 80% + 흰 윤곽선</h3><div class="source-previews"><svg class="source-colored" viewBox="0 0 16 16" role="img" aria-label="A4 · 폭 80% + 흰 윤곽선"><use href="#source-fluent16-w80-white" class="agent-fill" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/></svg><svg width="40" height="40" viewBox="0 0 16 16" role="img" aria-label="A4 · 폭 80% + 흰 윤곽선 기본 크기"><use href="#source-fluent16-w80-white" class="agent-fill" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/></svg></div><p class="variant-note">A2와 같은 몸체에 흰 윤곽선만 더했습니다.</p><button type="button" data-source="fluent16-w80-white" aria-pressed="false">A4 · 폭 80% + 흰 윤곽선 모션에 적용</button></article></div><details><summary>기존 공식 원본 5종 비교</summary><div id="source-gallery" class="source-grid"><article class="source-card selected"><h3>A / Fluent · Cursor 16</h3><div class="source-previews"><div class="source-original"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.00195 2.9984C4.00195 2.17424 4.94294 1.70389 5.60215 2.19855L13.5996 8.1997C14.3682 8.77643 13.9603 9.99956 12.9994 9.99956H9.05418C8.74324 9.99956 8.44999 10.1442 8.26073 10.3909L5.7954 13.6049C5.21383 14.363 4.00195 13.9517 4.00195 12.9962V2.9984Z" fill="#212121"/>
+</svg>
+</div><svg class="source-colored" viewBox="0 0 16 16" role="img" aria-label="Fluent · Cursor 16 색 적용"><use href="#source-fluent16" class="agent-fill agent-outline"/></svg></div><div class="source-caption"><span>원본 그대로</span><span>선택 색 적용</span></div><a href="https://github.com/microsoft/fluentui-system-icons/blob/9eb184e96268d3293462f9d9d19225b4c7b07774/assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg" target="_blank" rel="noreferrer">공식 SVG · 9eb184e9</a><button type="button" data-source="fluent16" aria-pressed="true">A안 모션에 적용</button></article>
+<article class="source-card"><h3>B / Fluent · Cursor 24</h3><div class="source-previews"><div class="source-original"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.92098 2.29927C6.93571 1.53286 5.5 2.23498 5.5 3.48325V20.492C5.5 21.9142 7.2945 22.538 8.17661 21.4224L12.3676 16.1222C12.6806 15.7264 13.1574 15.4956 13.6619 15.4956H20.5143C21.9425 15.4956 22.5626 13.6885 21.4353 12.8116L7.92098 2.29927Z" fill="#212121"/>
+</svg>
+</div><svg class="source-colored" viewBox="0 0 24 24" role="img" aria-label="Fluent · Cursor 24 색 적용"><use href="#source-fluent24" class="agent-fill agent-outline"/></svg></div><div class="source-caption"><span>원본 그대로</span><span>선택 색 적용</span></div><a href="https://github.com/microsoft/fluentui-system-icons/blob/9eb184e96268d3293462f9d9d19225b4c7b07774/assets/Cursor/SVG/ic_fluent_cursor_24_filled.svg" target="_blank" rel="noreferrer">공식 SVG · 9eb184e9</a><button type="button" data-source="fluent24" aria-pressed="false">B안 모션에 적용</button></article>
+<article class="source-card"><h3>C / Tabler · Pointer</h3><div class="source-previews"><div class="source-original"><!--
+version: "2.26"
+unicode: "fb30"
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="currentColor"
+>
+  <path d="M3.039 4.277l3.904 13.563c.185 .837 .92 1.516 1.831 1.642l.17 .016a2.2 2.2 0 0 0 1.982 -1.006l.045 -.078l1.4 -2.072l4.05 4.05a2.067 2.067 0 0 0 2.924 0l1.047 -1.047c.388 -.388 .606 -.913 .606 -1.461l-.008 -.182a2.067 2.067 0 0 0 -.598 -1.28l-4.047 -4.048l2.103 -1.412c.726 -.385 1.18 -1.278 1.053 -2.189a2.2 2.2 0 0 0 -1.701 -1.845l-13.524 -3.89a1 1 0 0 0 -1.236 1.24z" />
+</svg>
+</div><svg class="source-colored" viewBox="0 0 24 24" role="img" aria-label="Tabler · Pointer 색 적용"><use href="#source-tabler" class="agent-fill agent-outline"/></svg></div><div class="source-caption"><span>원본 그대로</span><span>선택 색 적용</span></div><a href="https://github.com/tabler/tabler-icons/blob/ed177a085b652fe04ec4f37ced867c94621e7840/icons/filled/pointer.svg" target="_blank" rel="noreferrer">공식 SVG · ed177a08</a><button type="button" data-source="tabler" aria-pressed="false">C안 모션에 적용</button></article>
+<article class="source-card"><h3>D / Phosphor · Cursor</h3><div class="source-previews"><div class="source-original"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M220.49,207.8,207.8,220.49a12,12,0,0,1-17,0l-56.57-56.57L115,214.08l-.13.33A15.84,15.84,0,0,1,100.26,224l-.78,0a15.82,15.82,0,0,1-14.41-11L32.8,52.92A15.95,15.95,0,0,1,52.92,32.8L213,85.07a16,16,0,0,1,1.41,29.8l-.33.13-50.16,19.27,56.57,56.56A12,12,0,0,1,220.49,207.8Z"/></svg></div><svg class="source-colored" viewBox="0 0 256 256" role="img" aria-label="Phosphor · Cursor 색 적용"><use href="#source-phosphor" class="agent-fill agent-outline"/></svg></div><div class="source-caption"><span>원본 그대로</span><span>선택 색 적용</span></div><a href="https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/fill/cursor-fill.svg" target="_blank" rel="noreferrer">공식 SVG · 2b75f3ad</a><button type="button" data-source="phosphor" aria-pressed="false">D안 모션에 적용</button></article>
+<article class="source-card"><h3>E / MingCute · Cursor 2</h3><div class="source-previews"><div class="source-original"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="m15.102 13.688 4.676 4.676c.359.41.405 1.009 0 1.414s-1.004.359-1.414 0l-4.676-4.676-1.959 3.918c-.312.548-.923.836-1.538.62-.353-.124-.586-.382-.74-.715L4.217 5.842c-.178-.514-.069-1.062.356-1.421.365-.309.828-.358 1.269-.204L18.926 9.45c.332.154.59.387.714.74.216.616-.072 1.227-.62 1.539Z"/></svg></div><svg class="source-colored" viewBox="0 0 24 24" role="img" aria-label="MingCute · Cursor 2 색 적용"><use href="#source-mingcute" class="agent-fill agent-outline"/></svg></div><div class="source-caption"><span>원본 그대로</span><span>선택 색 적용</span></div><a href="https://github.com/mingcute-design/mingcute-icons/blob/4b85ae197f6c10c8740f2b03a0be0f0864fc18ec/assets/svg/core/filled/development/cursor_2.svg" target="_blank" rel="noreferrer">공식 SVG · 4b85ae19</a><button type="button" data-source="mingcute" aria-pressed="false">E안 모션에 적용</button></article></div>
+    </details><details><summary>원본 버전·SHA-256·라이선스 보기</summary><div id="source-credits"></div></details></section>
+  <div class="palette-panel" aria-labelledby="palette-heading">
+    <h2 id="palette-heading">03 / Life-All-In-One 팔레트 · 채택</h2>
+    <p class="source-notice">프로젝트의 등록 기본값 12계열 × 6특성, 총 72색입니다. 문서와 Dart 코드가 일치하는 값을 그대로 가져왔습니다. 실행 중인 앱의 사용자별 수정값은 읽지 않았습니다.</p>
+    <div class="palette-tones"><label for="palette-tone">색 특성</label><select id="palette-tone"><option value="bright">Bright · 밝은</option><option value="pastel">Pastel · 파스텔</option><option value="deep">Deep · 짙은</option><option value="clear">Clear · 선명한</option><option value="porcelain">Porcelain / Ivory · 백자빛·아이보리</option><option value="luminous">Luminous · 밝고 선명한</option></select></div>
+    <div id="laio-palette" class="palette-row" role="group" aria-label="LAIO 12계열 팔레트"><button type="button" data-family="0" data-color="#38bdf8" aria-pressed="true"><span class="swatch" style="--swatch:#38BDF8"></span>Sky Blue</button>
+<button type="button" data-family="1" data-color="#818cf8" aria-pressed="false"><span class="swatch" style="--swatch:#818CF8"></span>Periwinkle</button>
+<button type="button" data-family="2" data-color="#34d399" aria-pressed="false"><span class="swatch" style="--swatch:#34D399"></span>Emerald</button>
+<button type="button" data-family="3" data-color="#a78bfa" aria-pressed="false"><span class="swatch" style="--swatch:#A78BFA"></span>Violet</button>
+<button type="button" data-family="4" data-color="#f472b6" aria-pressed="false"><span class="swatch" style="--swatch:#F472B6"></span>Pink</button>
+<button type="button" data-family="5" data-color="#fde047" aria-pressed="false"><span class="swatch" style="--swatch:#FDE047"></span>Yellow</button>
+<button type="button" data-family="6" data-color="#fb923c" aria-pressed="false"><span class="swatch" style="--swatch:#FB923C"></span>Orange</button>
+<button type="button" data-family="7" data-color="#22d3ee" aria-pressed="false"><span class="swatch" style="--swatch:#22D3EE"></span>Cyan</button>
+<button type="button" data-family="8" data-color="#60a5fa" aria-pressed="false"><span class="swatch" style="--swatch:#60A5FA"></span>Blue</button>
+<button type="button" data-family="9" data-color="#2dd4bf" aria-pressed="false"><span class="swatch" style="--swatch:#2DD4BF"></span>Turquoise</button>
+<button type="button" data-family="10" data-color="#4ade80" aria-pressed="false"><span class="swatch" style="--swatch:#4ADE80"></span>Green</button>
+<button type="button" data-family="11" data-color="#fc7274" aria-pressed="false"><span class="swatch" style="--swatch:#FC7274"></span>Rose</button></div>
+    <div class="palette-settings"><label for="agent-color">직접 선택</label><input id="agent-color" type="color" value="#38bdf8"><label for="agent-hex" class="sr">Agent 색 HEX</label><input id="agent-hex" type="text" value="#38BDF8" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" aria-describedby="color-error"><label><input id="agent-border" type="checkbox">흰 윤곽선</label><span class="palette-summary" id="palette-summary">LAIO · Sky Blue / Bright #38BDF8</span></div>
+    <p id="color-error" class="source-notice" role="alert" hidden>색은 #RRGGBB 형식으로 입력해 주세요.</p>
+    <p class="source-notice">색 원본: <code>Life-All-In-One/apps/laio_app/lib/services/color_palette_service.dart</code>의 <code>appDefaults</code>·<code>eventVariantDefaults</code>. 팔레트 선택 시 몸체는 선택 HEX 그대로, 이름표는 해당 계열의 등록 Pastel·Clear 조합을 사용합니다.</p>
+  </div>
+  <div class="toolbar">
+    <div class="group"><button id="play" type="button">일시 정지</button><button id="restart" type="button">처음부터</button><label for="speed">속도</label><select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option></select></div>
+    <div class="group"><label for="scale">커서 크기</label><select id="scale"><option value="1">실제 크기</option><option value="1.6" selected>검토용 1.6×</option><option value="2.3">확대 2.3×</option></select><button id="theme" type="button" aria-pressed="false">어두운 배경</button></div>
+  </div>
+  <div class="stage" id="stage">
+    <div class="stage-top"><span><span class="live-dot"></span>반복 재생 · 실제 OS 입력 없음</span><span id="phase-title" aria-live="polite">일반 사용자 커서</span></div>
+    <svg class="main-scene" viewBox="0 0 960 340" role="img" aria-labelledby="scene-title scene-desc">
+      <title id="scene-title">사용자와 Agent 커서의 전환 및 동작 애니메이션</title>
+      <desc id="scene-desc">일반 커서에서 순백색 A형 사용자 커서가 점에서 커지며 전환됩니다. B형 Agent는 제자리에서 흐려지고 점으로 축소해 드래그합니다. 사용자 대기는 색 변경 없이 저장 아이콘으로 알립니다. Agent는 애니메이션 없이 새 위치로 즉시 이동하고 이전 위치의 옅은 잔상만 사라집니다. 반투명 대기와 종료 모션은 유지합니다.</desc>
+      <rect width="960" height="340" fill="url(#micro-grid)"/>
+      <rect x="290" y="54" width="462" height="220" rx="12" class="scene-wash" stroke="none"/>
+      <rect x="312" y="77" width="9" height="9" rx="3" fill="#70ae95"/><text x="331" y="86" class="scene-muted" font-size="11">작업 영역</text>
+      <path d="M315 108 H728 M315 250 H728" class="scene-rule" fill="none"/>
+      <rect x="315" y="125" width="123" height="32" rx="7" class="scene-paper"/><text x="337" y="146" class="scene-muted" font-size="12">선 그리기</text>
+      <path d="M370 202 C405 166 447 227 489 196 S563 176 600 197" fill="none" stroke="#65ab8e" stroke-width="3" stroke-linecap="round" opacity=".13"/>
+      <path id="drawn-line" d="" fill="none" stroke="#4a9978" stroke-width="3" stroke-linecap="round"/>
+      <g id="agent-ghost" opacity="0" aria-hidden="true" pointer-events="none"><g id="ghost-scale" filter="url(#ghost-soften)"><use href="#agent-selected" class="agent-fill agent-outline" stroke-linejoin="round"/></g></g>
+      <g id="user-position"><g id="user-scale">
+        <g id="ordinary"><use href="#windows-arrow-bitmap"/></g>
+        <g id="custom-user" opacity="0">
+          <circle id="user-seed" r="3.2" fill="#ffffff" stroke="#303932" stroke-width=".9"/>
+          <g id="user-shape">
+          <use id="user-body" class="user-geometry" href="#user-fine" fill="#ffffff"/>
+          </g>
+          <g id="waiting-mark" opacity="0" transform="translate(18 5)"><rect x="-8" y="-8" width="16" height="16" rx="5" fill="#ffffff" stroke="#6b746d" stroke-width=".8"/><path d="M-4.5-4.5H2.5L4.5-2.5V4.5H-4.5ZM-2.5-4.5V-1H1.8V-4.5M-2.5 4.5V1H2.5V4.5" fill="none" stroke="#39453c" stroke-width="1.05" stroke-linejoin="round"/></g>
+          <g transform="translate(14 21)"><rect width="56" height="23" rx="7" fill="#ffffff" stroke="#d6dbd5" stroke-width=".7"/><text x="11" y="15.5" fill="#333d35" class="cursor-label">사용자</text></g>
+        </g>
+      </g><circle id="enable-ring" r="1" stroke="#abc5b7" fill="none" opacity="0"/></g>
+      <g id="agent-position" opacity="0"><g id="agent-scale">
+        <g id="agent-press"><g class="cursor-shadow">
+          <g id="agent-arrow"><use href="#agent-selected" class="agent-fill agent-outline" stroke-linejoin="round"/></g>
+          <circle id="agent-dot" class="agent-fill" r="5" stroke="#fff" stroke-width="1.7" opacity="0"/>
+        </g></g>
+        <g id="agent-label" transform="translate(26 34)"><rect id="agent-label-bg" width="48" height="23" rx="7" fill="#e4f3eb" stroke="#bfdccf" stroke-width=".7"/><text id="agent-label-text" x="12" y="15.5" fill="#265e48" class="cursor-label">모델</text></g>
+      </g></g>
+      <circle id="click-ring" r="1" fill="none" stroke="#68bc9e" opacity="0"/>
+      <text x="40" y="306" class="scene-muted" font-size="11">사용자와 Agent의 표시 좌표 · 끝점 / 드래그 점 중심이 입력 위치입니다.</text>
+    </svg>
+    <p class="stage-note" id="phase-note">일반 커서에서 시작해 같은 끝점의 점이 커지며 전환합니다.</p>
+  </div>
+  <div class="transport"><label for="seek" class="sr">재생 위치</label><input id="seek" type="range" min="0" max="12.8" step="0.01" value="0"><output id="time">0.0 / 12.8s</output></div>
+  <div class="states" role="group" aria-label="모션별 반복 재생">
+    <button type="button" data-mode="all" aria-pressed="true">전체 흐름</button><button type="button" data-mode="enable" aria-pressed="false">사용자 전환</button><button type="button" data-mode="click" aria-pressed="false">Agent 클릭</button><button type="button" data-mode="drag" aria-pressed="false">드래그 · 입력 대기</button><button type="button" data-mode="teleport" aria-pressed="false">순간이동</button><button type="button" data-mode="idle" aria-pressed="false">반투명 대기</button><button type="button" data-mode="exit" aria-pressed="false">종료 · 복귀</button>
+  </div>
+  <section aria-labelledby="shape-heading">
+    <h2 id="shape-heading">04 / 사용자와 선택한 Agent 비교</h2><p class="section-note">사용자는 실제 Windows 기본 화살표를 다시 딴 벡터입니다. 왼쪽은 약 3배 확대, 오른쪽은 기본 크기입니다.</p>
+    <div class="specimens">
+      <article class="specimen"><h3>사용자 / Precision</h3><svg viewBox="0 0 390 128" role="img" aria-label="날렵한 사용자 화살표의 확대 및 기본 크기"><g transform="translate(38 17) scale(2.7)"><use class="user-geometry" href="#user-fine" fill="#ffffff" stroke="#303932" stroke-width=".9" stroke-linejoin="round"/></g><g transform="translate(224 46)"><use class="user-geometry" href="#user-fine" fill="#ffffff" stroke="#303932" stroke-width="1.1" stroke-linejoin="round"/></g><path d="M176 22V108" stroke="#e4e7e1"/><text x="275" y="65" fill="#737a72" font-size="11">약 32px</text></svg><p>실제 Windows 기본 화살표의 외곽과 흰 내부를 다시 땄습니다. 기존 추가 흰 테두리와 별도 그림자를 제거해 기준 윤곽에 맞췄습니다.</p><p style="margin-top:12px;color:var(--ink)">재추적 · Windows 기본 화살표 / 흰 내부 #FFFFFF · 32px 캔버스</p></article>
+      <article class="specimen"><h3 id="selected-source-title">Agent / Fluent · Cursor 16</h3><svg viewBox="0 0 390 128" role="img" aria-label="선택한 원본 Agent 커서의 확대 및 기본 크기"><g transform="translate(42 18) scale(2.7)"><use href="#agent-selected" class="agent-fill agent-outline"/></g><g transform="translate(224 46)"><use href="#agent-selected" class="agent-fill agent-outline"/></g><path d="M176 22V108" stroke="#e4e7e1"/><text x="275" y="65" fill="#737a72" font-size="11">약 32px</text></svg><p>원본의 path·비율을 유지하고 표시 크기와 기준점만 정렬합니다. 실제 제품의 입력 기준점은 별도 실기 검증이 필요합니다.</p><p id="selected-source-note" style="margin-top:12px;color:var(--ink)" aria-live="polite">선택 · Fluent · Cursor 16</p></article>
+    </div>
+  </section>
+  <section aria-labelledby="motion-heading"><h2 id="motion-heading">05 / 모션 원칙</h2><div class="motion-notes">
+    <div><strong>전환해도 끝점은 그대로</strong><p>일반 커서가 흐려지는 동안 같은 끝점에 작은 흰 점이 생기고, 재추적한 사용자 커서로 커집니다. 추종 경로에는 보간을 넣지 않습니다.</p></div>
+    <div><strong>즉시 이동, 이전 위치에만 잔상</strong><p>새 위치의 커서는 애니메이션 없이 즉시 표시합니다. 이전 위치의 몸체만 24% 불투명도로 남아 180ms 동안 제자리에서 사라집니다. 축소·확대·도착 효과·중간 이동 궤적은 없습니다.</p></div>
+    <div><strong>쉬고 있을 때는 조용하게</strong><p>Agent 대기는 불투명도 32%. 사용 종료는 약 220ms 동안 축소하며 사라집니다. 사용자 대기는 저장 아이콘만 표시하며 흰색과 문구는 유지됩니다.</p></div>
+  </div></section>
+  <footer>검토용 제안 · HTML / 인라인 SVG / 외부 의존성 없음 · OS 포인터 모양과 동작은 바꾸지 않습니다.<br>모션 줄이기 환경에서는 자동 재생을 멈추며, 재생 막대로 모든 상태를 확인할 수 있습니다. 배율·색상·시간은 제품 적용 전 조정할 수 있습니다.</footer>
+</main>
+<script id="source-data" type="application/json">{
+  "cursors": [
+    {
+      "id": "fluent16",
+      "title": "Fluent · Cursor 16",
+      "repo": "microsoft/fluentui-system-icons",
+      "branch": "main",
+      "file": "assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg",
+      "hotspot": [
+        4.3,
+        2.2
+      ],
+      "factor": 2,
+      "commit": "9eb184e96268d3293462f9d9d19225b4c7b07774",
+      "svg": "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M4.00195 2.9984C4.00195 2.17424 4.94294 1.70389 5.60215 2.19855L13.5996 8.1997C14.3682 8.77643 13.9603 9.99956 12.9994 9.99956H9.05418C8.74324 9.99956 8.44999 10.1442 8.26073 10.3909L5.7954 13.6049C5.21383 14.363 4.00195 13.9517 4.00195 12.9962V2.9984Z\" fill=\"#212121\"/>\n</svg>\n",
+      "sha256": "b107bfe61b65166d2cbd5f8316168d88a993fbf1ad3f4c5dbc53f5ea9e2fc164",
+      "source": "https://github.com/microsoft/fluentui-system-icons/blob/9eb184e96268d3293462f9d9d19225b4c7b07774/assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg"
+    },
+    {
+      "id": "fluent24",
+      "title": "Fluent · Cursor 24",
+      "repo": "microsoft/fluentui-system-icons",
+      "branch": "main",
+      "file": "assets/Cursor/SVG/ic_fluent_cursor_24_filled.svg",
+      "hotspot": [
+        6.5,
+        2.3
+      ],
+      "factor": 1.6,
+      "commit": "9eb184e96268d3293462f9d9d19225b4c7b07774",
+      "svg": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M7.92098 2.29927C6.93571 1.53286 5.5 2.23498 5.5 3.48325V20.492C5.5 21.9142 7.2945 22.538 8.17661 21.4224L12.3676 16.1222C12.6806 15.7264 13.1574 15.4956 13.6619 15.4956H20.5143C21.9425 15.4956 22.5626 13.6885 21.4353 12.8116L7.92098 2.29927Z\" fill=\"#212121\"/>\n</svg>\n",
+      "sha256": "22e8643fa776bd58bab8914caf3a196835746386f6f55ab47209011fc8750034",
+      "source": "https://github.com/microsoft/fluentui-system-icons/blob/9eb184e96268d3293462f9d9d19225b4c7b07774/assets/Cursor/SVG/ic_fluent_cursor_24_filled.svg"
+    },
+    {
+      "id": "tabler",
+      "title": "Tabler · Pointer",
+      "repo": "tabler/tabler-icons",
+      "branch": "main",
+      "file": "icons/filled/pointer.svg",
+      "hotspot": [
+        3.4,
+        3.4
+      ],
+      "factor": 1.65,
+      "commit": "ed177a085b652fe04ec4f37ced867c94621e7840",
+      "svg": "<!--\nversion: \"2.26\"\nunicode: \"fb30\"\n-->\n<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"24\"\n  height=\"24\"\n  viewBox=\"0 0 24 24\"\n  fill=\"currentColor\"\n>\n  <path d=\"M3.039 4.277l3.904 13.563c.185 .837 .92 1.516 1.831 1.642l.17 .016a2.2 2.2 0 0 0 1.982 -1.006l.045 -.078l1.4 -2.072l4.05 4.05a2.067 2.067 0 0 0 2.924 0l1.047 -1.047c.388 -.388 .606 -.913 .606 -1.461l-.008 -.182a2.067 2.067 0 0 0 -.598 -1.28l-4.047 -4.048l2.103 -1.412c.726 -.385 1.18 -1.278 1.053 -2.189a2.2 2.2 0 0 0 -1.701 -1.845l-13.524 -3.89a1 1 0 0 0 -1.236 1.24z\" />\n</svg>\n",
+      "sha256": "80615e4b6980aa33a000c6dc22a976221e9fd3a1c1d9d5ba3be7f15d5ea224fa",
+      "source": "https://github.com/tabler/tabler-icons/blob/ed177a085b652fe04ec4f37ced867c94621e7840/icons/filled/pointer.svg"
+    },
+    {
+      "id": "phosphor",
+      "title": "Phosphor · Cursor",
+      "repo": "phosphor-icons/core",
+      "branch": "main",
+      "file": "assets/fill/cursor-fill.svg",
+      "hotspot": [
+        37,
+        37
+      ],
+      "factor": 0.165,
+      "commit": "2b75f3ad12b420c9504ef05df8d2564a28f8500e",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M220.49,207.8,207.8,220.49a12,12,0,0,1-17,0l-56.57-56.57L115,214.08l-.13.33A15.84,15.84,0,0,1,100.26,224l-.78,0a15.82,15.82,0,0,1-14.41-11L32.8,52.92A15.95,15.95,0,0,1,52.92,32.8L213,85.07a16,16,0,0,1,1.41,29.8l-.33.13-50.16,19.27,56.57,56.56A12,12,0,0,1,220.49,207.8Z\"/></svg>",
+      "sha256": "7b3c9707eee43737c4109a73f081d6059b8c65f1279bb5dd8e9a3c75e185013d",
+      "source": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/fill/cursor-fill.svg"
+    },
+    {
+      "id": "mingcute",
+      "title": "MingCute · Cursor 2",
+      "repo": "mingcute-design/mingcute-icons",
+      "branch": "main",
+      "file": "assets/svg/core/filled/development/cursor_2.svg",
+      "hotspot": [
+        4.6,
+        4.6
+      ],
+      "factor": 1.9,
+      "commit": "4b85ae197f6c10c8740f2b03a0be0f0864fc18ec",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"m15.102 13.688 4.676 4.676c.359.41.405 1.009 0 1.414s-1.004.359-1.414 0l-4.676-4.676-1.959 3.918c-.312.548-.923.836-1.538.62-.353-.124-.586-.382-.74-.715L4.217 5.842c-.178-.514-.069-1.062.356-1.421.365-.309.828-.358 1.269-.204L18.926 9.45c.332.154.59.387.714.74.216.616-.072 1.227-.62 1.539Z\"/></svg>",
+      "sha256": "c3553f9d8ac92ac063c2ef942dd724f8588cf8404b623aa2b42f93d23995d9bc",
+      "source": "https://github.com/mingcute-design/mingcute-icons/blob/4b85ae197f6c10c8740f2b03a0be0f0864fc18ec/assets/svg/core/filled/development/cursor_2.svg"
+    }
+  ],
+  "licenses": [
+    {
+      "repo": "microsoft/fluentui-system-icons",
+      "status": 200,
+      "text": "MIT License\n\nCopyright (c) 2020 Microsoft Corporation\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+      "source": "https://github.com/microsoft/fluentui-system-icons/blob/9eb184e96268d3293462f9d9d19225b4c7b07774/LICENSE"
+    },
+    {
+      "repo": "tabler/tabler-icons",
+      "status": 200,
+      "text": "MIT License\n\nCopyright (c) 2020-2026 Paweł Kuna\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+      "source": "https://github.com/tabler/tabler-icons/blob/ed177a085b652fe04ec4f37ced867c94621e7840/LICENSE"
+    },
+    {
+      "repo": "phosphor-icons/core",
+      "status": 200,
+      "text": "MIT License\n\nCopyright (c) 2023 Phosphor Icons\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+      "source": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/LICENSE"
+    },
+    {
+      "repo": "mingcute-design/mingcute-icons",
+      "status": 200,
+      "text": "\n                                 Apache License\n                           Version 2.0, January 2004\n                        http://www.apache.org/licenses/\n\n   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n   1. Definitions.\n\n      \"License\" shall mean the terms and conditions for use, reproduction,\n      and distribution as defined by Sections 1 through 9 of this document.\n\n      \"Licensor\" shall mean the copyright owner or entity authorized by\n      the copyright owner that is granting the License.\n\n      \"Legal Entity\" shall mean the union of the acting entity and all\n      other entities that control, are controlled by, or are under common\n      control with that entity. For the purposes of this definition,\n      \"control\" means (i) the power, direct or indirect, to cause the\n      direction or management of such entity, whether by contract or\n      otherwise, or (ii) ownership of fifty percent (50%) or more of the\n      outstanding shares, or (iii) beneficial ownership of such entity.\n\n      \"You\" (or \"Your\") shall mean an individual or Legal Entity\n      exercising permissions granted by this License.\n\n      \"Source\" form shall mean the preferred form for making modifications,\n      including but not limited to software source code, documentation\n      source, and configuration files.\n\n      \"Object\" form shall mean any form resulting from mechanical\n      transformation or translation of a Source form, including but\n      not limited to compiled object code, generated documentation,\n      and conversions to other media types.\n\n      \"Work\" shall mean the work of authorship, whether in Source or\n      Object form, made available under the License, as indicated by a\n      copyright notice that is included in or attached to the work\n      (an example is provided in the Appendix below).\n\n      \"Derivative Works\" shall mean any work, whether in Source or Object\n      form, that is based on (or derived from) the Work and for which the\n      editorial revisions, annotations, elaborations, or other modifications\n      represent, as a whole, an original work of authorship. For the purposes\n      of this License, Derivative Works shall not include works that remain\n      separable from, or merely link (or bind by name) to the interfaces of,\n      the Work and Derivative Works thereof.\n\n      \"Contribution\" shall mean any work of authorship, including\n      the original version of the Work and any modifications or additions\n      to that Work or Derivative Works thereof, that is intentionally\n      submitted to Licensor for inclusion in the Work by the copyright owner\n      or by an individual or Legal Entity authorized to submit on behalf of\n      the copyright owner. For the purposes of this definition, \"submitted\"\n      means any form of electronic, verbal, or written communication sent\n      to the Licensor or its representatives, including but not limited to\n      communication on electronic mailing lists, source code control systems,\n      and issue tracking systems that are managed by, or on behalf of, the\n      Licensor for the purpose of discussing and improving the Work, but\n      excluding communication that is conspicuously marked or otherwise\n      designated in writing by the copyright owner as \"Not a Contribution.\"\n\n      \"Contributor\" shall mean Licensor and any individual or Legal Entity\n      on behalf of whom a Contribution has been received by Licensor and\n      subsequently incorporated within the Work.\n\n   2. Grant of Copyright License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      copyright license to reproduce, prepare Derivative Works of,\n      publicly display, publicly perform, sublicense, and distribute the\n      Work and such Derivative Works in Source or Object form.\n\n   3. Grant of Patent License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      (except as stated in this section) patent license to make, have made,\n      use, offer to sell, sell, import, and otherwise transfer the Work,\n      where such license applies only to those patent claims licensable\n      by such Contributor that are necessarily infringed by their\n      Contribution(s) alone or by combination of their Contribution(s)\n      with the Work to which such Contribution(s) was submitted. If You\n      institute patent litigation against any entity (including a\n      cross-claim or counterclaim in a lawsuit) alleging that the Work\n      or a Contribution incorporated within the Work constitutes direct\n      or contributory patent infringement, then any patent licenses\n      granted to You under this License for that Work shall terminate\n      as of the date such litigation is filed.\n\n   4. Redistribution. You may reproduce and distribute copies of the\n      Work or Derivative Works thereof in any medium, with or without\n      modifications, and in Source or Object form, provided that You\n      meet the following conditions:\n\n      (a) You must give any other recipients of the Work or\n          Derivative Works a copy of this License; and\n\n      (b) You must cause any modified files to carry prominent notices\n          stating that You changed the files; and\n\n      (c) You must retain, in the Source form of any Derivative Works\n          that You distribute, all copyright, patent, trademark, and\n          attribution notices from the Source form of the Work,\n          excluding those notices that do not pertain to any part of\n          the Derivative Works; and\n\n      (d) If the Work includes a \"NOTICE\" text file as part of its\n          distribution, then any Derivative Works that You distribute must\n          include a readable copy of the attribution notices contained\n          within such NOTICE file, excluding those notices that do not\n          pertain to any part of the Derivative Works, in at least one\n          of the following places: within a NOTICE text file distributed\n          as part of the Derivative Works; within the Source form or\n          documentation, if provided along with the Derivative Works; or,\n          within a display generated by the Derivative Works, if and\n          wherever such third-party notices normally appear. The contents\n          of the NOTICE file are for informational purposes only and\n          do not modify the License. You may add Your own attribution\n          notices within Derivative Works that You distribute, alongside\n          or as an addendum to the NOTICE text from the Work, provided\n          that such additional attribution notices cannot be construed\n          as modifying the License.\n\n      You may add Your own copyright statement to Your modifications and\n      may provide additional or different license terms and conditions\n      for use, reproduction, or distribution of Your modifications, or\n      for any such Derivative Works as a whole, provided Your use,\n      reproduction, and distribution of the Work otherwise complies with\n      the conditions stated in this License.\n\n   5. Submission of Contributions. Unless You explicitly state otherwise,\n      any Contribution intentionally submitted for inclusion in the Work\n      by You to the Licensor shall be under the terms and conditions of\n      this License, without any additional terms or conditions.\n      Notwithstanding the above, nothing herein shall supersede or modify\n      the terms of any separate license agreement you may have executed\n      with Licensor regarding such Contributions.\n\n   6. Trademarks. This License does not grant permission to use the trade\n      names, trademarks, service marks, or product names of the Licensor,\n      except as required for reasonable and customary use in describing the\n      origin of the Work and reproducing the content of the NOTICE file.\n\n   7. Disclaimer of Warranty. Unless required by applicable law or\n      agreed to in writing, Licensor provides the Work (and each\n      Contributor provides its Contributions) on an \"AS IS\" BASIS,\n      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n      implied, including, without limitation, any warranties or conditions\n      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A\n      PARTICULAR PURPOSE. You are solely responsible for determining the\n      appropriateness of using or redistributing the Work and assume any\n      risks associated with Your exercise of permissions under this License.\n\n   8. Limitation of Liability. In no event and under no legal theory,\n      whether in tort (including negligence), contract, or otherwise,\n      unless required by applicable law (such as deliberate and grossly\n      negligent acts) or agreed to in writing, shall any Contributor be\n      liable to You for damages, including any direct, indirect, special,\n      incidental, or consequential damages of any character arising as a\n      result of this License or out of the use or inability to use the\n      Work (including but not limited to damages for loss of goodwill,\n      work stoppage, computer failure or malfunction, or any and all\n      other commercial damages or losses), even if such Contributor\n      has been advised of the possibility of such damages.\n\n   9. Accepting Warranty or Additional Liability. While redistributing\n      the Work or Derivative Works thereof, You may choose to offer,\n      and charge a fee for, acceptance of support, warranty, indemnity,\n      or other liability obligations and/or rights consistent with this\n      License. However, in accepting such obligations, You may act only\n      on Your own behalf and on Your sole responsibility, not on behalf\n      of any other Contributor, and only if You agree to indemnify,\n      defend, and hold each Contributor harmless for any liability\n      incurred by, or claims asserted against, such Contributor by reason\n      of your accepting any such warranty or additional liability.\n\n   END OF TERMS AND CONDITIONS\n\n   APPENDIX: How to apply the Apache License to your work.\n\n      To apply the Apache License to your work, attach the following\n      boilerplate notice, with the fields enclosed by brackets \"[]\"\n      replaced with your own identifying information. (Don't include\n      the brackets!)  The text should be enclosed in the appropriate\n      comment syntax for the file format. We also recommend that a\n      file or class name and description of purpose be included on the\n      same \"printed page\" as the copyright notice for easier\n      identification within third-party archives.\n\n   Copyright [yyyy] [name of copyright owner]\n\n   Licensed under the Apache License, Version 2.0 (the \"License\");\n   you may not use this file except in compliance with the License.\n   You may obtain a copy of the License at\n\n       http://www.apache.org/licenses/LICENSE-2.0\n\n   Unless required by applicable law or agreed to in writing, software\n   distributed under the License is distributed on an \"AS IS\" BASIS,\n   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n   See the License for the specific language governing permissions and\n   limitations under the License.\n",
+      "source": "https://github.com/mingcute-design/mingcute-icons/blob/4b85ae197f6c10c8740f2b03a0be0f0864fc18ec/LICENSE"
+    }
+  ],
+  "palette": {
+    "families": [
+      {
+        "id": "0",
+        "name": "Sky Blue",
+        "colors": {
+          "bright": "#38BDF8",
+          "pastel": "#E0F2FE",
+          "deep": "#0369A1",
+          "clear": "#0284C7",
+          "porcelain": "#F9FDFF",
+          "luminous": "#008AD0"
+        }
+      },
+      {
+        "id": "1",
+        "name": "Periwinkle",
+        "colors": {
+          "bright": "#818CF8",
+          "pastel": "#E0E7FF",
+          "deep": "#4338CA",
+          "clear": "#6366F1",
+          "porcelain": "#FBFCFF",
+          "luminous": "#676AFF"
+        }
+      },
+      {
+        "id": "2",
+        "name": "Emerald",
+        "colors": {
+          "bright": "#34D399",
+          "pastel": "#D2FAE5",
+          "deep": "#047857",
+          "clear": "#0AA775",
+          "porcelain": "#F5FFFA",
+          "luminous": "#00AE7A"
+        }
+      },
+      {
+        "id": "3",
+        "name": "Violet",
+        "colors": {
+          "bright": "#A78BFA",
+          "pastel": "#EDE9FE",
+          "deep": "#6D28D9",
+          "clear": "#8B5CF6",
+          "porcelain": "#FCFBFF",
+          "luminous": "#9161FF"
+        }
+      },
+      {
+        "id": "4",
+        "name": "Pink",
+        "colors": {
+          "bright": "#F472B6",
+          "pastel": "#FCE7F3",
+          "deep": "#BE185D",
+          "clear": "#DB2777",
+          "porcelain": "#FFFBFC",
+          "luminous": "#E81C7C"
+        }
+      },
+      {
+        "id": "5",
+        "name": "Yellow",
+        "colors": {
+          "bright": "#FDE047",
+          "pastel": "#FFFFD0",
+          "deep": "#A16207",
+          "clear": "#DA9E06",
+          "porcelain": "#FEFCF3",
+          "luminous": "#E2A400"
+        }
+      },
+      {
+        "id": "6",
+        "name": "Orange",
+        "colors": {
+          "bright": "#FB923C",
+          "pastel": "#FFEDD5",
+          "deep": "#C2410C",
+          "clear": "#F16511",
+          "porcelain": "#FFFCF3",
+          "luminous": "#FF6400"
+        }
+      },
+      {
+        "id": "7",
+        "name": "Cyan",
+        "colors": {
+          "bright": "#22D3EE",
+          "pastel": "#CFFAFE",
+          "deep": "#0E7490",
+          "clear": "#07A3C3",
+          "porcelain": "#F7FEFF",
+          "luminous": "#00AACB"
+        }
+      },
+      {
+        "id": "8",
+        "name": "Blue",
+        "colors": {
+          "bright": "#60A5FA",
+          "pastel": "#DBEAFE",
+          "deep": "#1D4ED8",
+          "clear": "#2563EB",
+          "porcelain": "#FAFCFF",
+          "luminous": "#2366FC"
+        }
+      },
+      {
+        "id": "9",
+        "name": "Turquoise",
+        "colors": {
+          "bright": "#2DD4BF",
+          "pastel": "#CCFBF1",
+          "deep": "#0F766E",
+          "clear": "#10A697",
+          "porcelain": "#F4FFFD",
+          "luminous": "#00AD9D"
+        }
+      },
+      {
+        "id": "10",
+        "name": "Green",
+        "colors": {
+          "bright": "#4ADE80",
+          "pastel": "#DCFCE7",
+          "deep": "#15803D",
+          "clear": "#1CB454",
+          "porcelain": "#F6FFF8",
+          "luminous": "#00BC54"
+        }
+      },
+      {
+        "id": "11",
+        "name": "Rose",
+        "colors": {
+          "bright": "#FC7274",
+          "pastel": "#FFE4E3",
+          "deep": "#BF1624",
+          "clear": "#E2222C",
+          "porcelain": "#FFFBFB",
+          "luminous": "#F01229"
+        }
+      }
+    ],
+    "source": "C:/Users/felre/Desktop/Life-All-In-One/apps/laio_app/lib/services/color_palette_service.dart",
+    "doc": "C:/Users/felre/Desktop/Life-All-In-One/docs/design/app/color-system.md",
+    "sourceSha256": "dbe1fec89c84b49f8014f6b4b35a8a0df87bd60b913f9acbbb422326ceb7cecf",
+    "docSha256": "6eb9927a701f9839852c92999c537f9727a6780f50fc4c10f3e6aacf23ce9b3c",
+    "scope": "registered source defaults only; no runtime user overrides"
+  },
+  "variants": [
+    {
+      "id": "fluent16-w90",
+      "title": "A1 · 폭 90%",
+      "repo": "microsoft/fluentui-system-icons",
+      "branch": "main",
+      "file": "assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg",
+      "hotspot": [
+        4.3,
+        2.2
+      ],
+      "factor": 2,
+      "commit": "9eb184e96268d3293462f9d9d19225b4c7b07774",
+      "svg": "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M4.00195 2.9984C4.00195 2.17424 4.94294 1.70389 5.60215 2.19855L13.5996 8.1997C14.3682 8.77643 13.9603 9.99956 12.9994 9.99956H9.05418C8.74324 9.99956 8.44999 10.1442 8.26073 10.3909L5.7954 13.6049C5.21383 14.363 4.00195 13.9517 4.00195 12.9962V2.9984Z\" fill=\"#212121\"/>\n</svg>\n",
+      "sha256": "b107bfe61b65166d2cbd5f8316168d88a993fbf1ad3f4c5dbc53f5ea9e2fc164",
+      "source": "https://github.com/microsoft/fluentui-system-icons/blob/9eb184e96268d3293462f9d9d19225b4c7b07774/assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg",
+      "width": 0.9,
+      "geometry": {
+        "path": "M4.00195 2.998859805A1 1 0 0 1 5.662930136 2.248456407L12.661012404 8.412598761A1 1 0 0 1 12.000032268 10.163002159L8.588736558 10.163002159A1 1 0 0 0 7.751627583 10.615965994L5.839058974 13.542698176A1 1 0 0 1 4.00195 12.995662012Z",
+        "radius": 1,
+        "widthRatio": 0.900000000000206,
+        "height": 11.996802207368123,
+        "bounds": {
+          "minX": 4.00195,
+          "minY": 1.9988598046654866,
+          "maxX": 13.000032268018245,
+          "maxY": 13.995662012033609
+        },
+        "corners": [
+          {
+            "radius": 1,
+            "start": [
+              4.00195,
+              2.9988598046654866
+            ],
+            "end": [
+              5.662930135941267,
+              2.2484564065581325
+            ],
+            "center": [
+              5.00195,
+              2.9988598046654866
+            ],
+            "sweep": 1
+          },
+          {
+            "radius": 1,
+            "start": [
+              12.661012403959512,
+              8.412598760536557
+            ],
+            "end": [
+              12.000032268018245,
+              10.163002158643911
+            ],
+            "center": [
+              12.000032268018245,
+              9.163002158643911
+            ],
+            "sweep": 1
+          },
+          {
+            "radius": 1,
+            "start": [
+              8.588736557773272,
+              10.163002158643911
+            ],
+            "end": [
+              7.751627583408759,
+              10.6159659943564
+            ],
+            "center": [
+              8.588736557773272,
+              11.163002158643911
+            ],
+            "sweep": 0
+          },
+          {
+            "radius": 1,
+            "start": [
+              5.839058974364513,
+              13.54269817632112
+            ],
+            "end": [
+              4.00195,
+              12.995662012033609
+            ],
+            "center": [
+              5.00195,
+              12.995662012033609
+            ],
+            "sweep": 1
+          }
+        ],
+        "skeletonScale": [
+          0.8874152111167377,
+          1.0418203875985086
+        ]
+      },
+      "note": "높이와 모서리 반경을 유지한 폭 90% 몸체입니다.",
+      "parent": "fluent16",
+      "derived": true,
+      "path": "M4.00195 2.998859805A1 1 0 0 1 5.662930136 2.248456407L12.661012404 8.412598761A1 1 0 0 1 12.000032268 10.163002159L8.588736558 10.163002159A1 1 0 0 0 7.751627583 10.615965994L5.839058974 13.542698176A1 1 0 0 1 4.00195 12.995662012Z",
+      "construction": "fixed circular corner radius 1; tangent straight segments reconstructed; no nonuniform path transform",
+      "modification": "높이와 모서리 반경을 유지한 폭 90% 몸체입니다."
+    },
+    {
+      "id": "fluent16-w80",
+      "title": "A2 · 폭 80%",
+      "repo": "microsoft/fluentui-system-icons",
+      "branch": "main",
+      "file": "assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg",
+      "hotspot": [
+        4.3,
+        2.2
+      ],
+      "factor": 2,
+      "commit": "9eb184e96268d3293462f9d9d19225b4c7b07774",
+      "svg": "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M4.00195 2.9984C4.00195 2.17424 4.94294 1.70389 5.60215 2.19855L13.5996 8.1997C14.3682 8.77643 13.9603 9.99956 12.9994 9.99956H9.05418C8.74324 9.99956 8.44999 10.1442 8.26073 10.3909L5.7954 13.6049C5.21383 14.363 4.00195 13.9517 4.00195 12.9962V2.9984Z\" fill=\"#212121\"/>\n</svg>\n",
+      "sha256": "b107bfe61b65166d2cbd5f8316168d88a993fbf1ad3f4c5dbc53f5ea9e2fc164",
+      "source": "https://github.com/microsoft/fluentui-system-icons/blob/9eb184e96268d3293462f9d9d19225b4c7b07774/assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg",
+      "width": 0.8,
+      "geometry": {
+        "path": "M4.00195 2.998859805A1 1 0 0 1 5.731642257 2.315084104L11.729937607 8.716173916A1 1 0 0 1 11.000245349 10.399949617L8.135049367 10.399949617A1 1 0 0 0 7.254919008 10.925217534L5.882080359 13.470394096A1 1 0 0 1 4.00195 12.995662012Z",
+        "radius": 1,
+        "widthRatio": 0.8000000000000003,
+        "height": 11.996802207369726,
+        "bounds": {
+          "minX": 4.00195,
+          "minY": 1.9988598046654866,
+          "maxX": 12.000245349347722,
+          "maxY": 13.995662012035211
+        },
+        "corners": [
+          {
+            "radius": 1,
+            "start": [
+              4.00195,
+              2.9988598046654866
+            ],
+            "end": [
+              5.73164225745959,
+              2.315084103573727
+            ],
+            "center": [
+              5.00195,
+              2.9988598046654866
+            ],
+            "sweep": 1
+          },
+          {
+            "radius": 1,
+            "start": [
+              11.729937606807312,
+              8.716173916192766
+            ],
+            "end": [
+              11.00024534934772,
+              10.399949617284527
+            ],
+            "center": [
+              11.000245349347722,
+              9.399949617284527
+            ],
+            "sweep": 1
+          },
+          {
+            "radius": 1,
+            "start": [
+              8.135049366537066,
+              10.399949617284527
+            ],
+            "end": [
+              7.254919007589845,
+              10.92521753362108
+            ],
+            "center": [
+              8.135049366537066,
+              11.399949617284527
+            ],
+            "sweep": 0
+          },
+          {
+            "radius": 1,
+            "start": [
+              5.8820803589472215,
+              13.470394095698655
+            ],
+            "end": [
+              4.00195,
+              12.995662012035211
+            ],
+            "center": [
+              5.00195,
+              12.995662012035211
+            ],
+            "sweep": 1
+          }
+        ],
+        "skeletonScale": [
+          0.7756813334564525,
+          1.1032699320433463
+        ]
+      },
+      "note": "높이와 모서리 반경을 유지한 폭 80% 몸체입니다.",
+      "parent": "fluent16",
+      "derived": true,
+      "path": "M4.00195 2.998859805A1 1 0 0 1 5.731642257 2.315084104L11.729937607 8.716173916A1 1 0 0 1 11.000245349 10.399949617L8.135049367 10.399949617A1 1 0 0 0 7.254919008 10.925217534L5.882080359 13.470394096A1 1 0 0 1 4.00195 12.995662012Z",
+      "construction": "fixed circular corner radius 1; tangent straight segments reconstructed; no nonuniform path transform",
+      "modification": "높이와 모서리 반경을 유지한 폭 80% 몸체입니다."
+    },
+    {
+      "id": "fluent16-w90-white",
+      "title": "A3 · 폭 90% + 흰 윤곽선",
+      "repo": "microsoft/fluentui-system-icons",
+      "branch": "main",
+      "file": "assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg",
+      "hotspot": [
+        4.3,
+        2.2
+      ],
+      "factor": 2,
+      "commit": "9eb184e96268d3293462f9d9d19225b4c7b07774",
+      "svg": "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M4.00195 2.9984C4.00195 2.17424 4.94294 1.70389 5.60215 2.19855L13.5996 8.1997C14.3682 8.77643 13.9603 9.99956 12.9994 9.99956H9.05418C8.74324 9.99956 8.44999 10.1442 8.26073 10.3909L5.7954 13.6049C5.21383 14.363 4.00195 13.9517 4.00195 12.9962V2.9984Z\" fill=\"#212121\"/>\n</svg>\n",
+      "sha256": "b107bfe61b65166d2cbd5f8316168d88a993fbf1ad3f4c5dbc53f5ea9e2fc164",
+      "source": "https://github.com/microsoft/fluentui-system-icons/blob/9eb184e96268d3293462f9d9d19225b4c7b07774/assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg",
+      "width": 0.9,
+      "outline": "white",
+      "geometry": {
+        "path": "M4.00195 2.998859805A1 1 0 0 1 5.662930136 2.248456407L12.661012404 8.412598761A1 1 0 0 1 12.000032268 10.163002159L8.588736558 10.163002159A1 1 0 0 0 7.751627583 10.615965994L5.839058974 13.542698176A1 1 0 0 1 4.00195 12.995662012Z",
+        "radius": 1,
+        "widthRatio": 0.900000000000206,
+        "height": 11.996802207368123,
+        "bounds": {
+          "minX": 4.00195,
+          "minY": 1.9988598046654866,
+          "maxX": 13.000032268018245,
+          "maxY": 13.995662012033609
+        },
+        "corners": [
+          {
+            "radius": 1,
+            "start": [
+              4.00195,
+              2.9988598046654866
+            ],
+            "end": [
+              5.662930135941267,
+              2.2484564065581325
+            ],
+            "center": [
+              5.00195,
+              2.9988598046654866
+            ],
+            "sweep": 1
+          },
+          {
+            "radius": 1,
+            "start": [
+              12.661012403959512,
+              8.412598760536557
+            ],
+            "end": [
+              12.000032268018245,
+              10.163002158643911
+            ],
+            "center": [
+              12.000032268018245,
+              9.163002158643911
+            ],
+            "sweep": 1
+          },
+          {
+            "radius": 1,
+            "start": [
+              8.588736557773272,
+              10.163002158643911
+            ],
+            "end": [
+              7.751627583408759,
+              10.6159659943564
+            ],
+            "center": [
+              8.588736557773272,
+              11.163002158643911
+            ],
+            "sweep": 0
+          },
+          {
+            "radius": 1,
+            "start": [
+              5.839058974364513,
+              13.54269817632112
+            ],
+            "end": [
+              4.00195,
+              12.995662012033609
+            ],
+            "center": [
+              5.00195,
+              12.995662012033609
+            ],
+            "sweep": 1
+          }
+        ],
+        "skeletonScale": [
+          0.8874152111167377,
+          1.0418203875985086
+        ]
+      },
+      "note": "A1과 같은 몸체에 흰 윤곽선만 더했습니다.",
+      "parent": "fluent16",
+      "derived": true,
+      "path": "M4.00195 2.998859805A1 1 0 0 1 5.662930136 2.248456407L12.661012404 8.412598761A1 1 0 0 1 12.000032268 10.163002159L8.588736558 10.163002159A1 1 0 0 0 7.751627583 10.615965994L5.839058974 13.542698176A1 1 0 0 1 4.00195 12.995662012Z",
+      "construction": "fixed circular corner radius 1; tangent straight segments reconstructed; no nonuniform path transform",
+      "modification": "A1과 같은 몸체에 흰 윤곽선만 더했습니다."
+    },
+    {
+      "id": "fluent16-w80-white",
+      "title": "A4 · 폭 80% + 흰 윤곽선",
+      "repo": "microsoft/fluentui-system-icons",
+      "branch": "main",
+      "file": "assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg",
+      "hotspot": [
+        4.3,
+        2.2
+      ],
+      "factor": 2,
+      "commit": "9eb184e96268d3293462f9d9d19225b4c7b07774",
+      "svg": "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M4.00195 2.9984C4.00195 2.17424 4.94294 1.70389 5.60215 2.19855L13.5996 8.1997C14.3682 8.77643 13.9603 9.99956 12.9994 9.99956H9.05418C8.74324 9.99956 8.44999 10.1442 8.26073 10.3909L5.7954 13.6049C5.21383 14.363 4.00195 13.9517 4.00195 12.9962V2.9984Z\" fill=\"#212121\"/>\n</svg>\n",
+      "sha256": "b107bfe61b65166d2cbd5f8316168d88a993fbf1ad3f4c5dbc53f5ea9e2fc164",
+      "source": "https://github.com/microsoft/fluentui-system-icons/blob/9eb184e96268d3293462f9d9d19225b4c7b07774/assets/Cursor/SVG/ic_fluent_cursor_16_filled.svg",
+      "width": 0.8,
+      "outline": "white",
+      "geometry": {
+        "path": "M4.00195 2.998859805A1 1 0 0 1 5.731642257 2.315084104L11.729937607 8.716173916A1 1 0 0 1 11.000245349 10.399949617L8.135049367 10.399949617A1 1 0 0 0 7.254919008 10.925217534L5.882080359 13.470394096A1 1 0 0 1 4.00195 12.995662012Z",
+        "radius": 1,
+        "widthRatio": 0.8000000000000003,
+        "height": 11.996802207369726,
+        "bounds": {
+          "minX": 4.00195,
+          "minY": 1.9988598046654866,
+          "maxX": 12.000245349347722,
+          "maxY": 13.995662012035211
+        },
+        "corners": [
+          {
+            "radius": 1,
+            "start": [
+              4.00195,
+              2.9988598046654866
+            ],
+            "end": [
+              5.73164225745959,
+              2.315084103573727
+            ],
+            "center": [
+              5.00195,
+              2.9988598046654866
+            ],
+            "sweep": 1
+          },
+          {
+            "radius": 1,
+            "start": [
+              11.729937606807312,
+              8.716173916192766
+            ],
+            "end": [
+              11.00024534934772,
+              10.399949617284527
+            ],
+            "center": [
+              11.000245349347722,
+              9.399949617284527
+            ],
+            "sweep": 1
+          },
+          {
+            "radius": 1,
+            "start": [
+              8.135049366537066,
+              10.399949617284527
+            ],
+            "end": [
+              7.254919007589845,
+              10.92521753362108
+            ],
+            "center": [
+              8.135049366537066,
+              11.399949617284527
+            ],
+            "sweep": 0
+          },
+          {
+            "radius": 1,
+            "start": [
+              5.8820803589472215,
+              13.470394095698655
+            ],
+            "end": [
+              4.00195,
+              12.995662012035211
+            ],
+            "center": [
+              5.00195,
+              12.995662012035211
+            ],
+            "sweep": 1
+          }
+        ],
+        "skeletonScale": [
+          0.7756813334564525,
+          1.1032699320433463
+        ]
+      },
+      "note": "A2와 같은 몸체에 흰 윤곽선만 더했습니다.",
+      "parent": "fluent16",
+      "derived": true,
+      "path": "M4.00195 2.998859805A1 1 0 0 1 5.731642257 2.315084104L11.729937607 8.716173916A1 1 0 0 1 11.000245349 10.399949617L8.135049367 10.399949617A1 1 0 0 0 7.254919008 10.925217534L5.882080359 13.470394096A1 1 0 0 1 4.00195 12.995662012Z",
+      "construction": "fixed circular corner radius 1; tangent straight segments reconstructed; no nonuniform path transform",
+      "modification": "A2와 같은 몸체에 흰 윤곽선만 더했습니다."
+    }
+  ],
+  "accepted": {
+    "agentSource": "fluent16-w90-white",
+    "palette": "laio-12-families-6-tones"
+  },
+  "userCursor": {
+    "source": "C:/Windows/Cursors/aero_arrow.cur",
+    "sha256": "06678bbf954f0bece61062633dc63a52a34a6f3c27ac7108f28c0f0d26bb22a7",
+    "nativeLoadedSize": [
+      32,
+      32
+    ],
+    "hotspot": [
+      0,
+      0
+    ],
+    "systemDpi": 96,
+    "sourceImage": {
+      "width": 32,
+      "height": 32,
+      "png": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA/0lEQVR4nO3TsWrCQBzH8f/vYkAIJKZQK32LTj5FX9GXaEbtkE1wkYC6BoeIk9ATLR2u/E9rtJq69O6W+07HLf9P/kmIEFci7PbJWYgriM7IHQJxpZRS7hA4ANwhUAPcIHAJsI/ANcAuArcB9hBoBuw/vywg0AzgNpsPwwj8DeBWq7VBBO4DuLJcasR/j2/9vthu9xRFbX0WQfpOxkO9ASl3iiiWb9nw5y8YitbjqxWAPA7n9wwkxWntSArjAHk2XF+JNMvz8XELaWZ0C9AfVj2c02ckcwbMZgvewtQYoCl+ch6ut4DOhGwXhL1n3gLEw0CETy/WAT6fz+fzkaW+AcZfRm/zFXLZAAAAAElFTkSuQmCC",
+      "bounds": [
+        0,
+        0,
+        12,
+        19
+      ],
+      "hotspot": [
+        0,
+        0
+      ]
+    },
+    "outerPath": "M0.46541 0.37728L11.61836 11.84888A0.48 0.48 0 0 1 11.3284 12.66041L8.18424 13.0177A0.2 0.2 0 0 0 8.02793 13.30586L9.98111 17.21223A0.4 0.4 0 0 1 9.82249 17.73801L7.8021 18.89787A0.4 0.4 0 0 1 7.25313 18.74493L4.75551 14.24029A0.18 0.18 0 0 0 4.48285 14.18929L0.83388 17.2301A0.42 0.42 0 0 1 0.14501 16.9098L0.05334 0.54593A0.24 0.24 0 0 1 0.46541 0.37728Z",
+    "innerPath": "M1.26269 2.54583L10.03552 11.56931A0.18 0.18 0 0 1 9.92679 11.87363L6.96958 12.20968A0.36 0.36 0 0 0 6.68824 12.72837L8.83636 17.02462A0.18 0.18 0 0 1 8.76498 17.26122L7.96789 17.71881A0.18 0.18 0 0 1 7.72085 17.64999L5.13213 12.98104A0.36 0.36 0 0 0 4.58682 12.87905L1.37192 15.55813A0.18 0.18 0 0 1 1.07669 15.42086L1.00515 2.65123A0.15 0.15 0 0 1 1.26269 2.54583Z",
+    "before": {
+      "intersection": 125,
+      "union": 125,
+      "xorPixels": 0,
+      "silhouetteIoU": 1
+    },
+    "after": {
+      "intersection": 116,
+      "union": 125,
+      "xorPixels": 9,
+      "silhouetteIoU": 0.928
+    },
+    "comparison": "same Windows reference/hotspot; alpha >=128 after 16x sampling; straight geometry intentionally replaces raster edge fluctuations; no exact pixel match claimed",
+    "status": "straight-edge/rounded-corner design preview; native reference retained; user visual acceptance pending",
+    "construction": {
+      "method": "seven straight support edges with tangent circular corner fillets; white interior inset 0.94px",
+      "vertices": [
+        [
+          0.05,
+          -0.05
+        ],
+        [
+          12.3,
+          12.55
+        ],
+        [
+          7.9,
+          13.05
+        ],
+        [
+          10.15,
+          17.55
+        ],
+        [
+          7.45,
+          19.1
+        ],
+        [
+          4.65,
+          14.05
+        ],
+        [
+          0.15,
+          17.8
+        ]
+      ],
+      "outerRadii": [
+        0.24,
+        0.48,
+        0.2,
+        0.4,
+        0.4,
+        0.18,
+        0.42
+      ],
+      "innerVertices": [
+        [
+          1.0030611194287449,
+          2.278776785469018
+        ],
+        [
+          10.291140393994295,
+          11.832229753593584
+        ],
+        [
+          6.457957414824708,
+          12.267818728499218
+        ],
+        [
+          8.912356566734765,
+          17.17661703231933
+        ],
+        [
+          7.80944460448393,
+          17.8097701958337
+        ],
+        [
+          4.921116367468862,
+          12.60046391121724
+        ],
+        [
+          1.0788235720260402,
+          15.802374574086256
+        ]
+      ],
+      "innerRadii": [
+        0.15,
+        0.18,
+        0.36,
+        0.18,
+        0.18,
+        0.36,
+        0.18
+      ],
+      "hotspot": [
+        0,
+        0
+      ]
+    },
+    "previousTrace": {
+      "outerPath": "M0.5 0.05195L0.05195 0.5L0.1746 16.5L0.5 16.8254L1.5 16.97746L4.5 14.1164L4.96474 14.5L5.20833 15.5L5.95312 16.5L6.20833 17.5L7.03704 18.5L7.5 18.90698L8.5 18.69304L9.5 17.99355L9.875 17.5L9.88995 16.5L9.00971 15.5L8.89573 14.5L8.04505 13.5L8.5 13.04911L9.5 12.8254L11.5 12.8254L11.8254 12.5L11.8254 11.5Z",
+      "innerPath": "M1.5 1.99854L1.0 2.5L1.02254 15.5L1.5 15.97746L4.5 12.97746L5.5 13.78905L5.99837 14.5L6.15596 15.5L7.0 16.5L7.09446 17.5L7.5 17.90421L8.5 18.00122L9.00157 17.5L8.90576 16.5L8.00139 15.5L7.93493 14.5L7.00145 13.5L7.00146 12.5L7.5 12.00146L10.5 11.93477L10.93477 11.5Z",
+      "outerPoints": [
+        [
+          0.5,
+          0.05194805
+        ],
+        [
+          0.05194805,
+          0.5
+        ],
+        [
+          0.17460317,
+          16.5
+        ],
+        [
+          0.5,
+          16.82539683
+        ],
+        [
+          1.5,
+          16.97745902
+        ],
+        [
+          4.5,
+          14.11640212
+        ],
+        [
+          4.96474359,
+          14.5
+        ],
+        [
+          5.20833333,
+          15.5
+        ],
+        [
+          5.953125,
+          16.5
+        ],
+        [
+          6.20833333,
+          17.5
+        ],
+        [
+          7.03703704,
+          18.5
+        ],
+        [
+          7.5,
+          18.90697674
+        ],
+        [
+          8.5,
+          18.69303797
+        ],
+        [
+          9.5,
+          17.99354839
+        ],
+        [
+          9.875,
+          17.5
+        ],
+        [
+          9.88995215,
+          16.5
+        ],
+        [
+          9.00970874,
+          15.5
+        ],
+        [
+          8.8957346,
+          14.5
+        ],
+        [
+          8.04504505,
+          13.5
+        ],
+        [
+          8.5,
+          13.04910714
+        ],
+        [
+          9.5,
+          12.82539683
+        ],
+        [
+          11.5,
+          12.82539683
+        ],
+        [
+          11.82539683,
+          12.5
+        ],
+        [
+          11.82539683,
+          11.5
+        ]
+      ],
+      "innerPoints": [
+        [
+          1.5,
+          1.99854248
+        ],
+        [
+          1,
+          2.5
+        ],
+        [
+          1.02254098,
+          15.5
+        ],
+        [
+          1.5,
+          15.97745902
+        ],
+        [
+          4.5,
+          12.97745902
+        ],
+        [
+          5.5,
+          13.78904565
+        ],
+        [
+          5.99837227,
+          14.5
+        ],
+        [
+          6.1559647,
+          15.5
+        ],
+        [
+          7,
+          16.5
+        ],
+        [
+          7.0944567,
+          17.5
+        ],
+        [
+          7.5,
+          17.90420561
+        ],
+        [
+          8.5,
+          18.00121788
+        ],
+        [
+          9.00157356,
+          17.5
+        ],
+        [
+          8.90575964,
+          16.5
+        ],
+        [
+          8.00138793,
+          15.5
+        ],
+        [
+          7.93493282,
+          14.5
+        ],
+        [
+          7.00144979,
+          13.5
+        ],
+        [
+          7.00145752,
+          12.5
+        ],
+        [
+          7.5,
+          12.00145752
+        ],
+        [
+          10.5,
+          11.9347655
+        ],
+        [
+          10.9347655,
+          11.5
+        ]
+      ]
+    }
+  }
+}</script>
+<script>
+(() => {
+  'use strict';
+  const root=document.getElementById('cursor-study');
+  const $=id=>root.querySelector('#'+id);
+  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+  const ease=v=>{v=clamp(v);return v*v*(3-2*v);};
+  const mix=(a,b,t)=>a+(b-a)*t;
+  const attr=(id,k,v)=>$(id).setAttribute(k,String(v));
+  const opacity=(id,v)=>attr(id,'opacity',clamp(v));
+  const transform=(id,v)=>attr(id,'transform',v);
+  const sourceData=JSON.parse(document.getElementById('source-data').textContent);
+  const allSources=sourceData.cursors.concat(sourceData.variants||[]);
+  let selectedSource=sourceData.cursors[0], selectedFamilyId='0', paletteTone='bright', agentColor=sourceData.palette.families[0].colors.bright.toLowerCase();
+  function syncAgentOutline(){root.querySelectorAll('.agent-outline').forEach(el=>{el.style.stroke=$('agent-border').checked?'#ffffff':'none';el.style.strokeWidth=$('agent-border').checked?'0.9':'0';});}
+  function selectSource(id){
+    const source=allSources.find(c=>c.id===id);if(!source)return;
+    selectedSource=source;
+    attr('agent-vector','href','#source-'+source.id);
+    attr('agent-vector','transform',`scale(${source.factor}) translate(${-source.hotspot[0]} ${-source.hotspot[1]})`);
+    $('selected-source-title').textContent='Agent / '+source.title;
+    $('selected-source-note').textContent='선택 · '+source.title;
+    root.querySelectorAll('[data-source]').forEach(b=>{const selected=b.dataset.source===id;b.setAttribute('aria-pressed',String(selected));b.closest('.source-card').classList.toggle('selected',selected);});
+    root.dataset.source=id;
+    $('agent-border').checked=source.outline==='white';syncAgentOutline();
+  }
+  function blend(hex,amount,target){const rgb=hex.match(/[0-9a-f]{2}/gi).map(v=>parseInt(v,16));return '#'+rgb.map(v=>Math.round(mix(v,target,amount)).toString(16).padStart(2,'0')).join('');}
+  function applyAgentColor(value,family=null){
+    if(!/^#[0-9a-f]{6}$/i.test(value))return false;
+    agentColor=value.toLowerCase();
+    selectedFamilyId=family?family.id:null;
+    const ink=family?family.colors.clear:blend(agentColor,.65,0),paper=family?family.colors.pastel:blend(agentColor,.87,255);
+    root.style.setProperty('--agent',agentColor);root.style.setProperty('--agent-ink',ink);
+    attr('agent-label-bg','fill',paper);attr('agent-label-bg','stroke',family?family.colors.clear:blend(agentColor,.55,255));attr('agent-label-text','fill',ink);attr('click-ring','stroke',agentColor);
+    $('agent-color').value=agentColor;$('agent-hex').value=agentColor.toUpperCase();$('agent-hex').removeAttribute('aria-invalid');$('color-error').hidden=true;
+    root.querySelectorAll('[data-color]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color===agentColor)));
+    root.dataset.agentColor=agentColor;return true;
+  }
+  function chooseFamily(id){const family=sourceData.palette.families.find(f=>f.id===id);if(!family)return;applyAgentColor(family.colors[paletteTone],family);$('palette-summary').textContent='LAIO · '+family.name+' / '+paletteTone+' '+family.colors[paletteTone];}
+  function refreshFamilySwatches(){root.querySelectorAll('[data-family]').forEach(b=>{const family=sourceData.palette.families.find(f=>f.id===b.dataset.family);const hex=family.colors[paletteTone];b.dataset.color=hex.toLowerCase();b.querySelector('.swatch').style.setProperty('--swatch',hex);b.title=family.name+' / '+paletteTone+' '+hex;});}
+  root.querySelectorAll('[data-source]').forEach(b=>b.addEventListener('click',()=>selectSource(b.dataset.source)));
+  root.querySelectorAll('[data-family]').forEach(b=>b.addEventListener('click',()=>chooseFamily(b.dataset.family)));
+  $('palette-tone').addEventListener('change',e=>{paletteTone=e.target.value;refreshFamilySwatches();chooseFamily(selectedFamilyId||'0');});
+  $('agent-color').addEventListener('input',e=>{if(applyAgentColor(e.target.value))$('palette-summary').textContent='직접 선택 · '+agentColor.toUpperCase();});
+  $('agent-hex').addEventListener('change',e=>{if(!applyAgentColor(e.target.value)){$('agent-hex').setAttribute('aria-invalid','true');$('color-error').hidden=false;}else $('palette-summary').textContent='직접 선택 · '+agentColor.toUpperCase();});
+  $('agent-border').addEventListener('change',syncAgentOutline);
+  $('compare-difference').addEventListener('change',e=>{
+    const diff=e.target.checked;
+    root.querySelectorAll('.windows-comparison-base').forEach(el=>{if(diff)el.setAttribute('filter','url(#comparison-cyan)');else el.removeAttribute('filter');});
+    for(const which of ['before','after']){attr('compare-'+which+'-tint','display',diff?'inline':'none');attr('compare-'+which+'-real','display',diff?'none':'inline');}
+  });
+  $('compare-opacity').addEventListener('input',e=>root.querySelectorAll('.comparison-layer').forEach(el=>el.setAttribute('opacity',e.target.value)));
+  for(const source of sourceData.cursors){const p=document.createElement('p');const a=document.createElement('a');a.href=source.source;a.target='_blank';a.rel='noreferrer';a.textContent=source.title+' · '+source.commit.slice(0,12);p.append(a);const pre=document.createElement('pre');pre.textContent=source.file+'\nSHA-256 '+source.sha256;$('source-credits').append(p,pre);}
+  for(const license of sourceData.licenses){const h=document.createElement('h3');h.textContent=license.repo;const pre=document.createElement('pre');pre.textContent=license.text;$('source-credits').append(h,pre);}
+  selectSource(sourceData.accepted.agentSource);refreshFamilySwatches();chooseFamily('0');
+  const ranges={all:[0,12.8],enable:[1.1,3.2],click:[2.8,4.15],drag:[3.9,7.35],teleport:[7.25,8.5],idle:[8.45,10.15],exit:[9.85,12.8]};
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let playing=!reduced.matches, mode='all', t=0, last=null, scale=1.6, speed=1, frame=0;
+  let phaseKey='';
+  const stages=[
+    [1.8,'일반 사용자 커서','일반 커서에서 시작해 같은 끝점의 점이 커지며 전환합니다.'],
+    [2.7,'Window Use 켜짐','일반 커서와 교차 전환하며, 작은 흰 점이 같은 끝점에서 A형 사용자 커서로 커집니다.'],
+    [4.1,'Agent 클릭','둥근 화살표가 클릭할 때만 짧게 눌렸다 돌아옵니다.'],
+    [7.3,'드래그 · 사용자 입력 대기','Agent가 제자리에서 흐려지며 점으로 작아집니다. 사용자 대기는 저장 아이콘만 표시하며 흰색과 문구는 유지합니다.'],
+    [8.5,'Agent 순간이동','커서는 즉시 새 위치로 이동합니다. 이전 위치에는 몸체의 옅은 잔상만 180ms 동안 남고, 이름표는 새 위치에만 표시합니다.'],
+    [10.1,'Agent 대기','조작하지 않는 Agent는 32% 불투명도로 조용히 남아 있습니다.'],
+    [11.25,'Agent 사용 종료','Agent와 이름표가 함께 작아지며 사라집니다.'],
+    [12.8,'Window Use 꺼짐','사용자 커서가 같은 끝점에서 일반 커서로 돌아옵니다.']
+  ];
+  function render() {
+    const on=ease((t-1.8)/.55)*(1-ease((t-11.5)/.55));
+    // User travel is illustrative only; user motion receives no lag/interpolation in the proposal.
+    const ux=175+18*Math.sin(t*.8), uy=213+14*Math.sin(t*1.1);
+    transform('user-position',`translate(${ux} ${uy})`);
+    transform('user-scale',`scale(${scale})`);
+    opacity('ordinary',1-on); opacity('custom-user',on);
+    const grow=ease((t-1.83)/.38);
+    transform('user-shape',`scale(${mix(.02,1,grow)})`);
+    opacity('user-shape',grow);
+    opacity('user-seed',1-ease((t-1.98)/.24));
+    const waiting=ease((t-4.85)/.12)*(1-ease((t-7.12)/.12));
+    opacity('waiting-mark',waiting);
+    const ring=clamp((t-1.8)/.65); attr('enable-ring','r',mix(6,30,ring)); opacity('enable-ring',t>=1.8&&t<2.45?(1-ring)*.6:0);
+    let ax=370,ay=202;
+    const drag=clamp((t-4.3)/2.55);
+    if(t>=4.3){ax=mix(370,600,drag);ay=202-22*Math.sin(drag*Math.PI*2.1);}
+    const line=[];if(t>=4.3){for(let i=0;i<=Math.ceil(drag*64);i++){const p=Math.min(drag,i/64);line.push(`${i?'L':'M'}${mix(370,600,p)} ${202-22*Math.sin(p*Math.PI*2.1)}`);}}
+    attr('drawn-line','d',line.join(' '));
+    // The live pointer switches coordinates instantly, with no visibility or scale transition.
+    const atDestination=t>=7.5;
+    if(atDestination){ax=690;ay=150;}
+    transform('agent-ghost',`translate(600 ${202-22*Math.sin(Math.PI*2.1)})`);
+    transform('ghost-scale',`scale(${scale})`);
+    opacity('agent-ghost',atDestination?.24*(1-ease((t-7.5)/.18)):0);
+    const life=ease((t-2.7)/.24)*(1-ease((t-10.25)/.22));
+    const idle=ease((t-8.55)/.2);
+    opacity('agent-position',life*mix(1,.32,idle));
+    transform('agent-position',`translate(${ax} ${ay})`);
+    const exit=1-ease((t-10.25)/.22);
+    transform('agent-scale',`scale(${scale*mix(.55,1,exit)})`);
+    const click=clamp(1-Math.abs(t-3.45)/.14);
+    transform('agent-press',`scale(${1-.1*click})`);
+    const dot=ease((t-4.1)/.18)*(1-ease((t-7.03)/.14));
+    opacity('agent-arrow',1-dot);
+    transform('agent-arrow',`scale(${mix(1,.18,dot)})`);
+    opacity('agent-dot',dot);attr('agent-dot','r',mix(3,5,dot));
+    opacity('agent-label',mix(1,.6,dot));
+    const cr=clamp((t-3.45)/.4); attr('click-ring','cx',370);attr('click-ring','cy',202);attr('click-ring','r',mix(4,23,cr));opacity('click-ring',t>=3.45&&t<3.85?(1-cr)*.65:0);
+    const phase=stages.find(s=>t<s[0])||stages[stages.length-1];
+    if(phaseKey!==phase[1]){$('phase-title').textContent=phase[1];$('phase-note').textContent=phase[2];phaseKey=phase[1];}
+    $('seek').value=t.toFixed(2);$('time').value=`${t.toFixed(1)} / 12.8s`;
+    root.dataset.time=t.toFixed(3);root.dataset.mode=mode;root.dataset.playing=String(playing);
+  }
+  function loop(now){if(last!==null&&playing){t+=(Math.min(now-last,100)/1000)*speed;const [a,b]=ranges[mode];if(t>=b)t=a+(t-b)%(b-a);}last=now;render();frame=requestAnimationFrame(loop);}
+  function updatePlay(){$('play').textContent=playing?'일시 정지':'재생';}
+  $('play').addEventListener('click',()=>{playing=!playing;updatePlay();});
+  $('restart').addEventListener('click',()=>{t=ranges[mode][0];last=null;render();});
+  $('speed').addEventListener('change',e=>{speed=Number(e.target.value);});
+  $('scale').addEventListener('change',e=>{scale=Number(e.target.value);render();});
+  $('theme').addEventListener('click',()=>{const dark=$('stage').classList.toggle('dark');$('theme').setAttribute('aria-pressed',String(dark));});
+  $('seek').addEventListener('input',e=>{t=Number(e.target.value);playing=false;mode='all';updatePlay();selectMode();render();});
+  function selectMode(){root.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));}
+  const representative={all:2.95,enable:2.04,click:3.48,drag:5.8,teleport:7.54,idle:9.2,exit:10.37};
+  root.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;t=playing?ranges[mode][0]:representative[mode];selectMode();last=null;render();}));
+  reduced.addEventListener('change',e=>{if(e.matches){playing=false;updatePlay();}});
+  document.addEventListener('visibilitychange',()=>{last=null;});
+  window.addEventListener('pagehide',()=>cancelAnimationFrame(frame));
+  updatePlay();render();frame=requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

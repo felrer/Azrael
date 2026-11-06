@@ -198,6 +198,7 @@ pub(crate) async fn stream(
                             response_id: format!("devin-{external_session_id}-{}", ctx.sub_id),
                             token_usage: None,
                             usage_metadata: None,
+                            service_tier: None,
                             end_turn: Some(true),
                         },
                     )

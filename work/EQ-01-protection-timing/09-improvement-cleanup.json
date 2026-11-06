@@ -1,0 +1,11 @@
+{
+  "operation": "apply",
+  "decisions": [
+    {
+      "id": "0d446a92155e06f934711b7751e9893c85b8c10ef87fa8ed726c556e3eb19bbc",
+      "token": "a4001c7e330dbd0fc14607dca480af00ca4f3fab94f68e55dfb67446edbdfbdf",
+      "decision": "delete",
+      "reason": "Completed stopped verification run; minimal acceptance and source identities preserved outside the disposable run"
+    }
+  ]
+}

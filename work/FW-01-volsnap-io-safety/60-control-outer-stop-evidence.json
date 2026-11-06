@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "id": "run:fw03r:control-01",
+  "owner": "control-retirement-test",
+  "scope": "Exact Windows x64 CONTROL whole run-root only",
+  "rootAuthority": "Parent confirmed root/staging consumers ended, accepted58/58b/59 independent results, and catalog quiet following unit10 handoff. Single outer60 execution authorized.",
+  "terminalBindings": {
+    "schema": 1,
+    "status": "historical outer terminal source/report bindings verified; file-only preparation",
+    "id": "run:fw03r:control-01",
+    "terminalEvidence": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\60a-historical-controller-terminal-evidence.json",
+      "sha256": "0b7bf285a5560216d53b1714d5720c87c85453b8eb66018b05e720366a6499d9"
+    },
+    "bindings": [
+      {
+        "source": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\inputs\\control-controller.cjs",
+          "sha256": "de8f4457d788733729e2a371cdafd583558e843af088fccfc1626789ae5433af"
+        },
+        "plan": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\inputs\\acceptance-plan.json",
+          "sha256": "6ee4cb06ed6ddabb3429a5c160141ee596707ce0c23e270246a48cbd9f386beb"
+        },
+        "start": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\acceptance-start.json",
+          "sha256": "bd8b38fedaba96750c2e41e39543afec67c69b136389611aa7ceadc6f43ec885"
+        },
+        "independentReport": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\23-control-retirement-acceptance.json",
+          "sha256": "3e0cfb984fc8f916d5aa0bfe2fc4239244d198ff66f13502776c0a2e35e14fa3"
+        },
+        "pid": 33724,
+        "executorActualExit": 1,
+        "terminalChunk": "064610",
+        "session": 63702,
+        "execCell": null,
+        "ownCloseEventRecorded": false,
+        "child": {
+          "pid": 45508,
+          "exit": {
+            "code": 1,
+            "signal": null
+          },
+          "close_observed": true,
+          "stdout_drained": true,
+          "stderr_drained": true,
+          "spawnError": null
+        },
+        "leaseCount": 1,
+        "leaseEvidence": "Existing report native exit/close packets; synchronous capture returns only after its child close; no fabricated PID/event"
+      },
+      {
+        "source": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\inputs\\control-correction.cjs",
+          "sha256": "94a96b44b3324fc30a82bb8330934e05acebd248b429416f53808ee8f6ad11b8"
+        },
+        "plan": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\inputs\\correction-plan.json",
+          "sha256": "d0928eda29e12f576ba1809ce7085b9d6a69194f9eb3e9b2390892f1d8585789"
+        },
+        "start": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\correction-start.json",
+          "sha256": "1d3155d374e42d84d364f70568f91794e997baf445d7a95297cefbe4a66231af"
+        },
+        "independentReport": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\25-control-retirement-correction.json",
+          "sha256": "551454079b521ea3c9d5a024577838561ba298f1a7c29d6afe3ad5b95f8346d9"
+        },
+        "pid": 42208,
+        "executorActualExit": 1,
+        "terminalChunk": "74583f",
+        "session": null,
+        "execCell": "39",
+        "ownCloseEventRecorded": false,
+        "child": null,
+        "leaseCount": 0,
+        "leaseEvidence": "Existing report native exit/close packets; synchronous capture returns only after its child close; no fabricated PID/event"
+      },
+      {
+        "source": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\inputs\\control-correction-retry.cjs",
+          "sha256": "284b22e309ea6d75d5f9820ed824abe10ed0b30b5a59e689668506eab9bcb0c3"
+        },
+        "plan": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\inputs\\correction-retry-plan.json",
+          "sha256": "3fecc97e6977c5de823256dc8402ea68f3f1f98fc5bb69fc7e501f4d04e7d147"
+        },
+        "start": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\correction-retry-start.json",
+          "sha256": "b467fe0d8bc66a50e29f91e43dd9d6f8813e16b647288130b36c9e6dc504c436"
+        },
+        "independentReport": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\26-control-retirement-acceptance.json",
+          "sha256": "72a2713a3d940f6b6ca7196157720722b26d11585522d84833aaa7c3b2740620"
+        },
+        "pid": 12380,
+        "executorActualExit": 0,
+        "terminalChunk": "0dd507",
+        "session": 17914,
+        "execCell": null,
+        "ownCloseEventRecorded": false,
+        "child": {
+          "pid": 38536,
+          "exit": {
+            "code": 0,
+            "signal": null
+          },
+          "error": null,
+          "close_observed": true,
+          "stdout_drained": true,
+          "stderr_drained": true
+        },
+        "leaseCount": 2,
+        "leaseEvidence": "Existing report native exit/close packets; synchronous capture returns only after its child close; no fabricated PID/event"
+      }
+    ],
+    "limits": [
+      "No global OS tree observation or newly observed historical close event",
+      "Per-attempt failure1/failure1/success0 retained; no aggregate success or exit invented",
+      "Full cleanup stopproof additionally binds remaining independent producer receipts and root final consumer/quiet handoff"
+    ],
+    "nativeInvocations": 0,
+    "lifecycleMutations": 0
+  },
+  "evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\22-control-retirement-verification.json",
+      "sha256": "6d8cf8e7fc4a8cf4c8178fa0aba9c3a121dd8702e8e513a7a2eeb20dfa3f115a"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\23-control-retirement-acceptance.json",
+      "sha256": "3e0cfb984fc8f916d5aa0bfe2fc4239244d198ff66f13502776c0a2e35e14fa3"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\25-control-retirement-correction.json",
+      "sha256": "551454079b521ea3c9d5a024577838561ba298f1a7c29d6afe3ad5b95f8346d9"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\26-control-retirement-acceptance.json",
+      "sha256": "72a2713a3d940f6b6ca7196157720722b26d11585522d84833aaa7c3b2740620"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\27-control-retirement-result.json",
+      "sha256": "5cebd5a199d9cb20d2a28d290d7fbcb81b34d1409fe06744d0224536fda609a6"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\28-control-retirement-result.json",
+      "sha256": "9f4a34a81218934529cdaa53c1dafc3cb49eff2316f191bd3fb3229aea9b1ee0"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\31-control-retirement-result.json",
+      "sha256": "4efa0a6938e11ed6cfc0d0490fab9f5d34b26a36349978e61b4dd85d1da69016"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\33-control-retirement-result.json",
+      "sha256": "17b95655beb67991477f2acd70879f1acc79608032dadf6db3a5ed8e5dd25da4"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\48-historical-empty-publication-recovery.json",
+      "sha256": "29bee4defeda6f47209b3b2105e915977c5e6cae03052d30f522e28e4eb2cc57"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\52-historical-empty-publication-recovery.json",
+      "sha256": "a24bec3b6ef2b9aa07f90af69fc4a90833219e40217a8d471c5f34e3407cf20e"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58a-native-source-retirement-verification.json",
+      "sha256": "a6956877ef9d78bc60e1f03c0f1dd29140f1a760c95c8b196e3ec345c546eeb2"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58b-legacy-source-retirement-result.json",
+      "sha256": "9a25e94c8f0fe7d4aaf8cd7e1758f7a07dfc7cbb4ba6d22e0d0f73cc49ddb071"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58-historical-empty-publication-recovery.json",
+      "sha256": "83ecb5f1cce156b637e2e939448884ba4c45a75119c31a07511289baca405cc1"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\59-control-retirement-result.json",
+      "sha256": "eb340266d3d446d89aac25900f6ea1dadd8eca71a89de9543afa206147d1bce7"
+    }
+  ],
+  "sourceClosure": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs",
+      "sha256": "2a8b18df501c4661bbc23bffd666e12b7a0c46a38e4e169f5dd044ea42270ab8"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs",
+      "sha256": "5851a6db4efb1f33a32a12a22b92f2af2f0af40862ff828ff89084b7325b97b0"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-owner-config.cjs",
+      "sha256": "14a1cc5ed75f389fd5e883ae69916064388284fb4fafb5b2a137c6da6d89cafb"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-worker.cjs",
+      "sha256": "eed5162daa6c3951cd610dcd8fd1b8986a85a7a2172c4a39a48ddc60aaeebf54"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-preferences.cjs",
+      "sha256": "6e5762ba9d6b8baa1a2bc2139aad8505b1ea322e6f1f8ba10e7dce2cf4f1e0c8"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-observations.cjs",
+      "sha256": "080de3ed0bc00f5c6dc31f79e7cd735fc68afe57b6f0bb213559810235ddb222"
+    }
+  ],
+  "membership": [
+    {
+      "generated": true,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01",
+      "protection_known": true,
+      "role": "run"
+    },
+    {
+      "generated": true,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports",
+      "protection_known": true,
+      "role": "reports"
+    }
+  ],
+  "originalRecord": {
+    "created_at": "2026-11-06T01:02:53.739Z",
+    "id": "run:fw03r:control-01",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports",
+        "protection_known": true,
+        "role": "reports"
+      }
+    ],
+    "membership_complete": false,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01",
+    "owner": "control-retirement-test",
+    "ownership_scope": "run-root",
+    "references": [],
+    "revision": 1,
+    "schema": 1,
+    "state": "pending",
+    "updated_at": "2026-11-06T01:02:53.740Z",
+    "version": null
+  },
+  "knownProducerEvidence": "Independent22/23/25/26/27/28/31/33/48/52/58b/58/59 preserve actual per-attempt terminal, returned child close/drain and native lease release. No PID-absence inference, no aggregate exit fabricated.",
+  "handoff": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61a-unit10-build-tool-handoff.json",
+    "sha256": "63dc78918faa42e528d2c033fda08289feb6ed9386a3e42f8b329f17a68ffdda"
+  },
+  "limits": [
+    "No new global OS process-tree observation",
+    "Unknown historical original old-empty writers remain unknown",
+    "Original33 failed aggregate remains false; no old outcome rewritten"
+  ],
+  "recordedAtUtc": "2026-11-06T06:41:32.386Z",
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "originalAggregateOutcome": "unrecorded/unknown; no aggregate exit invented"
+}

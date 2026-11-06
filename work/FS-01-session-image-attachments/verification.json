@@ -1,0 +1,661 @@
+{
+  "sourceChecks": {
+    "providerMapping": {
+      "exitCode": 0,
+      "passed": 42
+    },
+    "cargoAndFeatureOwnerTests": {
+      "exitCode": 0
+    },
+    "finalInputMatch": {
+      "files": 17,
+      "exitCode": 0
+    },
+    "postTestFormatting": {
+      "files": [
+        "core/src/tools/handlers/multi_agents_v2/send_message.rs",
+        "core/src/tools/handlers/multi_agents_v2/followup_task.rs"
+      ],
+      "change": "Restore original CRLF; LF-normalized contents identical to tested frozen input",
+      "exitCode": 0
+    },
+    "featureManifest": {
+      "exitCode": 0
+    }
+  },
+  "native": {
+    "protocol": {
+      "passed": 3,
+      "exitCode": 0
+    },
+    "snapshotCleanupAndLiveWriter": {
+      "passed": 2,
+      "exitCode": 0
+    },
+    "core": {
+      "passed": 9,
+      "exitCode": 0
+    },
+    "totalPassed": 14,
+    "exitCode": 0
+  },
+  "cleanup": [
+    {
+      "id": "run:FS-01-agent-image-attachments:20261104T031420810Z-db1542cc-d57e-43a4-a37c-5d446c4b2661",
+      "producerStopped": true,
+      "producerExitCode": 1,
+      "logicalBytes": 192905812,
+      "status": "deleted",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FS-01-agent-image-attachments\\runs\\20261104T031420810Z-db1542cc-d57e-43a4-a37c-5d446c4b2661",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fs-5abfb085"
+      ],
+      "remaining": false
+    },
+    {
+      "id": "run:FS-01-agent-image-attachments:20261104T032208903Z-1ab31af2-28e9-49b7-8ea7-235f2788e69f",
+      "producerStopped": true,
+      "producerExitCode": 1,
+      "cargoExitCode": 101,
+      "testCount": 0,
+      "diagnosis": "MASM A1009 output path length; retried with short private output",
+      "logicalBytes": 1445263729,
+      "status": "deleted",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fs-d4fb1b1c",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FS-01-agent-image-attachments\\runs\\20261104T032208903Z-1ab31af2-28e9-49b7-8ea7-235f2788e69f"
+      ],
+      "remaining": false
+    },
+    {
+      "id": "run:FS-01-agent-image-attachments:20261104T033459379Z-7f658407-5b37-4f3f-b79b-c85973caa494",
+      "producerStopped": true,
+      "producerExitCode": 0,
+      "logicalBytes": 17546736571,
+      "status": "deleted",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ft-ecccd967",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FS-01-agent-image-attachments\\runs\\20261104T033459379Z-7f658407-5b37-4f3f-b79b-c85973caa494",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fs-708c6ae0"
+      ],
+      "remaining": false
+    },
+    {
+      "id": "run:FS-01-agent-image-attachments:20261104T040821091Z-dd5bf945-8cc9-4539-ba55-220c42a17f17",
+      "producerStopped": true,
+      "producerExitCode": 0,
+      "logicalBytes": 23149571430,
+      "status": "deleted",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FS-01-agent-image-attachments\\runs\\20261104T040821091Z-dd5bf945-8cc9-4539-ba55-220c42a17f17",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ft-27a44e39",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fs-eca387c3"
+      ],
+      "remaining": false,
+      "retries": [
+        "registration refused concurrent project config change; fresh registration succeeded",
+        "last input deletion refused concurrent config change; fresh review and deletion succeeded"
+      ]
+    },
+    {
+      "id": "FS-01-empty-task-container",
+      "logicalBytes": 0,
+      "status": "deleted",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FS-01-agent-image-attachments"
+      ],
+      "remaining": false
+    }
+  ],
+  "initialNative": {
+    "sourceSha256": "9ea0bdfc873bb4c37d412d4ec872f80f4de05123ba6a841fa06d2dc580ea0183",
+    "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fs-708c6ae0\\engine",
+    "cache": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ft-ecccd967\\t",
+    "scope": "all",
+    "results": [
+      {
+        "crate": "codex-protocol",
+        "filter": "inter_agent",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 3,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 376
+            }
+          ],
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 376,
+          "executed": 3
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-protocol",
+              "--lib",
+              "--locked",
+              "--offline",
+              "inter_agent",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T03:39:37.188Z",
+            "durationMs": 385215,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-thread-store",
+        "filter": "image_snapshot",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 282
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 282,
+          "executed": 1
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-thread-store",
+              "--lib",
+              "--locked",
+              "--offline",
+              "image_snapshot",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T03:46:02.407Z",
+            "durationMs": 223376,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-core",
+        "filter": "image_attachments",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 6,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3155
+            }
+          ],
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3155,
+          "executed": 6
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "image_attachments",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T03:49:45.786Z",
+            "durationMs": 1020249,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-core",
+        "filter": "agent_image_label",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3160
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3160,
+          "executed": 1
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "agent_image_label",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T04:06:46.039Z",
+            "durationMs": 46266,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-core",
+        "filter": "tool_message_transport",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3160
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3160,
+          "executed": 1
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "tool_message_transport",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T04:07:32.308Z",
+            "durationMs": 6759,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-core",
+        "filter": "devin_recipient_requires_plaintext",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3160
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3160,
+          "executed": 1
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "devin_recipient_requires_plaintext",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T04:07:39.070Z",
+            "durationMs": 6333,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      }
+    ],
+    "exitCode": 0
+  },
+  "finalNative": {
+    "sourceSha256": "8c556e278c10c4e5194f41f5c168668ae0d44c25ecccab82a36eafa4a3b6b632",
+    "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fs-eca387c3\\engine",
+    "cache": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ft-27a44e39\\t",
+    "scope": "all",
+    "seed": {
+      "id": "run:FS-01-agent-image-attachments:20261104T033459379Z-7f658407-5b37-4f3f-b79b-c85973caa494",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\ft-ecccd967\\t"
+    },
+    "results": [
+      {
+        "crate": "codex-protocol",
+        "filter": "inter_agent",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 3,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 376
+            }
+          ],
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 376,
+          "executed": 3
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-protocol",
+              "--lib",
+              "--locked",
+              "--offline",
+              "inter_agent",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T04:19:33.401Z",
+            "durationMs": 32674,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-thread-store",
+        "filter": "image_snapshot",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 2,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 282
+            }
+          ],
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 282,
+          "executed": 2
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-thread-store",
+              "--lib",
+              "--locked",
+              "--offline",
+              "image_snapshot",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T04:20:06.078Z",
+            "durationMs": 199971,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-core",
+        "filter": "image_attachments",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 6,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3155
+            }
+          ],
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3155,
+          "executed": 6
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "image_attachments",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T04:23:26.052Z",
+            "durationMs": 1035067,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-core",
+        "filter": "agent_image_label",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3160
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3160,
+          "executed": 1
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "agent_image_label",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T04:40:41.122Z",
+            "durationMs": 49428,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-core",
+        "filter": "tool_message_transport",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3160
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3160,
+          "executed": 1
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "tool_message_transport",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T04:41:30.553Z",
+            "durationMs": 5359,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      {
+        "crate": "codex-core",
+        "filter": "devin_recipient_requires_plaintext",
+        "exitCode": 0,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3160
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3160,
+          "executed": 1
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "--locked",
+              "--offline",
+              "devin_recipient_requires_plaintext",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-04T04:41:35.916Z",
+            "durationMs": 5520,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      }
+    ],
+    "exitCode": 0
+  },
+  "cleanupComplete": true
+}

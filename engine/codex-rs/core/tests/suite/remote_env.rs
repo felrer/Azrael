@@ -872,8 +872,9 @@ async fn settings_update_does_not_retarget_active_turn_environment() -> Result<(
         vec![
             sse(vec![
                 ev_response_created("resp-1"),
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "pause-turn",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({
                         "questions": [{
@@ -1029,8 +1030,9 @@ async fn active_environment_update_waits_for_a_configured_executor_to_connect(
         &server,
         vec![
             sse(vec![
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "pause-for-switch",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({"questions": [{
                         "id": "continue", "header": "Continue", "question": "Continue?",
@@ -1172,8 +1174,9 @@ async fn deferred_executor_promotes_primary_environment_when_startup_completes()
             ]),
             sse(vec![
                 ev_response_created("before-promotion"),
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "pause-for-environment",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({
                         "questions": [{
@@ -3468,8 +3471,9 @@ async fn deferred_executor_compaction_preserves_then_updates_environment_once() 
         vec![
             sse(vec![
                 ev_response_created("resp-1"),
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "wait-for-startup",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({
                         "questions": [{

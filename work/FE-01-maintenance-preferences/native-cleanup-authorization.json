@@ -1,0 +1,351 @@
+{
+  "schema": 1,
+  "authority": "Root accepted native235/debug build and corrected real7 integration; exact5 runs disposable, never installed; no remaining candidate/cache consumers",
+  "acceptance": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\native-acceptance.json",
+    "sha256": "9b0e89d1de0f72f9a336d5a0d8094ce5436e8f50c0912376dd7f526ca7006a64"
+  },
+  "ownerCommand": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "sha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861"
+  },
+  "corePreflight": {
+    "result": {
+      "command": [
+        "-X",
+        "utf8",
+        "-B",
+        "scripts/engine-provenance.py",
+        "snapshot",
+        "--root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine",
+        "--file",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1\\reports\\engine-source-before.json"
+      ],
+      "exitCode": null,
+      "signal": null,
+      "error": "spawnSync python ENOENT",
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1\\logs\\source-preflight.log",
+      "lifecycleId": "run:FE01:core-r1",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1"
+    },
+    "producer": {
+      "lifecycleId": "run:FE01:core-r1",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [],
+      "state": "failed",
+      "membership_complete": true
+    },
+    "scope": "Python spawn ENOENT before source copy/Cargo; no core native tests executed"
+  },
+  "records": [
+    {
+      "id": "run:FE01:native-r1",
+      "owner": "maintenance-preferences",
+      "revision": 2,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1\\reports\\producer-5de26606aef1d7a07617bb9dfd63b0530eae11d4c80d29488f4ec120e7e3a3ac.json",
+        "evidence_sha256": "5de26606aef1d7a07617bb9dfd63b0530eae11d4c80d29488f4ec120e7e3a3ac",
+        "exit_code": 101,
+        "outcome": "failure",
+        "reason": "tests failed",
+        "status": "stopped"
+      },
+      "references": [
+        {
+          "id": "FE01-native-cli-integration",
+          "kind": "evidence",
+          "reason": "Root consumes debug maintenance_owner for preferences integration; release after CLI checks",
+          "reference_id": "5fb541337aa64ad39bd8cd6d1466d9fe3391e896e6919ffd6687c5f013c78f7e"
+        }
+      ],
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ]
+    },
+    {
+      "id": "run:FE01:native-r3",
+      "owner": "maintenance-preferences",
+      "revision": 2,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\reports\\producer-c89fc4fb40092fa0b6498dc2f6b4a760cbcf1b03b719540576de90a7ba66d063.json",
+        "evidence_sha256": "c89fc4fb40092fa0b6498dc2f6b4a760cbcf1b03b719540576de90a7ba66d063",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "cli failed",
+        "status": "stopped"
+      },
+      "references": [
+        {
+          "id": "FE01-native-cli-integration",
+          "kind": "evidence",
+          "reason": "Root consumes debug maintenance_owner for preferences integration; release after CLI checks",
+          "reference_id": "5fb541337aa64ad39bd8cd6d1466d9fe3391e896e6919ffd6687c5f013c78f7e"
+        },
+        {
+          "id": "run:FE01:native-r2",
+          "kind": "dependency",
+          "reason": "Exclusive reuse of stopped r2 private Cargo target; release after r3 compilation and CLI integration",
+          "reference_id": "d2e90e3d1e3e4172c9d5c18c7370dbeac5abf12b6130990f0e18486e3a40a334"
+        }
+      ],
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ]
+    },
+    {
+      "id": "run:FE01:native-r2",
+      "owner": "maintenance-preferences",
+      "revision": 2,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2\\reports\\producer-563835fece5ee8fb0e89107bd81dc5b194c2928d28addc0e6956f65f0e187564.json",
+        "evidence_sha256": "563835fece5ee8fb0e89107bd81dc5b194c2928d28addc0e6956f65f0e187564",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "references": [
+        {
+          "id": "FE01-native-cli-integration",
+          "kind": "evidence",
+          "reason": "Root consumes debug maintenance_owner for preferences integration; release after CLI checks",
+          "reference_id": "5fb541337aa64ad39bd8cd6d1466d9fe3391e896e6919ffd6687c5f013c78f7e"
+        }
+      ],
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ]
+    },
+    {
+      "id": "run:FE01:cli-r1",
+      "owner": "maintenance-preferences",
+      "revision": 2,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\reports\\producer-0773796c01b15c318c6a3cd3f68fc552f5bbf084e637b85e2e37e109434c71ca.json",
+        "evidence_sha256": "0773796c01b15c318c6a3cd3f68fc552f5bbf084e637b85e2e37e109434c71ca",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "references": [
+        {
+          "id": "run:FE01:native-r3",
+          "kind": "dependency",
+          "reason": "Hash-bound debug candidate from native-r3 for corrected CLI integration",
+          "reference_id": "bdc21308f54c37ef8ebf6d0dcd1973f10329eb9562af0a51cb83107bcbd3ec58"
+        },
+        {
+          "id": "FE01-native-cli-integration",
+          "kind": "evidence",
+          "reason": "Root reviews compact acceptance before native run cleanup",
+          "reference_id": "3add7acf27465252bffdde3d1f21422a6808ec054aa56436ca03b06e50d02c9d"
+        }
+      ],
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ]
+    },
+    {
+      "id": "run:FE01:core-r1",
+      "owner": "maintenance-preferences",
+      "revision": 2,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1\\reports\\producer-8b3091a7664efad9eecce3de2c4c537695b74e9ecf669b91f1d89066e4dedcd3.json",
+        "evidence_sha256": "8b3091a7664efad9eecce3de2c4c537695b74e9ecf669b91f1d89066e4dedcd3",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "references": [],
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ]
+    }
+  ]
+}

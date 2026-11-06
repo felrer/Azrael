@@ -11,6 +11,7 @@ const COMPLETED_AT: i64 = 1_700_000_000;
 fn completed_turn(duration_ms: Option<i64>, completed_at: Option<i64>) -> AppServerTurn {
     AppServerTurn {
         root_resume_wait: None,
+        user_wait_timing: None,
         completed_at,
         items: vec![AppServerThreadItem::AgentMessage {
             id: "answer-1".to_string(),

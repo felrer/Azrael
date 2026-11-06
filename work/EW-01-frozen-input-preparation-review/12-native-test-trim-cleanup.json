@@ -1,0 +1,253 @@
+{
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+  "ownerSha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+  "lifecycleId": "run:EW01-native-trim:verify-a",
+  "operations": [
+    {
+      "label": "register",
+      "started": "2026-11-01T15:40:53.165Z",
+      "completed": "2026-11-01T15:42:50.429Z",
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EW01-native-trim:verify-a",
+          "kind": "run",
+          "members": [
+            "da312d39fea0b3c9f9205a6458cc23f0790180abb922eaf2c14838c47e36d321"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "0e412f04d7858ea1503baab7d619f797adcc620402eeae41b2deb2880eba2ce2",
+          "owner": "EW01-native-trim",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d0f9eaf44b3ad2e2fe1f00658a053311e3d4432b515f8656e9bb8717239568f7.json",
+          "registered_at_ms": 1793547708875,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "da312d39fea0b3c9f9205a6458cc23f0790180abb922eaf2c14838c47e36d321",
+            "identity": "2c8cbac6413458cbdab9ab00025d034468a39b1dd277178924a7257e062302a6",
+            "kind": "run",
+            "lifecycle_group_id": "run:EW01-native-trim:verify-a",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 46162,
+            "measured_at_ms": 1793547691403,
+            "owner": "EW01-native-trim",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d0f9eaf44b3ad2e2fe1f00658a053311e3d4432b515f8656e9bb8717239568f7.json",
+            "references": [],
+            "registered_at_ms": 1793547691403,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "label": "review",
+      "started": "2026-11-01T15:42:50.429Z",
+      "completed": "2026-11-01T15:42:57.351Z",
+      "exitCode": 0,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EW01-native-trim:verify-a",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "0e412f04d7858ea1503baab7d619f797adcc620402eeae41b2deb2880eba2ce2",
+            "owner": "EW01-native-trim",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d0f9eaf44b3ad2e2fe1f00658a053311e3d4432b515f8656e9bb8717239568f7.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "da312d39fea0b3c9f9205a6458cc23f0790180abb922eaf2c14838c47e36d321"
+            ],
+            "group_token": "ce9544f3e1f6b418fa7983fc784f1049a100853a99e91b5167a561970668eb50",
+            "id": "da312d39fea0b3c9f9205a6458cc23f0790180abb922eaf2c14838c47e36d321",
+            "identity": "2c8cbac6413458cbdab9ab00025d034468a39b1dd277178924a7257e062302a6",
+            "lifecycle_group_id": "run:EW01-native-trim:verify-a",
+            "logical_bytes": 46162,
+            "measured_at_ms": 1793547691403,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "0e412f04d7858ea1503baab7d619f797adcc620402eeae41b2deb2880eba2ce2",
+              "member_references": {
+                "da312d39fea0b3c9f9205a6458cc23f0790180abb922eaf2c14838c47e36d321": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\reports\\producer-e0b28cdf8a682e87244d61691c19bdc4871f6be2a7fa0f80cefec292dd68e786.json",
+                  "evidence_sha256": "e0b28cdf8a682e87244d61691c19bdc4871f6be2a7fa0f80cefec292dd68e786",
+                  "reason": "Selected synchronous test processes observed closed; no Rust or product build launched",
+                  "request_sha256": "4304672f4773fe5866d1f7b3b2cc52bf9a3b08bab55d13f3dad2fed53605d7eb"
+                },
+                "created_at": "2026-11-01T15:39:15.782Z",
+                "id": "run:EW01-native-trim:verify-a",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a",
+                "owner": "EW01-native-trim",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\reports\\producer-e0b28cdf8a682e87244d61691c19bdc4871f6be2a7fa0f80cefec292dd68e786.json",
+                  "evidence_sha256": "e0b28cdf8a682e87244d61691c19bdc4871f6be2a7fa0f80cefec292dd68e786",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Selected synchronous test processes observed closed; no Rust or product build launched",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-01T15:39:23.106Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793547770645,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  145,
+                  187,
+                  81,
+                  0,
+                  0,
+                  0,
+                  13,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "7133744952fb38a627baba3759a349b6d2886a69a258e72ea0e5682c212f1b88",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "label": "apply",
+      "started": "2026-11-01T15:43:38.088Z",
+      "completed": "2026-11-01T15:44:24.640Z",
+      "exitCode": 0,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:EW01-native-trim:verify-a",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-31968-4658-1793547843637",
+            "decision": "delete",
+            "decision_id": "0bfaf1e09cfcb5cd7496cacb93fff04d6ab2c8d0986e103fb4cf22ba9c06c195",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "da312d39fea0b3c9f9205a6458cc23f0790180abb922eaf2c14838c47e36d321",
+            "lifecycle_group_id": "run:EW01-native-trim:verify-a",
+            "reason": "Completed task-owned verification fixtures and raw logs; independent evidence retained in work/EW-01-frozen-input-preparation-review/11-native-test-trim-verification.json; no consumers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "7133744952fb38a627baba3759a349b6d2886a69a258e72ea0e5682c212f1b88"
+          }
+        ]
+      }
+    }
+  ],
+  "absenceVerifiedAt": "2026-11-01T15:44:50.872Z",
+  "finalization": {
+    "id": "run:EW01-native-trim:verify-a",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d0f9eaf44b3ad2e2fe1f00658a053311e3d4432b515f8656e9bb8717239568f7.json"
+  }
+}

@@ -1,0 +1,473 @@
+{
+  "startedUtc": "2026-10-30T01:56:05.282Z",
+  "ids": [
+    "run:ET-01-cold-build-cache-audit:fileio-probe-r1",
+    "run:ET-01-cold-build-cache-audit:monitor-decoder-r1",
+    "work:ET-01:decoder-nuget-r1"
+  ],
+  "retire_managed_roots": {
+    "owner": "cold-build-cache-audit",
+    "reason": "Remove exact task-created short NuGet cache after independent analyzer acceptance and compiler server shutdown",
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-short-nuget-retirement.json",
+    "ids": [
+      "2eeec33a2210ebaf34549e8f6e6f11a52feec2b281568c1bda3e083dc672c4a8"
+    ]
+  },
+  "steps": [
+    {
+      "label": "review",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 19040.874000000003,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:ET-01-cold-build-cache-audit:fileio-probe-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "fb8937712a5cc216e9ceed96970ef67c588856b542c191fb4b6aa2a39f2aee14",
+            "owner": "cold-build-cache-audit",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\768dc80fa12c47f9308fbe2e01e3ea027e6621ce4710874ca8a7a8a098e49421.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:ET-01-cold-build-cache-audit:monitor-decoder-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "1b79381e7113a83a1608782e51069926684b6c717a178c8a1b64bfa83adf18b7",
+            "owner": "cold-build-cache-audit",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d45e132009ceab0e45a895a2d65103f1103b4900424aaceeadf4bc5a05f20717.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "work:ET-01:decoder-nuget-r1",
+            "kind": "work",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "261e57dc24e9dc37bd8ef117d8b515c7027cf0140d9bef59bc10ae36532898e6",
+            "owner": "cold-build-cache-audit",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d5e4968f2b7c15ce080b027fa27c8dabbee22aec51d3f6ea4800f227ec69bcd3.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "2eeec33a2210ebaf34549e8f6e6f11a52feec2b281568c1bda3e083dc672c4a8"
+            ],
+            "group_token": "dc365afcdedd9ca4e5d779b6711af34b3f887756ebf4d4c534e237f6f4fc612c",
+            "id": "2eeec33a2210ebaf34549e8f6e6f11a52feec2b281568c1bda3e083dc672c4a8",
+            "identity": "c12bf77ae1f9a337fa7bf17f13b5022183cbb6544dd917cd4f070a8f2c736c85",
+            "lifecycle_group_id": "work:ET-01:decoder-nuget-r1",
+            "logical_bytes": 34228708,
+            "measured_at_ms": 1793324069830,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "261e57dc24e9dc37bd8ef117d8b515c7027cf0140d9bef59bc10ae36532898e6",
+              "member_references": {
+                "2eeec33a2210ebaf34549e8f6e6f11a52feec2b281568c1bda3e083dc672c4a8": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+                  "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+                  "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+                  "request_sha256": "132703214e327ed9645cb970aa3306bdb699199e5ce805db1e51793746bee05f"
+                },
+                "created_at": "2026-10-30T01:23:14.932Z",
+                "id": "work:ET-01:decoder-nuget-r1",
+                "kind": "work",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\n-et1",
+                    "protection_known": true,
+                    "role": "tool-cache"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "cold-build-cache-audit",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+                  "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-30T01:26:46.153Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793325377936,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\n-et1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  132,
+                  140,
+                  25,
+                  0,
+                  0,
+                  0,
+                  26,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "6592e39c18af335291c941f3cf249e0f86e54257d43e104c5814e1104e2c1e88",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "c656b6e44391926070cafade7d9cd056f189c317d02c3c8996d66b021c5c434e"
+            ],
+            "group_token": "ae7ffe190d2f6af4cfa87512fd6ac3b5663dac96be9489d47cc212f672c59ac5",
+            "id": "c656b6e44391926070cafade7d9cd056f189c317d02c3c8996d66b021c5c434e",
+            "identity": "1392a7bb513bcfc4461592fd42c6160d4c7092d9257035c8b68e6820c59d3f20",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:monitor-decoder-r1",
+            "logical_bytes": 52801409,
+            "measured_at_ms": 1793323962020,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "1b79381e7113a83a1608782e51069926684b6c717a178c8a1b64bfa83adf18b7",
+              "member_references": {
+                "c656b6e44391926070cafade7d9cd056f189c317d02c3c8996d66b021c5c434e": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+                  "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+                  "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+                  "request_sha256": "132703214e327ed9645cb970aa3306bdb699199e5ce805db1e51793746bee05f"
+                },
+                "created_at": "2026-10-30T01:22:13.848Z",
+                "id": "run:ET-01-cold-build-cache-audit:monitor-decoder-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1",
+                "owner": "cold-build-cache-audit",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+                  "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-30T01:26:44.673Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793325371492,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\monitor-decoder-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  228,
+                  132,
+                  24,
+                  0,
+                  0,
+                  0,
+                  24,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "54a88857fb820bb6da2aedef760d32fa38ef8f986c60a2bb214509d3576b6a9c",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "cc3d3a1604f384bc02beec34832cf8808185342151d476e146745ea61a16a703"
+            ],
+            "group_token": "e134cc4d2a93b267b55ce65fd7520d216eadb6fdbea2eaa8d621967aed4e77b4",
+            "id": "cc3d3a1604f384bc02beec34832cf8808185342151d476e146745ea61a16a703",
+            "identity": "16ae52214ccc84a0379b6133cc2997aa2fc42c5194b0fb96d7fa3711f9c671f5",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:fileio-probe-r1",
+            "logical_bytes": 296128431,
+            "measured_at_ms": 1793323843604,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "fb8937712a5cc216e9ceed96970ef67c588856b542c191fb4b6aa2a39f2aee14",
+              "member_references": {
+                "cc3d3a1604f384bc02beec34832cf8808185342151d476e146745ea61a16a703": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+                  "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+                  "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+                  "request_sha256": "e47cf5ccb3b2476449b56147c895fe42bb90ec704255ccd0511e3c43cbdc39f2"
+                },
+                "created_at": "2026-10-30T01:08:57.512Z",
+                "id": "run:ET-01-cold-build-cache-audit:fileio-probe-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\fileio-probe-r1",
+                    "protection_known": true,
+                    "role": "run"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\fileio-probe-r1",
+                "owner": "cold-build-cache-audit",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+                  "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+                  "exit_code": null,
+                  "outcome": "failure",
+                  "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-30T01:26:41.851Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793325365565,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\fileio-probe-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  169,
+                  211,
+                  18,
+                  0,
+                  0,
+                  0,
+                  62,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "f85a902213e9615bf7ce40169b53952e15b6efccf72f34edbb517840c170b85d",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "label": "apply",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 174951.8771,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:ET-01-cold-build-cache-audit:fileio-probe-r1",
+            "status": "deleted"
+          },
+          {
+            "id": "run:ET-01-cold-build-cache-audit:monitor-decoder-r1",
+            "status": "deleted"
+          },
+          {
+            "id": "work:ET-01:decoder-nuget-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-45784-4226-1793325441815",
+            "decision": "delete",
+            "decision_id": "cbc921aee2a8330b46da2ee8112f424388d4839b5a0f23bfbeebb87cd4ca9dc8",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "2eeec33a2210ebaf34549e8f6e6f11a52feec2b281568c1bda3e083dc672c4a8",
+            "lifecycle_group_id": "work:ET-01:decoder-nuget-r1",
+            "reason": "Accepted analyzer and required fixture have separate owners; all disposable preparation use ended",
+            "remaining": false,
+            "retire_managed_roots": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-short-nuget-retirement.json",
+              "ids": [
+                "2eeec33a2210ebaf34549e8f6e6f11a52feec2b281568c1bda3e083dc672c4a8"
+              ],
+              "owner": "cold-build-cache-audit",
+              "reason": "Remove exact task-created short NuGet cache after independent analyzer acceptance and compiler server shutdown"
+            },
+            "retirement_evidence_identity": "58bca92277101a2518d1f9eba5e32d47fb33083f4cb1a158813acf52c86af5e5",
+            "status": "deleted",
+            "token": "6592e39c18af335291c941f3cf249e0f86e54257d43e104c5814e1104e2c1e88"
+          },
+          {
+            "attempt_id": "attempt-45784-4228-1793325479814",
+            "decision": "delete",
+            "decision_id": "73fdcad246546382250e85e7e873f45e08663c5c409bbc8023565abf87b7320b",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "c656b6e44391926070cafade7d9cd056f189c317d02c3c8996d66b021c5c434e",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:monitor-decoder-r1",
+            "reason": "Accepted analyzer and required fixture have separate owners; all disposable preparation use ended",
+            "remaining": false,
+            "status": "deleted",
+            "token": "54a88857fb820bb6da2aedef760d32fa38ef8f986c60a2bb214509d3576b6a9c"
+          },
+          {
+            "attempt_id": "attempt-45784-4230-1793325520331",
+            "decision": "delete",
+            "decision_id": "ef3edb8554aca58ece911bb00836b982b0d735c84e16d4fe068d532a896b0d17",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "cc3d3a1604f384bc02beec34832cf8808185342151d476e146745ea61a16a703",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:fileio-probe-r1",
+            "reason": "Accepted analyzer and required fixture have separate owners; all disposable preparation use ended",
+            "remaining": false,
+            "status": "deleted",
+            "token": "f85a902213e9615bf7ce40169b53952e15b6efccf72f34edbb517840c170b85d"
+          }
+        ]
+      }
+    }
+  ]
+}

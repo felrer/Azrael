@@ -1,0 +1,417 @@
+{
+  "schema": 1,
+  "phase": "finalize",
+  "status": "complete",
+  "controllerPid": 49632,
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\p-temp-windows-fixture-cleanup-20261031b.cjs",
+    "finalize"
+  ],
+  "startedUtc": "2026-10-30T18:47:50.451Z",
+  "nativeProject": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+  "producerNamespace": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/z",
+  "ownerExecutable": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+    "sha256": "2a14a04c64ae2752f1cb98be27fe1d102855a780190b3f32729ea201a11259be"
+  },
+  "steps": [],
+  "finalized": [
+    {
+      "id": "work:deployment-temporary:ee9ec1cf250c353ebdaa184f32b6c766cbb5f833144aef025fa3b9124e20fb6a",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\maintenance\\lifecycles\\d2c7572fb0f797bac34a4ed8b9e4bdfbb9a1d43dfb3dcdefa5a6c5e2beae6552.json"
+    },
+    {
+      "id": "run:lifecycle-check:f03b9841-94a7-4f4e-ab18-d3f5d1b28073",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\maintenance\\lifecycles\\bef8ffefef1ee0100b135914afaf2b62508a1da0ce0927fc506224ea2eb0c7b9.json"
+    }
+  ],
+  "preservedPayload": [
+    {
+      "role": "release",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\releases\\et1-cold-20261030p",
+      "exists": true
+    },
+    {
+      "role": "build-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\logs\\et1-cold-20261030p",
+      "exists": true
+    },
+    {
+      "role": "vsix",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\vsix\\et1-cold-20261030p",
+      "exists": false
+    },
+    {
+      "role": "deployment",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\deployments\\deploy-et1-cold-20261030p",
+      "exists": true
+    },
+    {
+      "role": "deploy-logs",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\logs\\deploy-et1-cold-20261030p",
+      "exists": true
+    },
+    {
+      "role": "verification-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\logs\\verification-evidence\\deploy-et1-cold-20261030p",
+      "exists": false
+    },
+    {
+      "role": "account-evidence",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\logs\\verification-evidence\\account-controls-et1-cold-20261030p",
+      "exists": false
+    }
+  ],
+  "deleted": [
+    {
+      "id": "10d6f35336a3a9742af322f260f00f417490eb33ba6ed8133d14f3a3c1350495",
+      "group": "run:lifecycle-check:f03b9841-94a7-4f4e-ab18-d3f5d1b28073",
+      "status": "deleted",
+      "remaining": false,
+      "attributes": [
+        {
+          "after": 2048,
+          "before": 2049,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\verification\\engine-cache-cleanup-d285dea108604be19a9dc17e5f282e69\\project\\upstream\\codex\\codex-rs\\target\\cache.txt"
+        }
+      ]
+    },
+    {
+      "id": "d9faf3694c2ed6cca8f4cc6bfb49f72af34934b543164835d42d649173689fc6",
+      "group": "run:lifecycle-check:f03b9841-94a7-4f4e-ab18-d3f5d1b28073",
+      "status": "deleted",
+      "remaining": false,
+      "attributes": [
+        {
+          "after": 2080,
+          "before": 2081,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\5d\\9a4c5014eadac441c166423ffeffbb3a5fe426"
+        },
+        {
+          "after": 2080,
+          "before": 2081,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\ab\\bd2e1518475ead83e9c5386b6c01c872eb45eb"
+        },
+        {
+          "after": 2064,
+          "before": 2066,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git"
+        },
+        {
+          "after": 2080,
+          "before": 2081,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\f5\\435ab4244155a72a4f494d39fc7b54b20d4cd1"
+        },
+        {
+          "after": 2080,
+          "before": 2081,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\f0\\8535ceda3b7351af3604de4d2958da1046cc8d"
+        },
+        {
+          "after": 2080,
+          "before": 2081,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\8f\\a3c3393257e16f44181fe488cb848e2760357f"
+        },
+        {
+          "after": 2064,
+          "before": 2066,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\working\\.git"
+        }
+      ]
+    },
+    {
+      "id": "5ff4d7ae3a6a1f67168d89bcb56cfd1b247cf81f051b834bd7652b00756f923d",
+      "group": "work:deployment-temporary:ee9ec1cf250c353ebdaa184f32b6c766cbb5f833144aef025fa3b9124e20fb6a",
+      "status": "deleted",
+      "remaining": false,
+      "attributes": []
+    }
+  ],
+  "actualAbsence": [
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/z/artifacts/t",
+      "absent": true
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/z/artifacts/tasks/lifecycle-checks/runs/f03b984194a74f4eab18d3f5d1b28073",
+      "absent": true
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/z/artifacts/verification/engine-cache-cleanup-d285dea108604be19a9dc17e5f282e69",
+      "absent": true
+    }
+  ],
+  "nativeExecutions": [
+    {
+      "label": "register-temp",
+      "executable": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-register-temp-request.json"
+      ],
+      "pid": 50636,
+      "startedUtc": "2026-10-30T18:46:54.608Z",
+      "finishedUtc": "2026-10-30T18:47:00.290Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-register-temp.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-register-temp.stderr.log"
+    },
+    {
+      "label": "register-windows",
+      "executable": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-register-windows-request.json"
+      ],
+      "pid": 37140,
+      "startedUtc": "2026-10-30T18:47:00.308Z",
+      "finishedUtc": "2026-10-30T18:47:10.971Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-register-windows.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-register-windows.stderr.log"
+    },
+    {
+      "label": "review",
+      "executable": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-review-request.json"
+      ],
+      "pid": 7820,
+      "startedUtc": "2026-10-30T18:47:13.464Z",
+      "finishedUtc": "2026-10-30T18:47:13.859Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-review.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-review.stderr.log"
+    },
+    {
+      "label": "apply",
+      "executable": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-contained-registry-win-x64/payload/maintenance_owner.exe",
+      "argv": [
+        "--project-root",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+        "--request",
+        "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-apply-request.json"
+      ],
+      "pid": 50624,
+      "startedUtc": "2026-10-30T18:47:22.683Z",
+      "finishedUtc": "2026-10-30T18:47:42.486Z",
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-apply.stdout.log",
+      "stderr": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031b-apply.stderr.log"
+    }
+  ],
+  "evidence": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/z/artifacts/maintenance/evidence/p-temp-windows-fixture-cleanup-20261031a.json",
+    "sha256": "ef70f65401be471b4126daa54dd6af2d2084baa6429232a5dcb20e431e311bc1",
+    "bytes": 31034
+  },
+  "verification": {
+    "closedRevision": 3,
+    "finalized": "finalized"
+  },
+  "version": {
+    "id": "version:et1-cold-20261030p",
+    "revision": 7,
+    "state": "failed",
+    "membership_complete": true,
+    "producer": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\maintenance\\evidence\\p-temp-windows-fixture-cleanup-20261031a.json",
+      "evidence_sha256": "ef70f65401be471b4126daa54dd6af2d2084baa6429232a5dcb20e431e311bc1",
+      "exit_code": 1,
+      "outcome": "failure",
+      "reason": "P actual failed terminal1 with all owned child outcomes complete; preserve original failure and generated membership.",
+      "status": "stopped"
+    },
+    "references": []
+  },
+  "freshPendingCreated": false,
+  "finishedUtc": "2026-10-30T18:47:50.706Z",
+  "sourceOutcomes": {
+    "windows": {
+      "id": "run:lifecycle-check:f03b9841-94a7-4f4e-ab18-d3f5d1b28073",
+      "declaredRevision": 3,
+      "closedRevision": 4,
+      "state": "failed",
+      "outcome": "failure",
+      "exitCode": 1
+    },
+    "temp": {
+      "id": "work:deployment-temporary:ee9ec1cf250c353ebdaa184f32b6c766cbb5f833144aef025fa3b9124e20fb6a",
+      "releasedRevision": 4,
+      "references": []
+    },
+    "version": {
+      "id": "version:et1-cold-20261030p",
+      "closedRevision": 7,
+      "exitCode": 1
+    }
+  },
+  "independentFailureEvidence": {
+    "pController": {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/tasks/ET-01-cold-build-cache-audit/runs/deployment-20261030p/reports/deployment-controller.json",
+      "sha256": "83fb9d5cf3de6891406f81b5b5ced8423bcaac0def86b4cc396284af734b2b4d",
+      "record": {
+        "status": "failed",
+        "controllerPid": 16148,
+        "deploymentPid": 30160,
+        "startedUtc": "2026-10-30T17:29:19.030Z",
+        "finishedUtc": "2026-10-30T18:18:23.544Z",
+        "exitCode": 1,
+        "closeError": "Error: OS lock busy: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\catalog.lock (lifecycle.catalog)\n    at leaseError (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:23:24)\n    at wait (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:45:31)\n    at Object.acquire (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs:62:17)\n    at Object.withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:135:39)\n    at Object.finishArtifactRun (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-run.cjs:116:20)\n    at ChildProcess.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\run-cold-deployment-r17.cjs:73:80)\n    at ChildProcess.wrapper (node:events:639:12)\n    at ChildProcess.emit (node:events:526:24)\n    at maybeClose (node:internal/child_process:1125:16)\n    at ChildProcess._handle.onexit (node:internal/child_process:305:5)"
+      }
+    },
+    "pProducer": {
+      "lifecycleId": "run:ET-01-cold-build-cache-audit:deployment-20261030p",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\deployment-20261030p",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\run-cold-deployment-r17.cjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Owned producer and tracked children stopped",
+      "children": [
+        {
+          "pid": 30160,
+          "closed": true
+        }
+      ],
+      "state": "failed",
+      "membership_complete": true
+    },
+    "windowsWriter": {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/z/scripts/check-artifact-lifecycle.cjs",
+      "sha256": "7e8c707ce908b2df5b10331041704658b7c7fa12ce867d3803d6004ab0d0992d",
+      "contract": "spawnSync records actual child status1/signalnull then records failed lifecycle; no child remains"
+    },
+    "fixtureCreator": {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/z/scripts/test-clean-engine-caches.ps1",
+      "sha256": "7f2ce1090b01e2c4dd72af199b3a396ecb4631fdb21fe5e88c63e91adadc9d9f",
+      "contract": "Default exact generated artifacts/verification/engine-cache-cleanup GUID fixture; finally ordinary cleanup failed on readonly synthetic file"
+    },
+    "windowsActualResult": {
+      "command": "pwsh",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-File",
+        "scripts/test-clean-engine-caches.ps1"
+      ],
+      "exit_code": 1,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\logs\\7.log"
+    },
+    "windowsFailureLog": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\logs\\7.log",
+      "sha256": "dfc0b4c3e1baa119ee29ddd4ab53413fcf808f2d0587505b492abb20f24afce9",
+      "text": "INFO: powershell directory symlink fixture created\r\nPASS: ordinary powershell recursive deletion preserves external sentinel and supports long paths\r\nPASS: preview, workspace-only version, semver prerelease, bounded root enumeration\r\nPASS: build process names and selected-cache executable block mutation\r\nPASS: readonly deletion diagnosed and retained; regular prerelease cache removed; source/current/newer/unknown and external sentinel preserved\r\nRemove-Item: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\scripts\\test-clean-engine-caches.ps1:363\r\nLine |\r\n 363 |  �� resolved) { Remove-Item -LiteralPath $resolved -Recurse -ErrorAction  ��\r\n     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n     | You do not have sufficient access rights to perform this operation or the item is hidden, system, or read only.\r\n"
+    },
+    "fixtureMetadata": {
+      "bytes": 5,
+      "nlink": 1,
+      "symlink": false,
+      "dev": "3057815611",
+      "ino": "10133099163959926"
+    },
+    "fixtureOriginalAttributes": "ReadOnly, Compressed",
+    "fixtureAcceptance": {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/work/ET-01-cold-build-cache-audit/engine-cache-cleanup-fixture/acceptance.json",
+      "sha256": "a3d01f8511ea86d885050c63ccb6704cb30a68c9ae71eeb6503fa63ca89742e5",
+      "originalZFailure": {
+        "testLog": "artifacts/e/artifacts/z/artifacts/tasks/lifecycle-checks/runs/f03b984194a74f4eab18d3f5d1b28073/logs/7.log",
+        "outerError": "finally ordinary Remove-Item rejected remaining readonly synthetic file",
+        "lastPass": "readonly deletion diagnosed and retained",
+        "causalEvidence": "Retained 4140-byte report diagnoses ReadOnly, Compressed; compressed P reproduction proves provider restoration rejects Compressed then finally cannot remove readonly file",
+        "retainedFixture": "artifacts/e/artifacts/z/artifacts/verification/engine-cache-cleanup-d285dea108604be19a9dc17e5f282e69",
+        "retainedReadonlyFile": "project/upstream/codex/codex-rs/target/cache.txt",
+        "fileMetadata": {
+          "length": 5,
+          "nlink": 1,
+          "symlink": false,
+          "diagnosedAttributes": "ReadOnly, Compressed"
+        },
+        "mutation": "none; root owns later whole Z temp cleanup"
+      }
+    },
+    "priorRejectedAttempt": {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/p-temp-windows-fixture-cleanup-20261031a-prepare-register.json",
+      "sha256": "c6b5eb3a16bf7280dc8f408662e0587bb49a751a5b93a8fed092c6e72f75500a",
+      "actualExitCode": 1,
+      "controllerPid": 32496,
+      "startedUtc": "2026-10-30T18:46:15.568Z",
+      "finishedUtc": "2026-10-30T18:46:16.023Z",
+      "error": "Error: Lifecycle path outside project\n    at checked (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:18:55)\n    at checkedEvidence (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:203:20)\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:217:24\n    at withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:137:16)\n    at mutateLifecycle (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:210:10)\n    at Object.closeLifecycle (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:236:10)\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\p-temp-windows-fixture-cleanup-20261031a.cjs:20:26)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)",
+      "sourceMutation": false,
+      "payloadMutation": false
+    }
+  },
+  "attributeAudit": {
+    "changes": [
+      {
+        "after": 2048,
+        "before": 2049,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\verification\\engine-cache-cleanup-d285dea108604be19a9dc17e5f282e69\\project\\upstream\\codex\\codex-rs\\target\\cache.txt"
+      },
+      {
+        "after": 2080,
+        "before": 2081,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\5d\\9a4c5014eadac441c166423ffeffbb3a5fe426"
+      },
+      {
+        "after": 2080,
+        "before": 2081,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\ab\\bd2e1518475ead83e9c5386b6c01c872eb45eb"
+      },
+      {
+        "after": 2064,
+        "before": 2066,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git"
+      },
+      {
+        "after": 2080,
+        "before": 2081,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\f5\\435ab4244155a72a4f494d39fc7b54b20d4cd1"
+      },
+      {
+        "after": 2080,
+        "before": 2081,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\f0\\8535ceda3b7351af3604de4d2958da1046cc8d"
+      },
+      {
+        "after": 2080,
+        "before": 2081,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\retained\\.git\\objects\\8f\\a3c3393257e16f44181fe488cb848e2760357f"
+      },
+      {
+        "after": 2064,
+        "before": 2066,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\z\\artifacts\\tasks\\lifecycle-checks\\runs\\f03b984194a74f4eab18d3f5d1b28073\\temporary\\retained-source\\20c078a367144d04bb41c7b106a50e21\\working\\.git"
+      }
+    ],
+    "onlyReadOnlyHiddenCleared": true,
+    "compressedPreserved": true,
+    "systemPreserved": true,
+    "manualAclOrOwnershipChanges": false
+  }
+}

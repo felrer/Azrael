@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "startedAt": "2026-11-03T06:16:28.430Z",
+  "scope": "Windows local desktop read-only; no app input or image files",
+  "previousAttempts": [
+    {
+      "status": "failed",
+      "error": {
+        "code": "test-error",
+        "message": "windows.find is not a function"
+      }
+    },
+    {
+      "status": "failed",
+      "error": {
+        "code": "desktop-capture-unavailable",
+        "message": "Desktop or window geometry exceeds capture bounds"
+      }
+    }
+  ],
+  "processes": [
+    {
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "exitCode": 0,
+      "signal": null
+    }
+  ],
+  "result": {
+    "redacted": true,
+    "maskedWindowCount": 2,
+    "widthPx": 3840,
+    "heightPx": 2160,
+    "originX": 0,
+    "originY": 0,
+    "imageSha256": "2c3e376af24aceecb80966ce14b4c2785cacc3e9dbc41fb5d767eb9da4aa1782"
+  },
+  "status": "passed",
+  "endedAt": "2026-11-03T06:16:30.504Z"
+}

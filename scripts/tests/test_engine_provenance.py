@@ -344,6 +344,27 @@ class ImportedEngineProvenanceTests(unittest.TestCase):
         self.assertEqual(source["importedInventorySha256"], receipt["inventorySha256"])
         self.assertEqual(source["fileCount"], 4)
 
+    @unittest.skipUnless(os.name == "nt", "Windows extended-path IO contract")
+    def test_imported_snapshot_long_path_keeps_identity_and_source_guards(self):
+        spec = importlib.util.spec_from_file_location("provenance_long_path_fixture", PROVENANCE)
+        provenance = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(provenance)
+        before = provenance.snapshot(self.source)
+        allocated = self.fixture / "long-source"
+        destination = allocated
+        while len(str(destination)) < 300:
+            destination /= "contained-long-path-segment"
+        try:
+            shutil.copytree(self.importer.filesystem_path(self.source), self.importer.filesystem_path(destination))
+            self.assertEqual(provenance.snapshot(destination), before)
+            self.assertEqual(provenance.snapshot(self.importer.filesystem_path(destination)), before)
+            self.importer.filesystem_path(destination / "tracked.txt").write_bytes(b"changed source\n")
+            with self.assertRaisesRegex(ValueError, "Copied source differs"):
+                provenance.snapshot(destination)
+        finally:
+            if allocated.exists():
+                shutil.rmtree(self.importer.filesystem_path(allocated))
+
     def test_snapshot_rejects_identical_root_replacement_after_validation(self):
         spec = importlib.util.spec_from_file_location("provenance_root_fixture", PROVENANCE)
         provenance = importlib.util.module_from_spec(spec)

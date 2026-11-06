@@ -1,0 +1,43 @@
+{
+  "driver_sha256": "981c06bb03cc01ec0f85e8c4bb53f5c89d24c93af3f927290f24f149ee438385",
+  "signature": "Valid; Microsoft Windows Hardware Compatibility Publisher",
+  "driver_unmodified": true,
+  "service": "cpuz165",
+  "device": "\\\\.\\CPUZ165",
+  "ioctl_read_msr": "0x9C402440",
+  "input_bytes": 4,
+  "input_format": "little-endian DWORD register index",
+  "output_bytes": 8,
+  "output_format": "low DWORD then high DWORD",
+  "dispatch_switch": {
+    "base_ioctl": "0x9C402400",
+    "index_table_rva": "0x6D4C",
+    "target_table_rva": "0x6D14",
+    "read_target_rva": "0x1DC3"
+  },
+  "read_path_instructions": [
+    "output length >= 8",
+    "input length >= 4",
+    "mov ecx, DWORD PTR [system_buffer]",
+    "rdmsr at RVA 0x1E00",
+    "store eax and edx into 8-byte system buffer",
+    "IoStatus.Information = 8"
+  ],
+  "implemented_read_registers": [
+    "0x19c",
+    "0x1a2",
+    "0x1b1",
+    "0x606",
+    "0x611"
+  ],
+  "hardware_validation": "2026-11-04T14:55:29Z actual CPU package 53 C and power 56.1 W, 16 logical processor temperatures, errors empty; integrated monitor source/freshness verified",
+  "binary_analysis_tool": "Visual Studio dumpbin /disasm:nobytes; exit 0",
+  "device_create_privilege": {
+    "check_rva": "0x6CA9",
+    "api": "SeSinglePrivilegeCheck",
+    "luid_rva": "0x80B0",
+    "luid_value": 10,
+    "windows_lookup": "SeLoadDriverPrivilege",
+    "behavior": "Enable only an existing granted privilege with AdjustTokenPrivileges; restore immediately after CreateFileW"
+  }
+}

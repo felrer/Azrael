@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "runId": "run:EZ01:permissions-runtime-mw0ansi9",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-runtime-mw0ansi9",
+  "startedAt": "2026-11-03T06:16:02.430Z",
+  "tests": [
+    "test-computer-use-runtime.cjs",
+    "test-window-control-runtime.cjs",
+    "tests/sync-codex-environment.test.cjs"
+  ],
+  "engineVerified": false,
+  "status": "verified",
+  "exitCode": 0,
+  "signal": null,
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-runtime-mw0ansi9\\logs\\runtime-tests.log",
+  "endedAt": "2026-11-03T06:16:06.317Z"
+}

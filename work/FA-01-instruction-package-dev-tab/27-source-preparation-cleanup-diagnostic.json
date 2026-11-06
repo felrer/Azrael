@@ -1,0 +1,286 @@
+{
+  "schema": 1,
+  "recordedAtUtc": "2026-11-03T06:25:16.282Z",
+  "readOnly": true,
+  "original27Sha256": "f69877c8529ff3e70df2f665912fd67f9c7d1c4c216860a80ee834e17b9cbd39",
+  "failedRegister": {
+    "id": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+    "exit": 1,
+    "toolSession": 57463,
+    "terminalObserved": true,
+    "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance); pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock (maintenance)\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts/maintenance\\\\\\\\maintenance.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock\",\"owner\":null,\"retryable\":true}\n"
+  },
+  "capabilities": {
+    "exit": 0,
+    "stderr": "",
+    "value": {
+      "max_lock_wait_ms": 600000,
+      "operations": [
+        "inventory",
+        "register",
+        "review",
+        "apply",
+        "recover_lock",
+        "recover_reservation",
+        "recover_refresh_pending",
+        "recover_lifecycle_pending",
+        "partition_storage",
+        "compact_storage",
+        "reconcile_duplicate_groups"
+      ],
+      "platform": {
+        "arch": "x64",
+        "os": "win32"
+      },
+      "preferences": true,
+      "protocol": "maintenance-owner-lease-v1",
+      "request_file_policy": "outside-maintenance-state",
+      "request_transports": [
+        "file",
+        "stdin"
+      ],
+      "schema": 1,
+      "storage_formats": [
+        "legacy",
+        "partitioned-v1"
+      ]
+    }
+  },
+  "reservation": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\f5cb6053c518ca13b80fc748b4c7d01ab9c291e0985337ed931285258d43bb10.json",
+    "sha256": "5c313ff5becda4c4a73cb15ba901ce6024d91b078977c3538419e0d3d702e8db",
+    "record": {
+      "group_scope": {
+        "id": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+        "kind": "run",
+        "members": [
+          "30c6750012e5d8f57d430dce9781d9286c2ae1bdc6b73f61bdf1412b747ff2a0"
+        ],
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_identity": null,
+        "owner": "FA-01-provenance-schema-owner",
+        "version": null
+      },
+      "id": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+      "lease_owner": {
+        "acquired_at_ms": 1793686982614,
+        "operation": "group_reservation",
+        "pid": 51320,
+        "schema": 2,
+        "token": "51320-1793686982614-7665389f3c58f718"
+      },
+      "manifest_revision": 5600,
+      "members": [
+        {
+          "generated": true,
+          "id": "30c6750012e5d8f57d430dce9781d9286c2ae1bdc6b73f61bdf1412b747ff2a0",
+          "kind": "run",
+          "lifecycle_role": "artifact",
+          "owner": "FA-01-provenance-schema-owner",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+          "protection_known": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\30874d848b7abf0752548e5968fdbf2052421c4fb9dc62e4daf87b7f7db74502.json",
+          "references": [],
+          "role": "run"
+        }
+      ],
+      "purpose": "registration",
+      "registration_sources": [
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "source_fence": "87e5d8890dccfabe5fa888d7869850f4f279e80e358d5fe7981073a572641bc4",
+          "source_owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\reports\\producer-15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa.json",
+              "evidence_sha256": "15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "d55a0c824e1de6de7c76bee94fffe9bd01dfd0ca29c97e27b0ed5d213441e5b0"
+            },
+            "created_at": "2026-11-03T05:34:37.238Z",
+            "id": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+            "owner": "FA-01-provenance-schema-owner",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\reports\\producer-15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa.json",
+              "evidence_sha256": "15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "release_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\26-build-source-preparation-verification.json",
+              "evidence_sha256": "4ba7b9d0aef3ef8bec32752690314fb80e8e86437b2f839debd81730243f69e0",
+              "reason": "Parent-approved end of source preparation; independent verification26 preserves terminal results and selected final input provenance",
+              "request_sha256": "d76f67d56d999b345c7ff0c46a2522c16ea4b0cdb180bc742b9089a0f46d4746"
+            },
+            "revision": 3,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-11-03T06:22:38.499Z",
+            "version": null
+          }
+        }
+      ],
+      "schema": 1,
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "source_fence": "87e5d8890dccfabe5fa888d7869850f4f279e80e358d5fe7981073a572641bc4",
+      "source_owner": {
+        "close_receipt": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\reports\\producer-15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa.json",
+          "evidence_sha256": "15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa",
+          "reason": "Owned producer and tracked children stopped",
+          "request_sha256": "d55a0c824e1de6de7c76bee94fffe9bd01dfd0ca29c97e27b0ed5d213441e5b0"
+        },
+        "created_at": "2026-11-03T05:34:37.238Z",
+        "id": "run:FA-01-final-source-freeze:20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+        "kind": "run",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+            "protection_known": true,
+            "role": "run"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\inputs",
+            "protection_known": true,
+            "role": "inputs"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\temporary",
+            "protection_known": true,
+            "role": "temporary"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\logs",
+            "protection_known": true,
+            "role": "logs"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\reports",
+            "protection_known": true,
+            "role": "reports"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\outputs",
+            "protection_known": true,
+            "role": "outputs"
+          }
+        ],
+        "membership_complete": true,
+        "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde",
+        "owner": "FA-01-provenance-schema-owner",
+        "ownership_scope": "run-root",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-final-source-freeze\\runs\\20261103T053429689Z-eb008700-b5a6-4e09-9158-c2f03e26cbde\\reports\\producer-15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa.json",
+          "evidence_sha256": "15893354668be235d6ea3bba58cf53f3edfe07927c42550a5dc46dd845d292fa",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "references": [],
+        "release_receipt": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\26-build-source-preparation-verification.json",
+          "evidence_sha256": "4ba7b9d0aef3ef8bec32752690314fb80e8e86437b2f839debd81730243f69e0",
+          "reason": "Parent-approved end of source preparation; independent verification26 preserves terminal results and selected final input provenance",
+          "request_sha256": "d76f67d56d999b345c7ff0c46a2522c16ea4b0cdb180bc742b9089a0f46d4746"
+        },
+        "revision": 3,
+        "schema": 1,
+        "state": "failed",
+        "updated_at": "2026-11-03T06:22:38.499Z",
+        "version": null
+      },
+      "status": "active",
+      "token": "51320-1793686982614-7665389f3c58f718"
+    }
+  },
+  "maintenanceLockDiagnostic": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\maintenance.lock",
+    "sha256": "b6296ea2874a446de981c68359b32ecffdd9c6e5345f6005c1f14e92741eb188",
+    "record": {
+      "acquired_at_ms": 1793687101701,
+      "operation": "maintenance",
+      "pid": 46208,
+      "schema": 2,
+      "token": "46208-1793687101701-c31f5cb11eeca554"
+    },
+    "actualOsLockOccupancy": "unverified: diagnostic bytes may outlive lease"
+  },
+  "recoveryPreconditions": {
+    "exactReservationIdTokenFenceShaRequired": true,
+    "producerTreeStopRequired": true,
+    "nativeOwnerAbsentVerificationRequired": true,
+    "maintenanceAndCatalogLeaseRequired": true,
+    "independentEvidenceRequired": true,
+    "requestMutationNotAuthorized": true
+  },
+  "processObservation": {
+    "observedAtUtc": "2026-11-03T06:25:44.950Z",
+    "reservationOwnerPid": 51320,
+    "reservationOwnerCurrentlyListed": false,
+    "maintenanceDiagnosticOwner": {
+      "pid": 46208,
+      "parentPid": 56500,
+      "executable": "artifacts/versions/maintenance-owner-ff01-reservation-win-x64-20261102/payload/maintenance_owner.exe",
+      "arguments": "--project-root <primary> --request -"
+    },
+    "interpretation": "Existing supported schema2 lock diagnostic identifies a currently observed native owner. No OS lease acquisition/status probe attempted, so actual lock occupancy is not independently asserted. PID absence alone is not stop proof."
+  },
+  "recoveryAssessment": {
+    "scopeMatchesFailedRegister": true,
+    "failedRegisterCloseExit": 1,
+    "limitation": "Original close result recorded actual exit1 but did not persist child PID; reservation names PID51320. Exact child PID linkage and process-tree evidence should be confirmed before asserting recovery proof.",
+    "proposal": "After current owner finishes, confirm exact reservation lease-owner linkage to the stopped register; with parent approval use recover_reservation binding raw SHA/token/full fence and independent exact stop evidence. No recovery now.",
+    "mutationPerformed": false
+  }
+}

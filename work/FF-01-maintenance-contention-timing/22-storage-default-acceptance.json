@@ -1,0 +1,250 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "platform": {
+    "os": "win32",
+    "arch": "x64"
+  },
+  "checks": {
+    "defaultResolver": true,
+    "actualCapabilities": true,
+    "directLease": true,
+    "stdinRegisterRegisteredReviewApply": true,
+    "targetAbsent": true,
+    "durableDeletedReceiptNoPending": true,
+    "bothPinBytesUnchanged": true,
+    "finalResolverIdentityUnchanged": true
+  },
+  "native": [
+    {
+      "label": "capabilities",
+      "args": [
+        "capabilities"
+      ],
+      "stdoutLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-capabilities.stdout.log",
+      "stderrLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-capabilities.stderr.log",
+      "exitCode": 0,
+      "signal": null,
+      "pid": 30116
+    },
+    {
+      "label": "lease",
+      "args": [
+        "--lease",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\default-smoke\\fixture\\catalog.lock",
+        "--operation",
+        "storage.default.acceptance",
+        "--wait-ms",
+        "0",
+        "--parent-pid",
+        "42432"
+      ],
+      "stdoutLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-lease.stdout.log",
+      "stderrLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-lease.stderr.log",
+      "exitCode": 0,
+      "signal": null,
+      "pid": 19604
+    },
+    {
+      "label": "register",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdoutLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-register.stdout.log",
+      "stderrLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-register.stderr.log",
+      "exitCode": 0,
+      "signal": null,
+      "pid": 46564
+    },
+    {
+      "label": "review",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdoutLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-review.stdout.log",
+      "stderrLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-review.stderr.log",
+      "exitCode": 0,
+      "signal": null,
+      "pid": 21980
+    },
+    {
+      "label": "apply",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdoutLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-apply.stdout.log",
+      "stderrLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-apply.stderr.log",
+      "exitCode": 0,
+      "signal": null,
+      "pid": 36440
+    },
+    {
+      "label": "inventory",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdoutLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-inventory.stdout.log",
+      "stderrLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-default-inventory.stderr.log",
+      "exitCode": 0,
+      "signal": null,
+      "pid": 48272
+    }
+  ],
+  "selection": {
+    "command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-storage-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    },
+    "sha256": "f98ae805137e50035a475b2873e7ee5ab71b45c4a9e513ce5a60203625bceb00",
+    "normalEnvironment": true,
+    "environment": {
+      "AZRAEL_STATE_ROOT": null,
+      "CODEX_HOME": "C:\\Users\\felre\\.azrael-ex"
+    },
+    "pins": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\owner-installation.json",
+        "sha256": "a01a759a2c7456f5c82c5f4c3c11624f2b81e17d6bb49296f98b1a2c6975c8fe"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\deployments\\maintenance-owner-dw16\\installation.json",
+        "sha256": "a01a759a2c7456f5c82c5f4c3c11624f2b81e17d6bb49296f98b1a2c6975c8fe"
+      }
+    ]
+  },
+  "nativeEnvironment": {
+    "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\default-smoke\\native-state",
+    "CODEX_HOME": "C:\\Users\\felre\\.azrael-ex",
+    "scope": "Child native CLI preference admission only. Parent default resolver uses unchanged normal environment; child state selector is explicitly isolated."
+  },
+  "capabilities": {
+    "max_lock_wait_ms": 600000,
+    "operations": [
+      "inventory",
+      "register",
+      "review",
+      "apply",
+      "recover_lock",
+      "recover_reservation",
+      "recover_refresh_pending",
+      "recover_lifecycle_pending",
+      "partition_storage",
+      "compact_storage",
+      "reconcile_duplicate_groups"
+    ],
+    "platform": {
+      "arch": "x64",
+      "os": "win32"
+    },
+    "preferences": true,
+    "protocol": "maintenance-owner-lease-v1",
+    "request_file_policy": "outside-maintenance-state",
+    "request_transports": [
+      "file",
+      "stdin"
+    ],
+    "schema": 1,
+    "storage_formats": [
+      "legacy",
+      "partitioned-v1"
+    ]
+  },
+  "fixture": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\default-smoke\\fixture",
+    "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\default-smoke\\fixture\\generated\\check",
+    "environment": "Child native CLI uses owned AZRAEL_STATE_ROOT for isolated admission. Resolver selection itself uses unmodified parent environment.",
+    "cleanup": "Retained under active outer run owner for parent owner-based cleanup after terminal handoff."
+  },
+  "leasePackets": [
+    {
+      "id": 0,
+      "ok": true,
+      "result": {
+        "acquired_at_ms": 1793612649868,
+        "operation": "storage.default.acceptance",
+        "parent_pid": 42432,
+        "pid": 19604,
+        "schema": 2,
+        "token": "19604-1793612649868-81ee7a8146cd89c0"
+      }
+    },
+    {
+      "id": 1,
+      "ok": true,
+      "result": {
+        "released": true,
+        "reservations_retained": []
+      }
+    }
+  ],
+  "durableReceipt": {
+    "cache_schema": null,
+    "cleanup_status": "deleted",
+    "created_at_ms": null,
+    "due_for_review": false,
+    "generated": true,
+    "id": "default-smoke-target",
+    "identity": "7249959e8a3b2f9db3f000c14206018ea625aa8ac9bc68498200966350a79f18",
+    "kind": "fixture",
+    "lifecycle_group_id": "default-smoke",
+    "lifecycle_role": "artifact",
+    "logical_bytes": 0,
+    "measured_at_ms": 1793612650113,
+    "owner": "storage-default-acceptance",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\default-smoke\\fixture\\generated\\check",
+    "presence": "present",
+    "protection_known": true,
+    "provenance": null,
+    "references": [],
+    "registered_at_ms": 1793612650113,
+    "remaining": false,
+    "review_reasons": [],
+    "source_path": null,
+    "tool": null,
+    "version": null
+  },
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "default-smoke",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-36440-1-1793612650568",
+        "decision": "delete",
+        "decision_id": "62fb19096cb5cff6b8f1a6a1e7782f155a7cb969efc2e33703e44b179f7c4b6c",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "default-smoke-target",
+        "lifecycle_group_id": "default-smoke",
+        "reason": "Isolated default native acceptance target complete",
+        "remaining": false,
+        "status": "deleted",
+        "token": "2e3289f50c02ddaddcecd13cae36cf578e40bcf9ba6e866d3b8afc23b38ae028"
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "run:EK01-user-wait-native:protocol01",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "f900768382f8401a5acc12524d53580d679f1b46f6d60220e89e8fcd66441210",
+  "lease_owner": {
+    "acquired_at_ms": 1793246366352,
+    "operation": "group_reservation",
+    "pid": 52952,
+    "schema": 2,
+    "token": "52952-1793246366352-737b820335c2e342"
+  },
+  "originalOutcome": {
+    "synchronousExecSession": 95723,
+    "exitCode": 1,
+    "ownerExitCode": 1,
+    "reason": "Supported registration returned terminal OS lock error before commit; no execution outcome rewritten"
+  },
+  "terminationEvidence": "This child used synchronous child_process.spawnSync with windowsHide, no detached option. Native maintenance_owner run synchronously dispatches registration; inspected run/lib/registry/reservations contain no process spawning path. Returned owner exit1 plus no spawned descendants proves full exact tree termination; native owner independently checks lease/PID state."
+}

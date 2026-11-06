@@ -1,0 +1,13 @@
+{
+  "lifecycleId": "run:EZ01:permissions-closure-mw0bog7i",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-closure-mw0bog7i",
+  "tests": [
+    "test-computer-use-injection.cjs",
+    "test-source-test-fixtures.cjs",
+    "test-window-control-injection.cjs"
+  ],
+  "exitCode": 1,
+  "signal": null,
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-closure-mw0bog7i\\logs\\tests.log",
+  "tail": "nned consumers require their actual closure as regular files at the hardcoded pin (166.7238ms)\n✔ small pinned consumers do not require unrelated matrix assets (1.1961ms)\n✔ instruction release readiness rejects absent, outside, linked and nested-checkout parents without writing (494.3684ms)\n✔ Windows stable Cargo readiness checks the actual planned linker path before fixture creation (2.6332ms)\n✔ core provider request, notification, response and teardown bypass an absent Window Use host (19.8421ms)\n✔ native window bridge transforms compose with recovery and reject pinned-source drift (3659.24ms)\n✔ injected bridge calls preserve native request and lifecycle behavior (2.4134ms)\n✔ Computer Use settings launcher is scoped, idempotent and dispatches the owned UI command (3.9236ms)\n✔ window boundary observer failure clears the selected owner and preserves ordinary native delivery (1.4166ms)\n✔ result publication defers native dispatch once and retains bridge context (1.2952ms)\n✔ deferred lifecycle responses preserve the pinned dispatcher receipt and line queue (758.2239ms)\n✔ Window Use classifier is exact, guarded and tracked by packaging (14422.5083ms)\n✔ selected runtime request preparation precedes registration and actual native send (1.215ms)\nℹ tests 26\nℹ suites 0\nℹ pass 25\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 23831.6836\n\n✖ failing tests:\n\ntest at scripts\\test-computer-use-injection.cjs:206:1\n✖ pinned computer-use approval card cancels the request through the native response closure (143.8588ms)\n  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n  \n    assert(owner.getAppApprovals().approvedApps.some(app => app.bundleIdentifier === \"always-card.exe\"))\n  \n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-closure-mw0bog7i\\inputs\\project\\scripts\\test-computer-use-injection.cjs:310:5)\n      at async Test.run (node:internal/test_runner/test:1404:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n"
+}

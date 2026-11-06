@@ -8,6 +8,7 @@ function New-BuildMetrics {
         StartedUtc = [DateTime]::UtcNow.ToString('o')
         CompletedUtc = $null
         Status = 'running'
+        Context = [ordered]@{}
         Stages = [Collections.Generic.List[object]]::new()
     }
     Write-BuildMetrics $metrics
@@ -29,6 +30,7 @@ function Write-BuildMetrics {
             }
             if ($null -ne $_.ExitCode) { $record.exitCode = $_.ExitCode }
             if ($_.LogPath) { $record.logPath = $_.LogPath }
+            if ($null -ne $_.Details) { $record.details = $_.Details }
             $record
         })
         [ordered]@{
@@ -38,19 +40,33 @@ function Write-BuildMetrics {
             stages = $stages
             elapsedMs = [long]$Metrics.Timer.ElapsedMilliseconds
             status = $Metrics.Status
-        } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $Metrics.Path -Encoding utf8NoBOM -ErrorAction Stop
+            context = $Metrics.Context
+        } | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $Metrics.Path -Encoding utf8NoBOM -ErrorAction Stop
     } catch {
         # Even an unavailable warning stream must not interfere with the build.
         try { Write-Warning "Could not write build metrics '$($Metrics.Path)': $($_.Exception.Message)" -WarningAction Continue } catch { }
     }
 }
 
+function Set-BuildMetricContext {
+    param([Parameter(Mandatory)]$Metrics, [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)]$Value)
+    # Explicit diagnostic values only: callers must not include the process
+    # environment, credentials, or arguments containing secrets.
+    try {
+        $Metrics.Context[$Name] = $Value
+        Write-BuildMetrics $Metrics
+    } catch {
+        try { Write-Warning "Could not record build context '$Name': $($_.Exception.Message)" -WarningAction Continue } catch { }
+    }
+}
+
 function Start-BuildStage {
-    param([Parameter(Mandatory)]$Metrics, [Parameter(Mandatory)][string]$Name, [string]$LogPath)
+    param([Parameter(Mandatory)]$Metrics, [Parameter(Mandatory)][string]$Name, [string]$LogPath, $Details)
     $stage = [pscustomobject]@{
         StartedUtc = [DateTime]::UtcNow.ToString('o'); CompletedUtc = $null
         Name = $Name; Timer = [Diagnostics.Stopwatch]::StartNew()
-        Status = 'running'; ExitCode = $null; LogPath = $LogPath
+        Status = 'running'; ExitCode = $null; LogPath = $LogPath; Details = $Details
     }
     $Metrics.Stages.Add($stage)
     Write-BuildMetrics $Metrics
@@ -82,6 +98,12 @@ function Complete-BuildMetrics {
     Write-BuildMetrics $Metrics
 }
 
+function Wait-BuildMemory {
+    param([Parameter(Mandatory)][string]$Name)
+    & node (Join-Path $PSScriptRoot 'build-resource-admission.cjs') $Name
+    if ($LASTEXITCODE -ne 0) { throw "Memory admission failed for $Name; command was not started." }
+}
+
 function Invoke-BuildCommand {
     param([Parameter(Mandatory)][string]$Executable, [string[]]$CommandArguments,
         [Parameter(Mandatory)][string]$LogName,
@@ -91,6 +113,7 @@ function Invoke-BuildCommand {
     $stage = Start-BuildStage $Metrics ('command:' + $LogName) $logPath
     $commandExit = $null
     try {
+        Wait-BuildMemory $LogName
         Write-Host "Running $Executable; log: $logPath"
         # Read the native exit ourselves, including robocopy's 0..7 contract.
         $PSNativeCommandUseErrorActionPreference = $false
@@ -118,6 +141,7 @@ function Invoke-BuildScript {
     $stage = Start-BuildStage $Metrics ('script:' + $LogName) $logPath
     $commandExit = $null
     try {
+        Wait-BuildMemory $LogName
         $ErrorActionPreference = 'Stop'
         # Stop on a native failure *inside* the package, even if a later native
         # command would succeed and replace LASTEXITCODE.

@@ -1,0 +1,50 @@
+{
+  "exit_code": 0,
+  "signal": null,
+  "stderr": "",
+  "result": {
+    "group": {
+      "cleanup_status": null,
+      "id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+      "kind": "run",
+      "members": [
+        "cc22fc8c60a6dabf67e2424bb2faf455d24552b8fe0a6c3c224fd8b4ec7d5332"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "0c3e5cc178da7435c8461d88b4006e59c192cd4e1b34e189aa660acbd8b7de28",
+      "owner": "delete-precheck-removal",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\66fc580a06f9a1a7799817114f3602e8991c8d473a028e5a275d3ece9568c4de.json",
+      "registered_at_ms": 1793323502291,
+      "version": null
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "cc22fc8c60a6dabf67e2424bb2faf455d24552b8fe0a6c3c224fd8b4ec7d5332",
+        "identity": "f75f8c3d1d929cb808377dd4fb26e91c416dc20b63b429c5b6e923b78155a29a",
+        "kind": "run",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 713485581,
+        "measured_at_ms": 1793323485420,
+        "owner": "delete-precheck-removal",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\66fc580a06f9a1a7799817114f3602e8991c8d473a028e5a275d3ece9568c4de.json",
+        "references": [],
+        "registered_at_ms": 1793323485420,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  }
+}

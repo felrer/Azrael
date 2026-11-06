@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "platform": "Windows x64",
+  "startedAt": "2026-10-30T00:17:36.052Z",
+  "scope": "Final schema-1 shared owner selection, actual deploy binding, A/B lifecycle, cache and retirement protections",
+  "tests": [
+    {
+      "flags": [],
+      "startedAt": "2026-10-30T00:17:36.053Z",
+      "endedAt": "2026-10-30T00:18:07.732Z",
+      "elapsedMs": 31679,
+      "exitCode": 1,
+      "stdout": "Ownership lifetime: A/B one generation, exact retirement, A absence/B hit, legacy hit/replacement separation passed; exit=0\r\n",
+      "stderr": "Cleanup recovery proof SHA256 or identity changed\nException: C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-build-module-cache.ps1:11\r\nLine |\r\n  11 |  �� tion Assert($Condition,$Message){if(-not $Condition){throw $Message}}\r\n     |                                                         ~~~~~~~~~~~~~~\r\n     | Supported recovered marker cleanup deletes exact entry: {\"status\":\"blocked\",\"reason\":\"Maintenance lock client\r\n     | request 'reserve' failed: Maintenance lock client failed (reserve): producer reservation requires complete\r\n     | stopped\r\n     | ownership\",\"groups\":[\"run:module-cache:providers:07fbb2d4d166a2d45aa03cc39659efd347bac5c1a336b32a2180d38e118a725a\"],\"members\":[{\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\verification\\\\module-cache-a30bbfc37c4e426dbdecf5169e426f02\\\\marker-recovery\\\\artifacts\\\\cache\\\\modules\\\\providers\\\\07fbb2d4d166a2d45aa03cc39659efd347bac5c1a336b32a2180d38e118a725a\",\"role\":\"cache-entry\",\"status\":\"selected\"}],\"finalization\":[],\"errors\":[{\"message\":\"Maintenance lock client request 'reserve' failed: Maintenance lock client failed (reserve): producer reservation requires complete stopped ownership\",\"stage\":\"cleanup\"}]}\r\n"
+    },
+    {
+      "flags": [
+        "-OwnershipOnly"
+      ],
+      "startedAt": "2026-10-30T00:18:41.105Z",
+      "endedAt": "2026-10-30T00:18:59.810Z",
+      "elapsedMs": 18705,
+      "exitCode": 0,
+      "stdout": "Ownership lifetime: A/B one generation, exact retirement, A absence/B hit, legacy hit/replacement separation passed; exit=0\r\n",
+      "stderr": ""
+    },
+    {
+      "flags": [
+        "-CleanupOnly"
+      ],
+      "startedAt": "2026-10-30T00:18:59.811Z",
+      "endedAt": "2026-10-30T00:19:25.952Z",
+      "elapsedMs": 26141,
+      "exitCode": 0,
+      "stdout": "Production module cleanup: ReadOnly payload preserves logs/receipts; locked log follows payload and preserves receipts; retries verify absence; exit=0\r\n",
+      "stderr": ""
+    },
+    {
+      "flags": [
+        "-RegistryOnly"
+      ],
+      "startedAt": "2026-10-30T00:19:25.953Z",
+      "endedAt": "2026-10-30T00:20:06.012Z",
+      "elapsedMs": 40059,
+      "exitCode": 0,
+      "stdout": "Module cache registration: missing provenance, pending consumer, canonical empty catalog, stale proof/registry, compiler and inspection guards, preview and exact registration retirement passed; exit=0\r\n",
+      "stderr": ""
+    },
+    {
+      "flags": [
+        "-MissingRegistryOnly"
+      ],
+      "startedAt": "2026-10-30T00:20:06.013Z",
+      "endedAt": "2026-10-30T00:20:40.079Z",
+      "elapsedMs": 34066,
+      "exitCode": 0,
+      "stdout": "Missing module registry: enumeration, isolated inspection, eviction protection, complete released-consumer proof, authority, process, absence/evidence/registry races, CLI and exact retirement passed; exit=0\r\n",
+      "stderr": ""
+    },
+    {
+      "flags": [
+        "-OwnershipOnly"
+      ],
+      "scope": "Final module and WindowControl shared ownership + actual deploy binding",
+      "elapsedMs": 1557,
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "OS lock busy: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\catalog.lock (lifecycle.catalog)\nException: C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.ps1:9\r\nLine |\r\n   9 |  �� DE -ne 0) { throw \"Artifact lifecycle command failed (exit $LASTEXITC ��\r\n     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n     | Artifact lifecycle command failed (exit 1).\r\n"
+    },
+    {
+      "flags": [
+        "-OwnershipOnly"
+      ],
+      "scope": "Final module and WindowControl shared ownership + actual deploy binding after external EQ-01 owner released catalog",
+      "elapsedMs": 23521,
+      "exitCode": 0,
+      "stdout": "WindowControl shared ownership: stable target, native cleanup protection, physical lease, completed cross-copy selection, failed/active retry, marker and legacy guards passed; exit=0\r\nOwnership lifetime: A/B one generation, exact retirement, A absence/B hit, legacy hit/replacement separation passed; exit=0\r\n",
+      "stderr": ""
+    }
+  ],
+  "earlierAttempts": [
+    {
+      "case": "OwnershipOnly first fixture",
+      "exitCode": 1,
+      "cause": "fixture lifecycle member outside artifacts; corrected before acceptance"
+    },
+    {
+      "case": "OwnershipOnly interim schema2",
+      "exitCode": 1,
+      "cause": "single-element PowerShell array serialization; schema2 design removed to retain all historical installation protections"
+    },
+    {
+      "case": "OwnershipOnly interim design",
+      "exitCode": 0,
+      "finalAcceptance": false,
+      "cause": "preceded registry simplification"
+    },
+    {
+      "case": "production AST extraction",
+      "exitCode": 1,
+      "cause": "dynamic ScriptBlock had empty PSScriptRoot; production resolver now explicitly uses execution Project/scripts"
+    }
+  ],
+  "endedAt": "2026-10-30T00:20:40.080Z",
+  "sourceHashes": {
+    "scripts/build-module-cache.ps1": "f2ca48d14c2a696959b3986571158cc2e14f43eb68d97224d065696c9fb7aec2",
+    "scripts/build-azrael.ps1": "ab9bd31e1176084a7079d8c4d34e076617115427caceff0c8a05df4e28f3d8e2",
+    "scripts/build-window-control.ps1": "91ac9dff44f201318adf931f8a456efd4a1c14f77d5dafa6bcfeb59644bfc1bf",
+    "scripts/window-control-cache.ps1": "c6a35945fb6ebb78c32e922912f3dd0576f459579b2db22b5c172249b657a9e7",
+    "scripts/test-build-module-cache.ps1": "74e7ac6ed69959e5d1aa6bf8e47d4d0a12b4fd696c315ccea1c9b90df425f173",
+    "scripts/test-deploy-azrael.ps1": "5e4c2ccda791c5c312178f1e05df5d2d0b5060c54611db806a25038d59bec324",
+    "scripts/deploy-azrael.ps1": "d6fefd5cef4fd9e1740c584696784ea87c2a077f108567cdc7e3a14a932cc4ed",
+    "scripts/module-cache-consumers.cjs": "91d2c7154ee6937e8bb7671dd7915eebde9b4b0324ee29efc6a9e13b8990a17b",
+    "scripts/preparation-state.cjs": "8496e1fdaaeed3088290969144151c7d750e51c221fae9fd20f12cb9012377db",
+    "scripts/test-preparation-state.cjs": "61af83305265a228c185e9914e076a71feb971041676a1e3d67fb1b369dc086b",
+    "scripts/deployment-workspace.cjs": "0d4cbe07019043bf70c033223b1921225f6a2c26a095bc4ccd3877640d3ce200",
+    "scripts/test-deployment-workspace.cjs": "3f470582b3a6dfc8746cf668cc5e7f051f6f209a084514270f5a76407d5df7e6",
+    "scripts/test-project.cjs": "345caf42f253440d0b7f104533a06ef9c85e70e5ce1510769c34d7e42ceb8509",
+    "scripts/test-project-selection.cjs": "07c910d98d4528b19c1996d5fe6969fc32740554e4dca078c5e1ca3fb1558527",
+    "scripts/azrael-feature-contracts.json": "fb3f80ecf3b10aa652f21f3d5b1b13cb44f7af083cb940c8cfd4515fb7166c2b"
+  },
+  "fullSuiteLimitation": {
+    "cause": "Installed native reservation owner rejected supported stopped/unknown cleanup-recovery record; current source guard already admits fully validated cleanup_recovery. No Rust/installed-owner changes made by this ownership task.",
+    "installedOwnerSha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+    "failingPath": "Test-ModuleMarkerRecovery -> reserve",
+    "source": "engine/codex-rs/project-maintenance/src/reservations.rs:986"
+  },
+  "routingCheck": {
+    "elapsedMs": 12097,
+    "exitCode": 0,
+    "stdout": "✔ cache ownership helpers select their retained lifecycle regressions (11909.4949ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 12010.5946\n",
+    "stderr": ""
+  },
+  "syntax": {
+    "powershell": {
+      "files": [
+        "scripts/build-module-cache.ps1",
+        "scripts/build-azrael.ps1",
+        "scripts/build-window-control.ps1",
+        "scripts/window-control-cache.ps1",
+        "scripts/test-build-module-cache.ps1",
+        "scripts/test-deploy-azrael.ps1",
+        "scripts/deploy-azrael.ps1"
+      ],
+      "exitCode": 0
+    },
+    "javascript": {
+      "files": [
+        "scripts/module-cache-consumers.cjs",
+        "scripts/preparation-state.cjs",
+        "scripts/test-preparation-state.cjs",
+        "scripts/deployment-workspace.cjs",
+        "scripts/test-deployment-workspace.cjs",
+        "scripts/test-project.cjs",
+        "scripts/test-project-selection.cjs"
+      ],
+      "exitCode": 0
+    },
+    "featureInventoryParseExitCode": 0
+  },
+  "preparationConsumers": {
+    "command": "node --test scripts/test-preparation-state.cjs",
+    "exitCode": 0,
+    "tests": 8,
+    "elapsedMs": 2400,
+    "evidence": "Bounded consumer worker report; fixtures removed/absence asserted; active proxy and actual cache inbound protection with missing source, exact CAS/retry release; tested sources unchanged."
+  },
+  "finalizedAt": "2026-10-30T00:26:37.112Z",
+  "diffCheck": {
+    "exitCode": 0,
+    "scope": "task source and documentation files",
+    "notes": "LF/CRLF notices only"
+  },
+  "cleanup": {
+    "rootModuleTestRecordsRemaining": 0,
+    "evidence": "Final actual lifecycle catalog query returned remainingModuleTestRecords: []; each test finally verifies fixture absence before finalization.",
+    "workspaceEvidence": "08-workspace-owner-cleanup.json",
+    "workspaceRunRootsAbsent": 3,
+    "workspaceLifecycleFinalized": 3
+  }
+}

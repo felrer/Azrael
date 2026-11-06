@@ -115,6 +115,7 @@ fn server_notification_requires_delivery(notification: &ServerNotification) -> b
     matches!(
         notification,
         ServerNotification::TurnCompleted(_)
+            | ServerNotification::UserWaitTimingUpdated(_)
             | ServerNotification::RootResumeWaitUpdated(_)
             | ServerNotification::ThreadQueueChanged(_)
             | ServerNotification::ThreadSettingsUpdated(_)
@@ -1042,6 +1043,7 @@ mod tests {
                 thread_id: "thread-1".to_string(),
                 turn: Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: "turn-1".to_string(),
                     root_turn_id: None,

@@ -134,6 +134,24 @@ pub fn parse_shell_lc_plain_commands(command: &[String]) -> Option<Vec<Vec<Strin
 /// for identifying dangerous literal commands, but must not be used to prove
 /// that a command is safe.
 pub(crate) fn parse_shell_lc_literal_commands(command: &[String]) -> Option<Vec<Vec<String>>> {
+    Some(
+        parse_shell_lc_command_literals(command)?
+            .into_iter()
+            .map(|command| command.words)
+            .collect(),
+    )
+}
+
+pub(crate) struct ShellCommandLiterals {
+    pub words: Vec<String>,
+    pub has_dynamic_arguments: bool,
+}
+
+/// Preserve whether argument expressions were omitted from the literal words.
+/// This is evidence of argument syntax, never an expansion into runtime argv.
+pub(crate) fn parse_shell_lc_command_literals(
+    command: &[String],
+) -> Option<Vec<ShellCommandLiterals>> {
     let (_, script) = extract_bash_command(command)?;
     let tree = try_parse_shell(script)?;
     let root = tree.root_node();
@@ -217,25 +235,33 @@ fn parse_plain_command_from_node(cmd: tree_sitter::Node, src: &str) -> Option<Ve
     Some(words)
 }
 
-fn parse_literal_command_from_node(cmd: Node<'_>, src: &str) -> Option<Vec<String>> {
+fn parse_literal_command_from_node(cmd: Node<'_>, src: &str) -> Option<ShellCommandLiterals> {
     if cmd.kind() != "command" {
         return None;
     }
 
     let mut words = Vec::new();
     let mut found_command_name = false;
+    let mut has_dynamic_arguments = false;
     let mut cursor = cmd.walk();
     for child in cmd.named_children(&mut cursor) {
         if child.kind() == "command_name" {
             let command_name = parse_literal_shell_word(child.named_child(0)?, src)?;
             words.push(command_name);
             found_command_name = true;
-        } else if found_command_name && let Some(word) = parse_literal_shell_word(child, src) {
-            words.push(word);
+        } else if found_command_name {
+            if let Some(word) = parse_literal_shell_word(child, src) {
+                words.push(word);
+            } else {
+                has_dynamic_arguments = true;
+            }
         }
     }
 
-    found_command_name.then_some(words)
+    found_command_name.then_some(ShellCommandLiterals {
+        words,
+        has_dynamic_arguments,
+    })
 }
 
 fn parse_literal_shell_word(node: Node<'_>, src: &str) -> Option<String> {

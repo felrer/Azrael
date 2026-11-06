@@ -1,0 +1,35 @@
+{
+  "startedUtc": "2026-10-30T03:32:35.359Z",
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe",
+  "steps": [
+    {
+      "stage": "migration-review",
+      "request": {
+        "operation": "reconcile_duplicate_groups",
+        "sources": [
+          {
+            "id": "do1-unused-native-outputs-r1",
+            "owner": "DO-01-codex-version-comparison"
+          },
+          {
+            "id": "do2-native-outputs-r1",
+            "owner": "codex-retained-reasoning"
+          }
+        ],
+        "target": {
+          "id": "work:ET-01:legacy-native-duplicate-claims",
+          "owner": "cargo-target-owner"
+        },
+        "reason": "User approved resolving duplicate claims and invalidating all regenerable build caches. Consolidate exact legacy native output ownership before ordinary deletion.",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-duplicate-claims-normalized-originals.json",
+        "evidence_sha256": "147abb9783a2b2670a3aa8262786138cb706f26e57befd09f3cd2d76e74571bd",
+        "phase": "review"
+      },
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": 2007.9847,
+      "result": null,
+      "stderr": "{\"error\":\"duplicate registered content identity, size or kind disagrees\"}\n"
+    }
+  ]
+}

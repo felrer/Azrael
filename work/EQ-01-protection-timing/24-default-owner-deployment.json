@@ -1,0 +1,1227 @@
+{
+  "schema": 1,
+  "status": "default_verified",
+  "at_utc": "2026-11-01T18:44:43.441Z",
+  "platform": "windows-x64",
+  "selector": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627",
+    "version_id": "version:maintenance-owner:eq01:latest-20261102-r1",
+    "version": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627-windows-x64-20261102",
+    "acceptance_sha256": "f37927f747d4ff1f0d9fdc747a053fa956d0460b4c8ab0219c4a50551718df1b"
+  },
+  "receipt": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627",
+    "version_id": "version:maintenance-owner:eq01:latest-20261102-r1",
+    "version": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627-windows-x64-20261102",
+    "acceptance_sha256": "f37927f747d4ff1f0d9fdc747a053fa956d0460b4c8ab0219c4a50551718df1b"
+  },
+  "selector_sha256": "1adda000d896aba8a5b50983d7ed44354d1d5122a827b186ed37ab8fcd23c8b4",
+  "reports": {
+    "candidate-full": {
+      "phase": "candidate-full",
+      "started_utc": "2026-11-01T18:35:23.534Z",
+      "ended_utc": "2026-11-01T18:35:43.320Z",
+      "elapsed_ms": 19784.105,
+      "exit_code": 1,
+      "signal": null,
+      "error": null,
+      "candidate_override": true,
+      "summary": [
+        "WindowControl shared ownership: stable target, native cleanup protection, physical lease, completed cross-copy selection, failed/active retry, marker and legacy guards passed; exit=0\r",
+        "Ownership lifetime: A/B one generation, exact retirement, A absence/B hit, legacy hit/replacement separation passed; exit=0\r",
+        ""
+      ],
+      "stderr_tail": "New-Item: C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-build-module-cache.ps1:84\r\nLine |\r\n  84 |  �� arker-link';New-Item -ItemType HardLink -Path $hardlink -Target $mark ��\r\n     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n     | ������ ��θ� ã�� �� �����ϴ�.\r\n"
+    },
+    "path-diagnosis": {
+      "original_marker_template": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\temporary\\candidate-full\\marker-recovery\\artifacts\\cache\\modules\\providers\\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\owner.json",
+      "original_length": 260,
+      "shorter_fixture": "artifacts/tasks/eq26/runs/d/temporary/candidate-full-r2",
+      "conclusion": "260-character hardlink target; shortening fixture only; actual retry required",
+      "failed_report": "candidate-full.json"
+    },
+    "candidate-full-r2": {
+      "phase": "candidate-full-r2",
+      "started_utc": "2026-11-01T18:39:47.476Z",
+      "ended_utc": "2026-11-01T18:42:58.237Z",
+      "elapsed_ms": 190758.4165,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "candidate_override": true,
+      "summary": [
+        "Module marker recovery: supported unknown close/recoverCleanup, external proof, NUL hash/revision, retry, marker type/bounds, lease, protection, process and consumer guards; native deletion/finalization passed; exit=0\r",
+        "Running robocopy.exe; log: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\temporary\\candidate-full-r2\\artifacts\\cache\\modules\\companion\\b906d29267612634b34ff79846e20da849ef35bdea2b139c31484d5e6f8bdcbe\\logs\\companion-stage.log\r",
+        "Running npm.cmd; log: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\temporary\\candidate-full-r2\\artifacts\\cache\\modules\\companion\\b906d29267612634b34ff79846e20da849ef35bdea2b139c31484d5e6f8bdcbe\\logs\\npm-ci.log\r",
+        "Running npm.cmd; log: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\temporary\\candidate-full-r2\\artifacts\\cache\\modules\\companion\\b906d29267612634b34ff79846e20da849ef35bdea2b139c31484d5e6f8bdcbe\\logs\\companion-package.log\r",
+        "Running robocopy.exe; log: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\temporary\\candidate-full-r2\\artifacts\\cache\\modules\\companion\\4f2febf040bda962b7ce6c32c2b320bea5f5edcbffde65b174bf8b64556181fc\\logs\\companion-stage.log\r",
+        "Running npm.cmd; log: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\temporary\\candidate-full-r2\\artifacts\\cache\\modules\\companion\\4f2febf040bda962b7ce6c32c2b320bea5f5edcbffde65b174bf8b64556181fc\\logs\\npm-ci.log\r",
+        "Module cache: reuse, corruption, source/tool changes, force, leases, selection-time pruning, failed generation/publication, module isolation, retention, runtime/installed pins/compiler, uncertainty, race, nested links, path boundary provider-only legacy staging, content-based cross-snapshot reuse, shared installed pins, platform/role identity and registry fail-closed passed; exit=0\r",
+        ""
+      ],
+      "stderr_tail": "Cleanup recovery proof SHA256 or identity changed\n"
+    },
+    "switch": {
+      "schema": 1,
+      "at_utc": "2026-11-01T18:43:10.067Z",
+      "status": "switched_pending_default_acceptance",
+      "selector": {
+        "schema": 1,
+        "protocol": "maintenance-owner-lease-v1",
+        "executable": "artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\payload\\maintenance_owner.exe",
+        "sha256": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627",
+        "version_id": "version:maintenance-owner:eq01:latest-20261102-r1",
+        "version": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627-windows-x64-20261102",
+        "acceptance_sha256": "f37927f747d4ff1f0d9fdc747a053fa956d0460b4c8ab0219c4a50551718df1b"
+      },
+      "installation_revision": 15,
+      "current_references": [
+        {
+          "id": "version:maintenance-owner:eq01:protection-r3",
+          "kind": "installation",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64"
+          ],
+          "reason": "Explicitly approved verified protection improvements standalone adoption",
+          "reference_id": "5e4ba5dd741ed27fe4a4f5b4ede25b9fe233e8b9b0376abaf7de543fae1bde70",
+          "target_version": "eq01-protection-r3-windows-x64"
+        },
+        {
+          "id": "version:maintenance-owner:eq01:latest-20261102-r1",
+          "kind": "installation",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102"
+          ],
+          "target_version": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627-windows-x64-20261102",
+          "reason": "Explicitly approved default adoption of verified current-source standalone 3b1f9bf4",
+          "reference_id": "12ce5d33fb735d78a018d84acc6bbfa778a61bff287dfcbb9b10d1a245395ef9"
+        }
+      ],
+      "processes_before": [],
+      "processes_under_transition_locks": [
+        {
+          "ProcessId": 50108,
+          "ParentProcessId": 40648,
+          "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+          "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe --lease C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\maintenance.lock --operation default-owner.transition --wait-ms 0 --parent-pid 40648"
+        },
+        {
+          "ProcessId": 39876,
+          "ParentProcessId": 40648,
+          "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+          "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe --lease C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\catalog.lock --operation lifecycle.catalog --wait-ms 0 --parent-pid 40648"
+        }
+      ],
+      "pending_absent": true,
+      "previous_selector_sha256": "1623fee0ebd3d43e4090d882c3df96e92a05ad6d3430f4252307cb2779c66a88",
+      "new_selector_sha256": "1adda000d896aba8a5b50983d7ed44354d1d5122a827b186ed37ab8fcd23c8b4"
+    },
+    "default-recovery": {
+      "phase": "default-recovery",
+      "started_utc": "2026-11-01T18:43:19.343Z",
+      "ended_utc": "2026-11-01T18:43:38.546Z",
+      "elapsed_ms": 19201.2017,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "candidate_override": false,
+      "summary": [
+        "Module marker recovery: supported unknown close/recoverCleanup, external proof, NUL hash/revision, retry, marker type/bounds, lease, protection, process and consumer guards; native deletion/finalization passed; exit=0\r",
+        ""
+      ],
+      "stderr_tail": "Cleanup recovery proof SHA256 or identity changed\n"
+    },
+    "default-lease": {
+      "exit_code": 0,
+      "signal": null,
+      "elapsed_ms": 3453.1437,
+      "summary": [
+        "{\"status\":\"passed\",\"platform\":\"win32\",\"arch\":\"x64\",\"checks\":[\"top-level and encoded busy metadata survive worker packets; transport, permission and corrupt errors stay distinct\",\"real child contention, persistent metadata, reacquisition\",\"bounded wait expires without taking a held lock\",\"parent crash closes native stdin and releases OS exclusion\",\"idle native helper death reports terminal state and releases exclusion\",\"native write failure preserves its primary operation and secondary release error without inventing terminal observation\",\"existing empty, malformed and schema1 markers require recovery\",\"replaced lock inode is preserved and release refuses replacement, or OS denies replacement\",\"symlink/reparse ancestors and non-file lock targets refused\",\"native >1 MiB UTF-8 record CAS/reserve/finish and oversized response preflight without durable fence creation\",\"native hashed-ID CAS, producer reservation/catalog handoff/pinned finish, unsafe member and wrong lock rejection\",\"default installation receipt resolves pinned owner; SHA/protocol/traversal/linked ancestors refuse without execution\",\"malformed protocol fails closed; unknown command refused\"]}",
+        ""
+      ]
+    },
+    "default-cli": {
+      "calls": [
+        {
+          "name": "register",
+          "exit_code": 0,
+          "signal": null,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "default-acceptance",
+              "kind": "run",
+              "members": [
+                "payload"
+              ],
+              "membership_complete": true,
+              "membership_source_identity": null,
+              "owner": "EQ-01",
+              "provenance_ref": "receipt:owned-default-fixture",
+              "registered_at_ms": 1793558622287,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "payload",
+                "identity": "cf77e3b222b277c740300df03d9da7252d65dd99a8da073c6ba290fac3f4ed67",
+                "kind": "fixture",
+                "lifecycle_group_id": "default-acceptance",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 1048576,
+                "measured_at_ms": 1793558622287,
+                "owner": "EQ-01",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\temporary\\default-cli\\generated\\payload.bin",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "references": [],
+                "registered_at_ms": 1793558622287,
+                "remaining": true,
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          },
+          "stderr": ""
+        },
+        {
+          "name": "review",
+          "exit_code": 0,
+          "signal": null,
+          "result": {
+            "groups": [
+              {
+                "cached_live_members": 1,
+                "cleanup_status": null,
+                "id": "default-acceptance",
+                "kind": "run",
+                "members_total": 1,
+                "membership_complete": true,
+                "membership_source": null,
+                "membership_source_format": null,
+                "membership_source_identity": null,
+                "owner": "EQ-01",
+                "provenance_ref": "receipt:owned-default-fixture",
+                "version": null
+              }
+            ],
+            "items": [
+              {
+                "blockers": [],
+                "group_member_ids": [
+                  "payload"
+                ],
+                "group_token": "3e6e83e8c960b6fa1dfb38cd911ffc4a95ef6131ff9f6928a64ddce513a4c435",
+                "id": "payload",
+                "identity": "cf77e3b222b277c740300df03d9da7252d65dd99a8da073c6ba290fac3f4ed67",
+                "lifecycle_group_id": "default-acceptance",
+                "logical_bytes": 1048576,
+                "measured_at_ms": 1793558622287,
+                "membership_source_observation": null,
+                "observation_error": null,
+                "observed_at_ms": 1793558622486,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\temporary\\default-cli\\generated\\payload.bin",
+                "presence": "present",
+                "related_items": [],
+                "remaining": true,
+                "root_observation": {
+                  "identity": {
+                    "file_id": [
+                      65,
+                      97,
+                      208,
+                      0,
+                      0,
+                      0,
+                      8,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "volume": 14318705318996120000
+                  },
+                  "kind": "file",
+                  "presence": "present"
+                },
+                "token": "6ddfebc7294116a227ca4f830e8656ce745503c84051f71cba5ffb89f02b851b",
+                "verification": "registered"
+              }
+            ]
+          },
+          "stderr": ""
+        },
+        {
+          "name": "apply",
+          "exit_code": 0,
+          "signal": null,
+          "result": {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "default-acceptance",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "attempt_id": "attempt-9084-1-1793558622697",
+                "decision": "delete",
+                "decision_id": "d0302f51da148b10ef8f7036bc422e40d1400738bf3d589fa8466adf97dc8387",
+                "deletion": {
+                  "attributes": [],
+                  "error": null,
+                  "physical_bytes_reclaimed": null,
+                  "remaining": false,
+                  "status": "deleted"
+                },
+                "group_status": "deleted",
+                "id": "payload",
+                "lifecycle_group_id": "default-acceptance",
+                "reason": "Actual default executable acceptance complete",
+                "remaining": false,
+                "status": "deleted",
+                "token": "6ddfebc7294116a227ca4f830e8656ce745503c84051f71cba5ffb89f02b851b"
+              }
+            ]
+          },
+          "stderr": ""
+        }
+      ]
+    },
+    "default-acceptance": {
+      "exit_code": 0,
+      "default_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\payload\\maintenance_owner.exe",
+      "binary_sha256": "3b1f9bf488eac6732a1e9faa908da27b5d9d79d3971f4464ec9b945433ad2627",
+      "lease": {
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 3453.1437,
+        "summary": [
+          "{\"status\":\"passed\",\"platform\":\"win32\",\"arch\":\"x64\",\"checks\":[\"top-level and encoded busy metadata survive worker packets; transport, permission and corrupt errors stay distinct\",\"real child contention, persistent metadata, reacquisition\",\"bounded wait expires without taking a held lock\",\"parent crash closes native stdin and releases OS exclusion\",\"idle native helper death reports terminal state and releases exclusion\",\"native write failure preserves its primary operation and secondary release error without inventing terminal observation\",\"existing empty, malformed and schema1 markers require recovery\",\"replaced lock inode is preserved and release refuses replacement, or OS denies replacement\",\"symlink/reparse ancestors and non-file lock targets refused\",\"native >1 MiB UTF-8 record CAS/reserve/finish and oversized response preflight without durable fence creation\",\"native hashed-ID CAS, producer reservation/catalog handoff/pinned finish, unsafe member and wrong lock rejection\",\"default installation receipt resolves pinned owner; SHA/protocol/traversal/linked ancestors refuse without execution\",\"malformed protocol fails closed; unknown command refused\"]}",
+          ""
+        ]
+      },
+      "calls": [
+        {
+          "name": "register",
+          "exit_code": 0,
+          "signal": null,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "default-acceptance",
+              "kind": "run",
+              "members": [
+                "payload"
+              ],
+              "membership_complete": true,
+              "membership_source_identity": null,
+              "owner": "EQ-01",
+              "provenance_ref": "receipt:owned-default-fixture",
+              "registered_at_ms": 1793558622287,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "payload",
+                "identity": "cf77e3b222b277c740300df03d9da7252d65dd99a8da073c6ba290fac3f4ed67",
+                "kind": "fixture",
+                "lifecycle_group_id": "default-acceptance",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 1048576,
+                "measured_at_ms": 1793558622287,
+                "owner": "EQ-01",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\temporary\\default-cli\\generated\\payload.bin",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "references": [],
+                "registered_at_ms": 1793558622287,
+                "remaining": true,
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          },
+          "stderr": ""
+        },
+        {
+          "name": "review",
+          "exit_code": 0,
+          "signal": null,
+          "result": {
+            "groups": [
+              {
+                "cached_live_members": 1,
+                "cleanup_status": null,
+                "id": "default-acceptance",
+                "kind": "run",
+                "members_total": 1,
+                "membership_complete": true,
+                "membership_source": null,
+                "membership_source_format": null,
+                "membership_source_identity": null,
+                "owner": "EQ-01",
+                "provenance_ref": "receipt:owned-default-fixture",
+                "version": null
+              }
+            ],
+            "items": [
+              {
+                "blockers": [],
+                "group_member_ids": [
+                  "payload"
+                ],
+                "group_token": "3e6e83e8c960b6fa1dfb38cd911ffc4a95ef6131ff9f6928a64ddce513a4c435",
+                "id": "payload",
+                "identity": "cf77e3b222b277c740300df03d9da7252d65dd99a8da073c6ba290fac3f4ed67",
+                "lifecycle_group_id": "default-acceptance",
+                "logical_bytes": 1048576,
+                "measured_at_ms": 1793558622287,
+                "membership_source_observation": null,
+                "observation_error": null,
+                "observed_at_ms": 1793558622486,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\temporary\\default-cli\\generated\\payload.bin",
+                "presence": "present",
+                "related_items": [],
+                "remaining": true,
+                "root_observation": {
+                  "identity": {
+                    "file_id": [
+                      65,
+                      97,
+                      208,
+                      0,
+                      0,
+                      0,
+                      8,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "volume": 14318705318996120000
+                  },
+                  "kind": "file",
+                  "presence": "present"
+                },
+                "token": "6ddfebc7294116a227ca4f830e8656ce745503c84051f71cba5ffb89f02b851b",
+                "verification": "registered"
+              }
+            ]
+          },
+          "stderr": ""
+        },
+        {
+          "name": "apply",
+          "exit_code": 0,
+          "signal": null,
+          "result": {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [
+              {
+                "id": "default-acceptance",
+                "status": "deleted"
+              }
+            ],
+            "results": [
+              {
+                "attempt_id": "attempt-9084-1-1793558622697",
+                "decision": "delete",
+                "decision_id": "d0302f51da148b10ef8f7036bc422e40d1400738bf3d589fa8466adf97dc8387",
+                "deletion": {
+                  "attributes": [],
+                  "error": null,
+                  "physical_bytes_reclaimed": null,
+                  "remaining": false,
+                  "status": "deleted"
+                },
+                "group_status": "deleted",
+                "id": "payload",
+                "lifecycle_group_id": "default-acceptance",
+                "reason": "Actual default executable acceptance complete",
+                "remaining": false,
+                "status": "deleted",
+                "token": "6ddfebc7294116a227ca4f830e8656ce745503c84051f71cba5ffb89f02b851b"
+              }
+            ]
+          },
+          "stderr": ""
+        }
+      ],
+      "target_absent": true,
+      "override_absent": true
+    }
+  },
+  "previous_default_minimum_evidence": {
+    "acceptance.json": {
+      "schema": 1,
+      "platform": "windows",
+      "arch": "x64",
+      "binary_sha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+      "native_distinct_passed": 208,
+      "native_results_reused_across_test_only_corrections": true,
+      "native_production_matches_r3": true,
+      "native_tests": [
+        "apply::diagnostic_tests::stale_diagnostics_hash_components_without_exporting_owner_payload",
+        "lock_recovery::busy_contract_tests::immediate_busy_and_explicit_wait_keep_structured_diagnostics",
+        "lock_recovery::busy_contract_tests::wait_policy_is_explicit_bounded_and_integral",
+        "lock_recovery::tests::final_recovery_boundary_reads_metadata_through_the_locked_owner_handle",
+        "lock_recovery::tests::lock_wait_distinguishes_typed_contention_and_stops_before_expired_retry",
+        "lock_recovery::tests::os_release_keeps_inode_and_legacy_markers_are_not_acquired",
+        "lock_recovery::tests::owner_veto_distinguishes_live_and_exited_process_with_retained_handle",
+        "lock_recovery::tests::recovery_never_unlinks_schema_two_os_lock_files",
+        "lock_recovery::tests::replaced_inode_is_preserved_on_release",
+        "partitioned_storage::tests::bucket_membership_cannot_hide_additional_records",
+        "partitioned_storage::tests::collection_rebinds_committed_index_and_pending_after_authorizer_callbacks",
+        "partitioned_storage::tests::corruption_missing_references_and_denied_cleanup_fail_before_deletion",
+        "partitioned_storage::tests::failed_owner_creation_removes_only_the_new_empty_directory",
+        "partitioned_storage::tests::hardlinked_records_are_rejected",
+        "partitioned_storage::tests::prepare_and_incremental_collection_do_not_inspect_unrelated_namespace_entries",
+        "partitioned_storage::tests::references_reject_paths_and_wrong_formats",
+        "partitioned_storage::tests::roundtrip_reuses_records_and_collection_preserves_current_state",
+        "partitioned_storage::tests::thousand_record_state_has_bounded_live_buckets_and_rewrites_only_one_bucket",
+        "partitioned_storage::tests::unowned_directories_and_unknown_entries_are_preserved",
+        "paths::content_cache_tests::cache_hit_still_authorizes_and_detects_callback_rewrite",
+        "paths::content_cache_tests::open_writer_falls_back_to_full_hashing",
+        "paths::content_cache_tests::persistent_reader_restored_mtime_rewrites_rehash_current_content",
+        "paths::content_cache_tests::same_size_restored_mtime_and_replacement_invalidate_content",
+        "paths::content_cache_tests::small_files_hash_each_time_without_populating_cache",
+        "paths::content_cache_tests::unchanged_content_reuses_only_supported_proofs_and_new_operation_hashes_again",
+        "paths::missing_approved_descendant_stops_before_attribute_changes",
+        "paths::registered_junction_metadata_accepts_1024_entries_and_rejects_excess",
+        "paths::registered_observation_tests::absent_paths_still_require_ancestor_authorization",
+        "paths::registered_observation_tests::detects_registered_root_replacement",
+        "paths::registered_observation_tests::observes_only_root_and_stays_stable_after_content_edits",
+        "paths::registered_observation_tests::rejects_leaf_links_and_link_ancestors",
+        "registry::catalog_tests::cache_hit_member_callback_cannot_hide_changed_record_bytes",
+        "registry::catalog_tests::record_mutation_during_read_is_not_an_omission",
+        "registry::catalog_tests::same_bytes_reuse_parsing_but_replay_ordered_checks_and_permission_denials",
+        "registry::catalog_tests::scoped_references_project_only_selected_member_and_stale_pins_protect_group",
+        "registry::catalog_tests::unrelated_payload_permissions_are_not_catalog_requirements",
+        "registry::catalog_tests::warm_catalog_still_detects_new_consumer_between_observation_passes",
+        "registry::cleanup_recovery_tests::changed_or_self_contained_evidence_cannot_authorize_cleanup",
+        "registry::cleanup_recovery_tests::changed_receipt_identity_members_and_producer_are_rejected",
+        "registry::cleanup_recovery_tests::receipt_enables_only_cleanup_preserves_unknown_and_current_consumer_protection",
+        "registry::cleanup_recovery_tests::warm_catalog_rechecks_proofs_permissions_and_independent_single_link_files",
+        "reservations::tests::interrupted_reservation_blocks_new_consumers_and_overlapping_owners",
+        "reservations::tests::later_producer_fence_change_preserves_only_the_affected_unreleased_group",
+        "reservations::tests::nested_pair_acquisition_does_not_exempt_catalog_writer_claims",
+        "reservations::tests::owning_context_revalidates_producer_fence_before_reusing_reservation",
+        "reservations::tests::preintent_abort_releases_exact_unchanged_owner_and_retains_uncertainty",
+        "reservations::tests::producer_release_keeps_unknown_and_incomplete_groups_while_releasing_terminal_peers",
+        "reservations::tests::producer_release_rechecks_current_owner_guards_after_terminal_receipt",
+        "reservations::tests::recovered_producer_reservation_rechecks_guards_and_preserves_unknown_removal",
+        "storage::transaction_tests::concurrent_unrelated_registration_and_receipts_survive_intent_completion",
+        "storage::transaction_tests::overlapping_owner_or_receipt_changes_are_conflicts",
+        "storage::transaction_tests::suspended_save_waits_for_transaction_acquisition_without_replaying_commit",
+        "timing::tests::disabled_timing_and_failed_output_do_not_affect_the_caller",
+        "timing::tests::timing_record_preserves_structured_context_without_environment_mutation",
+        "windows_delete::tests::abort_and_graceful_drop_terminate_descendants",
+        "windows_delete::tests::abrupt_exit_returns_unknown_without_retry_and_discards_worker",
+        "windows_delete::tests::complete_report_survives_worker_exit_and_later_item_gets_new_worker",
+        "windows_delete::tests::dropping_worker_closes_eof_and_terminates_exact_process",
+        "windows_delete::tests::failed_request_does_not_leak_audit_or_failure_into_next_root",
+        "windows_delete::tests::parent_loss_worker_fixture",
+        "windows_delete::tests::parent_process_loss_terminates_worker_and_descendants",
+        "windows_delete::tests::startup_eof_exits_before_script_evaluation",
+        "windows_delete::tests::unreviewed_descendant_stops_before_attributes_and_next_request_is_fresh",
+        "windows_delete::tests::verified_deletions_reuse_child_with_independent_reports",
+        "absent_adoption_still_requires_ancestor_authorization",
+        "first_adoption_keeps_absent_member_and_reconciles_without_deletion_attempt",
+        "reappearance_blocks_fresh_review_and_stale_apply_in_both_modes",
+        "unproven_absence_is_rejected_without_partial_registration",
+        "dispatch_busy_is_structured_without_implicit_retry",
+        "grouped_delete_preflight_allows_unrelated_metadata_commit",
+        "immediate_commit_busy_retains_reservation_when_abort_cannot_reacquire",
+        "registration_preintent_failure_releases_only_its_known_reservation",
+        "registration_reacquires_maintenance_after_measurement",
+        "registration_returns_partial_maintenance_while_retrying_catalog",
+        "abandoned_lock_is_never_removed",
+        "backup_requires_fresh_registered_retained_recovery_copy",
+        "blank_legacy_recovery_reference_cannot_confirm_retention",
+        "changed_or_denied_final_observation_is_persisted_after_destructive_receipt",
+        "completed_recovery_requires_explicit_verified_reason_and_evidence",
+        "completed_unknown_producer_allows_retry_without_fabricating_success",
+        "confirmed_generated_readonly_hidden_deleted_and_audited",
+        "denies_nested_write_before_any_mutation",
+        "dependencies_exact_semantic_dedup_and_phase_boundaries",
+        "destructive_receipt_survives_later_observation_and_save_denial",
+        "durable_unknown_failed_and_interrupted_receipts",
+        "execution_revalidates_inputs_and_preserves_observed_exit_independently",
+        "explicit_verified_producer_recovery_preserves_unknown_outcome",
+        "extended_literal_nested_paths_delete_and_audit_only_attribute_changes",
+        "independent_reviewed_items_apply_in_one_batch",
+        "intent_save_failure_preserves_target_manifest_and_pending_file",
+        "inventory_and_run_status_paginate_bounded_snapshots",
+        "kind_boundary_empty_selection_and_conflicting_results",
+        "lifecycle_explicit_defer_and_delete",
+        "malformed_batch_prevalidation_prevents_all_target_mutations",
+        "malformed_or_missing_config_invalidates_without_losing_receipts",
+        "managed_boundary_blockers_distinguish_root_from_outside",
+        "native_delete_failure_is_failed_and_audited",
+        "pending_intent_survives_result_persistence_failure",
+        "protection_references_backup_original_and_roots",
+        "read_operations_never_require_writes_or_create_state",
+        "registered_descendants_and_ancestors_preserve_protection",
+        "registered_original_source_and_child_run_protect_parent",
+        "registration_reference_contract_matches_explicit_decisions",
+        "rejects_escape_foreign_paths_and_denied_reads",
+        "stale_decision_and_cached_inventory",
+        "timestamps_and_policy_only_produce_review_candidates",
+        "unchanged_final_observation_keeps_durable_group_receipt_without_another_write",
+        "unfinished_producer_and_actual_exit_facts_cannot_conflict",
+        "unresolved_producer_excludes_duplicate_plans_and_shared_resources",
+        "absence_changes_invalidate_old_group_tokens",
+        "absent_member_is_reviewed_and_reconciled_before_remaining_evidence",
+        "absent_member_updates_keep_unresolved_cleanup_intent_protected",
+        "all_absent_members_complete_without_write_authorization_and_stay_reconciled",
+        "apply_observes_membership_once_per_preflight_and_intent_boundary",
+        "artifact_log_evidence_share_expanded_review_and_delete_fate",
+        "authorization_and_intent_mutations_preserve_all_group_members",
+        "authorization_mutating_a_cached_sibling_with_restored_mtime_blocks_group",
+        "cancellation_preserves_completed_results_and_stops_before_physical_delete",
+        "denied_authorization_after_new_intent_records_known_blocked_result",
+        "denied_missing_member_stays_unknown_and_protects_the_whole_group",
+        "direct_registration_cannot_strip_or_spoof_group_membership",
+        "failed_group_registration_is_atomic_and_paths_must_be_disjoint",
+        "full_and_omitted_missing_member_updates_preserve_history_and_group_ownership",
+        "incomplete_or_protected_member_blocks_delete_but_all_defer_preserves",
+        "membership_change_invalidates_old_tokens_and_live_members_cannot_drop",
+        "membership_directory_change_requires_fresh_full_registration",
+        "missing_or_denied_membership_source_blocks_delete_and_control_source_is_protected",
+        "missing_or_mixed_group_decisions_never_mutate_any_member",
+        "partial_failure_retains_logs_and_independent_items_can_continue",
+        "reconciled_absent_member_reappearing_during_batch_retains_evidence",
+        "registered_apply_reads_each_descendant_only_for_single_safe_enumeration",
+        "registered_backup_does_not_silently_measure_replacement",
+        "registered_default_reviews_cached_measurements_without_descendant_reads",
+        "replaced_registered_root_invalidates_review",
+        "retained_registered_child_protects_the_entire_group",
+        "ungrouped_parent_cannot_bypass_a_descendant_lifecycle_group",
+        "verification_modes_are_validated_and_bound_to_tokens",
+        "all_hardlink_names_inside_one_root_allow_owned_normalization",
+        "cross_member_hardlink_normalization_remains_conservatively_blocked",
+        "external_shared_readonly_files_block_before_any_attributes_change_and_preserve_evidence",
+        "shared_files_without_attribute_changes_allow_ordinary_name_deletion",
+        "denied_read_receipt_write_or_target_delete_preserves_target",
+        "exact_hash_token_evidence_and_attestation_are_required",
+        "exclusive_recovery_guard_refuses_overlapping_attempts_and_is_retained",
+        "failed_ordinary_refresh_discard_retains_truthful_attempt_receipt",
+        "hardlinked_evidence_and_existing_receipts_are_refused",
+        "last_authorization_cannot_replace_previously_checked_evidence_or_create_pending",
+        "legacy_empty_and_pid_only_catalog_and_claim_remain_explicitly_recoverable",
+        "live_owner_is_a_veto_despite_attestation",
+        "partitioned_refresh_discard_preserves_index_and_numeric_recovery_revisions",
+        "partitioned_refresh_discard_refuses_corrupt_blobs_and_late_blob_or_marker_replacement",
+        "partitioned_refresh_discard_refuses_mixed_unknown_and_broader_pending_state",
+        "pending_manifest_and_evidence_escape_are_refused",
+        "refresh_discard_accepts_absent_prior_revisions_but_rejects_null_and_mixed_presence",
+        "refresh_discard_bounds_evidence_and_never_overwrites_receipts",
+        "refresh_discard_preserves_authoritative_bytes_failures_and_pending_intents",
+        "refresh_discard_refuses_authorization_denials_and_callback_sibling_replacements",
+        "refresh_discard_refuses_corruption_revision_errors_and_noop",
+        "refresh_discard_refuses_occupied_os_locks_and_preserves_lock_inodes",
+        "refresh_discard_refuses_stale_hashes_wrong_group_live_pid_and_missing_attestation",
+        "refresh_discard_rejects_every_broader_transaction_and_inconsistent_membership",
+        "removes_exact_modern_lock_after_preserving_independent_receipt_and_run_state",
+        "replaced_target_and_drifting_evidence_survive_recovery",
+        "additional_live_member_and_write_denial_preserve_nested_payload",
+        "ancestor_reference_and_stale_ancestor_token_block_child",
+        "child_only_retirement_preserves_parent_and_requires_new_outer_measurement",
+        "descriptor_evidence_selection_and_fates_are_bound",
+        "enclosing_membership_evidence_change_during_authorization_blocks_child",
+        "explicit_compaction_reclaims_only_valid_unreferenced_state_blobs",
+        "explicit_partition_preserves_reads_updates_cleanup_and_old_owner_refusal",
+        "partition_refuses_missing_attestation_drift_pending_and_unknown_reservations",
+        "partitioned_snapshot_refuses_corrupt_blob_without_changing_committed_index",
+        "unknown_format_never_loads_as_an_empty_legacy_state",
+        "cancelled_registration_releases_its_scope_without_committing",
+        "catalog_contention_blocks_mutation_and_apply_reserves_group_between_transactions",
+        "incoming_consumers_protect_even_when_added_between_projection_and_register",
+        "invalid_missing_or_denied_owner_still_blocks_deletion",
+        "malformed_producer_evidence_is_rejected",
+        "new_records_during_observation_distinguish_consumers_from_unrelated_work",
+        "other_record_errors_do_not_prevent_owner_deletion",
+        "owner_coverage_metadata_and_completeness_must_match",
+        "producer_fence_change_after_intent_preserves_payload_and_reservation",
+        "protected_components_inside_selected_project_remain_rejected",
+        "refresh_os_lock_timeout_preserves_manifest_and_identifies_lock",
+        "refresh_preserves_explicit_unknown_ownership_and_pending_producer",
+        "refresh_rejects_changed_identity_membership_and_roles",
+        "refresh_releases_consumers_without_payload_measurement",
+        "refresh_waits_for_os_locks_without_holding_partial_transactions",
+        "registration_rejects_changed_producer_fence_without_publishing_partial_state",
+        "registration_releases_global_locks_but_fences_scope_and_merges_unrelated_work",
+        "registration_source_switch_locks_both_original_and_incoming_catalogs_at_commit",
+        "required_owner_catalog_structure_and_unknown_format_still_fail_closed",
+        "reserved_apply_merges_unrelated_registration_and_deferred_receipt",
+        "stopped_failure_is_settled_and_unknown_remains_protected",
+        "unrelated_valid_records_do_not_change_tokens_or_prevent_deletion",
+        "valid_inbound_consumer_among_corrupt_records_still_protects_owner",
+        "invalid_retirement_descriptors_and_selection_fail_before_deletion",
+        "linked_root_is_never_retired",
+        "ordinary_root_guard_and_explicit_exact_retirement_preserve_other_root_and_history",
+        "owner_cli_allows_inventory_but_refuses_execution_relative_and_external_requests",
+        "ownership_group_completeness_overlap_and_source_guards_remain",
+        "permission_denial_remains_truthful_and_does_not_delete",
+        "protection_references_pending_and_unresolved_runs_remain_blockers",
+        "retirement_tokens_bind_descriptor_evidence_and_operation_mode",
+        "explicit_junction_registration_review_and_removal_never_read_target_payload",
+        "newly_inserted_unapproved_junction_blocks_apply_before_any_group_deletion",
+        "replacement_or_retarget_blocks_fresh_review_and_preserves_group_evidence",
+        "undeclared_junctions_and_root_or_ancestor_exceptions_remain_rejected"
+      ],
+      "node_lifecycle": {
+        "passed": 205,
+        "initial_passed": 204,
+        "focused_powershell_passed": 1,
+        "initial_failure": "pwsh absent from test PATH; corrected environment only"
+      },
+      "node_final": {
+        "results": [
+          {
+            "name": "powershell",
+            "exit_code": 0,
+            "signal": null,
+            "elapsed_ms": 2927.4545000000003
+          },
+          {
+            "name": "lock-owner-v2",
+            "exit_code": 0,
+            "signal": null,
+            "elapsed_ms": 3054.6986
+          },
+          {
+            "name": "immediate-busy",
+            "exit_code": 0,
+            "signal": null,
+            "elapsed_ms": 1970.1401999999998
+          },
+          {
+            "name": "explicit-wait",
+            "exit_code": 0,
+            "signal": null,
+            "elapsed_ms": 3629.8163999999997
+          }
+        ],
+        "immutable_inputs_unchanged": true
+      },
+      "build": {
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 23300.645,
+        "immutable_inputs_unchanged": true
+      },
+      "attempts": [
+        {
+          "name": "native-r3-test",
+          "exit_code": 101,
+          "signal": null,
+          "elapsed_ms": 241355.2014,
+          "immutable_inputs_unchanged": true,
+          "preflight": {
+            "schema": 1,
+            "typeCheck": "selected-tests",
+            "testSelection": "nonzero",
+            "phases": [
+              {
+                "phase": "typeCheck",
+                "args": [
+                  "check",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--tests",
+                  "--profile",
+                  "test"
+                ],
+                "startedUtc": "2026-10-29T16:21:48.857Z",
+                "durationMs": 3944,
+                "exitCode": 0,
+                "signal": null
+              },
+              {
+                "phase": "selection",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--",
+                  "--test-threads=1",
+                  "--list",
+                  "--format=terse"
+                ],
+                "startedUtc": "2026-10-29T16:21:52.801Z",
+                "durationMs": 22558,
+                "exitCode": 0,
+                "signal": null,
+                "selectedTests": 208
+              },
+              {
+                "phase": "execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-29T16:22:15.359Z",
+                "durationMs": 214836,
+                "exitCode": 101,
+                "signal": null
+              }
+            ]
+          }
+        },
+        {
+          "name": "native-r4-test",
+          "exit_code": 101,
+          "signal": null,
+          "elapsed_ms": 158282.0413,
+          "immutable_inputs_unchanged": true,
+          "preflight": {
+            "schema": 1,
+            "typeCheck": "selected-tests",
+            "testSelection": "nonzero",
+            "phases": [
+              {
+                "phase": "typeCheck",
+                "args": [
+                  "check",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "lock_recovery",
+                  "--test",
+                  "nested_retirement",
+                  "--test",
+                  "partitioned",
+                  "--test",
+                  "registry",
+                  "--test",
+                  "root_retirement",
+                  "--test",
+                  "verified_junctions",
+                  "--profile",
+                  "test"
+                ],
+                "startedUtc": "2026-10-29T16:26:56.906Z",
+                "durationMs": 641,
+                "exitCode": 0,
+                "signal": null
+              },
+              {
+                "phase": "selection",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "lock_recovery",
+                  "--test",
+                  "nested_retirement",
+                  "--test",
+                  "partitioned",
+                  "--test",
+                  "registry",
+                  "--test",
+                  "root_retirement",
+                  "--test",
+                  "verified_junctions",
+                  "--",
+                  "--test-threads=1",
+                  "--list",
+                  "--format=terse"
+                ],
+                "startedUtc": "2026-10-29T16:26:57.547Z",
+                "durationMs": 2353,
+                "exitCode": 0,
+                "signal": null,
+                "selectedTests": 67
+              },
+              {
+                "phase": "execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "lock_recovery",
+                  "--test",
+                  "nested_retirement",
+                  "--test",
+                  "partitioned",
+                  "--test",
+                  "registry",
+                  "--test",
+                  "root_retirement",
+                  "--test",
+                  "verified_junctions",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-29T16:26:59.900Z",
+                "durationMs": 155252,
+                "exitCode": 101,
+                "signal": null
+              }
+            ]
+          }
+        },
+        {
+          "name": "native-r5-test",
+          "exit_code": 101,
+          "signal": null,
+          "elapsed_ms": 30653.4761,
+          "immutable_inputs_unchanged": true,
+          "preflight": {
+            "schema": 1,
+            "typeCheck": "selected-tests",
+            "testSelection": "nonzero",
+            "phases": [
+              {
+                "phase": "typeCheck",
+                "args": [
+                  "check",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "registry",
+                  "--profile",
+                  "test"
+                ],
+                "startedUtc": "2026-10-29T16:33:24.184Z",
+                "durationMs": 754,
+                "exitCode": 0,
+                "signal": null
+              },
+              {
+                "phase": "selection",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "registry",
+                  "refresh_",
+                  "--",
+                  "--test-threads=1",
+                  "--list",
+                  "--format=terse"
+                ],
+                "startedUtc": "2026-10-29T16:33:24.938Z",
+                "durationMs": 2670,
+                "exitCode": 0,
+                "signal": null,
+                "selectedTests": 5
+              },
+              {
+                "phase": "execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "registry",
+                  "refresh_",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-29T16:33:27.608Z",
+                "durationMs": 27195,
+                "exitCode": 101,
+                "signal": null
+              }
+            ]
+          }
+        },
+        {
+          "name": "native-r6-test",
+          "exit_code": 0,
+          "signal": null,
+          "elapsed_ms": 7718.6008999999995,
+          "immutable_inputs_unchanged": true,
+          "preflight": {
+            "schema": 1,
+            "typeCheck": "selected-tests",
+            "testSelection": "nonzero",
+            "phases": [
+              {
+                "phase": "typeCheck",
+                "args": [
+                  "check",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "registry",
+                  "--profile",
+                  "test"
+                ],
+                "startedUtc": "2026-10-29T16:38:31.290Z",
+                "durationMs": 792,
+                "exitCode": 0,
+                "signal": null
+              },
+              {
+                "phase": "selection",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "registry",
+                  "refresh_os_lock_timeout_preserves_manifest_and_identifies_lock",
+                  "--",
+                  "--test-threads=1",
+                  "--list",
+                  "--format=terse"
+                ],
+                "startedUtc": "2026-10-29T16:38:32.082Z",
+                "durationMs": 3145,
+                "exitCode": 0,
+                "signal": null,
+                "selectedTests": 1
+              },
+              {
+                "phase": "execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "registry",
+                  "refresh_os_lock_timeout_preserves_manifest_and_identifies_lock",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-29T16:38:35.227Z",
+                "durationMs": 3752,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          }
+        },
+        {
+          "name": "native-r6-remaining-test",
+          "exit_code": 0,
+          "signal": null,
+          "elapsed_ms": 30248.0427,
+          "immutable_inputs_unchanged": true,
+          "preflight": {
+            "schema": 1,
+            "typeCheck": "selected-tests",
+            "testSelection": "nonzero",
+            "phases": [
+              {
+                "phase": "typeCheck",
+                "args": [
+                  "check",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "root_retirement",
+                  "--test",
+                  "verified_junctions",
+                  "--profile",
+                  "test"
+                ],
+                "startedUtc": "2026-10-29T16:38:39.077Z",
+                "durationMs": 238,
+                "exitCode": 0,
+                "signal": null
+              },
+              {
+                "phase": "selection",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "root_retirement",
+                  "--test",
+                  "verified_junctions",
+                  "--",
+                  "--test-threads=1",
+                  "--list",
+                  "--format=terse"
+                ],
+                "startedUtc": "2026-10-29T16:38:39.315Z",
+                "durationMs": 275,
+                "exitCode": 0,
+                "signal": null,
+                "selectedTests": 12
+              },
+              {
+                "phase": "execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "azrael-project-maintenance",
+                  "--offline",
+                  "--locked",
+                  "--test",
+                  "root_retirement",
+                  "--test",
+                  "verified_junctions",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-29T16:38:39.590Z",
+                "durationMs": 29702,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          }
+        }
+      ],
+      "performance": {
+        "catalog_667_median_ms": {
+          "baseline": 2051.5543,
+          "improved": 1170.049
+        },
+        "protection_100_median_ms": {
+          "baseline": 2266.1194,
+          "improved": 2201.1742
+        },
+        "protection_1_median_ms": {
+          "baseline": 283.2439,
+          "improved": 283.5288
+        },
+        "initial_registration_100_median_ms": {
+          "baseline": 32718.2542,
+          "improved": 32459.1174
+        },
+        "baseline_1000_initial_registration": "timed out after 120000ms; no comparison claim",
+        "contended_default_ms": [
+          42.9166,
+          83.5064
+        ],
+        "explicit_wait": "passed including four parallel registrations"
+      },
+      "limitations": [
+        "Windows x64 verified only; no Linux/macOS runtime verification",
+        "Uncontended full protection improvement small; initial registration bottleneck remains",
+        "Standalone selector adoption only; no full application or embedded engine rebuild"
+      ],
+      "status": "accepted_with_performance_limitations"
+    },
+    "default-installation-verification.json": {
+      "schema": 1,
+      "scope": "Windows x64 standalone default; embedded engine unchanged",
+      "at": "2026-10-30T00:45:29.020Z",
+      "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "binary_sha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+      "selector_sha256": "1623fee0ebd3d43e4090d882c3df96e92a05ad6d3430f4252307cb2779c66a88",
+      "installation_receipt_sha256": "1623fee0ebd3d43e4090d882c3df96e92a05ad6d3430f4252307cb2779c66a88",
+      "receipt": {
+        "schema": 1,
+        "protocol": "maintenance-owner-lease-v1",
+        "executable": "artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+        "sha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+        "version_id": "version:maintenance-owner:eq01:protection-r3",
+        "version": "eq01-protection-r3-windows-x64",
+        "acceptance_sha256": "364c6696f4d26bfeb5b951e3458ecf6e964d64d84853f0f1a2d60d6abbc5245f"
+      },
+      "default_override": null,
+      "actual_default_resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "actual_default_lease": "acquired and released successfully",
+      "preflight": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\verification\\default-installation-preflight.json",
+        "evidence_sha256": "1bb641d8379af53e2bd9f6a9378fb192cd9b21776bbc78967aa670be09160a14"
+      },
+      "steps": [
+        {
+          "name": "candidate-full",
+          "started_at": "2026-10-30T00:41:06.181Z",
+          "ended_at": "2026-10-30T00:44:49.323Z",
+          "elapsed_ms": 223140.8493,
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "stdout_sha256": "ba89db2d246cd793d2403b81405d0524695f9ebda9d3187ceb921d0036607bee",
+          "stderr_sha256": "09b6675a10645eb3625207f924ccd8dea27cc1ef32d88786dac47069b5c9435a",
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-deploy-r1\\logs\\candidate-full.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-deploy-r1\\logs\\candidate-full.stderr.log",
+          "candidate_override": true
+        },
+        {
+          "name": "default-recovery",
+          "started_at": "2026-10-30T00:45:01.128Z",
+          "ended_at": "2026-10-30T00:45:29.018Z",
+          "elapsed_ms": 27889.660600000003,
+          "exit_code": 0,
+          "signal": null,
+          "error": null,
+          "stdout_sha256": "b404d2d07f96bb8e6eb962387ea84a601da428653cc6e0c6233e77030b8ad373",
+          "stderr_sha256": "09b6675a10645eb3625207f924ccd8dea27cc1ef32d88786dac47069b5c9435a",
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-deploy-r1\\logs\\default-recovery.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-deploy-r1\\logs\\default-recovery.stderr.log",
+          "candidate_override": false
+        }
+      ],
+      "producer_stopped_verified": true,
+      "stop_basis": "Both synchronous PowerShell child processes returned terminal exit0; their synchronous fixture producers completed. No detached producer launched."
+    }
+  },
+  "execution_stop_basis": "All owned checks use synchronous spawnSync observed terminal exits and drained streams; no long-lived producers launched",
+  "prior_cache_failure_preserved": true
+}

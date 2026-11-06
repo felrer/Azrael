@@ -1,0 +1,17 @@
+[
+  {
+    "newRevision": 3,
+    "oldRevision": 2,
+    "recoveredPartialCommit": true,
+    "id": "run:module-cache:companion:295ef0a4815c53d1d96aea502526dc5fdece42e5a283df5e1eb9e35af0b779ec",
+    "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-module-295ef0a4815c53d1d96aea502526dc5fdece42e5a283df5e1eb9e35af0b779ec-metadata.json",
+    "outputFiles": 13484
+  },
+  {
+    "outputFiles": 35,
+    "id": "run:module-cache:providers:e910475a9c18e9880560d937dad0860d010ec64844225d2d8e8654e6a794fecc",
+    "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-module-e910475a9c18e9880560d937dad0860d010ec64844225d2d8e8654e6a794fecc-metadata.json",
+    "newRevision": 3,
+    "oldRevision": 2
+  }
+]

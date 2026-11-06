@@ -1,0 +1,45 @@
+{
+  "at": "2026-11-02T11:56:27.850Z",
+  "run_id": "run:ff1:group5",
+  "producer_stopped_verified": true,
+  "outcome": "success",
+  "exit_code": 0,
+  "reason": "All native prepare/test/release and measurement/default producers actually terminal; prior failed attempts preserved; independent identities/commands/counts/closes retained outside run.",
+  "native_tests": {
+    "focused": 96,
+    "full": 252,
+    "exit_code": 0,
+    "release_exit_code": 0
+  },
+  "source_matches_accepted": true,
+  "source_files": 44,
+  "measurement": {
+    "paired_native_closes": 12,
+    "default_native_closes": 6,
+    "all_exit0": true
+  },
+  "inputs": [
+    {
+      "path": "38-group-native-acceptance.json",
+      "sha256": "fe80e1a5dbba86ff4fb9676605950a043a9fbe53d82bb944c7e8a18bc1d9c7d8"
+    },
+    {
+      "path": "39-group-performance.json",
+      "sha256": "b590b9791650710745906275c1317b591a9596ae1bfbdaf88378a634a6f64ffb"
+    },
+    {
+      "path": "40-group-version-preparation.json",
+      "sha256": "8d9799629b477c2137a932377c526861c6fdfaca75b45ff6ee39dd3c51343838"
+    },
+    {
+      "path": "41-group-installation.json",
+      "sha256": "9fdbb1e2da40845396290898077fd02a0424d5ad7a8636031ff54e9a8f727b95"
+    },
+    {
+      "path": "42-group-default-acceptance.json",
+      "sha256": "73c7c1a6872e254bd802c7fde56f2688e312994b73f556833369c8b1d248a6c7"
+    }
+  ],
+  "retirement_guard": "46-group-retirement-guard.json",
+  "cleanup": "pending native register/review/explicit apply and final absence"
+}

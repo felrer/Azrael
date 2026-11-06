@@ -112,6 +112,7 @@ pub enum RolloutRecorderParams {
         creator_account_id: Option<String>,
         base_instructions: BaseInstructions,
         dynamic_tools: Vec<DynamicToolSpec>,
+        role_profile: Option<codex_protocol::protocol::RoleProfilePolicy>,
         computer_use_mode: Option<codex_protocol::protocol::ComputerUseMode>,
         selected_capability_roots: Vec<SelectedCapabilityRoot>,
         runtime_workspace_roots: Option<Vec<PathBuf>>,
@@ -219,6 +220,7 @@ impl RolloutRecorderParams {
             creator_account_id: None,
             base_instructions,
             dynamic_tools,
+            role_profile: None,
             computer_use_mode: None,
             selected_capability_roots: Vec::new(),
             runtime_workspace_roots: None,
@@ -261,6 +263,16 @@ impl RolloutRecorderParams {
         } = &mut self
         {
             *rollout_id_override = Some(rollout_id);
+        }
+        self
+    }
+
+    pub fn with_role_profile(
+        mut self,
+        policy: Option<codex_protocol::protocol::RoleProfilePolicy>,
+    ) -> Self {
+        if let Self::Create { role_profile, .. } = &mut self {
+            *role_profile = policy;
         }
         self
     }
@@ -941,6 +953,7 @@ impl RolloutRecorder {
                 base_instructions,
                 dynamic_tools,
                 computer_use_mode,
+                role_profile,
                 selected_capability_roots,
                 runtime_workspace_roots,
                 multi_agent_version,
@@ -963,6 +976,7 @@ impl RolloutRecorder {
                     .map_err(|e| IoError::other(format!("failed to format timestamp: {e}")))?;
 
                 let session_meta = SessionMeta {
+                    role_profile,
                     session_id,
                     id: conversation_id,
                     forked_from_id,

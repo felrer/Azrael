@@ -1,0 +1,40 @@
+{
+  "remaining": false,
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-cargo-list-recovery-20261030a",
+  "pid": 20248,
+  "utc": "2026-10-30T20:19:58.0074161Z",
+  "result": {
+    "status": "deleted",
+    "reason": null,
+    "groups": [
+      "run:ET-01-cold-build-cache-audit:q-cargo-list-recovery-20261030a"
+    ],
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-cargo-list-recovery-20261030a",
+        "role": "run",
+        "status": "deleted",
+        "attributes": []
+      }
+    ],
+    "finalization": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:q-cargo-list-recovery-20261030a",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\df0f5de2fcbb90ad12d1d5d27a36b40ed6c2c86e0cfe8242b9307c58cf9051fe.json"
+      }
+    ],
+    "errors": [],
+    "evidence": {
+      "sha256": "b699982f61a312534b49a681f6d78524331c258f34f85db0f8279d02f9868597",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\evidence\\cleanup\\23b29c82f6334c4d8201d66349c4d2b5.json"
+    },
+    "reservationFinalization": {
+      "finished": true,
+      "reservations_retained": []
+    }
+  }
+}

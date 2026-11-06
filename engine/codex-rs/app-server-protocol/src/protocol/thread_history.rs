@@ -115,6 +115,7 @@ pub struct ThreadHistoryTurnMetadata {
     pub completed_at: Option<i64>,
     pub duration_ms: Option<i64>,
     pub root_resume_wait: Option<codex_protocol::root_resume::RootResumeWait>,
+    pub user_wait_timing: Option<codex_protocol::user_wait::UserWaitTiming>,
 }
 
 /// Incremental changes produced by opt-in `ThreadHistoryBuilder` handlers.
@@ -123,6 +124,7 @@ pub struct ThreadHistoryChangeSet {
     pub changed_items: Vec<ThreadHistoryItemChange>,
     pub changed_turns: Vec<ThreadHistoryTurnMetadata>,
     pub root_resume_wait_updates: Vec<codex_protocol::protocol::RootResumeWaitUpdatedEvent>,
+    pub user_wait_timing_updates: Vec<codex_protocol::protocol::UserWaitTimingUpdatedEvent>,
     pub removed_turn_ids: Vec<String>,
 }
 
@@ -132,6 +134,7 @@ impl ThreadHistoryChangeSet {
             && self.changed_turns.is_empty()
             && self.removed_turn_ids.is_empty()
             && self.root_resume_wait_updates.is_empty()
+            && self.user_wait_timing_updates.is_empty()
     }
 }
 
@@ -151,6 +154,7 @@ impl From<ThreadHistoryTurnMetadata> for Turn {
             completed_at: value.completed_at,
             duration_ms: value.duration_ms,
             root_resume_wait: value.root_resume_wait,
+            user_wait_timing: value.user_wait_timing,
         }
     }
 }
@@ -168,6 +172,7 @@ impl ThreadHistoryTurnMetadata {
             completed_at: turn.completed_at,
             duration_ms: turn.duration_ms,
             root_resume_wait: turn.root_resume_wait.clone(),
+            user_wait_timing: turn.user_wait_timing.clone(),
         }
     }
 }
@@ -182,6 +187,7 @@ struct ThreadHistoryChangeAccumulator {
     changed_turns: Vec<Option<ThreadHistoryTurnMetadata>>,
     changed_turn_indexes: HashMap<String, usize>,
     root_resume_wait_updates: Vec<codex_protocol::protocol::RootResumeWaitUpdatedEvent>,
+    user_wait_timing_updates: Vec<codex_protocol::protocol::UserWaitTimingUpdatedEvent>,
     removed_turn_ids: Vec<String>,
     removed_turn_indexes: HashMap<String, usize>,
 }
@@ -190,6 +196,8 @@ impl ThreadHistoryChangeAccumulator {
     fn push(&mut self, changes: ThreadHistoryChangeSet) {
         self.root_resume_wait_updates
             .extend(changes.root_resume_wait_updates);
+        self.user_wait_timing_updates
+            .extend(changes.user_wait_timing_updates);
         for turn_id in changes.removed_turn_ids {
             self.push_removed_turn_id(turn_id);
         }
@@ -207,6 +215,7 @@ impl ThreadHistoryChangeAccumulator {
             changed_turns: self.changed_turns.into_iter().flatten().collect(),
             removed_turn_ids: self.removed_turn_ids,
             root_resume_wait_updates: self.root_resume_wait_updates,
+            user_wait_timing_updates: self.user_wait_timing_updates,
         }
     }
 
@@ -435,6 +444,9 @@ impl ThreadHistoryBuilder {
             EventMsg::TurnDeferred(payload) => self.handle_turn_deferred(payload),
             EventMsg::RootResumeWaitUpdated(payload) => {
                 self.handle_root_resume_wait_updated(payload)
+            }
+            EventMsg::UserWaitTimingUpdated(payload) => {
+                self.handle_user_wait_timing_updated(payload)
             }
             _ => {}
         }
@@ -1437,6 +1449,54 @@ impl ThreadHistoryBuilder {
                 completed_at: turn.completed_at,
                 duration_ms: turn.duration_ms,
                 root_resume_wait: turn.root_resume_wait.clone(),
+                user_wait_timing: turn.user_wait_timing.clone(),
+            });
+        }
+        if let Some(changed) = changed {
+            self.record_changed_turn(changed);
+        }
+    }
+
+    fn handle_user_wait_timing_updated(
+        &mut self,
+        payload: &codex_protocol::protocol::UserWaitTimingUpdatedEvent,
+    ) {
+        let mut changed = None;
+        if let Some(turn) = self
+            .current_turn
+            .as_mut()
+            .filter(|turn| turn.id == payload.turn_id)
+        {
+            if turn
+                .user_wait_timing
+                .as_ref()
+                .is_none_or(|wait| wait.revision < payload.timing.revision)
+            {
+                turn.user_wait_timing = Some(payload.timing.clone());
+                changed = Some(ThreadHistoryTurnMetadata::from_pending_turn(turn));
+            }
+        } else if let Some(turn) = self
+            .turns
+            .iter_mut()
+            .find(|turn| turn.id == payload.turn_id)
+            && turn
+                .user_wait_timing
+                .as_ref()
+                .is_none_or(|wait| wait.revision < payload.timing.revision)
+        {
+            turn.user_wait_timing = Some(payload.timing.clone());
+            changed = Some(ThreadHistoryTurnMetadata {
+                turn_id: turn.id.clone(),
+                root_turn_id: turn.root_turn_id.clone(),
+                parent_turn_id: turn.parent_turn_id.clone(),
+                turn_trigger: turn.turn_trigger.clone(),
+                status: turn.status.clone(),
+                error: turn.error.clone(),
+                started_at: turn.started_at,
+                completed_at: turn.completed_at,
+                duration_ms: turn.duration_ms,
+                root_resume_wait: turn.root_resume_wait.clone(),
+                user_wait_timing: turn.user_wait_timing.clone(),
             });
         }
         if let Some(changed) = changed {
@@ -1516,6 +1576,7 @@ impl ThreadHistoryBuilder {
         });
         PendingTurn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id,
             root_turn_id: None,
@@ -1811,6 +1872,7 @@ struct PendingTurn {
     completed_at: Option<i64>,
     duration_ms: Option<i64>,
     root_resume_wait: Option<codex_protocol::root_resume::RootResumeWait>,
+    user_wait_timing: Option<codex_protocol::user_wait::UserWaitTiming>,
     /// True when this turn originated from an explicit `turn_started`/`turn_complete`
     /// boundary, so we preserve it even if it has no renderable items.
     opened_explicitly: bool,
@@ -1851,6 +1913,7 @@ impl PendingTurn {
             completed_at: self.completed_at,
             duration_ms: self.duration_ms,
             root_resume_wait: self.root_resume_wait.clone(),
+            user_wait_timing: self.user_wait_timing.clone(),
         }
     }
 }
@@ -1870,6 +1933,7 @@ impl From<PendingTurn> for Turn {
             completed_at: value.completed_at,
             duration_ms: value.duration_ms,
             root_resume_wait: value.root_resume_wait,
+            user_wait_timing: value.user_wait_timing,
         }
     }
 }
@@ -1950,6 +2014,7 @@ mod tests {
                 turn_id: "turn-attributed".into(),
                 root_turn_id: Some("root-shared".into()),
                 turn_attribution: Some(codex_protocol::turn_input::TurnAttribution {
+                    agent_profile: None,
                     turn_id: "turn-attributed".into(),
                     root_turn_id: Some("root-shared".into()),
                     parent_turn_id: Some("parent-turn".into()),
@@ -2949,6 +3014,7 @@ mod tests {
             turns[0],
             Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-image".into(),
                 root_turn_id: None,
@@ -4408,6 +4474,7 @@ mod tests {
         }));
         let mut expected = ThreadHistoryTurnMetadata {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             turn_id: "turn-1".into(),
             root_turn_id: Some("root-turn".into()),
@@ -4746,6 +4813,7 @@ mod tests {
             vec![
                 Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: "turn-a".into(),
                     root_turn_id: None,
@@ -4776,6 +4844,7 @@ mod tests {
                 },
                 Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: "turn-b".into(),
                     root_turn_id: None,
@@ -4920,6 +4989,7 @@ mod tests {
             turns,
             vec![Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-compact".into(),
                 root_turn_id: None,
@@ -5205,6 +5275,7 @@ mod tests {
             turns[0],
             Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-a".into(),
                 root_turn_id: None,
@@ -5335,6 +5406,7 @@ mod tests {
             build_turns_from_rollout_items(&items),
             vec![Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-a".into(),
                 root_turn_id: None,
@@ -5662,6 +5734,7 @@ mod tests {
             changes,
             ThreadHistoryChangeSet {
                 root_resume_wait_updates: Vec::new(),
+                user_wait_timing_updates: Vec::new(),
                 changed_items: vec![ThreadHistoryItemChange {
                     turn_id: "rollout-0".into(),
                     item: ThreadItem::UserMessage {
@@ -5677,6 +5750,7 @@ mod tests {
                 }],
                 changed_turns: vec![ThreadHistoryTurnMetadata {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     turn_id: "rollout-0".into(),
                     root_turn_id: None,
@@ -5717,6 +5791,7 @@ mod tests {
             changes,
             ThreadHistoryChangeSet {
                 root_resume_wait_updates: Vec::new(),
+                user_wait_timing_updates: Vec::new(),
                 changed_items: vec![ThreadHistoryItemChange {
                     turn_id: "rollout-0".into(),
                     item: ThreadItem::WebSearch(WebSearchItem {
@@ -5755,6 +5830,7 @@ mod tests {
             changes,
             ThreadHistoryChangeSet {
                 root_resume_wait_updates: Vec::new(),
+                user_wait_timing_updates: Vec::new(),
                 changed_items: vec![ThreadHistoryItemChange {
                     turn_id: "rollout-0".into(),
                     item: ThreadItem::Reasoning {
@@ -5790,9 +5866,11 @@ mod tests {
             start_changes,
             ThreadHistoryChangeSet {
                 root_resume_wait_updates: Vec::new(),
+                user_wait_timing_updates: Vec::new(),
                 changed_items: Vec::new(),
                 changed_turns: vec![ThreadHistoryTurnMetadata {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     turn_id: "turn-a".into(),
                     root_turn_id: Some("root-turn".into()),
@@ -5835,9 +5913,11 @@ mod tests {
             complete_changes,
             ThreadHistoryChangeSet {
                 root_resume_wait_updates: Vec::new(),
+                user_wait_timing_updates: Vec::new(),
                 changed_items: Vec::new(),
                 changed_turns: vec![ThreadHistoryTurnMetadata {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     turn_id: "turn-a".into(),
                     root_turn_id: Some("root-turn".into()),
@@ -5875,6 +5955,7 @@ mod tests {
             changes,
             ThreadHistoryChangeSet {
                 root_resume_wait_updates: Vec::new(),
+                user_wait_timing_updates: Vec::new(),
                 changed_items: vec![ThreadHistoryItemChange {
                     turn_id: "rollout-0".into(),
                     item: ThreadItem::WebSearch(WebSearchItem {
@@ -5891,6 +5972,7 @@ mod tests {
                 }],
                 changed_turns: vec![ThreadHistoryTurnMetadata {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     turn_id: "rollout-0".into(),
                     root_turn_id: None,
@@ -5936,9 +6018,11 @@ mod tests {
             changes,
             ThreadHistoryChangeSet {
                 root_resume_wait_updates: Vec::new(),
+                user_wait_timing_updates: Vec::new(),
                 changed_items: Vec::new(),
                 changed_turns: vec![ThreadHistoryTurnMetadata {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     turn_id: "turn-a".into(),
                     root_turn_id: Some("root-turn".into()),
@@ -5985,6 +6069,7 @@ mod tests {
             changes,
             ThreadHistoryChangeSet {
                 root_resume_wait_updates: Vec::new(),
+                user_wait_timing_updates: Vec::new(),
                 changed_items: Vec::new(),
                 changed_turns: Vec::new(),
                 removed_turn_ids: vec!["turn-a".into()],
@@ -6059,5 +6144,78 @@ mod tests {
         assert_eq!(turns[0].duration_ms, Some(1_000));
         let wire = serde_json::to_value(&turns[0]).expect("turn JSON");
         assert_eq!(wire["rootResumeWait"]["waitEndedAtMs"], 3_000);
+    }
+    #[test]
+    fn user_wait_snapshots_preserve_measured_terminal_timing_and_ignore_stale_revisions() {
+        use codex_protocol::protocol::UserWaitTimingUpdatedEvent;
+        use codex_protocol::user_wait::UserWaitTiming;
+        let waiting = UserWaitTiming {
+            started_at_ms: None,
+            revision: 1,
+            requests: Vec::new(),
+            blocked_intervals: Vec::new(),
+        };
+        let cancelled = UserWaitTiming {
+            started_at_ms: None,
+            revision: 2,
+            requests: Vec::new(),
+            blocked_intervals: Vec::new(),
+        };
+        let items = vec![
+            RolloutItem::EventMsg(EventMsg::TurnStarted(TurnStartedEvent {
+                turn_attribution: None,
+                turn_id: "origin".into(),
+                root_turn_id: None,
+                trace_id: None,
+                started_at: Some(0),
+                model_context_window: None,
+                collaboration_mode_kind: Default::default(),
+            })),
+            RolloutItem::EventMsg(EventMsg::TurnDeferred(TurnDeferredEvent {
+                root_turn_id: None,
+                turn_id: "origin".into(),
+                reservation_id: "reservation".into(),
+                started_at: Some(0),
+                deferred_at: Some(1),
+                duration_ms: Some(1_000),
+                wait: None,
+            })),
+            RolloutItem::EventMsg(EventMsg::UserWaitTimingUpdated(
+                UserWaitTimingUpdatedEvent {
+                    turn_id: "origin".into(),
+                    timing: cancelled.clone(),
+                },
+            )),
+            RolloutItem::EventMsg(EventMsg::TurnAborted(TurnAbortedEvent {
+                root_turn_id: None,
+                turn_id: Some("origin".into()),
+                reason: codex_protocol::protocol::TurnAbortReason::Interrupted,
+                error: None,
+                started_at: Some(0),
+                completed_at: Some(1),
+                duration_ms: Some(1_000),
+            })),
+            RolloutItem::EventMsg(EventMsg::UserWaitTimingUpdated(
+                UserWaitTimingUpdatedEvent {
+                    turn_id: "origin".into(),
+                    timing: waiting,
+                },
+            )),
+        ];
+        let turns = build_turns_from_rollout_items(&items);
+        assert_eq!(turns.len(), 1);
+        assert_eq!(turns[0].user_wait_timing, Some(cancelled));
+        assert_eq!(turns[0].status, TurnStatus::Interrupted);
+        assert_eq!(turns[0].duration_ms, Some(1_000));
+        let wire = serde_json::to_value(&turns[0]).expect("turn JSON");
+        assert_eq!(wire["userWaitTiming"]["revision"], 2);
+        assert_eq!(wire["userWaitTiming"]["requests"], serde_json::json!([]));
+        let mut legacy_wire = wire;
+        legacy_wire
+            .as_object_mut()
+            .unwrap()
+            .remove("userWaitTiming");
+        let legacy: Turn = serde_json::from_value(legacy_wire).expect("old turn without timing");
+        assert_eq!(legacy.user_wait_timing, None);
     }
 }

@@ -40,7 +40,6 @@ use core_test_support::responses;
 use core_test_support::responses::ResponsesRequest;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
 use core_test_support::responses::ev_function_call_with_namespace;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::mount_sse_once_match;
@@ -1365,8 +1364,9 @@ async fn apps_guidance_and_deferred_namespace_appear_after_recovery_within_a_tur
         vec![
             sse(vec![
                 ev_response_created("resp-1"),
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     call_id,
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({
                         "questions": [{

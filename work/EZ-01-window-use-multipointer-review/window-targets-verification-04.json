@@ -1,0 +1,31 @@
+{
+  "runId": "run:EZ01:window-targets-r4-mw1jldum",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-r4-mw1jldum",
+  "frozen": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-r4-mw1jldum\\temporary\\source",
+  "startedAt": "2026-11-04T03:13:53.856Z",
+  "steps": [
+    {
+      "name": "supplement",
+      "files": [
+        "test-window-control-host",
+        "test-window-overlay",
+        "test-integrated-entry",
+        "test-window-control-injection",
+        "test-computer-use-injection"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-r4-mw1jldum\\logs\\supplement.log"
+    }
+  ],
+  "endedAt": "2026-11-04T03:14:04.174Z",
+  "summary": {
+    "tests": 26,
+    "pass": 22,
+    "fail": 4,
+    "skip": 0,
+    "causes": [
+      "Frozen supplemental fixture omitted content-font-policy.cjs required by namespace transform owner; host/overlay/integrated-entry passed. No product source correction."
+    ]
+  }
+}

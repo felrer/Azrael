@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "scope": "Standalone development form: Provider checkbox controls provider/model/effort together; inline fields; no enclosing card; absent overrides can be saved",
+  "command": "node scripts/check-instruction-workbench.cjs",
+  "exitCode": 0,
+  "tests": 43,
+  "passed": 43,
+  "failed": 0,
+  "logSha256": "fbd2e01420d3882cd26ced2cf3af311dc2950958aad6c7158802ee5b189ca4dd",
+  "runId": "20261102T051406101Z-f3bacdd0-dc29-4beb-8a5c-52591327d4e0",
+  "producerStoppedEvidence": "Root observed runner terminal exit 0 with tracked Node child close; no background producers",
+  "stoppedAdapter": {
+    "runId": "20261102T050931182Z-9d52ac3e-ec51-4eeb-ba9c-089c9d5c939d",
+    "exitCode": 0,
+    "evidence": "Supported authenticated stop endpoint returned 200; root observed managed exec session 56141 terminal exit 0 after app.close and background workbench close"
+  },
+  "browser": {
+    "platform": "Windows x64 Chrome",
+    "themes": ["light", "dark"],
+    "unchecked": "Provider/model/effort hidden and disabled; model.required false",
+    "checked": "All three selectors inserted between checkbox and additional instructions",
+    "containerStyle": { "background": "transparent", "border": "0px", "padding": "0px" },
+    "savedData": "Existing two profiles and fourteen catalog cards preserved"
+  },
+  "liveAdapterRunId": "20261102T051451201Z-f2987b1b-35f4-41be-9b4a-a6d42945a6e8",
+  "installedAcceptance": false,
+  "remaining": "Native runtime support for profiles inheriting model settings must be completed before product integration; current request targets standalone development tab"
+}

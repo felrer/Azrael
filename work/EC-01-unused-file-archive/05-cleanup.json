@@ -1,0 +1,211 @@
+{
+  "schema": 1,
+  "started": "2026-10-28T02:12:40.291Z",
+  "group": "run:EC-01:external-home-r1",
+  "proof": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\05-home-archive.json",
+  "steps": [
+    {
+      "name": "register",
+      "exit": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EC-01:external-home-r1",
+          "kind": "run",
+          "members": [
+            "3b97bf7e1b72645a7a9b3fffe3da3fe565bc2332aeabe97ffa63666b49ee9117"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "ed898d89d8af309ebb2b613dd717d7a5a62fc80dab677c32330fedbe2a8b8dcf",
+          "owner": "/root",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0fd856848f881ee39d299bf53d53794de1b26fbece513c074dd0162bf44991c5.json",
+          "registered_at_ms": 1793153602776,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "3b97bf7e1b72645a7a9b3fffe3da3fe565bc2332aeabe97ffa63666b49ee9117",
+            "identity": "1f77260e9527b050ffd9a02e653a6f08b87b2dc3f1cce1d636cf75cd7fff7172",
+            "kind": "verification",
+            "lifecycle_group_id": "run:EC-01:external-home-r1",
+            "lifecycle_role": "evidence",
+            "logical_bytes": 4689,
+            "measured_at_ms": 1793153589768,
+            "owner": "/root",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\external-home-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0fd856848f881ee39d299bf53d53794de1b26fbece513c074dd0162bf44991c5.json",
+            "references": [],
+            "registered_at_ms": 1793153589768,
+            "remaining": true,
+            "role": "verification",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "review",
+      "exit": 0,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EC-01:external-home-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "ed898d89d8af309ebb2b613dd717d7a5a62fc80dab677c32330fedbe2a8b8dcf",
+            "owner": "/root",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0fd856848f881ee39d299bf53d53794de1b26fbece513c074dd0162bf44991c5.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "3b97bf7e1b72645a7a9b3fffe3da3fe565bc2332aeabe97ffa63666b49ee9117"
+            ],
+            "group_token": "26d9b7a5ba83c966d8327067cb341f3bbaf8a04b707be0971673b65ca681c43b",
+            "id": "3b97bf7e1b72645a7a9b3fffe3da3fe565bc2332aeabe97ffa63666b49ee9117",
+            "identity": "1f77260e9527b050ffd9a02e653a6f08b87b2dc3f1cce1d636cf75cd7fff7172",
+            "lifecycle_group_id": "run:EC-01:external-home-r1",
+            "logical_bytes": 4689,
+            "measured_at_ms": 1793153589768,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "ed898d89d8af309ebb2b613dd717d7a5a62fc80dab677c32330fedbe2a8b8dcf",
+              "member_references": {
+                "3b97bf7e1b72645a7a9b3fffe3da3fe565bc2332aeabe97ffa63666b49ee9117": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\05-home-archive.json",
+                  "evidence_sha256": "ac21fd6db3b192accf2085b752e4e77c3663913560e32fe1e1d1fa1f079dbedc",
+                  "reason": "Migration producer exited 0; archive identities, source absence and independent owner registration/defer verified. No remaining writer in disposable run.",
+                  "request_sha256": "a4febff1dd08b64d9e02fa4987e771755e22532e164d1dbbe457c07c608e2d04"
+                },
+                "created_at": "2026-10-28T01:46:15.976Z",
+                "id": "run:EC-01:external-home-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\external-home-r1",
+                    "protection_known": true,
+                    "role": "verification"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "/root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\05-home-archive.json",
+                  "evidence_sha256": "ac21fd6db3b192accf2085b752e4e77c3663913560e32fe1e1d1fa1f079dbedc",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Migration producer exited 0; archive identities, source absence and independent owner registration/defer verified. No remaining writer in disposable run.",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-28T02:12:40.399Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793153656355,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\external-home-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  74,
+                  175,
+                  17,
+                  0,
+                  0,
+                  0,
+                  179,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "af4f1d7e0912df93afb278edf62d4ceca4be25f3eda5044111705f7b898ba96c",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "name": "apply",
+      "exit": 0,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:EC-01:external-home-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-86284-3697-1793153688210",
+            "decision": "delete",
+            "decision_id": "5bcab3a642d5974ffba2f69b93a4b7ef1e0a13c0081cc617eb13c5cd05be2ad9",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "3b97bf7e1b72645a7a9b3fffe3da3fe565bc2332aeabe97ffa63666b49ee9117",
+            "lifecycle_group_id": "run:EC-01:external-home-r1",
+            "reason": "Disposable migration script no longer used; complete independent verification retained in work and archive controls.",
+            "remaining": false,
+            "status": "deleted",
+            "token": "af4f1d7e0912df93afb278edf62d4ceca4be25f3eda5044111705f7b898ba96c"
+          }
+        ]
+      }
+    }
+  ],
+  "run_absent": true,
+  "record_absent": true,
+  "finished": "2026-10-28T02:15:12.660Z",
+  "status": "complete"
+}

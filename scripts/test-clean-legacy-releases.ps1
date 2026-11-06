@@ -82,7 +82,14 @@ function Invoke-CoordinatedFixtureTests {
     $IncludeModuleCaches = $true
     $result = Invoke-LegacyReleaseCleanup
     Assert (-not (Test-Path $old) -and -not (Test-Path (Join-Path $fixture 'artifacts/logs/old')) -and -not (Test-Path $entries.old.path) -and -not (Test-Path $entries.old.log)) 'Coordinated retirement left obsolete version/cache/log members.'
-    foreach ($name in @('current','previous','runtime','consumer','locked','running')) { Assert ((Test-Path $entries[$name].path) -and (Test-Path $entries[$name].log)) "Coordinated cleanup damaged protected cache/log group $name" }
+    foreach ($name in @('current','previous')) {
+        # Installed preparation metadata alone does not consume regenerable tool caches.
+        Assert (-not (Test-Path -LiteralPath $entries[$name].path) -and -not (Test-Path -LiteralPath $entries[$name].log)) "Coordinated cleanup retained preparation-only cache/log group $name"
+        Assert ((Test-Path -LiteralPath (Join-Path $fixture "artifacts/releases/$name/build-info.json")) -and
+            (Test-Path -LiteralPath (Join-Path $fixture "artifacts/logs/$name/build-result.json")) -and
+            (Test-Path -LiteralPath (Join-Path $fixture "artifacts/deployments/$name/package/preparation-inputs.json"))) "Coordinated cleanup damaged installed release/log/package group $name"
+    }
+    foreach ($name in @('runtime','consumer','locked','running')) { Assert ((Test-Path $entries[$name].path) -and (Test-Path $entries[$name].log)) "Coordinated cleanup damaged protected cache/log group $name" }
     $ProtectedPaths = @()
     $handle = [IO.File]::Open((Join-Path $entries.locked.log 'build.json'),[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
     try {
@@ -180,7 +187,23 @@ try {
     $lockedHandle = [IO.File]::Open((Join-Path $lockedRelease 'build-info.json'), [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
     try {
         $result = Invoke-LegacyReleaseCleanup
-        Assert ((Test-Path -LiteralPath $lockedLog) -and @($result.candidates | Where-Object { $_.path -eq $lockedRelease -and $_.lifecycle.status -eq 'partial' }).Count -eq 1) 'Failed body deletion continued into associated logs or hid partial group outcome.'
+        $lockedCandidates = @($result.candidates | Where-Object { $_.path -eq $lockedRelease })
+        $lockedLogExists = Test-Path -LiteralPath $lockedLog
+        $lockedOutcomeValid = $lockedLogExists -and @($lockedCandidates | Where-Object { $_.lifecycle.status -eq 'partial' }).Count -eq 1
+        $lockedFailure = 'Failed body deletion continued into associated logs or hid partial group outcome.'
+        if (-not $lockedOutcomeValid) {
+            $diagnostic = [ordered]@{
+                bodyExists = Test-Path -LiteralPath $lockedRelease
+                logExists = $lockedLogExists
+                candidateCount = $lockedCandidates.Count
+                candidates = @($lockedCandidates | Select-Object -First 4 | ForEach-Object {
+                    @{ status = $_.status; reason = $_.reason; absent = $_.absent; lifecycleStatus = $_.lifecycle.status
+                       members = @($_.lifecycle.members | Select-Object -First 12 -Property path,status,reason,remaining) }
+                })
+            } | ConvertTo-Json -Depth 6 -Compress
+            $lockedFailure += ' Diagnostic: ' + $diagnostic.Substring(0, [Math]::Min(12000, $diagnostic.Length))
+        }
+        Assert $lockedOutcomeValid $lockedFailure
     } finally { $lockedHandle.Dispose() }
     $finalizeRelease = New-Release 'finalize-failure'
     $script:lifecycleNodeImplementation = ${function:Invoke-ArtifactLifecycleNode}

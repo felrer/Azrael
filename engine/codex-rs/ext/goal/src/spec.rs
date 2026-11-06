@@ -3,6 +3,7 @@
 use codex_tools::JsonSchema;
 use codex_tools::ResponsesApiTool;
 use codex_tools::ToolSpec;
+use codex_tools::legacy_codex_tool;
 use serde_json::json;
 use std::collections::BTreeMap;
 
@@ -11,7 +12,7 @@ pub const CREATE_GOAL_TOOL_NAME: &str = "create_goal";
 pub const UPDATE_GOAL_TOOL_NAME: &str = "update_goal";
 
 pub fn create_get_goal_tool() -> ToolSpec {
-    ToolSpec::Function(ResponsesApiTool {
+    legacy_codex_tool(ResponsesApiTool {
         name: GET_GOAL_TOOL_NAME.to_string(),
         description: "Get the current goal for this thread, including status, budgets, token and elapsed-time usage, and remaining token budget."
             .to_string(),
@@ -40,7 +41,7 @@ pub fn create_create_goal_tool() -> ToolSpec {
         ),
     ]);
 
-    ToolSpec::Function(ResponsesApiTool {
+    legacy_codex_tool(ResponsesApiTool {
         name: CREATE_GOAL_TOOL_NAME.to_string(),
         description: format!(
             r#"Create a goal only when explicitly requested by the user or system/developer instructions; do not infer goals from ordinary tasks.
@@ -69,7 +70,7 @@ pub fn create_update_goal_tool() -> ToolSpec {
         ),
     )]);
 
-    ToolSpec::Function(ResponsesApiTool {
+    legacy_codex_tool(ResponsesApiTool {
         name: UPDATE_GOAL_TOOL_NAME.to_string(),
         description: r#"Update the existing goal.
 Set status to `paused` only at the user's explicit request to pause this goal, never on your own initiative. Ask if unclear; a later resume revokes that request. Report the returned status and stop goal work. Budget limits take precedence over pausing.

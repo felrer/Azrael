@@ -1,0 +1,71 @@
+{
+  "observed_at": "2026-11-01T15:29:40.240Z",
+  "deleted_groups": 77,
+  "total_initial_archive_groups": 81,
+  "registered_logical_bytes_deleted": 12212386096,
+  "physical_bytes_freed": null,
+  "first_deleted_group": {
+    "id": "archive:primary-588c8011b35743113d1f",
+    "logical_bytes": 18929,
+    "evidence": "07-first-archive-finalize.json"
+  },
+  "remaining_groups": [
+    {
+      "id": "archive:primary-f0551f81d99a26d74728",
+      "reason": "Previously rejected nested junction; no repeated registration before supported link-owner resolution"
+    },
+    {
+      "id": "archive:primary-a3449992c4eec04ef54a",
+      "reason": "Previously rejected nested junction; no repeated registration before supported link-owner resolution"
+    },
+    {
+      "id": "archive:primary-7ef6aaf5f453e6843dce",
+      "reason": "Previously rejected nested junction; no repeated registration before supported link-owner resolution"
+    },
+    {
+      "id": "archive:primary-e1749933162b5b818351",
+      "reason": "Previously rejected nested junction; no repeated registration before supported link-owner resolution"
+    }
+  ],
+  "junction_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-junction-evidence\\junction-inventory-r1.json",
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\junction-inventory-r1.json",
+      "sha256": "1a2739f53981a5c5341c62f6d522d5e8509aab3810cb7abf3a38fb414de34147",
+      "bytes": 87518
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-junction-evidence\\junction-types-r1.json",
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\junction-types-r1.json",
+      "sha256": "3cfddd8d5c1c1dbd64fb67e6a6e202df95c3a2f064d7a9365e186c3040cd1cbb",
+      "bytes": 51883
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-junction-evidence\\junction-inventory-third-r1.json",
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\junction-inventory-third-r1.json",
+      "sha256": "e174594ad362aeb45f8c637a59f711d0ae0c0f8a8958daf838ba99724841b29e",
+      "bytes": 79535
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-junction-evidence\\junction-types-third-r1.json",
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\junction-types-third-r1.json",
+      "sha256": "dbb5ac5b95b8dd5097e0b8fb5466da2b1feed866aa9688d0d9375e71a8ae6254",
+      "bytes": 38089
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-junction-evidence\\junction-inventory-fourth-r1.json",
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\junction-inventory-fourth-r1.json",
+      "sha256": "715fdc82302e2175160379d29a55dcb8ce7d2f55eb0c60c7ac310b77b05c6484",
+      "bytes": 6608
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-junction-evidence\\junction-types-fourth-r1.json",
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\junction-types-fourth-r1.json",
+      "sha256": "e6e6037d72d1cea557a3b970285d062cc8b2a5d75af8037d62b72b35a9b824c8",
+      "bytes": 3025
+    }
+  ],
+  "controller_observed_exit_code": 1,
+  "controller_work_id": "f590585f-ccd4-4e35-95c7-e39937f8f679",
+  "owner_per_deleted_group_exit_code": 0
+}

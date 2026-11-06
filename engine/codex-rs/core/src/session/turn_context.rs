@@ -312,6 +312,8 @@ impl std::fmt::Debug for TurnEnvironment {
 /// Request options for one turn, separate from persistent thread settings.
 #[derive(Default)]
 pub(crate) struct NewTurnContextOptions {
+    pub(crate) provider_account: Option<codex_protocol::agent_profile::ProviderAccountScope>,
+    pub(crate) agent_profile: Option<codex_protocol::agent_profile::AgentProfileRef>,
     pub(crate) final_output_json_schema: Option<Value>,
     pub(crate) cyber_access_program: Option<CyberAccessProgram>,
 }
@@ -319,6 +321,8 @@ pub(crate) struct NewTurnContextOptions {
 /// The context needed for a single turn of the thread.
 #[derive(Debug)]
 pub struct TurnContext {
+    pub(crate) agent_profile_account: Option<codex_protocol::agent_profile::ProviderAccountScope>,
+    pub(crate) agent_profile: Option<codex_protocol::agent_profile::AgentProfileRef>,
     pub(crate) sub_id: String,
     pub(crate) trace_id: Option<String>,
     /// Call state at turn creation; model requests use the `StepContext` snapshot.
@@ -430,6 +434,8 @@ impl TurnContext {
         ));
 
         Self {
+            agent_profile: self.agent_profile.clone(),
+            agent_profile_account: self.agent_profile_account.clone(),
             sub_id,
             trace_id: current_span_trace_id(),
             realtime_active: self.realtime_active,
@@ -544,6 +550,7 @@ impl TurnContext {
 
     pub(crate) fn attribution(&self) -> codex_history::TurnAttribution {
         codex_history::TurnAttribution {
+            agent_profile: self.agent_profile.clone(),
             turn_id: self.sub_id.clone(),
             turn_trigger: self.turn_metadata_state.current_turn_trigger(),
             parent_turn_id: self.turn_metadata_state.parent_turn_id(),
@@ -834,6 +841,8 @@ impl TurnContext {
         let session_telemetry = step_settings.telemetry(&self.session_telemetry);
 
         Self {
+            agent_profile: self.agent_profile.clone(),
+            agent_profile_account: self.agent_profile_account.clone(),
             sub_id: self.sub_id.clone(),
             trace_id: self.trace_id.clone(),
             realtime_active: self.realtime_active,
@@ -908,6 +917,7 @@ impl TurnContext {
         #[allow(deprecated)]
         let cwd = self.cwd.clone();
         TurnContextItem {
+            agent_profile: self.agent_profile.clone(),
             harness_profile: None,
             turn_id: Some(self.sub_id.clone()),
             root_turn_id: self.turn_metadata_state.root_turn_id(),
@@ -1133,6 +1143,8 @@ impl Session {
             &per_turn_config.codex_home,
         ));
         TurnContext {
+            agent_profile_account: None,
+            agent_profile: None,
             sub_id,
             trace_id: current_span_trace_id(),
             realtime_active: false,
@@ -1208,6 +1220,19 @@ impl Session {
         options: NewTurnContextOptions,
         should_start: impl FnOnce(&SessionConfiguration, &SessionConfiguration) -> bool + Send,
     ) -> CodexResult<Option<(Arc<TurnContext>, ThreadSettingsSnapshot)>> {
+        // Resolve the immutable reference before committing any persistent settings.
+        let mut options = options;
+        let profile = match options.agent_profile.as_ref() {
+            Some(reference) => {
+                let home = {
+                    let state = self.state.lock().await;
+                    super::agent_profile::validate_project_admission(&state.session_configuration)?;
+                    state.session_configuration.codex_home.clone()
+                };
+                Some(super::agent_profile::load(home.as_path(), reference).await?)
+            }
+            None => None,
+        };
         let service_tier_for_turn = updates.service_tier_for_turn.clone();
         let commit = match self.update_settings_if(updates, should_start).await {
             Ok(Some(commit)) => commit,
@@ -1227,6 +1252,13 @@ impl Session {
             }
         };
         let mut configuration = commit.configuration;
+        if options.agent_profile.is_none() && options.provider_account.is_none() {
+            options.provider_account = super::agent_profile::role_account(&configuration.original_config_do_not_use)?;
+        }
+        if let Some(profile) = profile {
+            options.provider_account = profile.provider_account.clone();
+            configuration = profile.apply(configuration)?;
+        }
         // Apply the override only to the turn's copy, after persisting thread settings.
         if let Some(service_tier) = service_tier_for_turn {
             Arc::make_mut(&mut configuration.step_settings).service_tier = Some(service_tier);
@@ -1248,6 +1280,37 @@ impl Session {
     }
 
     /// Builds a context from the caller's chosen settings and environments without starting work.
+    pub(super) async fn new_profiled_turn_from_configuration(
+        &self,
+        sub_id: String,
+        mut configuration: SessionConfiguration,
+        environments: TurnEnvironmentSnapshot,
+        options: NewTurnContextOptions,
+    ) -> CodexResult<Arc<TurnContext>> {
+        let mut options = options;
+        if options.agent_profile.is_none() && options.provider_account.is_none() {
+            options.provider_account = super::agent_profile::role_account(&configuration.original_config_do_not_use)?;
+        }
+        if let Some(reference) = options.agent_profile.as_ref() {
+            super::agent_profile::validate_project_admission(&configuration)?;
+            let profile = super::agent_profile::load(configuration.codex_home.as_path(), reference).await?;
+            options.provider_account = profile.provider_account.clone();
+            configuration = profile.apply(configuration)?;
+        }
+        Ok(self.new_turn_from_configuration(sub_id, configuration, environments, options).await)
+    }
+
+    /// Restores a captured request without making its profile a thread default.
+    pub(crate) async fn new_profiled_turn_with_default_settings(
+        &self,
+        sub_id: String,
+        options: NewTurnContextOptions,
+    ) -> CodexResult<Arc<TurnContext>> {
+        let configuration = self.default_turn_configuration().await;
+        let environments = self.activate_turn_environments(&configuration).await;
+        self.new_profiled_turn_from_configuration(sub_id, configuration, environments, options).await
+    }
+
     pub(super) async fn new_turn_from_configuration(
         &self,
         sub_id: String,
@@ -1347,10 +1410,11 @@ impl Session {
             || (per_turn_config
                 .features
                 .enabled(Feature::SkipHostSkillDiscovery)
+                && per_turn_config.profile_mcp_server_ids().is_none()
                 && !self.services.extensions.requires_host_skill_discovery())
         {
             // Executor and orchestrator catalogs are supplied independently of host skills.
-            HostSkillsSnapshot::new(Arc::new(SkillLoadOutcome::default()))
+            HostSkillsSnapshot::new(Arc::new(SkillLoadOutcome::default())).with_selected_only(per_turn_config.profile_mcp_server_ids().is_some())
         } else {
             let effective_skill_roots = plugin_outcome.effective_plugin_skill_roots();
             let plugin_skill_snapshots = self
@@ -1402,6 +1466,8 @@ impl Session {
             sub_id,
             skills_snapshot,
         );
+        turn_context.agent_profile_account = options.provider_account;
+        turn_context.agent_profile = options.agent_profile;
         turn_context.code_mode_available = self.services.code_mode_service.is_available();
         turn_context.extension_data.insert(trusted_plugin_roots);
         turn_context.active_host_plugin_identities = Some(

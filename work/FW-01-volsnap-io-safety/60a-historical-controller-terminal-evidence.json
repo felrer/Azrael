@@ -1,0 +1,742 @@
+{
+  "schema": 1,
+  "status": "actual-terminal-tool-receipts-recovered",
+  "scope": "Only three historical CONTROL controllers. Executor-reported terminal exit is combined downstream with separately retained start PID, pinned controller, child termination and lease evidence; no global OS tree observation or invented close event.",
+  "sourceRollout": "C:\\Users\\felre\\.azrael-ex\\sessions\\2026\\11\\06\\rollout-2026-11-06T09-49-22-01a1ae54-e87b-7bb2-ac21-f28a84aef8d9.jsonl",
+  "sourceThread": "01a1ae54-e87b-7bb2-ac21-f28a84aef8d9",
+  "extractedUtc": "2026-11-06T06:36:52.390934+00:00",
+  "executions": [
+    {
+      "controller": "control-controller.cjs",
+      "expectedStartPid": 33724,
+      "initialCallId": "call_abb923d59a3c47cb828bb5402eba806f",
+      "sessionId": 63702,
+      "terminalCallId": "call_29f33d0ba1434b6d91bbbe91eaddd214",
+      "terminalLine": 471,
+      "actualExit": 1,
+      "terminalChunk": "064610"
+    },
+    {
+      "controller": "control-correction.cjs",
+      "expectedStartPid": 42208,
+      "initialCallId": "call_2269f21d83224ed3a6b48e71fc40b84c",
+      "execCellId": "39",
+      "terminalCallId": "call_fef715a7d2444d35992580d3e0f34e76",
+      "terminalLine": 592,
+      "actualExit": 1,
+      "terminalChunk": "74583f"
+    },
+    {
+      "controller": "control-correction-retry.cjs",
+      "expectedStartPid": 12380,
+      "initialCallId": "call_00111ef255ec4a7ea313774c8960defc",
+      "sessionId": 17914,
+      "terminalCallId": "call_099ce6aa7e634374b01022c5019cfb93",
+      "terminalLine": 715,
+      "actualExit": 0,
+      "terminalChunk": "0dd507"
+    }
+  ],
+  "rawToolRecords": [
+    {
+      "line": 428,
+      "rawLineSha256": "5b5d2d427514ac8eb457fdd9cf83e7b8cf7696d6bd170af3c8aaf29e2a695d79",
+      "record": {
+        "timestamp": "2026-11-06T01:02:48.022Z",
+        "ordinal": 427,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "id": "ctc_08af4d702daf59f6016aed2737894087d08daabe73dd0bc51e",
+          "status": "completed",
+          "call_id": "call_abb923d59a3c47cb828bb5402eba806f",
+          "name": "exec",
+          "input": "// @exec: {\"yield_time_ms\": 1000, \"max_output_tokens\": 1800}\ntext(await tools.exec_command({cmd:\"node artifacts/tasks/fw03r/runs/control-01/inputs/control-controller.cjs --accept-happy\",\"yield_time_ms\":1000,\"max_output_tokens\":1800}));\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926967.7235303
+          }
+        }
+      }
+    },
+    {
+      "line": 430,
+      "rawLineSha256": "07788843c46ab773af90f75eba151e83318d7275a97baf082740fe263fbc11a6",
+      "record": {
+        "timestamp": "2026-11-06T01:02:49.057Z",
+        "ordinal": 429,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "id": "ctco_01a1ae61-36e1-74d3-b500-a69bc6fd6418",
+          "call_id": "call_abb923d59a3c47cb828bb5402eba806f",
+          "output": "Script running with cell ID 29\nWall time 1.0 seconds\nOutput:\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926969.057756
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 433,
+      "rawLineSha256": "55fb4ac752d420319036e7fb9fa0083d7b2f8c7c17ee0c27b3c9c1d6b464113e",
+      "record": {
+        "timestamp": "2026-11-06T01:02:50.945Z",
+        "ordinal": 432,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "id": "fc_08af4d702daf59f6016aed273b2e2087d0b33eff6ad4537ea7",
+          "name": "wait",
+          "arguments": "{\"cell_id\":\"29\",\"yield_time_ms\":1000,\"max_tokens\":1800}",
+          "call_id": "call_749f1f293886416da7d9451d77364dd9",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926971.1901197
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "user_input_order": 30
+        }
+      }
+    },
+    {
+      "line": 435,
+      "rawLineSha256": "347adf260ff4f75416ed8ad47dba3be6dd8cdc53db87fc273189fba90c7022b5",
+      "record": {
+        "timestamp": "2026-11-06T01:02:51.972Z",
+        "ordinal": 434,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "id": "fco_01a1ae61-4243-7d32-b1d6-ee4e488299fa",
+          "call_id": "call_749f1f293886416da7d9451d77364dd9",
+          "output": "Script running with cell ID 29\nWall time 1.0 seconds\nOutput:\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926971.9719691
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 440,
+      "rawLineSha256": "6c1a3e8ceaf470f351275e93f9e4f714210f475fc91838c63bb394d008a12f40",
+      "record": {
+        "timestamp": "2026-11-06T01:02:54.798Z",
+        "ordinal": 439,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "id": "fc_08af4d702daf59f6016aed273f018887d098d7fec1e24be7c8",
+          "name": "wait",
+          "arguments": "{\"cell_id\":\"29\",\"yield_time_ms\":1000,\"max_tokens\":1800}",
+          "call_id": "call_8c5f7383394647c9bab4d83c50084de0",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926975.1046472
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "user_input_order": 31
+        }
+      }
+    },
+    {
+      "line": 442,
+      "rawLineSha256": "6fb9cf62b3297f546bd47c5a9f5d12a79c9807ef51d1d5b24beb76a1d24628da",
+      "record": {
+        "timestamp": "2026-11-06T01:02:55.809Z",
+        "ordinal": 441,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "id": "fco_01a1ae61-5141-7410-9ad7-31e8b98191f2",
+          "call_id": "call_8c5f7383394647c9bab4d83c50084de0",
+          "output": "Script running with cell ID 29\nWall time 1.0 seconds\nOutput:\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926975.8097248
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 447,
+      "rawLineSha256": "9c00414167fcf2a76f1994fce424d56bf8a9e71357057dd40036fb3c219f93fd",
+      "record": {
+        "timestamp": "2026-11-06T01:02:58.453Z",
+        "ordinal": 446,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "id": "fc_08af4d702daf59f6016aed2742a5fc87d0afe856da59789232",
+          "name": "wait",
+          "arguments": "{\"cell_id\":\"29\",\"yield_time_ms\":10000,\"max_tokens\":1800}",
+          "call_id": "call_af8bce6d13314303a585c0fba7d4cf74",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926978.6555748
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "user_input_order": 32
+        }
+      }
+    },
+    {
+      "line": 449,
+      "rawLineSha256": "db1c59612d1f95302506bbd29c271f84c803df1a935d3d6f982daf70af0a2929",
+      "record": {
+        "timestamp": "2026-11-06T01:02:58.546Z",
+        "ordinal": 448,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "id": "fco_01a1ae61-5bf2-7273-81da-cb000feef983",
+          "call_id": "call_af8bce6d13314303a585c0fba7d4cf74",
+          "output": [
+            {
+              "type": "input_text",
+              "text": "Script completed\nWall time 0.0 seconds\nOutput:\n"
+            },
+            {
+              "type": "input_text",
+              "text": "{\"chunk_id\":\"16bcb2\",\"original_token_count\":0,\"output\":\"\",\"session_id\":63702,\"wall_time_seconds\":10.0018098}"
+            }
+          ],
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926978.5464177
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 454,
+      "rawLineSha256": "b98498c09de95a661b628b57d2e2434af3c680953581e9cf7cf7c4d4e60493f7",
+      "record": {
+        "timestamp": "2026-11-06T01:03:02.346Z",
+        "ordinal": 453,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "id": "ctc_08af4d702daf59f6016aed2744f54c87d0be97f77bb62957e9",
+          "status": "completed",
+          "call_id": "call_f52eacb66ae549beb2757ea30f41ac14",
+          "name": "exec",
+          "input": "// @exec: {\"yield_time_ms\": 1000, \"max_output_tokens\": 2200}\ntext(await tools.write_stdin({session_id:63702,chars:\"\",\"yield_time_ms\":1000,\"max_output_tokens\":2200}));\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926981.2106245
+          }
+        }
+      }
+    },
+    {
+      "line": 456,
+      "rawLineSha256": "b132e344ac56ec1150bf571273705a315e8a8e77902aec2e48f560e5999a70fc",
+      "record": {
+        "timestamp": "2026-11-06T01:03:03.374Z",
+        "ordinal": 455,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "id": "ctco_01a1ae61-6ece-7270-b079-6b320ba7b41d",
+          "call_id": "call_f52eacb66ae549beb2757ea30f41ac14",
+          "output": "Script running with cell ID 30\nWall time 1.0 seconds\nOutput:\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926983.3744915
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 461,
+      "rawLineSha256": "a62b4bf8eefb91b84b6edc2144469e76d27cfedcb0c4c4688bd28c7653b6c52f",
+      "record": {
+        "timestamp": "2026-11-06T01:03:05.434Z",
+        "ordinal": 460,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "id": "fc_08af4d702daf59f6016aed2749a04c87d0b2726d8f54aa06da",
+          "name": "wait",
+          "arguments": "{\"cell_id\":\"30\",\"yield_time_ms\":10000,\"max_tokens\":2200}",
+          "call_id": "call_3634a4d42d79422eaf77ad9462b67091",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926985.6342187
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "user_input_order": 33
+        }
+      }
+    },
+    {
+      "line": 463,
+      "rawLineSha256": "ff49acd3d9d0c7b046e513182f577f9e0b41122c624d2d9545472bab9056817b",
+      "record": {
+        "timestamp": "2026-11-06T01:03:07.373Z",
+        "ordinal": 462,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "id": "fco_01a1ae61-7e6d-7761-bc13-f7b2363f61fd",
+          "call_id": "call_3634a4d42d79422eaf77ad9462b67091",
+          "output": [
+            {
+              "type": "input_text",
+              "text": "Script completed\nWall time 1.9 seconds\nOutput:\n"
+            },
+            {
+              "type": "input_text",
+              "text": "{\"chunk_id\":\"371884\",\"original_token_count\":0,\"output\":\"\",\"session_id\":63702,\"wall_time_seconds\":5.0098879}"
+            }
+          ],
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926987.373505
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 469,
+      "rawLineSha256": "8065168ff24e8188d4c1951bab62c6cf82e2e6f99d70ffc8057efabe4e1e14f3",
+      "record": {
+        "timestamp": "2026-11-06T01:03:10.413Z",
+        "ordinal": 468,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "id": "ctc_08af4d702daf59f6016aed274e43a887d091fc321d6d4f7274",
+          "status": "completed",
+          "call_id": "call_29f33d0ba1434b6d91bbbe91eaddd214",
+          "name": "exec",
+          "input": "// @exec: {\"yield_time_ms\": 1000, \"max_output_tokens\": 2500}\ntext(await tools.write_stdin({session_id:63702,chars:\"\",\"yield_time_ms\":1000,\"max_output_tokens\":2500}));\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926990.2721744
+          }
+        }
+      }
+    },
+    {
+      "line": 471,
+      "rawLineSha256": "706f1ad1c4bec6bec2b56117e1017d4d37648a748f1bdabdfad7faada7bc43c5",
+      "record": {
+        "timestamp": "2026-11-06T01:03:10.512Z",
+        "ordinal": 470,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "id": "ctco_01a1ae61-8ab0-7f70-b0fb-93ded7173ea4",
+          "call_id": "call_29f33d0ba1434b6d91bbbe91eaddd214",
+          "output": [
+            {
+              "type": "input_text",
+              "text": "Script completed\nWall time 0.0 seconds\nOutput:\n"
+            },
+            {
+              "type": "input_text",
+              "text": "{\"chunk_id\":\"064610\",\"exit_code\":1,\"original_token_count\":65,\"output\":\"{\\\"status\\\":\\\"failed-or-unknown\\\",\\\"actualExitCode\\\":1,\\\"acceptance\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\work\\\\\\\\FW-01-volsnap-io-safety\\\\\\\\23-control-retirement-acceptance.json\\\",\\\"outer\\\":\\\"run:fw03r:control-01\\\",\\\"cleanup\\\":\\\"pending-separate-root-gate\\\",\\\"leases\\\":1}\\n\",\"wall_time_seconds\":0.0000088}"
+            }
+          ],
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793926990.5123734
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 584,
+      "rawLineSha256": "bd3ade0d339259e53fb0aef68de005e321925221e270bb3623cd0e7fa21693ae",
+      "record": {
+        "timestamp": "2026-11-06T01:06:49.074Z",
+        "ordinal": 583,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "id": "ctc_08af4d702daf59f6016aed28284c2087d0877a456dd3683f23",
+          "status": "completed",
+          "call_id": "call_2269f21d83224ed3a6b48e71fc40b84c",
+          "name": "exec",
+          "input": "// @exec: {\"yield_time_ms\": 1000, \"max_output_tokens\": 2500}\ntext(await tools.exec_command({cmd:\"node artifacts/tasks/fw03r/runs/control-01/inputs/control-correction.cjs --correct-and-accept\",\"yield_time_ms\":1000,\"max_output_tokens\":2500}));\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927208.3054056
+          }
+        }
+      }
+    },
+    {
+      "line": 586,
+      "rawLineSha256": "fa758dbc5aee32c35ce0f66da199f2e0fc0ee89b30b100a9f50b53be8ecdc370",
+      "record": {
+        "timestamp": "2026-11-06T01:06:50.101Z",
+        "ordinal": 585,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "id": "ctco_01a1ae64-e475-7f93-b4f0-eb3f434157ab",
+          "call_id": "call_2269f21d83224ed3a6b48e71fc40b84c",
+          "output": "Script running with cell ID 39\nWall time 1.0 seconds\nOutput:\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927210.1013842
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 590,
+      "rawLineSha256": "d5bc3896674aef662ae0dfc5ab10338ad1be34f343483ee401a255af0e29f91d",
+      "record": {
+        "timestamp": "2026-11-06T01:06:51.888Z",
+        "ordinal": 589,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "id": "fc_08af4d702daf59f6016aed282c233487d0b201c7d4a985a9a0",
+          "name": "wait",
+          "arguments": "{\"cell_id\":\"39\",\"yield_time_ms\":10000,\"max_tokens\":2500}",
+          "call_id": "call_fef715a7d2444d35992580d3e0f34e76",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927212.1447742
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "user_input_order": 42
+        }
+      }
+    },
+    {
+      "line": 592,
+      "rawLineSha256": "8342603ce23c9081a016211a5b29d64a2b3fe27b83d13c13c391fd05a4df1aff",
+      "record": {
+        "timestamp": "2026-11-06T01:06:52.003Z",
+        "ordinal": 591,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "id": "fco_01a1ae64-ebe3-7d93-a9f4-d968413afb4d",
+          "call_id": "call_fef715a7d2444d35992580d3e0f34e76",
+          "output": [
+            {
+              "type": "input_text",
+              "text": "Script completed\nWall time 0.0 seconds\nOutput:\n"
+            },
+            {
+              "type": "input_text",
+              "text": "{\"chunk_id\":\"74583f\",\"exit_code\":1,\"original_token_count\":213,\"output\":\"{\\\"status\\\":\\\"correction-failure-protected\\\",\\\"error\\\":{\\\"message\\\":\\\"Incompatible Azrael maintenance capabilities\\\",\\\"stack\\\":\\\"Error: Incompatible Azrael maintenance capabilities\\\\n    at Object.validateCapabilities (C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\scripts\\\\\\\\maintenance-owner-config.cjs:36:140)\\\\n    at Object.capture (C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\scripts\\\\\\\\deployment-control-retirement-native.cjs:112:14)\\\\n    at async prepareDeploymentControlRetirement (C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\scripts\\\\\\\\deployment-control-retirement.cjs:195:26)\\\\n    at async execute (C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\tasks\\\\\\\\fw03r\\\\\\\\runs\\\\\\\\control-01\\\\\\\\inputs\\\\\\\\control-correction.cjs:45:20)\\\"},\\\"failure\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\tasks\\\\\\\\fw03r\\\\\\\\runs\\\\\\\\control-01\\\\\\\\reports\\\\\\\\correction-failure.json\\\"}\\n\",\"wall_time_seconds\":2.3262149}"
+            }
+          ],
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927212.0031374
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 688,
+      "rawLineSha256": "a2e144f90916821d21b27b5fee380ccbfb1bf61bf43111819a7553318b3b612f",
+      "record": {
+        "timestamp": "2026-11-06T01:09:15.253Z",
+        "ordinal": 687,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "id": "ctc_08af4d702daf59f6016aed28bacb7c87d0962d889bd95624d1",
+          "status": "completed",
+          "call_id": "call_00111ef255ec4a7ea313774c8960defc",
+          "name": "exec",
+          "input": "// @exec: {\"yield_time_ms\": 1000, \"max_output_tokens\": 2500}\ntext(await tools.exec_command({cmd:\"node artifacts/tasks/fw03r/runs/control-01/inputs/control-correction-retry.cjs --correct-and-accept\",\"yield_time_ms\":1000,\"max_output_tokens\":2500}));\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927354.8014657
+          }
+        }
+      }
+    },
+    {
+      "line": 690,
+      "rawLineSha256": "d38043e87080014e0c409495dc2122f162eee7d418404fc9f82a8ae19a54a3ec",
+      "record": {
+        "timestamp": "2026-11-06T01:09:16.276Z",
+        "ordinal": 689,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "id": "ctco_01a1ae67-1f74-7230-8986-d94edf1212e4",
+          "call_id": "call_00111ef255ec4a7ea313774c8960defc",
+          "output": "Script running with cell ID 44\nWall time 1.0 seconds\nOutput:\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927356.2764938
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 693,
+      "rawLineSha256": "e41d7721b4db5e5fe8ea39c8222f46bddf03ff914320154b8a4073e0bb2eb47c",
+      "record": {
+        "timestamp": "2026-11-06T01:09:18.160Z",
+        "ordinal": 692,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "id": "fc_08af4d702daf59f6016aed28be630087d0b67a50f03a6cddfe",
+          "name": "wait",
+          "arguments": "{\"cell_id\":\"44\",\"yield_time_ms\":10000,\"max_tokens\":2500}",
+          "call_id": "call_03ac776952684cc989141a79622aaf71",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927358.399543
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "user_input_order": 52
+        }
+      }
+    },
+    {
+      "line": 695,
+      "rawLineSha256": "525480bd0f59436b767a3ed4585f645a3cb2249185fa38c2c750b1aa910effce",
+      "record": {
+        "timestamp": "2026-11-06T01:09:25.448Z",
+        "ordinal": 694,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "id": "fco_01a1ae67-4348-7c42-9d71-d152cb755c5c",
+          "call_id": "call_03ac776952684cc989141a79622aaf71",
+          "output": [
+            {
+              "type": "input_text",
+              "text": "Script completed\nWall time 7.3 seconds\nOutput:\n"
+            },
+            {
+              "type": "input_text",
+              "text": "{\"chunk_id\":\"c758ec\",\"original_token_count\":0,\"output\":\"\",\"session_id\":17914,\"wall_time_seconds\":10.0036835}"
+            }
+          ],
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927365.4484572
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 700,
+      "rawLineSha256": "bf0277055d6275f182b7d2f0e9aeccb758ad6a29b060be85245a3c196ee7755f",
+      "record": {
+        "timestamp": "2026-11-06T01:09:28.301Z",
+        "ordinal": 699,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "id": "ctc_08af4d702daf59f6016aed28c8081087d0b5eaaae195ad435e",
+          "status": "completed",
+          "call_id": "call_524258cef3a84b4486d45354003a2f51",
+          "name": "exec",
+          "input": "// @exec: {\"yield_time_ms\": 1000, \"max_output_tokens\": 2500}\ntext(await tools.write_stdin({session_id:17914,chars:\"\",\"yield_time_ms\":10000,\"max_output_tokens\":2500}));\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927368.0388947
+          }
+        }
+      }
+    },
+    {
+      "line": 702,
+      "rawLineSha256": "426e7dd4bf626e29ecaacef966df606916bd4b97fa8e50146749471b7d916866",
+      "record": {
+        "timestamp": "2026-11-06T01:09:29.319Z",
+        "ordinal": 701,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "id": "ctco_01a1ae67-5267-7772-a6a2-a450b174a991",
+          "call_id": "call_524258cef3a84b4486d45354003a2f51",
+          "output": "Script running with cell ID 45\nWall time 1.0 seconds\nOutput:\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927369.3191621
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 705,
+      "rawLineSha256": "7c72dba4d23947776fe0d40d04c38acc0f7a82813133500128b67b125d3f8d9f",
+      "record": {
+        "timestamp": "2026-11-06T01:09:31.487Z",
+        "ordinal": 704,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call",
+          "id": "fc_08af4d702daf59f6016aed28cb9b7887d0beee5601983fb790",
+          "name": "wait",
+          "arguments": "{\"cell_id\":\"45\",\"yield_time_ms\":10000,\"max_tokens\":2500}",
+          "call_id": "call_0104c3b5c0a348f0b1b4084e39d58642",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927371.6391342
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "user_input_order": 53
+        }
+      }
+    },
+    {
+      "line": 707,
+      "rawLineSha256": "8a4cc9c8efa1f9c2f06af6d96faece7dc27e6bb201b517c17a0a5994ce9d0c3b",
+      "record": {
+        "timestamp": "2026-11-06T01:09:38.332Z",
+        "ordinal": 706,
+        "type": "response_item",
+        "payload": {
+          "type": "function_call_output",
+          "id": "fco_01a1ae67-759c-75e1-bf0b-e5dd828c83d9",
+          "call_id": "call_0104c3b5c0a348f0b1b4084e39d58642",
+          "output": [
+            {
+              "type": "input_text",
+              "text": "Script completed\nWall time 6.8 seconds\nOutput:\n"
+            },
+            {
+              "type": "input_text",
+              "text": "{\"chunk_id\":\"67ee49\",\"original_token_count\":0,\"output\":\"\",\"session_id\":17914,\"wall_time_seconds\":10.0146105}"
+            }
+          ],
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927378.3328135
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    },
+    {
+      "line": 713,
+      "rawLineSha256": "33b44d795526a463fe633d5b153f861379e0e13b82d4cc0e38cf6a7ccda19fcd",
+      "record": {
+        "timestamp": "2026-11-06T01:09:41.121Z",
+        "ordinal": 712,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call",
+          "id": "ctc_08af4d702daf59f6016aed28d4d4d487d0a81079ccfd330ec8",
+          "status": "completed",
+          "call_id": "call_099ce6aa7e634374b01022c5019cfb93",
+          "name": "exec",
+          "input": "// @exec: {\"yield_time_ms\": 1000, \"max_output_tokens\": 2500}\ntext(await tools.write_stdin({session_id:17914,chars:\"\",\"yield_time_ms\":10000,\"max_output_tokens\":2500}));\n",
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927380.8847365
+          }
+        }
+      }
+    },
+    {
+      "line": 715,
+      "rawLineSha256": "c11948af5977917aa50ca41e8a8b7b3a38de253aa0ab527b8ee1e64f957168aa",
+      "record": {
+        "timestamp": "2026-11-06T01:09:41.204Z",
+        "ordinal": 714,
+        "type": "response_item",
+        "payload": {
+          "type": "custom_tool_call_output",
+          "id": "ctco_01a1ae67-80d4-7b21-93a4-bc9b145c3732",
+          "call_id": "call_099ce6aa7e634374b01022c5019cfb93",
+          "output": [
+            {
+              "type": "input_text",
+              "text": "Script completed\nWall time 0.0 seconds\nOutput:\n"
+            },
+            {
+              "type": "input_text",
+              "text": "{\"chunk_id\":\"0dd507\",\"exit_code\":0,\"original_token_count\":61,\"output\":\"{\\\"status\\\":\\\"passed-pending-legacy-handoff\\\",\\\"acceptance\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\work\\\\\\\\FW-01-volsnap-io-safety\\\\\\\\26-control-retirement-acceptance.json\\\",\\\"actualExitCode\\\":0,\\\"correctedOriginalFailurePreserved\\\":true,\\\"leases\\\":2}\\n\",\"wall_time_seconds\":0.0000391}"
+            }
+          ],
+          "internal_chat_message_metadata_passthrough": {
+            "turn_id": "01a1ae5e-e5a3-7932-8a38-a4af902afcc1",
+            "create_time": 1793927381.204786
+          }
+        },
+        "metadata": {
+          "client_authored": false,
+          "fallback_token_limit_override": 12000
+        }
+      }
+    }
+  ]
+}

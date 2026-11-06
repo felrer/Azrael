@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "status": "failed",
+  "primary": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+  "artifactOwner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+  "workingRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w",
+  "controller": {
+    "pid": 34972,
+    "startedUtc": "2026-10-30T06:07:24.629Z",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\prepare-cold-workspace.cjs"
+    ]
+  },
+  "capture": {
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a",
+    "nonce": "0835848d39ceb999feb45bf71683966279856f7fa93d46b8f9f47f219e2d67d2",
+    "recordingReady": {
+      "helperPid": 29296,
+      "startExitCode": 0,
+      "recordingReadyAt": "2026-10-30T06:02:43.8511200Z",
+      "schema": 1,
+      "instanceName": "ET01-0835848d39ceb999",
+      "nonce": "0835848d39ceb999feb45bf71683966279856f7fa93d46b8f9f47f219e2d67d2",
+      "statusExitCode": 0,
+      "helperStartedAt": "2026-10-30T06:02:40.8967506Z"
+    }
+  },
+  "steps": [],
+  "control": {
+    "id": "work:ET-01:cold-artifact-owner-control",
+    "revision": 1
+  },
+  "caches": {
+    "cargo": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g",
+      "id": "work:ET-01:cold-cache:cargo",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "cargoHome": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\h",
+      "id": "work:ET-01:cold-cache:cargoHome",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "npm": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\n",
+      "id": "work:ET-01:cold-cache:npm",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "bun": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\b",
+      "id": "work:ET-01:cold-cache:bun",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "dotnetHome": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\d",
+      "id": "work:ET-01:cold-cache:dotnetHome",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "nuget": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\u",
+      "id": "work:ET-01:cold-cache:nuget",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "pending": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\p",
+      "id": "work:ET-01:cold-cache:pending",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "pip": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\pip",
+      "id": "work:ET-01:cold-cache:pip",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "temporary": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t",
+      "id": "work:ET-01:cold-cache:temporary",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "fixtures": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f",
+      "id": "work:ET-01:cold-cache:fixtures",
+      "revision": 1,
+      "absentBefore": true
+    },
+    "windowControl": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\wc",
+      "id": "work:ET-01:cold-cache:windowControl",
+      "revision": 1,
+      "absentBefore": true
+    }
+  },
+  "run": {
+    "id": "run:ET-01-cold-build-cache-audit:inputs-20261030a",
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\inputs-20261030a",
+    "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\inputs-20261030a\\reports",
+    "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\inputs-20261030a\\logs"
+  },
+  "environment": {
+    "CARGO_HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\h",
+    "npm_config_cache": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\n",
+    "BUN_INSTALL_CACHE_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\b",
+    "DOTNET_CLI_HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\d",
+    "NUGET_PACKAGES": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\u",
+    "PIP_CACHE_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\pip",
+    "TEMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t",
+    "TMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t",
+    "TMPDIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\t",
+    "INSTA_UPDATE": "no",
+    "INSTA_PENDING_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\p",
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PATH": "C:/Users/felre/AppData/Local/Programs/PowerShell/7;C:/Users/felre/AppData/Local/Programs/Python/Python313;C:/Users/felre/.cargo/bin;C:/Program Files/nodejs;C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\bun-1.4.2\\package\\bin;C:\\Users\\felre\\.azrael-ex\\tmp\\arg0\\codex-arg0fpSFXI;C:\\Users\\felre\\.azrael-ex\\tmp\\arg0\\codex-arg0LvCbHh;C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.20.8-hotspot\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\GitHub CLI\\;C:\\Program Files\\nodejs\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR;C:\\Program Files\\Tailscale\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files\\dotnet\\;C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\;c:\\Users\\felre\\.vscode\\extensions\\azrael-ex-local.azrael-2026.0.13\\bin\\windows-x86_64",
+    "AZRAEL_MAINTENANCE_OWNER": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe"
+  },
+  "error": "Error: Deployment preparation command failed: C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe (1): Traceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\n    import importlib.util,json,sys; s=importlib.util.spec_from_file_location('deployment_engine_provenance',sys.argv[1]); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(json.dumps(m.snapshot(sys.argv[2]),sort_keys=True))\r\n                                                                                                                                                                                                          ~~~~~~~~~~^^^^^^^^^^^^^\r\n  File \"C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\engine-provenance.py\", line 63, in snapshot\r\n    inventory_digest = helper.validate_receipt(context, receipt, allow_build_caches=True)\r\n  File \"C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\import-engine-source.py\", line 1258, in validate_receipt\r\n    verify_destination(context, receipt[\"files\"], has_receipt=True, allow_build_caches=allow_build_caches,\r\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n                       adaptation=receipt.get(\"distributionAdaptation\"), distribution_files=receipt.get(\"distributionFiles\"),\r\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n                       source_fixes=receipt.get(\"sourceFixes\"),\r\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n                       adapted_changes=receipt.get(\"localIntegration\", {}).get(\"adaptedChanges\"))\r\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\import-engine-source.py\", line 1074, in verify_destination\r\n    raise ValueError(f\"Destination coverage differs: extra={sorted(actual - expected)}, missing={sorted(expected - actual)}\")\r\nValueError: Destination coverage differs: extra=['codex-rs/project-maintenance/src/duplicate_claims.rs', 'codex-rs/project-maintenance/tests/duplicate_claims.rs'], missing=[]\r\n\n    at execute (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\deployment-workspace.cjs:28:50)\n    at engineSnapshot (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\deployment-workspace.cjs:75:21)\n    at prepareDeploymentWorkspace (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\deployment-workspace.cjs:135:5)\n    at async C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\prepare-cold-workspace.cjs:42:16",
+  "finishedUtc": "2026-10-30T06:07:52.961Z"
+}

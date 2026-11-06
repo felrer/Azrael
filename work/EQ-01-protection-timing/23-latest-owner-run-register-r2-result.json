@@ -1,0 +1,51 @@
+{
+  "exit_code": 0,
+  "signal": null,
+  "elapsed_ms": 117385.90049999999,
+  "stderr": "",
+  "result": {
+    "group": {
+      "cleanup_status": null,
+      "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+      "kind": "run",
+      "members": [
+        "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "dfdc26f58317efbaedd12ed06868a95f8dd510d2af5fdccb9ed49fb41c44dd63",
+      "owner": "standalone-candidate-preparation",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\29c6a2a826d8db61e9deb30a52a3b3bc44161a7fdf3da04e0e29cee62f7f50b3.json",
+      "registered_at_ms": 1793552766750,
+      "version": null
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f",
+        "identity": "52636e9dfbd160484d739943a952edbf2efe8fcf5c573e5c59da35ac256305c1",
+        "kind": "run",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 718938275,
+        "measured_at_ms": 1793552749369,
+        "owner": "standalone-candidate-preparation",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\29c6a2a826d8db61e9deb30a52a3b3bc44161a7fdf3da04e0e29cee62f7f50b3.json",
+        "references": [],
+        "registered_at_ms": 1793552749369,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  }
+}

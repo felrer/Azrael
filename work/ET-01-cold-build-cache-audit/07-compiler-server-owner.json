@@ -1,0 +1,11 @@
+{
+  "pid": 26356,
+  "parentPid": 42336,
+  "createdUtc": "2026-10-30T01:22:44.8331720Z",
+  "commandLine": "\"C:\\Program Files\\dotnet\\sdk\\10.0.400\\Roslyn\\bincore\\VBCSCompiler.exe\" \"-pipename:LSxNe4A_YXT6RA2VRXflTp1tpYCJOLUOzezFju9FBzs\"",
+  "matchesOwnedDotnetHome": true,
+  "otherEnvironmentValuesNotPersisted": true,
+  "shutdownExitCode": 0,
+  "exactServerHandleSignalled": true,
+  "observedUtc": "2026-10-30T01:29:25.6406539Z"
+}

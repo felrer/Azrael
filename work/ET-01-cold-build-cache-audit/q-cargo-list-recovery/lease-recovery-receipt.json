@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "action": "verified-cargo-lease-retirement",
+  "lease": {
+    "exists": true,
+    "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g",
+    "targetStat": {
+      "dev": "3057815611",
+      "ino": "5066549582623693",
+      "birthtimeNs": "1793341976284028700"
+    },
+    "leasePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\.azrael-cargo-owner",
+    "leaseStat": {
+      "dev": "3057815611",
+      "ino": "1970324851193391",
+      "birthtimeNs": "1793390439299264600"
+    },
+    "ownerPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g\\.azrael-cargo-owner\\owner.json",
+    "ownerStat": {
+      "dev": "3057815611",
+      "ino": "1970324851193392",
+      "birthtimeNs": "1793390439300266300"
+    },
+    "token": "0b036062-7252-41c2-acf4-3f76256d3462",
+    "ownerSha256": "e6e7d295ae7e07835a5bfa6e4033b536f878d084093d09722f9ff3449bb96d2f",
+    "owner": {
+      "schema": 1,
+      "token": "0b036062-7252-41c2-acf4-3f76256d3462",
+      "run": "pid-6340",
+      "coordinatorPid": 6340,
+      "producerPid": null,
+      "startedUtc": "2026-10-30T20:00:39.299Z",
+      "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g",
+      "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g",
+      "command": "cargo",
+      "args": [
+        "test",
+        "-p",
+        "codex-core",
+        "--lib",
+        "context::world_state::model::tests",
+        "--locked",
+        "--offline",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--test-threads=1",
+        "--list",
+        "--format=terse"
+      ],
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\w\\engine\\codex-rs",
+      "compilationSignature": "4aadc8d29b6b745fab6768d184561fc46c96ed511550ec94ddeb9c01a1b7fc3b",
+      "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\p",
+      "status": "running",
+      "phase": "spawn-attempted",
+      "lastProgressUtc": "2026-10-30T20:00:39.301Z",
+      "preparingUtc": "2026-10-30T20:00:39.299Z",
+      "spawnAttemptedUtc": "2026-10-30T20:00:39.301Z"
+    },
+    "ownerBytesBase64": "ewogICJzY2hlbWEiOiAxLAogICJ0b2tlbiI6ICIwYjAzNjA2Mi03MjUyLTQxYzItYWNmNC0zZjc2MjU2ZDM0NjIiLAogICJydW4iOiAicGlkLTYzNDAiLAogICJjb29yZGluYXRvclBpZCI6IDYzNDAsCiAgInByb2R1Y2VyUGlkIjogbnVsbCwKICAic3RhcnRlZFV0YyI6ICIyMDI2LTEwLTMwVDIwOjAwOjM5LjI5OVoiLAogICJ0YXJnZXREaXJlY3RvcnkiOiAiQzpcXFVzZXJzXFxmZWxyZVxcRGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGVcXGFydGlmYWN0c1xcZyIsCiAgInRhcmdldElkZW50aXR5IjogImM6XFx1c2Vyc1xcZmVscmVcXGRlc2t0b3BcXHBpLWhhcm5lc3MtaW5pdFxcYXJ0aWZhY3RzXFxlXFxhcnRpZmFjdHNcXGciLAogICJjb21tYW5kIjogImNhcmdvIiwKICAiYXJncyI6IFsKICAgICJ0ZXN0IiwKICAgICItcCIsCiAgICAiY29kZXgtY29yZSIsCiAgICAiLS1saWIiLAogICAgImNvbnRleHQ6OndvcmxkX3N0YXRlOjptb2RlbDo6dGVzdHMiLAogICAgIi0tbG9ja2VkIiwKICAgICItLW9mZmxpbmUiLAogICAgIi0tdGFyZ2V0IiwKICAgICJ4ODZfNjQtcGMtd2luZG93cy1tc3ZjIiwKICAgICItLSIsCiAgICAiLS10ZXN0LXRocmVhZHM9MSIsCiAgICAiLS1saXN0IiwKICAgICItLWZvcm1hdD10ZXJzZSIKICBdLAogICJjd2QiOiAiQzpcXFVzZXJzXFxmZWxyZVxcRGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGVcXGFydGlmYWN0c1xcd1xcZW5naW5lXFxjb2RleC1ycyIsCiAgImNvbXBpbGF0aW9uU2lnbmF0dXJlIjogIjRhYWRjOGQyOWI2Yjc0NWZhYjY3NjhkMTg0NTYxZmM0NmM5NmVkNTExNTUwZWM5NGRkZWI5YzAxYTFiN2ZjM2IiLAogICJwZW5kaW5nRGlyZWN0b3J5IjogIkM6XFxVc2Vyc1xcZmVscmVcXERlc2t0b3BcXHBpLWhhcm5lc3MtaW5pdFxcYXJ0aWZhY3RzXFxlXFxhcnRpZmFjdHNcXHAiLAogICJzdGF0dXMiOiAicnVubmluZyIsCiAgInBoYXNlIjogInNwYXduLWF0dGVtcHRlZCIsCiAgImxhc3RQcm9ncmVzc1V0YyI6ICIyMDI2LTEwLTMwVDIwOjAwOjM5LjMwMVoiLAogICJwcmVwYXJpbmdVdGMiOiAiMjAyNi0xMC0zMFQyMDowMDozOS4yOTlaIiwKICAic3Bhd25BdHRlbXB0ZWRVdGMiOiAiMjAyNi0xMC0zMFQyMDowMDozOS4zMDFaIgp9"
+  },
+  "result": {
+    "status": "unknown",
+    "exitCode": null
+  },
+  "producer_stopped_verified": true,
+  "reason": "Root-approved q dedicated execution/log provenance, Kill(true), WaitForExit and stream drain, actual controller closure; list remains unknown/null",
+  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-cargo-list-recovery-20261030a\\reports\\exact-q-tree-stop-proof.json",
+  "evidence_sha256": "d3cffb1b2ccd5d1132fa05056614ad26b292b2ef840b2f2ed342b52a397787d6",
+  "decidedAt": "2026-10-30T20:19:42.720Z"
+}

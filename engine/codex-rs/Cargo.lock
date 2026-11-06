@@ -1196,11 +1196,23 @@ version = "0.162.0"
 dependencies = [
  "codex-utils-process",
  "dunce",
+ "libc",
+ "rustix 1.1.4",
  "serde",
  "serde_json",
  "sha2 0.10.9",
  "tempfile",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "azrael-task-memory"
+version = "0.162.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tempfile",
+ "uuid",
 ]
 
 [[package]]
@@ -2031,6 +2043,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha1 0.10.6",
+ "tempfile",
  "tokio",
  "tracing",
 ]
@@ -2091,6 +2104,7 @@ dependencies = [
  "anyhow",
  "app_test_support",
  "axum",
+ "azrael-project-maintenance",
  "base64 0.22.1",
  "chrono",
  "clap",
@@ -2952,6 +2966,7 @@ dependencies = [
  "assert_matches",
  "async-channel",
  "azrael-project-maintenance",
+ "azrael-task-memory",
  "base64 0.22.1",
  "bm25",
  "chrono",

@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "status": "deleted-and-finalized",
+  "group": "run:FK-01-task-memory:20261103T012012495Z-1c09d692-69f7-45f8-9bfd-9f20a2f731e5",
+  "items": [
+    {
+      "id": "839289ca665d1cf2f726f70b4e416a85c7d38c87bd91d7dfdbe16ee13cf2b4b1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fk-1c10f477",
+      "logicalBytes": 192783419,
+      "remaining": false
+    },
+    {
+      "id": "bfed01be10c4cc61e05995777654ad089f7505a2a364ac252bbec80600ac1c46",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FK-01-task-memory\\runs\\20261103T012012495Z-1c09d692-69f7-45f8-9bfd-9f20a2f731e5",
+      "logicalBytes": 19596,
+      "remaining": false
+    }
+  ],
+  "resultsRetained": "01-plan.md"
+}

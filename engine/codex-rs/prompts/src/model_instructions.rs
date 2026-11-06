@@ -72,29 +72,15 @@ pub(crate) mod tests;
 pub fn compose_harness_instructions(
     prompt_variant: &str,
     behavior_template: Option<&str>,
-    claude_tools: bool,
     custom: Option<&str>,
 ) -> String {
     let default_behavior = if prompt_variant == "builtin/claude-lean" {
         include_str!("../templates/claude-lean-behavior.md").to_owned()
-    } else if claude_tools {
-        COMMON_AGENT_INSTRUCTIONS
-            .replace("functions.request_user_input_async", "AskUserQuestion")
-            .replace("functions.exec", "the declared tools")
-            .replace(
-                "`Promise.allSettled` inside `the declared tools`",
-                "independent tool calls",
-            )
-            .replace("`Promise.allSettled([...])`", "independent tool calls")
     } else {
         COMMON_AGENT_INSTRUCTIONS.to_owned()
     };
     let behavior = behavior_template.unwrap_or(&default_behavior);
     let mut text = format!("{HARNESS_RUNTIME_CORE}\n{behavior}");
-    if claude_tools {
-        text.push_str("\n");
-        text.push_str(include_str!("../templates/claude-tool-environment.md"));
-    }
     if let Some(custom) = custom.filter(|text| !text.is_empty()) {
         // Saved explicit instructions can include an old common prefix. Refresh only that
         // harness-owned prefix; preserve the user's actual additions verbatim.

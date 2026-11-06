@@ -1,0 +1,2567 @@
+{
+  "startedUtc": "2026-10-31T14:38:14.284Z",
+  "operations": [
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:lock-refresh",
+      "durationMs": 224676.2439,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:lock-refresh",
+          "kind": "run",
+          "members": [
+            "d5c1c5ea75f3e962b7528674b2cdac36a560e39e0062dc2d4d11f575a235c7b6"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "bd14985660cf8283a9b19c2b9b7bf4ce61cac9f011d4ffbb477974fe3ef5c013",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9e132636bc8272e2390a4ac93a5451e0cde6e6f46646db10986f61035eb9a582.json",
+          "registered_at_ms": 1793457667805,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "d5c1c5ea75f3e962b7528674b2cdac36a560e39e0062dc2d4d11f575a235c7b6",
+            "identity": "7cac45a73a181af4209920368a6ed6f8da221853a796c638d6ec966271dbc40e",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:lock-refresh",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 116244285,
+            "measured_at_ms": 1793457649855,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9e132636bc8272e2390a4ac93a5451e0cde6e6f46646db10986f61035eb9a582.json",
+            "references": [],
+            "registered_at_ms": 1793457649855,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:lock-resolve",
+      "durationMs": 115448.3088,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:lock-resolve",
+          "kind": "run",
+          "members": [
+            "9df838b20bb263ef123f85598c73487914f8d41c6da7d295a13968daa8ad331d"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "0c4b216df6298cf0a8e731abf4d228ac3404edeba00f98fbf18a29b13dea0510",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\18ac7937ad8e81457a2779dff42ae181dbbf8a5121ee0e771050ea63e316600c.json",
+          "registered_at_ms": 1793457780971,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "9df838b20bb263ef123f85598c73487914f8d41c6da7d295a13968daa8ad331d",
+            "identity": "ed23d945c18118b77d4bd3180c2e68374425a60bbd7ad2ba8e139d992824ab60",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:lock-resolve",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 7685344,
+            "measured_at_ms": 1793457762231,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\18ac7937ad8e81457a2779dff42ae181dbbf8a5121ee0e771050ea63e316600c.json",
+            "references": [],
+            "registered_at_ms": 1793457762231,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:p1",
+      "durationMs": 112768.7818,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:p1",
+          "kind": "run",
+          "members": [
+            "b85d47d5a8a27247b3529f3b874d0efb9999b6a9f482110af5de9db78ecf404f"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "8e85a8b4de93de67735c141f174803765c53b8317f8143b1e1f6566580b89e8f",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7c8e128b16be0f09c3d88ed43826077ce9c11e4b64b0f79dbd6c652559cb37ab.json",
+          "registered_at_ms": 1793457899368,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "b85d47d5a8a27247b3529f3b874d0efb9999b6a9f482110af5de9db78ecf404f",
+            "identity": "9a33c6ab7bd0b8b37d8b373a22a2a50689e0a10ba8a28667a6a6f3e64d961606",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:p1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 6702958,
+            "measured_at_ms": 1793457881055,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7c8e128b16be0f09c3d88ed43826077ce9c11e4b64b0f79dbd6c652559cb37ab.json",
+            "references": [],
+            "registered_at_ms": 1793457881055,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:source-v8",
+      "durationMs": 141289.14219999994,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:source-v8",
+          "kind": "run",
+          "members": [
+            "3259cdec2d9e15a5250378f55970f14d8536e37f8a7cad7d61e383b12171162f"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "1698a4e6d1fce00e4af2083b331699a20321fe81b5485205bee7818064bfb252",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6919d34cbd37bdee1dc36843df1e14d05949bf8a09c864a57b80cf24ebf02e39.json",
+          "registered_at_ms": 1793458041164,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "3259cdec2d9e15a5250378f55970f14d8536e37f8a7cad7d61e383b12171162f",
+            "identity": "d2baea174ddd098afd6eab861640d3ce572ad9ff43138f1dcc49527d3d55c71c",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:source-v8",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 115153939,
+            "measured_at_ms": 1793458018673,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6919d34cbd37bdee1dc36843df1e14d05949bf8a09c864a57b80cf24ebf02e39.json",
+            "references": [],
+            "registered_at_ms": 1793458018673,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:v8-source",
+      "durationMs": 360676.0207,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:v8-source",
+          "kind": "run",
+          "members": [
+            "ebcad280c2d549bf0ffd9185f06fc04a3f2b925b03080da30fcc63fcd765f467"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "0019857b2f42d30a1bf1160cc557d20b6c98fed364fb2da376809beebb5771e9",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\916ee0f5aac9566afd9e373f4371a8deccd1898fe68df6a0caf9d51280b1fd5b.json",
+          "registered_at_ms": 1793458399906,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "ebcad280c2d549bf0ffd9185f06fc04a3f2b925b03080da30fcc63fcd765f467",
+            "identity": "aa0e8a3f7cabc52472e5b7ec64270e8271e28a0c3cf4b4977a6a63e27ee05928",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:v8-source",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 2984187554,
+            "measured_at_ms": 1793458380532,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\916ee0f5aac9566afd9e373f4371a8deccd1898fe68df6a0caf9d51280b1fd5b.json",
+            "references": [],
+            "registered_at_ms": 1793458380532,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:v2",
+      "durationMs": 129044.89749999996,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:v2",
+          "kind": "run",
+          "members": [
+            "291824c325d74ca66efc979ddb9da6367f9b53ec0fc2456d9a5979dc8cd7a7f4",
+            "b41960e85505ef23f74c3cfbd4eb5af92e7797f9e3170838d6171da8ba4bb2d4"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "0490974556a64c4ad9ce6cbc0c6d277308a61f9d46d2295c3243b0df123e057e",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\af4a2a786de3ffa51e5404446d195b436ab1e6f4b46fd1e97f8e4311dee6397e.json",
+          "registered_at_ms": 1793458533966,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "291824c325d74ca66efc979ddb9da6367f9b53ec0fc2456d9a5979dc8cd7a7f4",
+            "identity": "804b2243f1ff9bec1c4b282aaefa85836c352d8bce23394c5143598da377029c",
+            "kind": "outputs",
+            "lifecycle_group_id": "run:EU01-cargo-time:v2",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 708545012,
+            "measured_at_ms": 1793458515606,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\af4a2a786de3ffa51e5404446d195b436ab1e6f4b46fd1e97f8e4311dee6397e.json",
+            "references": [],
+            "registered_at_ms": 1793458515606,
+            "remaining": true,
+            "role": "outputs",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          },
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "b41960e85505ef23f74c3cfbd4eb5af92e7797f9e3170838d6171da8ba4bb2d4",
+            "identity": "a5191b8812b7da370a96a7366cadea7ffe982457bbe3752346ac5452bc4e15d0",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:v2",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 2016411,
+            "measured_at_ms": 1793458497677,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\af4a2a786de3ffa51e5404446d195b436ab1e6f4b46fd1e97f8e4311dee6397e.json",
+            "references": [],
+            "registered_at_ms": 1793458497677,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:v3",
+      "durationMs": 403994.8521,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:v3",
+          "kind": "run",
+          "members": [
+            "27c433220b98fd8d6d7146659ab774a41fd6c37cd157a2138e796fa52ddbb38b",
+            "a2d3487d44be5c8ca4cde905f3d828d49b0d74eec615aa00874f030ed5f2441e",
+            "a800b0701b83ab40afbe19104918de2078f019a7fff410c9bd89c2036106aae7"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "dc853902e681d926497bfc0b384715fc1356e3e49da01c3a97ee08b94c6638ab",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\caaee59347dbe213a469e384d2c63ac38cde0fab3f9f170a759d22109197a846.json",
+          "registered_at_ms": 1793458938059,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "27c433220b98fd8d6d7146659ab774a41fd6c37cd157a2138e796fa52ddbb38b",
+            "identity": "2b07105d2dbaf9e2387e69f5d554c4348754a03a19b528433a7c4ad3d49f44fa",
+            "kind": "inputs",
+            "lifecycle_group_id": "run:EU01-cargo-time:v3",
+            "lifecycle_role": "snapshot",
+            "logical_bytes": 2785929104,
+            "measured_at_ms": 1793458865175,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-s2",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\caaee59347dbe213a469e384d2c63ac38cde0fab3f9f170a759d22109197a846.json",
+            "references": [],
+            "registered_at_ms": 1793458865175,
+            "remaining": true,
+            "role": "inputs",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          },
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "a2d3487d44be5c8ca4cde905f3d828d49b0d74eec615aa00874f030ed5f2441e",
+            "identity": "37d1287640f41fa38d9fd8bd4cd7792262f51a133b175b2f34878e76fae00dd0",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:v3",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1702100,
+            "measured_at_ms": 1793458626001,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\caaee59347dbe213a469e384d2c63ac38cde0fab3f9f170a759d22109197a846.json",
+            "references": [],
+            "registered_at_ms": 1793458626001,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          },
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "a800b0701b83ab40afbe19104918de2078f019a7fff410c9bd89c2036106aae7",
+            "identity": "e3faf9d4ffc3710ec4e35c6a2655ca4db05cb0fb26722b47b81330a9f535208d",
+            "kind": "outputs",
+            "lifecycle_group_id": "run:EU01-cargo-time:v3",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 2296103747,
+            "measured_at_ms": 1793458919314,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t2",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\caaee59347dbe213a469e384d2c63ac38cde0fab3f9f170a759d22109197a846.json",
+            "references": [],
+            "registered_at_ms": 1793458919314,
+            "remaining": true,
+            "role": "outputs",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:v4",
+      "durationMs": 110019.80619999999,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:v4",
+          "kind": "run",
+          "members": [
+            "3ed66b3a2b493daad10833524834f6577293b4ae86ce733402806015c3d8aa67"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "c4121f0e31c364e7217e4d65e21e965b6b85b187c24992c3102637039a9b8ee2",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ad62ce40339bfa80ee58317ea683394de5ee1519cfc39a392aba1ed6a6c02b57.json",
+          "registered_at_ms": 1793459049569,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "3ed66b3a2b493daad10833524834f6577293b4ae86ce733402806015c3d8aa67",
+            "identity": "3fe1c433156dc9ed88196db8f6118fcbc72a0f616ff5498327d0ac7845e4f9bb",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:v4",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1249049,
+            "measured_at_ms": 1793459031887,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ad62ce40339bfa80ee58317ea683394de5ee1519cfc39a392aba1ed6a6c02b57.json",
+            "references": [],
+            "registered_at_ms": 1793459031887,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:v5",
+      "durationMs": 110586.78300000005,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:v5",
+          "kind": "run",
+          "members": [
+            "e572a7e226d41d4133b0ad5e606328f45dd4557d2c1d7dbe4ddce4c08d68342c"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "456e19fcb9a77c7e619116d148337dfb9e550882fb6e5ea4e79490872091766d",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7ce8c5351838353c531acf730189ee66fe78d2718dd7d4af29d36b2bcbd70c75.json",
+          "registered_at_ms": 1793459162024,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "e572a7e226d41d4133b0ad5e606328f45dd4557d2c1d7dbe4ddce4c08d68342c",
+            "identity": "a2aa59bcd4b158702632bc0f1dc07cd14d9582629d99666644d733317483d515",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:v5",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1970124,
+            "measured_at_ms": 1793459143643,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7ce8c5351838353c531acf730189ee66fe78d2718dd7d4af29d36b2bcbd70c75.json",
+            "references": [],
+            "registered_at_ms": 1793459143643,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:v6",
+      "durationMs": 108384.97389999987,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:v6",
+          "kind": "run",
+          "members": [
+            "9727cbb7b6ce95271234a89a29171f09db53d28b3cefa0747bd70bc65625a5c0"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "bbe82b23b0d59afd26d40c1ec9de52d4558e0a59dd2f0e2946353b8710202a73",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\49d274aef3599111c3af1e7bc8359dd75afb464a2baba4c78fe9f3bbea9432f7.json",
+          "registered_at_ms": 1793459272636,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "9727cbb7b6ce95271234a89a29171f09db53d28b3cefa0747bd70bc65625a5c0",
+            "identity": "10c25a0b7cd71e6ea14757e10e4d83fa1b7629db7cf0573035b7f0d99f55840b",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:v6",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1477427,
+            "measured_at_ms": 1793459254949,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\49d274aef3599111c3af1e7bc8359dd75afb464a2baba4c78fe9f3bbea9432f7.json",
+            "references": [],
+            "registered_at_ms": 1793459254949,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-cargo-time:engine-source-v8",
+      "durationMs": 107662.41980000003,
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-cargo-time:engine-source-v8",
+          "kind": "run",
+          "members": [
+            "893817be7ea3b9ed17954277f7001fcb2b34c89a0fc3cdcce31cb3de4a7a0438"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "c9049eb1c5c3ecd6f097964a481d931f95aea137bc8189b97609be9c44a16f0b",
+          "owner": "EU01-cargo-time",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d15079c9ae4d0288a9cebbd21d8c7d298487ec3fc47844d3fa647f7dabf6caa4.json",
+          "registered_at_ms": 1793459381984,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "893817be7ea3b9ed17954277f7001fcb2b34c89a0fc3cdcce31cb3de4a7a0438",
+            "identity": "6125e67e1868511027d93b86937aabe56e978698d89d80fc0e9c33b4ddfa2a98",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-cargo-time:engine-source-v8",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 72758,
+            "measured_at_ms": 1793459364211,
+            "owner": "EU01-cargo-time",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d15079c9ae4d0288a9cebbd21d8c7d298487ec3fc47844d3fa647f7dabf6caa4.json",
+            "references": [],
+            "registered_at_ms": 1793459364211,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "review",
+      "durationMs": 65919.64780000015,
+      "exitCode": 0,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:engine-source-v8",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "c9049eb1c5c3ecd6f097964a481d931f95aea137bc8189b97609be9c44a16f0b",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d15079c9ae4d0288a9cebbd21d8c7d298487ec3fc47844d3fa647f7dabf6caa4.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:lock-refresh",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "bd14985660cf8283a9b19c2b9b7bf4ce61cac9f011d4ffbb477974fe3ef5c013",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9e132636bc8272e2390a4ac93a5451e0cde6e6f46646db10986f61035eb9a582.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:lock-resolve",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "0c4b216df6298cf0a8e731abf4d228ac3404edeba00f98fbf18a29b13dea0510",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\18ac7937ad8e81457a2779dff42ae181dbbf8a5121ee0e771050ea63e316600c.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:p1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "8e85a8b4de93de67735c141f174803765c53b8317f8143b1e1f6566580b89e8f",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7c8e128b16be0f09c3d88ed43826077ce9c11e4b64b0f79dbd6c652559cb37ab.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:source-v8",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "1698a4e6d1fce00e4af2083b331699a20321fe81b5485205bee7818064bfb252",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6919d34cbd37bdee1dc36843df1e14d05949bf8a09c864a57b80cf24ebf02e39.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 2,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:v2",
+            "kind": "run",
+            "members_total": 2,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "0490974556a64c4ad9ce6cbc0c6d277308a61f9d46d2295c3243b0df123e057e",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\af4a2a786de3ffa51e5404446d195b436ab1e6f4b46fd1e97f8e4311dee6397e.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 3,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:v3",
+            "kind": "run",
+            "members_total": 3,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "dc853902e681d926497bfc0b384715fc1356e3e49da01c3a97ee08b94c6638ab",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\caaee59347dbe213a469e384d2c63ac38cde0fab3f9f170a759d22109197a846.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:v4",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "c4121f0e31c364e7217e4d65e21e965b6b85b187c24992c3102637039a9b8ee2",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ad62ce40339bfa80ee58317ea683394de5ee1519cfc39a392aba1ed6a6c02b57.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:v5",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "456e19fcb9a77c7e619116d148337dfb9e550882fb6e5ea4e79490872091766d",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7ce8c5351838353c531acf730189ee66fe78d2718dd7d4af29d36b2bcbd70c75.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:v6",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "bbe82b23b0d59afd26d40c1ec9de52d4558e0a59dd2f0e2946353b8710202a73",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\49d274aef3599111c3af1e7bc8359dd75afb464a2baba4c78fe9f3bbea9432f7.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-cargo-time:v8-source",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "0019857b2f42d30a1bf1160cc557d20b6c98fed364fb2da376809beebb5771e9",
+            "owner": "EU01-cargo-time",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\916ee0f5aac9566afd9e373f4371a8deccd1898fe68df6a0caf9d51280b1fd5b.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "27c433220b98fd8d6d7146659ab774a41fd6c37cd157a2138e796fa52ddbb38b",
+              "a2d3487d44be5c8ca4cde905f3d828d49b0d74eec615aa00874f030ed5f2441e",
+              "a800b0701b83ab40afbe19104918de2078f019a7fff410c9bd89c2036106aae7"
+            ],
+            "group_token": "45bc68d7fefd8fed7f77248952ce1e864c8a9316080a4e0864940d811b2e337c",
+            "id": "27c433220b98fd8d6d7146659ab774a41fd6c37cd157a2138e796fa52ddbb38b",
+            "identity": "2b07105d2dbaf9e2387e69f5d554c4348754a03a19b528433a7c4ad3d49f44fa",
+            "lifecycle_group_id": "run:EU01-cargo-time:v3",
+            "logical_bytes": 2785929104,
+            "measured_at_ms": 1793458865175,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "dc853902e681d926497bfc0b384715fc1356e3e49da01c3a97ee08b94c6638ab",
+              "member_references": {
+                "27c433220b98fd8d6d7146659ab774a41fd6c37cd157a2138e796fa52ddbb38b": [],
+                "a2d3487d44be5c8ca4cde905f3d828d49b0d74eec615aa00874f030ed5f2441e": [],
+                "a800b0701b83ab40afbe19104918de2078f019a7fff410c9bd89c2036106aae7": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\reports\\producer-644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6.json",
+                  "evidence_sha256": "644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "request_sha256": "be699a89de82a925eef062feb1ee86001746baf7dd8f6d2d58edd50c95b61d68"
+                },
+                "created_at": "2026-10-31T12:29:54.299Z",
+                "id": "run:EU01-cargo-time:v3",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-s2",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t2",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\reports\\producer-644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6.json",
+                  "evidence_sha256": "644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 3,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T12:33:35.747Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459471443,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-s2",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  191,
+                  83,
+                  221,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "1460642436ebe0add34429c9019551e0de7b5acdbfe19416f808de25e7ac32df",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "291824c325d74ca66efc979ddb9da6367f9b53ec0fc2456d9a5979dc8cd7a7f4",
+              "b41960e85505ef23f74c3cfbd4eb5af92e7797f9e3170838d6171da8ba4bb2d4"
+            ],
+            "group_token": "c1569955c4af4190df280591865641d7514666b9d810d7507ff8f8b8125bb41d",
+            "id": "291824c325d74ca66efc979ddb9da6367f9b53ec0fc2456d9a5979dc8cd7a7f4",
+            "identity": "804b2243f1ff9bec1c4b282aaefa85836c352d8bce23394c5143598da377029c",
+            "lifecycle_group_id": "run:EU01-cargo-time:v2",
+            "logical_bytes": 708545012,
+            "measured_at_ms": 1793458515606,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "0490974556a64c4ad9ce6cbc0c6d277308a61f9d46d2295c3243b0df123e057e",
+              "member_references": {
+                "291824c325d74ca66efc979ddb9da6367f9b53ec0fc2456d9a5979dc8cd7a7f4": [],
+                "b41960e85505ef23f74c3cfbd4eb5af92e7797f9e3170838d6171da8ba4bb2d4": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\reports\\producer-5f1dbada3cac245c038059ec3e9d10bf8a2f1e51f625e721d8a622b2533e3b00.json",
+                  "evidence_sha256": "5f1dbada3cac245c038059ec3e9d10bf8a2f1e51f625e721d8a622b2533e3b00",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "request_sha256": "6cc80e94474972daae98e21f0b259f7779bf570748c3a57608f7490d11e19467"
+                },
+                "created_at": "2026-10-31T12:24:08.421Z",
+                "id": "run:EU01-cargo-time:v2",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t1",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\reports\\producer-5f1dbada3cac245c038059ec3e9d10bf8a2f1e51f625e721d8a622b2533e3b00.json",
+                  "evidence_sha256": "5f1dbada3cac245c038059ec3e9d10bf8a2f1e51f625e721d8a622b2533e3b00",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 3,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T12:25:25.423Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459465364,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  201,
+                  67,
+                  221,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "2782302f6c29352cc4c83f729482b4b26bffca17f6ca3a881a152ddeb4ab1ba7",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "3259cdec2d9e15a5250378f55970f14d8536e37f8a7cad7d61e383b12171162f"
+            ],
+            "group_token": "8baa79a4417e0469ce13ca036273ac1de3c417c63486c2246c94ce75b556959b",
+            "id": "3259cdec2d9e15a5250378f55970f14d8536e37f8a7cad7d61e383b12171162f",
+            "identity": "d2baea174ddd098afd6eab861640d3ce572ad9ff43138f1dcc49527d3d55c71c",
+            "lifecycle_group_id": "run:EU01-cargo-time:source-v8",
+            "logical_bytes": 115153939,
+            "measured_at_ms": 1793458018673,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "1698a4e6d1fce00e4af2083b331699a20321fe81b5485205bee7818064bfb252",
+              "member_references": {
+                "3259cdec2d9e15a5250378f55970f14d8536e37f8a7cad7d61e383b12171162f": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\reports\\producer-2181714f806c6bfc899c7e19f13aacc538435159b8f2cc18f635edc9bf483ae1.json",
+                  "evidence_sha256": "2181714f806c6bfc899c7e19f13aacc538435159b8f2cc18f635edc9bf483ae1",
+                  "reason": "Current source/scripts frozen and verified; no compiler invoked",
+                  "request_sha256": "b0188b85f114bad3fcdb4632895f9f106acd1920cb67fe771df3c90d4aefb426"
+                },
+                "created_at": "2026-10-31T12:06:38.051Z",
+                "id": "run:EU01-cargo-time:source-v8",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\reports\\producer-2181714f806c6bfc899c7e19f13aacc538435159b8f2cc18f635edc9bf483ae1.json",
+                  "evidence_sha256": "2181714f806c6bfc899c7e19f13aacc538435159b8f2cc18f635edc9bf483ae1",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Current source/scripts frozen and verified; no compiler invoked",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-31T12:10:24.875Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459459414,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  152,
+                  177,
+                  220,
+                  0,
+                  0,
+                  0,
+                  11,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "45e9421c0445da85c145ce6d004dea0c4d54323e20da8af06485ed558bc82c04",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "3ed66b3a2b493daad10833524834f6577293b4ae86ce733402806015c3d8aa67"
+            ],
+            "group_token": "23a4b26ed56464dfb38c3fa3069cecba6d444c22c162a14c4d450cf1a06381be",
+            "id": "3ed66b3a2b493daad10833524834f6577293b4ae86ce733402806015c3d8aa67",
+            "identity": "3fe1c433156dc9ed88196db8f6118fcbc72a0f616ff5498327d0ac7845e4f9bb",
+            "lifecycle_group_id": "run:EU01-cargo-time:v4",
+            "logical_bytes": 1249049,
+            "measured_at_ms": 1793459031887,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "c4121f0e31c364e7217e4d65e21e965b6b85b187c24992c3102637039a9b8ee2",
+              "member_references": {
+                "3ed66b3a2b493daad10833524834f6577293b4ae86ce733402806015c3d8aa67": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4\\reports\\producer-963c4c2589f65ff3a1e8f48c38139a9c87ac327f39d5b3cc20e952cf78fd392d.json",
+                  "evidence_sha256": "963c4c2589f65ff3a1e8f48c38139a9c87ac327f39d5b3cc20e952cf78fd392d",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "request_sha256": "92075c304a97398835048aff504c1990b676e568e90c08d63fd04900fe65d024"
+                },
+                "created_at": "2026-10-31T12:35:20.651Z",
+                "id": "run:EU01-cargo-time:v4",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4\\reports\\producer-963c4c2589f65ff3a1e8f48c38139a9c87ac327f39d5b3cc20e952cf78fd392d.json",
+                  "evidence_sha256": "963c4c2589f65ff3a1e8f48c38139a9c87ac327f39d5b3cc20e952cf78fd392d",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T12:35:49.987Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459477712,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v4",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  230,
+                  193,
+                  221,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "29c694e60b57a7c6c4961a214edb8ecb3f84e6319fc2ea41dae32d52b29e697f",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "893817be7ea3b9ed17954277f7001fcb2b34c89a0fc3cdcce31cb3de4a7a0438"
+            ],
+            "group_token": "6797340e21bcb00d94e40c75eb36a239674b07b2d969c2fe7c5dfd1f74853fbe",
+            "id": "893817be7ea3b9ed17954277f7001fcb2b34c89a0fc3cdcce31cb3de4a7a0438",
+            "identity": "6125e67e1868511027d93b86937aabe56e978698d89d80fc0e9c33b4ddfa2a98",
+            "lifecycle_group_id": "run:EU01-cargo-time:engine-source-v8",
+            "logical_bytes": 72758,
+            "measured_at_ms": 1793459364211,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "c9049eb1c5c3ecd6f097964a481d931f95aea137bc8189b97609be9c44a16f0b",
+              "member_references": {
+                "893817be7ea3b9ed17954277f7001fcb2b34c89a0fc3cdcce31cb3de4a7a0438": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8\\reports\\producer-c5d4b03d92c3c807bda9167a86274cc714ddc3f5f8440831c5a7240ac16122bd.json",
+                  "evidence_sha256": "c5d4b03d92c3c807bda9167a86274cc714ddc3f5f8440831c5a7240ac16122bd",
+                  "reason": "Single source-built-host Cargo compilation finished",
+                  "request_sha256": "7d82ea00b56760e9e5c03248fcda0119793e916b702c3ba975efac0cded37ec9"
+                },
+                "created_at": "2026-10-31T13:35:36.766Z",
+                "id": "run:EU01-cargo-time:engine-source-v8",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8\\reports\\producer-c5d4b03d92c3c807bda9167a86274cc714ddc3f5f8440831c5a7240ac16122bd.json",
+                  "evidence_sha256": "c5d4b03d92c3c807bda9167a86274cc714ddc3f5f8440831c5a7240ac16122bd",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Single source-built-host Cargo compilation finished",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 3,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-31T14:36:50.963Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459435909,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  254,
+                  218,
+                  221,
+                  0,
+                  0,
+                  0,
+                  2,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "02fcda36e7df67913357c82b7e161a5d796576973fc02859ac12b921eb989f9c",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "9727cbb7b6ce95271234a89a29171f09db53d28b3cefa0747bd70bc65625a5c0"
+            ],
+            "group_token": "c7fb23f908e90ae38d149e66e86d5ad5513414b748af84d91244a6c516644a9b",
+            "id": "9727cbb7b6ce95271234a89a29171f09db53d28b3cefa0747bd70bc65625a5c0",
+            "identity": "10c25a0b7cd71e6ea14757e10e4d83fa1b7629db7cf0573035b7f0d99f55840b",
+            "lifecycle_group_id": "run:EU01-cargo-time:v6",
+            "logical_bytes": 1477427,
+            "measured_at_ms": 1793459254949,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "bbe82b23b0d59afd26d40c1ec9de52d4558e0a59dd2f0e2946353b8710202a73",
+              "member_references": {
+                "9727cbb7b6ce95271234a89a29171f09db53d28b3cefa0747bd70bc65625a5c0": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6\\reports\\producer-e45764c5295bd276a3c01717669b978f948ad3255f2c51e09a6114343494a20d.json",
+                  "evidence_sha256": "e45764c5295bd276a3c01717669b978f948ad3255f2c51e09a6114343494a20d",
+                  "reason": "V8 source build and actual native version smoke succeeded",
+                  "request_sha256": "1ac085d96ac21cf9c81ab4b7c2177269e4b5949c2a1459651c61b63ba2b1def8"
+                },
+                "created_at": "2026-10-31T13:34:07.452Z",
+                "id": "run:EU01-cargo-time:v6",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6\\reports\\producer-e45764c5295bd276a3c01717669b978f948ad3255f2c51e09a6114343494a20d.json",
+                  "evidence_sha256": "e45764c5295bd276a3c01717669b978f948ad3255f2c51e09a6114343494a20d",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "V8 source build and actual native version smoke succeeded",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-31T13:34:56.565Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459489496,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v6",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  108,
+                  152,
+                  180,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "6827d35ac02be000064690e796d70053772db5ab52bcaa66377cf7b672954a0e",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "9df838b20bb263ef123f85598c73487914f8d41c6da7d295a13968daa8ad331d"
+            ],
+            "group_token": "9daa6ebbc6a3220fa311be29c7ded280be076395e5399a7f37fe097aee62ed77",
+            "id": "9df838b20bb263ef123f85598c73487914f8d41c6da7d295a13968daa8ad331d",
+            "identity": "ed23d945c18118b77d4bd3180c2e68374425a60bbd7ad2ba8e139d992824ab60",
+            "lifecycle_group_id": "run:EU01-cargo-time:lock-resolve",
+            "logical_bytes": 7685344,
+            "measured_at_ms": 1793457762231,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "0c4b216df6298cf0a8e731abf4d228ac3404edeba00f98fbf18a29b13dea0510",
+              "member_references": {
+                "9df838b20bb263ef123f85598c73487914f8d41c6da7d295a13968daa8ad331d": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve\\reports\\producer-308254e6a25a6cd22a19b736cf74e5b1660649ab6ae3f72efcdf86a016577eb5.json",
+                  "evidence_sha256": "308254e6a25a6cd22a19b736cf74e5b1660649ab6ae3f72efcdf86a016577eb5",
+                  "reason": "Cargo metadata dependency resolution only, no compiler invoked",
+                  "request_sha256": "5c7eabf151bc9afdff74ae448a4f1d5da116829eed908c282d7a71d7a5b617ea"
+                },
+                "created_at": "2026-10-31T11:59:18.251Z",
+                "id": "run:EU01-cargo-time:lock-resolve",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve\\reports\\producer-308254e6a25a6cd22a19b736cf74e5b1660649ab6ae3f72efcdf86a016577eb5.json",
+                  "evidence_sha256": "308254e6a25a6cd22a19b736cf74e5b1660649ab6ae3f72efcdf86a016577eb5",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Cargo metadata dependency resolution only, no compiler invoked",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-31T11:59:43.421Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459447824,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-resolve",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  134,
+                  169,
+                  220,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "064b0aef3eff61b602d956b9d7e38a9eee8983ea1983ea121119ec9a5ece8f35",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "27c433220b98fd8d6d7146659ab774a41fd6c37cd157a2138e796fa52ddbb38b",
+              "a2d3487d44be5c8ca4cde905f3d828d49b0d74eec615aa00874f030ed5f2441e",
+              "a800b0701b83ab40afbe19104918de2078f019a7fff410c9bd89c2036106aae7"
+            ],
+            "group_token": "45bc68d7fefd8fed7f77248952ce1e864c8a9316080a4e0864940d811b2e337c",
+            "id": "a2d3487d44be5c8ca4cde905f3d828d49b0d74eec615aa00874f030ed5f2441e",
+            "identity": "37d1287640f41fa38d9fd8bd4cd7792262f51a133b175b2f34878e76fae00dd0",
+            "lifecycle_group_id": "run:EU01-cargo-time:v3",
+            "logical_bytes": 1702100,
+            "measured_at_ms": 1793458626001,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "dc853902e681d926497bfc0b384715fc1356e3e49da01c3a97ee08b94c6638ab",
+              "member_references": {
+                "27c433220b98fd8d6d7146659ab774a41fd6c37cd157a2138e796fa52ddbb38b": [],
+                "a2d3487d44be5c8ca4cde905f3d828d49b0d74eec615aa00874f030ed5f2441e": [],
+                "a800b0701b83ab40afbe19104918de2078f019a7fff410c9bd89c2036106aae7": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\reports\\producer-644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6.json",
+                  "evidence_sha256": "644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "request_sha256": "be699a89de82a925eef062feb1ee86001746baf7dd8f6d2d58edd50c95b61d68"
+                },
+                "created_at": "2026-10-31T12:29:54.299Z",
+                "id": "run:EU01-cargo-time:v3",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-s2",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t2",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\reports\\producer-644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6.json",
+                  "evidence_sha256": "644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 3,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T12:33:35.747Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459471452,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  190,
+                  83,
+                  221,
+                  0,
+                  0,
+                  0,
+                  3,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "21c812c021815d1b81ab57eebbaee4605b3f8b1acb5ceac568e76af3a33eb48f",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "27c433220b98fd8d6d7146659ab774a41fd6c37cd157a2138e796fa52ddbb38b",
+              "a2d3487d44be5c8ca4cde905f3d828d49b0d74eec615aa00874f030ed5f2441e",
+              "a800b0701b83ab40afbe19104918de2078f019a7fff410c9bd89c2036106aae7"
+            ],
+            "group_token": "45bc68d7fefd8fed7f77248952ce1e864c8a9316080a4e0864940d811b2e337c",
+            "id": "a800b0701b83ab40afbe19104918de2078f019a7fff410c9bd89c2036106aae7",
+            "identity": "e3faf9d4ffc3710ec4e35c6a2655ca4db05cb0fb26722b47b81330a9f535208d",
+            "lifecycle_group_id": "run:EU01-cargo-time:v3",
+            "logical_bytes": 2296103747,
+            "measured_at_ms": 1793458919314,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "dc853902e681d926497bfc0b384715fc1356e3e49da01c3a97ee08b94c6638ab",
+              "member_references": {
+                "27c433220b98fd8d6d7146659ab774a41fd6c37cd157a2138e796fa52ddbb38b": [],
+                "a2d3487d44be5c8ca4cde905f3d828d49b0d74eec615aa00874f030ed5f2441e": [],
+                "a800b0701b83ab40afbe19104918de2078f019a7fff410c9bd89c2036106aae7": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\reports\\producer-644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6.json",
+                  "evidence_sha256": "644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "request_sha256": "be699a89de82a925eef062feb1ee86001746baf7dd8f6d2d58edd50c95b61d68"
+                },
+                "created_at": "2026-10-31T12:29:54.299Z",
+                "id": "run:EU01-cargo-time:v3",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-s2",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t2",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v3\\reports\\producer-644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6.json",
+                  "evidence_sha256": "644d1c24d69c44bc0c6045503c252900936f7391abe33c672e5f6322e6b702f6",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 3,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T12:33:35.747Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459471461,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t2",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  195,
+                  83,
+                  221,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "c7b98960400a51742d4a422f9580c65ecd33ff7fcf2e1bfe36df40cf3c04e9f0",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "291824c325d74ca66efc979ddb9da6367f9b53ec0fc2456d9a5979dc8cd7a7f4",
+              "b41960e85505ef23f74c3cfbd4eb5af92e7797f9e3170838d6171da8ba4bb2d4"
+            ],
+            "group_token": "c1569955c4af4190df280591865641d7514666b9d810d7507ff8f8b8125bb41d",
+            "id": "b41960e85505ef23f74c3cfbd4eb5af92e7797f9e3170838d6171da8ba4bb2d4",
+            "identity": "a5191b8812b7da370a96a7366cadea7ffe982457bbe3752346ac5452bc4e15d0",
+            "lifecycle_group_id": "run:EU01-cargo-time:v2",
+            "logical_bytes": 2016411,
+            "measured_at_ms": 1793458497677,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "0490974556a64c4ad9ce6cbc0c6d277308a61f9d46d2295c3243b0df123e057e",
+              "member_references": {
+                "291824c325d74ca66efc979ddb9da6367f9b53ec0fc2456d9a5979dc8cd7a7f4": [],
+                "b41960e85505ef23f74c3cfbd4eb5af92e7797f9e3170838d6171da8ba4bb2d4": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\reports\\producer-5f1dbada3cac245c038059ec3e9d10bf8a2f1e51f625e721d8a622b2533e3b00.json",
+                  "evidence_sha256": "5f1dbada3cac245c038059ec3e9d10bf8a2f1e51f625e721d8a622b2533e3b00",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "request_sha256": "6cc80e94474972daae98e21f0b259f7779bf570748c3a57608f7490d11e19467"
+                },
+                "created_at": "2026-10-31T12:24:08.421Z",
+                "id": "run:EU01-cargo-time:v2",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t1",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2\\reports\\producer-5f1dbada3cac245c038059ec3e9d10bf8a2f1e51f625e721d8a622b2533e3b00.json",
+                  "evidence_sha256": "5f1dbada3cac245c038059ec3e9d10bf8a2f1e51f625e721d8a622b2533e3b00",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 3,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T12:25:25.423Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459465373,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v2",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  196,
+                  67,
+                  221,
+                  0,
+                  0,
+                  0,
+                  2,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "9d02228b2f56ca6334e3c741954912bff9d93c44671be2eb7d94df216da75131",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "b85d47d5a8a27247b3529f3b874d0efb9999b6a9f482110af5de9db78ecf404f"
+            ],
+            "group_token": "ce5b8c4c430a83baa601b934767604834df0e6ccbe7cc1138c7998eac10e502e",
+            "id": "b85d47d5a8a27247b3529f3b874d0efb9999b6a9f482110af5de9db78ecf404f",
+            "identity": "9a33c6ab7bd0b8b37d8b373a22a2a50689e0a10ba8a28667a6a6f3e64d961606",
+            "lifecycle_group_id": "run:EU01-cargo-time:p1",
+            "logical_bytes": 6702958,
+            "measured_at_ms": 1793457881055,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "8e85a8b4de93de67735c141f174803765c53b8317f8143b1e1f6566580b89e8f",
+              "member_references": {
+                "b85d47d5a8a27247b3529f3b874d0efb9999b6a9f482110af5de9db78ecf404f": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1\\reports\\producer-24748943bdc1842daab77e50a64e3794d48c2e4f906e7d1b1ac65dff4890093a.json",
+                  "evidence_sha256": "24748943bdc1842daab77e50a64e3794d48c2e4f906e7d1b1ac65dff4890093a",
+                  "reason": "Focused stable source regression process synchronous terminal",
+                  "request_sha256": "f42910cb556d778da54eabd8fa811b0acad01dce32cf6121559721bbee33fd0d"
+                },
+                "created_at": "2026-10-31T12:04:36.140Z",
+                "id": "run:EU01-cargo-time:p1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1\\reports\\producer-24748943bdc1842daab77e50a64e3794d48c2e4f906e7d1b1ac65dff4890093a.json",
+                  "evidence_sha256": "24748943bdc1842daab77e50a64e3794d48c2e4f906e7d1b1ac65dff4890093a",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Focused stable source regression process synchronous terminal",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-31T12:05:00.573Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459453611,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\p1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  242,
+                  174,
+                  220,
+                  0,
+                  0,
+                  0,
+                  7,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "3afae2ff6d5417cdb8a6dec845cba486ffb0aa102a1c1c1326f09885f8913b25",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "d5c1c5ea75f3e962b7528674b2cdac36a560e39e0062dc2d4d11f575a235c7b6"
+            ],
+            "group_token": "a278c76285be3845cbc2db193a5abcb5f386dd2fe37f54a355b962523bf3cf08",
+            "id": "d5c1c5ea75f3e962b7528674b2cdac36a560e39e0062dc2d4d11f575a235c7b6",
+            "identity": "7cac45a73a181af4209920368a6ed6f8da221853a796c638d6ec966271dbc40e",
+            "lifecycle_group_id": "run:EU01-cargo-time:lock-refresh",
+            "logical_bytes": 116244285,
+            "measured_at_ms": 1793457649855,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "bd14985660cf8283a9b19c2b9b7bf4ce61cac9f011d4ffbb477974fe3ef5c013",
+              "member_references": {
+                "d5c1c5ea75f3e962b7528674b2cdac36a560e39e0062dc2d4d11f575a235c7b6": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\reports\\producer-c11471713e99f2fa8c2f9b43bac498cb6a1f068855bdb77cd2bbcbdfcfdbafe9.json",
+                  "evidence_sha256": "c11471713e99f2fa8c2f9b43bac498cb6a1f068855bdb77cd2bbcbdfcfdbafe9",
+                  "reason": "Offline metadata updated frozen lockfile; no Rust compiler invoked",
+                  "request_sha256": "76c528a0e63097b9f2018ac40e341e0b1e59514a02117365615eeff699a18f0b"
+                },
+                "created_at": "2026-10-31T11:56:49.203Z",
+                "id": "run:EU01-cargo-time:lock-refresh",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\reports\\producer-c11471713e99f2fa8c2f9b43bac498cb6a1f068855bdb77cd2bbcbdfcfdbafe9.json",
+                  "evidence_sha256": "c11471713e99f2fa8c2f9b43bac498cb6a1f068855bdb77cd2bbcbdfcfdbafe9",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Offline metadata updated frozen lockfile; no Rust compiler invoked",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-31T11:57:51.908Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459441942,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  251,
+                  62,
+                  169,
+                  0,
+                  0,
+                  0,
+                  44,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "c7c53e5d976e26dfe3204c855fd3e4410db24cca5876fcc6496eb63f188824bf",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "e572a7e226d41d4133b0ad5e606328f45dd4557d2c1d7dbe4ddce4c08d68342c"
+            ],
+            "group_token": "9e9076ddb0247f305a3bacec097b30ee99c0fed6484a6877de6c28722fbf9199",
+            "id": "e572a7e226d41d4133b0ad5e606328f45dd4557d2c1d7dbe4ddce4c08d68342c",
+            "identity": "a2aa59bcd4b158702632bc0f1dc07cd14d9582629d99666644d733317483d515",
+            "lifecycle_group_id": "run:EU01-cargo-time:v5",
+            "logical_bytes": 1970124,
+            "measured_at_ms": 1793459143643,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "456e19fcb9a77c7e619116d148337dfb9e550882fb6e5ea4e79490872091766d",
+              "member_references": {
+                "e572a7e226d41d4133b0ad5e606328f45dd4557d2c1d7dbe4ddce4c08d68342c": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5\\reports\\producer-2c548b792e957d4ed1ac6b3c6d0a3e597ba53e882c059be2a7105a2b7c85b7c5.json",
+                  "evidence_sha256": "2c548b792e957d4ed1ac6b3c6d0a3e597ba53e882c059be2a7105a2b7c85b7c5",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "request_sha256": "97f63063df02d3a2a54d338b7417cc10d55719c1b17fd0efeba29f56238677e4"
+                },
+                "created_at": "2026-10-31T12:38:08.960Z",
+                "id": "run:EU01-cargo-time:v5",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5\\reports\\producer-2c548b792e957d4ed1ac6b3c6d0a3e597ba53e882c059be2a7105a2b7c85b7c5.json",
+                  "evidence_sha256": "2c548b792e957d4ed1ac6b3c6d0a3e597ba53e882c059be2a7105a2b7c85b7c5",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "V8 preparation or source compilation synchronously failed",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T13:33:07.821Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459483547,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  200,
+                  161,
+                  220,
+                  0,
+                  0,
+                  0,
+                  5,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "9e565bcfe268d6b5cf92896a976d62b0f22e36e9d4023e2f0bcdba07f6a802a0",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "ebcad280c2d549bf0ffd9185f06fc04a3f2b925b03080da30fcc63fcd765f467"
+            ],
+            "group_token": "ca3c5dcb229137474f66c6e1d66d144dbb962f73fbcf3bd6609c7c85977eb859",
+            "id": "ebcad280c2d549bf0ffd9185f06fc04a3f2b925b03080da30fcc63fcd765f467",
+            "identity": "aa0e8a3f7cabc52472e5b7ec64270e8271e28a0c3cf4b4977a6a63e27ee05928",
+            "lifecycle_group_id": "run:EU01-cargo-time:v8-source",
+            "logical_bytes": 2984187554,
+            "measured_at_ms": 1793458380532,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "0019857b2f42d30a1bf1160cc557d20b6c98fed364fb2da376809beebb5771e9",
+              "member_references": {
+                "ebcad280c2d549bf0ffd9185f06fc04a3f2b925b03080da30fcc63fcd765f467": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\reports\\producer-ae745947aea0d2d8bd0a56dca293780de0032c5298a4dd1886ba1c400c300bb7.json",
+                  "evidence_sha256": "ae745947aea0d2d8bd0a56dca293780de0032c5298a4dd1886ba1c400c300bb7",
+                  "reason": "V8 source preparation/build synchronously failed",
+                  "request_sha256": "ad0ca9bf5c49a3cfb9ac87735444e0175d69cd2275ea01fa6ff9a72a14e20f0e"
+                },
+                "created_at": "2026-10-31T12:15:53.560Z",
+                "id": "run:EU01-cargo-time:v8-source",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source",
+                "owner": "EU01-cargo-time",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\reports\\producer-ae745947aea0d2d8bd0a56dca293780de0032c5298a4dd1886ba1c400c300bb7.json",
+                  "evidence_sha256": "ae745947aea0d2d8bd0a56dca293780de0032c5298a4dd1886ba1c400c300bb7",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "V8 source preparation/build synchronously failed",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T12:17:38.526Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793459495552,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  96,
+                  210,
+                  219,
+                  0,
+                  0,
+                  0,
+                  6,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "0254e402f0f3967e2e8d20e26eafec33225dcfb8d05a0176cf24d2b4f6651f4d",
+            "verification": "registered"
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "operation": "apply",
+      "durationMs": 2319557.1648999993,
+      "exitCode": 130,
+      "stderr": ""
+    }
+  ],
+  "status": "failed",
+  "failure": "Error: Native apply failed: \n    at call (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\cleanup-cargo-source-v8.cjs:3:521)\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\cleanup-cargo-source-v8.cjs:5:265)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47"
+}

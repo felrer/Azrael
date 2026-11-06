@@ -1,0 +1,1649 @@
+{
+  "at": "2026-11-02T09:43:41.028Z",
+  "scope": "Windows x64 local; fixed source/binaries, task-owned preference state and deterministic fresh fixtures",
+  "primary": {
+    "complete": true,
+    "environment": {
+      "os": "win32",
+      "arch": "x64",
+      "execution": "local Windows x64 shared host",
+      "samples_per_case_per_executable": 1
+    },
+    "baseline": {
+      "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\inputs\\baseline-maintenance_owner.exe",
+      "sha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+      "report": "storage-perf-baseline-isolated.json"
+    },
+    "candidate": {
+      "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\outputs\\candidate-maintenance_owner.exe",
+      "sha256": "f98ae805137e50035a475b2873e7ee5ab71b45c4a9e513ce5a60203625bceb00",
+      "report": "storage-perf-candidate-isolated.json"
+    },
+    "excluded_initial_baseline": {
+      "report": "storage-perf-baseline.json",
+      "reason": "Harness initially set ignored AZRAEL_HOME; preference admission used shared default home. Behavioral checks passed, but this run is excluded from paired comparison. Corrected baseline and candidate use task-owned AZRAEL_STATE_ROOT."
+    },
+    "scope_notes": [
+      "Actual apply wall is the primary comparable end-to-end metric.",
+      "Candidate state.save covers preparation before the state lock plus commit; baseline has no state.save or finer phases. Baseline/candidate state.commit boundaries differ because prepare_local moved before lock; commit ratios are not identical-scope algorithm speedups.",
+      "Nested phase, lock and enclosing save/commit spans overlap; do not sum them.",
+      "Registration, fixture seed construction, partition transition and final paginated native inventory are outside measured apply.",
+      "All native processes streamed stdout/stderr to files and reached actual close exit0; no buffer-kill timeout path.",
+      "No speedup guarantee or cross-platform inference follows from one sequential pair on a shared host."
+    ],
+    "cases": [
+      {
+        "name": "legacy-h0000",
+        "history_count": 0,
+        "members": 20,
+        "bytes_per_member": 1024,
+        "baseline_apply_wall_ms": 6906.1896,
+        "candidate_apply_wall_ms": 10117.2477,
+        "candidate_over_baseline_wall_ratio": 1.4649536554860876,
+        "wall_change_percent": 46.49536554860876,
+        "baseline_state_commit": {
+          "count": 40,
+          "total_us": 903026,
+          "min_us": 19992,
+          "max_us": 34086,
+          "outcomes": {
+            "committed": 40
+          }
+        },
+        "candidate_state_commit": {
+          "count": 40,
+          "total_us": 1442707,
+          "min_us": 25109,
+          "max_us": 186383,
+          "outcomes": {
+            "committed": 40
+          }
+        },
+        "candidate_state_save": {
+          "count": 40,
+          "total_us": 3001124,
+          "min_us": 53038,
+          "max_us": 220237,
+          "outcomes": {
+            "committed": 40
+          }
+        },
+        "baseline_apply_save_total_us": 2066064,
+        "candidate_apply_save_total_us": 3001491,
+        "candidate_state_spans": {
+          "maintenance.phase:state.prepare_local": {
+            "count": 40,
+            "total_us": 5811,
+            "min_us": 80,
+            "max_us": 228,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.read": {
+            "count": 40,
+            "total_us": 124793,
+            "min_us": 2181,
+            "max_us": 4691,
+            "outcomes": {
+              "read": 40
+            }
+          },
+          "maintenance.phase:state.merge": {
+            "count": 40,
+            "total_us": 4853,
+            "min_us": 62,
+            "max_us": 228,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.open_pending": {
+            "count": 40,
+            "total_us": 19616,
+            "min_us": 245,
+            "max_us": 1197,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.serialize": {
+            "count": 40,
+            "total_us": 3561,
+            "min_us": 43,
+            "max_us": 163,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.write_pending": {
+            "count": 40,
+            "total_us": 6052,
+            "min_us": 94,
+            "max_us": 245,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.sync_pending": {
+            "count": 40,
+            "total_us": 300815,
+            "min_us": 3279,
+            "max_us": 158028,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.rename": {
+            "count": 40,
+            "total_us": 87041,
+            "min_us": 1564,
+            "max_us": 2675,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 40,
+            "total_us": 1442707,
+            "min_us": 25109,
+            "max_us": 186383,
+            "outcomes": {
+              "committed": 40
+            }
+          },
+          "maintenance.phase:state.save": {
+            "count": 40,
+            "total_us": 3001124,
+            "min_us": 53038,
+            "max_us": 220237,
+            "outcomes": {
+              "committed": 40
+            }
+          }
+        },
+        "baseline_locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 1277284,
+            "min_us": 22553,
+            "max_us": 115547,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 234584,
+            "min_us": 76364,
+            "max_us": 158220,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 2190510,
+            "min_us": 41207,
+            "max_us": 209293,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 6654042,
+            "min_us": 6654042,
+            "max_us": 6654042,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "candidate_locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 1726477,
+            "min_us": 26858,
+            "max_us": 135636,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 339253,
+            "min_us": 75831,
+            "max_us": 263422,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 3222170,
+            "min_us": 50636,
+            "max_us": 358976,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 9719333,
+            "min_us": 9719333,
+            "max_us": 9719333,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "preparation": {
+          "baseline_registration_ms": 701.3339,
+          "candidate_registration_ms": 1242.8443,
+          "baseline_partition_ms": null,
+          "candidate_partition_ms": null
+        },
+        "baseline_apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-baseline-isolated-002-legacy-h0000-apply",
+        "candidate_apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-candidate-isolated-002-legacy-h0000-apply",
+        "checks": {
+          "results_deleted": 20,
+          "files_absent": 20,
+          "commits": 40,
+          "history_deep_equal": true,
+          "no_pending_intents": true,
+          "no_manifest_pending": true,
+          "final_decisions": 20
+        }
+      },
+      {
+        "name": "legacy-h2000",
+        "history_count": 2000,
+        "members": 20,
+        "bytes_per_member": 1024,
+        "baseline_apply_wall_ms": 13338.421,
+        "candidate_apply_wall_ms": 9913.0917,
+        "candidate_over_baseline_wall_ratio": 0.7431982916118782,
+        "wall_change_percent": -25.680170838812177,
+        "baseline_state_commit": {
+          "count": 40,
+          "total_us": 6534602,
+          "min_us": 111541,
+          "max_us": 758514,
+          "outcomes": {
+            "committed": 40
+          }
+        },
+        "candidate_state_commit": {
+          "count": 40,
+          "total_us": 2036596,
+          "min_us": 40761,
+          "max_us": 72574,
+          "outcomes": {
+            "committed": 40
+          }
+        },
+        "candidate_state_save": {
+          "count": 40,
+          "total_us": 3841081,
+          "min_us": 72427,
+          "max_us": 370610,
+          "outcomes": {
+            "committed": 40
+          }
+        },
+        "baseline_apply_save_total_us": 7721084,
+        "candidate_apply_save_total_us": 3841471,
+        "candidate_state_spans": {
+          "maintenance.phase:state.prepare_local": {
+            "count": 40,
+            "total_us": 158815,
+            "min_us": 2744,
+            "max_us": 7370,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.read": {
+            "count": 40,
+            "total_us": 329927,
+            "min_us": 6599,
+            "max_us": 11830,
+            "outcomes": {
+              "read": 40
+            }
+          },
+          "maintenance.phase:state.merge": {
+            "count": 40,
+            "total_us": 307841,
+            "min_us": 5717,
+            "max_us": 12892,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.open_pending": {
+            "count": 40,
+            "total_us": 13156,
+            "min_us": 246,
+            "max_us": 853,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.serialize": {
+            "count": 40,
+            "total_us": 84027,
+            "min_us": 1358,
+            "max_us": 3332,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.write_pending": {
+            "count": 40,
+            "total_us": 26731,
+            "min_us": 367,
+            "max_us": 1250,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.sync_pending": {
+            "count": 40,
+            "total_us": 164934,
+            "min_us": 3670,
+            "max_us": 6472,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.rename": {
+            "count": 40,
+            "total_us": 93792,
+            "min_us": 1779,
+            "max_us": 3950,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 40,
+            "total_us": 2036596,
+            "min_us": 40761,
+            "max_us": 72574,
+            "outcomes": {
+              "committed": 40
+            }
+          },
+          "maintenance.phase:state.save": {
+            "count": 40,
+            "total_us": 3841081,
+            "min_us": 72427,
+            "max_us": 370610,
+            "outcomes": {
+              "committed": 40
+            }
+          }
+        },
+        "baseline_locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 1344837,
+            "min_us": 23465,
+            "max_us": 127861,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 412375,
+            "min_us": 61906,
+            "max_us": 350469,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 7966400,
+            "min_us": 132122,
+            "max_us": 779204,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 12805730,
+            "min_us": 12805730,
+            "max_us": 12805730,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "candidate_locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 1823434,
+            "min_us": 26345,
+            "max_us": 316341,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 263559,
+            "min_us": 81780,
+            "max_us": 181779,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 3855880,
+            "min_us": 67330,
+            "max_us": 363102,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 9549807,
+            "min_us": 9549807,
+            "max_us": 9549807,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "preparation": {
+          "baseline_registration_ms": 681.8579,
+          "candidate_registration_ms": 1000.7304,
+          "baseline_partition_ms": null,
+          "candidate_partition_ms": null
+        },
+        "baseline_apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-baseline-isolated-006-legacy-h2000-apply",
+        "candidate_apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-candidate-isolated-006-legacy-h2000-apply",
+        "checks": {
+          "results_deleted": 20,
+          "files_absent": 20,
+          "commits": 40,
+          "history_deep_equal": true,
+          "no_pending_intents": true,
+          "no_manifest_pending": true,
+          "final_decisions": 2020
+        }
+      },
+      {
+        "name": "partit-h2000",
+        "history_count": 2000,
+        "members": 20,
+        "bytes_per_member": 1024,
+        "baseline_apply_wall_ms": 42620.2418,
+        "candidate_apply_wall_ms": 31262.5769,
+        "candidate_over_baseline_wall_ratio": 0.7335147709086905,
+        "wall_change_percent": -26.648522909130946,
+        "baseline_state_commit": {
+          "count": 40,
+          "total_us": 33900102,
+          "min_us": 566168,
+          "max_us": 1403753,
+          "outcomes": {
+            "committed": 40
+          }
+        },
+        "candidate_state_commit": {
+          "count": 40,
+          "total_us": 23321443,
+          "min_us": 477315,
+          "max_us": 2320819,
+          "outcomes": {
+            "committed": 40
+          }
+        },
+        "candidate_state_save": {
+          "count": 40,
+          "total_us": 25263246,
+          "min_us": 509601,
+          "max_us": 2369207,
+          "outcomes": {
+            "committed": 40
+          }
+        },
+        "baseline_apply_save_total_us": 35463767,
+        "candidate_apply_save_total_us": 25263558,
+        "candidate_state_spans": {
+          "maintenance.phase:state.prepare_local": {
+            "count": 40,
+            "total_us": 160742,
+            "min_us": 2861,
+            "max_us": 6694,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.read": {
+            "count": 40,
+            "total_us": 16858745,
+            "min_us": 343114,
+            "max_us": 1678956,
+            "outcomes": {
+              "read": 40
+            }
+          },
+          "maintenance.phase:state.merge": {
+            "count": 40,
+            "total_us": 296801,
+            "min_us": 5410,
+            "max_us": 16615,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.prepare_partition": {
+            "count": 40,
+            "total_us": 2400544,
+            "min_us": 45302,
+            "max_us": 132935,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.open_pending": {
+            "count": 40,
+            "total_us": 12719,
+            "min_us": 252,
+            "max_us": 617,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.serialize": {
+            "count": 40,
+            "total_us": 9275,
+            "min_us": 144,
+            "max_us": 380,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.write_pending": {
+            "count": 40,
+            "total_us": 7820,
+            "min_us": 117,
+            "max_us": 372,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.sync_pending": {
+            "count": 40,
+            "total_us": 475745,
+            "min_us": 3207,
+            "max_us": 340493,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.rename": {
+            "count": 40,
+            "total_us": 82145,
+            "min_us": 1484,
+            "max_us": 6018,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.collect_obsolete": {
+            "count": 40,
+            "total_us": 2159420,
+            "min_us": 45660,
+            "max_us": 93176,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 40,
+            "total_us": 23321443,
+            "min_us": 477315,
+            "max_us": 2320819,
+            "outcomes": {
+              "committed": 40
+            }
+          },
+          "maintenance.phase:state.save": {
+            "count": 40,
+            "total_us": 25263246,
+            "min_us": 509601,
+            "max_us": 2369207,
+            "outcomes": {
+              "committed": 40
+            }
+          }
+        },
+        "baseline_locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 2039648,
+            "min_us": 24348,
+            "max_us": 440296,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 276692,
+            "min_us": 67542,
+            "max_us": 209150,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 35970801,
+            "min_us": 589394,
+            "max_us": 1436751,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 41963839,
+            "min_us": 41963839,
+            "max_us": 41963839,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "candidate_locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 2414851,
+            "min_us": 24855,
+            "max_us": 604659,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 266177,
+            "min_us": 59880,
+            "max_us": 206297,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 25781671,
+            "min_us": 503553,
+            "max_us": 2360472,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 30458638,
+            "min_us": 30458638,
+            "max_us": 30458638,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "preparation": {
+          "baseline_registration_ms": 705.8294,
+          "candidate_registration_ms": 922.5912,
+          "baseline_partition_ms": 992.3878,
+          "candidate_partition_ms": 1347.08
+        },
+        "baseline_apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-baseline-isolated-021-partit-h2000-apply",
+        "candidate_apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-candidate-isolated-021-partit-h2000-apply",
+        "checks": {
+          "results_deleted": 20,
+          "files_absent": 20,
+          "commits": 40,
+          "history_deep_equal": true,
+          "no_pending_intents": true,
+          "no_manifest_pending": true,
+          "final_decisions": 2020
+        }
+      }
+    ]
+  },
+  "small_repeat": {
+    "complete": true,
+    "requested_order": [
+      "B",
+      "C",
+      "C",
+      "B"
+    ],
+    "executed_cases": 4,
+    "history_count": 0,
+    "members": 20,
+    "bytes_per_member": 1024,
+    "primary_comparison_unchanged": "storage-perf-comparison.json",
+    "baseline": {
+      "sample_count": 2,
+      "mean_apply_wall_ms": 7081.87885,
+      "mean_common_apply_save_ms": 2334.7415,
+      "min_apply_wall_ms": 7075.4572,
+      "max_apply_wall_ms": 7088.3005
+    },
+    "candidate": {
+      "sample_count": 2,
+      "mean_apply_wall_ms": 7741.0921,
+      "mean_common_apply_save_ms": 2356.37,
+      "min_apply_wall_ms": 7467.5784,
+      "max_apply_wall_ms": 8014.6058
+    },
+    "observed_candidate_mean_wall_change_percent": 9.308451386456573,
+    "observed_candidate_mean_common_save_change_percent": 0.9263766459798539,
+    "limitations": [
+      "Bounded four-case diagnostic, two samples per binary on shared Windows x64 host; no statistical or guaranteed percentage claim.",
+      "Primary first-pair history0 regression remains recorded.",
+      "Root reported no heavy compilation during repeats; other threads may cause I/O. Cause cannot be assigned from these measurements alone.",
+      "Common apply.intent_save plus apply.actual_result_save boundaries match across binaries. Baseline state.commit and candidate state.commit differ in scope; candidate state.save and fine phases have no baseline equivalents.",
+      "All native commands use streaming output and actual close exit0. Nested phase and lock timings overlap; do not sum enclosing spans.",
+      "No further cases or loops executed."
+    ],
+    "cases": [
+      {
+        "order": 1,
+        "label": "baseline",
+        "id": "b1",
+        "source_report": "storage-perf-baseline-isolated-repeat-b1.json",
+        "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\inputs\\baseline-maintenance_owner.exe",
+        "sha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\measurement\\base0002\\legacy-h0000",
+        "apply_exit_code": 0,
+        "apply_wall_ms": 7088.3005,
+        "common_apply_save_ms": 2017.938,
+        "state_commit_ms": 896.822,
+        "state_save_ms": null,
+        "state_phases": {
+          "maintenance.phase:state.read": {
+            "count": 40,
+            "total_us": 80737,
+            "min_us": 1767,
+            "max_us": 2595,
+            "outcomes": {
+              "read": 40
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 40,
+            "total_us": 896822,
+            "min_us": 20986,
+            "max_us": 25601,
+            "outcomes": {
+              "committed": 40
+            }
+          }
+        },
+        "locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 1512012,
+            "min_us": 23204,
+            "max_us": 362329,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 230939,
+            "min_us": 53978,
+            "max_us": 176961,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 2441961,
+            "min_us": 43306,
+            "max_us": 513029,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 6519103,
+            "min_us": 6519103,
+            "max_us": 6519103,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "other_apply_phases": {
+          "maintenance.phase:apply.initial_group_review": {
+            "count": 1,
+            "total_us": 94134,
+            "min_us": 94134,
+            "max_us": 94134,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.reservation.acquire": {
+            "count": 1,
+            "total_us": 48333,
+            "min_us": 48333,
+            "max_us": 48333,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.normalization_preflight": {
+            "count": 20,
+            "total_us": 122254,
+            "min_us": 5307,
+            "max_us": 6871,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.reservation.verify.before_item": {
+            "count": 20,
+            "total_us": 251697,
+            "min_us": 11486,
+            "max_us": 14617,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.current_review": {
+            "count": 20,
+            "total_us": 2775549,
+            "min_us": 70709,
+            "max_us": 218661,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.safe_entries.pre_intent": {
+            "count": 20,
+            "total_us": 2975368,
+            "min_us": 81302,
+            "max_us": 229760,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.intent_save": {
+            "count": 20,
+            "total_us": 1067094,
+            "min_us": 46207,
+            "max_us": 61781,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.physical_delete": {
+            "count": 20,
+            "total_us": 996073,
+            "min_us": 12074,
+            "max_us": 725872,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.actual_result_save": {
+            "count": 20,
+            "total_us": 950844,
+            "min_us": 45407,
+            "max_us": 52057,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.final_presence": {
+            "count": 20,
+            "total_us": 35045,
+            "min_us": 1456,
+            "max_us": 2167,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.reservation.finalize": {
+            "count": 1,
+            "total_us": 27413,
+            "min_us": 27413,
+            "max_us": 27413,
+            "outcomes": {
+              "success": 1
+            }
+          }
+        },
+        "checks": {
+          "results_deleted": 20,
+          "files_absent": 20,
+          "commits": 40,
+          "history_deep_equal": true,
+          "no_pending_intents": true,
+          "no_manifest_pending": true,
+          "final_decisions": 20
+        },
+        "apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-baseline-isolated-repeat-b1-002-legacy-h0000-apply"
+      },
+      {
+        "order": 2,
+        "label": "candidate",
+        "id": "c1",
+        "source_report": "storage-perf-candidate-isolated-repeat-c1.json",
+        "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\outputs\\candidate-maintenance_owner.exe",
+        "sha256": "f98ae805137e50035a475b2873e7ee5ab71b45c4a9e513ce5a60203625bceb00",
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\measurement\\cand0002\\legacy-h0000",
+        "apply_exit_code": 0,
+        "apply_wall_ms": 8014.6058,
+        "common_apply_save_ms": 2398.904,
+        "state_commit_ms": 1208.111,
+        "state_save_ms": 2398.615,
+        "state_phases": {
+          "maintenance.phase:state.prepare_local": {
+            "count": 40,
+            "total_us": 4425,
+            "min_us": 68,
+            "max_us": 254,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.read": {
+            "count": 40,
+            "total_us": 89494,
+            "min_us": 1827,
+            "max_us": 3335,
+            "outcomes": {
+              "read": 40
+            }
+          },
+          "maintenance.phase:state.merge": {
+            "count": 40,
+            "total_us": 3706,
+            "min_us": 52,
+            "max_us": 181,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.open_pending": {
+            "count": 40,
+            "total_us": 12033,
+            "min_us": 244,
+            "max_us": 483,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.serialize": {
+            "count": 40,
+            "total_us": 3130,
+            "min_us": 37,
+            "max_us": 161,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.write_pending": {
+            "count": 40,
+            "total_us": 4861,
+            "min_us": 83,
+            "max_us": 215,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.sync_pending": {
+            "count": 40,
+            "total_us": 390163,
+            "min_us": 3283,
+            "max_us": 252199,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.rename": {
+            "count": 40,
+            "total_us": 73300,
+            "min_us": 1408,
+            "max_us": 2696,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 40,
+            "total_us": 1208111,
+            "min_us": 20879,
+            "max_us": 272341,
+            "outcomes": {
+              "committed": 40
+            }
+          },
+          "maintenance.phase:state.save": {
+            "count": 40,
+            "total_us": 2398615,
+            "min_us": 45061,
+            "max_us": 306936,
+            "outcomes": {
+              "committed": 40
+            }
+          }
+        },
+        "locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 1285405,
+            "min_us": 23493,
+            "max_us": 66391,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 735157,
+            "min_us": 59770,
+            "max_us": 675387,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 3023832,
+            "min_us": 43081,
+            "max_us": 722157,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 7791528,
+            "min_us": 7791528,
+            "max_us": 7791528,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "other_apply_phases": {
+          "maintenance.phase:apply.initial_group_review": {
+            "count": 1,
+            "total_us": 74468,
+            "min_us": 74468,
+            "max_us": 74468,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.reservation.acquire": {
+            "count": 1,
+            "total_us": 570074,
+            "min_us": 570074,
+            "max_us": 570074,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.normalization_preflight": {
+            "count": 20,
+            "total_us": 168860,
+            "min_us": 6553,
+            "max_us": 10297,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.reservation.verify.before_item": {
+            "count": 20,
+            "total_us": 275349,
+            "min_us": 11487,
+            "max_us": 18125,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.current_review": {
+            "count": 20,
+            "total_us": 3060726,
+            "min_us": 76774,
+            "max_us": 313108,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.safe_entries.pre_intent": {
+            "count": 20,
+            "total_us": 3276471,
+            "min_us": 88881,
+            "max_us": 325848,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.intent_save": {
+            "count": 20,
+            "total_us": 1392860,
+            "min_us": 51336,
+            "max_us": 306942,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.physical_delete": {
+            "count": 20,
+            "total_us": 978694,
+            "min_us": 11980,
+            "max_us": 683397,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.actual_result_save": {
+            "count": 20,
+            "total_us": 1006044,
+            "min_us": 45067,
+            "max_us": 60181,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.final_presence": {
+            "count": 20,
+            "total_us": 38880,
+            "min_us": 1484,
+            "max_us": 2601,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.reservation.finalize": {
+            "count": 1,
+            "total_us": 31107,
+            "min_us": 31107,
+            "max_us": 31107,
+            "outcomes": {
+              "success": 1
+            }
+          }
+        },
+        "checks": {
+          "results_deleted": 20,
+          "files_absent": 20,
+          "commits": 40,
+          "history_deep_equal": true,
+          "no_pending_intents": true,
+          "no_manifest_pending": true,
+          "final_decisions": 20
+        },
+        "apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-candidate-isolated-repeat-c1-002-legacy-h0000-apply"
+      },
+      {
+        "order": 3,
+        "label": "candidate",
+        "id": "c2",
+        "source_report": "storage-perf-candidate-isolated-repeat-c2.json",
+        "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\outputs\\candidate-maintenance_owner.exe",
+        "sha256": "f98ae805137e50035a475b2873e7ee5ab71b45c4a9e513ce5a60203625bceb00",
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\measurement\\cand0003\\legacy-h0000",
+        "apply_exit_code": 0,
+        "apply_wall_ms": 7467.5784,
+        "common_apply_save_ms": 2313.836,
+        "state_commit_ms": 913.917,
+        "state_save_ms": 2313.534,
+        "state_phases": {
+          "maintenance.phase:state.prepare_local": {
+            "count": 40,
+            "total_us": 4335,
+            "min_us": 64,
+            "max_us": 249,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.read": {
+            "count": 40,
+            "total_us": 82312,
+            "min_us": 1757,
+            "max_us": 2852,
+            "outcomes": {
+              "read": 40
+            }
+          },
+          "maintenance.phase:state.merge": {
+            "count": 40,
+            "total_us": 3741,
+            "min_us": 50,
+            "max_us": 183,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.open_pending": {
+            "count": 40,
+            "total_us": 12359,
+            "min_us": 244,
+            "max_us": 474,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.serialize": {
+            "count": 40,
+            "total_us": 3290,
+            "min_us": 45,
+            "max_us": 175,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.write_pending": {
+            "count": 40,
+            "total_us": 4877,
+            "min_us": 91,
+            "max_us": 186,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.sync_pending": {
+            "count": 40,
+            "total_us": 151942,
+            "min_us": 3209,
+            "max_us": 9534,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.rename": {
+            "count": 40,
+            "total_us": 70285,
+            "min_us": 1449,
+            "max_us": 2552,
+            "outcomes": {
+              "success": 40
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 40,
+            "total_us": 913917,
+            "min_us": 19261,
+            "max_us": 34142,
+            "outcomes": {
+              "committed": 40
+            }
+          },
+          "maintenance.phase:state.save": {
+            "count": 40,
+            "total_us": 2313534,
+            "min_us": 42614,
+            "max_us": 197869,
+            "outcomes": {
+              "committed": 40
+            }
+          }
+        },
+        "locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 1507965,
+            "min_us": 22926,
+            "max_us": 174449,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 222162,
+            "min_us": 77096,
+            "max_us": 145066,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 2422138,
+            "min_us": 40703,
+            "max_us": 201216,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 7218116,
+            "min_us": 7218116,
+            "max_us": 7218116,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "other_apply_phases": {
+          "maintenance.phase:apply.initial_group_review": {
+            "count": 1,
+            "total_us": 77420,
+            "min_us": 77420,
+            "max_us": 77420,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.reservation.acquire": {
+            "count": 1,
+            "total_us": 40008,
+            "min_us": 40008,
+            "max_us": 40008,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.normalization_preflight": {
+            "count": 20,
+            "total_us": 119920,
+            "min_us": 4545,
+            "max_us": 10070,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.reservation.verify.before_item": {
+            "count": 20,
+            "total_us": 269314,
+            "min_us": 10688,
+            "max_us": 19642,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.current_review": {
+            "count": 20,
+            "total_us": 3062785,
+            "min_us": 73638,
+            "max_us": 352664,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.safe_entries.pre_intent": {
+            "count": 20,
+            "total_us": 3276731,
+            "min_us": 82566,
+            "max_us": 371028,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.intent_save": {
+            "count": 20,
+            "total_us": 1226374,
+            "min_us": 46690,
+            "max_us": 197883,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.physical_delete": {
+            "count": 20,
+            "total_us": 1061450,
+            "min_us": 11263,
+            "max_us": 760085,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.actual_result_save": {
+            "count": 20,
+            "total_us": 1087462,
+            "min_us": 42620,
+            "max_us": 167148,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.final_presence": {
+            "count": 20,
+            "total_us": 35427,
+            "min_us": 1412,
+            "max_us": 2803,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.reservation.finalize": {
+            "count": 1,
+            "total_us": 41742,
+            "min_us": 41742,
+            "max_us": 41742,
+            "outcomes": {
+              "success": 1
+            }
+          }
+        },
+        "checks": {
+          "results_deleted": 20,
+          "files_absent": 20,
+          "commits": 40,
+          "history_deep_equal": true,
+          "no_pending_intents": true,
+          "no_manifest_pending": true,
+          "final_decisions": 20
+        },
+        "apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-candidate-isolated-repeat-c2-002-legacy-h0000-apply"
+      },
+      {
+        "order": 4,
+        "label": "baseline",
+        "id": "b2",
+        "source_report": "storage-perf-baseline-isolated-repeat-b2.json",
+        "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\inputs\\baseline-maintenance_owner.exe",
+        "sha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\temporary\\measurement\\base0003\\legacy-h0000",
+        "apply_exit_code": 0,
+        "apply_wall_ms": 7075.4572,
+        "common_apply_save_ms": 2651.545,
+        "state_commit_ms": 959.013,
+        "state_save_ms": null,
+        "state_phases": {
+          "maintenance.phase:state.read": {
+            "count": 40,
+            "total_us": 78089,
+            "min_us": 1693,
+            "max_us": 3057,
+            "outcomes": {
+              "read": 40
+            }
+          },
+          "maintenance.phase:state.commit": {
+            "count": 40,
+            "total_us": 959013,
+            "min_us": 19384,
+            "max_us": 97224,
+            "outcomes": {
+              "committed": 40
+            }
+          }
+        },
+        "locks": {
+          "maintenance.lock_wait:wait_for_lock": {
+            "count": 42,
+            "total_us": 1785697,
+            "min_us": 22687,
+            "max_us": 604585,
+            "outcomes": {
+              "acquired": 42
+            }
+          },
+          "maintenance.lock_hold:catalog": {
+            "count": 2,
+            "total_us": 188938,
+            "min_us": 53644,
+            "max_us": 135294,
+            "outcomes": {
+              "verified": 2
+            }
+          },
+          "maintenance.lock_hold:maintenance": {
+            "count": 41,
+            "total_us": 2751012,
+            "min_us": 40724,
+            "max_us": 624174,
+            "outcomes": {
+              "verified": 41
+            }
+          },
+          "maintenance.lock_hold:group_reservation": {
+            "count": 1,
+            "total_us": 6860639,
+            "min_us": 6860639,
+            "max_us": 6860639,
+            "outcomes": {
+              "verified": 1
+            }
+          }
+        },
+        "other_apply_phases": {
+          "maintenance.phase:apply.initial_group_review": {
+            "count": 1,
+            "total_us": 69319,
+            "min_us": 69319,
+            "max_us": 69319,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.reservation.acquire": {
+            "count": 1,
+            "total_us": 38864,
+            "min_us": 38864,
+            "max_us": 38864,
+            "outcomes": {
+              "success": 1
+            }
+          },
+          "maintenance.phase:apply.normalization_preflight": {
+            "count": 20,
+            "total_us": 93868,
+            "min_us": 4119,
+            "max_us": 5937,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.reservation.verify.before_item": {
+            "count": 20,
+            "total_us": 237489,
+            "min_us": 10441,
+            "max_us": 16055,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.current_review": {
+            "count": 20,
+            "total_us": 2577178,
+            "min_us": 68352,
+            "max_us": 203687,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.safe_entries.pre_intent": {
+            "count": 20,
+            "total_us": 2768285,
+            "min_us": 77498,
+            "max_us": 215014,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.intent_save": {
+            "count": 20,
+            "total_us": 1652493,
+            "min_us": 44901,
+            "max_us": 626355,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.physical_delete": {
+            "count": 20,
+            "total_us": 969252,
+            "min_us": 11110,
+            "max_us": 701611,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.actual_result_save": {
+            "count": 20,
+            "total_us": 999052,
+            "min_us": 42572,
+            "max_us": 122755,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.final_presence": {
+            "count": 20,
+            "total_us": 30614,
+            "min_us": 1377,
+            "max_us": 1783,
+            "outcomes": {
+              "success": 20
+            }
+          },
+          "maintenance.phase:apply.reservation.finalize": {
+            "count": 1,
+            "total_us": 27282,
+            "min_us": 27282,
+            "max_us": 27282,
+            "outcomes": {
+              "success": 1
+            }
+          }
+        },
+        "checks": {
+          "results_deleted": 20,
+          "files_absent": 20,
+          "commits": 40,
+          "history_deep_equal": true,
+          "no_pending_intents": true,
+          "no_manifest_pending": true,
+          "final_decisions": 20
+        },
+        "apply_log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\storage3\\logs\\storage-perf-baseline-isolated-repeat-b2-002-legacy-h0000-apply"
+      }
+    ]
+  },
+  "activation_assessment": {
+    "per_item_durability": "All tested cases kept40 committed saves for20 actual deletions, history preserved and no pending",
+    "large_history": "Both legacy and partitioned2000 history cases improved in this single paired run",
+    "small_case": "Comparable intent/result save mean2.334742s baseline vs2.356370s candidate; overall apply wall mean7.081879s vs7.741092s. No small-case improvement claim; cause of wall increase unverified.",
+    "limits": "Shared host single primary pair and bounded B,C,C,B small repeats; no guaranteed percentages or equality of old/new commit span boundaries"
+  }
+}

@@ -1,0 +1,460 @@
+{
+  "scope": [
+    "scripts/test-account-settings.cjs",
+    "scripts/test-account-switch-queue.cjs",
+    "scripts/test-auto-review.cjs",
+    "scripts/test-btw.cjs",
+    "scripts/test-capacity-retry-stop.cjs",
+    "scripts/test-command-drag-block.cjs",
+    "scripts/test-compaction-progress.cjs",
+    "scripts/test-composer-draft.cjs",
+    "scripts/test-computer-use-injection.cjs",
+    "scripts/test-deferred-turn.cjs",
+    "scripts/test-fetch-response.cjs",
+    "scripts/test-file-open-menu.cjs",
+    "scripts/test-image-sketch.cjs",
+    "scripts/test-immediate-stop.cjs",
+    "scripts/test-instruction-settings.cjs",
+    "scripts/test-linux-host-preparation.cjs",
+    "scripts/test-local-file-drop.cjs",
+    "scripts/test-max-reasoning.cjs",
+    "scripts/test-missing-image.cjs",
+    "scripts/test-paginated-history.cjs",
+    "scripts/test-project-drafts.cjs",
+    "scripts/test-provider-context.cjs",
+    "scripts/test-question-queue.cjs",
+    "scripts/test-queue-consumption.cjs",
+    "scripts/test-queue-refresh.cjs",
+    "scripts/test-queued-compaction.cjs",
+    "scripts/test-request-state.cjs",
+    "scripts/test-scroll-fade.cjs",
+    "scripts/test-session-flags.cjs",
+    "scripts/test-student-design.cjs",
+    "scripts/test-submit-only-thread.cjs",
+    "scripts/test-task-work-time-ui.cjs",
+    "scripts/test-thread-branch.cjs",
+    "scripts/test-ui-cleanup.cjs",
+    "scripts/test-ui-input-diagnostics.cjs",
+    "scripts/test-url-safety-transport.cjs",
+    "scripts/test-webview-drag.cjs",
+    "scripts/test-window-control-injection.cjs"
+  ],
+  "discovered": true,
+  "missing": [],
+  "references": [
+    {
+      "file": "scripts/test-question-queue.cjs",
+      "feature": "ui.question-withdrawal",
+      "check": "ui.question-withdrawal.queue"
+    },
+    {
+      "file": "scripts/test-queue-consumption.cjs",
+      "feature": "ui.question-withdrawal",
+      "check": "ui.question-withdrawal.queue"
+    },
+    {
+      "file": "scripts/test-request-state.cjs",
+      "feature": "ui.request-preparation",
+      "check": "ui.request-preparation.behavior"
+    },
+    {
+      "file": "scripts/test-account-switch-queue.cjs",
+      "feature": "ui.request-preparation",
+      "check": "ui.request-preparation.account-admission"
+    },
+    {
+      "file": "scripts/test-submit-only-thread.cjs",
+      "feature": "ui.request-preparation",
+      "check": "ui.request-preparation.account-admission"
+    },
+    {
+      "file": "scripts/test-submit-only-thread.cjs",
+      "feature": "ui.submit-only-thread",
+      "check": "ui.submit-only-thread.behavior"
+    },
+    {
+      "file": "scripts/test-project-drafts.cjs",
+      "feature": "ui.submit-only-thread",
+      "check": "ui.submit-only-thread.project-drafts"
+    },
+    {
+      "file": "scripts/test-composer-draft.cjs",
+      "feature": "ui.submit-only-thread",
+      "check": "ui.submit-only-thread.composer-draft"
+    },
+    {
+      "file": "scripts/test-task-work-time-ui.cjs",
+      "feature": "ui.task-work-time",
+      "check": "ui.task-work-time.behavior"
+    },
+    {
+      "file": "scripts/test-deferred-turn.cjs",
+      "feature": "ui.task-work-time",
+      "check": "ui.task-work-time.deferred-contract"
+    },
+    {
+      "file": "scripts/test-session-flags.cjs",
+      "feature": "ui.session-flags",
+      "check": "ui.session-flags.behavior"
+    },
+    {
+      "file": "scripts/test-project-drafts.cjs",
+      "feature": "ui.session-flags",
+      "check": "ui.session-flags.project-drafts"
+    },
+    {
+      "file": "scripts/test-account-settings.cjs",
+      "feature": "ui.account-settings",
+      "check": "ui.account-settings.behavior"
+    },
+    {
+      "file": "scripts/test-instruction-settings.cjs",
+      "feature": "ui.instruction-settings",
+      "check": "ui.instruction-settings.behavior"
+    },
+    {
+      "file": "scripts/test-student-design.cjs",
+      "feature": "ui.student-design",
+      "check": "ui.student-design.behavior"
+    },
+    {
+      "file": "scripts/test-project-drafts.cjs",
+      "feature": "ui.project-drafts",
+      "check": "ui.project-drafts.behavior"
+    },
+    {
+      "file": "scripts/test-fetch-response.cjs",
+      "feature": "ui.fetch-response",
+      "check": "ui.fetch-response.behavior"
+    },
+    {
+      "file": "scripts/test-url-safety-transport.cjs",
+      "feature": "ui.url-safety-transport",
+      "check": "ui.url-safety-transport.behavior"
+    },
+    {
+      "file": "scripts/test-computer-use-injection.cjs",
+      "feature": "ui.computer-use",
+      "check": "ui.computer-use.behavior"
+    },
+    {
+      "file": "scripts/test-window-control-injection.cjs",
+      "feature": "ui.window-control",
+      "check": "ui.window-control.behavior"
+    },
+    {
+      "file": "scripts/test-file-open-menu.cjs",
+      "feature": "ui.file-open-menu",
+      "check": "ui.file-open-menu.behavior"
+    },
+    {
+      "file": "scripts/test-missing-image.cjs",
+      "feature": "ui.missing-image",
+      "check": "ui.missing-image.behavior"
+    },
+    {
+      "file": "scripts/test-local-file-drop.cjs",
+      "feature": "ui.local-file-drop",
+      "check": "ui.local-file-drop.behavior"
+    },
+    {
+      "file": "scripts/test-webview-drag.cjs",
+      "feature": "ui.local-file-drop",
+      "check": "ui.local-file-drop.drag-lifecycle"
+    },
+    {
+      "file": "scripts/test-composer-draft.cjs",
+      "feature": "ui.composer-draft",
+      "check": "ui.composer-draft.behavior"
+    },
+    {
+      "file": "scripts/test-auto-review.cjs",
+      "feature": "ui.auto-review",
+      "check": "ui.auto-review.behavior"
+    },
+    {
+      "file": "scripts/test-image-sketch.cjs",
+      "feature": "ui.image-sketch",
+      "check": "ui.image-sketch.behavior"
+    },
+    {
+      "file": "scripts/test-ui-cleanup.cjs",
+      "feature": "ui.ui-cleanup",
+      "check": "ui.ui-cleanup.behavior"
+    },
+    {
+      "file": "scripts/test-command-drag-block.cjs",
+      "feature": "ui.command-drag-block",
+      "check": "ui.command-drag-block.behavior"
+    },
+    {
+      "file": "scripts/test-scroll-fade.cjs",
+      "feature": "ui.scroll-fade",
+      "check": "ui.scroll-fade.behavior"
+    },
+    {
+      "file": "scripts/test-provider-context.cjs",
+      "feature": "ui.provider-context",
+      "check": "ui.provider-context.behavior"
+    },
+    {
+      "file": "scripts/test-deferred-turn.cjs",
+      "feature": "ui.deferred-turn",
+      "check": "ui.deferred-turn.behavior"
+    },
+    {
+      "file": "scripts/test-compaction-progress.cjs",
+      "feature": "ui.compaction-progress",
+      "check": "ui.compaction-progress.behavior"
+    },
+    {
+      "file": "scripts/test-queue-refresh.cjs",
+      "feature": "ui.queue-refresh",
+      "check": "ui.queue-refresh.behavior"
+    },
+    {
+      "file": "scripts/test-account-switch-queue.cjs",
+      "feature": "ui.account-switch-queue",
+      "check": "ui.account-switch-queue.behavior"
+    },
+    {
+      "file": "scripts/test-queue-consumption.cjs",
+      "feature": "ui.queue-consumption",
+      "check": "ui.queue-consumption.behavior"
+    },
+    {
+      "file": "scripts/test-btw.cjs",
+      "feature": "ui.btw",
+      "check": "ui.btw.behavior"
+    },
+    {
+      "file": "scripts/test-thread-branch.cjs",
+      "feature": "ui.thread-branch",
+      "check": "ui.thread-branch.behavior"
+    },
+    {
+      "file": "scripts/test-paginated-history.cjs",
+      "feature": "ui.paginated-history",
+      "check": "ui.paginated-history.behavior"
+    },
+    {
+      "file": "scripts/test-capacity-retry-stop.cjs",
+      "feature": "ui.capacity-retry-stop",
+      "check": "ui.capacity-retry-stop.behavior"
+    },
+    {
+      "file": "scripts/test-immediate-stop.cjs",
+      "feature": "ui.immediate-stop",
+      "check": "ui.immediate-stop.behavior"
+    },
+    {
+      "file": "scripts/test-queued-compaction.cjs",
+      "feature": "ui.queued-compaction",
+      "check": "ui.queued-compaction.behavior"
+    },
+    {
+      "file": "scripts/test-max-reasoning.cjs",
+      "feature": "ui.max-reasoning",
+      "check": "ui.max-reasoning.behavior"
+    },
+    {
+      "file": "scripts/test-ui-input-diagnostics.cjs",
+      "feature": "ui.input-diagnostics",
+      "check": "ui.input-diagnostics.behavior"
+    }
+  ],
+  "declarations": [
+    {
+      "file": "scripts/test-account-settings.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 4
+    },
+    {
+      "file": "scripts/test-account-switch-queue.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 17
+    },
+    {
+      "file": "scripts/test-auto-review.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 6
+    },
+    {
+      "file": "scripts/test-btw.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 16
+    },
+    {
+      "file": "scripts/test-capacity-retry-stop.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 5
+    },
+    {
+      "file": "scripts/test-command-drag-block.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 3
+    },
+    {
+      "file": "scripts/test-compaction-progress.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 2
+    },
+    {
+      "file": "scripts/test-composer-draft.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 30
+    },
+    {
+      "file": "scripts/test-computer-use-injection.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 5
+    },
+    {
+      "file": "scripts/test-deferred-turn.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 39
+    },
+    {
+      "file": "scripts/test-fetch-response.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 9
+    },
+    {
+      "file": "scripts/test-file-open-menu.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 4
+    },
+    {
+      "file": "scripts/test-image-sketch.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 13
+    },
+    {
+      "file": "scripts/test-immediate-stop.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 10
+    },
+    {
+      "file": "scripts/test-instruction-settings.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 6
+    },
+    {
+      "file": "scripts/test-linux-host-preparation.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 2
+    },
+    {
+      "file": "scripts/test-local-file-drop.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 4
+    },
+    {
+      "file": "scripts/test-max-reasoning.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 5
+    },
+    {
+      "file": "scripts/test-missing-image.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 2
+    },
+    {
+      "file": "scripts/test-paginated-history.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 3
+    },
+    {
+      "file": "scripts/test-project-drafts.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 5
+    },
+    {
+      "file": "scripts/test-provider-context.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 23
+    },
+    {
+      "file": "scripts/test-question-queue.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 17
+    },
+    {
+      "file": "scripts/test-queue-consumption.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 26
+    },
+    {
+      "file": "scripts/test-queue-refresh.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 5
+    },
+    {
+      "file": "scripts/test-queued-compaction.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 6
+    },
+    {
+      "file": "scripts/test-request-state.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 7
+    },
+    {
+      "file": "scripts/test-scroll-fade.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 4
+    },
+    {
+      "file": "scripts/test-session-flags.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 3
+    },
+    {
+      "file": "scripts/test-student-design.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 22
+    },
+    {
+      "file": "scripts/test-submit-only-thread.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 6
+    },
+    {
+      "file": "scripts/test-task-work-time-ui.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 2
+    },
+    {
+      "file": "scripts/test-thread-branch.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 10
+    },
+    {
+      "file": "scripts/test-ui-cleanup.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 6
+    },
+    {
+      "file": "scripts/test-ui-input-diagnostics.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 8
+    },
+    {
+      "file": "scripts/test-url-safety-transport.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 14
+    },
+    {
+      "file": "scripts/test-webview-drag.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 5
+    },
+    {
+      "file": "scripts/test-window-control-injection.cjs",
+      "parseErrors": 0,
+      "remainingTestDeclarations": 9
+    }
+  ],
+  "featureInventoryEdited": false,
+  "selectionPolicyEdited": false
+}

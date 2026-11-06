@@ -2,12 +2,16 @@
 // Producer metadata only. Native maintenance owns review, registration and deletion.
 const fs = require("node:fs");
 const maintenanceLocks = require("./maintenance-lock-owner.cjs");
+const { assertEnabled } = require("./maintenance-preferences.cjs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { isDeepStrictEqual } = require("node:util");
 const sha = value => crypto.createHash("sha256").update(value).digest("hex");
 const inside = (parent, child) => { const rel = path.relative(parent, child); return rel === "" || (!rel.startsWith(".." + path.sep) && rel !== ".." && !path.isAbsolute(rel)); };
 const overlap = (a, b) => inside(a, b) || inside(b, a);
+// Share successful ancestor checks only within one synchronous catalog pass.
+// A later observation must check paths again, even under the same OS lease.
+let catalogAncestors = null;
 function checked(root, value, member = false) {
   root = path.resolve(root);
   if (typeof value !== "string" || !path.isAbsolute(value) || value.includes("\0") || value.split(/[\\/]/).includes("..")) throw new Error("Lifecycle paths must be absolute without traversal");
@@ -20,7 +24,12 @@ function checked(root, value, member = false) {
   let current = path.parse(result).root;
   for (const part of result.slice(current.length).split(path.sep)) {
     current = path.join(current, part);
-    try { if (fs.lstatSync(current).isSymbolicLink()) throw new Error("Linked lifecycle path"); }
+    try {
+      if (current !== result && catalogAncestors?.has(current)) continue;
+      const stat = fs.lstatSync(current, catalogAncestors ? { bigint: true } : undefined);
+      if (stat.isSymbolicLink()) throw new Error("Linked lifecycle path");
+      if (catalogAncestors && !catalogAncestors.has(current)) catalogAncestors.set(current, stat);
+    }
     catch (error) { if (error.code !== "ENOENT") throw error; }
   }
   return result;
@@ -50,19 +59,61 @@ function validate(root, record) {
     checked(root, record.owned_root, true);
   }
   if (record.producer && (record.producer.status !== "stopped" || !["success", "failure", "unknown"].includes(record.producer.outcome) || !(record.producer.exit_code === null || Number.isInteger(record.producer.exit_code)) || typeof record.producer.reason !== "string" || !record.producer.reason.trim() || typeof record.producer.evidence_ref !== "string" || !/^[a-f0-9]{64}$/.test(record.producer.evidence_sha256 || ""))) throw new Error("Invalid lifecycle producer");
+  if (record.cleanup_recovery !== undefined) validateCleanupRecovery(root, record);
+  if (record.restart_recovery !== undefined) validateRestartRecovery(root, record);
+  if (record.previous_generation !== undefined) validatePreviousGeneration(root, record);
   if (record.record_type !== undefined && record.record_type !== "observation") throw new Error("Unknown lifecycle record type");
   if (record.record_type === "observation") observationApi.validateObservation(root, record);
   return record;
 }
 function catalog(root) {
-  const directory = registry(root);
-  if (!fs.existsSync(directory)) return [];
-  return fs.readdirSync(directory).filter(name => /^[a-f0-9]{64}\.json$/.test(name)).map(name => {
-    const filename = checked(root, path.join(directory, name));
-    const record = validate(root, JSON.parse(fs.readFileSync(filename, "utf8")));
-    if (path.basename(filename) !== sha(record.id) + ".json") throw new Error("Lifecycle registry identity mismatch");
-    return record;
-  });
+  return [...catalogSnapshot(root).values()].map(entry => structuredClone(entry.record));
+}
+function catalogRecord(root, id) {
+  const entry = catalogSnapshot(root).get(id);
+  return entry && structuredClone(entry.record);
+}
+function catalogSnapshot(root) {
+  const lease = catalogLeases.get(path.resolve(root));
+  const previous = lease?.snapshot;
+  const snapshot = new Map(), ancestors = catalogAncestors;
+  catalogAncestors = new Map();
+  try {
+    const directory = registry(root);
+    if (!fs.existsSync(directory)) return snapshot;
+    // The OS lease excludes cooperative writers, not raw filesystem edits.
+    // Re-enumerate and compare bytes on every observation; only parsing is
+    // reused. Revalidation also detects member/reparse and evidence changes.
+    const recordNames = () => fs.readdirSync(directory).filter(name => /^[a-f0-9]{64}\.json$/.test(name)).sort();
+    const names = recordNames();
+    for (const name of names) {
+      const filename = checked(root, path.join(directory, name));
+      const raw = fs.readFileSync(filename, "utf8"), cached = previous?.get(name);
+      const record = validate(root, cached?.raw === raw ? structuredClone(cached.record) : JSON.parse(raw));
+      if (path.basename(filename) !== sha(record.id) + ".json") throw new Error("Lifecycle registry identity mismatch");
+      snapshot.set(record.id, { raw, record });
+    }
+    // Bind the catalog itself to the observed bytes/membership, independently
+    // of ancestor timestamps and of changes to producer payloads.
+    if (!isDeepStrictEqual(names, recordNames())) throw new Error("Lifecycle catalog membership changed during catalog observation");
+    for (const [id, entry] of snapshot) {
+      if (fs.readFileSync(path.join(directory, sha(id) + ".json"), "utf8") !== entry.raw) throw new Error("Lifecycle catalog source changed during catalog observation");
+    }
+    // Cached ancestors must still be the same objects at the pass boundary.
+    // Active payload content and unrelated directory entries may change; they
+    // do not change path identity or reparse safety.
+    for (const [filename, before] of catalogAncestors) {
+      const after = fs.lstatSync(filename, { bigint: true });
+      if (after.isSymbolicLink() || before.dev !== after.dev || before.ino !== after.ino ||
+          (before.mode & 0o170000n) !== (after.mode & 0o170000n)) throw new Error("Lifecycle ancestor identity changed during catalog observation");
+    }
+    // Index by identity for consumers; file-name lookup needs no extra scan.
+    if (lease) lease.snapshot = new Map([...snapshot].map(([id, entry]) => [sha(id) + ".json", entry]));
+    return snapshot;
+  } catch (error) {
+    if (lease) delete lease.snapshot;
+    throw error;
+  } finally { catalogAncestors = ancestors; }
 }
 function projectMembers(members) {
   return members.filter((member, index) => !members.some((other, otherIndex) => otherIndex !== index && inside(other.path, member.path) && (other.path !== member.path || otherIndex < index)))
@@ -74,7 +125,13 @@ function projectMembers(members) {
 const catalogLeases = new Map();
 function withCatalogLock(root, action, { waitMs, operation = "lifecycle.catalog", drainOnly = false } = {}) {
   root = path.resolve(root);
-  if (catalogLeases.has(root)) return action();
+  if (catalogLeases.has(root)) {
+    // A reentrant publisher must perform fresh selected-path validation even
+    // when invoked by an observation callback inside a catalog pass.
+    const ancestors = catalogAncestors;
+    catalogAncestors = null;
+    try { return action(); } finally { catalogAncestors = ancestors; }
+  }
   const directory = registry(root);
   fs.mkdirSync(directory, { recursive: true });
   const lock = checked(root, path.join(directory, "catalog.lock"));
@@ -109,13 +166,101 @@ function referenceBindingError(reference, target) {
   if (reference.member_paths?.some(value => !projectMembers(target.members).some(member => member.path === value))) return "invalid-member-scope";
   return null;
 }
-function cleanupReady(record) { return record.producer ? record.producer.status === "stopped" && record.producer.outcome !== "unknown" : record.state === "complete"; }
+function cleanupReady(record) { return record.cleanup_recovery !== undefined || (record.producer ? record.producer.status === "stopped" && record.producer.outcome !== "unknown" : record.state === "complete"); }
+function recoverySource(record, recovery) {
+  return { id: record.id, kind: record.kind, owner: record.owner, version: record.version ?? null, generation: record.generation ?? null,
+    revision: recovery.source_revision, state: recovery.original_state, membership_complete: recovery.original_membership_complete,
+    producer: recovery.original_producer, members: record.members };
+}
+function readRecoveryProof(root, record, filename, expectedHash) {
+  filename = checked(root, filename);
+  if (inside(registry(root), filename) || record.members.some(member => overlap(member.path, filename))) throw new Error("Cleanup recovery proof must survive outside members and registry");
+  const before = fs.lstatSync(filename, { bigint: true });
+  if (!before.isFile() || before.nlink !== 1n) throw new Error("Independent regular cleanup recovery proof required");
+  const raw = fs.readFileSync(filename);
+  const after = fs.lstatSync(checked(root, filename), { bigint: true });
+  if (!["dev", "ino", "size", "mtimeNs", "ctimeNs"].every(key => before[key] === after[key]) ||
+      !/^[a-f0-9]{64}$/.test(expectedHash || "") || sha(raw) !== expectedHash) throw new Error("Cleanup recovery proof SHA256 or identity changed");
+  return raw;
+}
+function validateCleanupRecovery(root, record) {
+  const recovery = record.cleanup_recovery;
+  if (!recovery || recovery.schema !== 1 || recovery.id !== record.id || recovery.kind !== record.kind || recovery.owner !== record.owner ||
+      recovery.version !== (record.version ?? null) || recovery.generation !== (record.generation ?? null) ||
+      !Number.isSafeInteger(recovery.source_revision) || recovery.source_revision < 1 || recovery.original_state !== record.state || record.state !== "pending" ||
+      typeof recovery.original_membership_complete !== "boolean" || record.membership_complete !== true ||
+      !isDeepStrictEqual(recovery.original_producer, record.producer ?? null) || !isDeepStrictEqual(recovery.members, record.members) ||
+      (record.producer && (record.producer.status !== "stopped" || record.producer.outcome !== "unknown" || record.producer.exit_code !== null)) ||
+      record.members.some(member => member.generated !== true || member.protection_known !== true) ||
+      recovery.producer_stopped_verified !== true || recovery.membership_complete_verified !== true ||
+      typeof recovery.reason !== "string" || !recovery.reason.trim() || typeof recovery.verified_at !== "string" || !Number.isFinite(Date.parse(recovery.verified_at))) throw new Error("Invalid cleanup recovery binding");
+  const document = JSON.parse(readRecoveryProof(root, record, recovery.evidence_ref, recovery.evidence_sha256));
+  if (document.schema !== 1 || document.action !== "recover-cleanup" || !isDeepStrictEqual(document.source, recoverySource(record, recovery)) ||
+      document.producer_stopped_verified !== true || document.membership_complete_verified !== true ||
+      typeof document.stop_basis !== "string" || !document.stop_basis.trim() || typeof document.membership_basis !== "string" || !document.membership_basis.trim() ||
+      !Array.isArray(document.producer_evidence) || !document.producer_evidence.length) throw new Error("Invalid cleanup recovery evidence");
+  for (const proof of document.producer_evidence) {
+    if (proof.path === recovery.evidence_ref) throw new Error("Independent cleanup recovery producer proof required");
+    readRecoveryProof(root, record, proof.path, proof.sha256);
+  }
+}
+// Restart authority preserves the unresolved result and grants no cleanup authority.
+function restartSource(record) {
+  return Object.fromEntries(["id", "kind", "owner", "version", "generation", "revision", "state", "membership_complete", "members", "references", "producer"].map(key => [key, record[key] ?? null]));
+}
+function validateRestartRecovery(root, record) {
+  const recovery = record.restart_recovery, source = recovery?.source;
+  if (!recovery || recovery.schema !== 1 || recovery.producer_stopped_verified !== true ||
+      typeof recovery.reason !== "string" || !recovery.reason.trim() || !source ||
+      !Number.isSafeInteger(source.revision) || source.revision < 1 || record.revision <= source.revision ||
+      !isDeepStrictEqual(source, { ...restartSource(record), revision: source.revision }) ||
+      source.state !== "pending" || source.producer?.status !== "stopped" || source.producer.outcome !== "unknown" || source.producer.exit_code !== null ||
+      record.cleanup_recovery) throw new Error("Invalid restart recovery binding");
+  const document = JSON.parse(readRecoveryProof(root, record, recovery.evidence_ref, recovery.evidence_sha256));
+  if (document.schema !== 1 || document.action !== "authorize-restart" || !isDeepStrictEqual(document.source, source) ||
+      document.producer_stopped_verified !== true || typeof document.stop_basis !== "string" || !document.stop_basis.trim() ||
+      !Array.isArray(document.producer_evidence) || !document.producer_evidence.length) throw new Error("Invalid restart recovery evidence");
+  for (const proof of document.producer_evidence) {
+    if (proof.path === recovery.evidence_ref) throw new Error("Independent restart proof required");
+    readRecoveryProof(root, record, proof.path, proof.sha256);
+  }
+  return true;
+}
+function validatePreviousGeneration(root, record) {
+  const previous = record.previous_generation;
+  if (!previous || previous.owner !== record.owner || previous.id !== record.id || previous.kind !== record.kind ||
+      (previous.version ?? null) !== (record.version ?? null) || !previous.restart_recovery) throw new Error("Invalid previous generation binding");
+  validateRestartRecovery(root, previous);
+}
+function canRestartGeneration(root, record) {
+  if (!record.restart_recovery) return false;
+  validateRestartRecovery(root, record);
+  if (cleanupReservation(root, record)) throw new Error("Lifecycle group has active-cleanup-reservation");
+  return true;
+}
+function authorizeRestart(root, id, request) {
+  return mutateLifecycle(root, id, request, "restart", (record, evidence) => {
+    if (record.restart_recovery) throw new Error("Conflicting restart recovery retry");
+    if (request.expected_generation !== record.generation || request.producer_stopped_verified !== true || record.cleanup_recovery ||
+        record.state !== "pending" || record.producer?.status !== "stopped" || record.producer.outcome !== "unknown" || record.producer.exit_code !== null) throw new Error("Exact stopped unknown generation required for restart");
+    if (cleanupReservation(root, record)) throw new Error("Lifecycle group has active-cleanup-reservation");
+    record.restart_recovery = { schema: 1, source: restartSource(record), ...evidence, producer_stopped_verified: true };
+  });
+}
 function writeRecord(root, filename, record) {
   const lease = catalogLeases.get(path.resolve(root));
   if (!lease || filename !== registryPath(root, record.id)) throw new Error("Native catalog lease required for lifecycle write");
   const raw = fs.existsSync(filename) ? fs.readFileSync(filename) : null;
   if (raw === null && record.record_type !== "observation") observationApi.protectOwner(root, record);
-  lease.writeRecord(record, raw === null ? null : sha(raw));
+  try {
+    lease.writeRecord(record, raw === null ? null : sha(raw));
+    // Nested observation publication uses this same path. Refresh just the
+    // committed entry; never expose a caller's uncommitted object as a snapshot.
+    if (lease.snapshot) {
+      const committed = fs.readFileSync(filename, "utf8");
+      lease.snapshot.set(path.basename(filename), { raw: committed, record: validate(root, JSON.parse(committed)) });
+    }
+  } catch (error) { delete lease.snapshot; throw error; }
 }
 function checkedEvidence(root, request) {
   if (typeof request.reason !== "string" || !request.reason.trim()) throw new Error("Nonblank reason required");
@@ -138,6 +283,8 @@ function mutateLifecycle(root, id, request, operation, mutate) {
       const receiptKey = operation + "_receipt";
       if (record[receiptKey]?.request_sha256 === identity) {
         if (operation === "release" && record.references.some(reference => request.reference_ids.includes(referenceIdentity(reference)))) throw new Error("Conflicting release retry after reference replacement");
+        if (operation === "recover") checkRecoveryConsumers(root, record);
+        if (operation === "restart") canRestartGeneration(root, record);
         return record;
       }
       if (request.expected_revision !== record.revision) throw new Error("Stale lifecycle revision");
@@ -148,7 +295,9 @@ function mutateLifecycle(root, id, request, operation, mutate) {
       validate(root, record);
       writeRecord(root, filename, record);
       return record;
-  });
+  // Only lease acquisition may wait for typed native Busy. The mutation and
+  // its write/CAS/transport outcome are never retried here.
+  }, { operation: "lifecycle.reconcile" });
 }
 function closeLifecycle(root, id, request) {
   return mutateLifecycle(root, id, request, "close", (record, evidence) => {
@@ -173,7 +322,31 @@ function releaseReferences(root, id, request) {
     record.references = record.references.filter(reference => !request.reference_ids.includes(referenceIdentity(reference)));
   });
 }
-function recordLifecycle(root, request) { return withCatalogLock(root, () => recordLifecycleUnlocked(root, request)); }
+function checkRecoveryConsumers(root, record) {
+  if (cleanupReservation(root, record)) throw new Error("Lifecycle group has active-cleanup-reservation");
+  if (catalog(root).some(consumer => consumer.references.some(reference => reference.id === record.id))) throw new Error("Active cleanup recovery consumer references");
+}
+function recoverCleanup(root, id, request) {
+  return mutateLifecycle(root, id, request, "recover", (record, evidence) => {
+    if (record.cleanup_recovery) throw new Error("Conflicting cleanup recovery retry");
+    if (record.state !== "pending" || (record.producer && (record.producer.status !== "stopped" || record.producer.outcome !== "unknown" || record.producer.exit_code !== null))) throw new Error("Only unresolved lifecycle cleanup may be recovered");
+    if (request.producer_stopped_verified !== true || request.membership_complete_verified !== true) throw new Error("Verified producer tree stop and complete membership required");
+    checkRecoveryConsumers(root, record);
+    const recovery = { schema: 1, id: record.id, kind: record.kind, owner: record.owner, version: record.version ?? null, generation: record.generation ?? null,
+      source_revision: record.revision, original_state: record.state, original_producer: record.producer ?? null,
+      original_membership_complete: record.membership_complete, members: record.members,
+      ...evidence, producer_stopped_verified: true, membership_complete_verified: true, verified_at: new Date().toISOString() };
+    record.cleanup_recovery = recovery;
+    record.membership_complete = true;
+    validateCleanupRecovery(root, record);
+    // Outcome, exit code, ownership and all references remain unchanged. This
+    // only permits a fresh native review; it never deletes or starts a producer.
+  });
+}
+function recordLifecycle(root, request, { operation = "lifecycle.catalog" } = {}) {
+  if (operation !== "lifecycle.reconcile") assertEnabled("groups");
+  return withCatalogLock(root, () => recordLifecycleUnlocked(root, request), { operation });
+}
 function recordLifecycleUnlocked(root, request) {
   root = path.resolve(root);
   const incoming = validate(root, { ...request, schema: 1, references: request.references || [] });
@@ -197,8 +370,11 @@ function recordLifecycleUnlocked(root, request) {
     if (previous?.custody_refinements?.some(receipt => incoming.members.some(member => receipt.paths.some(transferred => overlap(transferred, member.path))))) throw new Error("Refined custody cannot be reclaimed by ordinary record writes");
     if (previous && (previous.id !== incoming.id || previous.kind !== incoming.kind || previous.owner !== incoming.owner || (previous.version ?? null) !== (incoming.version ?? null))) throw new Error("Conflicting lifecycle identity");
     const newGeneration = previous && incoming.generation !== undefined && incoming.generation !== previous.generation;
-    if (newGeneration && (request.expected_revision !== previous.revision || previous.producer?.status !== "stopped" || previous.producer.outcome === "unknown" || incoming.state !== "pending" || incoming.membership_complete)) throw new Error("New lifecycle generation requires exact revision and known stopped producer");
+    if (newGeneration && (request.expected_revision !== previous.revision || previous.producer?.status !== "stopped" || (previous.producer.outcome === "unknown" && !canRestartGeneration(root, previous)) || incoming.state !== "pending" || incoming.membership_complete)) throw new Error("New lifecycle generation requires exact revision and known stopped producer or validated restart authority");
+    if (newGeneration && previous.restart_recovery && !isDeepStrictEqual(incoming.members, previous.members)) throw new Error("Restart must preserve exact members and protection");
+    if (previous?.restart_recovery && !newGeneration) throw new Error("Restart-authorized generation requires exact next-generation transition");
     if (previous?.producer && !newGeneration && (incoming.state !== previous.state || incoming.membership_complete !== previous.membership_complete || incoming.members.some(member => !previous.members.some(old => old.path === member.path && old.role === member.role)))) throw new Error("Closed lifecycle cannot restart or extend membership");
+    if (previous?.cleanup_recovery && (newGeneration || incoming.state !== previous.state || incoming.membership_complete !== previous.membership_complete || !isDeepStrictEqual(incoming.members, previous.members))) throw new Error("Recovered lifecycle cannot restart or change membership");
     if (previous && incoming.members.some(member => member.role === "release" && previous.members.some(old => old.role === "release" && old.path !== checked(root, member.path, true)))) throw new Error("Conflicting lifecycle release identity");
     if (request.expected_revision !== undefined && request.expected_revision !== (previous?.revision || 0)) throw new Error("Stale lifecycle revision");
     if (incoming.members.some(member => !previous?.members.some(old => old.path === member.path && old.role === member.role) &&
@@ -220,7 +396,7 @@ function recordLifecycleUnlocked(root, request) {
       const old = references.find(old => referenceIdentity(old) === normalized.reference_id);
       if (old && JSON.stringify(referenceShape(old)) !== JSON.stringify(referenceShape(normalized))) throw new Error("Conflicting reference identity");
       if (!old) {
-        const target = catalog(root).find(record => record.id === reference.id);
+        const target = catalogRecord(root, reference.id);
         if ((reference.member_paths !== undefined || reference.target_revision !== undefined || reference.target_version !== undefined) && !target) throw new Error("Scoped or pinned reference target missing");
         if (target && (reference.target_revision !== undefined && reference.target_revision !== target.revision || reference.target_version !== undefined && reference.target_version !== target.version)) throw new Error("Reference target binding mismatch");
         if (reference.member_paths?.some(value => !projectMembers(target.members).some(member => member.path === value))) throw new Error("Scoped reference member mismatch");
@@ -239,12 +415,16 @@ function recordLifecycleUnlocked(root, request) {
       ...(!newGeneration && previous?.producer ? { producer: previous.producer } : {}),
       ...(!newGeneration && previous?.close_receipt ? { close_receipt: previous.close_receipt } : {}),
       ...(!newGeneration && previous?.release_receipt ? { release_receipt: previous.release_receipt } : {}),
+      ...(newGeneration && previous?.restart_recovery ? { previous_generation: { ...restartSource(previous), restart_recovery: previous.restart_recovery } } : previous?.previous_generation ? { previous_generation: previous.previous_generation } : {}),
+      ...(previous?.cleanup_recovery ? { cleanup_recovery: previous.cleanup_recovery, recover_receipt: previous.recover_receipt } : {}),
       ...(previous?.custody_handoffs ? { custody_handoffs: previous.custody_handoffs } : {}),
       ...(previous?.custody_transfer ? { custody_transfer: previous.custody_transfer } : {}),
       ...(previous?.custody_refinement ? { custody_refinement: previous.custody_refinement } : {}),
       ...(previous?.custody_refinements ? { custody_refinements: previous.custody_refinements } : {}),
       revision: (previous?.revision || 0) + 1, created_at: previous?.created_at || new Date().toISOString(), updated_at: new Date().toISOString() };
     observationApi.protectOwner(root, result);
+    if (newGeneration && previous.restart_recovery) canRestartGeneration(root, previous);
+    validate(root, result);
     writeRecord(root, filename, result);
     return result;
 }
@@ -730,7 +910,7 @@ function registerRequest(root, id) {
       kind: member.role, owner: record.owner, generated: member.generated !== false, protection_known: member.protection_known === true,
       references: inbound(member), provenance_ref: provenance })) } };
 }
-function finalize(root, id, retirement) { return withCatalogLock(root, () => finalizeUnlocked(root, id, retirement)); }
+function finalize(root, id, retirement) { return withCatalogLock(root, () => finalizeUnlocked(root, id, retirement), { operation: "lifecycle.reconcile" }); }
 function finalizeUnlocked(root, id, retirement) {
   const filename = registryPath(root, id);
     const records = catalog(root), record = records.find(value => value.id === id);
@@ -758,7 +938,11 @@ function finalizeUnlocked(root, id, retirement) {
     if (remaining.length || references.length || blockers.length) return { id, status: "retained", remaining, references, blockers, registryPath: filename };
     if (retirementEvidence && sha(fs.readFileSync(checked(root, retirementEvidence.path))) !== retirementEvidence.sha256) throw new Error("Retirement evidence changed before finalization");
     // Metadata reconciliation follows verified absence, never a producer state label.
-    catalogLeases.get(path.resolve(root)).removeRecord(id, sha(fs.readFileSync(filename)));
+    const lease = catalogLeases.get(path.resolve(root));
+    try {
+      lease.removeRecord(id, sha(fs.readFileSync(filename)));
+      lease.snapshot?.delete(path.basename(filename));
+    } catch (error) { delete lease.snapshot; throw error; }
     return { id, status: "finalized", remaining: [], references: [], blockers: [], registryPath: filename,
       ...(retirementEvidence ? { retirement: retirementEvidence } : {}) };
 }
@@ -785,10 +969,10 @@ function main(argv = process.argv.slice(2)) {
       : action === "migrate-observation" ? observationApi.migrateObservation(root, options.id, request) : observationApi.resolveObservation(root, options.id, request);
   }
   if (action === "observation-catalog") return observationApi.observationCatalog(root);
-  if (["close", "release", "transfer-custody", "relocate-custody", "refine-custody"].includes(action)) {
+  if (["close", "release", "recover-cleanup", "transfer-custody", "relocate-custody", "refine-custody"].includes(action)) {
     const requestFile = checked(root, options["request-file"]);
     const request = JSON.parse(fs.readFileSync(requestFile, "utf8"));
-    return action === "refine-custody" ? refineCustody(root, request) : action === "relocate-custody" ? relocateCustody(root, options.id, request) : action === "transfer-custody" ? transferCustody(root, options.id, request) : action === "close" ? closeLifecycle(root, options.id, request) : releaseReferences(root, options.id, request);
+    return action === "recover-cleanup" ? recoverCleanup(root, options.id, request) : action === "refine-custody" ? refineCustody(root, request) : action === "relocate-custody" ? relocateCustody(root, options.id, request) : action === "transfer-custody" ? transferCustody(root, options.id, request) : action === "close" ? closeLifecycle(root, options.id, request) : releaseReferences(root, options.id, request);
   }
   if (action === "record") {
     if (options["reference-kind"] !== undefined) {
@@ -823,6 +1007,12 @@ function main(argv = process.argv.slice(2)) {
 }
 const observationApi = require("./artifact-observations.cjs").createObservationApi({ fs, path, sha, inside, overlap, checked, registry, registryPath,
   validate, catalog, projectMembers, withCatalogLock, writeRecord, checkedEvidence, referenceIdentity, cleanupReservation });
-module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, freezeCustody, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, cleanupReservation, finalize, main,
+module.exports = { authorizeRestart, canRestartGeneration, restartSource, checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, recoverCleanup, freezeCustody, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, cleanupReservation, finalize, main,
   recordObservation: observationApi.recordObservation, migrateObservation: observationApi.migrateObservation, resolveObservation: observationApi.resolveObservation, observationCatalog: observationApi.observationCatalog };
-if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) { console.error(error.message); process.exitCode = 1; } }
+if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) {
+  console.error(error.message);
+  if (error.lease || error.release_error) console.error(JSON.stringify({
+    action_error: { message: error.message, stack: error.stack, lease: error.lease },
+    ...(error.release_error ? { secondary_release_error: { message: error.release_error.message, stack: error.release_error.stack, lease: error.release_error.lease } } : {}) }));
+  process.exitCode = 1;
+} }

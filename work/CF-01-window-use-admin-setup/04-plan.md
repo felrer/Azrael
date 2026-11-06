@@ -38,3 +38,7 @@
 최종 상태: 캐시 관리 구현과 집중 검증을 완료했다. 통합 실행의 보존 13개·파이프라인 8개 기능 assertion은 통과했다. lifecycle의 테스트 인수 재사용 오류는 수정 후 전체 15개 exit 0으로 확인했다. 보존 suite after-hook은 PATH에 pwsh가 없어 실패했고, 남은 13개 소유 fixture는 Windows PowerShell의 357자 경로 제한을 확인한 뒤 같은 Remove-Item에 extended-length 경로를 사용해 ordinary deletion으로 제거했다. pwsh 7 경로를 설정한 신규 동작/정리 재시험은 exit 0이며 잔여 fixture 0개다. 배치 최초 exit 1과 원인·재시험을 verification.json에 구분했다.
 
 후속 native maintenance 등록/검토는 성공했다(초기 lock 오류는 더 이상 재현되지 않음). 세 run 전체를 명시적으로 defer하여 검증/실패/복구 증거를 보존했다. storage의 retained 상태에 따른 incomplete projection, module log의 protection 미확정은 삭제 우회 없이 보호 상태로 둔다. 원본 source 변경이 기존 미커밋 작업과 섞여 있어 임의 stage/commit하지 않았다. 제품 빌드·설치·실사용 검증은 수행하지 않았다.
+## 정리 근거 인계 (EC-01)
+
+storage run `CF-01-cache-lease-r1`의 [원래 집중 검증 결과](../EC-01-unused-file-archive/07-cf-retirement-evidence/verification.json)와 `storage-r1.log`·`storage-r2.log`·`storage-r3.log`를 같은 디렉터리에 SHA256 일치 인계했다. 위 최종 통합 인수·후속 native 심사 성공은 이 run의 “통합 검토까지 보존” 참조를 재검토하는 근거다. 실제 공유 Cargo 잠금이나 다른 run의 보호 조건을 해제하는 근거로 사용하지 않는다. 후속 삭제의 실제 결과는 [EC-01 기록](../EC-01-unused-file-archive/07-plan.md)이 소유한다.
+

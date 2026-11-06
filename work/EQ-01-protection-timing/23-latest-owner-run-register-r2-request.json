@@ -1,0 +1,27 @@
+{
+  "operation": "register",
+  "group": {
+    "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+    "kind": "run",
+    "owner": "standalone-candidate-preparation",
+    "version": null,
+    "membership_complete": true,
+    "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\29c6a2a826d8db61e9deb30a52a3b3bc44161a7fdf3da04e0e29cee62f7f50b3.json",
+    "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "membership_source_format": "producer_registry_v1",
+    "members": [
+      {
+        "id": "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1",
+        "role": "run",
+        "lifecycle_role": "artifact",
+        "kind": "run",
+        "owner": "standalone-candidate-preparation",
+        "generated": true,
+        "protection_known": true,
+        "references": [],
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\29c6a2a826d8db61e9deb30a52a3b3bc44161a7fdf3da04e0e29cee62f7f50b3.json"
+      }
+    ]
+  }
+}

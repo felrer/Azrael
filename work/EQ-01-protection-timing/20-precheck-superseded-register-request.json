@@ -1,0 +1,27 @@
+{
+  "operation": "register",
+  "group": {
+    "id": "version:maintenance-owner:eq01:precheck-removal-r1",
+    "kind": "version",
+    "owner": "EQ-01",
+    "version": "ef98c385803703783a2fda63b182837ed2d47a6a571c48a3137fc71cc922ad84-windows-x64-precheck-removal-v1",
+    "membership_complete": true,
+    "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fbac20537a7448ba76db89a111459ee756729055400d95c9d9edb855a1052425.json",
+    "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "membership_source_format": "producer_registry_v1",
+    "members": [
+      {
+        "id": "41d34eb5e044ddb128e5eef04136f577ee8ce35fc0439fea267e6f491de2e1be",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ef98c385-win-x64-eq01-precheck-removal",
+        "role": "version",
+        "lifecycle_role": "artifact",
+        "kind": "version",
+        "owner": "EQ-01",
+        "generated": true,
+        "protection_known": true,
+        "references": [],
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fbac20537a7448ba76db89a111459ee756729055400d95c9d9edb855a1052425.json"
+      }
+    ]
+  }
+}

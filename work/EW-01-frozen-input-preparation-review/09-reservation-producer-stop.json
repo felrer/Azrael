@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "id": "run:EW01-fixed-input:final-a",
+  "reservation_sha256": "0e6a8f23010930c6a111859eec027bfc4a2352e40766038a77160ab16bc7bad0",
+  "lease_owner": {
+    "acquired_at_ms": 1793537526298,
+    "operation": "group_reservation",
+    "pid": 25060,
+    "schema": 2,
+    "token": "25060-1793537526298-439a2996c7ba5ba1"
+  },
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "observedAt": "2026-11-01T13:03:08.390Z",
+  "registrationControllerExitCode": 1,
+  "nativeExitCode": null,
+  "stop_basis": "Exact synchronous native register invocation returned terminal maintenance_busy JSON to controller in exec session 17640 (managed work 8e4a9505-7f1e-4305-a246-ebd035b0d0c0, actual controller exit 1). Native registration uses in-process measurement and threads, launching no child commands. This is independent terminal evidence, not mere PID absence.",
+  "executionOutcomeChanged": false
+}

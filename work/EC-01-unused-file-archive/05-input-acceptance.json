@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "platform": "win32",
+  "arch": "x64",
+  "sourceSha256": {
+    "scripts/deployment-workspace.cjs": "e537d7bd46ca964fb486c81cb906685690120b8dc833bff7ae11ec98ce9498a4",
+    "scripts/test-deployment-workspace.cjs": "7ee3ececd528a1bc66ac1a04f4dee8c1bd81f488e7d694459b2e7bfcd2f9fcf0",
+    "scripts/source-test-fixtures.cjs": "2abfd76b072f114d5ffc99db7b6adad0719cd308eeb7f9d54a1bb38111b613bb",
+    "scripts/test-source-test-fixtures.cjs": "cd59d4bc296c229ea381a589d8a22040248f3f12709ace57b694e2874e14850a"
+  },
+  "priorPassingSteps": [
+    {
+      "name": "fixture-unit",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "derived-input",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "packaging-compatibility",
+      "exitCode": 0,
+      "signal": null
+    }
+  ],
+  "readinessRequirementCount": 38,
+  "cli": {
+    "exitCode": 0,
+    "signal": null
+  },
+  "sourceUnchanged": true
+}

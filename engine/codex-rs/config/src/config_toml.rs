@@ -164,6 +164,8 @@ pub struct FeatureToggleToml {
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct ConfigToml {
+    /// Thread-owned captured Team/Direct role-profile policy.
+    pub role_profile: Option<codex_protocol::protocol::RoleProfilePolicy>,
     /// Model/provider harness selection, loaded and validated before inference.
     #[serde(default)]
     pub harness: crate::harness_profiles::HarnessProfilesToml,

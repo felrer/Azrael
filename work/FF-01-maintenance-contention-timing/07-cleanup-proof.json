@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "at": "2026-11-02T06:26:32.425Z",
+  "owner": "FF-01-maintenance-contention-timing",
+  "targets": [
+    {
+      "id": "run:ff1:r1",
+      "owner": "FF-01-maintenance-contention-timing",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\r1",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "prior_state": "pending"
+    },
+    {
+      "id": "run:cargo-cache-tests:20261102T055737747Z-ed4e0a55-16fe-4d54-b955-3c685788d11c",
+      "owner": "cargo-cache-tests",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\cargo-cache-tests\\runs\\20261102T055737747Z-ed4e0a55-16fe-4d54-b955-3c685788d11c",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "prior_state": "complete",
+      "prior_producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\cargo-cache-tests\\runs\\20261102T055737747Z-ed4e0a55-16fe-4d54-b955-3c685788d11c\\reports\\producer-50825f1d22dbdb15b747b85e4b19305e85a50f93c85878f85e010ae45f3f98d1.json",
+        "evidence_sha256": "50825f1d22dbdb15b747b85e4b19305e85a50f93c85878f85e010ae45f3f98d1",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "version:maintenance-owner:fc02:stdin-20261102",
+      "owner": "FC02",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102",
+          "protection_known": true,
+          "role": "version"
+        }
+      ],
+      "prior_state": "complete",
+      "prior_producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FC-01-os33-lock-availability\\03-request-candidate.json",
+        "evidence_sha256": "0e60cd03012ee4492b19ac6b32b0c32fd0db3612a82b941c6bd1d85e24302ba6",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Exact stdin-capable standalone and independent native/PowerShell/CLI acceptance preserved",
+        "status": "stopped"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\02-measurement.json",
+      "sha256": "1c4a11e8340aa878537611090601b44edda58ff166547e558082b345fec6fdb6"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\03-acceptance.json",
+      "sha256": "8cf361a27fd45e16278bba5d6a47c38a2eb2524b2eb93e0e30d93d9ceebb52e7"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\04-installation.json",
+      "sha256": "ba0342809cd52b3fb955410343ced51971761c1def39039dfddfa8215da03068"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\05-default-acceptance.json",
+      "sha256": "53f6afa948bb969ad6ef2204b8ff99456b097e4b408de089aa1445fab61280b9"
+    }
+  ],
+  "producer_stopped_verified": true,
+  "reason": "All native test/build, measurement and queue/default validation children have observed terminal outcomes; independent evidence survives outside selected payloads. Original prior outcomes are preserved.",
+  "old_version_original_producer": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FC-01-os33-lock-availability\\03-request-candidate.json",
+    "evidence_sha256": "0e60cd03012ee4492b19ac6b32b0c32fd0db3612a82b941c6bd1d85e24302ba6",
+    "exit_code": 0,
+    "outcome": "success",
+    "reason": "Exact stdin-capable standalone and independent native/PowerShell/CLI acceptance preserved",
+    "status": "stopped"
+  }
+}

@@ -92,20 +92,24 @@ impl ThreadQueueRequestProcessor {
         let queued_item = match params.kind.unwrap_or(QueuedSubmissionKind::UserInput) {
             QueuedSubmissionKind::UserInput => {
                 service
-                    .enqueue(
+                    .enqueue_with_profile(
+                        thread_id,
+                        submission_into_turn_input(params.input, Some(params.client_user_message_id)),
+                        params.agent_profile,
+                    )
+                    .await
+            }
+            QueuedSubmissionKind::QuestionReply => {
+                if params.agent_profile.is_some() {
+                    return Err(invalid_request("question replies retain their active turn profile"));
+                }
+                service
+                    .enqueue_question_reply(
                         thread_id,
                         submission_into_turn_input(
                             params.input,
                             Some(params.client_user_message_id),
                         ),
-                    )
-                    .await
-            }
-            QueuedSubmissionKind::QuestionReply => {
-                service
-                    .enqueue_question_reply(
-                        thread_id,
-                        submission_into_turn_input(params.input, Some(params.client_user_message_id)),
                     )
                     .await
             }
@@ -116,7 +120,7 @@ impl ThreadQueueRequestProcessor {
                     ));
                 }
                 service
-                    .enqueue_compaction(thread_id, params.client_user_message_id)
+                    .enqueue_compaction_with_profile(thread_id, params.client_user_message_id, params.agent_profile)
                     .await
             }
         }
@@ -348,6 +352,7 @@ impl ThreadQueueRequestProcessor {
         Ok(ThreadQueueStartResponse {
             turn: Some(Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: turn_id,
                 root_turn_id: Some(root_turn_id),
@@ -565,7 +570,9 @@ pub(super) fn queue_error(error: QueueServiceError) -> JSONRPCErrorError {
 }
 
 fn api_queued_submission(value: QueuedItem) -> Result<QueuedSubmission, JSONRPCErrorError> {
-    let (kind, input, client_user_message_id) = match value.input {
+    let (queued_input, agent_profile) = value.input.into_profile_parts().map_err(|e| internal_error(e.to_string()))?;
+    let (kind, input, client_user_message_id) = match queued_input {
+        QueuedInput::Profiled { .. } => unreachable!("profile wrapper removed"),
         QueuedInput::UserInput {
             content, client_id, ..
         } => (
@@ -587,6 +594,7 @@ fn api_queued_submission(value: QueuedItem) -> Result<QueuedSubmission, JSONRPCE
         ),
     };
     Ok(QueuedSubmission {
+        agent_profile,
         id: value.id,
         kind,
         input,

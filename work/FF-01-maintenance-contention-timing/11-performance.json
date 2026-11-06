@@ -1,0 +1,1909 @@
+{
+  "schema": 1,
+  "platform": "Windows x64 local",
+  "method": "One serial baseline followed by one candidate; fresh equal-depth/equal-length fixture roots; deterministic same config/content and registration-review-apply order; no contention intentionally injected.",
+  "limits": "Single trial on shared disk; cache/order/resource influence remains. Nested timing spans must not be added together or treated as disjoint wall-time decomposition. This is not statistical percentage evidence.",
+  "harness_sha256": "9a3339bf685c50bdb58f818eb465a9785b0df4824e5094bc463a7117ae143543",
+  "baseline": {
+    "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\baseline-maintenance-owner.exe",
+    "sha": "474ec68c553dbea5babcdc4ebf79a84a045b7fa6d2ff3574d3ee14f4778d27c3",
+    "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\reports\\perf-base0000.json"
+  },
+  "candidate": {
+    "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\candidate-maintenance-owner.exe",
+    "sha": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+    "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\reports\\perf-cand0000.json"
+  },
+  "fixture": {
+    "history": "fresh config, deterministic fixture records and payload; register/review/apply once in order",
+    "producer_background_records": 200,
+    "native_members": 80,
+    "large_files": 4000,
+    "large_bytes": 16777216
+  },
+  "checks": {
+    "all_owner_processes_close_exit0": true,
+    "all_target_payloads_deleted_and_absent": true
+  },
+  "operations": [
+    {
+      "name": "catalog-register",
+      "baseline_wall_ms": 46363.8386,
+      "candidate_wall_ms": 15942.4686,
+      "baseline_exit": 0,
+      "candidate_exit": 0,
+      "baseline_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 30,
+          "elapsed_us_sum": 9221182,
+          "elapsed_us_max": 5143516,
+          "outcomes": {
+            "acquired": 30
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "count": 16,
+          "elapsed_us_sum": 33033604,
+          "elapsed_us_max": 3250880,
+          "outcomes": {
+            "success": 16
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "count": 36,
+          "elapsed_us_sum": 33084189,
+          "elapsed_us_max": 3251008,
+          "outcomes": {
+            "success": 36
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "count": 20,
+          "elapsed_us_sum": 49098,
+          "elapsed_us_max": 2954,
+          "outcomes": {
+            "success": 20
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 13698015,
+          "elapsed_us_max": 9879625,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 2,
+          "elapsed_us_sum": 18352640,
+          "elapsed_us_max": 11975764,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 7,
+          "elapsed_us_sum": 25914107,
+          "elapsed_us_max": 8175043,
+          "outcomes": {
+            "success": 7
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "count": 2,
+          "elapsed_us_sum": 11717491,
+          "elapsed_us_max": 11686735,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 1,
+          "elapsed_us_sum": 2114,
+          "elapsed_us_max": 2114,
+          "outcomes": {
+            "read": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 1,
+          "elapsed_us_sum": 51434,
+          "elapsed_us_max": 51434,
+          "outcomes": {
+            "committed": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 37692154,
+          "elapsed_us_max": 37692154,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ],
+      "candidate_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 14,
+          "elapsed_us_sum": 137405,
+          "elapsed_us_max": 69264,
+          "outcomes": {
+            "acquired": 14
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "count": 8,
+          "elapsed_us_sum": 15333513,
+          "elapsed_us_max": 3151131,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "count": 18,
+          "elapsed_us_sum": 15351649,
+          "elapsed_us_max": 3151231,
+          "outcomes": {
+            "success": 18
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "count": 10,
+          "elapsed_us_sum": 17506,
+          "elapsed_us_max": 2485,
+          "outcomes": {
+            "success": 10
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 4988806,
+          "elapsed_us_max": 3246300,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 2,
+          "elapsed_us_sum": 5081795,
+          "elapsed_us_max": 3294769,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 5,
+          "elapsed_us_sum": 9028209,
+          "elapsed_us_max": 3918112,
+          "outcomes": {
+            "success": 5
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "count": 2,
+          "elapsed_us_sum": 3182179,
+          "elapsed_us_max": 3170771,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 1,
+          "elapsed_us_sum": 1713,
+          "elapsed_us_max": 1713,
+          "outcomes": {
+            "read": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 1,
+          "elapsed_us_sum": 13869,
+          "elapsed_us_max": 13869,
+          "outcomes": {
+            "committed": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 12446869,
+          "elapsed_us_max": 12446869,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "catalog-review",
+      "baseline_wall_ms": 4860.9067,
+      "candidate_wall_ms": 3371.1253,
+      "baseline_exit": 0,
+      "candidate_exit": 0,
+      "baseline_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 5,
+          "elapsed_us_sum": 3006,
+          "elapsed_us_max": 2954,
+          "outcomes": {
+            "acquired": 5
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "count": 2,
+          "elapsed_us_sum": 4758419,
+          "elapsed_us_max": 2404264,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "count": 2,
+          "elapsed_us_sum": 4758495,
+          "elapsed_us_max": 2404297,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "count": 1,
+          "elapsed_us_sum": 4761682,
+          "elapsed_us_max": 4761682,
+          "outcomes": {
+            "success": 1
+          }
+        }
+      ],
+      "candidate_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 5,
+          "elapsed_us_sum": 2020,
+          "elapsed_us_max": 1983,
+          "outcomes": {
+            "acquired": 5
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "count": 2,
+          "elapsed_us_sum": 3302765,
+          "elapsed_us_max": 1704153,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "count": 2,
+          "elapsed_us_sum": 3302826,
+          "elapsed_us_max": 1704182,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "count": 1,
+          "elapsed_us_sum": 3304882,
+          "elapsed_us_max": 3304882,
+          "outcomes": {
+            "success": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "catalog-apply",
+      "baseline_wall_ms": 11608.7569,
+      "candidate_wall_ms": 9794.6052,
+      "baseline_exit": 0,
+      "candidate_exit": 0,
+      "baseline_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 10,
+          "elapsed_us_sum": 605477,
+          "elapsed_us_max": 503172,
+          "outcomes": {
+            "acquired": 10
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "count": 5,
+          "elapsed_us_sum": 10001376,
+          "elapsed_us_max": 2128908,
+          "outcomes": {
+            "success": 5
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "count": 9,
+          "elapsed_us_sum": 10009817,
+          "elapsed_us_max": 2128941,
+          "outcomes": {
+            "success": 9
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "count": 4,
+          "elapsed_us_sum": 8019,
+          "elapsed_us_max": 2430,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "count": 2,
+          "elapsed_us_sum": 5942619,
+          "elapsed_us_max": 4057938,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.initial_group_review",
+          "count": 1,
+          "elapsed_us_sum": 1892695,
+          "elapsed_us_max": 1892695,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.acquire",
+          "count": 1,
+          "elapsed_us_sum": 46605,
+          "elapsed_us_max": 46605,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 4097166,
+          "elapsed_us_max": 2119476,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 3,
+          "elapsed_us_sum": 2565971,
+          "elapsed_us_max": 2452949,
+          "outcomes": {
+            "verified": 3
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.normalization_preflight",
+          "count": 1,
+          "elapsed_us_sum": 5233,
+          "elapsed_us_max": 5233,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 3,
+          "elapsed_us_sum": 4075744,
+          "elapsed_us_max": 2051555,
+          "outcomes": {
+            "success": 3
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.verify.before_item",
+          "count": 1,
+          "elapsed_us_sum": 2034730,
+          "elapsed_us_max": 2034730,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.current_review",
+          "count": 1,
+          "elapsed_us_sum": 4070208,
+          "elapsed_us_max": 4070208,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.safe_entries.pre_intent",
+          "count": 1,
+          "elapsed_us_sum": 4082220,
+          "elapsed_us_max": 4082220,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 2,
+          "elapsed_us_sum": 5444,
+          "elapsed_us_max": 2882,
+          "outcomes": {
+            "read": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 2,
+          "elapsed_us_sum": 50513,
+          "elapsed_us_max": 25562,
+          "outcomes": {
+            "committed": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.intent_save",
+          "count": 1,
+          "elapsed_us_sum": 64142,
+          "elapsed_us_max": 64142,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.physical_delete",
+          "count": 1,
+          "elapsed_us_sum": 678957,
+          "elapsed_us_max": 678957,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.actual_result_save",
+          "count": 1,
+          "elapsed_us_sum": 53267,
+          "elapsed_us_max": 53267,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.final_presence",
+          "count": 1,
+          "elapsed_us_sum": 1903,
+          "elapsed_us_max": 1903,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.finalize",
+          "count": 1,
+          "elapsed_us_sum": 2087471,
+          "elapsed_us_max": 2087471,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 9104599,
+          "elapsed_us_max": 9104599,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ],
+      "candidate_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 10,
+          "elapsed_us_sum": 156885,
+          "elapsed_us_max": 75745,
+          "outcomes": {
+            "acquired": 10
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_load",
+          "count": 5,
+          "elapsed_us_sum": 8616532,
+          "elapsed_us_max": 1913916,
+          "outcomes": {
+            "success": 5
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog",
+          "count": 9,
+          "elapsed_us_sum": 8624365,
+          "elapsed_us_max": 1913957,
+          "outcomes": {
+            "success": 9
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.catalog_snapshot_hit",
+          "count": 4,
+          "elapsed_us_sum": 7439,
+          "elapsed_us_max": 2295,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "registry.observe",
+          "count": 2,
+          "elapsed_us_sum": 5093418,
+          "elapsed_us_max": 3359541,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.initial_group_review",
+          "count": 1,
+          "elapsed_us_sum": 1740600,
+          "elapsed_us_max": 1740600,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.acquire",
+          "count": 1,
+          "elapsed_us_sum": 43489,
+          "elapsed_us_max": 43489,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 3497453,
+          "elapsed_us_max": 1817009,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 3,
+          "elapsed_us_sum": 1957905,
+          "elapsed_us_max": 1867334,
+          "outcomes": {
+            "verified": 3
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.normalization_preflight",
+          "count": 1,
+          "elapsed_us_sum": 5543,
+          "elapsed_us_max": 5543,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 3,
+          "elapsed_us_sum": 3538365,
+          "elapsed_us_max": 1914084,
+          "outcomes": {
+            "success": 3
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.verify.before_item",
+          "count": 1,
+          "elapsed_us_sum": 1927819,
+          "elapsed_us_max": 1927819,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.current_review",
+          "count": 1,
+          "elapsed_us_sum": 3369130,
+          "elapsed_us_max": 3369130,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.safe_entries.pre_intent",
+          "count": 1,
+          "elapsed_us_sum": 3379167,
+          "elapsed_us_max": 3379167,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 2,
+          "elapsed_us_sum": 3680,
+          "elapsed_us_max": 1881,
+          "outcomes": {
+            "read": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 2,
+          "elapsed_us_sum": 44593,
+          "elapsed_us_max": 22688,
+          "outcomes": {
+            "committed": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.intent_save",
+          "count": 1,
+          "elapsed_us_sum": 46796,
+          "elapsed_us_max": 46796,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.physical_delete",
+          "count": 1,
+          "elapsed_us_sum": 735692,
+          "elapsed_us_max": 735692,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.actual_result_save",
+          "count": 1,
+          "elapsed_us_sum": 47962,
+          "elapsed_us_max": 47962,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.final_presence",
+          "count": 1,
+          "elapsed_us_sum": 2054,
+          "elapsed_us_max": 2054,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.finalize",
+          "count": 1,
+          "elapsed_us_sum": 1652765,
+          "elapsed_us_max": 1652765,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 7882862,
+          "elapsed_us_max": 7882862,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "members-register",
+      "baseline_wall_ms": 1628.9452,
+      "candidate_wall_ms": 1613.3088,
+      "baseline_exit": 0,
+      "candidate_exit": 0,
+      "baseline_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 2,
+          "elapsed_us_sum": 136513,
+          "elapsed_us_max": 68720,
+          "outcomes": {
+            "acquired": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 777119,
+          "elapsed_us_max": 413200,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 2,
+          "elapsed_us_sum": 868252,
+          "elapsed_us_max": 459146,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 5,
+          "elapsed_us_sum": 16,
+          "elapsed_us_max": 4,
+          "outcomes": {
+            "success": 5
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 1,
+          "elapsed_us_sum": 1595,
+          "elapsed_us_max": 1595,
+          "outcomes": {
+            "read": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 1,
+          "elapsed_us_sum": 26224,
+          "elapsed_us_max": 26224,
+          "outcomes": {
+            "committed": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 1484426,
+          "elapsed_us_max": 1484426,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ],
+      "candidate_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 2,
+          "elapsed_us_sum": 125782,
+          "elapsed_us_max": 63514,
+          "outcomes": {
+            "acquired": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 769249,
+          "elapsed_us_max": 402063,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 2,
+          "elapsed_us_sum": 852083,
+          "elapsed_us_max": 441230,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 5,
+          "elapsed_us_sum": 18,
+          "elapsed_us_max": 6,
+          "outcomes": {
+            "success": 5
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 1,
+          "elapsed_us_sum": 2012,
+          "elapsed_us_max": 2012,
+          "outcomes": {
+            "read": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 1,
+          "elapsed_us_sum": 16155,
+          "elapsed_us_max": 16155,
+          "outcomes": {
+            "committed": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 1476034,
+          "elapsed_us_max": 1476034,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "members-review",
+      "baseline_wall_ms": 399.7112,
+      "candidate_wall_ms": 355.8839,
+      "baseline_exit": 0,
+      "candidate_exit": 0,
+      "baseline_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 3620,
+          "elapsed_us_max": 3620,
+          "outcomes": {
+            "acquired": 1
+          }
+        }
+      ],
+      "candidate_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 3285,
+          "elapsed_us_max": 3285,
+          "outcomes": {
+            "acquired": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "members-apply",
+      "baseline_wall_ms": 190552.6919,
+      "candidate_wall_ms": 57516.3745,
+      "baseline_exit": 0,
+      "candidate_exit": 0,
+      "baseline_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 162,
+          "elapsed_us_sum": 87234140,
+          "elapsed_us_max": 3517716,
+          "outcomes": {
+            "acquired": 162
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.initial_group_review",
+          "count": 1,
+          "elapsed_us_sum": 330902,
+          "elapsed_us_max": 330902,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.acquire",
+          "count": 1,
+          "elapsed_us_sum": 907180,
+          "elapsed_us_max": 907180,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 1345619,
+          "elapsed_us_max": 1270120,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 161,
+          "elapsed_us_sum": 132776854,
+          "elapsed_us_max": 5534367,
+          "outcomes": {
+            "verified": 161
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.normalization_preflight",
+          "count": 80,
+          "elapsed_us_sum": 394956,
+          "elapsed_us_max": 6671,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 82,
+          "elapsed_us_sum": 306,
+          "elapsed_us_max": 13,
+          "outcomes": {
+            "success": 82
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.verify.before_item",
+          "count": 80,
+          "elapsed_us_sum": 1143526,
+          "elapsed_us_max": 23471,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.current_review",
+          "count": 80,
+          "elapsed_us_sum": 52343418,
+          "elapsed_us_max": 1355129,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.safe_entries.pre_intent",
+          "count": 80,
+          "elapsed_us_sum": 53285941,
+          "elapsed_us_max": 1383508,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 160,
+          "elapsed_us_sum": 433100,
+          "elapsed_us_max": 7151,
+          "outcomes": {
+            "read": 160
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 160,
+          "elapsed_us_sum": 44725136,
+          "elapsed_us_max": 3180937,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.intent_save",
+          "count": 80,
+          "elapsed_us_sum": 64831139,
+          "elapsed_us_max": 4500529,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.physical_delete",
+          "count": 80,
+          "elapsed_us_sum": 2157648,
+          "elapsed_us_max": 768878,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.actual_result_save",
+          "count": 80,
+          "elapsed_us_sum": 67020537,
+          "elapsed_us_max": 5537010,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.final_presence",
+          "count": 80,
+          "elapsed_us_sum": 164176,
+          "elapsed_us_max": 3460,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.finalize",
+          "count": 1,
+          "elapsed_us_sum": 39652,
+          "elapsed_us_max": 39652,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 190028698,
+          "elapsed_us_max": 190028698,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ],
+      "candidate_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 162,
+          "elapsed_us_sum": 5521869,
+          "elapsed_us_max": 333740,
+          "outcomes": {
+            "acquired": 162
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.initial_group_review",
+          "count": 1,
+          "elapsed_us_sum": 297686,
+          "elapsed_us_max": 297686,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.acquire",
+          "count": 1,
+          "elapsed_us_sum": 45445,
+          "elapsed_us_max": 45445,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 427478,
+          "elapsed_us_max": 370781,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 161,
+          "elapsed_us_sum": 9343904,
+          "elapsed_us_max": 416263,
+          "outcomes": {
+            "verified": 161
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.normalization_preflight",
+          "count": 80,
+          "elapsed_us_sum": 387512,
+          "elapsed_us_max": 5847,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 82,
+          "elapsed_us_sum": 277,
+          "elapsed_us_max": 7,
+          "outcomes": {
+            "success": 82
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.verify.before_item",
+          "count": 80,
+          "elapsed_us_sum": 1000839,
+          "elapsed_us_max": 18027,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.current_review",
+          "count": 80,
+          "elapsed_us_sum": 43575798,
+          "elapsed_us_max": 1070699,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.safe_entries.pre_intent",
+          "count": 80,
+          "elapsed_us_sum": 44373256,
+          "elapsed_us_max": 1083221,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 160,
+          "elapsed_us_sum": 372808,
+          "elapsed_us_max": 3780,
+          "outcomes": {
+            "read": 160
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 160,
+          "elapsed_us_sum": 3838296,
+          "elapsed_us_max": 33524,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.intent_save",
+          "count": 80,
+          "elapsed_us_sum": 4870754,
+          "elapsed_us_max": 335462,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.physical_delete",
+          "count": 80,
+          "elapsed_us_sum": 1751121,
+          "elapsed_us_max": 673618,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.actual_result_save",
+          "count": 80,
+          "elapsed_us_sum": 4399388,
+          "elapsed_us_max": 356159,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.final_presence",
+          "count": 80,
+          "elapsed_us_sum": 144702,
+          "elapsed_us_max": 3495,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.finalize",
+          "count": 1,
+          "elapsed_us_sum": 28889,
+          "elapsed_us_max": 28889,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 57065473,
+          "elapsed_us_max": 57065473,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "large-register",
+      "baseline_wall_ms": 13103.3902,
+      "candidate_wall_ms": 11592.7183,
+      "baseline_exit": 0,
+      "candidate_exit": 0,
+      "baseline_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 2,
+          "elapsed_us_sum": 160310,
+          "elapsed_us_max": 99472,
+          "outcomes": {
+            "acquired": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 185675,
+          "elapsed_us_max": 103632,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 2,
+          "elapsed_us_sum": 284819,
+          "elapsed_us_max": 144995,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 5,
+          "elapsed_us_sum": 13,
+          "elapsed_us_max": 4,
+          "outcomes": {
+            "success": 5
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 1,
+          "elapsed_us_sum": 1610,
+          "elapsed_us_max": 1610,
+          "outcomes": {
+            "read": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 1,
+          "elapsed_us_sum": 14130,
+          "elapsed_us_max": 14130,
+          "outcomes": {
+            "committed": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 12892781,
+          "elapsed_us_max": 12892781,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ],
+      "candidate_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 2,
+          "elapsed_us_sum": 156196,
+          "elapsed_us_max": 95129,
+          "outcomes": {
+            "acquired": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 195324,
+          "elapsed_us_max": 111007,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 2,
+          "elapsed_us_sum": 299276,
+          "elapsed_us_max": 149785,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 5,
+          "elapsed_us_sum": 38,
+          "elapsed_us_max": 18,
+          "outcomes": {
+            "success": 5
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 1,
+          "elapsed_us_sum": 1776,
+          "elapsed_us_max": 1776,
+          "outcomes": {
+            "read": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 1,
+          "elapsed_us_sum": 16350,
+          "elapsed_us_max": 16350,
+          "outcomes": {
+            "committed": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 11402327,
+          "elapsed_us_max": 11402327,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "large-review",
+      "baseline_wall_ms": 66.0919,
+      "candidate_wall_ms": 87.1983,
+      "baseline_exit": 0,
+      "candidate_exit": 0,
+      "baseline_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 1808,
+          "elapsed_us_max": 1808,
+          "outcomes": {
+            "acquired": 1
+          }
+        }
+      ],
+      "candidate_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 1,
+          "elapsed_us_sum": 2106,
+          "elapsed_us_max": 2106,
+          "outcomes": {
+            "acquired": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "large-apply",
+      "baseline_wall_ms": 87769.9087,
+      "candidate_wall_ms": 71716.6618,
+      "baseline_exit": 0,
+      "candidate_exit": 0,
+      "baseline_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 4,
+          "elapsed_us_sum": 428414,
+          "elapsed_us_max": 255751,
+          "outcomes": {
+            "acquired": 4
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.initial_group_review",
+          "count": 1,
+          "elapsed_us_sum": 6216,
+          "elapsed_us_max": 6216,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.acquire",
+          "count": 1,
+          "elapsed_us_sum": 43444,
+          "elapsed_us_max": 43444,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 163514,
+          "elapsed_us_max": 84936,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 3,
+          "elapsed_us_sum": 510458,
+          "elapsed_us_max": 301776,
+          "outcomes": {
+            "verified": 3
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.normalization_preflight",
+          "count": 1,
+          "elapsed_us_sum": 9055624,
+          "elapsed_us_max": 9055624,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 3,
+          "elapsed_us_sum": 11,
+          "elapsed_us_max": 5,
+          "outcomes": {
+            "success": 3
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.verify.before_item",
+          "count": 1,
+          "elapsed_us_sum": 11446,
+          "elapsed_us_max": 11446,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.current_review",
+          "count": 1,
+          "elapsed_us_sum": 10986,
+          "elapsed_us_max": 10986,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.safe_entries.pre_intent",
+          "count": 1,
+          "elapsed_us_sum": 22478,
+          "elapsed_us_max": 22478,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 2,
+          "elapsed_us_sum": 5831,
+          "elapsed_us_max": 3601,
+          "outcomes": {
+            "read": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 2,
+          "elapsed_us_sum": 76860,
+          "elapsed_us_max": 47688,
+          "outcomes": {
+            "committed": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.intent_save",
+          "count": 1,
+          "elapsed_us_sum": 303658,
+          "elapsed_us_max": 303658,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.physical_delete",
+          "count": 1,
+          "elapsed_us_sum": 77969088,
+          "elapsed_us_max": 77969088,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.actual_result_save",
+          "count": 1,
+          "elapsed_us_sum": 61698,
+          "elapsed_us_max": 61698,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.final_presence",
+          "count": 1,
+          "elapsed_us_sum": 2563,
+          "elapsed_us_max": 2563,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.finalize",
+          "count": 1,
+          "elapsed_us_sum": 39376,
+          "elapsed_us_max": 39376,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 87565903,
+          "elapsed_us_max": 87565903,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ],
+      "candidate_spans": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "count": 4,
+          "elapsed_us_sum": 10106573,
+          "elapsed_us_max": 5188236,
+          "outcomes": {
+            "acquired": 4
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.initial_group_review",
+          "count": 1,
+          "elapsed_us_sum": 5653,
+          "elapsed_us_max": 5653,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.acquire",
+          "count": 1,
+          "elapsed_us_sum": 42345,
+          "elapsed_us_max": 42345,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "catalog",
+          "count": 2,
+          "elapsed_us_sum": 3430702,
+          "elapsed_us_max": 3353193,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "maintenance",
+          "count": 3,
+          "elapsed_us_sum": 10273385,
+          "elapsed_us_max": 7087472,
+          "outcomes": {
+            "verified": 3
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.normalization_preflight",
+          "count": 1,
+          "elapsed_us_sum": 8422788,
+          "elapsed_us_max": 8422788,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "reservation.verify_sources",
+          "count": 3,
+          "elapsed_us_sum": 12,
+          "elapsed_us_max": 5,
+          "outcomes": {
+            "success": 3
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.verify.before_item",
+          "count": 1,
+          "elapsed_us_sum": 12089,
+          "elapsed_us_max": 12089,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.current_review",
+          "count": 1,
+          "elapsed_us_sum": 10454,
+          "elapsed_us_max": 10454,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.safe_entries.pre_intent",
+          "count": 1,
+          "elapsed_us_sum": 24429,
+          "elapsed_us_max": 24429,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.read",
+          "count": 2,
+          "elapsed_us_sum": 6083,
+          "elapsed_us_max": 3882,
+          "outcomes": {
+            "read": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "state.commit",
+          "count": 2,
+          "elapsed_us_sum": 2708567,
+          "elapsed_us_max": 1902487,
+          "outcomes": {
+            "committed": 2
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.intent_save",
+          "count": 1,
+          "elapsed_us_sum": 3063848,
+          "elapsed_us_max": 3063848,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.physical_delete",
+          "count": 1,
+          "elapsed_us_sum": 49498978,
+          "elapsed_us_max": 49498978,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.actual_result_save",
+          "count": 1,
+          "elapsed_us_sum": 7090771,
+          "elapsed_us_max": 7090771,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.final_presence",
+          "count": 1,
+          "elapsed_us_sum": 7261,
+          "elapsed_us_max": 7261,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.phase",
+          "operation": "apply.reservation.finalize",
+          "count": 1,
+          "elapsed_us_sum": 770230,
+          "elapsed_us_max": 770230,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        {
+          "event": "maintenance.lock_hold",
+          "operation": "group_reservation",
+          "count": 1,
+          "elapsed_us_sum": 71540162,
+          "elapsed_us_max": 71540162,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      ]
+    }
+  ]
+}

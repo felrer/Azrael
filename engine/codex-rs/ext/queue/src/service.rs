@@ -44,6 +44,11 @@ use uuid::Uuid;
 /// Durable input waiting to execute on its thread.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum QueuedInput {
+    /// Durable admission snapshot; edits retain this wrapper unchanged.
+    Profiled {
+        input: Box<QueuedInput>,
+        agent_profile: codex_protocol::agent_profile::AgentProfileRef,
+    },
     UserInput {
         content: Vec<UserInput>,
         client_id: Option<String>,
@@ -55,6 +60,33 @@ pub enum QueuedInput {
     ContextCompaction {
         client_id: String,
     },
+}
+
+impl QueuedInput {
+    pub fn into_profile_parts(
+        self,
+    ) -> Result<(Self, Option<codex_protocol::agent_profile::AgentProfileRef>), CodexErr> {
+        match self {
+            Self::Profiled {
+                input,
+                agent_profile,
+            } => {
+                agent_profile
+                    .validate()
+                    .map_err(|e| CodexErr::InvalidRequest(e.to_string()))?;
+                if !matches!(
+                    input.as_ref(),
+                    Self::UserInput { .. } | Self::ContextCompaction { .. }
+                ) {
+                    return Err(CodexErr::InvalidRequest(
+                        "invalid profiled queued operation".into(),
+                    ));
+                }
+                Ok((*input, Some(agent_profile)))
+            }
+            input => Ok((input, None)),
+        }
+    }
 }
 
 /// Result of attempting to execute a queued operation.
@@ -340,6 +372,52 @@ impl QueuedItemService {
         self.enqueue_input(thread_id, input).await
     }
 
+    pub async fn enqueue_with_profile(
+        &self,
+        thread_id: ThreadId,
+        input: TurnInput,
+        agent_profile: Option<codex_protocol::agent_profile::AgentProfileRef>,
+    ) -> Result<QueuedItem, QueueServiceError> {
+        let input = prepare_queued_user_input(input).await?;
+        self.enqueue_profiled_input(thread_id, input, agent_profile)
+            .await
+    }
+
+    async fn enqueue_profiled_input(
+        &self,
+        thread_id: ThreadId,
+        input: QueuedInput,
+        agent_profile: Option<codex_protocol::agent_profile::AgentProfileRef>,
+    ) -> Result<QueuedItem, QueueServiceError> {
+        let input = match agent_profile {
+            Some(agent_profile) => {
+                agent_profile
+                    .validate()
+                    .map_err(|e| CodexErr::InvalidRequest(e.to_string()))?;
+                QueuedInput::Profiled {
+                    input: Box::new(input),
+                    agent_profile,
+                }
+            }
+            None => input,
+        };
+        self.enqueue_input(thread_id, input).await
+    }
+
+    pub async fn enqueue_compaction_with_profile(
+        &self,
+        thread_id: ThreadId,
+        client_id: String,
+        agent_profile: Option<codex_protocol::agent_profile::AgentProfileRef>,
+    ) -> Result<QueuedItem, QueueServiceError> {
+        self.enqueue_profiled_input(
+            thread_id,
+            QueuedInput::ContextCompaction { client_id },
+            agent_profile,
+        )
+        .await
+    }
+
     pub async fn enqueue_question_reply(
         &self,
         thread_id: ThreadId,
@@ -407,14 +485,18 @@ impl QueuedItemService {
     ) -> Result<Option<QueuedItem>, QueueServiceError> {
         let _dispatch_guard = self.dispatch_guard(thread_id).await;
         let mut question_reply = false;
+        let mut agent_profile = None;
         if let Some(existing) = self
             .list(thread_id)
             .await?
             .into_iter()
             .find(|item| item.id == queued_item_id)
         {
-            question_reply = matches!(&existing.input, QueuedInput::QuestionReply { .. });
-            match existing.input {
+            let (existing_input, captured_profile) = existing.input.into_profile_parts()?;
+            agent_profile = captured_profile;
+            question_reply = matches!(&existing_input, QueuedInput::QuestionReply { .. });
+            match existing_input {
+                QueuedInput::Profiled { .. } => unreachable!("profile wrapper removed"),
                 QueuedInput::ContextCompaction { .. } => {
                     return Err(QueueServiceError::InvalidInput);
                 }
@@ -437,6 +519,13 @@ impl QueuedItemService {
             CodexThread::validate_queued_question_reply_shape(&content)?;
             input = QueuedInput::QuestionReply { content, client_id };
         }
+        let input = match agent_profile {
+            Some(agent_profile) => QueuedInput::Profiled {
+                input: Box::new(input),
+                agent_profile,
+            },
+            None => input,
+        };
         let payload = serde_json::to_string(&input)?;
         let item = self
             .queue
@@ -654,7 +743,9 @@ async fn submit_queued_input(
     trace: Option<W3cTraceContext>,
     explicit: bool,
 ) -> Result<QueuedItemSubmission, CodexErr> {
+    let (input, agent_profile) = input.into_profile_parts()?;
     match input {
+        QueuedInput::Profiled { .. } => unreachable!("profile wrapper removed"),
         QueuedInput::UserInput {
             content, client_id, ..
         } => {
@@ -663,6 +754,7 @@ async fn submit_queued_input(
                 match thread
                     .start_turn_if_idle(TurnInputRequest::new(input).with_trace(trace).on_start(
                         TurnStartOptions {
+                            agent_profile,
                             turn_trigger: Some(
                                 if explicit { "queue_user" } else { "queue" }.to_string(),
                             ),
@@ -709,11 +801,10 @@ async fn submit_queued_input(
             },
         ),
         QueuedInput::ContextCompaction { client_id } => Ok(
-            match if explicit {
-                thread.compact_if_idle_explicit().await?
-            } else {
-                thread.compact_if_idle().await?
-            } {
+            match thread
+                .compact_if_idle_with_profile(explicit, agent_profile)
+                .await?
+            {
                 CompactIfIdleSubmission::Started { turn_id } => {
                     tracing::info!(%turn_id, %client_id, "started queued context compaction");
                     QueuedItemSubmission::Started {

@@ -1,0 +1,367 @@
+{
+  "schema": 1,
+  "startedUtc": "2026-10-30T00:52:44.143Z",
+  "completedUtc": "2026-10-30T00:52:49.824Z",
+  "lifecycleId": "run:ET-01-cold-build-cache-audit:preflight-r1",
+  "capacity": {
+    "availableBytes": 19073417216
+  },
+  "monitoring": {
+    "method": "WPR FileIO",
+    "startExitCode": 2147942405,
+    "startOutput": "\r\n\tAccess is denied.\r\r\n\r\n\tProfile Id: FileIO.Verbose.File\r\n\t\r\n\tError code: 0x80070005\r\n\t\r\n\tAccess is denied.\r\r\n\t\r\n\t\r\n",
+    "available": false
+  },
+  "buildStarted": false,
+  "installationStarted": false,
+  "blocker": "Required process/file read tracing could not start; full build not started",
+  "preflightExitCode": 0,
+  "inventory": {
+    "pages": 7,
+    "total": 1378,
+    "itemsRead": 1378,
+    "measurement": "cached logical bytes; not reclaimed physical space"
+  },
+  "cacheOwnerCount": 21,
+  "cacheOwners": [
+    {
+      "id": "run:module-cache:providers:3937acf385a2dc75b8a55e8a00caa337e05288f697888efde6139372bd696ecb",
+      "owner": "module-build-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "run:module-cache:companion:295ef0a4815c53d1d96aea502526dc5fdece42e5a283df5e1eb9e35af0b779ec",
+      "owner": "module-build-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "run:ec01-latest-build:environment-r2",
+      "owner": "EC-01/latest-app-build",
+      "state": "complete",
+      "memberCount": 6,
+      "referenceCount": 2
+    },
+    {
+      "id": "run:module-cache:companion:72df2ee1377fcb9cca18553cf3bad50967e8d65f25c5f148340f737641a37d01",
+      "owner": "module-build-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "run:module-cache:companion:a642fcfffe8e8e4cbaece53eda87a86de39e66981c3676eaca1bfe9f18c6b2be",
+      "owner": "module-build-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+      "owner": "CR-01-build-legacy-cleanup",
+      "state": "failed",
+      "memberCount": 2,
+      "referenceCount": 0
+    },
+    {
+      "id": "work:b13-extension-dependencies-r2",
+      "owner": "azrael-release-dependency-preparation",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 2
+    },
+    {
+      "id": "run:ec01-latest-build:environment-r1",
+      "owner": "EC-01/latest-app-build",
+      "state": "complete",
+      "memberCount": 6,
+      "referenceCount": 3
+    },
+    {
+      "id": "run:module-cache:companion:e39e5d7e898d712830b3358441630653ec439045043fc07f8c4a6c831c2b784e",
+      "owner": "module-build-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:release-2026-0-11-r8",
+      "owner": "CR-01-build-legacy-cleanup",
+      "state": "pending",
+      "memberCount": 3,
+      "referenceCount": 5
+    },
+    {
+      "id": "work:build-tool-caches-2026-0-11",
+      "owner": "azrael-build",
+      "state": "pending",
+      "memberCount": 3,
+      "referenceCount": 0
+    },
+    {
+      "id": "run:module-cache:providers:e910475a9c18e9880560d937dad0860d010ec64844225d2d8e8654e6a794fecc",
+      "owner": "module-build-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "run:ec01-latest-build:environment-r3",
+      "owner": "EC-01/latest-app-build",
+      "state": "complete",
+      "memberCount": 11,
+      "referenceCount": 3
+    },
+    {
+      "id": "run:module-cache:companion:a616ff14882f8f947e94044f35e2cf840a71313231e09878d38da5373b987add",
+      "owner": "module-build-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "work:workspace-cargo-cache-2026-0-11",
+      "owner": "azrael-build",
+      "state": "pending",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "work:DM-01:preserved-nonlog-input-custody:20261024",
+      "owner": "/root",
+      "state": "retained",
+      "memberCount": 483,
+      "referenceCount": 10
+    },
+    {
+      "id": "shared:cargo-target:e6800e57b513189b18e235159d5808a618fd56e99b4e3ae13f0b16d4075f1388",
+      "owner": "cargo-shared-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "work:BI-01-legacy-custody:20261019",
+      "owner": "BI-01-legacy-migration-custodian",
+      "state": "retained",
+      "memberCount": 2694,
+      "referenceCount": 11
+    },
+    {
+      "id": "work:b13-provider-dependencies-r3",
+      "owner": "azrael-release-tool-preparation",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 1
+    },
+    {
+      "id": "run:module-cache:companion:89cb2600dc4d48882cda7f4729f52887a6a1af266d24e25a92d0d1b078ef6ffb",
+      "owner": "module-build-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    },
+    {
+      "id": "run:module-cache:providers:c2ae99ab1f83f315bc3f4ef894b41e11dd12fbdb8c5a6aab6262d97f9eebb89d",
+      "owner": "module-build-cache",
+      "state": "complete",
+      "memberCount": 1,
+      "referenceCount": 0
+    }
+  ],
+  "largestRegisteredCaches": [
+    {
+      "id": "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+      "group": "do1-unused-native-outputs-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.pdb",
+      "logical_bytes": 910495744,
+      "measured_at_ms": 1793077538959,
+      "references": 0
+    },
+    {
+      "id": "do2-codex_core-ee1b27bb08f71819.pdb",
+      "group": "do2-native-outputs-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.pdb",
+      "logical_bytes": 910495744,
+      "measured_at_ms": 1793077474477,
+      "references": 0
+    },
+    {
+      "id": "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+      "group": "do1-unused-native-outputs-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.pdb",
+      "logical_bytes": 868913152,
+      "measured_at_ms": 1793077543342,
+      "references": 0
+    },
+    {
+      "id": "do2-all-c71321a47dbe4ed9.pdb",
+      "group": "do2-native-outputs-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.pdb",
+      "logical_bytes": 868913152,
+      "measured_at_ms": 1793077479021,
+      "references": 0
+    },
+    {
+      "id": "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+      "group": "do1-unused-native-outputs-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.exe",
+      "logical_bytes": 321040384,
+      "measured_at_ms": 1793077535339,
+      "references": 0
+    },
+    {
+      "id": "do2-codex_core-ee1b27bb08f71819.exe",
+      "group": "do2-native-outputs-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.exe",
+      "logical_bytes": 321040384,
+      "measured_at_ms": 1793077470988,
+      "references": 0
+    },
+    {
+      "id": "do1-unused-native-all-c71321a47dbe4ed9.exe",
+      "group": "do1-unused-native-outputs-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.exe",
+      "logical_bytes": 303104000,
+      "measured_at_ms": 1793077540130,
+      "references": 0
+    },
+    {
+      "id": "do2-all-c71321a47dbe4ed9.exe",
+      "group": "do2-native-outputs-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.exe",
+      "logical_bytes": 303104000,
+      "measured_at_ms": 1793077475699,
+      "references": 0
+    }
+  ],
+  "commands": [
+    {
+      "name": "wpr-before",
+      "executable": "C:/Windows/System32/wpr.exe",
+      "args": [
+        "-status"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 73.83879999999954
+    },
+    {
+      "name": "wpr-fileio-start",
+      "executable": "C:/Windows/System32/wpr.exe",
+      "args": [
+        "-start",
+        "FileIO",
+        "-filemode",
+        "-recordtempto",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\temporary"
+      ],
+      "exitCode": 2147942405,
+      "signal": null,
+      "error": null,
+      "durationMs": 95.96880000000056
+    },
+    {
+      "name": "inventory-0",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\inputs\\inventory-0.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 692.2613000000001
+    },
+    {
+      "name": "inventory-200",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\inputs\\inventory-200.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 766.8600999999999
+    },
+    {
+      "name": "inventory-400",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\inputs\\inventory-400.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 763.4549000000006
+    },
+    {
+      "name": "inventory-600",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\inputs\\inventory-600.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 533.6455999999998
+    },
+    {
+      "name": "inventory-800",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\inputs\\inventory-800.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 492.41150000000016
+    },
+    {
+      "name": "inventory-1000",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\inputs\\inventory-1000.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 503.4883000000009
+    },
+    {
+      "name": "inventory-1200",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "--request",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\preflight-r1\\inputs\\inventory-1200.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "durationMs": 439.3613999999998
+    }
+  ]
+}

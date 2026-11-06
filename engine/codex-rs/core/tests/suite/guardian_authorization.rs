@@ -70,8 +70,9 @@ async fn guardian_revalidates_owning_session_before_allow(
     let (review_completion_tx, review_completion_rx) = oneshot::channel();
     let parent_followup = if matches!(change, PendingReviewChange::VerifiedAnswer) {
         responses::sse(vec![
-            responses::ev_function_call(
+            core_test_support::responses::ev_function_call_with_namespace(
                 "confirm-command",
+                "legacy_codex_tools",
                 "request_user_input",
                 &json!({"questions": [{
                     "id": "execute", "header": "Execute", "question": "May I run the command?",

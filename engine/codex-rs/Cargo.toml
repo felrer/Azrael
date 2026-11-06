@@ -99,6 +99,7 @@ members = [
     "protocol",
     "prompts",
     "project-maintenance",
+    "task-memory",
     "rollout",
     "rollout-trace",
     "rmcp-client",
@@ -172,6 +173,7 @@ license = "Apache-2.0"
 
 [workspace.dependencies]
 azrael-project-maintenance = { path = "project-maintenance" }
+azrael-task-memory = { path = "task-memory" }
 # Internal
 codex-realtime-webrtc = { path = "realtime-webrtc" }
 app_test_support = { path = "app-server/tests/common" }

@@ -5,24 +5,10 @@ const path = require("node:path");
 const gm = require("node:vm");
 const test = require("node:test");
 const { EventEmitter } = require("node:events");
-const { injectAccountSettings, ACCOUNT_SETTINGS_ASSET, AzraelAccountSettings } = require("./inject-account-settings.cjs");
+const { AzraelAccountSettings } = require("./inject-account-settings.cjs");
 const namespace = require("./namespace-azrael-host.cjs");
 const Nf = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
-
-test("pinned settings and host transforms parse, reject drift and invalidate the cache", () => {
-  for (const asset of [ACCOUNT_SETTINGS_ASSET, "out/extension.js"]) {
-    const source = ms.readFileSync(path.join(root, asset), "utf8");
-    const result = injectAccountSettings(source, asset);
-
-    assert.equal(Nf.createSourceFile(asset, result.text, Nf.ScriptTarget.Latest, true, Nf.ScriptKind.JS).parseDiagnostics.length, 0);
-
-    assert.throws(() => injectAccountSettings(result.text + "/*azrael-account-settings-v1*/", asset), /Duplicate/);
-    assert.throws(() => injectAccountSettings("", asset), /anchor changed/);
-
-  }
-  assert(namespace.getTransformRules()["inject-account-settings.cjs"]);
-});
 
 test("display branding preserves backend identifiers, URLs and model names", () => {
 

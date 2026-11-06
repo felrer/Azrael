@@ -1,0 +1,677 @@
+{
+  "scope": "Windows x64 source/test policy only; no product build, host launch or installation",
+  "r1": [
+    {
+      "name": "syntax",
+      "started": "2026-10-29T14:45:06.833Z",
+      "elapsedMs": 654,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "cache",
+      "started": "2026-10-29T14:45:07.487Z",
+      "elapsedMs": 32226,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "entry",
+      "started": "2026-10-29T14:45:39.713Z",
+      "elapsedMs": 244,
+      "exitCode": 0,
+      "signal": null
+    }
+  ],
+  "r2": {
+    "started": "2026-10-29T14:46:24.441Z",
+    "elapsedMs": 31910,
+    "exitCode": 1,
+    "signal": null,
+    "cases": [
+      "full install",
+      "module cache install",
+      "shared module cache install",
+      "explicit policy verify only",
+      "host changes verify only",
+      "full regression verify only",
+      "missing-stage",
+      "null-stage",
+      "passed-false",
+      "passed-string",
+      "acceptance-hash",
+      "acceptance-version",
+      "acceptance-path",
+      "package-mutation",
+      "stage-standaloneHost",
+      "stage-host"
+    ]
+  },
+  "r2Failure": "Mock deploy succeeded but fixture cleanup failed: report output was already owned by the release; corrected cleaner to validate/reuse the exact parent report owner. Initial six-stage-only diagnosis was incomplete; selected-mode cleanup separately passed.",
+  "python": {
+    "tests": 21,
+    "exitCode": 0,
+    "seconds": 94.983,
+    "fixturesRemoved": true
+  },
+  "workerNodeSyntax": {
+    "files": [
+      "scripts/test-independent-namespace.cjs",
+      "scripts/independent-vscode-host-check.cjs"
+    ],
+    "exitCode": 0
+  },
+  "unverified": [
+    "actual final VSIX host activation",
+    "Linux/macOS native execution"
+  ],
+  "r3": [
+    {
+      "name": "preparation",
+      "started": "2026-10-29T14:52:07.572Z",
+      "elapsedMs": 1351,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "cache",
+      "started": "2026-10-29T14:52:08.923Z",
+      "elapsedMs": 34905,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "cleaner",
+      "started": "2026-10-29T14:52:43.828Z",
+      "elapsedMs": 466078,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "name": "deploy",
+      "started": "2026-10-29T15:00:29.906Z",
+      "elapsedMs": 27206,
+      "exitCode": 1,
+      "signal": null
+    }
+  ],
+  "r3Failure": "Mock deploy succeeded but fixture cleanup failed: report output was already owned by the release; corrected cleaner to validate/reuse the exact parent report owner. Initial six-stage-only diagnosis was incomplete; selected-mode cleanup separately passed.",
+  "r4": {
+    "started": "2026-10-29T15:03:54.434Z",
+    "elapsedMs": 25046,
+    "exitCode": 1,
+    "signal": null,
+    "cases": [
+      "full install",
+      "explicit policy verify only",
+      "runtime changes verify only",
+      "account source verify only",
+      "missing-stage",
+      "stage-standaloneHost",
+      "acceptance-hash"
+    ]
+  },
+  "r5": {
+    "started": "2026-10-29T15:06:46.405Z",
+    "elapsedMs": 24219,
+    "exitCode": 1,
+    "signal": null,
+    "cases": [
+      "full install",
+      "explicit policy verify only",
+      "runtime changes verify only",
+      "account source verify only",
+      "missing-stage",
+      "stage-standaloneHost",
+      "acceptance-hash"
+    ]
+  },
+  "failedMockFixtures": [
+    {
+      "id": "run:deploy-checks:d336daff067f41a7a7d2d86c158bb90c",
+      "scope": "synthetic deployment only",
+      "controllerExitCode": 1,
+      "nestedStatus": "installed",
+      "allNestedStagesReturned": true,
+      "stages": [
+        {
+          "name": "source-fixtures",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "environment-preflight",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "verification-dependencies",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-source-preflight",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "source-tests",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "build",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-preservation",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "prepare",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "acceptance",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-preservation-recheck",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "install",
+          "exitCode": 0,
+          "terminated": false
+        }
+      ],
+      "cleanup": {
+        "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\d336daff067f41a7a7d2d86c158bb90c\\temporary\\fixtures spaces 한글\\full install",
+        "apply": true,
+        "includeDiagnosedFixtures": false,
+        "status": "blocked",
+        "candidates": [],
+        "errors": [
+          "Artifact lifecycle command failed (exit 1)."
+        ]
+      }
+    },
+    {
+      "id": "run:deploy-checks:63860c036cb547bca70b36267ae1f51e",
+      "scope": "synthetic deployment only",
+      "controllerExitCode": 1,
+      "nestedStatus": "installed",
+      "allNestedStagesReturned": true,
+      "stages": [
+        {
+          "name": "source-fixtures",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "environment-preflight",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "verification-dependencies",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-source-preflight",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "source-tests",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "build",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-preservation",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "prepare",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "acceptance",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-preservation-recheck",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "install",
+          "exitCode": 0,
+          "terminated": false
+        }
+      ],
+      "cleanup": {
+        "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\63860c036cb547bca70b36267ae1f51e\\temporary\\fixtures spaces 한글\\full install",
+        "apply": true,
+        "includeDiagnosedFixtures": false,
+        "status": "blocked",
+        "candidates": [],
+        "errors": [
+          "Artifact lifecycle command failed (exit 1)."
+        ]
+      }
+    },
+    {
+      "id": "run:deploy-checks:5f13399635f546f5a3ac1f1a7d3f72de",
+      "scope": "synthetic deployment only",
+      "controllerExitCode": 1,
+      "nestedStatus": "installed",
+      "allNestedStagesReturned": true,
+      "stages": [
+        {
+          "name": "source-fixtures",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "environment-preflight",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "verification-dependencies",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-source-preflight",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "source-tests",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "build",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-preservation",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "prepare",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "acceptance",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-preservation-recheck",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "install",
+          "exitCode": 0,
+          "terminated": false
+        }
+      ],
+      "cleanup": {
+        "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\5f13399635f546f5a3ac1f1a7d3f72de\\temporary\\fixtures spaces 한글\\full install",
+        "apply": true,
+        "includeDiagnosedFixtures": false,
+        "status": "completed",
+        "candidates": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\5f13399635f546f5a3ac1f1a7d3f72de\\temporary\\fixtures spaces 한글\\full install\\artifacts\\verification\\deploy-chosen",
+            "status": "retained",
+            "reason": "Cannot bind argument to parameter 'Arguments' because it is an empty string.",
+            "archived": [],
+            "acceptanceResult": null
+          }
+        ],
+        "errors": []
+      }
+    },
+    {
+      "id": "run:deploy-checks:bf460df08a2b485d877168fead01696b",
+      "scope": "synthetic deployment only",
+      "controllerExitCode": 1,
+      "nestedStatus": "installed",
+      "allNestedStagesReturned": true,
+      "stages": [
+        {
+          "name": "source-fixtures",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "environment-preflight",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "verification-dependencies",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-source-preflight",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "source-tests",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "build",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-preservation",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "prepare",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "acceptance",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "engine-preservation-recheck",
+          "exitCode": 0,
+          "terminated": false
+        },
+        {
+          "name": "install",
+          "exitCode": 0,
+          "terminated": false
+        }
+      ],
+      "cleanup": {
+        "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\bf460df08a2b485d877168fead01696b\\temporary\\fixtures spaces 한글\\full install",
+        "apply": true,
+        "includeDiagnosedFixtures": false,
+        "status": "blocked",
+        "candidates": [],
+        "errors": [
+          "Cleanup report lifecycle ownership rejected."
+        ]
+      }
+    }
+  ],
+  "r6": {
+    "started": "2026-10-29T15:08:15.288Z",
+    "elapsedMs": 30745,
+    "exitCode": 1,
+    "signal": null,
+    "cases": [
+      "full install",
+      "explicit policy verify only",
+      "runtime changes verify only",
+      "account source verify only",
+      "missing-stage",
+      "stage-standaloneHost",
+      "acceptance-hash"
+    ]
+  },
+  "r7": {
+    "started": "2026-10-29T15:14:53.761Z",
+    "elapsedMs": 17230,
+    "exitCode": 1,
+    "signal": null,
+    "cases": [
+      "full install",
+      "explicit policy verify only",
+      "runtime changes verify only",
+      "account source verify only",
+      "missing-stage",
+      "stage-standaloneHost",
+      "acceptance-hash"
+    ]
+  },
+  "r8": {
+    "started": "2026-10-29T15:15:47.407Z",
+    "elapsedMs": 27571,
+    "exitCode": 1,
+    "signal": null,
+    "cases": [
+      "full install",
+      "explicit policy verify only",
+      "runtime changes verify only",
+      "account source verify only",
+      "missing-stage",
+      "stage-standaloneHost",
+      "acceptance-hash"
+    ]
+  },
+  "r7Failure": "Test fixture lacked explicit verified maintenance owner override; no deployment metrics created.",
+  "r8Failure": "Stale test assertion expected UI source forwarding already removed from final checker; corrected to package-only assertion.",
+  "registrationRecovery": {
+    "id": "run:ec01-test-policy:r1",
+    "reservationOwnerPid": 34632,
+    "operation": "registration",
+    "verification": "Original synchronous registration attempt returned failure. Standalone registration implementation performs filesystem measurement in the owner process; maintenance_owner.rs, lib.rs and registration.rs contain no child process launch in this operation. Win32_Process query found neither exact PID nor direct children; no maintenance_owner.exe remains. Recovery must independently acquire the original OS lease and validate unchanged source/fence.",
+    "observedAt": "2026-10-29T15:18:16.535Z",
+    "result": "reservation_recovered"
+  },
+  "r9": {
+    "started": "2026-10-29T15:16:47.983Z",
+    "elapsedMs": 157615,
+    "exitCode": 0,
+    "signal": null,
+    "cases": [
+      "full install",
+      "explicit policy verify only",
+      "runtime changes verify only",
+      "account source verify only",
+      "missing-stage",
+      "stage-standaloneHost",
+      "acceptance-hash"
+    ],
+    "expectedStderr": "Negative wrong-parent lifecycle guard intentionally rejects report/evidence ownership."
+  },
+  "mockRunEvidence": [
+    {
+      "id": "run:deploy-checks:d336daff067f41a7a7d2d86c158bb90c",
+      "controllerExitCode": 1,
+      "failure": {
+        "passed": 0,
+        "lifecycleId": "run:deploy-checks:d336daff067f41a7a7d2d86c158bb90c",
+        "error": "successful verification fixture was not cleaned after child disposal",
+        "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\d336daff067f41a7a7d2d86c158bb90c\\logs",
+        "fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\d336daff067f41a7a7d2d86c158bb90c\\temporary\\fixtures spaces 한글",
+        "results": [],
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\d336daff067f41a7a7d2d86c158bb90c"
+      },
+      "results": null
+    },
+    {
+      "id": "run:deploy-checks:63860c036cb547bca70b36267ae1f51e",
+      "controllerExitCode": 1,
+      "failure": {
+        "error": "successful verification fixture was not cleaned after child disposal",
+        "results": [],
+        "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\63860c036cb547bca70b36267ae1f51e\\logs",
+        "passed": 0,
+        "fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\63860c036cb547bca70b36267ae1f51e\\temporary\\fixtures spaces 한글",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\63860c036cb547bca70b36267ae1f51e",
+        "lifecycleId": "run:deploy-checks:63860c036cb547bca70b36267ae1f51e"
+      },
+      "results": null
+    },
+    {
+      "id": "run:deploy-checks:5f13399635f546f5a3ac1f1a7d3f72de",
+      "controllerExitCode": 1,
+      "failure": {
+        "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\5f13399635f546f5a3ac1f1a7d3f72de\\logs",
+        "fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\5f13399635f546f5a3ac1f1a7d3f72de\\temporary\\fixtures spaces 한글",
+        "error": "successful verification fixture was not cleaned after child disposal",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\5f13399635f546f5a3ac1f1a7d3f72de",
+        "results": [],
+        "passed": 0,
+        "lifecycleId": "run:deploy-checks:5f13399635f546f5a3ac1f1a7d3f72de"
+      },
+      "results": null
+    },
+    {
+      "id": "run:deploy-checks:bf460df08a2b485d877168fead01696b",
+      "controllerExitCode": 1,
+      "failure": {
+        "error": "successful verification fixture was not cleaned after child disposal",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\bf460df08a2b485d877168fead01696b",
+        "fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\bf460df08a2b485d877168fead01696b\\temporary\\fixtures spaces 한글",
+        "lifecycleId": "run:deploy-checks:bf460df08a2b485d877168fead01696b",
+        "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\bf460df08a2b485d877168fead01696b\\logs",
+        "passed": 0,
+        "results": []
+      },
+      "results": null
+    },
+    {
+      "id": "run:deploy-checks:23df0e1691ee470abd9391735b3daeb8",
+      "controllerExitCode": 1,
+      "failure": {
+        "lifecycleId": "run:deploy-checks:23df0e1691ee470abd9391735b3daeb8",
+        "passed": 0,
+        "fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\23df0e1691ee470abd9391735b3daeb8\\temporary\\fixtures spaces 한글",
+        "error": "host changes, exhaustive or unknown scope require standalone activation",
+        "results": [],
+        "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\23df0e1691ee470abd9391735b3daeb8\\logs",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\23df0e1691ee470abd9391735b3daeb8"
+      },
+      "results": null
+    },
+    {
+      "id": "run:deploy-checks:d0c2bf309a4647188efac2d9fdd9ee6e",
+      "controllerExitCode": 1,
+      "failure": {
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\d0c2bf309a4647188efac2d9fdd9ee6e",
+        "results": [],
+        "passed": 0,
+        "lifecycleId": "run:deploy-checks:d0c2bf309a4647188efac2d9fdd9ee6e",
+        "error": "Cannot find path 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\d0c2bf309a4647188efac2d9fdd9ee6e\\temporary\\fixtures spaces 한글\\full install\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json' because it does not exist.",
+        "fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\d0c2bf309a4647188efac2d9fdd9ee6e\\temporary\\fixtures spaces 한글",
+        "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\d0c2bf309a4647188efac2d9fdd9ee6e\\logs"
+      },
+      "results": null
+    },
+    {
+      "id": "run:deploy-checks:366ea780dc494462b10c7840695c518c",
+      "controllerExitCode": 1,
+      "failure": {
+        "results": [],
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\366ea780dc494462b10c7840695c518c",
+        "passed": 0,
+        "error": "acceptance UI pin lost",
+        "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\366ea780dc494462b10c7840695c518c\\logs",
+        "lifecycleId": "run:deploy-checks:366ea780dc494462b10c7840695c518c",
+        "fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\366ea780dc494462b10c7840695c518c\\temporary\\fixtures spaces 한글"
+      },
+      "results": null
+    },
+    {
+      "id": "run:deploy-checks:32f99df50c3a472883a31a31921414fb",
+      "controllerExitCode": 0,
+      "failure": null,
+      "results": [
+        {
+          "case": "full install",
+          "exitCode": 0,
+          "passed": true,
+          "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\32f99df50c3a472883a31a31921414fb\\temporary\\fixtures spaces 한글\\full install\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+        },
+        {
+          "case": "explicit policy verify only",
+          "exitCode": 0,
+          "passed": true,
+          "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\32f99df50c3a472883a31a31921414fb\\temporary\\fixtures spaces 한글\\explicit policy verify only\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+        },
+        {
+          "case": "runtime changes verify only",
+          "exitCode": 0,
+          "passed": true,
+          "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\32f99df50c3a472883a31a31921414fb\\temporary\\fixtures spaces 한글\\runtime changes verify only\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+        },
+        {
+          "case": "account source verify only",
+          "exitCode": 0,
+          "passed": true,
+          "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\32f99df50c3a472883a31a31921414fb\\temporary\\fixtures spaces 한글\\account source verify only\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+        },
+        {
+          "case": "missing-stage",
+          "exitCode": 1,
+          "passed": true,
+          "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\32f99df50c3a472883a31a31921414fb\\temporary\\fixtures spaces 한글\\missing-stage\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+        },
+        {
+          "case": "acceptance-hash",
+          "exitCode": 1,
+          "passed": true,
+          "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\32f99df50c3a472883a31a31921414fb\\temporary\\fixtures spaces 한글\\acceptance-hash\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+        },
+        {
+          "case": "stage-standaloneHost",
+          "exitCode": 1,
+          "passed": true,
+          "metrics": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\32f99df50c3a472883a31a31921414fb\\temporary\\fixtures spaces 한글\\stage-standaloneHost\\artifacts\\logs\\deploy-chosen\\deployment-metrics.json"
+        }
+      ]
+    }
+  ],
+  "stopVerification": {
+    "producer_stopped_verified": true,
+    "process_tree_stopped_verified": true,
+    "reason": "All synchronous test controllers returned actual exits. The test controller waits for each deployment process, drains both streams, then disposes it. Mock deployment tracked stages returned before post-run assertions; no fixture timeout occurred. Wrapper child spawnSync calls returned with null signals. This proof covers only the eight exact synthetic test runs listed above.",
+    "source": "scripts/test-deploy-azrael.ps1:721"
+  },
+  "sourceSha256": {
+    "scripts/build-module-cache.ps1": "da4143dde24f664c8a0cc24483449653c1c35974697fdbdb213106a6d52d90a0",
+    "scripts/preparation-state.cjs": "35fa314bbc0080b054a128e5ccdf950a906a4a53a0b6d995338b8b5ba06a5d89",
+    "scripts/test-preparation-state.cjs": "1b640de0a0182cce6fbc68a7cb31cbc36de850b45391a07d40e7879ad1c8e9f4",
+    "scripts/prepare-independent-vscode.ps1": "413c65ccd33f9cff5a140e6bdc9545ba52a2fa4cd0cfe537b8bef5bb678d5301",
+    "scripts/check-independent-vscode.ps1": "71b77d0f4da8538782fe33f388879ecfd0d9d6f4984ef8bea6e2dbd496f773f3",
+    "scripts/deploy-azrael.ps1": "ad80e9a74a9a3d61dbacd6ffbf7b4c232ba96a460af5dea7630885c15fc7c9f3",
+    "scripts/verify-app-release.ps1": "896f76d409168410f1b2e329232ef1614acbcbe7fa85c60f1fb39bce8307dc34",
+    "scripts/clean-verification-artifacts.ps1": "dc2eb35bc48430d15b07d0de4789ed5f8a8c87232fb7e07f935cfd82462c3c36",
+    "scripts/test-clean-verification-artifacts.ps1": "02bc1cd29dff5249c3f2dc60c03f894360c9c727b0ec207b5332a05249723bf6",
+    "scripts/test-deploy-azrael.ps1": "44d0c684c2ad68ebd1223dc7173ce9ac6aae751e1dca6a9f1ea63bc35b36988c",
+    "scripts/tests/test_app_release.py": "3b339540c6bd841e34bcab5b44f418006d46e4d370503942ff3d6b7c1a97e781",
+    "scripts/independent-vscode-host-check.cjs": "b68840631975f90300beff14878ae4239efca353453cfaff4d1f6c0c087f5b57",
+    "scripts/test-independent-namespace.cjs": "277e251ba9a82211ca6e3b0192a864d1ff25a8a28b4713809080f7b9756bddf1"
+  },
+  "r6Failure": "PowerShell @($null).Count is one; missing ChangedPath did not require standalone. Corrected production condition and validated actual AST expression in five cases.",
+  "r4Failure": "Parent-owned evidence branch attempted separate registration with missing operation ID.",
+  "r5Failure": "Parent-owned evidence destination was outside release membership; guard correctly refused."
+}

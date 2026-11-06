@@ -1,0 +1,654 @@
+[
+  {
+    "id": "archive:primary-7c13ccb422b5a84292d3",
+    "revision": 3,
+    "state": "pending",
+    "cleanup_recovery": {
+      "schema": 1,
+      "id": "archive:primary-7c13ccb422b5a84292d3",
+      "kind": "run",
+      "owner": "EU01-install-014",
+      "version": null,
+      "generation": null,
+      "source_revision": 2,
+      "original_state": "pending",
+      "original_producer": null,
+      "original_membership_complete": false,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\00-.agents",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\01-.gitattributes",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\02-.github",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\03-.gitignore",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\04-.gitmodules",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\05-.vscode",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\06-AGENTS.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\07-LICENSE",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\08-README.ko.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\09-README.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\10-THIRD_PARTY_NOTICES.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\11-control",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\12-docs",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\13-engine",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\14-extensions",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\15-instructions",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\16-native",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\17-plugins",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\18-project-maintenance.json",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\19-providers",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\20-scripts",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\21-upstream",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\22-work",
+          "protection_known": true,
+          "role": "working-source"
+        }
+      ],
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\recover-archive-primary-7c13ccb422b5a84292d3.json",
+      "evidence_sha256": "d29976f943854b4c5603139844a7a8e3b6c3595510149bb787c7e6391cf85cfb",
+      "reason": "Explicit archive disposal request; completed relocation owner and exact generated membership verified independently, preserving historical pending state.",
+      "producer_stopped_verified": true,
+      "membership_complete_verified": true,
+      "verified_at": "2026-11-01T14:08:12.039Z"
+    }
+  },
+  {
+    "id": "archive:primary-3a6546173894a10680e6",
+    "revision": 3,
+    "state": "pending",
+    "cleanup_recovery": {
+      "schema": 1,
+      "id": "archive:primary-3a6546173894a10680e6",
+      "kind": "run",
+      "owner": "EU01-install-014",
+      "version": null,
+      "generation": null,
+      "source_revision": 2,
+      "original_state": "pending",
+      "original_producer": null,
+      "original_membership_complete": false,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\00-.agents",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\01-.gitattributes",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\02-.github",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\03-.gitignore",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\04-.gitmodules",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\05-.vscode",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\06-AGENTS.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\07-LICENSE",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\08-README.ko.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\09-README.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\10-THIRD_PARTY_NOTICES.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\11-control",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\12-docs",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\13-engine",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\14-extensions",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\15-instructions",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\16-native",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\17-plugins",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\18-project-maintenance.json",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\19-providers",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\20-scripts",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\21-upstream",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\22-work",
+          "protection_known": true,
+          "role": "working-source"
+        }
+      ],
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\recover-archive-primary-3a6546173894a10680e6.json",
+      "evidence_sha256": "fdbc3cc1bdbffdf8b245a105b313c5ed1e7c6129dbd63c5ad217a8f632b2637e",
+      "reason": "Explicit archive disposal request; completed relocation owner and exact generated membership verified independently, preserving historical pending state.",
+      "producer_stopped_verified": true,
+      "membership_complete_verified": true,
+      "verified_at": "2026-11-01T14:08:12.284Z"
+    }
+  },
+  {
+    "id": "archive:primary-023da50d1a8c39efcde8",
+    "revision": 3,
+    "state": "pending",
+    "cleanup_recovery": {
+      "schema": 1,
+      "id": "archive:primary-023da50d1a8c39efcde8",
+      "kind": "run",
+      "owner": "EU01-install-014",
+      "version": null,
+      "generation": null,
+      "source_revision": 2,
+      "original_state": "pending",
+      "original_producer": null,
+      "original_membership_complete": false,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\00-.agents",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\01-.gitattributes",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\02-.github",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\03-.gitignore",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\04-.gitmodules",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\05-.vscode",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\06-AGENTS.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\07-LICENSE",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\08-README.ko.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\09-README.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\10-THIRD_PARTY_NOTICES.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\11-control",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\12-docs",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\13-engine",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\14-extensions",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\15-instructions",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\16-native",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\17-plugins",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\18-project-maintenance.json",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\19-providers",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\20-scripts",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\21-upstream",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\22-work",
+          "protection_known": true,
+          "role": "working-source"
+        }
+      ],
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\recover-archive-primary-023da50d1a8c39efcde8.json",
+      "evidence_sha256": "bf248a0d0a783d812a867046ab8e20c520bf6358806f40987def8ca93ff79c51",
+      "reason": "Explicit archive disposal request; completed relocation owner and exact generated membership verified independently, preserving historical pending state.",
+      "producer_stopped_verified": true,
+      "membership_complete_verified": true,
+      "verified_at": "2026-11-01T14:08:12.509Z"
+    }
+  },
+  {
+    "id": "archive:primary-c136c6be833bfef68d01",
+    "revision": 3,
+    "state": "pending",
+    "cleanup_recovery": {
+      "schema": 1,
+      "id": "archive:primary-c136c6be833bfef68d01",
+      "kind": "run",
+      "owner": "EU01-install-014",
+      "version": null,
+      "generation": null,
+      "source_revision": 2,
+      "original_state": "pending",
+      "original_producer": null,
+      "original_membership_complete": false,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\00-.agents",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\01-.gitattributes",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\02-.github",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\03-.gitignore",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\04-.gitmodules",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\05-.vscode",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\06-AGENTS.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\07-LICENSE",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\08-README.ko.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\09-README.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\10-THIRD_PARTY_NOTICES.md",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\11-control",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\12-docs",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\13-engine",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\14-extensions",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\15-instructions",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\16-native",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\17-plugins",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\18-project-maintenance.json",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\19-providers",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\20-scripts",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\21-upstream",
+          "protection_known": true,
+          "role": "working-source"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\22-work",
+          "protection_known": true,
+          "role": "working-source"
+        }
+      ],
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1\\recover-archive-primary-c136c6be833bfef68d01.json",
+      "evidence_sha256": "b54b7950b88aac2961ebd1706d31744c9df22e51ab9898b8956cd22f4b6be74f",
+      "reason": "Explicit archive disposal request; completed relocation owner and exact generated membership verified independently, preserving historical pending state.",
+      "producer_stopped_verified": true,
+      "membership_complete_verified": true,
+      "verified_at": "2026-11-01T14:08:12.750Z"
+    }
+  }
+]

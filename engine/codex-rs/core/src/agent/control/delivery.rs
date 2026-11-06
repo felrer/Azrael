@@ -17,6 +17,14 @@ impl AgentMessage {
     ) -> InterAgentCommunication {
         let trigger_turn = mode == MessageDeliveryMode::TriggerTurn;
         match self {
+            Self::WithAttachments {
+                message,
+                attachments,
+            } => {
+                let mut communication = message.into_communication(author, recipient, mode);
+                communication.attachments.extend(attachments);
+                communication
+            }
             Self::Encrypted(message) => InterAgentCommunication::new_encrypted(
                 author,
                 recipient,

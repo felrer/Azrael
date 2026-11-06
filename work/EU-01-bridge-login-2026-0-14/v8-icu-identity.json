@@ -1,0 +1,13 @@
+{
+  "url": "https://chromium.googlesource.com/chromium/deps/icu/+/ee5f27adc28bd3f15b2c293f726d14d2e336cbd5/common/?format=JSON",
+  "entry": {
+    "mode": 33188,
+    "type": "blob",
+    "id": "d1a12cb93065157498a11ff5f4b9a6501ee22506",
+    "name": "icudtl.dat"
+  },
+  "bytes": 10822192,
+  "blob": "d1a12cb93065157498a11ff5f4b9a6501ee22506",
+  "sha256": "1cf67874b5a87a8363a86fb3f81e3cbbed54d389062dab8fb52308d5cf8c8612",
+  "matches": true
+}

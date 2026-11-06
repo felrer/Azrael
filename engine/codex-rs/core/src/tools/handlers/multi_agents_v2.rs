@@ -19,6 +19,7 @@ use codex_protocol::items::SubAgentActivityItem;
 use codex_protocol::items::TurnItem;
 use codex_protocol::models::ResponseInputItem;
 use codex_protocol::openai_models::ReasoningEffort;
+use codex_protocol::protocol::ImageAttachment;
 use codex_protocol::protocol::SubAgentActivityKind;
 use codex_tools::ToolName;
 use serde::Deserialize;
@@ -63,6 +64,49 @@ fn agent_message_from_tool(
     } else {
         AgentMessage::Encrypted(message)
     }
+}
+
+fn agent_message_with_attachments(
+    message: String,
+    source: &crate::tools::context::ToolCallSource,
+    attachments: Vec<ImageAttachment>,
+) -> AgentMessage {
+    let message = agent_message_from_tool(message, source);
+    if attachments.is_empty() {
+        message
+    } else {
+        AgentMessage::WithAttachments {
+            message: Box::new(message),
+            attachments,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub(crate) struct AttachmentReceipt {
+    attachment_ids: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    registration_warning: Option<String>,
+}
+
+async fn attachment_receipt(
+    session: &std::sync::Arc<crate::session::session::Session>,
+    attachments: &[ImageAttachment],
+) -> Option<AttachmentReceipt> {
+    if attachments.is_empty() {
+        return None;
+    }
+    let registration_warning = crate::image_attachments::commit_attachments(session, attachments)
+        .await.err().map(|err| format!(
+            "Delivery was accepted; do not resend. Sender attachment ID registration failed: {err}"
+        ));
+    Some(AttachmentReceipt {
+        attachment_ids: attachments
+            .iter()
+            .map(|image| image.attachment_id.clone())
+            .collect(),
+        registration_warning,
+    })
 }
 
 fn validate_message_recipient(

@@ -1,0 +1,393 @@
+{
+  "at": "2026-11-02T01:11:39.033Z",
+  "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc01\\r2\\target\\release\\maintenance_owner.exe",
+  "sha256": "480e125e26c1c6955a8ed013935a1b06f542472f71d226614047656ab1e50855",
+  "bytes": 2566144,
+  "calls": [
+    {
+      "scope": "initial lifecycle run",
+      "exit_code": 1,
+      "passed": 204,
+      "failed": 1,
+      "cause": "pwsh ENOENT; corrected executable search path for failed test only"
+    },
+    {
+      "script": "scripts/test-artifact-lifecycle.cjs",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "summary": [
+        "✔ PowerShell deletion releases the catalog while reserving its group through physical removal (2641.1546ms)",
+        "ℹ tests 1",
+        "ℹ suites 0",
+        "ℹ pass 1",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 2649.5135",
+        ""
+      ]
+    },
+    {
+      "operation": "register",
+      "exit_code": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "fc01-acceptance",
+          "kind": "run",
+          "members": [
+            "check"
+          ],
+          "membership_complete": true,
+          "membership_source_identity": null,
+          "owner": "FC01",
+          "provenance_ref": "isolated-acceptance",
+          "registered_at_ms": 1793581897836,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "check",
+            "identity": "a4237cbfcd4db300b222894c35c90d1888d7c7e7d3979b640438bd7b603c7f21",
+            "kind": "fixture",
+            "lifecycle_group_id": "fc01-acceptance",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 32,
+            "measured_at_ms": 1793581897836,
+            "owner": "FC01",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc01\\r2\\acceptance-fixture\\generated\\check",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "references": [],
+            "registered_at_ms": 1793581897836,
+            "remaining": true,
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "review",
+      "exit_code": 0,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "fc01-acceptance",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": null,
+            "membership_source_format": null,
+            "membership_source_identity": null,
+            "owner": "FC01",
+            "provenance_ref": "isolated-acceptance",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "check"
+            ],
+            "group_token": "b9a521dd789713f732a4196ba4169a48a276e07788f95caa1ab500b575ff5a0d",
+            "id": "check",
+            "identity": "a4237cbfcd4db300b222894c35c90d1888d7c7e7d3979b640438bd7b603c7f21",
+            "lifecycle_group_id": "fc01-acceptance",
+            "logical_bytes": 32,
+            "measured_at_ms": 1793581897836,
+            "membership_source_observation": null,
+            "observation_error": null,
+            "observed_at_ms": 1793581897985,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc01\\r2\\acceptance-fixture\\generated\\check",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  34,
+                  171,
+                  219,
+                  0,
+                  0,
+                  0,
+                  7,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "file",
+              "presence": "present"
+            },
+            "token": "8173c2d5d644ab6acc309636880ab66674bfe889d44313159c3a0ddd2842850a",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "operation": "apply",
+      "exit_code": 0,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "fc01-acceptance",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-43860-1-1793581898141",
+            "decision": "delete",
+            "decision_id": "f0782bcfdfaa495049bcbf7cf25311fadd6fafd5193fb95ea14e094083242946",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "check",
+            "lifecycle_group_id": "fc01-acceptance",
+            "reason": "Exact replacement owner acceptance complete",
+            "remaining": false,
+            "status": "deleted",
+            "token": "8173c2d5d644ab6acc309636880ab66674bfe889d44313159c3a0ddd2842850a"
+          }
+        ]
+      }
+    }
+  ],
+  "target_absent": true,
+  "fixture_absent": true,
+  "source_verification": "verification.json",
+  "platform": "windows-x64",
+  "node_lifecycle": {
+    "first": {
+      "passed": 204,
+      "failed": 1,
+      "exit_code": 1,
+      "cause": "pwsh ENOENT"
+    },
+    "retry": {
+      "selected": 1,
+      "passed": 1,
+      "exit_code": 0
+    },
+    "total_distinct_passed": 205
+  },
+  "lock_owner": {
+    "exit_code": 0,
+    "checks": 13
+  },
+  "build": {
+    "start": "2026-11-02T01:09:48.192Z",
+    "end": "2026-11-02T01:09:48.529Z",
+    "exit_code": 0,
+    "error": null,
+    "signal": null,
+    "inputs_unchanged": true,
+    "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc01\\r2\\target\\release\\maintenance_owner.exe"
+  },
+  "preparation": {
+    "start": "2026-11-02T01:08:56.460Z",
+    "end": "2026-11-02T01:09:31.171Z",
+    "exit_code": 0,
+    "error": null,
+    "signal": null,
+    "inputs_unchanged": true,
+    "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc01\\r2\\target\\release\\maintenance_owner.exe"
+  },
+  "source_hashes": [
+    {
+      "path": "inputs\\codex-rs\\.cargo\\audit.toml",
+      "sha256": "6730ec9c5cb6ae9b77ba80388a6ae1dec9485a1beb5c0a9e087ce50298f8a5f6"
+    },
+    {
+      "path": "inputs\\codex-rs\\.cargo\\config.toml",
+      "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b"
+    },
+    {
+      "path": "inputs\\codex-rs\\Cargo.lock",
+      "sha256": "c3fdf97f1c5f70a8f9c2d2f1cdc6d36889b4e897fc63cf298f0a0b3c5ff3fde8"
+    },
+    {
+      "path": "inputs\\codex-rs\\Cargo.toml",
+      "sha256": "98760f034d44b20a752801c91d569877c1b8cb70aee87f05f96f216fa8863959"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\Cargo.toml",
+      "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\examples\\maintenance_dispatch.rs",
+      "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\apply.rs",
+      "sha256": "33a4838706d04031392a70a446163c8906f1bb4c9a5bb84502e645752632b533"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\bin\\maintenance_owner.rs",
+      "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\cli.rs",
+      "sha256": "6bb9e67e7681c5a63b8904d5a3e78f6aed66afbde896e3107b2d5870716bd892"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\duplicate_claims.rs",
+      "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\groups.rs",
+      "sha256": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\lease.rs",
+      "sha256": "7f75716ae534c0e5757002260db39e58369b0c54b298a1e13bd17f98e1c88301"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\lib.rs",
+      "sha256": "612cda5ee530a6e7abd9a98b9d88c590db80d74a96fb6962c4394bb9a394b65e"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\lock_recovery.rs",
+      "sha256": "b692b2c1289a2573b9c84adf766a73b71ba983a3671131082445ec918c0439be"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\nested_retirement.rs",
+      "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\partitioned_storage.rs",
+      "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\paths.rs",
+      "sha256": "1c39690ad2c409cbe95f590fe689bf5973ab81151dd2bfe8b024e3f733bfc380"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\planning.rs",
+      "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\registration.rs",
+      "sha256": "2748badd373a327ff883f31d95e942a5d7bd1c54f0024b1502ad5c7074983d21"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\registry.rs",
+      "sha256": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\reservations.rs",
+      "sha256": "6ef5d28d0d8adc6d52ca8802be32c91bbd4f47f4be842dcc9e849f05faa8d6d9"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\retirement.rs",
+      "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\storage.rs",
+      "sha256": "afb3f433c5405d0160f503e7b5c7ba13461456caefedbb9de8ccbc2053bc4a6f"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\timing.rs",
+      "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\windows_delete.rs",
+      "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\absent_adoption.rs",
+      "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\contention.rs",
+      "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\contracts.rs",
+      "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\duplicate_claims.rs",
+      "sha256": "0333ffd08a43b6d94b1537ca3905086af93d9b3a1a23a26bae6718106015f699"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\groups.rs",
+      "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\hardlink_normalization.rs",
+      "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\lock_recovery.rs",
+      "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\nested_retirement.rs",
+      "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\partitioned.rs",
+      "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\registry.rs",
+      "sha256": "f2c9d230721ef11cd71645c391d956b04569ce16cf53184bd4e33318d3b3129c"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\root_retirement.rs",
+      "sha256": "e680a45636be409f186cf0e6d5e218ae7fc3ef47100b824a219520f3cce1740d"
+    },
+    {
+      "path": "inputs\\codex-rs\\project-maintenance\\tests\\verified_junctions.rs",
+      "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2"
+    },
+    {
+      "path": "inputs\\codex-rs\\rust-toolchain.toml",
+      "sha256": "029fd8fde748bb7dd75f20e21576e36f1f567bba8149af4602310086a2a0dc58"
+    },
+    {
+      "path": "inputs\\codex-rs\\utils\\process\\BUILD.bazel",
+      "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da"
+    },
+    {
+      "path": "inputs\\codex-rs\\utils\\process\\Cargo.toml",
+      "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f"
+    },
+    {
+      "path": "inputs\\codex-rs\\utils\\process\\src\\background_command_tests.rs",
+      "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6"
+    },
+    {
+      "path": "inputs\\codex-rs\\utils\\process\\src\\lib.rs",
+      "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90"
+    }
+  ]
+}

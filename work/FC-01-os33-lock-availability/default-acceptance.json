@@ -1,0 +1,172 @@
+{
+  "at": "2026-11-02T01:14:47.910Z",
+  "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc01-os33-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "sha256": "480e125e26c1c6955a8ed013935a1b06f542472f71d226614047656ab1e50855",
+  "bytes": 2566144,
+  "calls": [
+    {
+      "script": "scripts/test-maintenance-lock-owner.cjs",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "summary": [
+        "{\"status\":\"passed\",\"platform\":\"win32\",\"arch\":\"x64\",\"checks\":[\"top-level and encoded busy metadata survive worker packets; transport, permission and corrupt errors stay distinct\",\"real child contention, persistent metadata, reacquisition\",\"bounded wait expires without taking a held lock\",\"parent crash closes native stdin and releases OS exclusion\",\"idle native helper death reports terminal state and releases exclusion\",\"native write failure preserves its primary operation and secondary release error without inventing terminal observation\",\"existing empty, malformed and schema1 markers require recovery\",\"replaced lock inode is preserved and release refuses replacement, or OS denies replacement\",\"symlink/reparse ancestors and non-file lock targets refused\",\"native >1 MiB UTF-8 record CAS/reserve/finish and oversized response preflight without durable fence creation\",\"native hashed-ID CAS, producer reservation/catalog handoff/pinned finish, unsafe member and wrong lock rejection\",\"default installation receipt resolves pinned owner; SHA/protocol/traversal/linked ancestors refuse without execution\",\"malformed protocol fails closed; unknown command refused\"]}",
+        ""
+      ]
+    },
+    {
+      "operation": "register",
+      "exit_code": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "fc01-acceptance",
+          "kind": "run",
+          "members": [
+            "check"
+          ],
+          "membership_complete": true,
+          "membership_source_identity": null,
+          "owner": "FC01",
+          "provenance_ref": "isolated-acceptance",
+          "registered_at_ms": 1793582086633,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "check",
+            "identity": "10eb01cb41e783e92691d7b14cd1a68f26601fde5a615e69671064db62725afa",
+            "kind": "fixture",
+            "lifecycle_group_id": "fc01-acceptance",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 32,
+            "measured_at_ms": 1793582086633,
+            "owner": "FC01",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc01\\r2\\default-fixture\\generated\\check",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "references": [],
+            "registered_at_ms": 1793582086633,
+            "remaining": true,
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "review",
+      "exit_code": 0,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "fc01-acceptance",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": null,
+            "membership_source_format": null,
+            "membership_source_identity": null,
+            "owner": "FC01",
+            "provenance_ref": "isolated-acceptance",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "check"
+            ],
+            "group_token": "48dff43c7090865adef76a20e795ddbdeba4c9f4c623c1c5f1c0af018169812e",
+            "id": "check",
+            "identity": "10eb01cb41e783e92691d7b14cd1a68f26601fde5a615e69671064db62725afa",
+            "lifecycle_group_id": "fc01-acceptance",
+            "logical_bytes": 32,
+            "measured_at_ms": 1793582086633,
+            "membership_source_observation": null,
+            "observation_error": null,
+            "observed_at_ms": 1793582086829,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc01\\r2\\default-fixture\\generated\\check",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  215,
+                  192,
+                  218,
+                  0,
+                  0,
+                  0,
+                  14,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "file",
+              "presence": "present"
+            },
+            "token": "c6237159bbc69226b2e09c4790577c06779a9e453a7afd2f300fa4ad1e3ebe96",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "operation": "apply",
+      "exit_code": 0,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "fc01-acceptance",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-21820-1-1793582087022",
+            "decision": "delete",
+            "decision_id": "c764c1216d118bc7eb375d4a232c6673e8c7707624caa2d9b834ee3312dccda8",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "check",
+            "lifecycle_group_id": "fc01-acceptance",
+            "reason": "Exact replacement owner acceptance complete",
+            "remaining": false,
+            "status": "deleted",
+            "token": "c6237159bbc69226b2e09c4790577c06779a9e453a7afd2f300fa4ad1e3ebe96"
+          }
+        ]
+      }
+    }
+  ],
+  "target_absent": true,
+  "fixture_absent": true,
+  "source_verification": "verification.json",
+  "platform": "windows-x64"
+}

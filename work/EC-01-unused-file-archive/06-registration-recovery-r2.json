@@ -1,0 +1,16 @@
+{
+  "id": "run:ec01-test-policy:r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "204d561ac3d48455bb0d9084848c49ed09f89a0019e681a2e767e00bc03a7232",
+  "lease_owner": {
+    "acquired_at_ms": 1793287325548,
+    "operation": "group_reservation",
+    "pid": 23240,
+    "schema": 2,
+    "token": "23240-1793287325547-cb2dec63e79bd466"
+  },
+  "reason": "Synchronous native registration child returned exit 1 with OS lock busy. That exact owner is PID 23240 in this reservation. Standalone registration does not launch child processes (maintenance_owner.rs/lib.rs/registration.rs); current Win32_Process query found neither owner nor direct children nor another maintenance_owner. Native recovery must acquire original lease and validate source/fence.",
+  "actualNativeExitCode": 1,
+  "observedAt": "2026-10-29T15:25:22.439Z"
+}

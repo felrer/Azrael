@@ -1,0 +1,191 @@
+{
+  "source": "artifacts/tasks/EZ01/runs/mp-mw0hqqfv/reports/native-results.json",
+  "sourceSha256": "be230543e572219e03ddccc1c093f5cc6da675aacf1e5a911ea66976710da816",
+  "schema": 1,
+  "kind": "multi-pointer-native-preparation",
+  "scope": "native-render-no-app-input",
+  "startedAt": "2026-11-03T09:34:13.332Z",
+  "runId": "run:EZ01:mp-mw0hqqfv",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv",
+  "status": "prepared",
+  "native": [
+    {
+      "path": "broker.hpp",
+      "bytes": 73998,
+      "sha256": "9dc442f2504f2fca8b07d3ae39c249ea9289e864818c01e46c06ccf5659c628f"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 1163,
+      "sha256": "55af3b1c3c796d5a43b1d53e081765a81ad70f7b32ac49bf44d6fceaf2cf9f91"
+    },
+    {
+      "path": "cursor-assets.hpp",
+      "bytes": 7292,
+      "sha256": "8a6140099433cff964723ef5e0ee144f1fea28d610cd289fddc3954da86149e4"
+    },
+    {
+      "path": "CURSOR-NOTICES.md",
+      "bytes": 3213,
+      "sha256": "7dd23e6b526a93c6cedbac114a676ddfe63c8950a62695b48a3d42b6048740b8"
+    },
+    {
+      "path": "cursor-presentation.hpp",
+      "bytes": 3492,
+      "sha256": "8189c72103031775fe046045970802aba610e29b343cda7db652d6a9f0e775d1"
+    },
+    {
+      "path": "cursor-render-selftest.hpp",
+      "bytes": 7070,
+      "sha256": "248b14fbe1924be0e1e0696bcd7584bd10d7e1b5c9c21286f7084fe183e911db"
+    },
+    {
+      "path": "cursor-renderer.hpp",
+      "bytes": 10516,
+      "sha256": "0cb5e8b56b6e367d8bd13ca802cc25dd85d3724c664f92783b354e3d035c4460"
+    },
+    {
+      "path": "main.cpp",
+      "bytes": 2704,
+      "sha256": "44963af17e9610314989e51581d2c063ed689ab9808194983e9b5bd246de6799"
+    },
+    {
+      "path": "mouse-routing.hpp",
+      "bytes": 33611,
+      "sha256": "4105001659be56f0928d8525b21ec7a899d71aaf942b6fa7ffeb7cfe566295f0"
+    },
+    {
+      "path": "operations.hpp",
+      "bytes": 3135,
+      "sha256": "e7099a99a4565d996ceb6e77f86afa9c1643e18d53953a17f57036c2bd03e930"
+    },
+    {
+      "path": "overlay.hpp",
+      "bytes": 26716,
+      "sha256": "17dd796906cf31be5693ea2aa962ac801156c3650dd4ff1ad977958b556082dd"
+    },
+    {
+      "path": "platform.hpp",
+      "bytes": 17322,
+      "sha256": "006a125025fd5d320716db1f1ab9de639c97824f7323ff7b075ee06f596e4567"
+    },
+    {
+      "path": "raw-origin-selftest.cpp",
+      "bytes": 5605,
+      "sha256": "3ddc0ceb39d07f685faf50687ea2735121cebb1d9be118c323b267ea4747a850"
+    },
+    {
+      "path": "raw-origin.hpp",
+      "bytes": 3997,
+      "sha256": "c268bcc4a094fc16ce091328b846b23465883ab0b3c90b93a7660f6e546b773b"
+    },
+    {
+      "path": "README.md",
+      "bytes": 34455,
+      "sha256": "889f627ed97fa8c75bbbce62664da075a6f1fcae59e7acc23afa78a148fc5a1d"
+    },
+    {
+      "path": "system-cursor.hpp",
+      "bytes": 15989,
+      "sha256": "87a16f5c78ae03ad6df1dd81cd18e2bdfee31ae4322c1306e22d29c2b24571c5"
+    }
+  ],
+  "selected": [
+    {
+      "path": "native/virtual-input/vendor/json/single_include/nlohmann/json.hpp",
+      "bytes": 919975,
+      "sha256": "9bea4c8066ef4a1c206b2be5a36302f8926f7fdc6087af5d20b417d0cf103ea6"
+    },
+    {
+      "path": "native/virtual-input/vendor/json/LICENSE.MIT",
+      "bytes": 1076,
+      "sha256": "86b998c792894ccb911a1cb7994f7a9652894e7a094c0b5e45be2f553f45cf14"
+    },
+    {
+      "path": "scripts/multi-pointer-mcp.cjs",
+      "bytes": 14429,
+      "sha256": "a3337c2cf9acc03e534e1d1a987e4333ed0d494f2003e585d9da224fa9140d2d"
+    },
+    {
+      "path": "scripts/test-multi-pointer-mcp.cjs",
+      "bytes": 3788,
+      "sha256": "c4d35b99a4023999836b21e344c81c2f5489037ca92154e7de65c9a39cfc0dd2"
+    },
+    {
+      "path": "scripts/check-multi-pointer-native.cjs",
+      "bytes": 8399,
+      "sha256": "d31e220c136119d49c11685658a73d792a48f104457a87713fd3fe4c676ffc4d"
+    }
+  ],
+  "steps": [
+    {
+      "name": "mcp-source",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 170,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\logs\\mcp-source.log"
+    },
+    {
+      "name": "configure",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 2873,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\logs\\configure.log"
+    },
+    {
+      "name": "compile",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 9270,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\logs\\compile.log"
+    },
+    {
+      "name": "compile-raw-origin-selftest",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1586,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\logs\\compile-raw-origin-selftest.log"
+    },
+    {
+      "name": "raw-origin-selftest",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 105,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\logs\\raw-origin-selftest.log"
+    },
+    {
+      "name": "system-cursor-guard-selftest",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 2567,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\logs\\system-cursor-guard-selftest.log"
+    },
+    {
+      "name": "cursor-render-selftest",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 120,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\logs\\cursor-render-selftest.log"
+    }
+  ],
+  "applicationEffectVerified": false,
+  "cursorRendering": {
+    "applicationInputs": 0,
+    "checks": 80,
+    "cursorVisibilityChanged": false,
+    "foregroundUnchanged": true,
+    "frames": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\reports\\cursor-frames.png",
+    "kind": "cursor-render-selftest",
+    "pointerObservedAfter": {
+      "x": 3402,
+      "y": 1438
+    },
+    "pointerObservedBefore": {
+      "x": 3402,
+      "y": 1438
+    },
+    "previewSha256": "cc60b5b2effdf8719ac4e92e99b17994e73617919370c720cd208593fb87732c"
+  },
+  "runtime": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw0hqqfv\\outputs\\runtime",
+  "endedAt": "2026-11-03T09:34:30.136Z"
+}

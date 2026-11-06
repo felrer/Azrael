@@ -1,0 +1,16 @@
+{
+  "id": "run:deploy-checks:bf460df08a2b485d877168fead01696b",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "db040ec24b46366b56665a6a10684f020ac6ca04598034119093582cc55e9dd1",
+  "lease_owner": {
+    "acquired_at_ms": 1793288907929,
+    "operation": "group_reservation",
+    "pid": 31020,
+    "schema": 2,
+    "token": "31020-1793288907929-5a6eb84ac3c3ac1a"
+  },
+  "reason": "The exact synchronous native registration child PID 31020 returned exit 1 with catalog OS lock busy. Registration is in-process filesystem measurement and does not spawn child processes (maintenance_owner.rs/lib.rs/registration.rs). After controller terminal notification no maintenance_owner.exe remained in Win32_Process. Recovery rechecks the original OS lease and unchanged exact source/fence.",
+  "actualNativeExitCode": 1,
+  "observedAt": "2026-10-29T15:49:25.934Z"
+}

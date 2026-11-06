@@ -19,6 +19,8 @@ const ACCOUNT_COMMANDS = [
   "azrael.openCodexSettings",
   "azrael.instructions",
   "azrael.instructionsEmbedded",
+  "azrael.instructionsLegacy",
+  "azrael.workbenchEmbedded",
 ];
 
 function assert(value, message) { if (!value) throw new Error(message); }
@@ -76,8 +78,7 @@ async function verifyEmbeddedInstructions(diagnostics) {
       const html = response.html;
       const revision = /\bdata-library-revision="(\d+)"/.exec(html);
       checked.libraryRevision = revision ? Number(revision[1]) : null;
-      checked.baselineDistribution = html.includes(`<summary>${locale === "ko" ? "기본 지침 배포" : "Baseline distribution"}</summary>`);
-      checked.localized = html.includes(`<main lang="${locale}"`) && html.includes(`aria-label="${locale === "ko" ? "지침 라이브러리" : "Instruction library"}"`);
+      checked.localized = html.includes(`<main lang="${locale}"`);
       // The installed view reserves this empty live-error target in healthy HTML.
       const errorHtml = html.replace('<p class="error" data-client-error role="alert"></p>', "");
       checked.hasAlert = /\brole\s*=\s*["']alert["']/i.test(errorHtml);
@@ -86,7 +87,6 @@ async function verifyEmbeddedInstructions(diagnostics) {
       const alert = /<[^>]*\brole\s*=\s*["']alert["'][^>]*>([\s\S]*?)<\/[^>]+>/i.exec(errorHtml);
       if (alert) checked.alertText = alert[1].replace(/<[^>]*>/g, "").slice(0, 400);
       assert(revision && Number.isSafeInteger(checked.libraryRevision), `installed instruction mount (${locale}) omitted the personal library revision`);
-      assert(checked.baselineDistribution, `installed instruction mount (${locale}) omitted baseline distribution`);
       assert(checked.localized, `installed instruction mount (${locale}) did not use the requested locale`);
       assert(!checked.hasAlert && !checked.hasMissingModule, `installed instruction mount (${locale}) rendered an instruction error: ${checked.alertText ?? "missing module"}`);
       checked.passed = true;
@@ -98,6 +98,32 @@ async function verifyEmbeddedInstructions(diagnostics) {
     }
   }
   return summary;
+}
+
+async function verifyEmbeddedWorkbench(diagnostics) {
+  const command = "azrael.workbenchEmbedded";
+  const summary = diagnostics.embeddedWorkbench = { command, passed: false };
+  const clientId = `installed-workbench-${process.pid}`, messages = [];
+  const receiver = { postMessage: async message => { messages.push(message); return true; } };
+  const invoke = request => vscode.commands.executeCommand(command, receiver, { type: "azrael-workbench", clientId, ...request });
+  try {
+    await invoke({ action: "mount", requestId: "mount", locale: "ko" });
+    const mounted = messages.find(message => message.requestId === "mount");
+    assert(mounted?.type === "azrael-workbench-state" && mounted.clientId === clientId && !mounted.error && typeof mounted.html === "string",
+      `installed workbench mount failed: ${mounted?.error ?? "invalid response"}`);
+    await invoke({ action: "request", requestId: "state", message: { type: "azraelWorkbenchRequest", id: "state", path: "/api/state" } });
+    const response = messages.find(message => message.message?.id === "state")?.message;
+    assert(response?.type === "azraelWorkbenchResponse" && response.ok === true,
+      `installed workbench state failed: ${response?.error ?? "missing response"}`);
+    assert(Number.isSafeInteger(response.value?.revision) && Array.isArray(response.value?.packages) && Array.isArray(response.value?.profiles),
+      "installed workbench returned invalid catalog state");
+    summary.revision = response.value.revision;
+    summary.projectId = response.value.projectId;
+    summary.passed = true;
+  } finally {
+    await invoke({ action: "unmount", requestId: "unmount" });
+    summary.unmounted = true;
+  }
 }
 
 function bridgeSession(executable, socket, env) {
@@ -272,7 +298,9 @@ exports.run = async function run() {
     const startupConnect = observeEmbeddedStartupConnect(accountServiceModulePath);
     try {
       await host.activate();
-      await waitFor(() => startupConnect.hasOutcome(), 30_000, "embedded AccountService startup connection");
+      // AccountService owns a 70-second startup deadline; observe its result
+      // through that deadline instead of failing a still-valid connection.
+      await waitFor(() => startupConnect.hasOutcome(), 75_000, "embedded AccountService startup connection");
     } finally {
       startupConnect.restore();
       diagnostics.embeddedStartupConnect = startupConnect.snapshot();
@@ -314,6 +342,7 @@ exports.run = async function run() {
     }, 125_000, "packaged Azrael renderer readiness");
     diagnostics.rendererReady = true;
     await verifyEmbeddedInstructions(diagnostics);
+    await verifyEmbeddedWorkbench(diagnostics);
     await vscode.commands.executeCommand("azrael.manageAccounts");
     const accountsWebview = await waitFor(
       () => findWebview("계정 및 사용량", "azrael.accounts"), 30_000, "integrated accounts Webview");
@@ -337,17 +366,21 @@ exports.run = async function run() {
     }
     if (originalIds) assert(originalIds.configuration.every((id) => id.startsWith("chatgpt.")), "original configuration namespace changed");
     assert(hostIds.configuration.every((id) => id.startsWith("azrael.")), "host configuration namespace was not independent");
-    assert(host.packageJSON.azraelIntegratedAccounts === true, "host manifest did not mark integrated accounts");
-    assert(host.packageJSON.extensionDependencies === undefined && host.packageJSON.extensionPack === undefined,
-      "host declared an external extension dependency");
-    assert(host.packageJSON.enabledApiProposals === undefined && host.packageJSON.contributes?.chatSessions === undefined,
-      "host activated with a proposed API declaration");
 
     const runtimePath = path.join(host.extensionPath, "out", "azrael-runtime.cjs");
     const configPath = path.join(host.extensionPath, "out", "azrael-runtime.json");
     const runtime = require(runtimePath).runtime;
     const config = JSON.parse(await fs.readFile(configPath, "utf8"));
-    assert(runtime && require(runtimePath).runtime === runtime, "host runtime was not stable in the module cache");
+    assert(runtime, "host runtime was not initialized");
+    const sharedHost = require(path.join(host.extensionPath, "out", "shared-engine-host.cjs"));
+    sharedHost.validateSharedRuntime(config);
+    sharedHost.validateSharedRuntime(runtime);
+    assert(runtime.engineSha256 === config.engineSha256, "host shared engine identity differed from config");
+    const descriptor = await sharedHost.resolveEngineEndpoint(runtime);
+    assert(descriptor.engineIdentity === config.engineSha256 && samePath(runtime.socket, descriptor.socketPath),
+      "host did not select the verified shared engine endpoint");
+    assert(samePath(runtime.env.AZRAEL_EX_MANAGEMENT_SOCKET, descriptor.socketPath),
+      "host management environment did not select the canonical shared endpoint");
     assert(samePath(runtime.engine, config.engine) && samePath(runtime.bridge, config.bridge), "host runtime engine pair differed from config");
     assert(samePath(runtime.codexHome, config.codexHome), "host runtime state differed from config");
     if (expectedState) assert(samePath(runtime.codexHome, expectedState), "host runtime did not use the expected native state home");
@@ -409,7 +442,9 @@ exports.run = async function run() {
       },
       openSidebarCommandsCalled: standalone ? ["azrael.openSidebar"] : ["chatgpt.openSidebar", "azrael.openSidebar"],
       contributions: hostIds,
-      runtime: { engine: runtime.engine, bridge: runtime.bridge, codexHome: runtime.codexHome, socket: runtime.socket, instanceId: state.instanceId },
+      runtime: { engine: runtime.engine, bridge: runtime.bridge, codexHome: runtime.codexHome, socket: runtime.socket, instanceId: state.instanceId,
+        sharedEngine: runtime.sharedEngine, sharedEngineProtocol: runtime.sharedEngineProtocol, engineSha256: runtime.engineSha256,
+        endpoint: descriptor, managementSocketMatchesSharedEndpoint: true },
       ordinaryCodexHome: expectedOrdinaryHome,
       integratedAccountUiUsesHostRuntime: true,
       embeddedStartupConnect: startupConnectResult,

@@ -1857,6 +1857,7 @@ async fn response_stream_records_last_model_feedback_ids() {
     let api_stream = futures::stream::iter([
         Ok(ResponseEvent::Created { response_id: None }),
         Ok(ResponseEvent::Completed {
+            service_tier: Some("default".to_string()),
             response_id: "resp-123".to_string(),
             token_usage: None,
             usage_metadata: None,
@@ -1871,7 +1872,13 @@ async fn response_stream_records_last_model_feedback_ids() {
         test_model_provider(),
     );
 
-    while stream.next().await.is_some() {}
+    let mut actual_service_tier = None;
+    while let Some(event) = stream.next().await {
+        if let Ok(ResponseEvent::Completed { service_tier, .. }) = event {
+            actual_service_tier = service_tier;
+        }
+    }
+    assert_eq!(actual_service_tier.as_deref(), Some("default"));
 
     let tags = tags.lock().unwrap().clone();
     assert_eq!(
@@ -2375,6 +2382,7 @@ async fn intercepted_output_reaches_trace_and_websocket_bookkeeping() -> anyhow:
             response_id: "response".into(),
             token_usage: None,
             usage_metadata: None,
+            service_tier: None,
             end_turn: None,
         }))
         .await?;

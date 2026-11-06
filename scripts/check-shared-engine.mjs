@@ -23,11 +23,28 @@ const WINDOW_STARTUP_MS = 90_000;
 const BRIDGE_STARTUP_MS = 70_000; // Native bridge outer startup is 65s; allow 5s scheduling grace.
 export const SHARED_CHECK_STARTUP_ARGS = Object.freeze(['-c', 'features.code_mode_host=true', 'app-server',
   '--analytics-default-enabled', '--disable-plugin-startup-tasks-for-tests']);
+export function sharedCheckStartupArgs(legacyPluginStartup = false) {
+  return legacyPluginStartup ? SHARED_CHECK_STARTUP_ARGS.filter(arg => arg !== '--disable-plugin-startup-tasks-for-tests') : SHARED_CHECK_STARTUP_ARGS;
+}
+// The upstream startup suppression hook is compiled only with debug assertions.
+// Probe version parsing without starting a server; unrelated failures stay fatal.
+export async function supportsPluginStartupTestHook(engine, options = {}) {
+  return new Promise((resolve, reject) => {
+    (options.execFile ?? execFile)(engine, ['app-server', '--disable-plugin-startup-tasks-for-tests', '--version'],
+      { encoding: 'utf8', windowsHide: true, timeout: 10000, maxBuffer: 16384 },
+      (error, _stdout, stderr) => {
+        if (!error) return resolve(true);
+        if (Number.isInteger(error.code) && error.code !== 0 && !error.killed && !error.signal &&
+            typeof stderr === 'string' && /^error: unexpected argument '--disable-plugin-startup-tasks-for-tests' found\r?$/m.test(stderr)) return resolve(false);
+        reject(error);
+      });
+  });
+}
 export async function queryEngineEndpoint(engine, home, engineIdentity, engineVersion, options = {}) {
   const runtime = { engine, engineVersion, engineSha256: engineIdentity, sharedEngine: true, sharedEngineProtocol: 2,
     env: { ...process.env, CODEX_HOME: home } };
   const endpoint = await sharedEngineHost.resolveEngineEndpoint(runtime, { execFile: (executable, _args, settings, callback) =>
-    (options.execFile ?? execFile)(executable, [...SHARED_CHECK_STARTUP_ARGS, '--azrael-engine-endpoint'], settings, callback) });
+    (options.execFile ?? execFile)(executable, [...sharedCheckStartupArgs(options.legacyPluginStartup), '--azrael-engine-endpoint'], settings, callback) });
   checkSocketPath(endpoint.socketPath);
   const inside = relative(home, endpoint.socketPath);
   assert(inside && !inside.startsWith('..') && !isAbsolute(inside), 'native_endpoint_must_be_inside_owned_fixture_home');
@@ -49,6 +66,20 @@ export function codeModeChildSource(node, script) {
     'if (!child.session_id) throw new Error("owned child must remain running");\n' +
     'while (true) await tools.write_stdin({session_id:child.session_id,chars:"",yield_time_ms:1000,max_output_tokens:100});';
 }
+export const CODE_MODE_SMOKE_SOURCE = '// @exec: {"yield_time_ms":60000}\n' +
+  'text("IPC_TEXT_OK");\n' +
+  'const result = await tools.exec_command({cmd:"Write-Output \'IPC_DELEGATE_OK\'",login:false,max_output_tokens:100});\n' +
+  'if (result.exit_code !== 0 || !result.output.includes("IPC_DELEGATE_OK")) throw new Error("IPC delegate did not complete");\n' +
+  'text("IPC_COMPLETE_OK");';
+
+export function validateCodeModeSmokeOutput(output) {
+  const text = typeof output === 'string' ? output :
+    Array.isArray(output) ? output.filter(item => item.type === 'input_text').map(item => item.text).join('\n') : '';
+  assert(/^IPC_TEXT_OK\r?$/m.test(text) && /^IPC_COMPLETE_OK\r?$/m.test(text),
+    'code_mode_completed_text_and_delegate_response_required');
+  assert(!text.includes('Script running with cell ID'), 'code_mode_smoke_must_complete_without_pending_cell');
+}
+
 export async function startSharedProvider({ codeModeSource } = {}) {
   const requests = [], errors = [];
   const server = createServer(async (req, res) => {
@@ -58,11 +89,15 @@ export async function startSharedProvider({ codeModeSource } = {}) {
       for await (const chunk of req) { raw += chunk; assert(raw.length < 4_000_000); }
       const body = JSON.parse(raw);
       const users = (body.input ?? []).filter(item => item.role === 'user');
-      const marker = JSON.stringify(users.at(-1)).match(/BJ_MODE:(hold|approval|finish|codechild):([a-z0-9-]+)/);
+      const marker = JSON.stringify(users.at(-1)).match(/BJ_MODE:(hold|approval|finish|codechild|codesmoke):([a-z0-9-]+)/);
       assert(marker, 'shared_fixture_user_mode_required');
       const [, mode, token] = marker;
       const callId = `bj-${token}`;
       const answered = body.input.some(item => ['function_call_output', 'custom_tool_call_output'].includes(item.type) && item.call_id === callId);
+      if (mode === 'codesmoke' && answered) {
+        const output = body.input.find(item => item.type === 'custom_tool_call_output' && item.call_id === callId);
+        validateCodeModeSmokeOutput(output?.output);
+      }
       requests.push({ mode, token, answered, model: body.model, at: Date.now() });
       const id = `bj-response-${requests.length}`;
       res.writeHead(200, { 'content-type': 'text/event-stream' });
@@ -73,6 +108,9 @@ export async function startSharedProvider({ codeModeSource } = {}) {
         content: [{ type: 'output_text', text: `BJ_COMPLETED:${token}` }] };
       else if (mode === 'hold') item = { type: 'function_call', call_id: callId,
         namespace: 'shared_probe', name: 'hold', arguments: '{}' };
+      else if (mode === 'codesmoke') {
+        item = { type: 'custom_tool_call', call_id: callId, name: 'exec', input: CODE_MODE_SMOKE_SOURCE };
+      }
       else if (mode === 'codechild') {
         assert(codeModeSource, 'owned_code_mode_source_required');
         item = { type: 'custom_tool_call', call_id: callId, name: 'exec', input: codeModeSource };
@@ -312,7 +350,7 @@ $target = [System.IO.Path]::GetFullPath($env:AZRAEL_FIXTURE_DELETE)
 if ($target -ne $env:AZRAEL_FIXTURE_DELETE) { throw 'fixture path mismatch' }
 $owner = Get-Content -LiteralPath (Join-Path $target 'fixture-owner.json') -Raw | ConvertFrom-Json
 if ($owner.nonce -ne $env:AZRAEL_FIXTURE_NONCE -or $owner.root -ne $target) { throw 'fixture owner mismatch' }
-$ownedPids = @($env:AZRAEL_FIXTURE_PIDS | ConvertFrom-Json)
+$ownedPids = @($env:AZRAEL_FIXTURE_PIDS | ConvertFrom-Json | ForEach-Object { $_ })
 function Assert-OwnedBoundary {
   foreach ($ownedPid in $ownedPids) {
     if (Get-Process -Id $ownedPid -ErrorAction SilentlyContinue) { throw 'owned fixture process still alive' }
@@ -327,7 +365,14 @@ function Assert-OwnedBoundary {
   while ($pending.Count -gt 0) {
     foreach ($entry in $pending.Pop().GetFileSystemInfos()) {
       if (-not $entry.FullName.StartsWith($target + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) { throw 'fixture entry escapes owner root' }
-      if ($entry.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { throw 'fixture contains a reparse point' }
+      if ($entry.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+        # A stopped Windows AF_UNIX endpoint is a non-link reparse file. Keep
+        # directory/link rejection and inspect only the fixture's native IPC leaves.
+        $ipcRoot = Join-Path (Join-Path $target 'h') 'ipc'
+        if ($entry -is [System.IO.DirectoryInfo] -or $entry.DirectoryName -ne $ipcRoot -or $entry.Name -notmatch '^[a-z0-9]+[.]sock$') { throw 'fixture contains a reparse point' }
+        $tag = & fsutil.exe reparsepoint query $entry.FullName 2>&1
+        if ($LASTEXITCODE -ne 0 -or [string]::Join([Environment]::NewLine, $tag) -notmatch '0x80000023') { throw 'fixture contains an unverified IPC reparse point' }
+      }
       if ($entry -is [System.IO.DirectoryInfo]) { $pending.Push($entry) }
     }
   }
@@ -383,13 +428,14 @@ throw 'bounded generated-object cleanup exhausted'
   assert.equal(exit.code, 0, diagnostic);
   assert(changes.includes('"removed":true'), 'owned_fixture_absence_verification_missing');
 }
-export async function runCheck(engine, output, { fixtureRoot, extended = false, bridge, codeModeChild = false, accountRejoinState = false } = {}) {
+export async function runCheck(engine, output, { fixtureRoot, extended = false, bridge, codeModeChild = false, accountRejoinState = false, legacyPluginStartup, codeModeCompatibilityOnly = false } = {}) {
   assert.equal(process.platform, 'win32', 'this_fixture_currently_verifies_Windows_only');
   assert(engine && isAbsolute(engine), 'absolute_frozen_engine_required');
   assert(output && isAbsolute(output), 'absolute_new_results_directory_required');
   engine = resolve(engine); output = resolve(output);
   bridge = resolveBridgePath(engine, bridge);
   assert(!codeModeChild || extended, 'code_mode_child_requires_extended');
+  assert(!codeModeCompatibilityOnly || (extended && codeModeChild), 'code_mode_compatibility_requires_extended_and_host');
   assert(!accountRejoinState || extended, 'account_rejoin_state_requires_extended');
   const codeHost = codeModeChild ? resolveCodeHostPath(engine) : null;
   const outputWithin = relative(join(ROOT, 'artifacts'), output);
@@ -401,13 +447,14 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     : join(ROOT, 'artifacts', 'verification', `BJ-01-${nonce}`)));
   const home = join(run, 'h');
   await access(engine);
+  legacyPluginStartup ??= !(await supportsPluginStartupTestHook(engine));
   await access(bridge); // Require the matching bundle's real management bridge.
   if (codeHost) await access(codeHost);
   await mkdir(output); // Refuse reused results and fixture state.
   await mkdir(run);
   await writeFile(join(run, 'fixture-owner.json'), JSON.stringify({ schema: 1, root: run, nonce }));
   const report = { schema: 1, status: 'failed', scope: 'native shared-engine prerequisite acceptance',
-    engine, bridge, platform: process.platform, arch: process.arch, fixtureRoot: run, checks: [],
+    engine, bridge, platform: process.platform, arch: process.arch, fixtureRoot: run, startupArgs: sharedCheckStartupArgs(legacyPluginStartup), checks: [],
     modelRequest: extended, realCredentialMutation: false,
     untested: ['running-turn preservation', 'generic approval replay and cross-window response denial',
       'managed account selection',
@@ -479,7 +526,7 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
   }
   function launch(win, override = {}, generation = primary) {
     const startedAt = Date.now();
-    const child = spawn(generation.engine, SHARED_CHECK_STARTUP_ARGS,
+    const child = spawn(generation.engine, sharedCheckStartupArgs(legacyPluginStartup),
       { cwd: win.cwd, env: scopedEnvironment(win, override), windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
     const stderr = captureStderr(child, 128_000);
     const peer = new SharedPeer(child, `proxy-${proxies.length}`);
@@ -515,6 +562,18 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     instance.peer.notify('initialized');
     return result;
   }
+  async function checkCodeModeSmoke(proxy, cwd) {
+    const {thread} = await proxy.peer.request('thread/start', { model: 'gpt-5.2', modelProvider: 'fixture', cwd,
+      approvalPolicy: 'never', sandbox: 'danger-full-access', ephemeral: false, config: { 'features.code_mode': true } });
+    const {turn} = await proxy.peer.request('turn/start', { threadId: thread.id,
+      input: [{ type: 'text', text: 'BJ_MODE:codesmoke:ipc-smoke', text_elements: [] }] });
+    const ended = await proxy.peer.event('turn/completed', thread.id);
+    assert.equal(ended.params.turn.id, turn.id); assert.equal(ended.params.turn.status, 'completed');
+    assert(provider.requests.some(request => request.mode === 'codesmoke' && request.answered), 'code_mode_smoke_response_not_observed');
+    assert.equal(provider.errors.length, 0, 'code_mode_smoke_response_rejected');
+    record('actual_code_mode_completed_text_and_native_delegate_response_decoded');
+    return thread.id;
+  }
   try {
     await mkdir(home);
     let source;
@@ -527,7 +586,7 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     }
     if (extended) provider = await startSharedProvider({ codeModeSource: source });
     await writeFile(join(home, 'config.toml'),
-      `model_provider = "fixture"\n[features]\nresponses_websockets = false\n[model_providers.fixture]\nname = "isolated loopback fixture"\nbase_url = "${provider?.baseUrl ?? 'http://127.0.0.1:9/v1'}"\nwire_api = "responses"\nrequires_openai_auth = false\n`);
+      `model_provider = "fixture"\n[features]\nresponses_websockets = false\nplugins = false\n[model_providers.fixture]\nname = "isolated loopback fixture"\nbase_url = "${provider?.baseUrl ?? 'http://127.0.0.1:9/v1'}"\nwire_api = "responses"\nrequires_openai_auth = false\n`);
     const version = spawn(engine, ['--version'], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
     let versionText = '';
     version.stdout.on('data', chunk => { versionText += chunk; });
@@ -538,7 +597,7 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     report.engineIdentity = await hashFile(engine);
     report.bridgeIdentity = await hashFile(bridge);
     record('native_version_and_binary_identity', { version: report.engineVersion });
-    primary.endpoint = await queryEngineEndpoint(engine, home, report.engineIdentity, report.engineVersion);
+    primary.endpoint = await queryEngineEndpoint(engine, home, report.engineIdentity, report.engineVersion, { legacyPluginStartup });
     report.endpoint = primary.endpoint;
     const generationDirectory = join(run, 'release-b');
     await mkdir(generationDirectory);
@@ -549,7 +608,7 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     await copyFile(bridge, second.bridge);
     assert.equal(await hashFile(second.engine), report.engineIdentity, 'owned_generation_copy_engine_hash_mismatch');
     assert.equal(await hashFile(second.bridge), report.bridgeIdentity, 'owned_generation_copy_bridge_hash_mismatch');
-    second.endpoint = await queryEngineEndpoint(second.engine, home, report.engineIdentity, report.engineVersion);
+    second.endpoint = await queryEngineEndpoint(second.engine, home, report.engineIdentity, report.engineVersion, { legacyPluginStartup });
     assert.notEqual(second.endpoint.instanceId, primary.endpoint.instanceId, 'different_canonical_engine_paths_must_select_distinct_instances');
     assert.notEqual(second.endpoint.socketPath, primary.endpoint.socketPath, 'distinct_generations_must_have_distinct_sockets');
     report.generationCopy = { sourceEngine: engine, sourceBridge: bridge, engine: second.engine, bridge: second.bridge,
@@ -562,6 +621,11 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     assert.notEqual(daemonPid, pa.child.pid); assert.notEqual(daemonPid, pb.child.pid);
     report.enginePid = daemonPid; report.daemonReceipt = initial.receipt;
     record('concurrent_proxy_initialize_single_detached_engine', { enginePid: daemonPid, proxyPids: [pa.child.pid, pb.child.pid] });
+    if (codeModeCompatibilityOnly) {
+      report.scope = 'code-mode IPC acceptance only';
+      report.codeModeThreadId = await checkCodeModeSmoke(pb, b.cwd);
+      report.ownedCodeHosts = await codeHostProcesses(daemonPid, codeHost);
+    } else {
     const companion = launch(a, { role: 'companion' });
     await initialize(companion);
     assert.equal((await daemon()).pid, daemonPid);
@@ -601,7 +665,8 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     const [threadA, threadB] = starts; assert.notEqual(threadA, threadB);
     report.threadIds = starts;
     record('independent_thread_models_and_workspaces');
-    await assert.rejects(pb.peer.request('thread/resume', { threadId: threadA }), /another window/);
+    await assert.rejects(pb.peer.request('thread/resume', { threadId: threadA }), error =>
+      error?.rpc?.code === -32001 && /(?:thread|session) belongs to another workspace/.test(error.rpc.message));
     record('other_workspace_cannot_resume_owned_thread');
     const secondWindow = await window('a');
     const secondProxy = launch(secondWindow, {}, second); await initialize(secondProxy);
@@ -616,10 +681,14 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     ]);
     assert.deepEqual(secondConfig.config, bridgeConfig.config, 'same_home_generations_must_read_same_fixture_config');
     assert.equal(secondAccount.account, null); assert.equal(firstAccount.account, null);
-    await assert.rejects(secondProxy.peer.request('thread/resume', { threadId: threadA }), /open in another Azrael engine/);
+    // No user turn exists yet: inspect metadata without requesting unavailable history.
+    const secondStored = await secondProxy.peer.request('thread/read', { threadId: threadA, includeTurns: false });
+    assert.equal(secondStored.thread.id, threadA, 'selected_generation_cannot_read_shared_stored_thread');
+    assert(!(await secondProxy.peer.request('thread/loaded/list', {})).data.includes(threadA),
+      'stored_thread_read_must_not_eagerly_resume_thread_in_selected_generation');
     assert((await pa.peer.request('thread/loaded/list', {})).data.includes(threadA));
     report.generationCopy.enginePid = secondDaemon.pid;
-    record('same_home_distinct_generations_coexist_with_readonly_config_account_bridges_and_refuse_cross_engine_thread_resume',
+    record('same_home_distinct_generations_coexist_with_readonly_bridges_and_read_shared_stored_thread_without_resume',
       { firstEnginePid: daemonPid, secondEnginePid: secondDaemon.pid });
     for (const override of [{ engineVersion: '0.0.0' }, { engineIdentity: '0'.repeat(64) }]) {
       const wrong = launch(b, override);
@@ -630,6 +699,36 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     record('version_and_hash_mismatch_refuse_without_second_engine');
     const startTurn = async (proxy, threadId, mode, token) => proxy.peer.request('turn/start', {
       threadId, input: [{ type: 'text', text: `BJ_MODE:${mode}:${token}`, text_elements: [] }] });
+    // A same-project window already has its own work when it attaches the original
+    // session; its default processor and companion must remain independent.
+    const rejoined = await window('a'); const newA = launch(rejoined); await initialize(newA);
+    const ownStart = await newA.peer.request('thread/start', { model: 'gpt-5.1', modelProvider: 'fixture', cwd: rejoined.cwd,
+      approvalPolicy: 'never', sandbox: 'read-only', ephemeral: false });
+    const ownThread = ownStart.thread.id;
+    assert.notEqual(ownThread, threadA);
+    report.threadIds.push(ownThread);
+    const rejoinedBridge = await launchBridge(rejoined, initial.receipt.socketPath);
+    managementBridges.push(rejoinedBridge);
+    const ownConfig = await newA.peer.request('config/read', { includeLayers: false });
+    const ownAccount = (await rejoinedBridge.peer.request('azrael/account', { action: 'list' })).state;
+    async function assertOwnWindowDefaults() {
+      const [windowConfig, companionConfig, account, loaded] = await Promise.all([
+        newA.peer.request('config/read', { includeLayers: false }),
+        rejoinedBridge.peer.request('config/read', { includeLayers: false }),
+        rejoinedBridge.peer.request('azrael/account', { action: 'list' }),
+        newA.peer.request('thread/loaded/list', {}),
+      ]);
+      assert.deepEqual(windowConfig.config, ownConfig.config, 'session_route_changed_window_default_config');
+      assert.deepEqual(companionConfig.config, ownConfig.config, 'session_route_changed_companion_default_config');
+      for (const key of ['instanceId', 'codexHome', 'activeProfileId', 'pendingProfileId', 'currentAccount']) {
+        assert.deepEqual(account.state[key], ownAccount[key], 'session_route_changed_window_account_' + key);
+      }
+      assert.equal(account.state.hasActiveTurns, false, 'companion_account_state_followed_other_session_processor');
+      assert(loaded.data.includes(ownThread), 'session_route_lost_window_own_thread');
+      assert(!loaded.data.includes(threadA), 'session_route_rebound_window_default_processor');
+      const ownRead = await newA.peer.request('thread/read', { threadId: ownThread, includeTurns: true });
+      assert.equal(ownRead.thread.id, ownThread, 'session_route_lost_window_own_thread_read');
+    }
     let heldTurn;
     if (extended) {
       heldTurn = await startTurn(pa, threadA, 'hold', 'survive');
@@ -637,6 +736,24 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
       assert.equal(provider.requests.filter(request => request.token === 'survive').length, 1);
       record('actual_loopback_turn_held_by_pending_dynamic_tool');
     }
+    await newA.peer.request('thread/resume', { threadId: threadA });
+    const liveOriginal = await newA.peer.request('thread/read', { threadId: threadA, includeTurns: true });
+    assert.equal(liveOriginal.thread.id, threadA);
+    if (extended) {
+      await newA.peer.event('item/tool/call', threadA, true);
+      const ownTurn = await startTurn(newA, ownThread, 'finish', 'same-project-own-live');
+      const ownEnded = await newA.peer.event('turn/completed', ownThread);
+      assert.equal(ownEnded.params.turn.id, ownTurn.turn.id);
+      assert.equal(ownEnded.params.turn.status, 'completed');
+      assert.equal(provider.requests.filter(request => request.token === 'same-project-own-live').length, 1);
+      assert.equal(provider.requests.find(request => request.token === 'same-project-own-live').model, 'gpt-5.1');
+      assert.equal(provider.requests.filter(request => request.token === 'survive').length, 1,
+        'live_same_project_resume_submitted_duplicate_inference');
+      assert(!pa.peer.observed.some(message => message.method === 'turn/completed' && message.params?.threadId === ownThread),
+        'own_thread_notification_leaked_to_original_window');
+    }
+    await assertOwnWindowDefaults();
+    record('busy_same_project_window_resumes_live_original_session_and_keeps_own_thread_defaults_and_companion');
     await closeInput(pa.child, 'reload proxy A');
     assert(live(a.host.pid)); assert.equal((await daemon()).pid, daemonPid);
     const reloadA = launch(a); await initialize(reloadA);
@@ -650,12 +767,9 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     ]);
     await sleep(1500); // Native host lease polling runs once per second.
     assert.equal((await daemon()).pid, daemonPid);
-    await assert.rejects(pb.peer.request('thread/resume', { threadId: threadA }), /another window/);
-    const rejoined = await window('a'); const newA = launch(rejoined); await initialize(newA);
-    let rejoinedBridge;
+    await assert.rejects(pb.peer.request('thread/resume', { threadId: threadA }), error =>
+      error?.rpc?.code === -32001 && /(?:thread|session) belongs to another workspace/.test(error.rpc.message));
     if (accountRejoinState) {
-      rejoinedBridge = await launchBridge(rejoined, initial.receipt.socketPath);
-      managementBridges.push(rejoinedBridge);
       const beforeRebind = await accountListState(rejoinedBridge.peer);
       validateAccountStateProgress(report.accountStateContinuity.windowB, beforeRebind);
       report.accountStateContinuity.beforeRebind = beforeRebind;
@@ -665,11 +779,12 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
       const afterRebind = await accountListState(rejoinedBridge.peer);
       validateAccountStateProgress(report.accountStateContinuity.beforeRebind, afterRebind);
       report.accountStateContinuity.afterRebind = afterRebind;
-      record('new_owner_real_bridge_pins_engine_uuid_and_revision_advances_after_retained_thread_context_rebind');
+      record('same_project_real_bridge_preserves_window_account_defaults_and_advances_revision_after_session_resume');
     }
-    const loaded = await newA.peer.request('thread/loaded/list', {});
-    assert(loaded.data.includes(threadA), 'rejoined_thread_not_loaded');
-    record('new_host_same_workspace_rejoins_original_thread_without_turn_submission');
+    const retained = await newA.peer.request('thread/read', { threadId: threadA, includeTurns: true });
+    assert.equal(retained.thread.id, threadA, 'rejoined_thread_not_readable_through_session_route');
+    await assertOwnWindowDefaults();
+    record('busy_same_project_window_rejoins_original_thread_after_host_death_without_turn_submission');
     if (extended) {
       const held = await newA.peer.event('item/tool/call', threadA, true);
       assert(!pb.peer.observed.some(message => message.method === 'item/tool/call' && message.params?.threadId === threadA));
@@ -682,7 +797,18 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
       const completed = await newA.peer.event('turn/completed', threadA);
       assert.equal(completed.params.turn.id, heldTurn.turn.id);
       assert.equal(completed.params.turn.status, 'completed');
-      record('active_turn_survives_host_death_rejoin_replays_pending_tool_other_window_cannot_answer');
+      assert.equal(provider.requests.filter(request => request.token === 'survive').length, 2,
+        'resuming_original_session_must_only_make_initial_and_tool_result_provider_requests');
+      assert(provider.requests.filter(request => request.token === 'survive').every(request => request.model === 'gpt-5.2'),
+        'original_session_used_other_window_thread_model');
+      const ownTurn = await startTurn(newA, ownThread, 'finish', 'same-project-own-after-death');
+      const ownEnded = await newA.peer.event('turn/completed', ownThread);
+      assert.equal(ownEnded.params.turn.id, ownTurn.turn.id);
+      assert.equal(ownEnded.params.turn.status, 'completed');
+      assert.equal(provider.requests.filter(request => request.token === 'same-project-own-after-death').length, 1);
+      assert.equal(provider.requests.find(request => request.token === 'same-project-own-after-death').model, 'gpt-5.1');
+      await assertOwnWindowDefaults();
+      record('active_turn_survives_host_death_session_route_replays_tool_and_cross_workspace_cannot_answer');
       const approvalTurn = await startTurn(newA, threadA, 'approval', 'approval');
       const approval = await newA.peer.event('item/commandExecution/requestApproval', threadA, true);
       assert(!pb.peer.observed.some(message => message.method === approval.method && message.params?.threadId === threadA));
@@ -693,7 +819,8 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
       const approvalReload = launch(rejoined); await initialize(approvalReload);
       await resumePendingTurn(approvalReload.peer, threadA, approvalTurn.turn.id);
       const replay = await approvalReload.peer.event(approval.method, threadA, true);
-      assert.equal(replay.id, approval.id);
+      // Callback IDs are namespaced per connection; approval content must survive reload.
+      assert.deepEqual(replay.params, approval.params);
       assert.equal(provider.requests.filter(request => request.token === 'approval').length, 1,
         'approval subscriber reattach must not submit duplicate inference');
       approvalReload.peer.respond(replay.id, { decision: 'decline' });
@@ -709,10 +836,8 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
       report.queuedSubmissionId = queued.queuedSubmission.id;
       // Last close will interrupt the native pending tool/turn; do not respond.
       if (codeModeChild) {
-        const codeThread = await pb.peer.request('thread/start', { model: 'gpt-5.2', modelProvider: 'fixture', cwd: b.cwd,
-          approvalPolicy: 'never', sandbox: 'danger-full-access', ephemeral: false,
-          config: { 'features.code_mode': true } });
-        const codeTurn = await startTurn(pb, codeThread.thread.id, 'codechild', 'owned-child');
+        const codeThreadId = await checkCodeModeSmoke(pb, b.cwd);
+        const codeTurn = await startTurn(pb, codeThreadId, 'codechild', 'owned-child');
         const receiptPath = join(run, 'owned-code-child.json');
         await until(async () => {
           try { await access(receiptPath); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; }
@@ -727,7 +852,7 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
           report.processTreeDiagnostics = [await captureOwnedProcessTree(output, 'child-started',
             [daemonPid, report.ownedExecChild.pid, report.ownedExecChild.ppid, ...report.ownedCodeHosts.map(process => process.ProcessId)])];
         } catch (error) { report.childProcessTreeDiagnosticError = error.stack; }
-        report.codeModeThreadId = codeThread.thread.id; report.codeModeTurnId = codeTurn.turn.id;
+        report.codeModeThreadId = codeThreadId; report.codeModeTurnId = codeTurn.turn.id;
         record('actual_code_mode_exec_spawns_nonce_owned_bounded_child_and_matching_daemon_owned_host',
           { childPid: report.ownedExecChild.pid, codeHostPids: report.ownedCodeHosts.map(process => process.ProcessId) });
       }
@@ -808,8 +933,12 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
       if (!codeModeChild) report.untested.push('owned exec child and code-mode host final-close exit');
       if (!accountRejoinState) report.untested.push('read-only account state identity and revision across rejoin');
     }
+    }
     report.status = 'passed';
-  } catch (error) { failure = error; report.error = error.stack; }
+  } catch (error) {
+    failure = error; report.error = error.stack;
+    if (error.cause) report.errorCause = String(error.cause.stderr ?? error.cause.stack ?? error.cause).slice(0, 16000);
+  }
   finally {
     try {
       const evidenceErrors = new Map();

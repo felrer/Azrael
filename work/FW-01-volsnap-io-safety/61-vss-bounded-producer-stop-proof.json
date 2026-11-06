@@ -1,0 +1,327 @@
+{
+  "schema": 1,
+  "status": "root-accepted-exact-owned-VSS-producer-stop",
+  "producer_stopped_verified": true,
+  "scope": "Only exact VSS3 owned producers; current root confirms no live consumers/custodies and membership; no global OS observation",
+  "groups": [
+    {
+      "id": "run:fw03v:fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+      "owner": "root/fw03vss-comparison",
+      "revision": 2,
+      "outcome": "failure",
+      "exit": 1,
+      "ref": "fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c:native-inputs",
+      "label": "vss1",
+      "work": "24-vss-comparison-attempt.json",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+      "historicalEvidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\24-vss-comparison-attempt.json",
+        "bytes": 31636,
+        "sha256": "0554b9d00695b8087c8c0d2dee59ded0194b193b260c501f3797061072e7c9e1"
+      }
+    },
+    {
+      "id": "run:fw03v:compare-corrected-8155f9f4-84fd-4e71-813c-5d54bf5a5ba6",
+      "owner": "FW-01/root/vss_finish",
+      "revision": 1,
+      "outcome": "failure",
+      "exit": 1,
+      "ref": "bbcf9206755c1628b7a08fe328777108d874245df9b874f5bea9cfa57d74e7ff",
+      "label": "vss2",
+      "work": "29-vss-corrected-attempt.json",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\compare-corrected-8155f9f4-84fd-4e71-813c-5d54bf5a5ba6",
+      "historicalEvidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\29-vss-corrected-attempt.json",
+        "bytes": 17091,
+        "sha256": "f9bb70f62fbc1405091707089edb8b5f66f81dc04d34e59da19e6eb25ec72aca"
+      }
+    },
+    {
+      "id": "run:fw03v:vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661",
+      "owner": "FW-01/root/vss_finish",
+      "revision": 1,
+      "outcome": "success",
+      "exit": 0,
+      "ref": "59d53d29b7b90d4aad88274ec6d3d2eb9f4e58355f24937ecbab3cc162e7acbe",
+      "label": "vss3",
+      "work": "32-vss-comparison-result.json",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661",
+      "historicalEvidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\32-vss-comparison-result.json",
+        "bytes": 48328,
+        "sha256": "1aaae0a995db6b06e62b83fcfde1b0d91c79efa6252233d8bd4984c2749ace4e"
+      }
+    }
+  ],
+  "rootAcceptance": "Parent final single gate accepted bounded owned request JobObject non-breakaway/kill-on-close + actual controller/native terminal/drain + fixtureJoin/shadowabsence/detach; original failure1/failure1/success0 unchanged",
+  "binarySourceBindings": [
+    {
+      "attempt": "baseline",
+      "frozenManifest": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\frozen.json",
+        "bytes": 26228,
+        "sha256": "dc04c8cfeb1608d97a60afb26bc31d13be456168f7357cc78429caf721728a27"
+      },
+      "sourceListSha256": "bfcbf281318f4022730e2024d9dcf759b4063fc30f1dcf3299e2cf8687b13b2e",
+      "frozenEngineRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e",
+      "fullRun": {
+        "report": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\full.json",
+          "bytes": 3524,
+          "sha256": "3b86402ff1808e0a57845ec9eb8fccae4c61ec22de1171fb9b2d1a773a7d3551"
+        },
+        "actualExit": 0,
+        "frozenUnchanged": true
+      },
+      "executableAssociation": {
+        "report": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\baseline.json",
+          "bytes": 9870,
+          "sha256": "fcda1169a459c97d0e594ba6ca103c72a2afff01b5414f265dd71dbd9b5c12d4"
+        },
+        "binary": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\baseline-maintenance_owner.exe",
+          "bytes": 4887552,
+          "sha256": "02fd336f118a598d3a18e8e8395556781bd4a5d5c38101ac80b4dfe270a59e3d"
+        },
+        "sourceHash": "bfcbf281318f4022730e2024d9dcf759b4063fc30f1dcf3299e2cf8687b13b2e",
+        "acceptedIndependent15Identity": {
+          "attempt": "baseline",
+          "gitBase": null,
+          "sourceFiles": 43,
+          "inputSha256": "bfcbf281318f4022730e2024d9dcf759b4063fc30f1dcf3299e2cf8687b13b2e",
+          "sourceListSha256": null,
+          "patchSha256": null,
+          "lockSha256": "b4cae5976ca3167792ffa9096330f54b96b8e69dcdc1ba0861703e0929dad081",
+          "dependencyPins": 79,
+          "binarySha256": "02fd336f118a598d3a18e8e8395556781bd4a5d5c38101ac80b4dfe270a59e3d"
+        }
+      },
+      "selectedExactFrozenSourceChecks": [
+        {
+          "relative": "project-maintenance/src/bin/maintenance_owner.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e\\codex-rs\\project-maintenance\\src\\bin\\maintenance_owner.rs",
+          "bytes": 192,
+          "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+          "frozenExpectedSha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/cli.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e\\codex-rs\\project-maintenance\\src\\cli.rs",
+          "bytes": 13991,
+          "sha256": "9ae3851660bb0826012ee73817149f044dce16fa33de023d75bda9513f43c6f3",
+          "frozenExpectedSha256": "9ae3851660bb0826012ee73817149f044dce16fa33de023d75bda9513f43c6f3",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/lib.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e\\codex-rs\\project-maintenance\\src\\lib.rs",
+          "bytes": 52322,
+          "sha256": "941347edb5dd1ee836d0a4626df1283d6a8b02b3ee74467ccec1ea52e8d932c4",
+          "frozenExpectedSha256": "941347edb5dd1ee836d0a4626df1283d6a8b02b3ee74467ccec1ea52e8d932c4",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/apply.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e\\codex-rs\\project-maintenance\\src\\apply.rs",
+          "bytes": 28893,
+          "sha256": "4c1d045738aa66aff479b3894366524789510cd1882e840e4cdd46cb3f792d3c",
+          "frozenExpectedSha256": "4c1d045738aa66aff479b3894366524789510cd1882e840e4cdd46cb3f792d3c",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/paths.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e\\codex-rs\\project-maintenance\\src\\paths.rs",
+          "bytes": 58494,
+          "sha256": "2d02956e42458646a54aed8e1b2085126a67399bd481dca9aa980c16c927ffc5",
+          "frozenExpectedSha256": "2d02956e42458646a54aed8e1b2085126a67399bd481dca9aa980c16c927ffc5",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/windows_delete.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e\\codex-rs\\project-maintenance\\src\\windows_delete.rs",
+          "bytes": 47605,
+          "sha256": "693a0bdc7e2c831254070fa2c55aba51896cf84ac63f3e565eeef182b7ddac71",
+          "frozenExpectedSha256": "693a0bdc7e2c831254070fa2c55aba51896cf84ac63f3e565eeef182b7ddac71",
+          "match": true
+        },
+        {
+          "relative": "utils/process/src/lib.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e\\codex-rs\\utils\\process\\src\\lib.rs",
+          "bytes": 991,
+          "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+          "frozenExpectedSha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+          "match": true
+        }
+      ],
+      "proofMeaning": "Existing accepted producer/full-report provenance association, not a new reproducible build or whole-source rehash. Binary and source list also match independent15. No executable payload rehashed or run in this investigation."
+    },
+    {
+      "attempt": "unit6",
+      "frozenManifest": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit6\\frozen.json",
+        "bytes": 30084,
+        "sha256": "a3eda6b7310d31ada755e7ecff3c017f3c4bff6e8d9481f570f6003a635c38b7"
+      },
+      "sourceListSha256": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5",
+      "frozenEngineRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit6",
+      "fullRun": {
+        "report": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit6\\full.json",
+          "bytes": 3866,
+          "sha256": "a1ba934e28328e98d866211cb92e872dcc76fee5980438dcfc27578eeb64963b"
+        },
+        "actualExit": 0,
+        "frozenUnchanged": true
+      },
+      "executableAssociation": {
+        "report": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit6\\final-readiness.json",
+          "bytes": 6532,
+          "sha256": "5f7bbd35dc04893c2ec8d4714e02c5fb4fcc82856cdd73bf8b90ac72b8902a31"
+        },
+        "binary": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "sha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3"
+        },
+        "sourceHash": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5",
+        "acceptedIndependent15Identity": {
+          "attempt": "unit6",
+          "gitBase": "896108eb9c7b789a948b6605c2bb10a7e13094f7",
+          "sourceFiles": 42,
+          "inputSha256": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5",
+          "sourceListSha256": "bb5d8e9fe416f7c4db98387587fb8d1501e6d42522833654fc3c5cb578cfefaf",
+          "patchSha256": "f4905a10c5865cf28a8d1d91e7355cead1cfff6094851095eee6b8863879a6d7",
+          "lockSha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df",
+          "dependencyPins": 79,
+          "binarySha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3"
+        }
+      },
+      "selectedExactFrozenSourceChecks": [
+        {
+          "relative": "project-maintenance/src/bin/maintenance_owner.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit6\\codex-rs\\project-maintenance\\src\\bin\\maintenance_owner.rs",
+          "bytes": 192,
+          "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+          "frozenExpectedSha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/cli.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit6\\codex-rs\\project-maintenance\\src\\cli.rs",
+          "bytes": 20379,
+          "sha256": "b4a5a944fb7624f6649ca41f0c91807df17e15b7282c7104ae3e8af64881e8f7",
+          "frozenExpectedSha256": "b4a5a944fb7624f6649ca41f0c91807df17e15b7282c7104ae3e8af64881e8f7",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/lib.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit6\\codex-rs\\project-maintenance\\src\\lib.rs",
+          "bytes": 48066,
+          "sha256": "fab60f0c57494dd503558d318be3f9a0f402078c43f4b63697f5186a7101b72d",
+          "frozenExpectedSha256": "fab60f0c57494dd503558d318be3f9a0f402078c43f4b63697f5186a7101b72d",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/apply.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit6\\codex-rs\\project-maintenance\\src\\apply.rs",
+          "bytes": 24095,
+          "sha256": "9f16076fbec6b6865b3bb98e880cca4ea632be02d9bec0d8310e1bf2e6cf366c",
+          "frozenExpectedSha256": "9f16076fbec6b6865b3bb98e880cca4ea632be02d9bec0d8310e1bf2e6cf366c",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/paths.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit6\\codex-rs\\project-maintenance\\src\\paths.rs",
+          "bytes": 52764,
+          "sha256": "53908c738445538dfbc7e96b0071f6a78d1b41b9e55a1f4336a8fa1168aa2685",
+          "frozenExpectedSha256": "53908c738445538dfbc7e96b0071f6a78d1b41b9e55a1f4336a8fa1168aa2685",
+          "match": true
+        },
+        {
+          "relative": "project-maintenance/src/windows_delete.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit6\\codex-rs\\project-maintenance\\src\\windows_delete.rs",
+          "bytes": 47605,
+          "sha256": "693a0bdc7e2c831254070fa2c55aba51896cf84ac63f3e565eeef182b7ddac71",
+          "frozenExpectedSha256": "693a0bdc7e2c831254070fa2c55aba51896cf84ac63f3e565eeef182b7ddac71",
+          "match": true
+        },
+        {
+          "relative": "utils/process/src/lib.rs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit6\\codex-rs\\utils\\process\\src\\lib.rs",
+          "bytes": 991,
+          "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+          "frozenExpectedSha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+          "match": true
+        }
+      ],
+      "proofMeaning": "Existing accepted producer/full-report provenance association, not a new reproducible build or whole-source rehash. Binary and source list also match independent15. No executable payload rehashed or run in this investigation."
+    }
+  ],
+  "exactConsumedCallChain": [
+    {
+      "owner": "bin/maintenance_owner.rs:2-6 (same frozen bytes both attempts)",
+      "behavior": "cli::run(args) completes before std::process::exit is called. No detached application initialization or host process path."
+    },
+    {
+      "owner": "cli.rs baseline206 / unit6290 run; unit6262 execute andrequest_mode110-132",
+      "behavior": "request_mode synchronously dispatches selected register/review/apply stdin request. Result formatting/error reporting occurs after dispatch returns. Preferences reads used by29 probe remain synchronous. VSS lock_wait_ms0 path does not create an automatic queued detached worker."
+    },
+    {
+      "owner": "lib.rs baseline199 / unit6203 dispatch_with_preferences; Context.windows_delete owner baseline/unit6 field",
+      "behavior": "Local Context owns RefCell<Option<windows_delete::Worker>>. dispatch_inner/registration/review/apply execute synchronously through Context reference. The Context drops at dispatch return before CLI prints result or exits. No Context leak or detached worker transfer found in reviewed branch."
+    },
+    {
+      "owner": "apply.rs unit6347 / baseline335 physical deletion; paths.rs unit61265 delete_verified",
+      "behavior": "apply invokes paths::delete_verified synchronously. Windows path lazily creates one Worker retained in Context, uses one request/reply sequence at a time and discards stopped/error worker without replay. Register/review do not create this deletion worker."
+    },
+    {
+      "owner": "windows_delete.rs:19-28,53-122 (identical SHA both binaries)",
+      "behavior": "Worker spawns powershell.exe via background_command with piped stdin/stdout/stderr. Private gate blocks Add-Type/setup until containment succeeds. Non-inheritable JobObject handle is configured KILL_ON_JOB_CLOSE, no breakaway flags, and worker assigned before startup acknowledgement. Failure of containment closes stdin, kills/waits direct child, returns error rather than starting delete setup."
+    },
+    {
+      "owner": "windows_delete.rs:125-225,238-280 (identical SHA both binaries)",
+      "behavior": "Communication failures abort without replay. Normal Drop closes stdin (EOF), waits shell, then drops job handle and joins stderr drain thread. Abort drops job before direct-child wait then joins drain. Late shell exit also drops job before drain join. Job handle is request-owned/non-inherited, so native process death also releases containment. Descendants of this worker cannot intentionally escape using configured breakaway flags."
+    },
+    {
+      "owner": "utils/process/src/lib.rs:11-22 (frozenSHAaa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90)",
+      "behavior": "background_command only constructs std::process::Command and adds Windows CREATE_NO_WINDOW. No DETACHED_PROCESS or CREATE_BREAKAWAY_FROM_JOB flags or extra intermediate command interpreter added."
+    }
+  ],
+  "sourceMeaning": {
+    "nativeScope": "Observed native process exit/redirected-close from24/29/32 plus exact frozen synchronous Context Drop and contained-worker source are now stronger than adapter NativeTreeSettled flag alone. Native deletion subprocess and its compiler descendants are governed by the same non-breakaway request JobObject before setup; they are not an intentionally detached producer path.",
+    "noFabricatedEvents": "Per-worker PID/exit/close packets were not persisted by the VSS adapter and remain unknown. Use source-enforced contained-worker teardown as supporting evidence type, not invented historical events.",
+    "waitErrorHandlingLimit": "Worker Drop/abort intentionally ignore child.wait Result and drain thread join Result; native successful/failed process exit is observed independently. Job-handle release and drain joins enforce source ownership cleanup but this is not recorded QueryInformationJobObject(active_processes=0) or per-descendant exit observation. Do not describe source as checking every wait error or OS job-empty event.",
+    "outsideNativeUtilities": "Controller diskpart/vssadmin synchronous return with LASTEXITCODE and Add-Type synchronous return retain source-enforced wait meaning. Controller/adapter WaitForExit and pipeclose, fixtureJoin and owned shadow absence/normal detach corroborate completed intended work. These command/compilation returns do not enumerate OS services or create ownership of UAC/COM/storage services.",
+    "conhostAndUAC": "Adapter/native worker CREATE_NO_WINDOW and non-shell invocation reduce console setup; RunAs controller has a returned process handle. Full conhost/UAC/broker/service descendant observation remains unestablished and is not substituted by native JobObject scope."
+  },
+  "historicalLimits": [
+    "Original fixture compilation did not capture an atomic per-Add-Type source hash; prior prepared/current matching fixture input pins fromr1 remain the available source binding. No contrary mutation evidence observed, and no gap is silently converted into proof.",
+    "24/29 launcher own historical source SHA was not pinned in selected standalone work; controller executable source SHA and retained process terminal were pinned, current launcher corroboration remains qualified.",
+    "No per-worker historical PID/close or OS job-empty packet, full conhost/UAC/service tree observation; source-enforced job ownership teardown is the qualified evidence. OS services are not falsely classified as task-owned children."
+  ],
+  "notClaimed": [
+    "historical per-worker PID/exit/close",
+    "OS JobObject active_processes=0 event",
+    "full conhost/UAC/global services observation",
+    "original unknown publisher exit"
+  ],
+  "independentHistoricalEvidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\24-vss-comparison-attempt.json",
+      "bytes": 31636,
+      "sha256": "0554b9d00695b8087c8c0d2dee59ded0194b193b260c501f3797061072e7c9e1"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\29-vss-corrected-attempt.json",
+      "bytes": 17091,
+      "sha256": "f9bb70f62fbc1405091707089edb8b5f66f81dc04d34e59da19e6eb25ec72aca"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\32-vss-comparison-result.json",
+      "bytes": 48328,
+      "sha256": "1aaae0a995db6b06e62b83fcfde1b0d91c79efa6252233d8bd4984c2749ace4e"
+    }
+  ]
+}

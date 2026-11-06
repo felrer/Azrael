@@ -1,0 +1,4757 @@
+{
+  "at": "2026-11-02T10:48:12.569Z",
+  "baseline": {
+    "schema": 1,
+    "at": "2026-11-02T10:31:28.121Z",
+    "label": "base",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\inputs\\baseline-maintenance_owner.exe",
+    "sha256": "f98ae805137e50035a475b2873e7ee5ab71b45c4a9e513ce5a60203625bceb00",
+    "harness_sha256": "a10b1d42efae5c8909741648a6d1e5b744e158a4fd7bdddcd7fcf9ace8d269b2",
+    "environment": {
+      "os": "win32",
+      "arch": "x64",
+      "execution": "local shared Windows host",
+      "samples": 1
+    },
+    "notes": [
+      "Fresh deterministic equal-depth/equal-prefix-length fixtures; path prefixes differ only base/cand.",
+      "Spans overlap and must not be added; lock wall includes actual shared-resource uncertainty.",
+      "Synthetic background fixture cleanup belongs to outer run:ff1:catalog4 owner."
+    ],
+    "cases": [
+      {
+        "count": 0,
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\base\\catalog0000",
+        "bytes_per_target": 1024,
+        "selected_members": 1,
+        "register": {
+          "wall_ms": 17770.1383,
+          "pid": 53412,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog0-register",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 14,
+              "total_us": 11076260,
+              "max_us": 8097473,
+              "attempts": 14,
+              "outcomes": {
+                "acquired": 14
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 8,
+              "total_us": 279006,
+              "max_us": 40874,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 18,
+              "total_us": 297360,
+              "max_us": 40901,
+              "attempts": 18,
+              "outcomes": {
+                "success": 18
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 10,
+              "total_us": 17615,
+              "max_us": 2200,
+              "attempts": 10,
+              "outcomes": {
+                "success": 10
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 11028882,
+              "max_us": 8622837,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 2,
+              "total_us": 16246196,
+              "max_us": 11980895,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 5,
+              "total_us": 183742,
+              "max_us": 79929,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 97542,
+              "max_us": 85559,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 1,
+              "total_us": 2755,
+              "max_us": 2755,
+              "attempts": 1,
+              "outcomes": {
+                "read": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 1,
+              "total_us": 8,
+              "max_us": 8,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 1,
+              "total_us": 350,
+              "max_us": 350,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 1,
+              "total_us": 9,
+              "max_us": 9,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 1,
+              "total_us": 70,
+              "max_us": 70,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 1,
+              "total_us": 1169933,
+              "max_us": 1169933,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 1,
+              "total_us": 1599,
+              "max_us": 1599,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 1,
+              "total_us": 1181721,
+              "max_us": 1181721,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 1,
+              "total_us": 1181752,
+              "max_us": 1181752,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 8283525,
+              "max_us": 8283525,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "review": {
+          "wall_ms": 142.3077,
+          "pid": 45348,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog0-review",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 5,
+              "total_us": 1890,
+              "max_us": 1853,
+              "attempts": 5,
+              "outcomes": {
+                "acquired": 5
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 2,
+              "total_us": 79580,
+              "max_us": 42895,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 2,
+              "total_us": 79660,
+              "max_us": 42923,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 1,
+              "total_us": 81776,
+              "max_us": 81776,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "apply": {
+          "wall_ms": 14954.8911,
+          "pid": 24860,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog0-apply",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 10,
+              "total_us": 10357158,
+              "max_us": 3673542,
+              "attempts": 10,
+              "outcomes": {
+                "acquired": 10
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 5,
+              "total_us": 148636,
+              "max_us": 37926,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 9,
+              "total_us": 156530,
+              "max_us": 37953,
+              "attempts": 9,
+              "outcomes": {
+                "success": 9
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 4,
+              "total_us": 7451,
+              "max_us": 2078,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 105591,
+              "max_us": 83393,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:apply.initial_group_review": {
+              "count": 1,
+              "total_us": 28229,
+              "max_us": 28229,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.acquire": {
+              "count": 1,
+              "total_us": 1744628,
+              "max_us": 1744628,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 5801621,
+              "max_us": 3338991,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 3,
+              "total_us": 11397460,
+              "max_us": 4546173,
+              "attempts": 3,
+              "outcomes": {
+                "verified": 3
+              }
+            },
+            "maintenance.phase:apply.normalization_preflight": {
+              "count": 1,
+              "total_us": 5776,
+              "max_us": 5776,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 3,
+              "total_us": 57565,
+              "max_us": 37994,
+              "attempts": 3,
+              "outcomes": {
+                "success": 3
+              }
+            },
+            "maintenance.phase:apply.reservation.verify.before_item": {
+              "count": 1,
+              "total_us": 51153,
+              "max_us": 51153,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.current_review": {
+              "count": 1,
+              "total_us": 93860,
+              "max_us": 93860,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.safe_entries.pre_intent": {
+              "count": 1,
+              "total_us": 103825,
+              "max_us": 103825,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 2,
+              "total_us": 32,
+              "max_us": 20,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 2,
+              "total_us": 4213,
+              "max_us": 2319,
+              "attempts": 2,
+              "outcomes": {
+                "read": 2
+              }
+            },
+            "maintenance.phase:state.merge": {
+              "count": 2,
+              "total_us": 63,
+              "max_us": 38,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 2,
+              "total_us": 715,
+              "max_us": 378,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 2,
+              "total_us": 26,
+              "max_us": 14,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 2,
+              "total_us": 260,
+              "max_us": 133,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 2,
+              "total_us": 1630349,
+              "max_us": 942992,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 2,
+              "total_us": 5658,
+              "max_us": 3572,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 2,
+              "total_us": 1678922,
+              "max_us": 965429,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 2,
+              "total_us": 6856330,
+              "max_us": 4387128,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:apply.intent_save": {
+              "count": 1,
+              "total_us": 4387146,
+              "max_us": 4387146,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.physical_delete": {
+              "count": 1,
+              "total_us": 812996,
+              "max_us": 812996,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.actual_result_save": {
+              "count": 1,
+              "total_us": 2469263,
+              "max_us": 2469263,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.final_presence": {
+              "count": 1,
+              "total_us": 1796,
+              "max_us": 1796,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.finalize": {
+              "count": 1,
+              "total_us": 51877,
+              "max_us": 51877,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 12054958,
+              "max_us": 12054958,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "checks": {
+          "deleted_results": 1,
+          "target_absent": true,
+          "durable_item_deleted": true,
+          "durable_group_deleted": true,
+          "durable_outcome_deleted": true,
+          "history_preserved": true,
+          "producer_records_and_historical_references_preserved": 1,
+          "no_pending": true
+        }
+      },
+      {
+        "count": 200,
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\base\\catalog0200",
+        "bytes_per_target": 1024,
+        "selected_members": 1,
+        "register": {
+          "wall_ms": 34787.5757,
+          "pid": 12796,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog200-register",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 14,
+              "total_us": 10542450,
+              "max_us": 6714748,
+              "attempts": 14,
+              "outcomes": {
+                "acquired": 14
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 8,
+              "total_us": 18615949,
+              "max_us": 3848490,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 18,
+              "total_us": 18640781,
+              "max_us": 3848696,
+              "attempts": 18,
+              "outcomes": {
+                "success": 18
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 10,
+              "total_us": 23900,
+              "max_us": 3094,
+              "attempts": 10,
+              "outcomes": {
+                "success": 10
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 15110667,
+              "max_us": 10837626,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 2,
+              "total_us": 23157715,
+              "max_us": 15193701,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 5,
+              "total_us": 9996973,
+              "max_us": 3522650,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 4808956,
+              "max_us": 4793893,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 1,
+              "total_us": 3317,
+              "max_us": 3317,
+              "attempts": 1,
+              "outcomes": {
+                "read": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 1,
+              "total_us": 13,
+              "max_us": 13,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 1,
+              "total_us": 461,
+              "max_us": 461,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 1,
+              "total_us": 7,
+              "max_us": 7,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 1,
+              "total_us": 88,
+              "max_us": 88,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 1,
+              "total_us": 724417,
+              "max_us": 724417,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 1,
+              "total_us": 1973,
+              "max_us": 1973,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 1,
+              "total_us": 741135,
+              "max_us": 741135,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 1,
+              "total_us": 741183,
+              "max_us": 741183,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 24120742,
+              "max_us": 24120742,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "review": {
+          "wall_ms": 5758.2864,
+          "pid": 4504,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog200-review",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 5,
+              "total_us": 2578,
+              "max_us": 2539,
+              "attempts": 5,
+              "outcomes": {
+                "acquired": 5
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 2,
+              "total_us": 4927465,
+              "max_us": 2854076,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 2,
+              "total_us": 4927527,
+              "max_us": 2854100,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 1,
+              "total_us": 4930542,
+              "max_us": 4930542,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "apply": {
+          "wall_ms": 35373.8983,
+          "pid": 40044,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog200-apply",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 10,
+              "total_us": 5966766,
+              "max_us": 5331433,
+              "attempts": 10,
+              "outcomes": {
+                "acquired": 10
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 5,
+              "total_us": 24844949,
+              "max_us": 5215301,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 9,
+              "total_us": 25297447,
+              "max_us": 5637129,
+              "attempts": 9,
+              "outcomes": {
+                "success": 9
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 4,
+              "total_us": 30125,
+              "max_us": 9428,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 15698809,
+              "max_us": 10048101,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:apply.initial_group_review": {
+              "count": 1,
+              "total_us": 5669030,
+              "max_us": 5669030,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.acquire": {
+              "count": 1,
+              "total_us": 1041096,
+              "max_us": 1041096,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 12798690,
+              "max_us": 8165888,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 3,
+              "total_us": 12725296,
+              "max_us": 12052889,
+              "attempts": 3,
+              "outcomes": {
+                "verified": 3
+              }
+            },
+            "maintenance.phase:apply.normalization_preflight": {
+              "count": 1,
+              "total_us": 11569,
+              "max_us": 11569,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 3,
+              "total_us": 9623481,
+              "max_us": 5158346,
+              "attempts": 3,
+              "outcomes": {
+                "success": 3
+              }
+            },
+            "maintenance.phase:apply.reservation.verify.before_item": {
+              "count": 1,
+              "total_us": 5193288,
+              "max_us": 5193288,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.current_review": {
+              "count": 1,
+              "total_us": 10093808,
+              "max_us": 10093808,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.safe_entries.pre_intent": {
+              "count": 1,
+              "total_us": 10136704,
+              "max_us": 10136704,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 2,
+              "total_us": 31,
+              "max_us": 20,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 2,
+              "total_us": 11197,
+              "max_us": 6469,
+              "attempts": 2,
+              "outcomes": {
+                "read": 2
+              }
+            },
+            "maintenance.phase:state.merge": {
+              "count": 2,
+              "total_us": 100,
+              "max_us": 59,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 2,
+              "total_us": 930,
+              "max_us": 477,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 2,
+              "total_us": 28,
+              "max_us": 15,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 2,
+              "total_us": 305,
+              "max_us": 199,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 2,
+              "total_us": 7210,
+              "max_us": 3758,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 2,
+              "total_us": 4989,
+              "max_us": 2559,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 2,
+              "total_us": 107641,
+              "max_us": 61086,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 2,
+              "total_us": 678557,
+              "max_us": 583011,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:apply.intent_save": {
+              "count": 1,
+              "total_us": 583028,
+              "max_us": 583028,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.physical_delete": {
+              "count": 1,
+              "total_us": 2167953,
+              "max_us": 2167953,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.actual_result_save": {
+              "count": 1,
+              "total_us": 95567,
+              "max_us": 95567,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.final_presence": {
+              "count": 1,
+              "total_us": 4368,
+              "max_us": 4368,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.finalize": {
+              "count": 1,
+              "total_us": 4570101,
+              "max_us": 4570101,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 24101869,
+              "max_us": 24101869,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "checks": {
+          "deleted_results": 1,
+          "target_absent": true,
+          "durable_item_deleted": true,
+          "durable_group_deleted": true,
+          "durable_outcome_deleted": true,
+          "history_preserved": true,
+          "producer_records_and_historical_references_preserved": 201,
+          "no_pending": true
+        }
+      },
+      {
+        "count": 1000,
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\base\\catalog1000",
+        "bytes_per_target": 1024,
+        "selected_members": 1,
+        "register": {
+          "wall_ms": 110449.4199,
+          "pid": 27612,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog1000-register",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 14,
+              "total_us": 7633568,
+              "max_us": 7477360,
+              "attempts": 14,
+              "outcomes": {
+                "acquired": 14
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 8,
+              "total_us": 100548004,
+              "max_us": 22830376,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 18,
+              "total_us": 100586101,
+              "max_us": 22830878,
+              "attempts": 18,
+              "outcomes": {
+                "success": 18
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 10,
+              "total_us": 36568,
+              "max_us": 10839,
+              "attempts": 10,
+              "outcomes": {
+                "success": 10
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 39221927,
+              "max_us": 23845560,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 2,
+              "total_us": 42689057,
+              "max_us": 23956167,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 5,
+              "total_us": 58461910,
+              "max_us": 27237443,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 19306472,
+              "max_us": 19287803,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 1,
+              "total_us": 3623,
+              "max_us": 3623,
+              "attempts": 1,
+              "outcomes": {
+                "read": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 1,
+              "total_us": 10,
+              "max_us": 10,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 1,
+              "total_us": 528,
+              "max_us": 528,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 1,
+              "total_us": 11,
+              "max_us": 11,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 1,
+              "total_us": 74,
+              "max_us": 74,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 1,
+              "total_us": 854537,
+              "max_us": 854537,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 1,
+              "total_us": 3107,
+              "max_us": 3107,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 1,
+              "total_us": 871623,
+              "max_us": 871623,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 1,
+              "total_us": 871676,
+              "max_us": 871676,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 87217183,
+              "max_us": 87217183,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "review": {
+          "wall_ms": 20603.5633,
+          "pid": 40072,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog1000-review",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 5,
+              "total_us": 2421,
+              "max_us": 2387,
+              "attempts": 5,
+              "outcomes": {
+                "acquired": 5
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 2,
+              "total_us": 20481430,
+              "max_us": 11399994,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 2,
+              "total_us": 20481518,
+              "max_us": 11400039,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 1,
+              "total_us": 20486748,
+              "max_us": 20486748,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "apply": {
+          "wall_ms": 66204.1345,
+          "pid": 23592,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog1000-apply",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 10,
+              "total_us": 5315421,
+              "max_us": 5213400,
+              "attempts": 10,
+              "outcomes": {
+                "acquired": 10
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 5,
+              "total_us": 56667205,
+              "max_us": 14021780,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 9,
+              "total_us": 56675008,
+              "max_us": 14021808,
+              "attempts": 9,
+              "outcomes": {
+                "success": 9
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 4,
+              "total_us": 7074,
+              "max_us": 2075,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 35921723,
+              "max_us": 24664233,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:apply.initial_group_review": {
+              "count": 1,
+              "total_us": 11265031,
+              "max_us": 11265031,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.acquire": {
+              "count": 1,
+              "total_us": 3008131,
+              "max_us": 3008131,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 26981187,
+              "max_us": 17434280,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 3,
+              "total_us": 19602423,
+              "max_us": 19491554,
+              "attempts": 3,
+              "outcomes": {
+                "verified": 3
+              }
+            },
+            "maintenance.phase:apply.normalization_preflight": {
+              "count": 1,
+              "total_us": 6000,
+              "max_us": 6000,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 3,
+              "total_us": 20772533,
+              "max_us": 11294415,
+              "attempts": 3,
+              "outcomes": {
+                "success": 3
+              }
+            },
+            "maintenance.phase:apply.reservation.verify.before_item": {
+              "count": 1,
+              "total_us": 11309798,
+              "max_us": 11309798,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.current_review": {
+              "count": 1,
+              "total_us": 24685468,
+              "max_us": 24685468,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.safe_entries.pre_intent": {
+              "count": 1,
+              "total_us": 24704751,
+              "max_us": 24704751,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 2,
+              "total_us": 36,
+              "max_us": 20,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 2,
+              "total_us": 4976,
+              "max_us": 2533,
+              "attempts": 2,
+              "outcomes": {
+                "read": 2
+              }
+            },
+            "maintenance.phase:state.merge": {
+              "count": 2,
+              "total_us": 66,
+              "max_us": 40,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 2,
+              "total_us": 612,
+              "max_us": 337,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 2,
+              "total_us": 23,
+              "max_us": 14,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 2,
+              "total_us": 188,
+              "max_us": 105,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 2,
+              "total_us": 7173,
+              "max_us": 3694,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 2,
+              "total_us": 4637,
+              "max_us": 2365,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 2,
+              "total_us": 54136,
+              "max_us": 27369,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 2,
+              "total_us": 115790,
+              "max_us": 59142,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:apply.intent_save": {
+              "count": 1,
+              "total_us": 56665,
+              "max_us": 56665,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.physical_delete": {
+              "count": 1,
+              "total_us": 858097,
+              "max_us": 858097,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.actual_result_save": {
+              "count": 1,
+              "total_us": 59157,
+              "max_us": 59157,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.final_presence": {
+              "count": 1,
+              "total_us": 2744,
+              "max_us": 2744,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.finalize": {
+              "count": 1,
+              "total_us": 9511144,
+              "max_us": 9511144,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 49569047,
+              "max_us": 49569047,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "checks": {
+          "deleted_results": 1,
+          "target_absent": true,
+          "durable_item_deleted": true,
+          "durable_group_deleted": true,
+          "durable_outcome_deleted": true,
+          "history_preserved": true,
+          "producer_records_and_historical_references_preserved": 1001,
+          "no_pending": true
+        }
+      }
+    ],
+    "complete": true
+  },
+  "candidate": {
+    "schema": 1,
+    "at": "2026-11-02T10:43:04.785Z",
+    "label": "cand",
+    "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\outputs\\native\\candidate-maintenance_owner.exe",
+    "sha256": "cf9cbd25713cf0a7688d4609271cfe3ec5619635fb1550b7e02e1b59608d56f1",
+    "harness_sha256": "a10b1d42efae5c8909741648a6d1e5b744e158a4fd7bdddcd7fcf9ace8d269b2",
+    "environment": {
+      "os": "win32",
+      "arch": "x64",
+      "execution": "local shared Windows host",
+      "samples": 1
+    },
+    "notes": [
+      "Fresh deterministic equal-depth/equal-prefix-length fixtures; path prefixes differ only base/cand.",
+      "Spans overlap and must not be added; lock wall includes actual shared-resource uncertainty.",
+      "Synthetic background fixture cleanup belongs to outer run:ff1:catalog4 owner."
+    ],
+    "cases": [
+      {
+        "count": 0,
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\cand\\catalog0000",
+        "bytes_per_target": 1024,
+        "selected_members": 1,
+        "register": {
+          "wall_ms": 793.0767,
+          "pid": 44832,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog0-register",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 14,
+              "total_us": 142371,
+              "max_us": 74546,
+              "attempts": 14,
+              "outcomes": {
+                "acquired": 14
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 8,
+              "total_us": 245091,
+              "max_us": 36821,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:registry.catalog_index": {
+              "count": 8,
+              "total_us": 38,
+              "max_us": 18,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 18,
+              "total_us": 263630,
+              "max_us": 36873,
+              "attempts": 18,
+              "outcomes": {
+                "success": 18
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 10,
+              "total_us": 17591,
+              "max_us": 2137,
+              "attempts": 10,
+              "outcomes": {
+                "success": 10
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 239548,
+              "max_us": 141423,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 2,
+              "total_us": 339220,
+              "max_us": 187746,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 5,
+              "total_us": 166007,
+              "max_us": 71986,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 89370,
+              "max_us": 77728,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 1,
+              "total_us": 1775,
+              "max_us": 1775,
+              "attempts": 1,
+              "outcomes": {
+                "read": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 1,
+              "total_us": 9,
+              "max_us": 9,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 1,
+              "total_us": 696,
+              "max_us": 696,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 1,
+              "total_us": 8,
+              "max_us": 8,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 1,
+              "total_us": 73,
+              "max_us": 73,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 1,
+              "total_us": 3305,
+              "max_us": 3305,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 1,
+              "total_us": 1499,
+              "max_us": 1499,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 1,
+              "total_us": 15456,
+              "max_us": 15456,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 1,
+              "total_us": 15499,
+              "max_us": 15499,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 483739,
+              "max_us": 483739,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "review": {
+          "wall_ms": 139.2167,
+          "pid": 35064,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog0-review",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 5,
+              "total_us": 1954,
+              "max_us": 1917,
+              "attempts": 5,
+              "outcomes": {
+                "acquired": 5
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 2,
+              "total_us": 78192,
+              "max_us": 43829,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.catalog_index": {
+              "count": 2,
+              "total_us": 15,
+              "max_us": 12,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 2,
+              "total_us": 78285,
+              "max_us": 43881,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 1,
+              "total_us": 80200,
+              "max_us": 80200,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "apply": {
+          "wall_ms": 1485.8798,
+          "pid": 51500,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog0-apply",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 10,
+              "total_us": 174119,
+              "max_us": 69589,
+              "attempts": 10,
+              "outcomes": {
+                "acquired": 10
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 5,
+              "total_us": 143624,
+              "max_us": 37612,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.catalog_index": {
+              "count": 5,
+              "total_us": 23,
+              "max_us": 11,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 9,
+              "total_us": 154122,
+              "max_us": 37655,
+              "attempts": 9,
+              "outcomes": {
+                "success": 9
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 4,
+              "total_us": 9943,
+              "max_us": 3331,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 104976,
+              "max_us": 85337,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:apply.initial_group_review": {
+              "count": 1,
+              "total_us": 25421,
+              "max_us": 25421,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.acquire": {
+              "count": 1,
+              "total_us": 51279,
+              "max_us": 51279,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 187608,
+              "max_us": 107445,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 3,
+              "total_us": 272752,
+              "max_us": 156249,
+              "attempts": 3,
+              "outcomes": {
+                "verified": 3
+              }
+            },
+            "maintenance.phase:apply.normalization_preflight": {
+              "count": 1,
+              "total_us": 6047,
+              "max_us": 6047,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 3,
+              "total_us": 55362,
+              "max_us": 36804,
+              "attempts": 3,
+              "outcomes": {
+                "success": 3
+              }
+            },
+            "maintenance.phase:apply.reservation.verify.before_item": {
+              "count": 1,
+              "total_us": 50754,
+              "max_us": 50754,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.current_review": {
+              "count": 1,
+              "total_us": 97875,
+              "max_us": 97875,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.safe_entries.pre_intent": {
+              "count": 1,
+              "total_us": 108145,
+              "max_us": 108145,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 2,
+              "total_us": 35,
+              "max_us": 20,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 2,
+              "total_us": 4420,
+              "max_us": 2373,
+              "attempts": 2,
+              "outcomes": {
+                "read": 2
+              }
+            },
+            "maintenance.phase:state.merge": {
+              "count": 2,
+              "total_us": 77,
+              "max_us": 52,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 2,
+              "total_us": 548,
+              "max_us": 289,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 2,
+              "total_us": 17,
+              "max_us": 9,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 2,
+              "total_us": 189,
+              "max_us": 102,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 2,
+              "total_us": 7008,
+              "max_us": 3634,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 2,
+              "total_us": 3826,
+              "max_us": 2095,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 2,
+              "total_us": 50326,
+              "max_us": 25729,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 2,
+              "total_us": 121498,
+              "max_us": 60768,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:apply.intent_save": {
+              "count": 1,
+              "total_us": 60740,
+              "max_us": 60740,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.physical_delete": {
+              "count": 1,
+              "total_us": 871920,
+              "max_us": 871920,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.actual_result_save": {
+              "count": 1,
+              "total_us": 60781,
+              "max_us": 60781,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.final_presence": {
+              "count": 1,
+              "total_us": 2180,
+              "max_us": 2180,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.finalize": {
+              "count": 1,
+              "total_us": 49291,
+              "max_us": 49291,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 1308490,
+              "max_us": 1308490,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "checks": {
+          "deleted_results": 1,
+          "target_absent": true,
+          "durable_item_deleted": true,
+          "durable_group_deleted": true,
+          "durable_outcome_deleted": true,
+          "history_preserved": true,
+          "producer_records_and_historical_references_preserved": 1,
+          "no_pending": true
+        }
+      },
+      {
+        "count": 200,
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\cand\\catalog0200",
+        "bytes_per_target": 1024,
+        "selected_members": 1,
+        "register": {
+          "wall_ms": 14588.2472,
+          "pid": 5664,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog200-register",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 14,
+              "total_us": 147974,
+              "max_us": 77116,
+              "attempts": 14,
+              "outcomes": {
+                "acquired": 14
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 8,
+              "total_us": 14156028,
+              "max_us": 2905526,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:registry.catalog_index": {
+              "count": 8,
+              "total_us": 2035,
+              "max_us": 483,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 18,
+              "total_us": 14177068,
+              "max_us": 2906306,
+              "attempts": 18,
+              "outcomes": {
+                "success": 18
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 10,
+              "total_us": 18005,
+              "max_us": 2227,
+              "attempts": 10,
+              "outcomes": {
+                "success": 10
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 4689614,
+              "max_us": 2990620,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 2,
+              "total_us": 4792499,
+              "max_us": 3046287,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 5,
+              "total_us": 7961379,
+              "max_us": 3277490,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 3320117,
+              "max_us": 3308908,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 1,
+              "total_us": 1731,
+              "max_us": 1731,
+              "attempts": 1,
+              "outcomes": {
+                "read": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 1,
+              "total_us": 8,
+              "max_us": 8,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 1,
+              "total_us": 599,
+              "max_us": 599,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 1,
+              "total_us": 6,
+              "max_us": 6,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 1,
+              "total_us": 99,
+              "max_us": 99,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 1,
+              "total_us": 3320,
+              "max_us": 3320,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 1,
+              "total_us": 1520,
+              "max_us": 1520,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 1,
+              "total_us": 14697,
+              "max_us": 14697,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 1,
+              "total_us": 14734,
+              "max_us": 14734,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 11519996,
+              "max_us": 11519996,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "review": {
+          "wall_ms": 3057.6183,
+          "pid": 31728,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog200-review",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 5,
+              "total_us": 1910,
+              "max_us": 1874,
+              "attempts": 5,
+              "outcomes": {
+                "acquired": 5
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 2,
+              "total_us": 2996068,
+              "max_us": 1515085,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.catalog_index": {
+              "count": 2,
+              "total_us": 513,
+              "max_us": 275,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 2,
+              "total_us": 2996667,
+              "max_us": 1515404,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 1,
+              "total_us": 2998792,
+              "max_us": 2998792,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "apply": {
+          "wall_ms": 8953.1817,
+          "pid": 19072,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog200-apply",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 10,
+              "total_us": 180077,
+              "max_us": 74811,
+              "attempts": 10,
+              "outcomes": {
+                "acquired": 10
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 5,
+              "total_us": 7803493,
+              "max_us": 1754359,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.catalog_index": {
+              "count": 5,
+              "total_us": 1232,
+              "max_us": 291,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 9,
+              "total_us": 7822135,
+              "max_us": 1754712,
+              "attempts": 9,
+              "outcomes": {
+                "success": 9
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 4,
+              "total_us": 7553,
+              "max_us": 2031,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 4538934,
+              "max_us": 3045380,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:apply.initial_group_review": {
+              "count": 1,
+              "total_us": 1499191,
+              "max_us": 1499191,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.acquire": {
+              "count": 1,
+              "total_us": 44357,
+              "max_us": 44357,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 3389316,
+              "max_us": 1817429,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 3,
+              "total_us": 1740220,
+              "max_us": 1625053,
+              "attempts": 3,
+              "outcomes": {
+                "verified": 3
+              }
+            },
+            "maintenance.phase:apply.normalization_preflight": {
+              "count": 1,
+              "total_us": 4694,
+              "max_us": 4694,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 3,
+              "total_us": 3289804,
+              "max_us": 1754744,
+              "attempts": 3,
+              "outcomes": {
+                "success": 3
+              }
+            },
+            "maintenance.phase:apply.reservation.verify.before_item": {
+              "count": 1,
+              "total_us": 1544876,
+              "max_us": 1544876,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.current_review": {
+              "count": 1,
+              "total_us": 3054808,
+              "max_us": 3054808,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.safe_entries.pre_intent": {
+              "count": 1,
+              "total_us": 3064558,
+              "max_us": 3064558,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 2,
+              "total_us": 21,
+              "max_us": 11,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 2,
+              "total_us": 4220,
+              "max_us": 2197,
+              "attempts": 2,
+              "outcomes": {
+                "read": 2
+              }
+            },
+            "maintenance.phase:state.merge": {
+              "count": 2,
+              "total_us": 56,
+              "max_us": 31,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 2,
+              "total_us": 666,
+              "max_us": 403,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 2,
+              "total_us": 21,
+              "max_us": 13,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 2,
+              "total_us": 191,
+              "max_us": 101,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 2,
+              "total_us": 6783,
+              "max_us": 3421,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 2,
+              "total_us": 3532,
+              "max_us": 1965,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 2,
+              "total_us": 46634,
+              "max_us": 24892,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 2,
+              "total_us": 118988,
+              "max_us": 59942,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:apply.intent_save": {
+              "count": 1,
+              "total_us": 59975,
+              "max_us": 59975,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.physical_delete": {
+              "count": 1,
+              "total_us": 687076,
+              "max_us": 687076,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.actual_result_save": {
+              "count": 1,
+              "total_us": 59057,
+              "max_us": 59057,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.final_presence": {
+              "count": 1,
+              "total_us": 1727,
+              "max_us": 1727,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.finalize": {
+              "count": 1,
+              "total_us": 1787158,
+              "max_us": 1787158,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 7297472,
+              "max_us": 7297472,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "checks": {
+          "deleted_results": 1,
+          "target_absent": true,
+          "durable_item_deleted": true,
+          "durable_group_deleted": true,
+          "durable_outcome_deleted": true,
+          "history_preserved": true,
+          "producer_records_and_historical_references_preserved": 201,
+          "no_pending": true
+        }
+      },
+      {
+        "count": 1000,
+        "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\cand\\catalog1000",
+        "bytes_per_target": 1024,
+        "selected_members": 1,
+        "register": {
+          "wall_ms": 81997.4745,
+          "pid": 50244,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog1000-register",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 14,
+              "total_us": 143173,
+              "max_us": 75694,
+              "attempts": 14,
+              "outcomes": {
+                "acquired": 14
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 8,
+              "total_us": 81506025,
+              "max_us": 14194792,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:registry.catalog_index": {
+              "count": 8,
+              "total_us": 12502,
+              "max_us": 1835,
+              "attempts": 8,
+              "outcomes": {
+                "success": 8
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 18,
+              "total_us": 81541187,
+              "max_us": 14196868,
+              "attempts": 18,
+              "outcomes": {
+                "success": 18
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 10,
+              "total_us": 21559,
+              "max_us": 2851,
+              "attempts": 10,
+              "outcomes": {
+                "success": 10
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 24135426,
+              "max_us": 14288432,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 2,
+              "total_us": 24233731,
+              "max_us": 14343776,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 5,
+              "total_us": 47560015,
+              "max_us": 18983559,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 19801861,
+              "max_us": 19786198,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 1,
+              "total_us": 2287,
+              "max_us": 2287,
+              "attempts": 1,
+              "outcomes": {
+                "read": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 1,
+              "total_us": 14,
+              "max_us": 14,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 1,
+              "total_us": 326,
+              "max_us": 326,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 1,
+              "total_us": 9,
+              "max_us": 9,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 1,
+              "total_us": 74,
+              "max_us": 74,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 1,
+              "total_us": 3864,
+              "max_us": 3864,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 1,
+              "total_us": 2020,
+              "max_us": 2020,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 1,
+              "total_us": 18380,
+              "max_us": 18380,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 1,
+              "total_us": 18436,
+              "max_us": 18436,
+              "attempts": 1,
+              "outcomes": {
+                "committed": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 67625779,
+              "max_us": 67625779,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "review": {
+          "wall_ms": 19362.8429,
+          "pid": 5284,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog1000-review",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 5,
+              "total_us": 2546,
+              "max_us": 2504,
+              "attempts": 5,
+              "outcomes": {
+                "acquired": 5
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 2,
+              "total_us": 19277937,
+              "max_us": 9917757,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.catalog_index": {
+              "count": 2,
+              "total_us": 2831,
+              "max_us": 1702,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 2,
+              "total_us": 19280882,
+              "max_us": 9918932,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 1,
+              "total_us": 19284022,
+              "max_us": 19284022,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "apply": {
+          "wall_ms": 47586.562,
+          "pid": 29752,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog1000-apply",
+          "spans": {
+            "maintenance.lock_wait:wait_for_lock": {
+              "count": 10,
+              "total_us": 167767,
+              "max_us": 67819,
+              "attempts": 10,
+              "outcomes": {
+                "acquired": 10
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_load": {
+              "count": 5,
+              "total_us": 46397251,
+              "max_us": 9788996,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.catalog_index": {
+              "count": 5,
+              "total_us": 7659,
+              "max_us": 1731,
+              "attempts": 5,
+              "outcomes": {
+                "success": 5
+              }
+            },
+            "maintenance.phase:registry.catalog": {
+              "count": 9,
+              "total_us": 46423219,
+              "max_us": 9790380,
+              "attempts": 9,
+              "outcomes": {
+                "success": 9
+              }
+            },
+            "maintenance.phase:registry.catalog_snapshot_hit": {
+              "count": 4,
+              "total_us": 8346,
+              "max_us": 2361,
+              "attempts": 4,
+              "outcomes": {
+                "success": 4
+              }
+            },
+            "maintenance.phase:registry.observe": {
+              "count": 2,
+              "total_us": 27263821,
+              "max_us": 18279246,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:apply.initial_group_review": {
+              "count": 1,
+              "total_us": 8990881,
+              "max_us": 8990881,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.acquire": {
+              "count": 1,
+              "total_us": 48771,
+              "max_us": 48771,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:catalog": {
+              "count": 2,
+              "total_us": 18929432,
+              "max_us": 9860196,
+              "attempts": 2,
+              "outcomes": {
+                "verified": 2
+              }
+            },
+            "maintenance.lock_hold:maintenance": {
+              "count": 3,
+              "total_us": 9227492,
+              "max_us": 9117351,
+              "attempts": 3,
+              "outcomes": {
+                "verified": 3
+              }
+            },
+            "maintenance.phase:apply.normalization_preflight": {
+              "count": 1,
+              "total_us": 5376,
+              "max_us": 5376,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:reservation.verify_sources": {
+              "count": 3,
+              "total_us": 19168850,
+              "max_us": 9790418,
+              "attempts": 3,
+              "outcomes": {
+                "success": 3
+              }
+            },
+            "maintenance.phase:apply.reservation.verify.before_item": {
+              "count": 1,
+              "total_us": 9390978,
+              "max_us": 9390978,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.current_review": {
+              "count": 1,
+              "total_us": 18291079,
+              "max_us": 18291079,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.safe_entries.pre_intent": {
+              "count": 1,
+              "total_us": 18303448,
+              "max_us": 18303448,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:state.prepare_local": {
+              "count": 2,
+              "total_us": 32,
+              "max_us": 17,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.read": {
+              "count": 2,
+              "total_us": 4947,
+              "max_us": 2573,
+              "attempts": 2,
+              "outcomes": {
+                "read": 2
+              }
+            },
+            "maintenance.phase:state.merge": {
+              "count": 2,
+              "total_us": 72,
+              "max_us": 37,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.open_pending": {
+              "count": 2,
+              "total_us": 539,
+              "max_us": 283,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.serialize": {
+              "count": 2,
+              "total_us": 20,
+              "max_us": 11,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.write_pending": {
+              "count": 2,
+              "total_us": 202,
+              "max_us": 101,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.sync_pending": {
+              "count": 2,
+              "total_us": 6461,
+              "max_us": 3243,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.rename": {
+              "count": 2,
+              "total_us": 4061,
+              "max_us": 2125,
+              "attempts": 2,
+              "outcomes": {
+                "success": 2
+              }
+            },
+            "maintenance.phase:state.commit": {
+              "count": 2,
+              "total_us": 50602,
+              "max_us": 25488,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:state.save": {
+              "count": 2,
+              "total_us": 115081,
+              "max_us": 62758,
+              "attempts": 2,
+              "outcomes": {
+                "committed": 2
+              }
+            },
+            "maintenance.phase:apply.intent_save": {
+              "count": 1,
+              "total_us": 62773,
+              "max_us": 62773,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.physical_delete": {
+              "count": 1,
+              "total_us": 695219,
+              "max_us": 695219,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.actual_result_save": {
+              "count": 1,
+              "total_us": 52335,
+              "max_us": 52335,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.final_presence": {
+              "count": 1,
+              "total_us": 2283,
+              "max_us": 2283,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.phase:apply.reservation.finalize": {
+              "count": 1,
+              "total_us": 9827889,
+              "max_us": 9827889,
+              "attempts": 1,
+              "outcomes": {
+                "success": 1
+              }
+            },
+            "maintenance.lock_hold:group_reservation": {
+              "count": 1,
+              "total_us": 38438793,
+              "max_us": 38438793,
+              "attempts": 1,
+              "outcomes": {
+                "verified": 1
+              }
+            }
+          },
+          "non_timing_stderr": []
+        },
+        "checks": {
+          "deleted_results": 1,
+          "target_absent": true,
+          "durable_item_deleted": true,
+          "durable_group_deleted": true,
+          "durable_outcome_deleted": true,
+          "history_preserved": true,
+          "producer_records_and_historical_references_preserved": 1001,
+          "no_pending": true
+        }
+      }
+    ],
+    "complete": true
+  },
+  "paired": {
+    "schema": 1,
+    "at": "2026-11-02T10:47:02.642Z",
+    "complete": true,
+    "scope": "Windows x64 local; one sequential sample per binary per fresh deterministic fixture",
+    "baseline": {
+      "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\inputs\\baseline-maintenance_owner.exe",
+      "sha256": "f98ae805137e50035a475b2873e7ee5ab71b45c4a9e513ce5a60203625bceb00",
+      "report": "base.json"
+    },
+    "candidate": {
+      "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\outputs\\native\\candidate-maintenance_owner.exe",
+      "sha256": "cf9cbd25713cf0a7688d4609271cfe3ec5619635fb1550b7e02e1b59608d56f1",
+      "report": "cand.json"
+    },
+    "harness_sha256": "a10b1d42efae5c8909741648a6d1e5b744e158a4fd7bdddcd7fcf9ace8d269b2",
+    "limitations": [
+      "Baseline ran before candidate; host and filesystem cache conditions can differ. The especially large 0-case acquisition difference is not evidence of catalog optimization speedup.",
+      "Native lock_wait includes prerequisite checks and acquisition. Every observed acquisition has attempts=1 and outcome acquired; no queued_wait spans were emitted. No OS lock contention-only delay is established.",
+      "Catalog, registry.observe, lock and enclosing command spans overlap. They are reported separately without adding them or interpreting wall differences as isolated CPU effects.",
+      "Background producer references are nonempty and their exact bytes are preserved; preexisting native run/decision history is empty, so native history preservation assertion has empty input.",
+      "Synthetic valid schema1 records and task-owned paths approximate producer catalog cost; no production-root throughput or cross-platform acceptance follows.",
+      "Fixture payload/control state/logs remain under outer run:ff1:catalog4 ownership for root cleanup; selected target deletion does not mean full fixture cleanup."
+    ],
+    "cases": [
+      {
+        "background_records": 0,
+        "selected_records": 1,
+        "selected_payload_bytes": 1024,
+        "fixture_normalized_producer_bytes_equal": true,
+        "fixture_background_and_configuration_bytes_equal": true,
+        "checks": {
+          "baseline": {
+            "deleted_results": 1,
+            "target_absent": true,
+            "durable_item_deleted": true,
+            "durable_group_deleted": true,
+            "durable_outcome_deleted": true,
+            "history_preserved": true,
+            "producer_records_and_historical_references_preserved": 1,
+            "no_pending": true
+          },
+          "candidate": {
+            "deleted_results": 1,
+            "target_absent": true,
+            "durable_item_deleted": true,
+            "durable_group_deleted": true,
+            "durable_outcome_deleted": true,
+            "history_preserved": true,
+            "producer_records_and_historical_references_preserved": 1,
+            "no_pending": true
+          }
+        },
+        "stages": {
+          "register": {
+            "baseline": {
+              "wall_ms": 17770.1383,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 53412,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog0-register",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 14,
+                  "total_us": 11076260,
+                  "max_us": 8097473,
+                  "attempts": 14,
+                  "outcomes": {
+                    "acquired": 14
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 8,
+                  "total_us": 279006,
+                  "max_us": 40874,
+                  "attempts": 8,
+                  "outcomes": {
+                    "success": 8
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 18,
+                  "total_us": 297360,
+                  "max_us": 40901,
+                  "attempts": 18,
+                  "outcomes": {
+                    "success": 18
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 10,
+                  "total_us": 17615,
+                  "max_us": 2200,
+                  "attempts": 10,
+                  "outcomes": {
+                    "success": 10
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 11028882,
+                  "max_us": 8622837,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 2,
+                  "total_us": 16246196,
+                  "max_us": 11980895,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 97542,
+                  "max_us": 85559,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 8283525,
+                  "max_us": 8283525,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate": {
+              "wall_ms": 793.0767,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 44832,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog0-register",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 14,
+                  "total_us": 142371,
+                  "max_us": 74546,
+                  "attempts": 14,
+                  "outcomes": {
+                    "acquired": 14
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 8,
+                  "total_us": 245091,
+                  "max_us": 36821,
+                  "attempts": 8,
+                  "outcomes": {
+                    "success": 8
+                  }
+                },
+                "maintenance.phase:registry.catalog_index": {
+                  "count": 8,
+                  "total_us": 38,
+                  "max_us": 18,
+                  "attempts": 8,
+                  "outcomes": {
+                    "success": 8
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 18,
+                  "total_us": 263630,
+                  "max_us": 36873,
+                  "attempts": 18,
+                  "outcomes": {
+                    "success": 18
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 10,
+                  "total_us": 17591,
+                  "max_us": 2137,
+                  "attempts": 10,
+                  "outcomes": {
+                    "success": 10
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 239548,
+                  "max_us": 141423,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 2,
+                  "total_us": 339220,
+                  "max_us": 187746,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 89370,
+                  "max_us": 77728,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 483739,
+                  "max_us": 483739,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate_over_baseline_wall_ratio": 0.04462974269592488,
+            "wall_change_percent": -95.5370257304075
+          },
+          "review": {
+            "baseline": {
+              "wall_ms": 142.3077,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 45348,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog0-review",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 5,
+                  "total_us": 1890,
+                  "max_us": 1853,
+                  "attempts": 5,
+                  "outcomes": {
+                    "acquired": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 2,
+                  "total_us": 79580,
+                  "max_us": 42895,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 2,
+                  "total_us": 79660,
+                  "max_us": 42923,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 1,
+                  "total_us": 81776,
+                  "max_us": 81776,
+                  "attempts": 1,
+                  "outcomes": {
+                    "success": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate": {
+              "wall_ms": 139.2167,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 35064,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog0-review",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 5,
+                  "total_us": 1954,
+                  "max_us": 1917,
+                  "attempts": 5,
+                  "outcomes": {
+                    "acquired": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 2,
+                  "total_us": 78192,
+                  "max_us": 43829,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.catalog_index": {
+                  "count": 2,
+                  "total_us": 15,
+                  "max_us": 12,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 2,
+                  "total_us": 78285,
+                  "max_us": 43881,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 1,
+                  "total_us": 80200,
+                  "max_us": 80200,
+                  "attempts": 1,
+                  "outcomes": {
+                    "success": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate_over_baseline_wall_ratio": 0.9782794606335427,
+            "wall_change_percent": -2.1720539366457348
+          },
+          "apply": {
+            "baseline": {
+              "wall_ms": 14954.8911,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 24860,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog0-apply",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 10,
+                  "total_us": 10357158,
+                  "max_us": 3673542,
+                  "attempts": 10,
+                  "outcomes": {
+                    "acquired": 10
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 5,
+                  "total_us": 148636,
+                  "max_us": 37926,
+                  "attempts": 5,
+                  "outcomes": {
+                    "success": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 9,
+                  "total_us": 156530,
+                  "max_us": 37953,
+                  "attempts": 9,
+                  "outcomes": {
+                    "success": 9
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 4,
+                  "total_us": 7451,
+                  "max_us": 2078,
+                  "attempts": 4,
+                  "outcomes": {
+                    "success": 4
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 105591,
+                  "max_us": 83393,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 5801621,
+                  "max_us": 3338991,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 3,
+                  "total_us": 11397460,
+                  "max_us": 4546173,
+                  "attempts": 3,
+                  "outcomes": {
+                    "verified": 3
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 12054958,
+                  "max_us": 12054958,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate": {
+              "wall_ms": 1485.8798,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 51500,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog0-apply",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 10,
+                  "total_us": 174119,
+                  "max_us": 69589,
+                  "attempts": 10,
+                  "outcomes": {
+                    "acquired": 10
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 5,
+                  "total_us": 143624,
+                  "max_us": 37612,
+                  "attempts": 5,
+                  "outcomes": {
+                    "success": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog_index": {
+                  "count": 5,
+                  "total_us": 23,
+                  "max_us": 11,
+                  "attempts": 5,
+                  "outcomes": {
+                    "success": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 9,
+                  "total_us": 154122,
+                  "max_us": 37655,
+                  "attempts": 9,
+                  "outcomes": {
+                    "success": 9
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 4,
+                  "total_us": 9943,
+                  "max_us": 3331,
+                  "attempts": 4,
+                  "outcomes": {
+                    "success": 4
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 104976,
+                  "max_us": 85337,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 187608,
+                  "max_us": 107445,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 3,
+                  "total_us": 272752,
+                  "max_us": 156249,
+                  "attempts": 3,
+                  "outcomes": {
+                    "verified": 3
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 1308490,
+                  "max_us": 1308490,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate_over_baseline_wall_ratio": 0.09935744700942689,
+            "wall_change_percent": -90.06425529905731
+          }
+        }
+      },
+      {
+        "background_records": 200,
+        "selected_records": 1,
+        "selected_payload_bytes": 1024,
+        "fixture_normalized_producer_bytes_equal": true,
+        "fixture_background_and_configuration_bytes_equal": true,
+        "checks": {
+          "baseline": {
+            "deleted_results": 1,
+            "target_absent": true,
+            "durable_item_deleted": true,
+            "durable_group_deleted": true,
+            "durable_outcome_deleted": true,
+            "history_preserved": true,
+            "producer_records_and_historical_references_preserved": 201,
+            "no_pending": true
+          },
+          "candidate": {
+            "deleted_results": 1,
+            "target_absent": true,
+            "durable_item_deleted": true,
+            "durable_group_deleted": true,
+            "durable_outcome_deleted": true,
+            "history_preserved": true,
+            "producer_records_and_historical_references_preserved": 201,
+            "no_pending": true
+          }
+        },
+        "stages": {
+          "register": {
+            "baseline": {
+              "wall_ms": 34787.5757,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 12796,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog200-register",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 14,
+                  "total_us": 10542450,
+                  "max_us": 6714748,
+                  "attempts": 14,
+                  "outcomes": {
+                    "acquired": 14
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 8,
+                  "total_us": 18615949,
+                  "max_us": 3848490,
+                  "attempts": 8,
+                  "outcomes": {
+                    "success": 8
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 18,
+                  "total_us": 18640781,
+                  "max_us": 3848696,
+                  "attempts": 18,
+                  "outcomes": {
+                    "success": 18
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 10,
+                  "total_us": 23900,
+                  "max_us": 3094,
+                  "attempts": 10,
+                  "outcomes": {
+                    "success": 10
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 15110667,
+                  "max_us": 10837626,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 2,
+                  "total_us": 23157715,
+                  "max_us": 15193701,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 4808956,
+                  "max_us": 4793893,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 24120742,
+                  "max_us": 24120742,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate": {
+              "wall_ms": 14588.2472,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 5664,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog200-register",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 14,
+                  "total_us": 147974,
+                  "max_us": 77116,
+                  "attempts": 14,
+                  "outcomes": {
+                    "acquired": 14
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 8,
+                  "total_us": 14156028,
+                  "max_us": 2905526,
+                  "attempts": 8,
+                  "outcomes": {
+                    "success": 8
+                  }
+                },
+                "maintenance.phase:registry.catalog_index": {
+                  "count": 8,
+                  "total_us": 2035,
+                  "max_us": 483,
+                  "attempts": 8,
+                  "outcomes": {
+                    "success": 8
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 18,
+                  "total_us": 14177068,
+                  "max_us": 2906306,
+                  "attempts": 18,
+                  "outcomes": {
+                    "success": 18
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 10,
+                  "total_us": 18005,
+                  "max_us": 2227,
+                  "attempts": 10,
+                  "outcomes": {
+                    "success": 10
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 4689614,
+                  "max_us": 2990620,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 2,
+                  "total_us": 4792499,
+                  "max_us": 3046287,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 3320117,
+                  "max_us": 3308908,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 11519996,
+                  "max_us": 11519996,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate_over_baseline_wall_ratio": 0.41935222292595686,
+            "wall_change_percent": -58.06477770740431
+          },
+          "review": {
+            "baseline": {
+              "wall_ms": 5758.2864,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 4504,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog200-review",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 5,
+                  "total_us": 2578,
+                  "max_us": 2539,
+                  "attempts": 5,
+                  "outcomes": {
+                    "acquired": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 2,
+                  "total_us": 4927465,
+                  "max_us": 2854076,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 2,
+                  "total_us": 4927527,
+                  "max_us": 2854100,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 1,
+                  "total_us": 4930542,
+                  "max_us": 4930542,
+                  "attempts": 1,
+                  "outcomes": {
+                    "success": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate": {
+              "wall_ms": 3057.6183,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 31728,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog200-review",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 5,
+                  "total_us": 1910,
+                  "max_us": 1874,
+                  "attempts": 5,
+                  "outcomes": {
+                    "acquired": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 2,
+                  "total_us": 2996068,
+                  "max_us": 1515085,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.catalog_index": {
+                  "count": 2,
+                  "total_us": 513,
+                  "max_us": 275,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 2,
+                  "total_us": 2996667,
+                  "max_us": 1515404,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 1,
+                  "total_us": 2998792,
+                  "max_us": 2998792,
+                  "attempts": 1,
+                  "outcomes": {
+                    "success": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate_over_baseline_wall_ratio": 0.5309944812748459,
+            "wall_change_percent": -46.90055187251541
+          },
+          "apply": {
+            "baseline": {
+              "wall_ms": 35373.8983,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 40044,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog200-apply",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 10,
+                  "total_us": 5966766,
+                  "max_us": 5331433,
+                  "attempts": 10,
+                  "outcomes": {
+                    "acquired": 10
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 5,
+                  "total_us": 24844949,
+                  "max_us": 5215301,
+                  "attempts": 5,
+                  "outcomes": {
+                    "success": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 9,
+                  "total_us": 25297447,
+                  "max_us": 5637129,
+                  "attempts": 9,
+                  "outcomes": {
+                    "success": 9
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 4,
+                  "total_us": 30125,
+                  "max_us": 9428,
+                  "attempts": 4,
+                  "outcomes": {
+                    "success": 4
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 15698809,
+                  "max_us": 10048101,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 12798690,
+                  "max_us": 8165888,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 3,
+                  "total_us": 12725296,
+                  "max_us": 12052889,
+                  "attempts": 3,
+                  "outcomes": {
+                    "verified": 3
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 24101869,
+                  "max_us": 24101869,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate": {
+              "wall_ms": 8953.1817,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 19072,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog200-apply",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 10,
+                  "total_us": 180077,
+                  "max_us": 74811,
+                  "attempts": 10,
+                  "outcomes": {
+                    "acquired": 10
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 5,
+                  "total_us": 7803493,
+                  "max_us": 1754359,
+                  "attempts": 5,
+                  "outcomes": {
+                    "success": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog_index": {
+                  "count": 5,
+                  "total_us": 1232,
+                  "max_us": 291,
+                  "attempts": 5,
+                  "outcomes": {
+                    "success": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 9,
+                  "total_us": 7822135,
+                  "max_us": 1754712,
+                  "attempts": 9,
+                  "outcomes": {
+                    "success": 9
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 4,
+                  "total_us": 7553,
+                  "max_us": 2031,
+                  "attempts": 4,
+                  "outcomes": {
+                    "success": 4
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 4538934,
+                  "max_us": 3045380,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 3389316,
+                  "max_us": 1817429,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 3,
+                  "total_us": 1740220,
+                  "max_us": 1625053,
+                  "attempts": 3,
+                  "outcomes": {
+                    "verified": 3
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 7297472,
+                  "max_us": 7297472,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate_over_baseline_wall_ratio": 0.25310135807112893,
+            "wall_change_percent": -74.6898641928871
+          }
+        }
+      },
+      {
+        "background_records": 1000,
+        "selected_records": 1,
+        "selected_payload_bytes": 1024,
+        "fixture_normalized_producer_bytes_equal": true,
+        "fixture_background_and_configuration_bytes_equal": true,
+        "checks": {
+          "baseline": {
+            "deleted_results": 1,
+            "target_absent": true,
+            "durable_item_deleted": true,
+            "durable_group_deleted": true,
+            "durable_outcome_deleted": true,
+            "history_preserved": true,
+            "producer_records_and_historical_references_preserved": 1001,
+            "no_pending": true
+          },
+          "candidate": {
+            "deleted_results": 1,
+            "target_absent": true,
+            "durable_item_deleted": true,
+            "durable_group_deleted": true,
+            "durable_outcome_deleted": true,
+            "history_preserved": true,
+            "producer_records_and_historical_references_preserved": 1001,
+            "no_pending": true
+          }
+        },
+        "stages": {
+          "register": {
+            "baseline": {
+              "wall_ms": 110449.4199,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 27612,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog1000-register",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 14,
+                  "total_us": 7633568,
+                  "max_us": 7477360,
+                  "attempts": 14,
+                  "outcomes": {
+                    "acquired": 14
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 8,
+                  "total_us": 100548004,
+                  "max_us": 22830376,
+                  "attempts": 8,
+                  "outcomes": {
+                    "success": 8
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 18,
+                  "total_us": 100586101,
+                  "max_us": 22830878,
+                  "attempts": 18,
+                  "outcomes": {
+                    "success": 18
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 10,
+                  "total_us": 36568,
+                  "max_us": 10839,
+                  "attempts": 10,
+                  "outcomes": {
+                    "success": 10
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 39221927,
+                  "max_us": 23845560,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 2,
+                  "total_us": 42689057,
+                  "max_us": 23956167,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 19306472,
+                  "max_us": 19287803,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 87217183,
+                  "max_us": 87217183,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate": {
+              "wall_ms": 81997.4745,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 50244,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog1000-register",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 14,
+                  "total_us": 143173,
+                  "max_us": 75694,
+                  "attempts": 14,
+                  "outcomes": {
+                    "acquired": 14
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 8,
+                  "total_us": 81506025,
+                  "max_us": 14194792,
+                  "attempts": 8,
+                  "outcomes": {
+                    "success": 8
+                  }
+                },
+                "maintenance.phase:registry.catalog_index": {
+                  "count": 8,
+                  "total_us": 12502,
+                  "max_us": 1835,
+                  "attempts": 8,
+                  "outcomes": {
+                    "success": 8
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 18,
+                  "total_us": 81541187,
+                  "max_us": 14196868,
+                  "attempts": 18,
+                  "outcomes": {
+                    "success": 18
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 10,
+                  "total_us": 21559,
+                  "max_us": 2851,
+                  "attempts": 10,
+                  "outcomes": {
+                    "success": 10
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 24135426,
+                  "max_us": 14288432,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 2,
+                  "total_us": 24233731,
+                  "max_us": 14343776,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 19801861,
+                  "max_us": 19786198,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 67625779,
+                  "max_us": 67625779,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate_over_baseline_wall_ratio": 0.742398417069459,
+            "wall_change_percent": -25.760158293054104
+          },
+          "review": {
+            "baseline": {
+              "wall_ms": 20603.5633,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 40072,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog1000-review",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 5,
+                  "total_us": 2421,
+                  "max_us": 2387,
+                  "attempts": 5,
+                  "outcomes": {
+                    "acquired": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 2,
+                  "total_us": 20481430,
+                  "max_us": 11399994,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 2,
+                  "total_us": 20481518,
+                  "max_us": 11400039,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 1,
+                  "total_us": 20486748,
+                  "max_us": 20486748,
+                  "attempts": 1,
+                  "outcomes": {
+                    "success": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate": {
+              "wall_ms": 19362.8429,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 5284,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog1000-review",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 5,
+                  "total_us": 2546,
+                  "max_us": 2504,
+                  "attempts": 5,
+                  "outcomes": {
+                    "acquired": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 2,
+                  "total_us": 19277937,
+                  "max_us": 9917757,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.catalog_index": {
+                  "count": 2,
+                  "total_us": 2831,
+                  "max_us": 1702,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 2,
+                  "total_us": 19280882,
+                  "max_us": 9918932,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 1,
+                  "total_us": 19284022,
+                  "max_us": 19284022,
+                  "attempts": 1,
+                  "outcomes": {
+                    "success": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate_over_baseline_wall_ratio": 0.939781270747473,
+            "wall_change_percent": -6.021872925252703
+          },
+          "apply": {
+            "baseline": {
+              "wall_ms": 66204.1345,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 23592,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\base-catalog1000-apply",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 10,
+                  "total_us": 5315421,
+                  "max_us": 5213400,
+                  "attempts": 10,
+                  "outcomes": {
+                    "acquired": 10
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 5,
+                  "total_us": 56667205,
+                  "max_us": 14021780,
+                  "attempts": 5,
+                  "outcomes": {
+                    "success": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 9,
+                  "total_us": 56675008,
+                  "max_us": 14021808,
+                  "attempts": 9,
+                  "outcomes": {
+                    "success": 9
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 4,
+                  "total_us": 7074,
+                  "max_us": 2075,
+                  "attempts": 4,
+                  "outcomes": {
+                    "success": 4
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 35921723,
+                  "max_us": 24664233,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 26981187,
+                  "max_us": 17434280,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 3,
+                  "total_us": 19602423,
+                  "max_us": 19491554,
+                  "attempts": 3,
+                  "outcomes": {
+                    "verified": 3
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 49569047,
+                  "max_us": 49569047,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate": {
+              "wall_ms": 47586.562,
+              "exit_code": 0,
+              "signal": null,
+              "pid": 29752,
+              "actual_close": true,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\cand-catalog1000-apply",
+              "spans": {
+                "maintenance.lock_wait:wait_for_lock": {
+                  "count": 10,
+                  "total_us": 167767,
+                  "max_us": 67819,
+                  "attempts": 10,
+                  "outcomes": {
+                    "acquired": 10
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_load": {
+                  "count": 5,
+                  "total_us": 46397251,
+                  "max_us": 9788996,
+                  "attempts": 5,
+                  "outcomes": {
+                    "success": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog_index": {
+                  "count": 5,
+                  "total_us": 7659,
+                  "max_us": 1731,
+                  "attempts": 5,
+                  "outcomes": {
+                    "success": 5
+                  }
+                },
+                "maintenance.phase:registry.catalog": {
+                  "count": 9,
+                  "total_us": 46423219,
+                  "max_us": 9790380,
+                  "attempts": 9,
+                  "outcomes": {
+                    "success": 9
+                  }
+                },
+                "maintenance.phase:registry.catalog_snapshot_hit": {
+                  "count": 4,
+                  "total_us": 8346,
+                  "max_us": 2361,
+                  "attempts": 4,
+                  "outcomes": {
+                    "success": 4
+                  }
+                },
+                "maintenance.phase:registry.observe": {
+                  "count": 2,
+                  "total_us": 27263821,
+                  "max_us": 18279246,
+                  "attempts": 2,
+                  "outcomes": {
+                    "success": 2
+                  }
+                },
+                "maintenance.lock_hold:catalog": {
+                  "count": 2,
+                  "total_us": 18929432,
+                  "max_us": 9860196,
+                  "attempts": 2,
+                  "outcomes": {
+                    "verified": 2
+                  }
+                },
+                "maintenance.lock_hold:maintenance": {
+                  "count": 3,
+                  "total_us": 9227492,
+                  "max_us": 9117351,
+                  "attempts": 3,
+                  "outcomes": {
+                    "verified": 3
+                  }
+                },
+                "maintenance.lock_hold:group_reservation": {
+                  "count": 1,
+                  "total_us": 38438793,
+                  "max_us": 38438793,
+                  "attempts": 1,
+                  "outcomes": {
+                    "verified": 1
+                  }
+                }
+              },
+              "non_timing_stderr": []
+            },
+            "candidate_over_baseline_wall_ratio": 0.7187853501808108,
+            "wall_change_percent": -28.12146498191892
+          }
+        }
+      }
+    ],
+    "actual_native_close_exit0": 18
+  },
+  "root_assessment": {
+    "accepted": true,
+    "reason": "Exact metadata result reused within each fresh path check; immutable indexed projections preserve canonical byte order and fences, mandatory247pass and all18native performance children exit0. Measured catalog improvements without reducing full-byte observation count.",
+    "limits": [
+      "One sequential pair on shared Windows host; substantial acquisition/check overhead variation.",
+      "Lock acquisition spans are not contention-only waiting; all attempts1 and noqueuedwait.",
+      "Native state history empty in synthetic fixture; nonempty producer historical references preserved.",
+      "Escaped JSON prefix normalization comparison corrected after native measurements; native cases not rerun.",
+      "No full-app or embedded runtime rebuild."
+    ]
+  }
+}

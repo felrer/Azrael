@@ -1,0 +1,411 @@
+{
+  "schema": 1,
+  "id": "run:EC-01-unused-file-archive:unknown-recovery-node-r1-external-fixtures-extra",
+  "owner": "/root",
+  "members": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-interrupted-vFHj5y",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-interrupted-vFHj5y-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-interrupted-vFHj5y-receipt.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-live-producerPid-jo7WA3",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-live-producerPid-jo7WA3-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-evidence-Eznkk3",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-evidence-Eznkk3-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-evidence-Eznkk3-receipt.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-lease-identity-Ujw12W",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-lease-identity-Ujw12W-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-lease-identity-Ujw12W-receipt.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-owner-identity-VivFxy",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-owner-identity-VivFxy-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-owner-identity-VivFxy-receipt.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-write-failure-ipFxqf",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-write-failure-ipFxqf-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-refusal-oLYpYg",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-refusal-oLYpYg-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-running-5nKAoW",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-running-5nKAoW-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-running-5nKAoW-receipt.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unknown-pOQhMN",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unknown-pOQhMN-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unknown-pOQhMN-receipt.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unlink-failure-pLSodV",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unlink-failure-pLSodV-evidence.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unlink-failure-pLSodV-receipt.json",
+      "role": "fixture-evidence",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\shared-collision-JQyZMr",
+      "role": "fixture",
+      "generated": true,
+      "protection_known": true
+    }
+  ],
+  "proof_basis": "Retained exact owner.run pid-68524 cwd/token in root sidecar receipts/lease files; collision terminal error embeds exact same owned run PID/cwd/token. Synthetic statuses are fixture data.",
+  "source_run": "run:EC-01-unused-file-archive:unknown-recovery-node-r1",
+  "source_producer": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-node-r1\\reports\\producer-6d73c19671843f138272e4246c13944e6242bc956974b616e0ef3bd2098f9ba0.json",
+    "evidence_sha256": "6d73c19671843f138272e4246c13944e6242bc956974b616e0ef3bd2098f9ba0",
+    "exit_code": 1,
+    "outcome": "failure",
+    "reason": "Owned producer and tracked children stopped",
+    "status": "stopped"
+  },
+  "source_producer_proof": {
+    "lifecycleId": "run:EC-01-unused-file-archive:unknown-recovery-node-r1",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-node-r1",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Owned producer and tracked children stopped",
+    "children": [],
+    "state": "failed",
+    "membership_complete": true
+  },
+  "source_fixture_proofs": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-interrupted-vFHj5y-receipt.json",
+      "sha256": "0a93c4f0514e610f1f788c05825ecb383d87a220f502f187cca52e61be725ce1",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-interrupted-vFHj5y",
+          "run": "pid-68524",
+          "token": "1d6302fb-e75e-426b-86d2-c0bac0be081a",
+          "status": "interrupted",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-live-producerPid-jo7WA3\\target\\.azrael-cargo-owner\\owner.json",
+      "sha256": "99ded029da536eda377ef4b756eec3ea9076a6ba81978c84ba6330dcc5d34532",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-live-producerPid-jo7WA3",
+          "run": "pid-68524",
+          "token": "32cd7fbe-57d3-4b7f-8c6e-3142759a6501",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-evidence-Eznkk3\\target\\.azrael-cargo-owner\\owner.json",
+      "sha256": "02cc59962d811e192335417e46a16be2e5c34fd6393ee9a25eebc23fc8c993c2",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-evidence-Eznkk3",
+          "run": "pid-68524",
+          "token": "2679916a-a166-411c-90fc-fbf1511fa6ee",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-evidence-Eznkk3-receipt.json",
+      "sha256": "0a47d7088d86d226ac3a5cfe9ea349c0e5ad81ee66ba6ef14d337558550731f0",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-evidence-Eznkk3",
+          "run": "pid-68524",
+          "token": "2679916a-a166-411c-90fc-fbf1511fa6ee",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-lease-identity-Ujw12W\\target\\.azrael-cargo-owner\\owner.json",
+      "sha256": "291970c366b7f08508177bf1ca6b0a126e8ed4c2981652fb26a8fb068e49c8d7",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-lease-identity-Ujw12W",
+          "run": "pid-68524",
+          "token": "7ed3e673-e262-4cb1-9503-5ec8a301eefa",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-lease-identity-Ujw12W-receipt.json",
+      "sha256": "7a79d9dec9645f8bb5e4cc208f881529e348770379b8057c137679699b9a3c64",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-lease-identity-Ujw12W",
+          "run": "pid-68524",
+          "token": "7ed3e673-e262-4cb1-9503-5ec8a301eefa",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-owner-identity-VivFxy\\target\\.azrael-cargo-owner\\owner.json",
+      "sha256": "f58f2578b8f22dbf7069e1bac2d08825759f16a4a7d3f5c4614d2d27f192e3e1",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-owner-identity-VivFxy",
+          "run": "pid-68524",
+          "token": "96dcbada-6c1e-4cb7-8747-c597c56936d4",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-owner-identity-VivFxy-receipt.json",
+      "sha256": "20f459c10b9a509cee65d8bd7ee268dee3b9c5b653e215ac988c8c5e263b30c9",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-owner-identity-VivFxy",
+          "run": "pid-68524",
+          "token": "96dcbada-6c1e-4cb7-8747-c597c56936d4",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-write-failure-ipFxqf\\target\\.azrael-cargo-owner\\owner.json",
+      "sha256": "a48083424d41eb0e180b4f0c459d1bfb9bd7be3eca2c65a4f18bf9178bd30f22",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-race-write-failure-ipFxqf",
+          "run": "pid-68524",
+          "token": "916591ea-ffa6-47e9-81bf-7d7f31832d8e",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-refusal-oLYpYg\\target\\.azrael-cargo-owner\\owner.json",
+      "sha256": "bb9b416021e8eb47d8f6c4632b89c7df6d88a6e410055c4c36c72e6bb3403efc",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-refusal-oLYpYg",
+          "run": "pid-68524",
+          "token": "dc1df898-4424-4cad-beb4-0dfedce4bc9e",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-running-5nKAoW-receipt.json",
+      "sha256": "6f9f9567caa8d157cf67560a79c98196e96787f73c22fbc2e99ca4dfac824d58",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-running-5nKAoW",
+          "run": "pid-68524",
+          "token": "1ee19fea-d4e9-444b-b8f2-ba603c1b443f",
+          "status": "running",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unknown-pOQhMN-receipt.json",
+      "sha256": "08a491f2c5742109826404f11cb5cbc8d8095755a0956b332cdf28cb79760930",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unknown-pOQhMN",
+          "run": "pid-68524",
+          "token": "97d99f7d-a950-4209-889f-37aeb128eeb5",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unlink-failure-pLSodV\\target\\.azrael-cargo-owner\\owner.json",
+      "sha256": "32a9f6bb6fecc054dff276ed92c201e4c9cdfb9fc6857760a9eaa6c5d659d520",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unlink-failure-pLSodV",
+          "run": "pid-68524",
+          "token": "7e06c9f1-fa24-4f61-a743-695b60150557",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unlink-failure-pLSodV-receipt.json",
+      "sha256": "a4d3c364a42674c67ee25c6d544b365375161f9f559efbb5d56be14d91e11acf",
+      "owners": [
+        {
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\recover-unlink-failure-pLSodV",
+          "run": "pid-68524",
+          "token": "7e06c9f1-fa24-4f61-a743-695b60150557",
+          "status": "unknown",
+          "phase": "preparing"
+        }
+      ]
+    }
+  ],
+  "collision_proof": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\shared-collision-JQyZMr\\artifacts\\maintenance\\cargo-terminal\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059-cache-48ccb377eb29407f7dd4e055056ce4a5b5489517df8f45379c973a1513a4ea1d.json",
+    "sha256": "48ccb377eb29407f7dd4e055056ce4a5b5489517df8f45379c973a1513a4ea1d",
+    "value": {
+      "status": "not-started",
+      "producerStarted": false,
+      "phase": "preparing",
+      "startedUtc": "2026-10-28T04:08:28.323Z",
+      "resultObservedUtc": "2026-10-28T04:08:28.326Z",
+      "error": "Cargo target owner conflict at C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\shared-collision-JQyZMr\\artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\target\\.azrael-cargo-owner: {\"status\":\"blocked\",\"requestedCompilationSignature\":\"d7eed9ad3c3e918e28783115155742db127e55f857fa36bc1e1b7b40d95bde1e\",\"targetIdentity\":\"c:\\\\users\\\\felre\\\\desktop\\\\pi-harness-init\\\\artifacts\\\\verification\\\\cargo-owner-tests\\\\shared-collision-jqyzmr\\\\artifacts\\\\cache\\\\cargo\\\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\\\target\",\"existingOwner\":{\"schema\":1,\"token\":\"79e90660-b1e5-48ca-b6b0-9951e6b1882e\",\"run\":\"pid-68524\",\"coordinatorPid\":68524,\"producerPid\":null,\"startedUtc\":\"2026-10-28T04:08:28.155Z\",\"targetDirectory\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\verification\\\\cargo-owner-tests\\\\shared-collision-JQyZMr\\\\artifacts\\\\cache\\\\cargo\\\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\\\target\",\"targetIdentity\":\"c:\\\\users\\\\felre\\\\desktop\\\\pi-harness-init\\\\artifacts\\\\verification\\\\cargo-owner-tests\\\\shared-collision-jqyzmr\\\\artifacts\\\\cache\\\\cargo\\\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\\\target\",\"command\":\"C:\\\\Program Files\\\\nodejs\\\\node.exe\",\"args\":[\"-e\",\"process.stdout.write('fake Cargo\\\\n')\"],\"cwd\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\verification\\\\cargo-owner-tests\\\\shared-collision-JQyZMr\",\"compilationSignature\":\"d7eed9ad3c3e918e28783115155742db127e55f857fa36bc1e1b7b40d95bde1e\",\"pendingDirectory\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\verification\\\\cargo-owner-tests\\\\shared-collision-JQyZMr\\\\pending\",\"status\":\"running\",\"phase\":\"preparing\",\"lastProgressUtc\":\"2026-10-28T04:08:28.155Z\",\"preparingUtc\":\"2026-10-28T04:08:28.155Z\"}}. Wait for that owner to complete; unknown/abandoned owners require independent producer-tree verification and explicit recovery. No Cargo process was launched.",
+      "errorCode": null,
+      "cacheIdentity": {
+        "schema": 1,
+        "platform": "win32",
+        "arch": "x64",
+        "target": "fixture-target",
+        "tools": {
+          "rustc": "fixture",
+          "cargo": "fixture"
+        },
+        "configuration": [],
+        "flags": {}
+      },
+      "generation": "6c18f66a-d35d-4e64-9b82-53fe44a1d6af"
+    }
+  },
+  "producer_stopped_verified": true,
+  "actual_suite_exit_code": 1
+}

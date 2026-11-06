@@ -64,6 +64,30 @@ pub enum MessageDeliveryMode {
 pub enum AgentMessage {
     Plaintext(String),
     Encrypted(String),
+    WithAttachments {
+        message: Box<AgentMessage>,
+        attachments: Vec<codex_protocol::protocol::ImageAttachment>,
+    },
+}
+
+impl AgentMessage {
+    pub(crate) fn is_encrypted(&self) -> bool {
+        match self {
+            Self::Plaintext(_) => false,
+            Self::Encrypted(_) => true,
+            Self::WithAttachments { message, .. } => message.is_encrypted(),
+        }
+    }
+
+    pub(crate) fn has_attachments(&self) -> bool {
+        match self {
+            Self::Plaintext(_) | Self::Encrypted(_) => false,
+            Self::WithAttachments {
+                message,
+                attachments,
+            } => !attachments.is_empty() || message.has_attachments(),
+        }
+    }
 }
 
 /// Holds a backend-owned reservation until the turn ends or is cancelled.

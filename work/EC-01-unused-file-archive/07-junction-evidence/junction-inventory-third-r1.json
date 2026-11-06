@@ -1,0 +1,1239 @@
+{
+  "observed_at": "2026-11-01T14:05:40.928Z",
+  "id": "archive:primary-e1749933162b5b818351",
+  "source_revision": 2,
+  "members": [
+    {
+      "generated": true,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf",
+      "protection_known": true,
+      "role": "build-fixture"
+    },
+    {
+      "generated": true,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\01-upstream-ui",
+      "protection_known": true,
+      "role": "build-fixture"
+    },
+    {
+      "generated": true,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\02-bun-1.4.2",
+      "protection_known": true,
+      "role": "build-fixture"
+    }
+  ],
+  "dirs": 2898,
+  "files": 7217,
+  "links": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-ysh8Yi\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-ysh8Yi\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-ysh8Yi\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "2533274804815278",
+      "birthtimeNs": "1793469044688214600",
+      "ctimeNs": "1793469044688721700"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-x0F8Sp\\recorded-restored-link",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-x0F8Sp\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-x0F8Sp\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "2533274804815343",
+      "birthtimeNs": "1793469044997932700",
+      "ctimeNs": "1793469045040758900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-x0F8Sp\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-x0F8Sp\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-x0F8Sp\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "2814749781526007",
+      "birthtimeNs": "1793469045040758900",
+      "ctimeNs": "1793469045040758900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-wJNees\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-wJNees\\other",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-wJNees\\other",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "12666373966404038",
+      "birthtimeNs": "1793470533926976000",
+      "ctimeNs": "1793470533926976000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-uuAcUi\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-uuAcUi\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-uuAcUi\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "16607023640353213",
+      "birthtimeNs": "1793470534327970200",
+      "ctimeNs": "1793470534327970200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-PcriPH\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-PcriPH\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-PcriPH\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "7036874432191038",
+      "birthtimeNs": "1793470534956999400",
+      "ctimeNs": "1793470534956999400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-necJIt\\installed\\skills\\example\\linked-folder",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-necJIt\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-necJIt\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "16607023640353253",
+      "birthtimeNs": "1793470534049648700",
+      "ctimeNs": "1793470534050731700"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-lDS7HS\\recorded-restored-link",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-lDS7HS\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-lDS7HS\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "8725724292455186",
+      "birthtimeNs": "1793470535502584600",
+      "ctimeNs": "1793470535538001300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-lDS7HS\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-lDS7HS\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-lDS7HS\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "6473924478769728",
+      "birthtimeNs": "1793470535538001300",
+      "ctimeNs": "1793470535538001300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-IQH7RM\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-IQH7RM\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-IQH7RM\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "7318349408901751",
+      "birthtimeNs": "1793470535241313300",
+      "ctimeNs": "1793470535242316600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-INNmEo\\installed\\skills\\example\\linked-folder",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-INNmEo\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-INNmEo\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "2533274804814895",
+      "birthtimeNs": "1793469043464179800",
+      "ctimeNs": "1793469043464179800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-FaDzPf\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-FaDzPf\\other",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-FaDzPf\\other",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "2814749781525494",
+      "birthtimeNs": "1793469043354028500",
+      "ctimeNs": "1793469043354028500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-BY4WEk\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-BY4WEk\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-BY4WEk\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "2251799828104554",
+      "birthtimeNs": "1793469044387215400",
+      "ctimeNs": "1793469044388212300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-A549rA\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-A549rA\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-A549rA\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "18014398523906524",
+      "birthtimeNs": "1793470534743213600",
+      "ctimeNs": "1793470534743213600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-8jh69f\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-8jh69f\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-8jh69f\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "2251799828104373",
+      "birthtimeNs": "1793469043715433300",
+      "ctimeNs": "1793469043716938100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-5zumEg\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-5zumEg\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-5zumEg\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "2533274804814907",
+      "birthtimeNs": "1793469043474207200",
+      "ctimeNs": "1793469043474207200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-0Xrrx0\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-0Xrrx0\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-0Xrrx0\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "11258999082850797",
+      "birthtimeNs": "1793470534077864800",
+      "ctimeNs": "1793470534077864800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\migration\\migration-07QLfG\\installed\\skills\\example",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-07QLfG\\legacy-source",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\migration\\migration-07QLfG\\legacy-source",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "19703248384164766",
+      "birthtimeNs": "1793469044176127100",
+      "ctimeNs": "1793469044176127100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\zod-to-json-schema\\3.25.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\zod-to-json-schema@3.25.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\zod-to-json-schema@3.25.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019711",
+      "birthtimeNs": "1793467691415999600",
+      "ctimeNs": "1793467691417000900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\zod\\4.4.3@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\zod@4.4.3@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\zod@4.4.3@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968024942",
+      "birthtimeNs": "1793467699604264900",
+      "ctimeNs": "1793467699605265000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\wrappy\\1.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\wrappy@1.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\wrappy@1.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019642",
+      "birthtimeNs": "1793467691351036900",
+      "ctimeNs": "1793467691354038300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\which\\2.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\which@2.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\which@2.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018294",
+      "birthtimeNs": "1793467688100806400",
+      "ctimeNs": "1793467688101805600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\vary\\1.1.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\vary@1.1.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\vary@1.1.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018328",
+      "birthtimeNs": "1793467688178986900",
+      "ctimeNs": "1793467688178986900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\unpipe\\1.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\unpipe@1.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\unpipe@1.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018516",
+      "birthtimeNs": "1793467688447397800",
+      "ctimeNs": "1793467688448903900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\undici-types\\8.3.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\undici-types@8.3.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\undici-types@8.3.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019717",
+      "birthtimeNs": "1793467691424558200",
+      "ctimeNs": "1793467691425565300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\typescript\\7.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\typescript@7.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\typescript@7.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968023626",
+      "birthtimeNs": "1793467696785364600",
+      "ctimeNs": "1793467696786868900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\type-is\\2.1.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\type-is@2.1.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\type-is@2.1.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019567",
+      "birthtimeNs": "1793467691200240200",
+      "ctimeNs": "1793467691205746500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\toidentifier\\1.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\toidentifier@1.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\toidentifier@1.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019202",
+      "birthtimeNs": "1793467690003430100",
+      "ctimeNs": "1793467690023844400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\statuses\\2.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\statuses@2.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\statuses@2.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019911",
+      "birthtimeNs": "1793467692110949200",
+      "ctimeNs": "1793467692120974400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\side-channel-weakmap\\1.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\side-channel-weakmap@1.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\side-channel-weakmap@1.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019174",
+      "birthtimeNs": "1793467689995393600",
+      "ctimeNs": "1793467689998402500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\side-channel-map\\1.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\side-channel-map@1.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\side-channel-map@1.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019435",
+      "birthtimeNs": "1793467690164042900",
+      "ctimeNs": "1793467690170066100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\side-channel-list\\1.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\side-channel-list@1.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\side-channel-list@1.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019494",
+      "birthtimeNs": "1793467691040496900",
+      "ctimeNs": "1793467691040496900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\side-channel\\1.1.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\side-channel@1.1.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\side-channel@1.1.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019564",
+      "birthtimeNs": "1793467691208765400",
+      "ctimeNs": "1793467691209774500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\shebang-regex\\3.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\shebang-regex@3.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\shebang-regex@3.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018532",
+      "birthtimeNs": "1793467688464945300",
+      "ctimeNs": "1793467688611934700"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\shebang-command\\2.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\shebang-command@2.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\shebang-command@2.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018464",
+      "birthtimeNs": "1793467688266021800",
+      "ctimeNs": "1793467688266021800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\setprototypeof\\1.2.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\setprototypeof@1.2.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\setprototypeof@1.2.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019096",
+      "birthtimeNs": "1793467689827357400",
+      "ctimeNs": "1793467689827357400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\serve-static\\2.2.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\serve-static@2.2.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\serve-static@2.2.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020648",
+      "birthtimeNs": "1793467693017121800",
+      "ctimeNs": "1793467693038203900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\send\\1.2.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\send@1.2.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\send@1.2.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019195",
+      "birthtimeNs": "1793467690001422700",
+      "ctimeNs": "1793467690024845600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\safer-buffer\\2.1.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\safer-buffer@2.1.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\safer-buffer@2.1.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019110",
+      "birthtimeNs": "1793467689829384000",
+      "ctimeNs": "1793467689830897600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\router\\2.2.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\router@2.2.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\router@2.2.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020967",
+      "birthtimeNs": "1793467693271066600",
+      "ctimeNs": "1793467693271066600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\require-from-string\\2.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\require-from-string@2.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\require-from-string@2.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018330",
+      "birthtimeNs": "1793467688179995000",
+      "ctimeNs": "1793467688179995000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\raw-body\\3.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\raw-body@3.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\raw-body@3.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018728",
+      "birthtimeNs": "1793467689143552900",
+      "ctimeNs": "1793467689149582900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\range-parser\\1.3.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\range-parser@1.3.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\range-parser@1.3.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019505",
+      "birthtimeNs": "1793467691041498700",
+      "ctimeNs": "1793467691042004800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\qs\\6.16.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\qs@6.16.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\qs@6.16.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020166",
+      "birthtimeNs": "1793467692675483300",
+      "ctimeNs": "1793467692676489100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\proxy-addr\\2.0.7@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\proxy-addr@2.0.7@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\proxy-addr@2.0.7@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020362",
+      "birthtimeNs": "1793467692802413400",
+      "ctimeNs": "1793467692803920400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\pkce-challenge\\5.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\pkce-challenge@5.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\pkce-challenge@5.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018980",
+      "birthtimeNs": "1793467689572764300",
+      "ctimeNs": "1793467689576279800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\path-to-regexp\\8.4.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\path-to-regexp@8.4.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\path-to-regexp@8.4.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019090",
+      "birthtimeNs": "1793467689826390000",
+      "ctimeNs": "1793467689827357400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\path-key\\3.1.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\path-key@3.1.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\path-key@3.1.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018813",
+      "birthtimeNs": "1793467689319744600",
+      "ctimeNs": "1793467689329770200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\parseurl\\1.3.3@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\parseurl@1.3.3@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\parseurl@1.3.3@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020053",
+      "birthtimeNs": "1793467692498334700",
+      "ctimeNs": "1793467692636780800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\once\\1.4.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\once@1.4.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\once@1.4.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019058",
+      "birthtimeNs": "1793467689631968400",
+      "ctimeNs": "1793467689632969400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\on-finished\\2.4.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\on-finished@2.4.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\on-finished@2.4.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020083",
+      "birthtimeNs": "1793467692640823400",
+      "ctimeNs": "1793467692643829000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\object-inspect\\1.13.4@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\object-inspect@1.13.4@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\object-inspect@1.13.4@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019493",
+      "birthtimeNs": "1793467691040496900",
+      "ctimeNs": "1793467691040496900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\object-assign\\4.1.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\object-assign@4.1.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\object-assign@4.1.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018327",
+      "birthtimeNs": "1793467688178986900",
+      "ctimeNs": "1793467688178986900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\negotiator\\1.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\negotiator@1.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\negotiator@1.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019689",
+      "birthtimeNs": "1793467691402460900",
+      "ctimeNs": "1793467691412487600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\ms\\2.1.3@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ms@2.1.3@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ms@2.1.3@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019518",
+      "birthtimeNs": "1793467691043012400",
+      "ctimeNs": "1793467691049035600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\mime-types\\3.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\mime-types@3.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\mime-types@3.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019533",
+      "birthtimeNs": "1793467691194211800",
+      "ctimeNs": "1793467691195217700"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\mime-db\\1.54.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\mime-db@1.54.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\mime-db@1.54.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019487",
+      "birthtimeNs": "1793467691039500300",
+      "ctimeNs": "1793467691040496900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\merge-descriptors\\2.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\merge-descriptors@2.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\merge-descriptors@2.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019508",
+      "birthtimeNs": "1793467691042004800",
+      "ctimeNs": "1793467691043012400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\media-typer\\1.1.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\media-typer@1.1.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\media-typer@1.1.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019020",
+      "birthtimeNs": "1793467689598349800",
+      "ctimeNs": "1793467689599357100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\math-intrinsics\\1.1.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\math-intrinsics@1.1.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\math-intrinsics@1.1.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020266",
+      "birthtimeNs": "1793467692747217500",
+      "ctimeNs": "1793467692747217500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\json-schema-typed\\8.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\json-schema-typed@8.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\json-schema-typed@8.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018591",
+      "birthtimeNs": "1793467688911245300",
+      "ctimeNs": "1793467688913261700"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\json-schema-traverse\\1.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\json-schema-traverse@1.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\json-schema-traverse@1.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018904",
+      "birthtimeNs": "1793467689518517500",
+      "ctimeNs": "1793467689529072200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\jose\\6.2.3@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\jose@6.2.3@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\jose@6.2.3@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019585",
+      "birthtimeNs": "1793467691206251300",
+      "ctimeNs": "1793467691206251300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\isexe\\2.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\isexe@2.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\isexe@2.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019704",
+      "birthtimeNs": "1793467691415999600",
+      "ctimeNs": "1793467691415999600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\is-promise\\4.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\is-promise@4.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\is-promise@4.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019162",
+      "birthtimeNs": "1793467689986368000",
+      "ctimeNs": "1793467689995393600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\ipaddr.js\\1.9.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ipaddr.js@1.9.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ipaddr.js@1.9.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019151",
+      "birthtimeNs": "1793467689984360200",
+      "ctimeNs": "1793467689986368000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\ip-address\\10.4.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ip-address@10.4.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ip-address@10.4.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020145",
+      "birthtimeNs": "1793467692664942600",
+      "ctimeNs": "1793467692664942600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\inherits\\2.0.4@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\inherits@2.0.4@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\inherits@2.0.4@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019375",
+      "birthtimeNs": "1793467690114785000",
+      "ctimeNs": "1793467690128329300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\iconv-lite\\0.7.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\iconv-lite@0.7.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\iconv-lite@0.7.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020959",
+      "birthtimeNs": "1793467693269054800",
+      "ctimeNs": "1793467693270060900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\http-errors\\2.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\http-errors@2.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\http-errors@2.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020073",
+      "birthtimeNs": "1793467692638285500",
+      "ctimeNs": "1793467692639816100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\hono\\4.13.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\hono@4.13.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\hono@4.13.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968024737",
+      "birthtimeNs": "1793467699325716000",
+      "ctimeNs": "1793467699326722500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\hasown\\2.0.4@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\hasown@2.0.4@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\hasown@2.0.4@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020761",
+      "birthtimeNs": "1793467693110018800",
+      "ctimeNs": "1793467693123568200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\has-symbols\\1.1.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\has-symbols@1.1.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\has-symbols@1.1.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020775",
+      "birthtimeNs": "1793467693115530600",
+      "ctimeNs": "1793467693123568200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\gopd\\1.2.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\gopd@1.2.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\gopd@1.2.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020765",
+      "birthtimeNs": "1793467693112531700",
+      "ctimeNs": "1793467693115530600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\get-proto\\1.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\get-proto@1.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\get-proto@1.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020094",
+      "birthtimeNs": "1793467692642829800",
+      "ctimeNs": "1793467692655365200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\get-intrinsic\\1.3.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\get-intrinsic@1.3.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\get-intrinsic@1.3.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020057",
+      "birthtimeNs": "1793467692636780800",
+      "ctimeNs": "1793467692636780800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\function-bind\\1.1.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\function-bind@1.1.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\function-bind@1.1.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020087",
+      "birthtimeNs": "1793467692641828900",
+      "ctimeNs": "1793467692651853600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\fresh\\2.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\fresh@2.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\fresh@2.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018521",
+      "birthtimeNs": "1793467688449910600",
+      "ctimeNs": "1793467688451915900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\forwarded\\0.2.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\forwarded@0.2.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\forwarded@0.2.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019532",
+      "birthtimeNs": "1793467691053042800",
+      "ctimeNs": "1793467691196219300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\finalhandler\\2.1.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\finalhandler@2.1.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\finalhandler@2.1.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019404",
+      "birthtimeNs": "1793467690140432800",
+      "ctimeNs": "1793467690142941200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\fast-uri\\3.1.7@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\fast-uri@3.1.7@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\fast-uri@3.1.7@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018968",
+      "birthtimeNs": "1793467689567233600",
+      "ctimeNs": "1793467689568740300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\fast-deep-equal\\3.1.3@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\fast-deep-equal@3.1.3@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\fast-deep-equal@3.1.3@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018972",
+      "birthtimeNs": "1793467689569751100",
+      "ctimeNs": "1793467689571765500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\express-rate-limit\\8.5.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\express-rate-limit@8.5.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\express-rate-limit@8.5.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018696",
+      "birthtimeNs": "1793467689128514100",
+      "ctimeNs": "1793467689128514100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\express\\5.2.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\express@5.2.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\express@5.2.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018593",
+      "birthtimeNs": "1793467688912255000",
+      "ctimeNs": "1793467688928822400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\eventsource-parser\\3.1.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\eventsource-parser@3.1.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\eventsource-parser@3.1.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018745",
+      "birthtimeNs": "1793467689284500100",
+      "ctimeNs": "1793467689284500100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\eventsource\\3.0.7@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\eventsource@3.0.7@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\eventsource@3.0.7@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018941",
+      "birthtimeNs": "1793467689542609100",
+      "ctimeNs": "1793467689545607800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\etag\\1.8.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\etag@1.8.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\etag@1.8.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020286",
+      "birthtimeNs": "1793467692762762800",
+      "ctimeNs": "1793467692767280000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\escape-html\\1.0.3@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\escape-html@1.0.3@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\escape-html@1.0.3@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020019",
+      "birthtimeNs": "1793467692333298200",
+      "ctimeNs": "1793467692340315300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\es-object-atoms\\1.1.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\es-object-atoms@1.1.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\es-object-atoms@1.1.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020652",
+      "birthtimeNs": "1793467693020160600",
+      "ctimeNs": "1793467693041715100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\es-errors\\1.3.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\es-errors@1.3.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\es-errors@1.3.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019480",
+      "birthtimeNs": "1793467690901417200",
+      "ctimeNs": "1793467690901417200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\es-define-property\\1.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\es-define-property@1.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\es-define-property@1.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019684",
+      "birthtimeNs": "1793467691400460100",
+      "ctimeNs": "1793467691402460900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\encodeurl\\2.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\encodeurl@2.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\encodeurl@2.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020867",
+      "birthtimeNs": "1793467693194303900",
+      "ctimeNs": "1793467693203871600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\ee-first\\1.1.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ee-first@1.1.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ee-first@1.1.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019113",
+      "birthtimeNs": "1793467689829384000",
+      "ctimeNs": "1793467689830897600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\dunder-proto\\1.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\dunder-proto@1.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\dunder-proto@1.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968021167",
+      "birthtimeNs": "1793467693416009000",
+      "ctimeNs": "1793467693417008200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\depd\\2.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\depd@2.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\depd@2.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020050",
+      "birthtimeNs": "1793467692498334700",
+      "ctimeNs": "1793467692636780800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\debug\\4.4.3@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\debug@4.4.3@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\debug@4.4.3@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019682",
+      "birthtimeNs": "1793467691400460100",
+      "ctimeNs": "1793467691400460100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\cross-spawn\\7.0.6@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\cross-spawn@7.0.6@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\cross-spawn@7.0.6@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018909",
+      "birthtimeNs": "1793467689521524700",
+      "ctimeNs": "1793467689537087300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\cors\\2.8.6@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\cors@2.8.6@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\cors@2.8.6@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018895",
+      "birthtimeNs": "1793467689518012700",
+      "ctimeNs": "1793467689518517500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\cookie-signature\\1.2.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\cookie-signature@1.2.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\cookie-signature@1.2.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018596",
+      "birthtimeNs": "1793467688912255000",
+      "ctimeNs": "1793467688927316400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\cookie\\0.7.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\cookie@0.7.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\cookie@0.7.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020063",
+      "birthtimeNs": "1793467692638285500",
+      "ctimeNs": "1793467692638285500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\content-type\\2.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\content-type@2.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\content-type@2.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968021006",
+      "birthtimeNs": "1793467693283597400",
+      "ctimeNs": "1793467693286596500"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\content-type\\1.0.5@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\content-type@1.0.5@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\content-type@1.0.5@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018916",
+      "birthtimeNs": "1793467689525035900",
+      "ctimeNs": "1793467689530080200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\content-disposition\\1.1.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\content-disposition@1.1.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\content-disposition@1.1.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018753",
+      "birthtimeNs": "1793467689284500100",
+      "ctimeNs": "1793467689297170200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\call-bound\\1.0.4@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\call-bound@1.0.4@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\call-bound@1.0.4@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020318",
+      "birthtimeNs": "1793467692793389700",
+      "ctimeNs": "1793467692795389700"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\call-bind-apply-helpers\\1.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\call-bind-apply-helpers@1.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\call-bind-apply-helpers@1.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020685",
+      "birthtimeNs": "1793467693044223200",
+      "ctimeNs": "1793467693068290900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\bytes\\3.1.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\bytes@3.1.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\bytes@3.1.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018580",
+      "birthtimeNs": "1793467688908651400",
+      "ctimeNs": "1793467688911751000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\bun-types\\1.4.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\bun-types@1.4.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\bun-types@1.4.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968023823",
+      "birthtimeNs": "1793467698751705300",
+      "ctimeNs": "1793467698758726000"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\bun\\1.4.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\bun@1.4.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\bun@1.4.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018297",
+      "birthtimeNs": "1793467688110832100",
+      "ctimeNs": "1793467688110832100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\body-parser\\2.3.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\body-parser@2.3.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\body-parser@2.3.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018699",
+      "birthtimeNs": "1793467689128514100",
+      "ctimeNs": "1793467689131522300"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\ajv-formats\\3.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ajv-formats@3.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ajv-formats@3.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018716",
+      "birthtimeNs": "1793467689139547300",
+      "ctimeNs": "1793467689140546800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\ajv\\8.20.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ajv@8.20.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\ajv@8.20.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968024644",
+      "birthtimeNs": "1793467699259965000",
+      "ctimeNs": "1793467699261472100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\accepts\\2.0.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\accepts@2.0.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\accepts@2.0.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018287",
+      "birthtimeNs": "1793467688094743500",
+      "ctimeNs": "1793467688095745100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\@typescript\\typescript-win32-x64\\7.0.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@typescript\\typescript-win32-x64@7.0.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@typescript\\typescript-win32-x64@7.0.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019678",
+      "birthtimeNs": "1793467691399461200",
+      "ctimeNs": "1793467691399461200"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\@types\\node\\26.0.1@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@types\\node@26.0.1@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@types\\node@26.0.1@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968021149",
+      "birthtimeNs": "1793467693400973400",
+      "ctimeNs": "1793467693401973400"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\@types\\bun\\1.4.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@types\\bun@1.4.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@types\\bun@1.4.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968019213",
+      "birthtimeNs": "1793467690015815800",
+      "ctimeNs": "1793467690018325700"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\@oven\\bun-windows-x64\\1.4.2@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@oven\\bun-windows-x64@1.4.2@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@oven\\bun-windows-x64@1.4.2@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020808",
+      "birthtimeNs": "1793467693148636900",
+      "ctimeNs": "1793467693149643700"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\@napi-rs\\keyring-win32-x64-msvc\\1.3.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@napi-rs\\keyring-win32-x64-msvc@1.3.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@napi-rs\\keyring-win32-x64-msvc@1.3.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968020051",
+      "birthtimeNs": "1793467692498334700",
+      "ctimeNs": "1793467692636780800"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\@napi-rs\\keyring\\1.3.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@napi-rs\\keyring@1.3.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@napi-rs\\keyring@1.3.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968021098",
+      "birthtimeNs": "1793467693351801900",
+      "ctimeNs": "1793467693351801900"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\@modelcontextprotocol\\sdk\\1.30.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@modelcontextprotocol\\sdk@1.30.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@modelcontextprotocol\\sdk@1.30.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968024906",
+      "birthtimeNs": "1793467699466720700",
+      "ctimeNs": "1793467699467721100"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\@hono\\node-server\\2.1.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@hono\\node-server@2.1.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@hono\\node-server@2.1.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968018790",
+      "birthtimeNs": "1793467689309194700",
+      "ctimeNs": "1793467689327256600"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-e1749933162b5b818351\\00-sf\\bun-cache\\@bufbuild\\protobuf\\2.14.0@@@1",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@bufbuild\\protobuf@2.14.0@@@1",
+      "resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sf\\bun-cache\\@bufbuild\\protobuf@2.14.0@@@1",
+      "target_present": false,
+      "dev": "3057815611",
+      "ino": "562949968022970",
+      "birthtimeNs": "1793467696241395700",
+      "ctimeNs": "1793467696243396700"
+    }
+  ]
+}

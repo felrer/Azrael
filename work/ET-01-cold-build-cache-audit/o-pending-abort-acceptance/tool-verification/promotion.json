@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "status": "immutable-payload-ready-awaiting-root-cli",
+  "startedUtc": "2026-10-30T20:24:24.046Z",
+  "finishedUtc": "2026-10-30T20:24:30.319Z",
+  "writer": {
+    "pid": 23460,
+    "parentPid": 56876,
+    "creationDateUtc": "2026-10-30T20:24:23.9576710Z",
+    "creationDateUnixMs": 1793391863957
+  },
+  "lifecycleId": "version:maintenance-owner-et01-lifecycle-pending-win-x64-r4",
+  "revision": 1,
+  "state": "pending",
+  "membershipComplete": false,
+  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4",
+  "copies": [
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\outputs\\maintenance_owner.exe",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\payload\\maintenance_owner.exe",
+      "sha256": "eb264506d1aaa93024bc8ef51c17a64622952284368dd1aa2df707ca9d9e304f",
+      "bytes": 2658304
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports\\acceptance-r4.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\automated-acceptance.json",
+      "sha256": "ccfb00edc779cd54b4409240159ebd991c1835a6b03cc0bae7786896aff138d0",
+      "bytes": 26832
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports\\driver-r4-native-terminal.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\native-terminal.json",
+      "sha256": "57e8c05cc711c694b822bd5084d510811d2fa857773f5128de475b88ff170642",
+      "bytes": 576
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports\\closure-r4.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\source-run-closure.json",
+      "sha256": "aa20a2b560fb103b00b0c54c1b20b104ff54436af3c51a14f29636d7509e0ab8",
+      "bytes": 8381
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports\\source-identity-r4.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\source-identity.json",
+      "sha256": "f3156996005c34bd3c561a1db463481f665485ec65413c2ffd19ecb7fc41853c",
+      "bytes": 2104910
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lifecycle-pending-abort-20261031b\\reports\\source-freeze-r4.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\source-freeze.json",
+      "sha256": "5a21361061fb577b1ab15b169b58930a41e99505065a909d46fff153a93f6939",
+      "bytes": 964
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\verification\\source-identity.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4\\verification\\retained-baseline-source-identity.json",
+      "sha256": "4adb6083ccfb9a5bb4ab51f156a4f5b30825494d32e51c9b5fb43f7784cc64ce",
+      "bytes": 9616
+    }
+  ],
+  "overlayProvenanceSha256": "1931ea7601d5c611a60335ab8d381a0723a0674f2ac074c6e43df38a035f1c02",
+  "sourceRunClosedRevision": 2,
+  "actualCliExecuted": false,
+  "limitations": [
+    "Pending root actual CLI/O acceptance and finalize",
+    "Windows x64 verification only",
+    "No defaultowner/install/product changes",
+    "All copied verification immutable; root may add separate CLI acceptance"
+  ]
+}

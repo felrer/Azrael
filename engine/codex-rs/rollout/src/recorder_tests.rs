@@ -189,6 +189,7 @@ async fn state_db_init_backfills_before_returning() -> anyhow::Result<()> {
 
     let session_meta_line = SessionMetaLine {
         meta: SessionMeta {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -1929,6 +1930,7 @@ async fn resume_candidate_matches_cwd_reads_latest_turn_context() -> std::io::Re
         timestamp: "2025-01-03T13:00:01Z".to_string(),
         ordinal: None,
         item: RolloutItem::TurnContext(TurnContextItem {
+            agent_profile: None,
             harness_profile: None,
             turn_id: Some("turn-1".to_string()),
             root_turn_id: None,

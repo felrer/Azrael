@@ -378,6 +378,7 @@ fn folding_a_reasoning_only_page_retains_its_find_and_copy_revision() {
     };
     let current = Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: "turn".to_owned(),
         root_turn_id: None,

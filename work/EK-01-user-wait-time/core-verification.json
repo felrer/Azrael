@@ -1,0 +1,282 @@
+{
+  "schema": 1,
+  "platform": "Windows x64",
+  "toolchain": "Rust1.95.0 MSVC (pinned)",
+  "provenance": "Raw frozen source identity only; SOURCE receipt unchanged; no product build or provenance claim",
+  "runs": [
+    {
+      "runId": "core01",
+      "source": {
+        "sha256": "3b8bf11048ee2b71950ff81d8b358af1ecced734e1d09aaa146e4b8f1fb4fd20",
+        "fileCount": 10866,
+        "bytes": 192269218,
+        "platform": "win32",
+        "arch": "x64",
+        "capturedUtc": "2026-10-29T03:30:03.364Z",
+        "sourceReceipt": "Copied existing SOURCE.json unchanged; raw frozen-source identity only; no product provenance assertion"
+      },
+      "controllerExitCode": 101,
+      "verificationExitCode": 101,
+      "sourceUnchanged": true,
+      "results": [
+        {
+          "crate": "codex-core",
+          "filter": "user_wait",
+          "status": 101,
+          "error": null,
+          "signal": null,
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-core",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-29T03:30:11.917Z",
+              "durationMs": 174446,
+              "exitCode": 101,
+              "signal": null
+            }
+          ],
+          "executionResults": []
+        }
+      ]
+    },
+    {
+      "runId": "core02",
+      "source": {
+        "sha256": "ba942545a310fbcf60b9164fdc717edbda9b93c66dd08853604faa0db01a3337",
+        "fileCount": 10866,
+        "bytes": 192277391,
+        "capturedUtc": "2026-10-29T03:35:56.638Z",
+        "sourceReceipt": "Current SOURCE.json copied unchanged; raw source identity only; no product provenance assertion"
+      },
+      "controllerExitCode": 1,
+      "verificationExitCode": 0,
+      "sourceUnchanged": true,
+      "results": [
+        {
+          "crate": "codex-core",
+          "filter": "user_wait",
+          "status": 0,
+          "error": null,
+          "signal": null,
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-core",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-29T03:36:04.623Z",
+              "durationMs": 428136,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--lib",
+                "user_wait",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-29T03:43:12.759Z",
+              "durationMs": 1598207,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 12
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--lib",
+                "user_wait",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-29T04:09:50.966Z",
+              "durationMs": 43480,
+              "exitCode": 0,
+              "signal": null
+            }
+          ],
+          "executionResults": []
+        },
+        {
+          "crate": "codex-core",
+          "filter": "turn_timing",
+          "status": 0,
+          "error": null,
+          "signal": null,
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-core",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-29T04:10:45.609Z",
+              "durationMs": 14562,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--lib",
+                "turn_timing",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-29T04:11:00.171Z",
+              "durationMs": 6636,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 16
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--lib",
+                "turn_timing",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-29T04:11:06.807Z",
+              "durationMs": 7523,
+              "exitCode": 0,
+              "signal": null
+            }
+          ],
+          "executionResults": []
+        },
+        {
+          "crate": "codex-mcp",
+          "filter": "elicitation",
+          "status": 0,
+          "error": null,
+          "signal": null,
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "codex-mcp",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-29T04:11:22.425Z",
+              "durationMs": 152286,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "codex-mcp",
+                "--lib",
+                "elicitation",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-29T04:13:54.711Z",
+              "durationMs": 423886,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 29
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-mcp",
+                "--lib",
+                "elicitation",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-29T04:20:58.598Z",
+              "durationMs": 17257,
+              "exitCode": 0,
+              "signal": null
+            }
+          ],
+          "executionResults": []
+        }
+      ]
+    }
+  ],
+  "currentLateRawTimingSource": [
+    {
+      "path": "engine/codex-rs/core/src/user_wait_runtime.rs",
+      "sha256": "5ab53b7d40d1553c7db4955967c446fe6feb30f5a8a65e34bc98684387eee339"
+    },
+    {
+      "path": "engine/codex-rs/core/src/user_wait_timing.rs",
+      "sha256": "f58740fbb174b54594d6e5da2a5ec74bc83568d9fbcefbbe0a41edbb3deb4f0a"
+    }
+  ],
+  "remaining": "Final current-source core03 verification and metadata preservation pending",
+  "controllerNote": "core02 all Cargo checks exited0; controller exited1 only after OS catalog.lock timeout prevented lifecycle reconciliation",
+  "evidenceLimitation": "core01/core02 controller retained preflight command outputs and exact terminal exit codes, but did not persist runCargoTest returned final stdout/stderr. Counts in selectedTests are selection counts, not independently retained libtest passed summaries. Final current-source run must capture them explicitly."
+}

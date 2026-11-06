@@ -1,0 +1,6 @@
+{
+  "operation": "register",
+  "refresh_group": {
+    "id": "run:EQ-01-protection-timing:delete-apply-profile-r1"
+  }
+}

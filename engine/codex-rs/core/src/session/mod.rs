@@ -236,6 +236,7 @@ use codex_protocol::error::Result as CodexResult;
 #[cfg(test)]
 use codex_protocol::exec_output::StreamOutput;
 
+pub(crate) mod agent_profile;
 mod code_mode_warning;
 mod compact_input;
 mod config_refresh;
@@ -686,6 +687,27 @@ impl Session {
             )
         };
 
+        let mut config = config;
+        let resumed_policy = if let InitialHistory::Resumed(_) = &conversation_history {
+            conversation_history
+                .get_rollout_items()
+                .iter()
+                .find_map(|item| {
+                    if let RolloutItem::SessionMeta(meta) = item {
+                        Some(meta.meta.role_profile.clone())
+                    } else {
+                        None
+                    }
+                })
+        } else {
+            None
+        };
+        if let Some(policy) = resumed_policy {
+            config.role_profile = policy;
+        }
+        let select_profile_model = !matches!(&conversation_history, InitialHistory::Resumed(_));
+        crate::agent::role_profile::apply_policy(&mut config, select_profile_model)
+            .map_err(CodexErr::InvalidRequest)?;
         let mut config = Arc::new(config);
         let refresh_strategy = if session_source.is_non_root_agent() {
             codex_models_manager::manager::RefreshStrategy::Offline
@@ -702,6 +724,15 @@ impl Session {
                 .list_models(refresh_strategy, config.http_client_factory())
                 .await;
         }
+        if config.role_profile.is_some() {
+            crate::agent::child_config::validate_captured_profile_model(
+                &models_manager,
+                &config,
+                inherited_multi_agent_version.unwrap_or(MultiAgentVersion::V2),
+            )
+            .await
+            .map_err(CodexErr::InvalidRequest)?;
+        }
         let model = models_manager
             .get_default_model(
                 &config.model,
@@ -710,6 +741,11 @@ impl Session {
                 config.http_client_factory(),
             )
             .await;
+        if config.role_profile.is_some() && config.model.as_deref() != Some(model.as_str()) {
+            return Err(CodexErr::InvalidRequest(
+                "Role-profile model selection must not fall back to another model".to_string(),
+            ));
+        }
         if model.trim().is_empty() {
             return Err(CodexErr::InvalidRequest(
                 "No models are available. Set `model` explicitly or check your model catalog configuration.".to_string(),
@@ -1613,7 +1649,6 @@ impl Session {
         instructions.text = codex_prompts::compose_harness_instructions(
             &profile.prompt_variant,
             profile.behavior_template.as_deref(),
-            profile.uses_claude_tools(),
             custom,
         );
         if model.starts_with("api/") {
@@ -2454,7 +2489,19 @@ impl Session {
                 .analytics_events_client
                 .track_guardian_session_event(self.thread_id, &event);
         }
+        if matches!(
+            &legacy_source,
+            EventMsg::TurnComplete(_) | EventMsg::TurnAborted(_) | EventMsg::TurnDeferred(_)
+        ) && let Some(runtime) = turn_context.turn_timing_state.user_wait()
+        {
+            runtime.finish_and_publish(self, &turn_context.sub_id).await;
+        }
         self.send_event_raw(event).await;
+        if matches!(&legacy_source, EventMsg::TurnStarted(_))
+            && let Some(runtime) = turn_context.turn_timing_state.user_wait()
+        {
+            runtime.admit_and_publish(self, &turn_context.sub_id).await;
+        }
         self.maybe_notify_parent_of_terminal_turn(turn_context, &legacy_source)
             .await;
         // Publish the pinned task completion only after its result entered the parent's mailbox.
@@ -2969,6 +3016,13 @@ impl Session {
             .as_ref()
             .map(PluginCommandAttribution::serialized_fields)
             .unzip();
+        let _user_wait = turn_context.turn_timing_state.user_wait().map(|runtime| {
+            runtime.wait(
+                effective_approval_id.clone(),
+                call_id.clone(),
+                "commandApproval",
+            )
+        });
         let event = EventMsg::ExecApprovalRequest(ExecApprovalRequestEvent {
             model_context: Some(model_context),
             kind,
@@ -3023,6 +3077,10 @@ impl Session {
             warn!("Overwriting existing pending approval for call_id: {approval_id}");
         }
 
+        let _user_wait = turn_context
+            .turn_timing_state
+            .user_wait()
+            .map(|runtime| runtime.wait(approval_id.clone(), call_id.clone(), "patchApproval"));
         let event = EventMsg::ApplyPatchApprovalRequest(ApplyPatchApprovalRequestEvent {
             call_id,
             turn_id: turn_context.sub_id.clone(),
@@ -3187,6 +3245,10 @@ impl Session {
             warn!("Overwriting existing pending request_permissions for call_id: {call_id}");
         }
 
+        let _user_wait = turn_context
+            .turn_timing_state
+            .user_wait()
+            .map(|runtime| runtime.wait(call_id.clone(), call_id.clone(), "permissions"));
         let event = EventMsg::RequestPermissions(RequestPermissionsEvent {
             call_id: call_id.clone(),
             turn_id: turn_context.sub_id.clone(),
@@ -3239,6 +3301,11 @@ impl Session {
             warn!("Overwriting existing pending user input for sub_id: {event_id}");
         }
 
+        let _user_wait = args
+            .is_blocking
+            .then(|| turn_context.turn_timing_state.user_wait())
+            .flatten()
+            .map(|runtime| runtime.wait(call_id.clone(), call_id.clone(), "userInput"));
         let event = EventMsg::RequestUserInput(RequestUserInputEvent {
             call_id,
             turn_id: turn_context.sub_id.clone(),
@@ -3504,6 +3571,11 @@ impl Session {
         ))
         .await;
         prepare_audio_response_items(&mut items);
+        Self::label_image_attachments(&mut items);
+        let snapshots = Self::image_attachment_snapshots(&items);
+        if let Err(error) = crate::image_attachments::commit_attachments(self, &snapshots).await {
+            warn!("image attachment snapshot registration failed: {error}");
+        }
         // Most response items get their passthrough turn ID at the durable history boundary.
         for item in &mut items {
             Self::stamp_response_item_for_history(item, &turn_context.sub_id);
@@ -3527,6 +3599,79 @@ impl Session {
             Self::assign_missing_response_item_id(item);
         }
         items
+    }
+
+    /// Expose only images already in this conversation, after their canonical preparation.
+    fn label_image_attachments(items: &mut [ResponseItem]) {
+        for item in items {
+            let ResponseItem::Message { role, content, .. } = item else {
+                continue;
+            };
+            if role != "user" {
+                continue;
+            }
+            let labels: Vec<_> = content
+                .iter()
+                .filter_map(|part| {
+                    let ContentItem::InputImage {
+                        image: codex_protocol::models::ImageReference::Inline { image_url },
+                        ..
+                    } = part
+                    else {
+                        return None;
+                    };
+                    Some(format!(
+                        "Image attachment ID: {}",
+                        crate::image_attachments::image_attachment_id(image_url)
+                    ))
+                })
+                .collect();
+            for label in labels {
+                if !content
+                    .iter()
+                    .any(|part| matches!(part, ContentItem::InputText { text } if text == &label))
+                {
+                    content.push(ContentItem::InputText { text: label });
+                }
+            }
+        }
+    }
+
+    fn image_attachment_snapshots(
+        items: &[ResponseItem],
+    ) -> Vec<codex_protocol::protocol::ImageAttachment> {
+        let mut snapshots = Vec::new();
+        for item in items {
+            let images: Vec<_> = match item {
+                ResponseItem::Message { role, content, .. } if role == "user" => content
+                    .iter()
+                    .filter_map(|part| match part {
+                        ContentItem::InputImage { image, .. } => Some(image),
+                        _ => None,
+                    })
+                    .collect(),
+                ResponseItem::AgentMessage { content, .. } => content
+                    .iter()
+                    .filter_map(|part| match part {
+                        codex_protocol::models::AgentMessageInputContent::InputImage {
+                            image,
+                            ..
+                        } => Some(image),
+                        _ => None,
+                    })
+                    .collect(),
+                _ => Vec::new(),
+            };
+            for image in images {
+                if let codex_protocol::models::ImageReference::Inline { image_url } = image {
+                    snapshots.push(codex_protocol::protocol::ImageAttachment {
+                        attachment_id: crate::image_attachments::image_attachment_id(image_url),
+                        image_url: image_url.clone(),
+                    });
+                }
+            }
+        }
+        snapshots
     }
 
     pub(crate) fn assign_missing_response_item_id(item: &mut ResponseItem) {
@@ -3875,6 +4020,10 @@ impl Session {
         required_servers: &[String],
         required_plugins: &HashSet<String>,
     ) -> CodexResult<Arc<StepContext>> {
+        agent_profile::validate_turn_account(
+            &turn_context,
+            &turn_context.next_step_settings.load().model_info.slug,
+        )?;
         // Read the step's model and record its environments together so an update cannot split them.
         // Wait for executor startup below, after releasing the lock.
         let (mut settings, environments) = {

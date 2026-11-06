@@ -19,6 +19,9 @@ fn validate_dispatch(request: &Request) -> Result<()> {
             }
         }
         "observe"
+        | "captureDesktop"
+        | "windowAtPoint"
+        | "actionPoint"
         | "inspect"
         | "restore"
         | "resize"
@@ -97,6 +100,9 @@ mod dispatch_tests {
         for method in [
             "listWindows",
             "observe",
+            "captureDesktop",
+            "windowAtPoint",
+            "actionPoint",
             "inspect",
             "status",
             "restore",

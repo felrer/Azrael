@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "status": "deleted-and-source-finalized",
+  "verification": "registered",
+  "logicalBytes": 15248648,
+  "physicalBytesReclaimed": null,
+  "independentEvidence": "artifacts/e/artifacts/q/artifacts/deployments/independent-20261031-120052-838/verification/acceptance-index.json",
+  "items": [
+    {
+      "id": "19b5eeb00af0908dd25cb847dc68357029cdeae288971e3b6b0c83ffb47fb8fc",
+      "groupId": "run:ET-01-cold-build-cache-audit:q-host-install-continuation-20261031a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-host-install-continuation-20261031a",
+      "logicalBytes": 15200328,
+      "token": "de54b1d96106a0b12f66e03d22edab1c9a2509f9e787b03b5350936f03ee006f",
+      "blockers": []
+    },
+    {
+      "id": "51b814011d8f4f450300f3493b03cb5dba82beafa6642de0ca72dfd9ecf599a1",
+      "groupId": "run:ET-01-cold-build-cache-audit:q-installed-profile-acceptance-20261031a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-installed-profile-acceptance-20261031a",
+      "logicalBytes": 48320,
+      "token": "7a4201ff756c53c6e124e94ec056575c7e7b4f6ddf961ea09947216a104f2742",
+      "blockers": []
+    }
+  ],
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:q-host-install-continuation-20261031a",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ET-01-cold-build-cache-audit:q-installed-profile-acceptance-20261031a",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-50820-91-1793417619695",
+        "decision": "delete",
+        "decision_id": "a854d38671a8994aa03ef3000cd6c943aac7d111131c770efa8ed0cd305fa320",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "19b5eeb00af0908dd25cb847dc68357029cdeae288971e3b6b0c83ffb47fb8fc",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:q-host-install-continuation-20261031a",
+        "reason": "Actual stopped host wrapper and canonical postcheck; required independent acceptance, original failure, installer and cleanup evidence copied to installed version; raw environment, repeated snapshots and logs have no remaining consumer",
+        "remaining": false,
+        "status": "deleted",
+        "token": "de54b1d96106a0b12f66e03d22edab1c9a2509f9e787b03b5350936f03ee006f"
+      },
+      {
+        "attempt_id": "attempt-50820-93-1793417632699",
+        "decision": "delete",
+        "decision_id": "3da3ea127205b36f0628ba7f3f53c6c37b1166fdae6aa89b80fd230e631db0c4",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "51b814011d8f4f450300f3493b03cb5dba82beafa6642de0ca72dfd9ecf599a1",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:q-installed-profile-acceptance-20261031a",
+        "reason": "Actual stopped host wrapper and canonical postcheck; required independent acceptance, original failure, installer and cleanup evidence copied to installed version; raw environment, repeated snapshots and logs have no remaining consumer",
+        "remaining": false,
+        "status": "deleted",
+        "token": "7a4201ff756c53c6e124e94ec056575c7e7b4f6ddf961ea09947216a104f2742"
+      }
+    ]
+  },
+  "sourceFinalization": {
+    "actualExecutorExitCode": 0,
+    "groups": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:q-host-install-continuation-20261031a",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "rootAbsent": true,
+        "sourceAbsent": true
+      },
+      {
+        "id": "run:ET-01-cold-build-cache-audit:q-installed-profile-acceptance-20261031a",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "rootAbsent": true,
+        "sourceAbsent": true
+      }
+    ]
+  }
+}

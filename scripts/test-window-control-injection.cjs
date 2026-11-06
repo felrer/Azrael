@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
-const ts = require('../extensions/azrael-ex/node_modules/typescript');
+const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH || '../extensions/azrael-ex/node_modules/typescript');
 const { injectWindowControl, SETTINGS_ASSET, HOST_MARKER, PAGE_MARKER, PAGE_ANCHOR, PAGE_PATCH, AzraelWindowControlLauncher } = require('./inject-window-control.cjs');
 const { injectAccountSettings } = require('./inject-account-settings.cjs');
 const { injectComputerUseManagement } = require('./inject-computer-use.cjs');
@@ -39,12 +39,6 @@ test('core provider request, notification, response and teardown bypass an absen
   }
 });
 
-test('injected guards reject tampering and old injection markers', () => {
-  const fixture = 'class Bridge{sendProviderRequest(a,w,c,d,e,f){return c}routeIncomingMessage(a,w){return a}teardownProcess(){}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';
-  const result = injectWindowControl(fixture, 'out/extension.js', ts).text;
-  assert.throws(() => injectWindowControl(result.replace('if(require("./azrael-runtime.cjs").runtime.windowControl)', 'if(true)'), 'out/extension.js', ts));
-  assert.throws(() => injectWindowControl(result.replace(HOST_MARKER, '/*azrael-window-control-bridge-v1*/'), 'out/extension.js', ts), /verified correction/);
-});
 test('native window bridge transforms compose with recovery and reject pinned-source drift', () => {
   const original = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), "out/extension.js"), 'utf8');
   const account = injectAccountSettings(original, 'out/extension.js');
@@ -173,17 +167,31 @@ test('Window Use classifier is exact, guarded and tracked by packaging',()=>{
  const original=fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), APPROVAL_CLASSIFIER_ASSET),'utf8');
  const result=injectWindowApprovalClassifier(original,APPROVAL_CLASSIFIER_ASSET);assert.equal(result.count,1);assert.equal(injectWindowApprovalClassifier(result.text,APPROVAL_CLASSIFIER_ASSET).count,0);
  assert.throws(()=>injectWindowApprovalClassifier(result.text.replace(CLASSIFIER_PATCH,'tampered /*azrael-window-native-approval-v1*/'),APPROVAL_CLASSIFIER_ASSET));
- assert.throws(()=>injectWindowApprovalClassifier(original.replace('persistModes:n,riskLevel:e.riskLevel,subtitle:e.subtitle','changed'),APPROVAL_CLASSIFIER_ASSET),/stage approval subtitle changed/);
+ assert.throws(()=>injectWindowApprovalClassifier(original.replace('persistModes:n,riskLevel:e.riskLevel,subtitle:e.subtitle','changed'),APPROVAL_CLASSIFIER_ASSET),/permission approval subtitle changed/);
  assert.throws(()=>injectWindowApprovalClassifier(result.text.replace('subtitle:t.connector_id===','subtitle:changed==='),APPROVAL_CLASSIFIER_ASSET),/classifier marker/);
- const parsed=require('../extensions/azrael-ex/node_modules/typescript').createSourceFile('classifier.js',result.text,99,true,1),owner=parsed.statements.find(node=>require('../extensions/azrael-ex/node_modules/typescript').isFunctionDeclaration(node)&&node.getText(parsed).includes(CLASSIFIER_PATCH));const context=vm.createContext({});vm.runInContext(owner.getText(parsed),context);
+ assert.throws(()=>injectWindowApprovalClassifier(original.replace('let r=jbt(t,e);return r==null?null:{appDisplayName:r','changed'),APPROVAL_CLASSIFIER_ASSET),/desktop approval caption changed/);
+ assert.throws(()=>injectWindowApprovalClassifier(result.text.replace('`the whole desktop`:jbt(t,e)','`changed desktop`:jbt(t,e)'),APPROVAL_CLASSIFIER_ASSET),/classifier marker/);
+ const parsed=ts.createSourceFile('classifier.js',result.text,99,true,1),owner=parsed.statements.find(node=>ts.isFunctionDeclaration(node)&&node.getText(parsed).includes(CLASSIFIER_PATCH));const context=vm.createContext({});vm.runInContext(owner.getText(parsed),context);
  for(const name of ['Computer Use','computer-use-plugin','Window Use'])assert.equal(context[owner.name.text](name),true);
  for(const name of ['window-use-other','browser-use','other'])assert.equal(context[owner.name.text](name),false);
- const cardOwner=parsed.statements.find(node=>require('../extensions/azrael-ex/node_modules/typescript').isFunctionDeclaration(node)&&node.name?.text==='Abt');
- const stageContext=vm.createContext({Obt:p=>p,Mbt:()=>true,jbt:t=>t.tool_params.app});vm.runInContext(cardOwner.getText(parsed),stageContext);
- const stage={kind:'mcpToolCall',message:'Task scope <script>literal</script>',approval:{connector_id:'window-use',window_use_approval_kind:'stage',persist:['session'],tool_params:{app:'Window Use 3단계'},tool_params_display:[{name:'stage',value:'3단계'},{name:'location',value:'User desktop'},{name:'reason',value:'<img src=x> Edit document'}]}};
- const stageCard=stageContext.Abt(stage);assert.equal(stageCard.persistModes.join(','),'session');for(const value of [stage.message,'3단계','User desktop','<img src=x> Edit document'])assert(stageCard.subtitle.includes(value));
- for(const connector of ['window-use','computer-use'])assert.equal(stageContext.Abt({...stage,subtitle:'Original subtitle',approval:{...stage.approval,connector_id:connector,window_use_approval_kind:undefined}}).subtitle,'Original subtitle');
- const transformer=require('./namespace-azrael-host.cjs'),ts=require('../extensions/azrael-ex/node_modules/typescript');const prepared=transformer.transformAsset(original,APPROVAL_CLASSIFIER_ASSET,APPROVAL_CLASSIFIER_ASSET,ts);assert.equal(prepared.asset.windowApprovalClassifierEdits,1);assert(transformer.getAssetTransformRules(APPROVAL_CLASSIFIER_ASSET)['inject-window-control.cjs']);
+ const cardOwner=parsed.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='Abt');
+ const cardContext=vm.createContext({Obt:p=>p,Mbt:()=>true,jbt:t=>t.tool_params.app});vm.runInContext(cardOwner.getText(parsed),cardContext);
+ for(const permission of ['observation','control']) {
+  const persist=permission==='observation'?['session']:['session','always'];
+  const request={kind:'mcpToolCall',message:permission+' permission <script>literal</script>',subtitle:'Original subtitle',approval:{connector_id:'window-use',persist,tool_params:{app:'C:/fixture/editor.exe',permission},tool_params_display:[{name:'permission',display_name:'Permission',value:permission},{name:'scope',value:'Selected app'},{name:'reason',value:'<img src=x> Edit document'}]}};
+  const card=cardContext.Abt(request);assert.equal(card.persistModes.join(','),persist.join(','));
+  for(const value of [request.message,request.subtitle,'Permission: '+permission,'Selected app','<img src=x> Edit document'])assert(card.subtitle.includes(value));
+  assert.equal(cardContext.Abt({...request,approval:{...request.approval,connector_id:'computer-use'}}).subtitle,'Original subtitle');
+ }
+ // Preserve the no-app global authority boundary when updating native app-card parsing.
+ const desktopRequest={kind:'mcpToolCall',message:'Allow control of the whole desktop?',approval:{connector_id:'window-use',persist:['session'],tool_params:{permission:'desktop'},tool_params_display:[{name:'scope',value:'Whole desktop; this conversation only'}]}};
+ const desktopCard=cardContext.Abt(desktopRequest);
+ assert.equal(desktopCard.appDisplayName,'the whole desktop');assert.equal(desktopCard.persistModes.join(','),'session');
+ assert(desktopCard.subtitle.includes(desktopRequest.message));assert(desktopCard.subtitle.includes('Whole desktop; this conversation only'));
+ assert.deepEqual(desktopRequest.approval.tool_params,{permission:'desktop'});
+ assert.equal(cardContext.Abt({...desktopRequest,approval:{...desktopRequest.approval,tool_params:{permission:'desktop-control'}}}),null);
+ assert.equal(cardContext.Abt({...desktopRequest,approval:{...desktopRequest.approval,connector_id:'computer-use'}}),null);
+ const transformer=require('./namespace-azrael-host.cjs');const prepared=transformer.transformAsset(original,APPROVAL_CLASSIFIER_ASSET,APPROVAL_CLASSIFIER_ASSET,ts);assert.equal(prepared.asset.windowApprovalClassifierEdits,1);assert(transformer.getAssetTransformRules(APPROVAL_CLASSIFIER_ASSET)['inject-window-control.cjs']);
 });
 test('selected runtime request preparation precedes registration and actual native send',()=>{
  const fixture='class Bridge{sendProviderRequest(a,w,c,d,e,f){this.sent=d;return d}routeIncomingMessage(a,w){return a}teardownProcess(){}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';

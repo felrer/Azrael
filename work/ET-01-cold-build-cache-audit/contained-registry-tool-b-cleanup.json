@@ -1,0 +1,218 @@
+{
+  "schema": 1,
+  "sourceId": "run:ET-01-cold-build-cache-audit:contained-registry-tool-20261031b",
+  "sourceRevision": 3,
+  "sourceState": "complete",
+  "producer": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\contained-registry-tool-20261031b\\reports\\acceptance.json",
+    "evidence_sha256": "60999aa725cedc4b3d8885c87c0d678f6349f7cf0c2f1d7d0410dc6dbda0e8a8",
+    "exit_code": 0,
+    "outcome": "success",
+    "reason": "Selected/library/release command exits all zero; every source guard identical and owned children terminal. Exit zero binds the verified child workflow, while persistent controller OS exit remains null in acceptance.",
+    "status": "stopped"
+  },
+  "independentAcceptance": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-contained-registry-win-x64\\verification\\automated-acceptance.json",
+      "sha256": "60999aa725cedc4b3d8885c87c0d678f6349f7cf0c2f1d7d0410dc6dbda0e8a8"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-contained-registry-win-x64\\verification\\contained-cli-acceptance.json",
+      "sha256": "eb8a07b6362e87e0c02537eddff5c7d29a1fecdf493eaf84d6ed631bbe5b892c"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-contained-registry-win-x64\\verification\\acceptance.json",
+      "sha256": "b13a6aa9a8a303a1bbcb2398572588e5522a38ff136410e2097babde79363d52"
+    }
+  ],
+  "maintenanceOwner": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-duplicate-claims-win-x64\\payload\\maintenance_owner.exe",
+    "sha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c"
+  },
+  "rawHandoff": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\contained-registry-b-cleanup-8af021",
+    "files": [
+      {
+        "name": "apply-execution.json",
+        "bytes": 2573
+      },
+      {
+        "name": "apply-request.json",
+        "bytes": 1102
+      },
+      {
+        "name": "apply-result.json",
+        "bytes": 2733
+      },
+      {
+        "name": "cleanup.cjs",
+        "bytes": 5746
+      },
+      {
+        "name": "preparation.json",
+        "bytes": 1407
+      },
+      {
+        "name": "register-execution.json",
+        "bytes": 4224
+      },
+      {
+        "name": "register-request.json",
+        "bytes": 2513
+      },
+      {
+        "name": "register-result.json",
+        "bytes": 4335
+      },
+      {
+        "name": "review-execution.json",
+        "bytes": 15496
+      },
+      {
+        "name": "review-request.json",
+        "bytes": 154
+      },
+      {
+        "name": "review-result.json",
+        "bytes": 18500
+      },
+      {
+        "name": "source-finalize.json",
+        "bytes": 480
+      }
+    ],
+    "cleanupOwner": "Existing root f-owner pending explicit handoff"
+  },
+  "review": [
+    {
+      "id": "871e89673c976eb8a7c89ca90f38eacece313c3e9c488e00b43d999beba06c1c",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt2",
+      "token": "57dd9a2e43042258f9fbfd57ffb2d75c3552f5ce527990bd6c0b29f63258d434",
+      "blockers": [],
+      "logicalBytes": 905606384
+    },
+    {
+      "id": "d56dc62d39d33160df90f7600e213dce60b775181dd92446a7dd4188ee6aa173",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\ms2",
+      "token": "505ad3652f4d70b53b844a6b0f9a0379627a9cbe07c0a72e08933edbd76aa841",
+      "blockers": [],
+      "logicalBytes": 101339943
+    },
+    {
+      "id": "e96c4b1a2e2e2abeaeea7180cb9f84b2e8de6855608a7398b3196527bd37a2c6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\contained-registry-tool-20261031b",
+      "token": "011a2927d8a7bb1c7d3e94ef5468593dc260514e63b91e8b3599b2d4fb5a1930",
+      "blockers": [],
+      "logicalBytes": 4848013
+    }
+  ],
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:contained-registry-tool-20261031b",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-6100-44-1793378608747",
+        "decision": "delete",
+        "decision_id": "dda4b0aac8aba97e22d4f74f8ff549983d49a9a8573693169a1bbdcc8c44e876",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "871e89673c976eb8a7c89ca90f38eacece313c3e9c488e00b43d999beba06c1c",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:contained-registry-tool-20261031b",
+        "reason": "Exact completed b source/target/run exhausted; independently accepted immutable version retained; other paths excluded",
+        "remaining": false,
+        "status": "deleted",
+        "token": "57dd9a2e43042258f9fbfd57ffb2d75c3552f5ce527990bd6c0b29f63258d434"
+      },
+      {
+        "attempt_id": "attempt-6100-46-1793378671398",
+        "decision": "delete",
+        "decision_id": "bf661a48a8ae2cc4208f31629a9655f9c5552b4b62c90d804847e2a3071fb839",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleting",
+        "id": "d56dc62d39d33160df90f7600e213dce60b775181dd92446a7dd4188ee6aa173",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:contained-registry-tool-20261031b",
+        "reason": "Exact completed b source/target/run exhausted; independently accepted immutable version retained; other paths excluded",
+        "remaining": false,
+        "status": "deleted",
+        "token": "505ad3652f4d70b53b844a6b0f9a0379627a9cbe07c0a72e08933edbd76aa841"
+      },
+      {
+        "attempt_id": "attempt-6100-48-1793378865088",
+        "decision": "delete",
+        "decision_id": "2d6eccb1e8900631b6e25c61b85fb73dba25ff79078b4b647d6d2301f13564fe",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "e96c4b1a2e2e2abeaeea7180cb9f84b2e8de6855608a7398b3196527bd37a2c6",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:contained-registry-tool-20261031b",
+        "reason": "Exact completed b source/target/run exhausted; independently accepted immutable version retained; other paths excluded",
+        "remaining": false,
+        "status": "deleted",
+        "token": "011a2927d8a7bb1c7d3e94ef5468593dc260514e63b91e8b3599b2d4fb5a1930"
+      }
+    ]
+  },
+  "finalized": {
+    "pid": 16776,
+    "start": "2026-10-30T16:47:48.695Z",
+    "end": "2026-10-30T16:47:50.649Z",
+    "exitCode": 0,
+    "id": "run:ET-01-cold-build-cache-audit:contained-registry-tool-20261031b",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\bddbd05105e1a9d8835c2afc3960f4b4d253698c5c6728040ba4eefb3d0c502c.json",
+    "sourceAbsent": true
+  },
+  "actualRemaining": [],
+  "executions": [
+    {
+      "stage": "register",
+      "pid": 47924,
+      "start": "2026-10-30T16:39:56.050Z",
+      "end": "2026-10-30T16:42:42.984Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "review",
+      "pid": 29912,
+      "start": "2026-10-30T16:42:42.985Z",
+      "end": "2026-10-30T16:42:43.882Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "apply",
+      "pid": 6100,
+      "start": "2026-10-30T16:42:46.729Z",
+      "end": "2026-10-30T16:47:46.256Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

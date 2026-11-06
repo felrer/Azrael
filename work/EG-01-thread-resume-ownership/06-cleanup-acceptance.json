@@ -1,0 +1,321 @@
+{
+  "schema": 1,
+  "work": "EG-01",
+  "startedUtc": "2026-10-28T15:03:10.873Z",
+  "productBuildOrInstall": false,
+  "stages": [
+    {
+      "stage": "r1_cleanup",
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:eg01:handoff-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-45652-3848-1793199145077",
+            "decision": "delete",
+            "decision_id": "b55a7983b5364e1adb13d13583d280cbc621b52766750a81635308f6ca2ebde3",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "1ac5041194175ea3726ca467b60a92bc15da072624dfe7b8d619b20180a7cbcb",
+            "lifecycle_group_id": "run:eg01:handoff-r1",
+            "reason": "Stopped task-owned failed verification; independent acceptance evidence retained in work/EG-01-thread-resume-ownership",
+            "remaining": false,
+            "status": "deleted",
+            "token": "c0b54cb242b384434335c3d097c1081730b9513cf55ac52d051f23f9857da359"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "r2_cleanup",
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:eg01:handoff-r2",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-27624-3851-1793199616384",
+            "decision": "delete",
+            "decision_id": "acbafd1de0af8bd6ddc24d39e6d5cd90c61eedc864efef95d478281e06ad2060",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "6a48c43e8c4fd4c4c431a0dd0404918936d3b86aa842e2cd46d15c958ce4d9f9",
+            "lifecycle_group_id": "run:eg01:handoff-r2",
+            "reason": "Stopped task-owned verification; independent accepted daemon and final native results retained in work/EG-01-thread-resume-ownership",
+            "remaining": false,
+            "status": "deleted",
+            "token": "a8183cd90c95e09625d3b31f9eb38fab61c3814207f012b8158d3f0d680d3687"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "r2_finalize",
+      "result": {
+        "id": "run:eg01:handoff-r2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e94b82fc46b2bc0e7e828c0f5dc32a1fc933a92af0236e8048666bbc220bf6ba.json"
+      }
+    },
+    {
+      "stage": "r3_register",
+      "startedUtc": "2026-10-28T15:03:15.196Z",
+      "elapsedMs": 184554,
+      "exitCode": 0,
+      "signal": null,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:eg01:handoff-r3",
+          "kind": "run",
+          "members": [
+            "1a30838fe2073287a6e26c1e132d31ca2e79b93bf7d4625f40f30a7c80b7d52f"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "7b0564e4ff8b7a694d8a2c29bb4bd3c6978c54890daea3116ef738ce656d32e2",
+          "owner": "eg01-handoff",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3423c4f1effd5b9abbaf4e96b925918cf784e8db8063ab96a952e082b65bf42.json",
+          "registered_at_ms": 1793199936722,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "1a30838fe2073287a6e26c1e132d31ca2e79b93bf7d4625f40f30a7c80b7d52f",
+            "identity": "1bfa42d4c85dfb7ad4271c39f1bb679baabd2d2ec112ad1e346aa6e02b967549",
+            "kind": "verification",
+            "lifecycle_group_id": "run:eg01:handoff-r3",
+            "lifecycle_role": "evidence",
+            "logical_bytes": 195242522,
+            "measured_at_ms": 1793199922520,
+            "owner": "eg01-handoff",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eg01-handoff-r3",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3423c4f1effd5b9abbaf4e96b925918cf784e8db8063ab96a952e082b65bf42.json",
+            "references": [],
+            "registered_at_ms": 1793199922520,
+            "remaining": true,
+            "role": "verification",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": null
+    },
+    {
+      "stage": "r3_review",
+      "startedUtc": "2026-10-28T15:06:19.751Z",
+      "elapsedMs": 4860,
+      "exitCode": 0,
+      "signal": null,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:eg01:handoff-r3",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "7b0564e4ff8b7a694d8a2c29bb4bd3c6978c54890daea3116ef738ce656d32e2",
+            "owner": "eg01-handoff",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3423c4f1effd5b9abbaf4e96b925918cf784e8db8063ab96a952e082b65bf42.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "1a30838fe2073287a6e26c1e132d31ca2e79b93bf7d4625f40f30a7c80b7d52f"
+            ],
+            "group_token": "6c636221cc41edd12ccf3bc65680d2c6630682040a4e0b97e08ed8d1b3fe20c5",
+            "id": "1a30838fe2073287a6e26c1e132d31ca2e79b93bf7d4625f40f30a7c80b7d52f",
+            "identity": "1bfa42d4c85dfb7ad4271c39f1bb679baabd2d2ec112ad1e346aa6e02b967549",
+            "lifecycle_group_id": "run:eg01:handoff-r3",
+            "logical_bytes": 195242522,
+            "measured_at_ms": 1793199922520,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "7b0564e4ff8b7a694d8a2c29bb4bd3c6978c54890daea3116ef738ce656d32e2",
+              "member_references": {
+                "1a30838fe2073287a6e26c1e132d31ca2e79b93bf7d4625f40f30a7c80b7d52f": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EG-01-thread-resume-ownership\\03-acceptance.json",
+                  "evidence_sha256": "24589cfa26b41688a45f6f32684bff75851f2897b4c69448746b7ca00a90b7be",
+                  "reason": "Actual r3 native runner exit 0 observed; all mandatory scopes and independent acceptance evidence reviewed",
+                  "request_sha256": "cdc3ff81bf914da38a5bfda15e544a62a539824803913809d91a530f64a901ae"
+                },
+                "created_at": "2026-10-28T14:01:24.063Z",
+                "generation": "eg01-handoff-r3",
+                "id": "run:eg01:handoff-r3",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eg01-handoff-r3",
+                    "protection_known": true,
+                    "role": "verification"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "eg01-handoff",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EG-01-thread-resume-ownership\\03-acceptance.json",
+                  "evidence_sha256": "24589cfa26b41688a45f6f32684bff75851f2897b4c69448746b7ca00a90b7be",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Actual r3 native runner exit 0 observed; all mandatory scopes and independent acceptance evidence reviewed",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-28T15:03:13.804Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793199979943,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eg01-handoff-r3",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  209,
+                  126,
+                  180,
+                  0,
+                  0,
+                  0,
+                  6,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "c84116aa02aaab2e22a61040d42e2e9f2edd6b73262e8a421681527faf319bcd",
+            "verification": "registered"
+          }
+        ]
+      },
+      "stderr": null
+    },
+    {
+      "stage": "r3_apply",
+      "startedUtc": "2026-10-28T15:06:24.611Z",
+      "elapsedMs": 195141,
+      "exitCode": 0,
+      "signal": null,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:eg01:handoff-r3",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-43952-3854-1793200026307",
+            "decision": "delete",
+            "decision_id": "db039175f60cf3c2c3290d23efae41fdd49fbd4b870b4c1a13d6d6e975874858",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "1a30838fe2073287a6e26c1e132d31ca2e79b93bf7d4625f40f30a7c80b7d52f",
+            "lifecycle_group_id": "run:eg01:handoff-r3",
+            "reason": "Stopped task-owned verification snapshot and logs; complete independent 50-test acceptance evidence retained in work/EG-01-thread-resume-ownership",
+            "remaining": false,
+            "status": "deleted",
+            "token": "c84116aa02aaab2e22a61040d42e2e9f2edd6b73262e8a421681527faf319bcd"
+          }
+        ]
+      },
+      "stderr": null
+    },
+    {
+      "stage": "r3_finalize",
+      "result": {
+        "id": "run:eg01:handoff-r3",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3423c4f1effd5b9abbaf4e96b925918cf784e8db8063ab96a952e082b65bf42.json"
+      }
+    }
+  ],
+  "absence": {
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eg01-handoff-r1": true,
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eg01-handoff-r2": true,
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eg01-handoff-r3": true
+  },
+  "owner": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+    "sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26"
+  },
+  "status": "cleanup_complete",
+  "endedUtc": "2026-10-28T15:09:41.213Z"
+}

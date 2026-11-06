@@ -1,0 +1,82 @@
+{
+    "status":  "archived",
+    "moves":  [
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\refresh-cargo-lock.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\refresh-cargo-lock.cjs",
+                      "bytes":  4728
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\resolve-cargo-lock.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\resolve-cargo-lock.cjs",
+                      "bytes":  2157
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\prepare-cargo-source.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\prepare-cargo-source.cjs",
+                      "bytes":  5292
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\build-v8-source.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\build-v8-source.cjs",
+                      "bytes":  7482
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\resume-v8-source.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\resume-v8-source.cjs",
+                      "bytes":  7884
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\resume-v8-source-v3.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\resume-v8-source-v3.cjs",
+                      "bytes":  8216
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\resume-v8-source-v4.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\resume-v8-source-v4.cjs",
+                      "bytes":  7389
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\resume-v8-source-v5.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\resume-v8-source-v5.cjs",
+                      "bytes":  9265
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\resume-v8-source-v6.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\resume-v8-source-v6.cjs",
+                      "bytes":  7914
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\build-cargo-after-v8.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\build-cargo-after-v8.cjs",
+                      "bytes":  7737
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\cleanup-cargo-source-v8.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\cleanup-cargo-source-v8.cjs",
+                      "bytes":  3068
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\recover-cargo-for-archive.cjs",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\recover-cargo-for-archive.cjs",
+                      "bytes":  5097
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\move-cargo-archive.ps1",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\move-cargo-archive.ps1",
+                      "bytes":  1538
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\cargo-cleanup-request.json",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\cargo-cleanup-request.json",
+                      "bytes":  4599
+                  },
+                  {
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-cargo-time-20261101\\controllers\\cargo-archive-recovery-request.json",
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\cargo-archive-recovery-request.json",
+                      "bytes":  4663
+                  }
+              ],
+    "completedUtc":  "2026-10-31T15:56:32.8146172Z",
+    "reason":  "User requested archive instead of continued deletion"
+}

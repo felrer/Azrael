@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "run:FC01:os33-r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "7b004833a0c06bd9d509f316265803812ffc5823b4bf7b7c8025cb6470a69a6b",
+  "lease_owner": {
+    "acquired_at_ms": 1793581263919,
+    "operation": "group_reservation",
+    "pid": 33052,
+    "schema": 2,
+    "token": "33052-1793581263919-de59e14a3636c05e"
+  },
+  "actual_exit_code": 1,
+  "native_error": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog); lock wait exhausted after 5000 ms; pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock (catalog); lock wait exhausted after 5000 ms\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n",
+  "stop_basis": "Synchronous standalone registration returned actual exit1 with pipes drained; registration path is in-process with no child producer launch; no managed Cargo or deletion worker was launched.",
+  "observed_at": "2026-11-02T01:02:21.496Z"
+}

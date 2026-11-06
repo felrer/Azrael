@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "scope": "Windows Agent profile domain, HTTP, host, packaged module closure and task-profile runtime after questionReply and providerAccount changes; not installed acceptance",
+  "command": "node scripts/check-instruction-workbench.cjs",
+  "startedAt": "2026-11-01T19:59:30.003Z",
+  "endedAt": "2026-11-01T19:59:41.842Z",
+  "exitCode": 0,
+  "signal": null,
+  "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261101T195922546Z-b4c1f63f-710f-4534-bd5d-9f779b38b0f6",
+  "tests": 42,
+  "passed": 42,
+  "failed": 0,
+  "logSha256": "3042362d37cd402dc7b0f28cdd275da253dc7bc8ef963acd5dad5ca295823546",
+  "installedAcceptance": false,
+  "producerStoppedEvidence": "Root observed command terminal exit 0; no background child producers in this focused Node test runner. This preserves the actual result before disposable run retirement."
+}

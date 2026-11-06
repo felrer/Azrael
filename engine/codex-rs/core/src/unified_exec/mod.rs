@@ -43,6 +43,7 @@ use crate::session::session::Session;
 use crate::session::step_context::StepContext;
 use crate::session::turn_context::TurnContext;
 use crate::session::turn_context::TurnEnvironment;
+use crate::session::work_completion::ExecutionCompletion;
 use crate::shell::ShellInvocation;
 use crate::tools::network_approval::DeferredNetworkApproval;
 use codex_core_plugins::PluginMetricsSidecar;
@@ -92,6 +93,7 @@ pub(crate) struct UnifiedExecContext {
     pub step_context: Arc<StepContext>,
     pub cancellation_token: CancellationToken,
     pub call_id: String,
+    pub(crate) work_completion: Option<ExecutionCompletion>,
 }
 
 impl UnifiedExecContext {
@@ -106,6 +108,7 @@ impl UnifiedExecContext {
             step_context,
             cancellation_token,
             call_id,
+            work_completion: None,
         }
     }
 }
@@ -240,7 +243,6 @@ pub(crate) fn generate_chunk_id() -> String {
 }
 
 #[cfg(test)]
-#[cfg(unix)]
 #[path = "process_tests.rs"]
 mod process_tests;
 #[cfg(test)]

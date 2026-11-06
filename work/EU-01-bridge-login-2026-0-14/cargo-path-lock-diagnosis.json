@@ -1,0 +1,18 @@
+{
+  "rows": [
+    {
+      "label": "frozen-normal",
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\inputs\\engine\\codex-rs",
+      "exitCode": 0,
+      "stderr": "",
+      "durationMs": 10792.732300000001
+    },
+    {
+      "label": "frozen-namespaced",
+      "cwd": "\\\\?\\C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\inputs\\engine\\codex-rs",
+      "exitCode": 101,
+      "stderr": "error: cannot update the lock file \\\\?\\C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\lock-refresh\\inputs\\engine\\codex-rs\\Cargo.lock because --locked was passed to prevent this\nhelp: to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.\n",
+      "durationMs": 3134.5997000000007
+    }
+  ]
+}

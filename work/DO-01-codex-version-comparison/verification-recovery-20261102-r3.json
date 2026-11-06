@@ -1,0 +1,21 @@
+{
+  "id": "run:do2:source-20261102-r2",
+  "lease_owner": {
+    "acquired_at_ms": 1793577101542,
+    "operation": "group_reservation",
+    "pid": 3396,
+    "schema": 2,
+    "token": "3396-1793577101542-035628ff537a2353"
+  },
+  "reservation_sha256": "4d433da39c91e2aac78ad4f71a1fb5719b68ea99876007ea3104d45c27edf9a2",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "basis": {
+    "nativePid": 3396,
+    "nativeObservedExit": 1,
+    "controllerSession": 67797,
+    "controllerObservedExit": 1,
+    "stage": "register pre-intent; no delete worker launched",
+    "observation": "Owned synchronous register call for source-r2 returned1; controller67797 terminal1; exact retained pre-intent reservation token and acquisition timestamp match that sole request. Native PID3396 comes from its exact lease_owner fence, not a separately saved child pid. Registration measurement has threads only and no external deletion worker."
+  }
+}

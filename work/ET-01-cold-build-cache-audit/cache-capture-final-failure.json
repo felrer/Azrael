@@ -1,0 +1,256 @@
+{
+  "schema": 1,
+  "status": "capture-failed-functional-etl-absent",
+  "recordedUtc": "2026-10-31T03:46:53.682Z",
+  "installationUnaffected": true,
+  "analyzerActualInvocations": 0,
+  "unusedClassificationAllowed": false,
+  "nativeStop": {
+    "pid": 28836,
+    "startUtc": "2026-10-31T03:06:29.4366481Z",
+    "terminalObservedThroughExactWait": true,
+    "exitCode": null,
+    "observerActualExitCode": 1,
+    "reason": "WaitForExit returned; querying the external-object ExitCode threw. Native successful exit cannot be inferred."
+  },
+  "sourceCode": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\wpr-stop-observation-20261031a\\inputs\\observe-existing-stop.ps1",
+    "sha256": "721f6a86fff4d336ae72918faa4884665b05dee9197f41b6704eef91725dac6a",
+    "text": "$ErrorActionPreference='Stop'\n$p=[Diagnostics.Process]::GetProcessById(28836)\ntry {\n $start=$p.StartTime.ToUniversalTime().ToString('o')\n if($start -cne '2026-10-31T03:06:29.4366481Z'){throw 'WPR instance changed'}\n $attached=[DateTime]::UtcNow.ToString('o')\n $limit=[DateTime]::UtcNow.AddHours(2)\n while(-not $p.WaitForExit(1000)){if([DateTime]::UtcNow -gt $limit){throw 'Observation limit; original WPR is untouched'}}\n $exit=$p.get_ExitCode()\n [ordered]@{schema=1;pid=28836;startedUtc=$start;attachedUtc=$attached;observedFinishedUtc=[DateTime]::UtcNow.ToString('o');actualExitCode=$exit;terminalObserved=$true;basis='Held exact System.Diagnostics.Process instance; WaitForExit observed native termination; no stop/kill/retry command'} | ConvertTo-Json -Compress\n if($exit -ne 0){exit 1}\n} finally {$p.Dispose()}\n"
+  },
+  "causalError": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\wpr-stop-observation-20261031a\\logs\\observer.stderr.log",
+    "sha256": "1f8c0f40a8fcff2bb2bb6ddc478c5eb09c3d68e8603436e4e8bae41d149f6afc",
+    "text": "ParentContainsErrorRecordException: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\wpr-stop-observation-20261031a\\inputs\\observe-existing-stop.ps1:9\r\nLine |\r\n   9 |   $exit=$p.get_ExitCode()\r\n     |   ~~~~~~~~~~~~~~~~~~~~~~~\r\n     | Exception calling \"get_ExitCode\" with \"0\" argument(s): \"Process was not started by this object, so requested\r\n     | information cannot be determined.\"\r\n"
+  },
+  "wprStatus": {
+    "actualExitCode": 0,
+    "stdout": "\r\nMicrosoft Windows Performance Recorder Version 10.0.26100 (CoreSystem)\r\nCopyright (c) 2024 Microsoft Corporation. All rights reserved.\r\n\r\nWPR is not recording\r\n"
+  },
+  "etl": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\outputs\\build.etl",
+    "exists": false,
+    "lastObservedIncompleteBytes": 79744204800,
+    "meaning": "Partial output existed during merge; absent after native termination. No stable ETL hash/decoded functional trace exists."
+  },
+  "remainingCaptureFiles": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\temporary\\WPR_initiated_ET01-0835848d39ceb999_WPRC_Internal_Collector_B5C754C0-47DF-45A6-9B86-E621ED2E3F4A.etl",
+      "bytes": 262144
+    }
+  ],
+  "documents": {
+    "manifest": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\inputs\\control.json",
+      "sha256": "0b6b484449544d04312b020db0b85f2bf2ed047ff25d177e51b75fefcf555d04",
+      "document": {
+        "schema": 1,
+        "nonce": "0835848d39ceb999feb45bf71683966279856f7fa93d46b8f9f47f219e2d67d2",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a",
+        "instanceName": "ET01-0835848d39ceb999",
+        "maxDurationSeconds": 86400,
+        "minFreeBytes": 53687091200
+      }
+    },
+    "ready": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\reports\\recording-ready.json",
+      "sha256": "59c7dfa7daabdcfe70bbf74fbbb946f37eff618938db92443db03a048168b0f1",
+      "document": {
+        "helperPid": 29296,
+        "startExitCode": 0,
+        "recordingReadyAt": "2026-10-30T06:02:43.8511200Z",
+        "schema": 1,
+        "instanceName": "ET01-0835848d39ceb999",
+        "nonce": "0835848d39ceb999feb45bf71683966279856f7fa93d46b8f9f47f219e2d67d2",
+        "statusExitCode": 0,
+        "helperStartedAt": "2026-10-30T06:02:40.8967506Z"
+      }
+    },
+    "capture": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\reports\\capture-result.json",
+      "sha256": "6211b6a8b08fd643911062bc315613ac8021a8b9b937053744258efd976ccb57",
+      "document": {
+        "schema": 1,
+        "nonce": "0835848d39ceb999feb45bf71683966279856f7fa93d46b8f9f47f219e2d67d2",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a",
+        "instanceName": "ET01-0835848d39ceb999",
+        "helperPid": 29296,
+        "helperStartedAt": "2026-10-30T06:02:40.8967506Z",
+        "completed": false,
+        "status": "incomplete",
+        "startExitCode": 0,
+        "stopExitCode": null,
+        "startRequestedAt": "2026-10-30T06:02:43.1898311Z",
+        "recordingReadyAt": "2026-10-30T06:02:43.8511200Z",
+        "stopRequestedAt": "2026-10-31T03:06:29.4290498Z",
+        "stoppedAt": null,
+        "etlPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\outputs\\build.etl",
+        "etlSha256": null,
+        "error": "System.Management.Automation.RuntimeException: WPR stop process 28836 termination unconfirmed; external recovery required",
+        "commands": [
+          {
+            "operation": "start",
+            "pid": 13676,
+            "startedAt": "2026-10-30T06:02:43.2088655Z",
+            "stoppedAt": "2026-10-30T06:02:43.6826330Z",
+            "exitCode": 0,
+            "argv": [
+              "-start",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\inputs\\CacheIO.wprp!CacheIO",
+              "-filemode",
+              "-recordtempto",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\temporary",
+              "-instancename",
+              "ET01-0835848d39ceb999"
+            ],
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "operation": "status",
+            "pid": 32604,
+            "startedAt": "2026-10-30T06:02:43.7021512Z",
+            "stoppedAt": "2026-10-30T06:02:43.8461973Z",
+            "exitCode": 0,
+            "argv": [
+              "-status",
+              "-instancename",
+              "ET01-0835848d39ceb999"
+            ],
+            "stdout": "\r\nMicrosoft Windows Performance Recorder Version 10.0.26100 (CoreSystem)\r\nCopyright (c) 2024 Microsoft Corporation. All rights reserved.\r\n\r\nWPR recording is in progress...\r\n\r\nTime since start\t: 00:00:00\r\nDropped event\t\t: 0\r\nLogging mode\t\t: File\r\nTemp Folder\t: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\temporary\\\r\n",
+            "stderr": ""
+          },
+          {
+            "operation": "stop",
+            "pid": 28836,
+            "startedAt": "2026-10-31T03:06:29.4338675Z",
+            "stoppedAt": null,
+            "exitCode": null,
+            "argv": [
+              "-stop",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\outputs\\build.etl",
+              "ET-01 bounded cache observation",
+              "-skipPdbGen",
+              "-instancename",
+              "ET01-0835848d39ceb999"
+            ],
+            "status": "termination-unconfirmed",
+            "reason": "Fixed WPR operation exceeded 600 seconds; no forced stop or duplicate command"
+          }
+        ]
+      }
+    },
+    "helperTerminal": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\reports\\helper-terminal.json",
+      "sha256": "a5013580a42b7fe59f3d1ac353774529dd6ffce41ff158c61654fea3cf8cf3d2",
+      "document": {
+        "startedAt": "2026-10-30T06:02:40.8967506Z",
+        "pid": 29296,
+        "meaning": "Wrapper selected exit; process termination independently observed by caller",
+        "finishedAt": "2026-10-31T03:16:29.9953971Z",
+        "schema": 1,
+        "nonce": "0835848d39ceb999feb45bf71683966279856f7fa93d46b8f9f47f219e2d67d2",
+        "exitCode": 1
+      }
+    },
+    "observer": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\wpr-stop-observation-20261031a\\reports\\stop-observation-controller.json",
+      "sha256": "3700f2a32b781c54bac2086b6392b595017c830439f16df72ec3f0050219a9b5",
+      "document": {
+        "schema": 1,
+        "status": "failed",
+        "controllerPid": 56536,
+        "startedUtc": "2026-10-31T03:18:03.388Z",
+        "wprCommandsStarted": 0,
+        "original": {
+          "capturePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\reports\\capture-result.json",
+          "captureSha256": "6211b6a8b08fd643911062bc315613ac8021a8b9b937053744258efd976ccb57",
+          "terminalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\reports\\helper-terminal.json",
+          "terminalSha256": "a5013580a42b7fe59f3d1ac353774529dd6ffce41ff158c61654fea3cf8cf3d2",
+          "helperReportedExitCode": 1
+        },
+        "observerPid": 8800,
+        "observer": {
+          "exitCode": 1,
+          "signal": null
+        },
+        "exitCode": 1,
+        "error": "Error: Existing WPR terminal could not be accepted; inspect actual observer outcome\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\observe-final-wpr-stop.cjs:16:83)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+        "finishedUtc": "2026-10-31T03:41:46.441Z"
+      }
+    },
+    "positiveAttempt": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\positive-cache-fileio-analysis-20261031a\\reports\\analysis-controller.json",
+      "sha256": "5607c6997fc7d77e915502212ac48b1d0f7453670c5a595f7416c3245566406a",
+      "document": {
+        "schema": 1,
+        "status": "failed",
+        "controllerPid": 57828,
+        "startedUtc": "2026-10-31T03:44:57.964Z",
+        "unusedClassificationAllowed": false,
+        "reason": "Original capture is incomplete and native stop exit unknown. This run reports observed usage only; no unread/unused inference or deletion authority.",
+        "capture": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\reports\\capture-result.json",
+          "sha256": "6211b6a8b08fd643911062bc315613ac8021a8b9b937053744258efd976ccb57",
+          "completed": false,
+          "originalHelperReportedExitCode": 1,
+          "nativeStopExitCode": null,
+          "terminalProofSha256": "aeabf935e7d2f2040d14555569d5996959bd064c5b12aa70835b6266110f1b42",
+          "etlPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\outputs\\build.etl"
+        },
+        "wpr-status": {
+          "pid": 26972,
+          "startedUtc": "2026-10-31T03:44:57.975Z",
+          "exitCode": 0,
+          "signal": null,
+          "finishedUtc": "2026-10-31T03:44:58.051Z"
+        },
+        "exitCode": 1,
+        "error": "Error: ENOENT: no such file or directory, stat 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\outputs\\build.etl'\n    at Object.statSync (node:fs:2084:25)\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\analyze-positive-cache-capture.cjs:16:18)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+        "finishedUtc": "2026-10-31T03:44:58.053Z"
+      }
+    },
+    "idleWaitStopProof": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\wpr-unknown-exit-stop-proof.json",
+      "sha256": "aeabf935e7d2f2040d14555569d5996959bd064c5b12aa70835b6266110f1b42",
+      "document": {
+        "schema": 1,
+        "status": "wpr-termination-observed-exit-unknown",
+        "wpr": {
+          "pid": 28836,
+          "startUtc": "2026-10-31T03:06:29.4366481Z",
+          "terminalObserved": true,
+          "actualExitCode": null,
+          "basis": "Exact Process.StartTime matched; held standard WaitForExit loop returned before get_ExitCode threw unsupported external-object error; observer runtime actual1 and stderr line9 prove the post-wait branch. Subsequent CIM absence is supplemental only."
+        },
+        "evidence": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\wpr-stop-observation-20261031a\\inputs\\observe-existing-stop.ps1",
+            "sha256": "721f6a86fff4d336ae72918faa4884665b05dee9197f41b6704eef91725dac6a"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\wpr-stop-observation-20261031a\\logs\\observer.stderr.log",
+            "sha256": "1f8c0f40a8fcff2bb2bb6ddc478c5eb09c3d68e8603436e4e8bae41d149f6afc"
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\wpr-stop-observation-20261031a\\reports\\stop-observation-controller.json",
+            "sha256": "3700f2a32b781c54bac2086b6392b595017c830439f16df72ec3f0050219a9b5"
+          }
+        ],
+        "cancelledIdleAnalyzer": {
+          "pid": 44440,
+          "startedUtc": "2026-10-31T03:19:38.7307570Z",
+          "nativeTerminalObserved": true,
+          "nativeExitCode": -1,
+          "executionManagerExitCode": 1,
+          "workId": "e9a5756e-9cc2-425d-b163-05fe030f63a2",
+          "analyzerStarted": false,
+          "basis": "Exact commandline/owned waiting status and no analyzer PID checked; ordinary Stop-Process followed by Process.WaitForExit; no WPR command issued"
+        },
+        "captureCompleted": false,
+        "unusedClassificationAllowed": false
+      }
+    }
+  },
+  "remainingDecision": "No unread/unused deletion inference. Keep installed version evidence and current owner protections; dispose ended monitoring attempts through supported owners."
+}

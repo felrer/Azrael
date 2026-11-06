@@ -1,0 +1,194 @@
+{
+  "results": [
+    {
+      "absent": true,
+      "deletedFileCount": 13793,
+      "cleanupComplete": true,
+      "revisitCondition": null,
+      "deletedBytes": 578343047,
+      "reason": null,
+      "lifecycle": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:module-cache:companion:89cb2600dc4d48882cda7f4729f52887a6a1af266d24e25a92d0d1b078ef6ffb"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\89cb2600dc4d48882cda7f4729f52887a6a1af266d24e25a92d0d1b078ef6ffb",
+            "role": "cache-entry",
+            "status": "deleted"
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:module-cache:companion:89cb2600dc4d48882cda7f4729f52887a6a1af266d24e25a92d0d1b078ef6ffb",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d989d08a5ca29d2c7e26c8cba745152d32b2429b8febd415117b64483f117581.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\e2c54899cd624f4491355c39ec7160ba.json",
+          "sha256": "be948ee2c5f081b139e84b23e3f8880529ac787b340550a1c428ef461592c453"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      },
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\89cb2600dc4d48882cda7f4729f52887a6a1af266d24e25a92d0d1b078ef6ffb",
+      "status": "removed",
+      "deletedItemCount": 1
+    },
+    {
+      "absent": true,
+      "deletedFileCount": 13793,
+      "cleanupComplete": true,
+      "revisitCondition": null,
+      "deletedBytes": 578342795,
+      "reason": null,
+      "lifecycle": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:module-cache:companion:295ef0a4815c53d1d96aea502526dc5fdece42e5a283df5e1eb9e35af0b779ec"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\295ef0a4815c53d1d96aea502526dc5fdece42e5a283df5e1eb9e35af0b779ec",
+            "role": "cache-entry",
+            "status": "deleted"
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:module-cache:companion:295ef0a4815c53d1d96aea502526dc5fdece42e5a283df5e1eb9e35af0b779ec",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1105807aab36c6be79872f5096cd4d3811101d651975ad63e2dfcb468ab975c9.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\c072fddc95114a2f9e70b83eee6129b3.json",
+          "sha256": "fe6758c019c23bf8baabb038fc98de0a95abf66898431ec6669d4f91eddd6ce4"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      },
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\295ef0a4815c53d1d96aea502526dc5fdece42e5a283df5e1eb9e35af0b779ec",
+      "status": "removed",
+      "deletedItemCount": 1
+    },
+    {
+      "absent": true,
+      "deletedFileCount": 5078,
+      "cleanupComplete": true,
+      "revisitCondition": null,
+      "deletedBytes": 301630126,
+      "reason": null,
+      "lifecycle": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:module-cache:providers:3937acf385a2dc75b8a55e8a00caa337e05288f697888efde6139372bd696ecb"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\providers\\3937acf385a2dc75b8a55e8a00caa337e05288f697888efde6139372bd696ecb",
+            "role": "cache-entry",
+            "status": "deleted"
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:module-cache:providers:3937acf385a2dc75b8a55e8a00caa337e05288f697888efde6139372bd696ecb",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0b8459bca8fc720e42e66ce0e58cfe2b6ad40c2f4360630069e388e379c7581e.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\2214348e08c94bc8a8329461206d1b82.json",
+          "sha256": "ecc5bc84d28179eddaa259fe060cb63f20a22f42b67c2ae868f5902160321f63"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      },
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\providers\\3937acf385a2dc75b8a55e8a00caa337e05288f697888efde6139372bd696ecb",
+      "status": "removed",
+      "deletedItemCount": 1
+    },
+    {
+      "absent": true,
+      "deletedFileCount": 5078,
+      "cleanupComplete": true,
+      "revisitCondition": null,
+      "deletedBytes": 301630125,
+      "reason": null,
+      "lifecycle": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:module-cache:providers:e910475a9c18e9880560d937dad0860d010ec64844225d2d8e8654e6a794fecc"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\providers\\e910475a9c18e9880560d937dad0860d010ec64844225d2d8e8654e6a794fecc",
+            "role": "cache-entry",
+            "status": "deleted"
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:module-cache:providers:e910475a9c18e9880560d937dad0860d010ec64844225d2d8e8654e6a794fecc",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\630797f2e8de5cf62b0f87e7146a6e421bccded38030129971b997f54e4c5779.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\6b9e25dd59034178b8cf0afc080fca6b.json",
+          "sha256": "d0d9b52661963390e6f39ab62c3100ecbbdf0a428cdfec98a4729e8414f4a199"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      },
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\providers\\e910475a9c18e9880560d937dad0860d010ec64844225d2d8e8654e6a794fecc",
+      "status": "removed",
+      "deletedItemCount": 1
+    }
+  ],
+  "invalidation": {
+    "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\u",
+    "action": "invalidate-absent-project-cache-registration",
+    "status": "invalidated",
+    "registrationAbsent": true,
+    "historicalOutcome": "unknown",
+    "historical_consumer_index": "unavailable",
+    "registrySha256": "584B47C3A37507BC6911F440E695CA13F197FBCFDF434134973E8972924AA782",
+    "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-absent-u-cache-registration.json",
+    "evidenceSha256": "96F93108511B9225BF84D631C3891956DB0BB17B126FBA3D477634FE6AB1212F",
+    "receipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-absent-u-cache-invalidation-receipt.json",
+    "reason": "User authorized invalidation of all regenerable project build caches, including ambiguous references from physically absent historical workspaces; preserve historical outcome as unknown."
+  },
+  "finishedUtc": "2026-10-30T03:42:11.2817795Z"
+}

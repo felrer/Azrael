@@ -675,6 +675,7 @@ mod tests {
             thread_id: "thread-1".to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: turn_id.to_string(),
                 root_turn_id: None,

@@ -2274,13 +2274,18 @@ async fn dangerous_command_forbidden_in_external_sandbox_when_policy_matches() {
 }
 
 #[tokio::test]
-async fn deletion_full_access_requires_user_without_changing_other_commands() {
-    for (platform, command) in [
-        (DangerousCommandPlatform::Posix, vec!["rm", "file"]),
-        (DangerousCommandPlatform::Posix, vec!["rm", "-rf", "dir"]),
+async fn deletion_full_access_preserves_previously_allowed_calls() {
+    for (platform, command, needs_approval) in [
+        (DangerousCommandPlatform::Posix, vec!["rm", "file"], false),
+        (
+            DangerousCommandPlatform::Posix,
+            vec!["rm", "-rf", "dir"],
+            true,
+        ),
         (
             DangerousCommandPlatform::Posix,
             vec!["bash", "-lc", "echo ok; rm file"],
+            false,
         ),
         (
             DangerousCommandPlatform::Windows,
@@ -2289,10 +2294,17 @@ async fn deletion_full_access_requires_user_without_changing_other_commands() {
                 "-Command",
                 "Remove-Item -LiteralPath $target -Recurse",
             ],
+            false,
         ),
         (
             DangerousCommandPlatform::Windows,
             vec!["cmd.exe", "/c", "del file"],
+            false,
+        ),
+        (
+            DangerousCommandPlatform::Windows,
+            vec!["powershell.exe", "-Command", "Remove-Item test -Force"],
+            true,
         ),
     ] {
         for rule in [
@@ -2315,13 +2327,20 @@ async fn deletion_full_access_requires_user_without_changing_other_commands() {
                     platform,
                 )
                 .await;
-            assert_eq!(
-                requirement,
-                ExecApprovalRequirement::NeedsApproval {
-                    reason: Some(DELETION_APPROVAL_REASON.to_string()),
-                    proposed_execpolicy_amendment: None,
-                }
-            );
+            if needs_approval && !(rule.is_some() && command.first().is_some_and(|v| v == "rm")) {
+                assert_eq!(
+                    requirement,
+                    ExecApprovalRequirement::NeedsApproval {
+                        reason: Some(DELETION_APPROVAL_REASON.to_string()),
+                        proposed_execpolicy_amendment: None,
+                    }
+                );
+            } else {
+                assert!(
+                    matches!(requirement, ExecApprovalRequirement::Skip { .. }),
+                    "{command:?}: {requirement:?}"
+                );
+            }
         }
     }
     for command in [
@@ -2357,6 +2376,16 @@ async fn deletion_full_access_preserves_forbidden_rules() {
         requirement,
         ExecApprovalRequirement::Forbidden { .. }
     ));
+    let mixed = exec_approval_requirement_for_command(ExecApprovalRequirementScenario {
+        policy_src: Some("prefix_rule(pattern=[\"echo\"], decision=\"prompt\")".to_string()),
+        command: vec_str(&["bash", "-lc", "echo ok; rm file"]),
+        approval_policy: AskForApproval::Never,
+        permission_profile: PermissionProfile::Disabled,
+        sandbox_permissions: SandboxPermissions::UseDefault,
+        prefix_rule: None,
+    })
+    .await;
+    assert!(matches!(mixed, ExecApprovalRequirement::Forbidden { .. }));
     assert!(!deletion_approval_enabled(
         AskForApproval::Never,
         &PermissionProfile::read_only()

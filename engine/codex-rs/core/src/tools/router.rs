@@ -56,14 +56,14 @@ impl ToolCall {
                 .encrypted_function_args
                 .as_ref()
                 .is_some_and(Vec::is_empty);
-        let azrael_plaintext = super::multi_agent_tool::requires_plaintext_arguments(
-            self.tool_name.name.as_str(),
-        ) && self.tool_name.namespace.as_deref()
-            == Some(crate::config::AZRAEL_AGENT_TOOL_NAMESPACE)
-            && self
-                .encrypted_function_args
-                .as_ref()
-                .is_none_or(Vec::is_empty);
+        let azrael_plaintext =
+            super::multi_agent_tool::requires_plaintext_arguments(self.tool_name.name.as_str())
+                && self.tool_name.namespace.as_deref()
+                    == Some(crate::config::AZRAEL_AGENT_TOOL_NAMESPACE)
+                && self
+                    .encrypted_function_args
+                    .as_ref()
+                    .is_none_or(Vec::is_empty);
         if native_plaintext || azrael_plaintext {
             ToolCallSource::DirectPlaintextMessage
         } else {
@@ -546,10 +546,49 @@ impl ToolRouter {
             payload,
         };
 
-        self.registry
-            .dispatch_any_with_state(invocation, call_state)
+        let parent = match &invocation.source {
+            ToolCallSource::CodeMode { cell_id, .. } => invocation
+                .session
+                .services
+                .code_mode_service
+                .cell_timing_activity(&codex_code_mode::CellId::new(cell_id.clone())),
+            _ => None,
+        };
+        // Waiting observes an already-accounted cell; it is not a second running leaf.
+        let passive_wait = invocation.tool_name.is_default_namespace()
+            && invocation.tool_name.name == crate::tools::code_mode::WAIT_TOOL_NAME;
+        let _activity = if passive_wait {
+            None
+        } else {
+            invocation
+                .turn
+                .turn_timing_state
+                .user_wait()
+                .map(|runtime| {
+                    if user_wait_passive_tool(&invocation.tool_name) {
+                        runtime.passive_activity(invocation.call_id.clone(), parent)
+                    } else {
+                        runtime.activity(invocation.call_id.clone(), parent)
+                    }
+                })
+        };
+
+        crate::user_wait_runtime::TOOL_CALL_ID
+            .scope(
+                invocation.call_id.clone(),
+                self.registry
+                    .dispatch_any_with_state(invocation, call_state),
+            )
             .await
     }
+}
+
+// Only the built-in collaboration surfaces are passive; MCP basenames still execute.
+fn user_wait_passive_tool(name: &ToolName) -> bool {
+    name.name == "wait_agent"
+        && (name.is_default_namespace()
+            || name.namespace.as_deref()
+                == Some(crate::tools::handlers::multi_agents_spec::MULTI_AGENT_V1_NAMESPACE))
 }
 
 #[cfg(test)]

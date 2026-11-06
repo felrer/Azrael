@@ -1,0 +1,2202 @@
+{
+  "schema": 1,
+  "status": "complete-with-approved-retention",
+  "platform": "Windows x64",
+  "scope": "Windows engine/host build selection and IPC admission",
+  "sourceChecks": {
+    "command": "node --test --test-skip-pattern 'Windows PowerShell process-tree' scripts/test-check-shared-engine.mjs",
+    "passed": 18,
+    "failed": 0,
+    "exitCode": 0
+  },
+  "buildRecipeChecks": {
+    "command": "pwsh -NoProfile -File scripts/test-build-metrics.ps1 -OutputDirectory <owned outputs>",
+    "passed": 19,
+    "failed": 0,
+    "exitCode": 0
+  },
+  "featureManifestValidationExitCode": 0,
+  "diffCheckExitCode": 0,
+  "nativeComparison": {
+    "exitCode": 0,
+    "comparisons": [
+      {
+        "name": "compatible",
+        "status": "passed",
+        "engineSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+        "hostSha256": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41",
+        "scope": "code-mode IPC acceptance only",
+        "checks": [
+          "native_version_and_binary_identity",
+          "native_discovery_binds_identical_bytes_at_distinct_owned_release_paths_to_distinct_instances",
+          "concurrent_proxy_initialize_single_detached_engine",
+          "actual_code_mode_completed_text_and_native_delegate_response_decoded"
+        ],
+        "fixtureRemoved": true,
+        "providerRequests": 2,
+        "validationErrorCount": 0,
+        "validationErrorKinds": []
+      },
+      {
+        "name": "incompatible",
+        "status": "failed",
+        "engineSha256": "444ea298b4d8025400abf9100f3e13464bb00ff72b49a70f3f1022b6e925622f",
+        "hostSha256": "89713bec82069f1fefc70ec6d52fcb96d79cfd5f0d8d831aedde0b2005a39402",
+        "scope": "code-mode IPC acceptance only",
+        "checks": [
+          "native_version_and_binary_identity",
+          "native_discovery_binds_identical_bytes_at_distinct_owned_release_paths_to_distinct_instances",
+          "concurrent_proxy_initialize_single_detached_engine"
+        ],
+        "fixtureRemoved": true,
+        "error": "Error: timeout:turn/completed:01a1909e-b480-7643-af06-a0cbc7c04ed4\n    at until (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/check-shared-engine.mjs:304:9)\n    at async SharedPeer.event (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/check-shared-engine.mjs:142:5)\n    at async checkCodeModeSmoke (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/check-shared-engine.mjs:548:19)\n    at async runCheck (file:///C:/Users/felre/Desktop/pi-harness-init/scripts/check-shared-engine.mjs:604:33)\n    at async [stdin]:3:15",
+        "providerRequests": 1,
+        "validationErrorCount": 19,
+        "validationErrorKinds": [
+          "AssertionError [ERR_ASSERTION]: code_mode_completed_text_and_delegate_response_required"
+        ]
+      }
+    ]
+  },
+  "cleanup": {
+    "pendingGroups": [
+      "run:EU01-ipc-host:native-20261031-e",
+      "run:EU01-ipc-host:native-20261031-f",
+      "run:EU01-ipc-host:ipc-comparison-20261031-g",
+      "run:EU01-ipc-host:native-20261031-c",
+      "run:EU01-ipc-host:diagnostic-20261031-d"
+    ],
+    "initialFailedFixtureRemoved": true,
+    "operations": [
+      {
+        "operation": "register",
+        "id": "run:EU01-ipc-host:native-20261031-b",
+        "exitCode": 0,
+        "memberCount": 1
+      },
+      {
+        "operation": "register",
+        "id": "run:EU01-ipc-host:native-20261031-f",
+        "exitCode": 0,
+        "memberCount": 2
+      },
+      {
+        "operation": "register",
+        "id": "run:EU01-ipc-host:ipc-comparison-20261031-g",
+        "exitCode": 0,
+        "memberCount": 2
+      },
+      {
+        "operation": "refresh",
+        "id": "run:EU01-ipc-host:native-20261031-c",
+        "exitCode": 0,
+        "memberCount": 2
+      },
+      {
+        "operation": "refresh",
+        "id": "run:EU01-ipc-host:diagnostic-20261031-d",
+        "exitCode": 0,
+        "memberCount": 2
+      },
+      {
+        "operation": "refresh",
+        "id": "run:EU01-ipc-host:native-20261031-e",
+        "exitCode": 0,
+        "memberCount": 2
+      }
+    ],
+    "startedUtc": "2026-10-31T06:34:39.142Z",
+    "review": {
+      "groups": [
+        {
+          "cached_live_members": 2,
+          "cleanup_status": null,
+          "id": "run:EU01-ipc-host:diagnostic-20261031-d",
+          "kind": "run",
+          "members_total": 2,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "d48370bb794466cf39726aed336fc12e5be205dbd84848d4ebab45f37bac8d87",
+          "owner": "ipc-host-fix",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b843af21f0d3558c9c1273981017bd244a1bb574b0ef3a3a886699186602f225.json",
+          "version": null
+        },
+        {
+          "cached_live_members": 2,
+          "cleanup_status": null,
+          "id": "run:EU01-ipc-host:ipc-comparison-20261031-g",
+          "kind": "run",
+          "members_total": 2,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "1cf461253434c45df53a6d1ae600486c5dedeac97cd7af5a7ce9a242d524cf5e",
+          "owner": "ipc-host-fix",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\95556c54d24a98e14ee19dad4b88acd445ffb7a3cb42324519054e105fa2347d.json",
+          "version": null
+        },
+        {
+          "cached_live_members": 1,
+          "cleanup_status": null,
+          "id": "run:EU01-ipc-host:metrics-20261031-a",
+          "kind": "run",
+          "members_total": 1,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "5c71dabae70855283d5cbf606ebcfea8f249a72298600bc3508586c0b9bbe59a",
+          "owner": "ipc-host-fix",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\40c5dc6e43545e0eca44c44f61c45899e41d5d0ed7b34b9dbed0a198005c0a1c.json",
+          "version": null
+        },
+        {
+          "cached_live_members": 1,
+          "cleanup_status": null,
+          "id": "run:EU01-ipc-host:native-20261031-a",
+          "kind": "run",
+          "members_total": 1,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "a20461355cf095312d815a567668c081c614cb6c4053dd88f1cb0b21e2528093",
+          "owner": "ipc-host-fix",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\81f0ec26b201864fe518ff21954ff9938faecf15c74262b532464148dd060e09.json",
+          "version": null
+        },
+        {
+          "cached_live_members": 1,
+          "cleanup_status": null,
+          "id": "run:EU01-ipc-host:native-20261031-b",
+          "kind": "run",
+          "members_total": 1,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "e439c98db203e0f125d10be11567d653302765615121b5c87740efae43530554",
+          "owner": "ipc-host-fix",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\16d02768a46bfe73c9bc5200e3273c26e7b3c0084bce02de96c56df267724bfc.json",
+          "version": null
+        },
+        {
+          "cached_live_members": 2,
+          "cleanup_status": null,
+          "id": "run:EU01-ipc-host:native-20261031-c",
+          "kind": "run",
+          "members_total": 2,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "3254bd7f1118efc98614cc9101d66f9795134e180bbded1894546244d9bc8fe9",
+          "owner": "ipc-host-fix",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ae452588242288e50a0cf2ea7b0ffe8bb76aac6ea0b9f1b5fee6d20a979785ec.json",
+          "version": null
+        },
+        {
+          "cached_live_members": 2,
+          "cleanup_status": null,
+          "id": "run:EU01-ipc-host:native-20261031-e",
+          "kind": "run",
+          "members_total": 2,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "796865df596bdb7c24886a8a1bb12eb33165ea630c1148c97e89a849f022251f",
+          "owner": "ipc-host-fix",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\24c0b039ca839635e31e6f36b9931c417e24f81e68731d40e8f039db3b13bd8b.json",
+          "version": null
+        },
+        {
+          "cached_live_members": 2,
+          "cleanup_status": null,
+          "id": "run:EU01-ipc-host:native-20261031-f",
+          "kind": "run",
+          "members_total": 2,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "247a6cfa579adb69fb555a414fbf247268f75a4386f2c22b60e73c8438f510c0",
+          "owner": "ipc-host-fix",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8f6ba519c9cda1b609dd4708532a47dfb6af853a56b1c5354d379d1042e5fd93.json",
+          "version": null
+        }
+      ],
+      "items": [
+        {
+          "blockers": [],
+          "group_member_ids": [
+            "055594fa049dff9c2f1b1b0aed98581c8f36f7870b15bd2e551b0e11f31cdda1"
+          ],
+          "group_token": "27640196425d9add22ce8598f719c913a7eb9c83f4662c354c4359ec16aaf507",
+          "id": "055594fa049dff9c2f1b1b0aed98581c8f36f7870b15bd2e551b0e11f31cdda1",
+          "identity": "a602ade29cc929f6a34789ea70a2084d7013e8bcf2c3fe06f2d2f8b08da92df9",
+          "lifecycle_group_id": "run:EU01-ipc-host:metrics-20261031-a",
+          "logical_bytes": 21089,
+          "measured_at_ms": 1793427444423,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "5c71dabae70855283d5cbf606ebcfea8f249a72298600bc3508586c0b9bbe59a",
+            "member_references": {
+              "055594fa049dff9c2f1b1b0aed98581c8f36f7870b15bd2e551b0e11f31cdda1": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a\\reports\\producer-fc78c724e642f4b062e7cfed19205c948b88a563f2ed3cf62467e1c260dd578d.json",
+                "evidence_sha256": "fc78c724e642f4b062e7cfed19205c948b88a563f2ed3cf62467e1c260dd578d",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "cc8c49764e175ca5437d052f62a924ea84fbc3967907a03e4098075067c8bfb2"
+              },
+              "created_at": "2026-10-31T06:05:26.631Z",
+              "id": "run:EU01-ipc-host:metrics-20261031-a",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a\\temporary",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a\\reports\\producer-fc78c724e642f4b062e7cfed19205c948b88a563f2ed3cf62467e1c260dd578d.json",
+                "evidence_sha256": "fc78c724e642f4b062e7cfed19205c948b88a563f2ed3cf62467e1c260dd578d",
+                "exit_code": 0,
+                "outcome": "success",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 2,
+              "schema": 1,
+              "state": "complete",
+              "updated_at": "2026-10-31T06:05:50.485Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428491380,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                53,
+                29,
+                200,
+                0,
+                0,
+                0,
+                7,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "529628a4eb61d3a5e30114cfc963bcd07caabf014acd7e8c9c4c152c864c3334",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "overlapping registered item protected: \"f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387\"",
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "1308e1e667189fb35ba03b97cb8fd249e170bff4a65c1f0ba05009f4f8a0c8b4",
+            "bb26c3d34e36ab427cf16f3d485b49338d08454d9b8173f5d39817da207893b3"
+          ],
+          "group_token": "b6ca109be9f15f9f96d6c6e4da205af9cdd2dbe2b274e3244057d0c801822eac",
+          "id": "1308e1e667189fb35ba03b97cb8fd249e170bff4a65c1f0ba05009f4f8a0c8b4",
+          "identity": "3d590165bfd7748905c267f3c1a3c1dde80d556c4faff1e4a029f657ba2f3720",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-e",
+          "logical_bytes": 0,
+          "measured_at_ms": 1793427326124,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "796865df596bdb7c24886a8a1bb12eb33165ea630c1148c97e89a849f022251f",
+            "member_references": {
+              "1308e1e667189fb35ba03b97cb8fd249e170bff4a65c1f0ba05009f4f8a0c8b4": [],
+              "bb26c3d34e36ab427cf16f3d485b49338d08454d9b8173f5d39817da207893b3": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\reports\\producer-be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d.json",
+                "evidence_sha256": "be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "967901faea2e3a59e058615b87c2383893601b82186a6bc3dbf9ce6a8ab5ff36"
+              },
+              "created_at": "2026-10-31T06:06:57.747Z",
+              "id": "run:EU01-ipc-host:native-20261031-e",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01e",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\reports\\producer-be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d.json",
+                "evidence_sha256": "be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-31T06:23:20.108Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428514822,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01e",
+          "presence": "present",
+          "related_items": [
+            {
+              "blockers": [
+                "managed root itself is protected; select owned descendants"
+              ],
+              "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+              "token": "43a635ebb04d6c04f2dfc17e541f587b962e376e4aa521a799fba637c65a23ca"
+            }
+          ],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                118,
+                29,
+                200,
+                0,
+                0,
+                0,
+                5,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "771fc3d1990cb3c14f4cb41d8949fbe50dddd4816c124839950aec3bbab1128c",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "overlapping registered item protected: \"f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387\"",
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "1b76cb33a97fd915c7ec68ac716ea9775af1864251141f36b656471dd00fc2f3",
+            "1ca920dfaf58b0704c509ac21831e72d65db148b8e9e7b0fbff162d6268f87db"
+          ],
+          "group_token": "0d8a337ee2724f703ae2b24b5a413c43cde65d4d12fe75366b35433bc843fdee",
+          "id": "1b76cb33a97fd915c7ec68ac716ea9775af1864251141f36b656471dd00fc2f3",
+          "identity": "01c768a7c2a5e09ca5965f99dfa91ccdfe202c1796f445ff2bfe9bc1fc1d2d43",
+          "lifecycle_group_id": "run:EU01-ipc-host:diagnostic-20261031-d",
+          "logical_bytes": 0,
+          "measured_at_ms": 1793427218026,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "d48370bb794466cf39726aed336fc12e5be205dbd84848d4ebab45f37bac8d87",
+            "member_references": {
+              "1b76cb33a97fd915c7ec68ac716ea9775af1864251141f36b656471dd00fc2f3": [],
+              "1ca920dfaf58b0704c509ac21831e72d65db148b8e9e7b0fbff162d6268f87db": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\reports\\producer-5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916.json",
+                "evidence_sha256": "5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "50f61273424a6a51d959314091d7dd35cbf5798b2ac9df44980f6dd4dc938253"
+              },
+              "created_at": "2026-10-31T06:06:27.598Z",
+              "id": "run:EU01-ipc-host:diagnostic-20261031-d",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01-ipc-d",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\reports\\producer-5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916.json",
+                "evidence_sha256": "5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916",
+                "exit_code": 0,
+                "outcome": "success",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "complete",
+              "updated_at": "2026-10-31T06:23:34.507Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428479355,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01-ipc-d",
+          "presence": "present",
+          "related_items": [
+            {
+              "blockers": [
+                "managed root itself is protected; select owned descendants"
+              ],
+              "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+              "token": "43a635ebb04d6c04f2dfc17e541f587b962e376e4aa521a799fba637c65a23ca"
+            }
+          ],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                105,
+                29,
+                200,
+                0,
+                0,
+                0,
+                6,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "a0cb70c6eb4c4d8f3aba1a02d66e0f3907664d73ea666172755b1b7054d4be1e",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "1b76cb33a97fd915c7ec68ac716ea9775af1864251141f36b656471dd00fc2f3",
+            "1ca920dfaf58b0704c509ac21831e72d65db148b8e9e7b0fbff162d6268f87db"
+          ],
+          "group_token": "0d8a337ee2724f703ae2b24b5a413c43cde65d4d12fe75366b35433bc843fdee",
+          "id": "1ca920dfaf58b0704c509ac21831e72d65db148b8e9e7b0fbff162d6268f87db",
+          "identity": "5208a25b72113094cb09cdb8f95d8592bda783f65e1ea2f6a0a5c016ab7bb6fb",
+          "lifecycle_group_id": "run:EU01-ipc-host:diagnostic-20261031-d",
+          "logical_bytes": 872,
+          "measured_at_ms": 1793427218018,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "d48370bb794466cf39726aed336fc12e5be205dbd84848d4ebab45f37bac8d87",
+            "member_references": {
+              "1b76cb33a97fd915c7ec68ac716ea9775af1864251141f36b656471dd00fc2f3": [],
+              "1ca920dfaf58b0704c509ac21831e72d65db148b8e9e7b0fbff162d6268f87db": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\reports\\producer-5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916.json",
+                "evidence_sha256": "5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "50f61273424a6a51d959314091d7dd35cbf5798b2ac9df44980f6dd4dc938253"
+              },
+              "created_at": "2026-10-31T06:06:27.598Z",
+              "id": "run:EU01-ipc-host:diagnostic-20261031-d",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01-ipc-d",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\reports\\producer-5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916.json",
+                "evidence_sha256": "5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916",
+                "exit_code": 0,
+                "outcome": "success",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "complete",
+              "updated_at": "2026-10-31T06:23:34.507Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428479368,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                103,
+                29,
+                200,
+                0,
+                0,
+                0,
+                6,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "b51415fdebd6a125ee991652b8b7bc4fc812285c20b743ebdfc006d8179bd239",
+          "verification": "registered"
+        },
+        {
+          "blockers": [],
+          "group_member_ids": [
+            "27143fe006ab7bff5427bc813e8d7b0aa84eab29790c0aac592e479c29115bd7"
+          ],
+          "group_token": "ac719b75a0aff7f742d6825a1a2a63711c25afe78e3b4fce8fa276119009b7a6",
+          "id": "27143fe006ab7bff5427bc813e8d7b0aa84eab29790c0aac592e479c29115bd7",
+          "identity": "c185c9b1efb0840c5c1801ac115b3b02fc3eefa0cfd11432fd38e3be2802f4f2",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-b",
+          "logical_bytes": 377265637,
+          "measured_at_ms": 1793428139350,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "e439c98db203e0f125d10be11567d653302765615121b5c87740efae43530554",
+            "member_references": {
+              "27143fe006ab7bff5427bc813e8d7b0aa84eab29790c0aac592e479c29115bd7": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b\\reports\\producer-cbca66cb9c4e4417fa9026880e72c63ff6411023d79f34fd1930225c4dcfa2d9.json",
+                "evidence_sha256": "cbca66cb9c4e4417fa9026880e72c63ff6411023d79f34fd1930225c4dcfa2d9",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "9dfd7447e210330d2dfebdd4aec83fb4ca24e40bcb7f92bdd79f91a865ee4062"
+              },
+              "created_at": "2026-10-31T06:03:41.951Z",
+              "id": "run:EU01-ipc-host:native-20261031-b",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b\\temporary",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b\\reports\\producer-cbca66cb9c4e4417fa9026880e72c63ff6411023d79f34fd1930225c4dcfa2d9.json",
+                "evidence_sha256": "cbca66cb9c4e4417fa9026880e72c63ff6411023d79f34fd1930225c4dcfa2d9",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 2,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-31T06:03:49.842Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428502511,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                184,
+                142,
+                64,
+                0,
+                0,
+                0,
+                20,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "4f099327708a0e92e2ec8f095fefd67ac6f5566f952a48515fd207fcdad6309f",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "overlapping registered item protected: \"f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387\"",
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "2a449c1ddbe0fec566e924d6df72ec76fd1bbc8cf3ce5127f1cf07294c35f3ac",
+            "5cca39e4c81014188de2bd1e3c8e826c7d117333971cca21052dd388efb50d6c"
+          ],
+          "group_token": "3cb1a2391727df8eed9fd9e4c53c2b1749aafae04d2143b53e4cd2f94e461d8f",
+          "id": "2a449c1ddbe0fec566e924d6df72ec76fd1bbc8cf3ce5127f1cf07294c35f3ac",
+          "identity": "b010774cfeff6d7ab31bd176e5f516583ce71390d6d67cf5a6743ab7cd7d6d06",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-c",
+          "logical_bytes": 0,
+          "measured_at_ms": 1793427114233,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "3254bd7f1118efc98614cc9101d66f9795134e180bbded1894546244d9bc8fe9",
+            "member_references": {
+              "2a449c1ddbe0fec566e924d6df72ec76fd1bbc8cf3ce5127f1cf07294c35f3ac": [],
+              "5cca39e4c81014188de2bd1e3c8e826c7d117333971cca21052dd388efb50d6c": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\reports\\producer-07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3.json",
+                "evidence_sha256": "07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "89c741a42ec7fc593b3af0d29ede0e91ebdb83377409c738d6f403973173e326"
+              },
+              "created_at": "2026-10-31T06:04:54.871Z",
+              "id": "run:EU01-ipc-host:native-20261031-c",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01-ipc-c",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\reports\\producer-07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3.json",
+                "evidence_sha256": "07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-31T06:23:29.524Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428508421,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01-ipc-c",
+          "presence": "present",
+          "related_items": [
+            {
+              "blockers": [
+                "managed root itself is protected; select owned descendants"
+              ],
+              "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+              "token": "43a635ebb04d6c04f2dfc17e541f587b962e376e4aa521a799fba637c65a23ca"
+            }
+          ],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                39,
+                29,
+                200,
+                0,
+                0,
+                0,
+                5,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "b1461239b7baac41a2e956661ee0cca237c0a45360964b7d30b0f4f8951a8942",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "overlapping registered item protected: \"f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387\"",
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "3f48324f8a41a44685badcd33ed77c21927d274eedcd38a0fca03d7451bcc46c",
+            "f2b3ff26df3f958a9c9fdd5ae97ceb44bfb91b34483d840c6e8a8b0563cfdc16"
+          ],
+          "group_token": "2d0929baac6d8eb8d64cf539036a2a289ce968f52e08e5791bd2e0509fb2af63",
+          "id": "3f48324f8a41a44685badcd33ed77c21927d274eedcd38a0fca03d7451bcc46c",
+          "identity": "38647e3134ecbddf6d14180abed7bed7d8607270046d145de34f5d1acdc02004",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-f",
+          "logical_bytes": 0,
+          "measured_at_ms": 1793428245621,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "247a6cfa579adb69fb555a414fbf247268f75a4386f2c22b60e73c8438f510c0",
+            "member_references": {
+              "3f48324f8a41a44685badcd33ed77c21927d274eedcd38a0fca03d7451bcc46c": [],
+              "f2b3ff26df3f958a9c9fdd5ae97ceb44bfb91b34483d840c6e8a8b0563cfdc16": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\reports\\producer-d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0.json",
+                "evidence_sha256": "d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "139408a059e277e2350251291a59cb7f99adaf033359a10ee643e6cd653b53c2"
+              },
+              "created_at": "2026-10-31T06:07:56.169Z",
+              "id": "run:EU01-ipc-host:native-20261031-f",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01f",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\reports\\producer-d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0.json",
+                "evidence_sha256": "d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-31T06:23:24.879Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428521382,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01f",
+          "presence": "present",
+          "related_items": [
+            {
+              "blockers": [
+                "managed root itself is protected; select owned descendants"
+              ],
+              "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+              "token": "43a635ebb04d6c04f2dfc17e541f587b962e376e4aa521a799fba637c65a23ca"
+            }
+          ],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                139,
+                29,
+                200,
+                0,
+                0,
+                0,
+                5,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "ad14c1110db44454f4914f7b1608d5030024702ae34979f4c07defacde08a0d9",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "2a449c1ddbe0fec566e924d6df72ec76fd1bbc8cf3ce5127f1cf07294c35f3ac",
+            "5cca39e4c81014188de2bd1e3c8e826c7d117333971cca21052dd388efb50d6c"
+          ],
+          "group_token": "3cb1a2391727df8eed9fd9e4c53c2b1749aafae04d2143b53e4cd2f94e461d8f",
+          "id": "5cca39e4c81014188de2bd1e3c8e826c7d117333971cca21052dd388efb50d6c",
+          "identity": "7445bca3c88f3c1c37f8caf7f532e0ddc9297e3d899f97768909ea53e2fcd483",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-c",
+          "logical_bytes": 4386,
+          "measured_at_ms": 1793427114230,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "3254bd7f1118efc98614cc9101d66f9795134e180bbded1894546244d9bc8fe9",
+            "member_references": {
+              "2a449c1ddbe0fec566e924d6df72ec76fd1bbc8cf3ce5127f1cf07294c35f3ac": [],
+              "5cca39e4c81014188de2bd1e3c8e826c7d117333971cca21052dd388efb50d6c": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\reports\\producer-07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3.json",
+                "evidence_sha256": "07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "89c741a42ec7fc593b3af0d29ede0e91ebdb83377409c738d6f403973173e326"
+              },
+              "created_at": "2026-10-31T06:04:54.871Z",
+              "id": "run:EU01-ipc-host:native-20261031-c",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01-ipc-c",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\reports\\producer-07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3.json",
+                "evidence_sha256": "07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-31T06:23:29.524Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428508440,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                36,
+                29,
+                200,
+                0,
+                0,
+                0,
+                13,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "28f74bf851c428968b244c284501af940bba395becf80e7616e592fb88939969",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "overlapping registered item protected: \"f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387\"",
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "99a3692d3c198775a8e53bdc33cc514cb5c41853daa1c273404df434566a457a",
+            "fbfab0c60d1756391f704089bc1bdd752e05dd2f9a9c71ca6d67129375bc4e6b"
+          ],
+          "group_token": "c4ff176239912a231587cccdff50c9cb15bc5d7b0524c95760d4c76a40623e87",
+          "id": "99a3692d3c198775a8e53bdc33cc514cb5c41853daa1c273404df434566a457a",
+          "identity": "1a6f66891094484774e8de240a9cc2210b2e74b70ccebc6691d5f5ca964402aa",
+          "lifecycle_group_id": "run:EU01-ipc-host:ipc-comparison-20261031-g",
+          "logical_bytes": 0,
+          "measured_at_ms": 1793428349996,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "1cf461253434c45df53a6d1ae600486c5dedeac97cd7af5a7ce9a242d524cf5e",
+            "member_references": {
+              "99a3692d3c198775a8e53bdc33cc514cb5c41853daa1c273404df434566a457a": [],
+              "fbfab0c60d1756391f704089bc1bdd752e05dd2f9a9c71ca6d67129375bc4e6b": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\reports\\producer-fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e.json",
+                "evidence_sha256": "fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "aaf7e598ed483414823a65826413e3fadacb2a3f95a6b8fd0941eb031cc2c263"
+              },
+              "created_at": "2026-10-31T06:18:55.364Z",
+              "id": "run:EU01-ipc-host:ipc-comparison-20261031-g",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01g",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\reports\\producer-fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e.json",
+                "evidence_sha256": "fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e",
+                "exit_code": 0,
+                "outcome": "success",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "complete",
+              "updated_at": "2026-10-31T06:22:12.932Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428485120,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01g",
+          "presence": "present",
+          "related_items": [
+            {
+              "blockers": [
+                "managed root itself is protected; select owned descendants"
+              ],
+              "id": "f45595e0962530b20bdad2fad266c2cf1a2263b820908024e9980d4a568eb387",
+              "token": "43a635ebb04d6c04f2dfc17e541f587b962e376e4aa521a799fba637c65a23ca"
+            }
+          ],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                58,
+                30,
+                200,
+                0,
+                0,
+                0,
+                10,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "505ce085610c54c7dc32c4aff88f25629655c7d94c7b042b904baf9c3f890f93",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "1308e1e667189fb35ba03b97cb8fd249e170bff4a65c1f0ba05009f4f8a0c8b4",
+            "bb26c3d34e36ab427cf16f3d485b49338d08454d9b8173f5d39817da207893b3"
+          ],
+          "group_token": "b6ca109be9f15f9f96d6c6e4da205af9cdd2dbe2b274e3244057d0c801822eac",
+          "id": "bb26c3d34e36ab427cf16f3d485b49338d08454d9b8173f5d39817da207893b3",
+          "identity": "073bfebfe740a50104adfd992744e3aaef854b042e430ca5da64adc69536a23e",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-e",
+          "logical_bytes": 6383,
+          "measured_at_ms": 1793427326121,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "796865df596bdb7c24886a8a1bb12eb33165ea630c1148c97e89a849f022251f",
+            "member_references": {
+              "1308e1e667189fb35ba03b97cb8fd249e170bff4a65c1f0ba05009f4f8a0c8b4": [],
+              "bb26c3d34e36ab427cf16f3d485b49338d08454d9b8173f5d39817da207893b3": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\reports\\producer-be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d.json",
+                "evidence_sha256": "be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "967901faea2e3a59e058615b87c2383893601b82186a6bc3dbf9ce6a8ab5ff36"
+              },
+              "created_at": "2026-10-31T06:06:57.747Z",
+              "id": "run:EU01-ipc-host:native-20261031-e",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01e",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\reports\\producer-be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d.json",
+                "evidence_sha256": "be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-31T06:23:20.108Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428514842,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                19,
+                29,
+                200,
+                0,
+                0,
+                0,
+                19,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "2de8f9a1b977e03588a97f2505311eeafb4067ad6268ed076b903966cc97631e",
+          "verification": "registered"
+        },
+        {
+          "blockers": [],
+          "group_member_ids": [
+            "e28bd6c04b72b948949b4ebffac0986b7b6bb29a55bdd166e3c9912d6f43a94f"
+          ],
+          "group_token": "b3f0d04fff76414565e46f5fae3230a8d78d1ef7da75098404124849f73e647d",
+          "id": "e28bd6c04b72b948949b4ebffac0986b7b6bb29a55bdd166e3c9912d6f43a94f",
+          "identity": "8013bb91bfddda10222dc9ac90e4cce8f55d11219d6b129e44ddadb09d9c941b",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-a",
+          "logical_bytes": 8328,
+          "measured_at_ms": 1793427007942,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "a20461355cf095312d815a567668c081c614cb6c4053dd88f1cb0b21e2528093",
+            "member_references": {
+              "e28bd6c04b72b948949b4ebffac0986b7b6bb29a55bdd166e3c9912d6f43a94f": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a\\reports\\producer-e5145e2f2a26c95a924b66ee5bb37d287a1c39c0ebbf5df0b60778e1b72cfd7d.json",
+                "evidence_sha256": "e5145e2f2a26c95a924b66ee5bb37d287a1c39c0ebbf5df0b60778e1b72cfd7d",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "a57ff04371d5f834499aae84cdc209ca4a211100d7a317e071fc8b59d60cee70"
+              },
+              "created_at": "2026-10-31T06:00:53.972Z",
+              "id": "run:EU01-ipc-host:native-20261031-a",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a\\temporary",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a\\reports\\producer-e5145e2f2a26c95a924b66ee5bb37d287a1c39c0ebbf5df0b60778e1b72cfd7d.json",
+                "evidence_sha256": "e5145e2f2a26c95a924b66ee5bb37d287a1c39c0ebbf5df0b60778e1b72cfd7d",
+                "exit_code": 4294967295,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 2,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-31T06:03:10.948Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428496830,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                253,
+                28,
+                200,
+                0,
+                0,
+                0,
+                4,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "79a4e38ebc056bd6a13a9e29dc7155a2b997b99dbb2ae580fe6a1bc19ebae119",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "3f48324f8a41a44685badcd33ed77c21927d274eedcd38a0fca03d7451bcc46c",
+            "f2b3ff26df3f958a9c9fdd5ae97ceb44bfb91b34483d840c6e8a8b0563cfdc16"
+          ],
+          "group_token": "2d0929baac6d8eb8d64cf539036a2a289ce968f52e08e5791bd2e0509fb2af63",
+          "id": "f2b3ff26df3f958a9c9fdd5ae97ceb44bfb91b34483d840c6e8a8b0563cfdc16",
+          "identity": "9b0ab60b4322ed58f9630e183c3a2446718b962cdf7cc74601679bff19a32bb4",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-f",
+          "logical_bytes": 1048338,
+          "measured_at_ms": 1793428245618,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "247a6cfa579adb69fb555a414fbf247268f75a4386f2c22b60e73c8438f510c0",
+            "member_references": {
+              "3f48324f8a41a44685badcd33ed77c21927d274eedcd38a0fca03d7451bcc46c": [],
+              "f2b3ff26df3f958a9c9fdd5ae97ceb44bfb91b34483d840c6e8a8b0563cfdc16": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\reports\\producer-d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0.json",
+                "evidence_sha256": "d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "139408a059e277e2350251291a59cb7f99adaf033359a10ee643e6cd653b53c2"
+              },
+              "created_at": "2026-10-31T06:07:56.169Z",
+              "id": "run:EU01-ipc-host:native-20261031-f",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01f",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\reports\\producer-d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0.json",
+                "evidence_sha256": "d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-31T06:23:24.879Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428521400,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                134,
+                29,
+                200,
+                0,
+                0,
+                0,
+                16,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "a4745d14fd3d0d5a6703772688da07e1ef15c1b7a3fd5917117df27928789bcf",
+          "verification": "registered"
+        },
+        {
+          "blockers": [
+            "a lifecycle group member is protected"
+          ],
+          "group_member_ids": [
+            "99a3692d3c198775a8e53bdc33cc514cb5c41853daa1c273404df434566a457a",
+            "fbfab0c60d1756391f704089bc1bdd752e05dd2f9a9c71ca6d67129375bc4e6b"
+          ],
+          "group_token": "c4ff176239912a231587cccdff50c9cb15bc5d7b0524c95760d4c76a40623e87",
+          "id": "fbfab0c60d1756391f704089bc1bdd752e05dd2f9a9c71ca6d67129375bc4e6b",
+          "identity": "ef2f0f3931c79f36dd9895f133abf46937b99746f0aa67ca603f856e59dd52b7",
+          "lifecycle_group_id": "run:EU01-ipc-host:ipc-comparison-20261031-g",
+          "logical_bytes": 1788960,
+          "measured_at_ms": 1793428349993,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "1cf461253434c45df53a6d1ae600486c5dedeac97cd7af5a7ce9a242d524cf5e",
+            "member_references": {
+              "99a3692d3c198775a8e53bdc33cc514cb5c41853daa1c273404df434566a457a": [],
+              "fbfab0c60d1756391f704089bc1bdd752e05dd2f9a9c71ca6d67129375bc4e6b": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\reports\\producer-fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e.json",
+                "evidence_sha256": "fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e",
+                "reason": "Owned producer and tracked children stopped",
+                "request_sha256": "aaf7e598ed483414823a65826413e3fadacb2a3f95a6b8fd0941eb031cc2c263"
+              },
+              "created_at": "2026-10-31T06:18:55.364Z",
+              "id": "run:EU01-ipc-host:ipc-comparison-20261031-g",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g",
+                  "protection_known": true,
+                  "role": "run"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\inputs",
+                  "protection_known": true,
+                  "role": "inputs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01g",
+                  "protection_known": true,
+                  "role": "temporary"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\logs",
+                  "protection_known": true,
+                  "role": "logs"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\reports",
+                  "protection_known": true,
+                  "role": "reports"
+                },
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\outputs",
+                  "protection_known": true,
+                  "role": "outputs"
+                }
+              ],
+              "membership_complete": true,
+              "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g",
+              "owner": "ipc-host-fix",
+              "ownership_scope": "run-root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\reports\\producer-fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e.json",
+                "evidence_sha256": "fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e",
+                "exit_code": 0,
+                "outcome": "success",
+                "reason": "Owned producer and tracked children stopped",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 3,
+              "schema": 1,
+              "state": "complete",
+              "updated_at": "2026-10-31T06:22:12.932Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793428485132,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                24,
+                30,
+                200,
+                0,
+                0,
+                0,
+                31,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "05a93b47a57ba3d411f2c141d6665975397c762744a782fedff1116fc4b6152a",
+          "verification": "registered"
+        }
+      ]
+    },
+    "partialApply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:EU01-ipc-host:metrics-20261031-a",
+          "status": "deleted"
+        },
+        {
+          "id": "run:EU01-ipc-host:native-20261031-a",
+          "status": "deleted"
+        },
+        {
+          "id": "run:EU01-ipc-host:native-20261031-b",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-29328-4386-1793428614929",
+          "decision": "delete",
+          "decision_id": "af6b8268e2d248089bf94b9bebd6ecb3bff0fe88437fbe81bd98bc0502f34ef8",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "055594fa049dff9c2f1b1b0aed98581c8f36f7870b15bd2e551b0e11f31cdda1",
+          "lifecycle_group_id": "run:EU01-ipc-host:metrics-20261031-a",
+          "reason": "Owned completed IPC verification; independent acceptance summary retained outside generated runs",
+          "remaining": false,
+          "status": "deleted",
+          "token": "529628a4eb61d3a5e30114cfc963bcd07caabf014acd7e8c9c4c152c864c3334"
+        },
+        {
+          "attempt_id": "attempt-29328-4388-1793428650660",
+          "decision": "delete",
+          "decision_id": "dd9bc59bcabc2427b915e5155bae2392ebce569efe128f100811511bc0273b77",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "27143fe006ab7bff5427bc813e8d7b0aa84eab29790c0aac592e479c29115bd7",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-b",
+          "reason": "Owned completed IPC verification; independent acceptance summary retained outside generated runs",
+          "remaining": false,
+          "status": "deleted",
+          "token": "4f099327708a0e92e2ec8f095fefd67ac6f5566f952a48515fd207fcdad6309f"
+        },
+        {
+          "attempt_id": "attempt-29328-4390-1793428710554",
+          "decision": "delete",
+          "decision_id": "3cdd7ff85e0eb641f9c136bf55833972f91c7b1f2e6a2e3f9520fae3869785d6",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "e28bd6c04b72b948949b4ebffac0986b7b6bb29a55bdd166e3c9912d6f43a94f",
+          "lifecycle_group_id": "run:EU01-ipc-host:native-20261031-a",
+          "reason": "Owned completed IPC verification; independent acceptance summary retained outside generated runs",
+          "remaining": false,
+          "status": "deleted",
+          "token": "79a4e38ebc056bd6a13a9e29dc7155a2b997b99dbb2ae580fe6a1bc19ebae119"
+        }
+      ]
+    },
+    "finalized": [
+      {
+        "id": "run:EU01-ipc-host:metrics-20261031-a",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\40c5dc6e43545e0eca44c44f61c45899e41d5d0ed7b34b9dbed0a198005c0a1c.json"
+      },
+      {
+        "id": "run:EU01-ipc-host:native-20261031-a",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\81f0ec26b201864fe518ff21954ff9938faecf15c74262b532464148dd060e09.json"
+      },
+      {
+        "id": "run:EU01-ipc-host:native-20261031-b",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\16d02768a46bfe73c9bc5200e3273c26e7b3c0084bce02de96c56df267724bfc.json"
+      }
+    ],
+    "retentionRequest": {
+      "status": "user-approved",
+      "bytes": 2848939,
+      "reason": "Deleted historical artifacts/c3 ancestor claim blocks whole-group cleanup; unsupported custody refinement and deletion bypass not used",
+      "reviewCondition": "Supported owner procedure resolves stale deleted ancestor claim, then fresh review and whole-group deletion",
+      "paths": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01e",
+          "bytes": 0,
+          "group": "run:EU01-ipc-host:native-20261031-e"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01-ipc-d",
+          "bytes": 0,
+          "group": "run:EU01-ipc-host:diagnostic-20261031-d"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d",
+          "bytes": 872,
+          "group": "run:EU01-ipc-host:diagnostic-20261031-d"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01-ipc-c",
+          "bytes": 0,
+          "group": "run:EU01-ipc-host:native-20261031-c"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01f",
+          "bytes": 0,
+          "group": "run:EU01-ipc-host:native-20261031-f"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c",
+          "bytes": 4386,
+          "group": "run:EU01-ipc-host:native-20261031-c"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\c3\\eu01g",
+          "bytes": 0,
+          "group": "run:EU01-ipc-host:ipc-comparison-20261031-g"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e",
+          "bytes": 6383,
+          "group": "run:EU01-ipc-host:native-20261031-e"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f",
+          "bytes": 1048338,
+          "group": "run:EU01-ipc-host:native-20261031-f"
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g",
+          "bytes": 1788960,
+          "group": "run:EU01-ipc-host:ipc-comparison-20261031-g"
+        }
+      ],
+      "approval": {
+        "date": "2026-10-31",
+        "userStatement": "승인합니다",
+        "scope": "Exactly the five previously listed run groups and their five temporary directories; 2848939 logical bytes plus empty temporary directories",
+        "condition": "Supported owner procedure resolves stale deleted ancestor claim, then fresh review and whole-group deletion"
+      }
+    }
+  },
+  "productBuild": false,
+  "installed": false,
+  "sourceHostBuildVerified": false,
+  "unverified": [
+    "Windows source-built host/V8 asset acquisition and complete product build",
+    "Linux/macOS runtime execution",
+    "existing session storage protocol compatibility"
+  ],
+  "taskCommit": {
+    "created": false,
+    "reason": "Build scripts, feature inventory and owning docs contain extensive pre-existing changes; preserving unrelated changes rather than committing mixed task content."
+  },
+  "attempts": [
+    {
+      "id": "run:EU01-ipc-host:native-20261031-b",
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-b\\reports\\producer-cbca66cb9c4e4417fa9026880e72c63ff6411023d79f34fd1930225c4dcfa2d9.json",
+        "evidence_sha256": "cbca66cb9c4e4417fa9026880e72c63ff6411023d79f34fd1930225c4dcfa2d9",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:EU01-ipc-host:native-20261031-e",
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-e\\reports\\producer-be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d.json",
+        "evidence_sha256": "be4b56f7aff8453158c30853915e7055447b9f8214cfe2e37b88349fbce80f3d",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:EU01-ipc-host:metrics-20261031-a",
+      "state": "complete",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\metrics-20261031-a\\reports\\producer-fc78c724e642f4b062e7cfed19205c948b88a563f2ed3cf62467e1c260dd578d.json",
+        "evidence_sha256": "fc78c724e642f4b062e7cfed19205c948b88a563f2ed3cf62467e1c260dd578d",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:EU01-ipc-host:native-20261031-a",
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-a\\reports\\producer-e5145e2f2a26c95a924b66ee5bb37d287a1c39c0ebbf5df0b60778e1b72cfd7d.json",
+        "evidence_sha256": "e5145e2f2a26c95a924b66ee5bb37d287a1c39c0ebbf5df0b60778e1b72cfd7d",
+        "exit_code": 4294967295,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:EU01-ipc-host:native-20261031-f",
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-f\\reports\\producer-d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0.json",
+        "evidence_sha256": "d1a0802d67d007de59801290a489e96bb8c235548e8038e0d4f8f3bec61b94e0",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:EU01-ipc-host:ipc-comparison-20261031-g",
+      "state": "complete",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\ipc-comparison-20261031-g\\reports\\producer-fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e.json",
+        "evidence_sha256": "fcf26789eed66097176452f1f32e08452e8e6a5b3aaec2e4d77c87ce1399f85e",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:EU01-ipc-host:native-20261031-c",
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\native-20261031-c\\reports\\producer-07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3.json",
+        "evidence_sha256": "07a0b3605b68d277518b72612e45683456a35ff5772a72c7ed0cec5a850795f3",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:EU01-ipc-host:diagnostic-20261031-d",
+      "state": "complete",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-ipc-host\\runs\\diagnostic-20261031-d\\reports\\producer-5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916.json",
+        "evidence_sha256": "5e6ea6b512e0317ac19a4587c25a2b1b4580495afe10eacfe177002cc35f0916",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    }
+  ]
+}

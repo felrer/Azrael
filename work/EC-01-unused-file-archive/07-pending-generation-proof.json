@@ -1,0 +1,1179 @@
+{
+  "schema": 1,
+  "scope": [
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+      "owner": "instruction-library-verification",
+      "source_state": "pending",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f"
+      ],
+      "last_registered_logical_bytes": 84477,
+      "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation.",
+      "metadata": [
+        {
+          "path": "logs",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:20:59.361Z"
+        },
+        {
+          "path": "outputs",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:20:59.362Z"
+        },
+        {
+          "path": "reports",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:20:59.361Z"
+        },
+        {
+          "path": "temporary",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.625Z"
+        },
+        {
+          "path": "temporary\\azrael-library-WRhuSi",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.819Z"
+        },
+        {
+          "path": "temporary\\azrael-library-WRhuSi\\library",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:03.198Z"
+        },
+        {
+          "path": "temporary\\azrael-library-WRhuSi\\library\\packages",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:03.067Z"
+        },
+        {
+          "path": "temporary\\azrael-library-WRhuSi\\library\\packages\\5b509197-848b-40f7-98e4-2e7b474d991c",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:03.104Z"
+        },
+        {
+          "path": "temporary\\azrael-library-WRhuSi\\library\\packages\\5b509197-848b-40f7-98e4-2e7b474d991c\\a8c760455532625894eab0f1e906917311a76ec6cecb7bbbe67c00dd5a79db9d.json",
+          "directory": false,
+          "link": false,
+          "bytes": 231,
+          "modified": "2026-10-19T00:21:03.087Z"
+        },
+        {
+          "path": "temporary\\azrael-library-WRhuSi\\library\\registry.json",
+          "directory": false,
+          "link": false,
+          "bytes": 437,
+          "modified": "2026-10-19T00:21:03.155Z"
+        },
+        {
+          "path": "temporary\\azrael-playbooks-D0wLBh",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:20:59.882Z"
+        },
+        {
+          "path": "temporary\\azrael-playbooks-D0wLBh\\library",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:03.976Z"
+        },
+        {
+          "path": "temporary\\azrael-playbooks-D0wLBh\\library\\packages",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:00.253Z"
+        },
+        {
+          "path": "temporary\\azrael-playbooks-D0wLBh\\library\\packages\\f072a33a-7c5d-4ab4-a728-bc3c9440d7ee",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:03.924Z"
+        },
+        {
+          "path": "temporary\\azrael-playbooks-D0wLBh\\library\\packages\\f072a33a-7c5d-4ab4-a728-bc3c9440d7ee\\6ea743adf8010e9553b84325f51388e1f8a301ddce3e7514fb2a115db63a6b30.json",
+          "directory": false,
+          "link": false,
+          "bytes": 502,
+          "modified": "2026-10-19T00:21:02.511Z"
+        },
+        {
+          "path": "temporary\\azrael-playbooks-D0wLBh\\library\\packages\\f072a33a-7c5d-4ab4-a728-bc3c9440d7ee\\91e9930868c9b40762905bb9825c8b706fa03db6124a0db4e5dc515bee3979ed.json",
+          "directory": false,
+          "link": false,
+          "bytes": 495,
+          "modified": "2026-10-19T00:21:00.262Z"
+        },
+        {
+          "path": "temporary\\azrael-playbooks-D0wLBh\\library\\packages\\f072a33a-7c5d-4ab4-a728-bc3c9440d7ee\\986af8ca4035c20139a9ab36ef3e0bf796670eb36619fbc9d07b62dccf204e1e.json",
+          "directory": false,
+          "link": false,
+          "bytes": 510,
+          "modified": "2026-10-19T00:21:03.908Z"
+        },
+        {
+          "path": "temporary\\azrael-playbooks-D0wLBh\\library\\registry.json",
+          "directory": false,
+          "link": false,
+          "bytes": 480,
+          "modified": "2026-10-19T00:21:03.951Z"
+        },
+        {
+          "path": "temporary\\azrael-playbooks-D0wLBh\\project",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:20:59.660Z"
+        },
+        {
+          "path": "temporary\\catalog",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.038Z"
+        },
+        {
+          "path": "temporary\\catalog\\catalog-tp8UBR",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.055Z"
+        },
+        {
+          "path": "temporary\\catalog\\catalog-tp8UBR\\azrael-environment.json",
+          "directory": false,
+          "link": false,
+          "bytes": 485,
+          "modified": "2026-10-19T00:21:02.055Z"
+        },
+        {
+          "path": "temporary\\catalog\\catalog-tp8UBR\\instructions",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.051Z"
+        },
+        {
+          "path": "temporary\\catalog\\catalog-tp8UBR\\instructions\\AGENTS.snippet.md",
+          "directory": false,
+          "link": false,
+          "bytes": 15,
+          "modified": "2026-10-19T00:21:02.052Z"
+        },
+        {
+          "path": "temporary\\catalog\\catalog-tp8UBR\\skills",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.039Z"
+        },
+        {
+          "path": "temporary\\catalog\\catalog-tp8UBR\\skills\\example",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.046Z"
+        },
+        {
+          "path": "temporary\\catalog\\catalog-tp8UBR\\skills\\example\\ref.md",
+          "directory": false,
+          "link": false,
+          "bytes": 16,
+          "modified": "2026-10-19T00:21:02.040Z"
+        },
+        {
+          "path": "temporary\\catalog\\catalog-tp8UBR\\skills\\example\\SKILL.md",
+          "directory": false,
+          "link": false,
+          "bytes": 72,
+          "modified": "2026-10-19T00:21:02.040Z"
+        },
+        {
+          "path": "temporary\\catalog\\catalog-tp8UBR\\skills\\example\\undeclared.md",
+          "directory": false,
+          "link": false,
+          "bytes": 10,
+          "modified": "2026-10-19T00:21:02.049Z"
+        },
+        {
+          "path": "temporary\\publisher",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:04.366Z"
+        },
+        {
+          "path": "temporary\\publisher\\access",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.212Z"
+        },
+        {
+          "path": "temporary\\publisher\\ambiguous-ref",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.682Z"
+        },
+        {
+          "path": "temporary\\publisher\\ambiguous-ref\\c7415f74-f1af-4f2e-b7f5-7f079720e734.json",
+          "directory": false,
+          "link": false,
+          "bytes": 3832,
+          "modified": "2026-10-19T00:21:02.675Z"
+        },
+        {
+          "path": "temporary\\publisher\\ambiguous-release",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.563Z"
+        },
+        {
+          "path": "temporary\\publisher\\ambiguous-release\\745a3bbb-7c2d-47fe-a668-5450ce46f0b7.json",
+          "directory": false,
+          "link": false,
+          "bytes": 3832,
+          "modified": "2026-10-19T00:21:02.554Z"
+        },
+        {
+          "path": "temporary\\publisher\\archive-entries",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:04.098Z"
+        },
+        {
+          "path": "temporary\\publisher\\archive-entries\\c20f954c-e341-4334-bd49-79c675db1f36.json",
+          "directory": false,
+          "link": false,
+          "bytes": 3832,
+          "modified": "2026-10-19T00:21:04.089Z"
+        },
+        {
+          "path": "temporary\\publisher\\conflict",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.254Z"
+        },
+        {
+          "path": "temporary\\publisher\\conflict\\837e45cb-f051-4d24-8ac4-9c6eb9004a79.json",
+          "directory": false,
+          "link": false,
+          "bytes": 1024,
+          "modified": "2026-10-19T00:21:02.242Z"
+        },
+        {
+          "path": "temporary\\publisher\\frozen",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:03.553Z"
+        },
+        {
+          "path": "temporary\\publisher\\frozen\\ab63d8b9-fa8c-4170-8139-0c3e93a2d101.json",
+          "directory": false,
+          "link": false,
+          "bytes": 3832,
+          "modified": "2026-10-19T00:21:03.538Z"
+        },
+        {
+          "path": "temporary\\publisher\\host-boundary",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:03.897Z"
+        },
+        {
+          "path": "temporary\\publisher\\host-boundary\\97b7ad67-ed3a-406c-b85e-d49bdebcc3b6.json",
+          "directory": false,
+          "link": false,
+          "bytes": 3880,
+          "modified": "2026-10-19T00:21:03.890Z"
+        },
+        {
+          "path": "temporary\\publisher\\library-integration",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:04.367Z"
+        },
+        {
+          "path": "temporary\\publisher\\library-integration\\local",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:04.368Z"
+        },
+        {
+          "path": "temporary\\publisher\\library-integration\\local\\lock.json",
+          "directory": false,
+          "link": false,
+          "bytes": 13,
+          "modified": "2026-10-19T00:21:04.368Z"
+        },
+        {
+          "path": "temporary\\publisher\\paths",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.894Z"
+        },
+        {
+          "path": "temporary\\publisher\\paths\\79ef1e7f-0d5e-4c1b-bbda-de900966e9ed.json",
+          "directory": false,
+          "link": false,
+          "bytes": 3832,
+          "modified": "2026-10-19T00:21:02.886Z"
+        },
+        {
+          "path": "temporary\\publisher\\pins",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:01.854Z"
+        },
+        {
+          "path": "temporary\\publisher\\pins\\1d1a2ee3-5e09-4600-a22c-952eb19cd0f0.json",
+          "directory": false,
+          "link": false,
+          "bytes": 7269,
+          "modified": "2026-10-19T00:21:01.703Z"
+        },
+        {
+          "path": "temporary\\publisher\\pins\\67373b7c-6946-4ddc-b17d-e94abecd8a09.json",
+          "directory": false,
+          "link": false,
+          "bytes": 9039,
+          "modified": "2026-10-19T00:21:01.847Z"
+        },
+        {
+          "path": "temporary\\publisher\\playbook",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:00.959Z"
+        },
+        {
+          "path": "temporary\\publisher\\playbook\\58976644-4609-4b0c-8275-f3fb3b6933c9.json",
+          "directory": false,
+          "link": false,
+          "bytes": 5227,
+          "modified": "2026-10-19T00:21:00.949Z"
+        },
+        {
+          "path": "temporary\\publisher\\recovery",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.441Z"
+        },
+        {
+          "path": "temporary\\publisher\\recovery\\ea2336b7-c560-47f7-bef2-33432dd909ea.json",
+          "directory": false,
+          "link": false,
+          "bytes": 3832,
+          "modified": "2026-10-19T00:21:02.411Z"
+        },
+        {
+          "path": "temporary\\publisher\\redirects",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.772Z"
+        },
+        {
+          "path": "temporary\\publisher\\redirects\\871271a7-ee07-47f6-81d0-faf080fe5ed3.json",
+          "directory": false,
+          "link": false,
+          "bytes": 3880,
+          "modified": "2026-10-19T00:21:02.765Z"
+        },
+        {
+          "path": "temporary\\publisher\\repositories",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:02.179Z"
+        },
+        {
+          "path": "temporary\\publisher\\repositories\\d70d3b58-ff8e-42cb-8a2a-94c86fc7225f.json",
+          "directory": false,
+          "link": false,
+          "bytes": 4139,
+          "modified": "2026-10-19T00:21:02.171Z"
+        },
+        {
+          "path": "temporary\\publisher\\repositories\\fbd62d0f-510a-4c86-b07f-68f35723dd11.json",
+          "directory": false,
+          "link": false,
+          "bytes": 4064,
+          "modified": "2026-10-19T00:21:02.056Z"
+        },
+        {
+          "path": "temporary\\publisher\\restart",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:03.368Z"
+        },
+        {
+          "path": "temporary\\publisher\\restart\\07e97352-4ad6-4628-97bc-ced3b510c37d.json",
+          "directory": false,
+          "link": false,
+          "bytes": 3902,
+          "modified": "2026-10-19T00:21:03.356Z"
+        },
+        {
+          "path": "temporary\\publisher\\selection",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:01.524Z"
+        },
+        {
+          "path": "temporary\\publisher\\selection\\858f0751-500b-4a4a-922c-385df1b660d3.json",
+          "directory": false,
+          "link": false,
+          "bytes": 8376,
+          "modified": "2026-10-19T00:21:01.514Z"
+        },
+        {
+          "path": "temporary\\publisher\\selection\\9372eaca-643c-467a-9447-c32de20fe5f8.json",
+          "directory": false,
+          "link": false,
+          "bytes": 6222,
+          "modified": "2026-10-19T00:21:01.263Z"
+        },
+        {
+          "path": "temporary\\publisher\\write-redirect",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-19T00:21:03.924Z"
+        },
+        {
+          "path": "temporary\\publisher\\write-redirect\\f03c3d69-9cb0-4f81-980f-65d099b632b3.json",
+          "directory": false,
+          "link": false,
+          "bytes": 1197,
+          "modified": "2026-10-19T00:21:03.917Z"
+        }
+      ]
+    },
+    {
+      "id": "work:engine-check-retirement-r1",
+      "owner": "root",
+      "source_state": "pending",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r1"
+      ],
+      "last_registered_logical_bytes": 20971,
+      "blocker": "Legacy generated ownership/protection or complete membership not established; preserve active acceptance evidence before safe owner reconciliation.",
+      "metadata": [
+        {
+          "path": "managed-fixture",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:53.165Z"
+        },
+        {
+          "path": "managed-fixture\\test-managed-native-fixture.log",
+          "directory": false,
+          "link": false,
+          "bytes": 3574,
+          "modified": "2026-10-17T03:42:53.555Z"
+        },
+        {
+          "path": "management",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.620Z"
+        },
+        {
+          "path": "management\\fixtures-r1",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:48.316Z"
+        },
+        {
+          "path": "management\\fixtures-r1\\empty",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:48.393Z"
+        },
+        {
+          "path": "management\\fixtures-r1\\empty\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 1099,
+          "modified": "2026-10-17T03:41:48.393Z"
+        },
+        {
+          "path": "management\\fixtures-r1\\empty\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:48.392Z"
+        },
+        {
+          "path": "management\\fixtures-r2",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.474Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\empty",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:53.558Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\empty\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:53.546Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\empty\\state\\config.toml",
+          "directory": false,
+          "link": false,
+          "bytes": 34,
+          "modified": "2026-10-17T03:41:53.540Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\empty\\state\\verification.json",
+          "directory": false,
+          "link": false,
+          "bytes": 1063,
+          "modified": "2026-10-17T03:41:53.546Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\empty\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:53.558Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\empty\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 993,
+          "modified": "2026-10-17T03:41:53.557Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\empty\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 870,
+          "modified": "2026-10-17T03:41:53.545Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\existing-state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.472Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\existing-state\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.303Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\existing-state\\state\\sentinel",
+          "directory": false,
+          "link": false,
+          "bytes": 8,
+          "modified": "2026-10-17T03:41:54.303Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\existing-state\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 384,
+          "modified": "2026-10-17T03:41:54.473Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\existing-state\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.472Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\logged-in",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.296Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\logged-in\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.262Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\logged-in\\state\\failure.log",
+          "directory": false,
+          "link": false,
+          "bytes": 270,
+          "modified": "2026-10-17T03:41:54.262Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\logged-in\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 225,
+          "modified": "2026-10-17T03:41:54.298Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\logged-in\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.296Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\logged-in\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 432,
+          "modified": "2026-10-17T03:41:54.258Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\nonempty",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:53.823Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\nonempty\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:53.810Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\nonempty\\state\\failure.log",
+          "directory": false,
+          "link": false,
+          "bytes": 267,
+          "modified": "2026-10-17T03:41:53.811Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\nonempty\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 222,
+          "modified": "2026-10-17T03:41:53.823Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\nonempty\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:53.822Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\nonempty\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 502,
+          "modified": "2026-10-17T03:41:53.808Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\null-response",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.083Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\null-response\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.071Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\null-response\\state\\failure.log",
+          "directory": false,
+          "link": false,
+          "bytes": 266,
+          "modified": "2026-10-17T03:41:54.073Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\null-response\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 221,
+          "modified": "2026-10-17T03:41:54.084Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\null-response\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:54.083Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\null-response\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 502,
+          "modified": "2026-10-17T03:41:54.069Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\results.json",
+          "directory": false,
+          "link": false,
+          "bytes": 691,
+          "modified": "2026-10-17T03:41:54.476Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\wrong-shape",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:53.953Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\wrong-shape\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:53.943Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\wrong-shape\\state\\failure.log",
+          "directory": false,
+          "link": false,
+          "bytes": 283,
+          "modified": "2026-10-17T03:41:53.944Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\wrong-shape\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 238,
+          "modified": "2026-10-17T03:41:53.955Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\wrong-shape\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:41:53.953Z"
+        },
+        {
+          "path": "management\\fixtures-r2\\wrong-shape\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 502,
+          "modified": "2026-10-17T03:41:53.942Z"
+        },
+        {
+          "path": "management\\fixtures-r3",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.293Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\empty",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.752Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\empty\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.739Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\empty\\state\\config.toml",
+          "directory": false,
+          "link": false,
+          "bytes": 34,
+          "modified": "2026-10-17T03:42:06.729Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\empty\\state\\verification.json",
+          "directory": false,
+          "link": false,
+          "bytes": 1063,
+          "modified": "2026-10-17T03:42:06.740Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\empty\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.752Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\empty\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 993,
+          "modified": "2026-10-17T03:42:06.751Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\empty\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 870,
+          "modified": "2026-10-17T03:42:06.737Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\existing-state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.291Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\existing-state\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.200Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\existing-state\\state\\sentinel",
+          "directory": false,
+          "link": false,
+          "bytes": 8,
+          "modified": "2026-10-17T03:42:07.200Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\existing-state\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 384,
+          "modified": "2026-10-17T03:42:07.291Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\existing-state\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.291Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\logged-in",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.197Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\logged-in\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.187Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\logged-in\\state\\failure.log",
+          "directory": false,
+          "link": false,
+          "bytes": 270,
+          "modified": "2026-10-17T03:42:07.187Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\logged-in\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 225,
+          "modified": "2026-10-17T03:42:07.197Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\logged-in\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.196Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\logged-in\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 432,
+          "modified": "2026-10-17T03:42:07.185Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\nonempty",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.865Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\nonempty\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.854Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\nonempty\\state\\failure.log",
+          "directory": false,
+          "link": false,
+          "bytes": 267,
+          "modified": "2026-10-17T03:42:06.854Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\nonempty\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 222,
+          "modified": "2026-10-17T03:42:06.865Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\nonempty\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.864Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\nonempty\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 502,
+          "modified": "2026-10-17T03:42:06.852Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\null-response",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.093Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\null-response\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.082Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\null-response\\state\\failure.log",
+          "directory": false,
+          "link": false,
+          "bytes": 266,
+          "modified": "2026-10-17T03:42:07.082Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\null-response\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 221,
+          "modified": "2026-10-17T03:42:07.093Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\null-response\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:07.092Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\null-response\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 502,
+          "modified": "2026-10-17T03:42:07.081Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\results.json",
+          "directory": false,
+          "link": false,
+          "bytes": 691,
+          "modified": "2026-10-17T03:42:07.293Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\wrong-shape",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.980Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\wrong-shape\\state",
+          "directory": true,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.970Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\wrong-shape\\state\\failure.log",
+          "directory": false,
+          "link": false,
+          "bytes": 283,
+          "modified": "2026-10-17T03:42:06.971Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\wrong-shape\\stderr.log",
+          "directory": false,
+          "link": false,
+          "bytes": 238,
+          "modified": "2026-10-17T03:42:06.981Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\wrong-shape\\stdout.log",
+          "directory": false,
+          "link": false,
+          "bytes": 0,
+          "modified": "2026-10-17T03:42:06.979Z"
+        },
+        {
+          "path": "management\\fixtures-r3\\wrong-shape\\transport.jsonl",
+          "directory": false,
+          "link": false,
+          "bytes": 502,
+          "modified": "2026-10-17T03:42:06.969Z"
+        },
+        {
+          "path": "producer-plan.json",
+          "directory": false,
+          "link": false,
+          "bytes": 352,
+          "modified": "2026-10-17T03:40:04.894Z"
+        }
+      ]
+    }
+  ],
+  "legacy_creation_contract": "07-legacy-generation-proof.json",
+  "owning_engine_work": "work/BS-01-windows-build-install/08-plan.md:55-65",
+  "engine_plan": {
+    "owner": "root",
+    "run": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r1",
+    "planned": [
+      "managed-fixture",
+      "management",
+      "root tests and final evidence"
+    ],
+    "retention": "retain logs/evidence; ordinary delete owned temporary fixtures after terminal verification"
+  },
+  "engine_mock_results": [
+    {
+      "status": "passed",
+      "platform": "win32",
+      "arch": "x64",
+      "transport": "mock",
+      "nativeEngineVerified": false,
+      "results": [
+        {
+          "scenario": "empty",
+          "exitCode": 0,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "nonempty",
+          "exitCode": 1,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "wrong-shape",
+          "exitCode": 1,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "null-response",
+          "exitCode": 1,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "logged-in",
+          "exitCode": 1,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "existing-state",
+          "exitCode": 1,
+          "outcome": "passed"
+        }
+      ]
+    },
+    {
+      "status": "passed",
+      "platform": "win32",
+      "arch": "x64",
+      "transport": "mock",
+      "nativeEngineVerified": false,
+      "results": [
+        {
+          "scenario": "empty",
+          "exitCode": 0,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "nonempty",
+          "exitCode": 1,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "wrong-shape",
+          "exitCode": 1,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "null-response",
+          "exitCode": 1,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "logged-in",
+          "exitCode": 1,
+          "outcome": "passed"
+        },
+        {
+          "scenario": "existing-state",
+          "exitCode": 1,
+          "outcome": "passed"
+        }
+      ]
+    }
+  ],
+  "classification": "The legacy CM scope was predeclared by the fresh-run creator; actual material is solely test-generated library/playbook/package fixtures under its declared temporary directory. The engine scope is explicitly owned by the original work and producer-plan; all actual members are its managed-fixture and management test fixtures plus that plan. Complete bounded metadata inventory has no links or files modified after the independently observed kernel boot. No original user files or current acceptance copy is selected; old mock result semantics, including nativeEngineVerified:false, are preserved. Unknown producer outcome/exit remains unknown."
+}

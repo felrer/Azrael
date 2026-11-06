@@ -11,6 +11,8 @@ use codex_protocol::ThreadId;
 use codex_protocol::protocol::ThreadGoal;
 use codex_protocol::protocol::ThreadGoalStatus;
 use codex_protocol::protocol::validate_thread_goal_objective;
+use codex_tools::LEGACY_CODEX_TOOLS_NAMESPACE;
+use codex_tools::ToolExposure;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -142,11 +144,18 @@ impl GoalToolExecutor {
 
 impl<'call> ToolExecutor<ToolCall<'call>> for GoalToolExecutor {
     fn tool_name(&self) -> ToolName {
-        ToolName::plain(match self.kind {
-            GoalToolKind::Get => GET_GOAL_TOOL_NAME,
-            GoalToolKind::Create => CREATE_GOAL_TOOL_NAME,
-            GoalToolKind::Update => UPDATE_GOAL_TOOL_NAME,
-        })
+        ToolName::namespaced(
+            LEGACY_CODEX_TOOLS_NAMESPACE,
+            match self.kind {
+                GoalToolKind::Get => GET_GOAL_TOOL_NAME,
+                GoalToolKind::Create => CREATE_GOAL_TOOL_NAME,
+                GoalToolKind::Update => UPDATE_GOAL_TOOL_NAME,
+            },
+        )
+    }
+
+    fn exposure(&self) -> ToolExposure {
+        ToolExposure::DeferredModelOnly
     }
 
     fn supports_parallel_tool_calls(&self) -> bool {

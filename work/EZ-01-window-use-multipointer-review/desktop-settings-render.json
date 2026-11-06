@@ -1,0 +1,117 @@
+{
+  "source": "artifacts/tasks/verify-use-settings-render/runs/20261103T093150436Z-332978d5-c28c-41cb-ac8e-2c5adfef0de4/logs/summary.json",
+  "sourceSha256": "d59bae569d99e54839279881cee165c6b7bbf3a3578171180b94020257ae8f44",
+  "scope": "Actual production settings section, real pinned React/native components/CSS and production settings host/store/persistence; synthetic running-window and confirmation decisions. No full installed VS Code navigation.",
+  "checks": [
+    "Security App and whitelist display names",
+    "initial schema3 Window Use on with independent empty app lists",
+    "native accessible switches",
+    "quiet background read leaves rendered controls enabled",
+    "rendered OFF click preempts quiet read with update request",
+    "save awaits host acknowledgement",
+    "real host persisted disabled Window Use before ack",
+    "unrelated request/error ignored",
+    "preempting update acknowledgement renders OFF",
+    "held quiet read contains previous ON policy",
+    "late quiet read cannot undo acknowledged OFF",
+    "master off keeps one master switch and preserves independent lists",
+    "native switch receives keyboard focus",
+    "keyboard Space toggles focused native switch",
+    "CAS rejection visible and preserves policy",
+    "retry clears server error",
+    "observation app picker persists blacklist without control grant",
+    "control app picker persists whitelist independently",
+    "long executable path wraps within page",
+    "light native page keeps added settings within normal section gap",
+    "dark native page keeps added settings within normal section gap",
+    "light and dark theme tokens differ",
+    "narrow layout has no horizontal overflow",
+    "dark-theme native master interaction persists",
+    "control whitelist removal leaves observation blacklist intact",
+    "observation blacklist removal leaves control unapproved",
+    "no browser console exceptions",
+    "unmount disposes production store bridge listener"
+  ],
+  "wrapping": {
+    "scroll": 0,
+    "width": 0,
+    "height": 47,
+    "sectionWidth": 768,
+    "pageOverflow": false
+  },
+  "light": {
+    "background": "rgba(0, 0, 0, 0)",
+    "color": "rgb(26, 28, 31)",
+    "switchBackground": "rgba(0, 0, 0, 0)",
+    "gap": 40
+  },
+  "dark": {
+    "background": "rgba(0, 0, 0, 0)",
+    "color": "rgb(223, 223, 223)",
+    "switchBackground": "rgba(0, 0, 0, 0)",
+    "gap": 40
+  },
+  "outcome": "passed",
+  "requests": [
+    {
+      "action": "read",
+      "requestId": "0f98a16e-01f2-4c7b-b73d-6f94fd73d8ab"
+    },
+    {
+      "action": "read",
+      "requestId": "cbab9aec-bf96-4e8a-9df0-14d90bb94dcb"
+    },
+    {
+      "action": "update",
+      "requestId": "b2d2de68-1756-4551-bfa9-cf98e536835c"
+    },
+    {
+      "action": "update",
+      "requestId": "d3ccda61-5281-4f41-a5fd-cf2eeac62e36"
+    },
+    {
+      "action": "update",
+      "requestId": "21f24e03-1056-4ed0-aa9b-21c6684028ad"
+    },
+    {
+      "action": "read",
+      "requestId": "5370e6e7-27dc-4edc-a54e-e97f2f50d0a5"
+    },
+    {
+      "action": "addApp",
+      "requestId": "03d01a63-4607-4a88-b755-d6373327c2cd"
+    },
+    {
+      "action": "addApp",
+      "requestId": "08506fdf-b0b9-43b5-8793-190bcab34158"
+    },
+    {
+      "action": "update",
+      "requestId": "d1d9b81f-ce13-460d-904f-794f7619c8ae"
+    },
+    {
+      "action": "update",
+      "requestId": "c10df510-27f6-4911-b604-fa4e51400e87"
+    },
+    {
+      "action": "removeApp",
+      "requestId": "a8297705-b9d9-4096-8742-426547832e0d"
+    },
+    {
+      "action": "removeApp",
+      "requestId": "246a283c-2f0e-4dcc-8801-0febbc7c2f72"
+    }
+  ],
+  "browserExit": {
+    "confirmed": true,
+    "exitCode": 0,
+    "signalCode": null,
+    "processInspectionExitCode": 0,
+    "processIds": []
+  },
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-use-settings-render\\runs\\20261103T093150436Z-332978d5-c28c-41cb-ac8e-2c5adfef0de4",
+  "lifecycleId": "run:verify-use-settings-render:20261103T093150436Z-332978d5-c28c-41cb-ac8e-2c5adfef0de4",
+  "fixtureRemoved": false,
+  "retentionReason": "Retained fixture, profile and raw results for lifecycle review",
+  "exitCode": 0
+}

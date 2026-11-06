@@ -16,6 +16,8 @@
     "artifacts/logs",
     "artifacts/build",
     "artifacts/c3",
+    "artifacts/cx22r",
+    "artifacts/e",
     "artifacts/deployments",
     "artifacts/cache",
     "artifacts/releases",
@@ -23,6 +25,18 @@
     "artifacts/vsix",
     "artifacts/inputs",
     "artifacts/workspaces",
+    "artifacts/iu14b",
+    "artifacts/iu14h",
+    "artifacts/wu14b",
+    "artifacts/wu14h",
+    "artifacts/w",
+    "artifacts/x",
+    "artifacts/p",
+    "artifacts/l",
+    "artifacts/m",
+    "artifacts/u14s",
+    "artifacts/u14t",
+    "artifacts/u14u",
     "engine/codex-rs/target"
   ],
   "protected_paths": [
@@ -34,12 +48,70 @@
   ],
   "bundles": [
     {
+      "id": "agent-image-attachments-native",
+      "kind": "test",
+      "purpose": "retained",
+      "phase": "test",
+      "cwd": ".",
+      "argv": ["node", "scripts/check-agent-image-attachments.cjs"],
+      "inputs": ["scripts/check-agent-image-attachments.cjs", "scripts/cargo-verification.cjs", "engine", "providers/opencodex/inference-mapping.mjs", "providers/devin/mapping.mjs"]
+    },
+    {
+      "id": "task-memory-native",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "scripts/check-task-memory.cjs"],
+      "inputs": ["scripts/check-task-memory.cjs", "engine/codex-rs/task-memory", "engine/codex-rs/Cargo.toml", "engine/codex-rs/Cargo.lock", "engine/codex-rs/core/Cargo.toml", "engine/codex-rs/core/src/tools/handlers/task_memory.rs", "engine/codex-rs/core/src/tools/handlers/mod.rs", "engine/codex-rs/core/src/tools/spec_plan.rs", "engine/codex-rs/core/src/agent/role_profile.rs"]
+    },
+    {
+      "id": "task-memory-install",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "--test-name-pattern=task-memory role resources", "scripts/tests/instruction-package.test.cjs"],
+      "inputs": ["scripts/tests/instruction-package.test.cjs", "scripts/instruction-package.cjs", "instructions/task-memory", "instructions/azrael-environment.json"]
+    },
+    {
+      "id": "task-memory-profiles",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/tests/task-memory-profiles.test.cjs"],
+      "inputs": ["scripts/tests/instruction-package.test.cjs", "scripts/instruction-package.cjs", "scripts/import-instructions.py", "scripts/tests/task-memory-profiles.test.cjs", "instructions/task-memory", "instructions/azrael-environment.json", "scripts/instruction-workbench.cjs", "scripts/task-profile-runtime.cjs", "scripts/role-profile-store.cjs", "scripts/role-profile-runtime.cjs"]
+    },
+    {
       "id": "engine-startup-admission-source",
       "kind": "test",
       "purpose": "retained",
       "cwd": ".",
       "argv": ["node", "--test", "scripts/test-shared-engine-host.cjs", "scripts/test-integrated-entry.cjs", "scripts/test-ordinary-runtime-node.cjs", "scripts/test-recovery-state.cjs", "scripts/test-preparation-state.cjs", "scripts/test-ui-source-state.cjs", "scripts/test-check-shared-engine.mjs"],
-      "inputs": ["scripts/shared-engine-host.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/ordinary-runtime.cjs", "scripts/platform-runtime.cjs", "scripts/recovery-state.cjs", "scripts/preparation-state.cjs", "scripts/ui-source-state.cjs", "scripts/project-source-state.cjs", "scripts/source-observation.cjs", "scripts/directory-state.cjs", "scripts/engine-source-metadata.cjs", "scripts/check-shared-engine.mjs", "scripts/test-shared-engine-host.cjs", "scripts/test-integrated-entry.cjs", "scripts/test-ordinary-runtime-node.cjs", "scripts/test-recovery-state.cjs", "scripts/test-preparation-state.cjs", "scripts/test-ui-source-state.cjs", "scripts/test-check-shared-engine.mjs"]
+      "inputs": ["scripts/shared-engine-host.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/ordinary-runtime.cjs", "scripts/platform-runtime.cjs", "scripts/recovery-state.cjs", "scripts/preparation-state.cjs", "scripts/ui-source-state.cjs", "scripts/project-source-state.cjs", "scripts/source-observation.cjs", "scripts/test-ui-source-state.cjs", "scripts/directory-state.cjs", "scripts/engine-source-metadata.cjs", "scripts/check-shared-engine.mjs", "scripts/test-shared-engine-host.cjs", "scripts/test-integrated-entry.cjs", "scripts/test-ordinary-runtime-node.cjs", "scripts/test-recovery-state.cjs", "scripts/test-preparation-state.cjs", "scripts/test-check-shared-engine.mjs"]
+    },
+    {
+      "id": "multi-pointer-mcp-source",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/test-multi-pointer-mcp.cjs"],
+      "inputs": ["scripts/multi-pointer-mcp.cjs", "scripts/test-multi-pointer-mcp.cjs"]
+    },
+    {
+      "id": "multi-pointer-host-source",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/test-multi-pointer-mcp.cjs", "scripts/test-window-switched-input.cjs", "scripts/test-window-virtual-policy.cjs", "scripts/test-window-control-policy.cjs", "scripts/test-window-control-mcp.cjs", "scripts/test-window-use-stage-authority.cjs", "scripts/test-window-control-runtime.cjs", "scripts/test-window-use-staging.cjs"],
+      "env": {"TEMP": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/EZ01/runs/paint-install-20261102/temporary/coop-host-tests", "TMP": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/EZ01/runs/paint-install-20261102/temporary/coop-host-tests"},
+      "inputs": ["scripts", "project-maintenance.json"]
+    },
+    {
+      "id": "multi-pointer-native-paint-ez01",
+      "kind": "test",
+      "purpose": "one_off",
+      "cwd": ".",
+      "argv": ["node", "scripts/check-multi-pointer-native.cjs", "--targets", "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/EZ01/runs/paint-install-20261102/temporary/switched-targets-01.json"],
+      "inputs": ["native/multi-pointer", "native/virtual-input/vendor/json", "scripts/check-multi-pointer-native.cjs", "scripts/multi-pointer-mcp.cjs", "scripts/test-multi-pointer-mcp.cjs", "artifacts/tasks/EZ01/runs/paint-install-20261102/temporary/switched-targets-01.json"]
     },
     {
       "id": "standalone-app-ui-source",
@@ -50,48 +122,31 @@
       "inputs": ["apps/azrael-desktop/question-notifications.cjs", "apps/azrael-desktop/question-notifications.test.cjs", "apps/azrael-desktop/main.cjs", "apps/azrael-desktop/vscode-host.cjs", "apps/azrael-desktop/file-service.cjs", "apps/azrael-desktop/terminal-service.cjs", "apps/azrael-desktop/dialog-service.cjs", "apps/azrael-desktop/theme.cjs", "scripts/account-fixture-environment.mjs", "apps/azrael-desktop/image-bridge.cjs", "apps/azrael-desktop/preload.cjs", "apps/azrael-desktop/shell-preload.cjs", "apps/azrael-desktop/check.cjs", "apps/azrael-desktop/verify.cjs", "apps/azrael-desktop/fixture-backend.cjs", "apps/azrael-desktop/verification.cjs", "apps/azrael-desktop/renderer", "apps/azrael-desktop/package.json", "apps/azrael-desktop/package-lock.json", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-c014f9ee4429.js"]
     },
     {
+      "id": "role-profiles-native",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "scripts/check-role-profiles-native.cjs"],
+      "inputs": ["scripts/check-role-profiles-native.cjs", "scripts/cargo-verification.cjs", "scripts/cargo-target-owner.cjs", "scripts/freeze-platform-inputs.cjs", "engine/codex-rs"],
+      "env": {},
+      "depends_on": [],
+      "guards": []
+    },
+    {
       "id": "window-virtual-input-source",
       "kind": "test",
       "purpose": "retained",
       "cwd": ".",
-      "argv": [
-        "node",
-        "--test",
-        "scripts/test-window-virtual-input.cjs",
-        "scripts/test-window-virtual-policy.cjs",
-        "scripts/test-window-control-runtime.cjs",
-        "scripts/test-window-control-policy.cjs",
-        "scripts/test-window-control-mcp.cjs",
-        "scripts/test-window-use-stage-authority.cjs"
-      ],
-      "inputs": [
-        "scripts/window-virtual-input.cjs",
-        "scripts/test-window-virtual-input.cjs",
-        "scripts/test-window-virtual-policy.cjs",
-        "scripts/window-control-policy.cjs",
-        "scripts/window-control-host.cjs",
-        "scripts/window-control-mcp.cjs",
-        "scripts/window-control-runtime.cjs",
-        "scripts/test-window-control-runtime.cjs",
-        "scripts/test-window-control-policy.cjs",
-        "scripts/test-window-control-mcp.cjs",
-        "scripts/test-window-use-stage-authority.cjs"
-      ]
+      "argv": ["node", "--test", "scripts/test-window-virtual-input.cjs", "scripts/test-window-virtual-policy.cjs", "scripts/test-window-control-runtime.cjs", "scripts/test-window-control-policy.cjs", "scripts/test-window-control-mcp.cjs", "scripts/test-window-use-stage-authority.cjs"],
+      "inputs": ["scripts/window-virtual-input.cjs", "scripts/test-window-virtual-input.cjs", "scripts/test-window-virtual-policy.cjs", "scripts/window-control-policy.cjs", "scripts/window-control-host.cjs", "scripts/window-control-mcp.cjs", "scripts/window-control-runtime.cjs", "scripts/test-window-control-runtime.cjs", "scripts/test-window-control-policy.cjs", "scripts/test-window-control-mcp.cjs", "scripts/test-window-use-stage-authority.cjs"]
     },
     {
       "id": "window-virtual-input-native",
       "kind": "test",
       "purpose": "retained",
       "cwd": ".",
-      "argv": [
-        "node",
-        "scripts/check-window-virtual-input-native.cjs"
-      ],
-      "inputs": [
-        "native/virtual-input",
-        "scripts/check-window-virtual-input-native.cjs",
-        "scripts/window-virtual-input.cjs"
-      ]
+      "argv": ["node", "scripts/check-window-virtual-input-native.cjs"],
+      "inputs": ["native/virtual-input", "scripts/check-window-virtual-input-native.cjs", "scripts/window-virtual-input.cjs"]
     },
     {
       "id": "codex-upstream-review",
@@ -100,6 +155,15 @@
       "cwd": ".",
       "argv": ["node", "--test", "scripts/test-codex-upstream-review.cjs"],
       "inputs": ["scripts/codex-upstream-review.cjs", "scripts/test-codex-upstream-review.cjs"]
+    },
+    {
+      "id": "instruction-workbench",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "scripts/check-instruction-workbench.cjs"],
+      "inputs": ["scripts/instruction-workbench.cjs",
+        "scripts/instruction-workbench-options.cjs", "scripts/instruction-workbench-resources.cjs", "scripts/tests/instruction-workbench-resources.test.cjs", "scripts/instruction-workbench-view.cjs", "scripts/instruction-workbench-runtime.cjs", "scripts/serve-instruction-workbench.cjs", "scripts/check-instruction-workbench.cjs", "scripts/check-instruction-modules.cjs", "scripts/instruction-library.cjs", "scripts/instruction-publisher.cjs", "scripts/task-profile-runtime.cjs", "scripts/tests/instruction-workbench.test.cjs", "scripts/tests/instruction-workbench-server.test.cjs", "scripts/tests/instruction-workbench-host.test.cjs", "scripts/tests/instruction-module-packaging.test.cjs", "scripts/tests/task-profile-runtime.test.cjs", "scripts/role-profile-store.cjs", "scripts/role-profile-defaults.cjs", "scripts/role-profile-runtime.cjs", "scripts/tests/role-profile-store.test.cjs", "scripts/tests/role-profile-runtime.test.cjs", "scripts/inject-task-profile.cjs", "scripts/tests/inject-task-profile.test.cjs", "extensions/azrael-ex/src/instructionWorkbenchService.ts", "extensions/azrael-ex/src/instructionWorkbenchView.ts"]
     },
     {
       "id": "deletion-approval-host",
@@ -358,8 +422,9 @@
         "node",
         "--test",
         "scripts/test-cargo-verification.cjs",
-        "scripts/test-cargo-test-preparation.cjs",
         "scripts/test-cargo-target-owner.cjs",
+        "scripts/test-cargo-shared-cache.cjs",
+        "scripts/test-cargo-owner-audit.cjs",
         "scripts/test-cargo-scheduling.cjs",
         "scripts/test-cargo-verification-cache.cjs",
         "scripts/test-feature-preservation.cjs"
@@ -367,16 +432,18 @@
       "cwd": ".",
       "inputs": [
         "scripts/cargo-verification.cjs",
-        "scripts/cargo-test-preparation.cjs",
         "scripts/cargo-target-owner.cjs",
+        "scripts/cargo-shared-cache.cjs",
+        "scripts/cargo-owner-audit.cjs",
         "scripts/feature-preservation.cjs",
         "scripts/cargo-verification-cache.cjs",
         "scripts/check-shared-engine-native.cjs",
         "scripts/check-task-recovery-native.cjs",
         "scripts/azrael-feature-contracts.json",
         "scripts/test-cargo-verification.cjs",
-        "scripts/test-cargo-test-preparation.cjs",
         "scripts/test-cargo-target-owner.cjs",
+        "scripts/test-cargo-shared-cache.cjs",
+        "scripts/test-cargo-owner-audit.cjs",
         "scripts/test-cargo-scheduling.cjs",
         "scripts/test-cargo-verification-cache.cjs",
         "scripts/test-feature-preservation.cjs"

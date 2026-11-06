@@ -1,0 +1,19 @@
+{
+  "id": "run:EK01-user-wait-native:core01",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "b6490312738ff9f8585c20e6447b3ba69e9c2bc36f0a9d21c742b4dec914dae1",
+  "lease_owner": {
+    "acquired_at_ms": 1793248675485,
+    "operation": "group_reservation",
+    "pid": 26184,
+    "schema": 2,
+    "token": "26184-1793248675485-59e164dcc1b8c43f"
+  },
+  "originalOutcome": {
+    "synchronousExecSession": 11385,
+    "ownerExitCode": 1,
+    "reason": "Second guarded core01 registration failed OS maintenance.lock busy while unrelated EL01 owner active; failed outcome retained"
+  },
+  "terminationEvidence": "Own synchronous child_process.spawnSync returned terminal exit1, without detached/background path. Native registration entry/dispatch/registry/reservation source path has no spawned descendants; native recovery independently verifies exact owner/live lease."
+}

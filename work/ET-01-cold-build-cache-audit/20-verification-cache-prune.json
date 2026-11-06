@@ -1,0 +1,15 @@
+{
+  "startedUtc": "2026-10-30T03:22:57.771Z",
+  "finishedUtc": "2026-10-30T03:22:57.852Z",
+  "cacheRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\verification-results\\cargo-v2",
+  "beforeSlots": 1,
+  "afterSlots": 1,
+  "result": {
+    "removed": [],
+    "deferred": [
+      "obsolete versions: active or abandoned check leases",
+      "removed check 0d3d2b76e8abd897164ec55aee939dbede3a8f02e0f42d4758a6c35cbd759423: active or abandoned lease"
+    ]
+  },
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677"
+}

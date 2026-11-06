@@ -1,0 +1,35 @@
+{
+  "scope": "FA-01 standalone development execution",
+  "terminal": [
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T170208375Z-216456b2-070c-447f-a3c6-f3b7e80fe6bb",
+      "owner": "scripts/tests/instruction-workbench.test.cjs",
+      "exitCode": 124,
+      "basis": "project_tests run-17084-4660-1793552526846170900 returned observed timeout exit 124 and producer_completed:true at the managed process-tree boundary; after-input integrity remained valid. No duplicate started before terminal evidence."
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T170352012Z-62cf60d4-9360-4a48-80e7-9dd58dfb41d5",
+      "owner": "scripts/serve-instruction-workbench.cjs",
+      "exitCode": 1,
+      "pid": 57292,
+      "basis": "Managed exec session 59271 returned terminal exit 1 after Ctrl-C. The ready server had no spawned producers after startup; all browser file operations had returned before the stop, and no GitHub query had been requested. This is executor terminal evidence, not PID-absence inference."
+    }
+  ],
+  "passingRuns": [
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T170315733Z-29634ec5-9484-4a26-9cff-c466ace2f502",
+      "exitCode": 0,
+      "tests": 7
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T171009916Z-1b222318-6422-448a-99da-2312e98ffb00",
+      "exitCode": 0,
+      "tests": 8
+    }
+  ],
+  "notEstablished": [
+    "live GitHub authenticated acquisition",
+    "installed Azrael engine activation",
+    "Linux/macOS acceptance"
+  ]
+}

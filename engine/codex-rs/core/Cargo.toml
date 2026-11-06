@@ -42,6 +42,7 @@ workspace = true
 
 [dependencies]
 azrael-project-maintenance = { path = "../project-maintenance" }
+azrael-task-memory = { workspace = true }
 codex-utils-process = { workspace = true }
 anyhow = { workspace = true }
 arc-swap = { workspace = true }
@@ -208,8 +209,11 @@ walkdir = { workspace = true }
 wiremock = { workspace = true }
 zstd = { workspace = true }
 
+[target.'cfg(windows)'.dependencies]
+windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_Storage_FileSystem"] }
+
 [target.'cfg(windows)'.dev-dependencies]
-windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_Threading"] }
+windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_Threading", "Win32_Storage_FileSystem"] }
 
 [package.metadata.cargo-shear]
 ignored = ["openssl-sys"]

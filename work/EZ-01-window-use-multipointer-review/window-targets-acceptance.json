@@ -1,0 +1,59 @@
+{
+  "status": "Complete: source implementation, scoped verification and disposable cleanup",
+  "platform": "Windows x64 local, Node v26.7.0",
+  "scope": "Request-scoped windows and30s completion-based idle leases; source only, no product build/install/user-app input",
+  "modelTools": 24,
+  "appOnlyTools": 1,
+  "sourceHashes": {
+    "scripts/window-control-policy.cjs": "f4f12f18f019fbfbd37bc09d9875c317c729658833bcedda71019a610560240e",
+    "scripts/window-control-occupancy.cjs": "bbdb7464470addf14c21758b112c3683da1395c843a4f4a36b4caf9cbe8b5af3",
+    "scripts/window-control-host.cjs": "a9a39dd68792d34661f03e474c404a591c51c373ddc3edba4ac5418194c40569",
+    "scripts/window-control-mcp.cjs": "4b98037406ba18b7de289958e81d440b40b634b1b02cf95fb918529d3f44994e",
+    "scripts/window-control-errors.cjs": "5e6a5f36a3b3ef6021bdede66a01d50398a2114d7da63669d2e739a57ac3abaf",
+    "scripts/test-window-request-targets.cjs": "a44a1cbfc495cd27c7e90ad01381edc9f2af170c4987e9e5b4796310d8132393"
+  },
+  "verification": {
+    "core": {
+      "runId": "run:EZ01:window-targets-r6-mw1jst5z",
+      "tests": 246,
+      "pass": 245,
+      "fail": 0,
+      "skipped": 1,
+      "exitCode": 0,
+      "note": "Final23-file scoped suite including lifecycle cleanup non-renewal and separate-process arbitration"
+    },
+    "supplement": {
+      "runId": "run:EZ01:window-targets-r4-mw1jldum",
+      "tests": 26,
+      "pass": 22,
+      "fail": 4,
+      "note": "Historical run: host/overlay/integrated entry passed; four missing injection dependencies corrected in next run"
+    },
+    "injection": {
+      "runId": "run:EZ01:window-targets-r5-mw1jnh2z",
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    "syntaxExitCode": 0,
+    "featureInventoryExitCode": 0,
+    "diffCheckExitCode": 0
+  },
+  "limitations": [
+    "Installed runtime unchanged",
+    "Native user-app input not exercised",
+    "Interrupted busy leases/gates fail closed; never reclaimed from elapsed time or PID absence"
+  ],
+  "commit": {
+    "created": false,
+    "reason": "Pre-existing and concurrent uncommitted changes overlap owning files; no isolated task baseline to stage safely"
+  },
+  "cleanup": {
+    "report": "window-targets-cleanup.json",
+    "groups": 6,
+    "logicalBytesDeleted": 66263972,
+    "remainingPaths": []
+  }
+}

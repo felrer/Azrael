@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+  "ownerSha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+  "targets": [
+    {
+      "relative": "artifacts/t-dffb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-dffb",
+      "id": "35bf1b9b42dd3760acb60b5abb1b41ae786d54bea4a9d7fe980e897970c95d63",
+      "group": "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df"
+    },
+    {
+      "relative": "artifacts/t-f279",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-f279",
+      "id": "e5abf6e31654c5f7b59f48907f50b46e60bd51294c1d648c7f3c43af1b4e8b9b",
+      "group": "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9"
+    },
+    {
+      "relative": "artifacts/t-3954",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-3954",
+      "id": "7143a9d48fd370f1e0c99d4e6d2ee9bfce5bb98349ab98931cb460aec383f4e4",
+      "group": "run:deploy-checks:395416005861454cbd0cae3e9699df34"
+    }
+  ],
+  "sourceGroups": [
+    "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df",
+    "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9",
+    "run:deploy-checks:395416005861454cbd0cae3e9699df34"
+  ],
+  "originalConfigSha256": "a6dc3cca4dc764fa6c6d7d318f9d3906d87d0c74826a77e548254a3ce8e5a434",
+  "originalConfigBytes": 50128,
+  "temporaryConfigSha256": "7c8e7df0f38bed148c9eae82471836dcfd9348e3955af3e58b24106ace676d9a",
+  "backup": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-chain-796b38dc\\inputs\\config-before-managed-root.raw",
+  "proof": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-shorttemp-retirement-d8b934b5-3cb9-49b9-9f89-b05b3a83b8fc.json",
+  "phases": [
+    {
+      "name": "cleanup-012-retirement-review",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 25165.3423
+    },
+    {
+      "name": "cleanup-013-retirement-apply",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 576507.7575
+    }
+  ],
+  "error": null,
+  "onlyAddedRoots": [
+    "artifacts/t-dffb",
+    "artifacts/t-f279",
+    "artifacts/t-3954"
+  ],
+  "review": [
+    {
+      "id": "23b5991391488b845c4ed863f6d905b58b5edc17ab5b47cb86ac9d41bafda88c",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-build-fail-d7c30d0d",
+      "group": "run:deploy-checks:395416005861454cbd0cae3e9699df34",
+      "logicalBytes": 507195,
+      "blockers": []
+    },
+    {
+      "id": "28a252c3938bf324068fbb92f7d4a3ef545deb7401e9fe7a02ec003b6b7cefaa",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-verify-only-fbd33ae2",
+      "group": "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df",
+      "logicalBytes": 556606,
+      "blockers": []
+    },
+    {
+      "id": "35bf1b9b42dd3760acb60b5abb1b41ae786d54bea4a9d7fe980e897970c95d63",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-dffb",
+      "group": "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df",
+      "logicalBytes": 0,
+      "blockers": []
+    },
+    {
+      "id": "7143a9d48fd370f1e0c99d4e6d2ee9bfce5bb98349ab98931cb460aec383f4e4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-3954",
+      "group": "run:deploy-checks:395416005861454cbd0cae3e9699df34",
+      "logicalBytes": 0,
+      "blockers": []
+    },
+    {
+      "id": "ba7d2335cd4fb83260956c2774d360b77d67838cfd1e9d0f684fe15b7b9d8469",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-account-success-786485c7",
+      "group": "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9",
+      "logicalBytes": 591470,
+      "blockers": []
+    },
+    {
+      "id": "e5abf6e31654c5f7b59f48907f50b46e60bd51294c1d648c7f3c43af1b4e8b9b",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-f279",
+      "group": "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9",
+      "logicalBytes": 0,
+      "blockers": []
+    }
+  ],
+  "applied": [
+    {
+      "id": "23b5991391488b845c4ed863f6d905b58b5edc17ab5b47cb86ac9d41bafda88c",
+      "group": "run:deploy-checks:395416005861454cbd0cae3e9699df34",
+      "status": "deleted",
+      "remaining": false,
+      "groupStatus": "deleting"
+    },
+    {
+      "id": "7143a9d48fd370f1e0c99d4e6d2ee9bfce5bb98349ab98931cb460aec383f4e4",
+      "group": "run:deploy-checks:395416005861454cbd0cae3e9699df34",
+      "status": "deleted",
+      "remaining": false,
+      "groupStatus": "deleted"
+    },
+    {
+      "id": "28a252c3938bf324068fbb92f7d4a3ef545deb7401e9fe7a02ec003b6b7cefaa",
+      "group": "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df",
+      "status": "deleted",
+      "remaining": false,
+      "groupStatus": "deleting"
+    },
+    {
+      "id": "35bf1b9b42dd3760acb60b5abb1b41ae786d54bea4a9d7fe980e897970c95d63",
+      "group": "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df",
+      "status": "deleted",
+      "remaining": false,
+      "groupStatus": "deleted"
+    },
+    {
+      "id": "ba7d2335cd4fb83260956c2774d360b77d67838cfd1e9d0f684fe15b7b9d8469",
+      "group": "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9",
+      "status": "deleted",
+      "remaining": false,
+      "groupStatus": "deleting"
+    },
+    {
+      "id": "e5abf6e31654c5f7b59f48907f50b46e60bd51294c1d648c7f3c43af1b4e8b9b",
+      "group": "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9",
+      "status": "deleted",
+      "remaining": false,
+      "groupStatus": "deleted"
+    }
+  ],
+  "absence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-build-fail-d7c30d0d",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-verify-only-fbd33ae2",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-dffb",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-3954",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\et01-engine-cleanup-account-success-786485c7",
+      "absent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\t-f279",
+      "absent": true
+    }
+  ],
+  "restoredConfigSha256": "a6dc3cca4dc764fa6c6d7d318f9d3906d87d0c74826a77e548254a3ce8e5a434",
+  "configExactBytesRestored": true,
+  "finalization": [
+    {
+      "id": "run:deploy-checks:dffbc6860d83400a9bf63b4f9a4c91df",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e5960fde3c2bec36ec79c31a0411510e8edbf74f17a33682687ad9462eaa8bb7.json"
+    },
+    {
+      "id": "run:deploy-checks:f2791e2a7a1a45acb1742988cbf26bd9",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\344a5354afffbb5e489651a5917c63b10f1754979796fa5fa1aa4f9013549835.json"
+    },
+    {
+      "id": "run:deploy-checks:395416005861454cbd0cae3e9699df34",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\cc3256888136eee2c5b15e5dc1a16dcd68720e8511d0c81f55330bb7c61f2922.json"
+    }
+  ]
+}

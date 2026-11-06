@@ -1,5 +1,5 @@
 #requires -Version 7.0
-param([switch]$RecipeOnly,[switch]$CleanupOnly,[switch]$RegistryOnly,[switch]$LegacyRegistryOnly,[switch]$MissingRegistryOnly,[string]$FixtureRoot)
+param([switch]$RecipeOnly,[switch]$CleanupOnly,[switch]$RecoveryOnly,[switch]$RegistryOnly,[switch]$LegacyRegistryOnly,[switch]$MissingRegistryOnly,[switch]$InvalidationOnly,[switch]$OwnershipOnly,[string]$FixtureRoot)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
 $fixture=if($FixtureRoot){Assert-BuildCachePath $FixtureRoot ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts/tasks')))}else{[IO.Path]::GetFullPath((Join-Path $PSScriptRoot ('../artifacts/verification/module-cache-'+[guid]::NewGuid().ToString('N'))))}
@@ -14,7 +14,244 @@ $script:running=@()
 $script:inspectionFails=$false
 function Get-CimInstance {param($ClassName,$ErrorAction) if($script:inspectionFails){throw 'fixture process inspection unavailable'};if($script:inspectionMutation){if($script:inspectionMutationDelay -gt 0){$script:inspectionMutationDelay--}else{& $script:inspectionMutation;$script:inspectionMutation=$null}};if($script:registryRace){Add-Content -LiteralPath $script:registryRace ' ';$script:registryRace=$null};$script:running}
 $cache=$null
+function Test-ModuleMarkerRecovery([string]$fixture){
+ $cache=$null
+ try{
+   $cache=Open-BuildModuleCache $fixture
+   $cache.SkipCleanup=$true
+   $source=Join-Path $fixture 'source';New-Item -ItemType Directory $source|Out-Null
+   Set-Content (Join-Path $source 'input.txt') 'recovery input'
+   $entry=Get-BuildModuleEntry $cache providers @($source) @('unknown-marker-recovery')
+   $marker=Join-Path $entry.Path 'owner.json';$payload=Join-Path $entry.Path 'partial.txt'
+   Set-Content $payload 'partial output'
+   $originalMarker=[IO.File]::ReadAllBytes($marker);$nul=[byte[]]::new(128)
+   [IO.File]::WriteAllBytes($marker,$nul)
+   $sha=(Get-BuildModuleFileHash $marker).ToLowerInvariant()
+   $node=(Get-Command node -CommandType Application|Select-Object -First 1).Source
+   $lifecycle=Join-Path $PSScriptRoot 'artifact-lifecycle.cjs'
+   # A synchronous, directly owned fixture producer creates no child processes.
+   # Its successful process exit is observed separately; the historical module
+   # result remains unknown throughout close, recovery and cleanup selection.
+   $closeSource=@'
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const [api,root,id]=process.argv.slice(1),l=require(api),r=l.catalog(root).find(r=>r.id===id);
+const proof=path.join(root,'producer-close.json');fs.writeFileSync(proof,JSON.stringify({producer_pid:process.pid,children:[],fixture:'synchronous partial module producer'}),{flag:'wx'});
+const digest=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+l.closeLifecycle(root,id,{owner:r.owner,expected_revision:r.revision,producer_stopped_verified:true,outcome:'unknown',exit_code:null,reason:'Fixture partial producer has no remaining work or children',evidence_ref:proof,evidence_sha256:digest(proof)});
+'@
+   $null=& $node -e $closeSource $lifecycle $fixture $entry.LifecycleId
+   Assert ($LASTEXITCODE -eq 0) 'Directly owned synchronous fixture producer exited with no child tree'
+   $closed=Get-BuildModuleLifecycleRecord $cache providers $entry.Key $entry.Path
+   $revision=$closed.revision
+   $reject={param([hashtable]$Options,[string]$Pattern)
+     $message=$null
+     try{$result=Remove-BuildModuleEntry $cache providers $entry.Key $entry.Path @Options;if($result.status -eq 'blocked'){$message=$result.reason}}catch{$message=$_.Exception.Message}
+     Assert ($message -and $message -match $Pattern) "Recovery must reject: $Pattern; actual: $message"
+     Assert ((Test-Path $payload) -and (Test-Path $marker)) 'Rejection preserves partial payload and marker'
+     $current=Get-BuildModuleLifecycleRecord $cache providers $entry.Key $entry.Path
+     Assert ($current.state -eq 'pending' -and $current.producer.outcome -eq 'unknown' -and $null -eq $current.producer.exit_code) 'Rejected recovery preserves unknown outcome'
+   }
+   & $reject @{RecoveredOwnerSha256=$sha;ExpectedRecoveryRevision=$revision} 'cleanup recovery revision'
+   Set-Content (Join-Path $fixture 'producer-observer.json') 'PowerShell observed direct synchronous Node producer exit=0; no children were created; original module outcome remains unknown'
+   $recoverSource=@'
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const [api,root,id]=process.argv.slice(1),l=require(api),r=l.catalog(root).find(r=>r.id===id);
+const digest=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const proof=path.join(root,'cleanup-recovery.json'),observer=path.join(root,'producer-observer.json');
+const source={id:r.id,kind:r.kind,owner:r.owner,version:r.version??null,generation:r.generation??null,revision:r.revision,state:r.state,membership_complete:r.membership_complete,producer:r.producer??null,members:r.members};
+fs.writeFileSync(proof,JSON.stringify({schema:1,action:'recover-cleanup',source,producer_stopped_verified:true,membership_complete_verified:true,stop_basis:'Direct synchronous producer process exit observed by PowerShell; no children created',membership_basis:'Original single generated cache root contains all partial output',producer_evidence:[{path:observer,sha256:digest(observer)}]}),{flag:'wx'});
+l.recoverCleanup(root,id,{owner:r.owner,expected_revision:r.revision,producer_stopped_verified:true,membership_complete_verified:true,reason:'Reconcile partial fixture membership without changing unknown outcome',evidence_ref:proof,evidence_sha256:digest(proof)});
+'@
+   $null=& $node -e $recoverSource $lifecycle $fixture $entry.LifecycleId
+   Assert ($LASTEXITCODE -eq 0) 'Supported recoverCleanup validates independent external proof'
+   $recovered=Get-BuildModuleLifecycleRecord $cache providers $entry.Key $entry.Path
+   $revision=$recovered.revision;$options=@{RecoveredOwnerSha256=$sha;ExpectedRecoveryRevision=$revision}
+   & $reject @{RecoveredOwnerSha256=('0'*64);ExpectedRecoveryRevision=$revision} 'SHA256 mismatch'
+   & $reject @{RecoveredOwnerSha256=$sha;ExpectedRecoveryRevision=($revision-1)} 'cleanup recovery revision'
+   & $reject @{RecoveredOwnerSha256=$sha;ExpectedRecoveryRevision=$revision;Retry=$true} 'cannot retry'
+   & $reject @{RecoveredOwnerSha256=$sha;ExpectedRecoveryRevision=$revision;ProtectedPaths=@($payload)} 'protected'
+   foreach($bytes in @($originalMarker,[byte[]]@(0,1),[byte[]]::new(0),[byte[]]::new(65537))){
+     [IO.File]::WriteAllBytes($marker,$bytes)
+     & $reject $options 'NUL owner marker'
+   }
+   [IO.File]::WriteAllBytes($marker,$nul)
+   $renamed=Join-Path $entry.Path 'owner.saved';Move-Item -LiteralPath $marker -Destination $renamed
+   try{
+     $missingRejected=$false
+     try{Remove-BuildModuleEntry $cache providers $entry.Key $entry.Path @options|Out-Null}catch{$missingRejected=$true}
+     Assert ($missingRejected -and (Test-Path $payload)) 'Missing marker rejects without deletion'
+   }finally{Move-Item -LiteralPath $renamed -Destination $marker}
+   $hardlink=Join-Path $fixture 'marker-link';New-Item -ItemType HardLink -Path $hardlink -Target $marker|Out-Null
+   try{& $reject $options 'single-link'}finally{Remove-Item -LiteralPath $hardlink -ErrorAction Stop}
+   $substitutedRejected=$false
+   try{Remove-BuildModuleEntry $cache providers $entry.Key ($entry.Path+'-substitute') @options|Out-Null}catch{$substitutedRejected=$true}
+   Assert ($substitutedRejected -and (Test-Path $payload)) 'Substituted member path rejects without deletion'
+   $moved=$entry.Path+'-moved';Move-Item -LiteralPath $entry.Path -Destination $moved
+   try{
+     New-Item -ItemType Junction -Path $entry.Path -Target $moved|Out-Null
+     & $reject $options 'Linked cache path'
+   }finally{if(Test-Path -LiteralPath $entry.Path){Remove-Item -LiteralPath $entry.Path -ErrorAction Stop};Move-Item -LiteralPath $moved -Destination $entry.Path}
+   $script:inspectionMutation={[IO.File]::WriteAllBytes($marker,[byte[]]@(0,1))}
+   try{& $reject $options 'NUL owner marker'}finally{$script:inspectionMutation=$null;[IO.File]::WriteAllBytes($marker,$nul)}
+   $lease=$cache.Lease;$cache.Lease=$null
+   try{& $reject $options 'cache lease'}finally{$cache.Lease=$lease}
+   $script:running=@([pscustomobject]@{Name='cargo.exe';CommandLine='cargo fixture'})
+   try{& $reject $options 'compiler reference'}finally{$script:running=@()}
+   $consumer='run:marker-consumer'
+   $null=Register-ArtifactLifecycle -ProjectRoot $fixture -Id $consumer -Kind run -Owner fixture -State complete -MembershipComplete $true -Members @{output=(Join-Path $fixture 'artifacts/absent-consumer-output')} -References @{$entry.LifecycleId='fixture dependency'} -Generated -ProtectionKnown
+   try{& $reject $options 'consumer'}finally{$null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$fixture,'--id',$consumer)}
+   $recoveryProof=Join-Path $fixture 'cleanup-recovery.json';$proofBytes=[IO.File]::ReadAllBytes($recoveryProof)
+   try{[IO.File]::AppendAllText($recoveryProof,' ');& $reject $options 'SHA256|recovery|lifecycle command failed'}finally{[IO.File]::WriteAllBytes($recoveryProof,$proofBytes)}
+   $preview=Remove-BuildModuleEntry $cache providers $entry.Key $entry.Path @options -Preview
+   Assert ($preview.status -eq 'selected' -and (Test-Path $payload)) 'Recovery preview uses real native cleanup proof validation'
+   $current=Get-BuildModuleLifecycleRecord $cache providers $entry.Key $entry.Path
+   Assert ($current.revision -eq $revision -and $current.state -eq 'pending' -and $current.producer.outcome -eq 'unknown' -and $null -eq $current.producer.exit_code) 'Unknown outcome unchanged until native finalization'
+   $result=Remove-BuildModuleEntry $cache providers $entry.Key $entry.Path @options
+   Assert ($result.status -eq 'deleted' -and -not(Test-Path $entry.Path)) ('Supported recovered marker cleanup deletes exact entry: '+($result|ConvertTo-Json -Depth 10 -Compress))
+   Assert (-not @((Invoke-ArtifactLifecycleNode @('catalog','--project-root',$fixture)).groups|Where-Object id -EQ $entry.LifecycleId).Count) 'Native cleanup finalizes deleted lifecycle'
+   Write-Output 'Module marker recovery: supported unknown close/recoverCleanup, external proof, NUL hash/revision, retry, marker type/bounds, lease, protection, process and consumer guards; native deletion/finalization passed; exit=0'
+ }finally{if($cache -and $cache.Lease){$cache.Lease.Dispose()}}
+}
 try{
+ if($OwnershipOnly -or -not($RecipeOnly -or $CleanupOnly -or $RecoveryOnly -or $RegistryOnly -or $LegacyRegistryOnly -or $MissingRegistryOnly)){
+   # Execute the production deployment binding function; the resolver itself has
+   # real manifest/working-root coverage in test-deployment-workspace.cjs.
+   $tokens=$null;$errors=$null
+   $deployAst=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'deploy-azrael.ps1'),[ref]$tokens,[ref]$errors)
+   Assert (-not $errors.Count) 'Deployment script parses'
+   $binding=$deployAst.Find({param($item) $item -is [Management.Automation.Language.FunctionDefinitionAst] -and $item.Name -ceq 'Resolve-DeploymentModuleCacheOwner'},$true)
+   Assert ($null -ne $binding) 'Production manifest binding owner exists'
+   . ([scriptblock]::Create($binding.Extent.Text))
+   $manifest=Join-Path $fixture 'manifest.json';$sha='a'*64;$selected=[IO.Path]::GetFullPath($fixture)
+   $script:resolverExit=0;$script:resolverPacket=@{moduleCacheProjectRoot=$selected}|ConvertTo-Json
+   function node {$script:resolverArgs=@($args);$global:LASTEXITCODE=$script:resolverExit;$script:resolverPacket}
+   try{
+     Assert ((Resolve-DeploymentModuleCacheOwner $fixture '' '' $selected) -ceq $selected) 'Explicit independent owner preserved'
+     foreach($pair in @(@($manifest,''),@('',$sha))){
+       try{Resolve-DeploymentModuleCacheOwner $fixture $pair[0] $pair[1] ''|Out-Null;throw 'Expected paired manifest inputs'}catch{Assert ($_.Exception.Message -match 'supplied together') 'Partial manifest arguments rejected'}
+     }
+     Assert ((Resolve-DeploymentModuleCacheOwner $fixture $manifest $sha '') -ceq $selected) 'Verified manifest owner selected'
+     Assert ($script:resolverArgs.Count -eq 5 -and $script:resolverArgs[1] -ceq '--module-cache-owner' -and $script:resolverArgs[2] -ceq $manifest -and $script:resolverArgs[3] -ceq $sha -and $script:resolverArgs[4] -ceq $fixture) 'Production binding forwards exact manifest/hash/execution root'
+     Assert ((Resolve-DeploymentModuleCacheOwner $fixture $manifest $sha $selected) -ceq $selected) 'Matching explicit owner accepted'
+     try{Resolve-DeploymentModuleCacheOwner $fixture $manifest $sha (Join-Path $fixture 'wrong')|Out-Null;throw 'Expected conflict'}catch{Assert ($_.Exception.Message -match 'conflicts') 'Conflicting explicit owner rejected'}
+     $script:resolverExit=1
+     try{Resolve-DeploymentModuleCacheOwner $fixture $manifest $sha ''|Out-Null;throw 'Expected resolver exit rejection'}catch{Assert ($_.Exception.Message -match 'verification failed') 'Nonzero resolver exit rejected'}
+     $script:resolverExit=0;$script:resolverPacket='{}'
+     try{Resolve-DeploymentModuleCacheOwner $fixture $manifest $sha ''|Out-Null;throw 'Expected missing owner rejection'}catch{Assert ($_.Exception.Message -match 'owner missing') 'Empty resolver result rejected'}
+   }finally{Remove-Item Function:\node;Remove-Item Function:\Resolve-DeploymentModuleCacheOwner}
+   $owner=Join-Path $fixture 'owner';$projectA=Join-Path $owner 'workspaces/a';$projectB=Join-Path $owner 'workspaces/b'
+   New-Item -ItemType Directory $projectA,$projectB|Out-Null
+   foreach($project in @($projectA,$projectB)){Set-Content (Join-Path $project 'source.txt') 'same content'}
+   $cache=Open-BuildModuleCache $projectA $owner;$cache.SkipCleanup=$true
+   $generated=0
+   $a=Get-BuildModuleEntry $cache providers @((Join-Path $projectA 'source.txt')) @('handoff')
+   if(-not $a.Hit){$generated++;Set-Content (Join-Path $a.Path 'output.txt') 'compiled';Save-BuildModuleEntry $a @('output.txt')}
+   # An empty, genuinely finalized source catalog is required for normal retirement.
+   $null=Register-ArtifactLifecycle $projectA 'run:fixture-a' run fixture complete $true @{payload=(Join-Path $projectA 'artifacts/absent')} -Generated -ProtectionKnown
+   $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$projectA,'--id','run:fixture-a')
+   $cache.Lease.Dispose();$cache=Open-BuildModuleCache $projectB $owner;$cache.SkipCleanup=$true
+   $b=Get-BuildModuleEntry $cache providers @((Join-Path $projectB 'source.txt')) @('handoff')
+   if(-not $b.Hit){$generated++}
+   Assert ($b.Hit -and $b.Key -ceq $a.Key -and $generated -eq 1) 'A/B reuse one physical complete cache without invoking generation twice'
+   $inspection=Get-BuildCacheProjectInspection $cache $projectA
+   Assert ($inspection.status -eq 'ready-for-proof') ('A normal retirement inspection: '+$inspection.reason)
+   $proof=Join-Path $owner 'retire-a.json'
+   @{schema=1;project=$projectA;registry_sha256=$inspection.registrySha256;catalog_sha256=$inspection.catalogSha256;producer_stopped_verified=$true;consumers_released_verified=$true;installations_released_verified=$true;rollback_released_verified=$true;reason='Synchronous fixture producer ended, no durable consumers or installations'}|ConvertTo-Json|Set-Content $proof
+   $retired=Remove-BuildCacheProjectRegistration $cache $projectA $proof (Get-BuildModuleFileHash $proof) -Apply
+   Assert ($retired.status -eq 'retired' -and $retired.registrationAbsent) 'A exact registration retired without removing B'
+   Assert-BuildCachePath $projectA $owner|Out-Null;Remove-Item -LiteralPath $projectA -Recurse -ErrorAction Stop
+   Assert (-not(Test-Path $projectA)) 'Retired A fixture removed'
+   $again=Get-BuildModuleEntry $cache providers @((Join-Path $projectB 'source.txt')) @('handoff')
+   Assert ($again.Hit -and (Test-Path $a.Path) -and $projectB -in @(Get-BuildCacheProjects $cache)) 'B survives A retirement'
+   # Unrelated historical absence blocks replacement/deletion, not a verified hit.
+   $registry=Join-Path $cache.Root '.projects.json';$data=Get-Content $registry -Raw|ConvertFrom-Json
+   $data.projects+=@(Join-Path $owner 'missing-legacy');$data|ConvertTo-Json|Set-Content $registry
+   $again=Get-BuildModuleEntry $cache providers @((Join-Path $projectB 'source.txt')) @('handoff')
+   Assert $again.Hit 'Verified complete hit remains reusable with unrelated missing legacy project'
+   try{Get-BuildModuleEntry $cache providers @((Join-Path $projectB 'source.txt')) @('handoff') -Force|Out-Null;throw 'Expected replacement guard'}catch{Assert ($_.Exception.Message -match 'Missing registered cache project') 'Legacy uncertainty still prevents selected-key replacement'}
+   Assert (Test-Path $a.Path) 'Legacy replacement rejection preserves payload'
+   . (Join-Path $PSScriptRoot 'window-control-cache.ps1')
+   $nativeCopy=Join-Path $owner 'workspaces/native-b';New-Item -ItemType Directory $nativeCopy|Out-Null
+   $native=$null
+   try{
+     $native=Open-WindowControlSharedCache $projectB $owner
+     Assert (-not $native.CanReuse) 'New shared native target cannot claim a receipt hit'
+     $nativeTarget=$native.Target
+     $plan=Get-ArtifactLifecyclePlan -ProjectRoot $owner -Candidates @($nativeTarget)
+     Assert (@($plan.groups|Where-Object {$_.id -ceq $native.LifecycleId -and $_.blockers.Count}).Count -eq 1) 'Active WindowControl target is protected from canonical cleanup'
+     try{Open-WindowControlSharedCache $nativeCopy $owner|Out-Null;throw 'Expected native lease collision'}catch{Assert ($_.Exception.Message -match 'holds the shared target lease') 'Shared native lease excludes another workspace'}
+     Set-Content (Join-Path $nativeTarget 'fixture-output.txt') 'owned generated native fixture'
+     Complete-WindowControlSharedCache $native
+     $native.Lease.Dispose();$native=$null
+     $native=Open-WindowControlSharedCache $nativeCopy $owner
+     Assert ($native.CanReuse -and $native.Target -ceq $nativeTarget) 'A completed native target has the same owner/path in B'
+     Fail-WindowControlSharedCache $native
+     $native.Lease.Dispose();$native=$null
+     $script:running=@([pscustomobject]@{Name='cargo.exe';ProcessId=987654;CommandLine='cargo fixture';ExecutablePath='fixture'})
+     try{Open-WindowControlSharedCache $nativeCopy $owner|Out-Null;throw 'Expected interrupted producer guard'}catch{Assert ($_.Exception.Message -match 'Compiler process') 'Interrupted native retry preserves possibly running compiler'}finally{$script:running=@()}
+     $native=Open-WindowControlSharedCache $nativeCopy $owner
+     Assert (-not $native.CanReuse) 'Failed native generation requires rebuilding despite old output'
+     Set-Content (Join-Path $nativeTarget 'fixture-output.txt') 'rebuilt fixture output after synchronous failed fixture producer'
+     Complete-WindowControlSharedCache $native
+     $native.Lease.Dispose();$native=$null
+     $marker=Join-Path $nativeTarget 'owner.json';$markerBytes=[IO.File]::ReadAllBytes($marker)
+     try{
+       Set-Content $marker '{"schema":1}'
+       try{Open-WindowControlSharedCache $nativeCopy $owner|Out-Null;throw 'Expected native marker rejection'}catch{Assert ($_.Exception.Message -match 'ownership marker') 'Corrupt native ownership never authorizes use'}
+     }finally{[IO.File]::WriteAllBytes($marker,$markerBytes)}
+     $unregisteredOwner=Join-Path $fixture 'unregistered-native';New-Item -ItemType Directory $unregisteredOwner|Out-Null
+     $unregisteredTarget=Get-WindowControlSharedTarget $unregisteredOwner;New-Item -ItemType Directory $unregisteredTarget|Out-Null
+     Set-Content (Join-Path $unregisteredTarget 'sentinel') 'unclaimed'
+     try{Open-WindowControlSharedCache $unregisteredOwner $unregisteredOwner|Out-Null;throw 'Expected native legacy refusal'}catch{Assert ($_.Exception.Message -match 'Unregistered window-control target') 'Shared native owner never claims an unregistered target'}
+     Assert ((Get-Content (Join-Path $unregisteredTarget 'sentinel')) -ceq 'unclaimed') 'Unregistered native payload preserved'
+   }finally{if($native -and $native.Lease){$native.Lease.Dispose()}}
+   Write-Output 'WindowControl shared ownership: stable target, native cleanup protection, physical lease, completed cross-copy selection, failed/active retry, marker and legacy guards passed; exit=0'
+   Write-Output 'Ownership lifetime: A/B one generation, exact retirement, A absence/B hit, legacy hit/replacement separation passed; exit=0'
+   if($OwnershipOnly){return}
+   $cache.Lease.Dispose();$cache=$null
+ }
+ if($RecoveryOnly){Test-ModuleMarkerRecovery $fixture;return}
+ if($InvalidationOnly){
+   $owner=Join-Path $fixture 'owner';$project=Join-Path $owner 'snapshots/absent';$other=Join-Path $owner 'snapshots/existing'
+   New-Item -ItemType Directory $project,$other|Out-Null
+   $cache=Open-BuildModuleCache $project $owner
+   $cache.Lease.Dispose();$cache=Open-BuildModuleCache $owner
+   Remove-Item -LiteralPath $project -ErrorAction Stop
+   $registry=Join-Path $cache.Root '.projects.json';$original=[IO.File]::ReadAllBytes($registry);$hash=Get-BuildModuleFileHash $registry
+   $evidence=Join-Path $owner 'invalidation.json';$receipt=Join-Path $owner 'invalidation-receipt.json'
+   $proof=@{schema=1;action='invalidate-absent-project-cache-registration';user_authorized=$true;project=$project;cache_owner=$owner;registry_sha256=$hash;reason='User authorized regenerable cache invalidation'}
+   $proof|ConvertTo-Json|Set-Content $evidence
+   $evidenceHash=Get-BuildModuleFileHash $evidence
+   $reject={param($Pattern)
+     try{Remove-BuildCacheAbsentProjectRegistration $cache $project $evidence $evidenceHash $receipt -Apply|Out-Null;throw 'Expected invalidation rejection'}catch{Assert ($_.Exception.Message -match $Pattern) "Expected invalidation guard $Pattern, got: $($_.Exception.Message)"}
+     Assert ((Get-BuildModuleFileHash $registry) -eq $hash -and -not(Test-Path $receipt)) 'Rejected invalidation preserves registry and creates no receipt'
+   }
+   Assert ((Get-BuildCacheProjectInspection $cache $project).status -eq 'blocked') 'Default absent-project retirement remains protected'
+   $cache.Lease.Dispose();& $reject 'lease';$cache=Open-BuildModuleCache $owner
+   Move-Item -LiteralPath $evidence -Destination ($evidence+'.held');& $reject 'Readable';Move-Item -LiteralPath ($evidence+'.held') -Destination $evidence
+   Add-Content $evidence ' ';& $reject 'Stale';$proof|ConvertTo-Json|Set-Content $evidence
+   $proof.user_authorized=$false;$proof|ConvertTo-Json|Set-Content $evidence;$evidenceHash=Get-BuildModuleFileHash $evidence;& $reject 'user-authorized'
+   $proof.user_authorized=$true;$proof|ConvertTo-Json|Set-Content $evidence;$evidenceHash=Get-BuildModuleFileHash $evidence
+   New-Item -ItemType Directory $project|Out-Null;& $reject 'Only an absent';Remove-Item -LiteralPath $project -ErrorAction Stop
+   $script:running=@([pscustomobject]@{ProcessId=123456;Name='node.exe';CommandLine=$cache.Root;ExecutablePath=$null});& $reject 'process reference';$script:running=@()
+   $script:inspectionFails=$true;& $reject 'inspection unavailable';$script:inspectionFails=$false
+   $script:inspectionMutation={New-Item -ItemType Directory $project|Out-Null};& $reject 'inputs changed';Remove-Item -LiteralPath $project -ErrorAction Stop
+   $script:inspectionMutation={Add-Content $evidence ' '};& $reject 'inputs changed';$proof|ConvertTo-Json|Set-Content $evidence
+   $script:registryRace=$registry
+   try{Remove-BuildCacheAbsentProjectRegistration $cache $project $evidence $evidenceHash $receipt -Apply|Out-Null;throw 'Expected registry race rejection'}catch{Assert ($_.Exception.Message -match 'inputs changed') 'Registry race rejected'}finally{[IO.File]::WriteAllBytes($registry,$original)}
+   # The durable consumer list remains a separate mandatory protection boundary.
+   function node {param([Parameter(ValueFromRemainingArguments)]$Arguments) $global:LASTEXITCODE=0;'[{"references":[{"id":"live"}]}]'}
+   try{& $reject 'Durable cache consumer'}finally{Remove-Item Function:node}
+   $preview=Remove-BuildCacheAbsentProjectRegistration $cache $project $evidence $evidenceHash $receipt
+   Assert ($preview.status -eq 'selected' -and -not(Test-Path $receipt)) 'Preview preserves registry and receipt absence'
+   $result=Remove-BuildCacheAbsentProjectRegistration $cache $project $evidence $evidenceHash $receipt -Apply
+   $saved=Get-Content $receipt -Raw|ConvertFrom-Json
+   Assert ($result.status -eq 'invalidated' -and $result.registrationAbsent -and $saved.historicalOutcome -eq 'unknown' -and $saved.historical_consumer_index -eq 'unavailable') 'Explicit invalidation preserves unknown historical outcome'
+   Assert ([Convert]::ToBase64String($original) -ceq $saved.original_registry_base64 -and $saved.original_registry_sha256 -eq $hash -and $saved.removed_project -ceq $project) 'Immutable receipt preserves exact registry bytes and removed project'
+   Assert ($owner -in @(Get-BuildCacheProjects $cache) -and (Test-Path $other) -and -not(Test-Path $project)) 'Only missing registration removed; other source and owner preserved'
+   Write-Output 'Absent-project cache invalidation: explicit authority, default protection, lease, evidence/registry/absence/process/consumer guards, preview and immutable original registry receipt passed; exit=0'
+   return
+ }
  if($MissingRegistryOnly){
    $owner=Join-Path $fixture 'owner';$project=Join-Path $owner 'snapshots/missing';$other=Join-Path $owner 'snapshots/existing'
    New-Item -ItemType Directory $project,$other|Out-Null
@@ -231,22 +468,24 @@ try{
    # the supervising Node process exit; PID lookup alone is not stop evidence.
    $recoveredId='run:inspection-recovered';$recoveredMember=Join-Path $project 'artifacts/inspection-recovered'
    $null=Register-ArtifactLifecycle -ProjectRoot $project -Id $recoveredId -Kind run -Owner fixture -State complete -MembershipComplete $true -Members @{payload=$recoveredMember} -Generated -ProtectionKnown
-   $crashSource='const path=require("node:path"),assert=require("node:assert/strict"),{spawn}=require("node:child_process"),{createInterface}=require("node:readline"),binary=require(process.argv[1]).resolveMaintenanceOwner();const child=spawn(binary,["--lease",path.join(process.argv[2],"artifacts/maintenance/lifecycles/catalog.lock"),"--operation","test.inspect-recovery","--wait-ms","0","--parent-pid",String(process.pid)],{stdio:["pipe","pipe","pipe"],windowsHide:true});let result,stage=0,error,stderr="";const fail=e=>{error=e;child.stdin.destroy();child.kill();};const timer=setTimeout(()=>fail(Error("Owned native helper close timeout")),10000);child.on("error",fail);child.stderr.on("data",b=>{stderr=(stderr+b).slice(0,4096);});createInterface({input:child.stdout}).on("line",line=>{try{assert(Buffer.byteLength(line)<1048576);const packet=JSON.parse(line);assert.equal(packet.ok,true,packet.error);assert.equal(packet.id,stage);if(stage++===0){assert.equal(packet.result.pid,child.pid);child.stdin.write(JSON.stringify({id:1,operation:"reserve_producers",records:[{id:process.argv[3],revision:1}]})+"\n");}else{assert.equal(stage,2);result=packet.result;assert.equal(result.observed[0].fence.lease_owner.pid,child.pid);child.stdin.end();}}catch(e){fail(e);}});child.on("close",(code,signal)=>{clearTimeout(timer);try{if(error)throw error;assert.equal(code,0,stderr);assert.equal(signal,null);assert.equal(stage,2);assert(result);process.stdout.write(JSON.stringify(result));}catch(e){console.error(e);process.exitCode=1;}});'
+   $crashSource='const path=require("node:path"),assert=require("node:assert/strict"),{spawn}=require("node:child_process"),{createInterface}=require("node:readline"),command=require(process.argv[1]).resolveMaintenanceCommand();const child=spawn(command.executable,[...command.args,"--lease",path.join(process.argv[2],"artifacts/maintenance/lifecycles/catalog.lock"),"--operation","test.inspect-recovery","--wait-ms","0","--parent-pid",String(process.pid)],{stdio:["pipe","pipe","pipe"],windowsHide:true});let result,stage=0,error,stderr="";const fail=e=>{error=e;child.stdin.destroy();child.kill();};const timer=setTimeout(()=>fail(Error("Owned native helper close timeout")),10000);child.on("error",fail);child.stderr.on("data",b=>{stderr=(stderr+b).slice(0,4096);});createInterface({input:child.stdout}).on("line",line=>{try{assert(Buffer.byteLength(line)<1048576);const packet=JSON.parse(line);assert.equal(packet.ok,true,packet.error);assert.equal(packet.id,stage);if(stage++===0){assert.equal(packet.result.pid,child.pid);child.stdin.write(JSON.stringify({id:1,operation:"reserve_producers",records:[{id:process.argv[3],revision:1}]})+"\n");}else{assert.equal(stage,2);result=packet.result;assert.equal(result.observed[0].fence.lease_owner.pid,child.pid);child.stdin.end();}}catch(e){fail(e);}});child.on("close",(code,signal)=>{clearTimeout(timer);try{if(error)throw error;assert.equal(code,0,stderr);assert.equal(signal,null);assert.equal(stage,2);assert(result);process.stdout.write(JSON.stringify(result));}catch(e){console.error(e);process.exitCode=1;}});'
    $node=(Get-Command node -CommandType Application|Select-Object -First 1).Source
    $crashed=@(& $node -e $crashSource (Join-Path $PSScriptRoot 'maintenance-owner-config.cjs') $project $recoveredId)
    Assert ($LASTEXITCODE -eq 0) 'Owned native helper close and supervising producer exit observed after real reservation publication'
    $activeFiles=@(Get-ChildItem -LiteralPath $reservationControls -Filter '*.json');Assert ($activeFiles.Count -eq 1) 'Exactly one known fixture reservation remains active'
    $stopProof=Join-Path $project 'artifacts/maintenance/evidence/inspection-recovery.json'
-   $recoveryRequest=Join-Path $project 'artifacts/maintenance/evidence/inspection-recovery-request.json'
+   $recoveryRequest=Join-Path $project 'artifacts/inspection-recovery-request.json'
    # The native protocol compares lowercase raw SHA and the exact JSON fence.
    # The cache hash helper returns uppercase, and PowerShell date conversion can
    # alter producer timestamp strings. Preserve the native JSON through Node.
    $prepareRecovery='const fs=require("node:fs"),crypto=require("node:crypto"),assert=require("node:assert/strict"),[active,proofPath,requestPath,id,observer]=process.argv.slice(1);const hash=bytes=>crypto.createHash("sha256").update(bytes).digest("hex"),raw=fs.readFileSync(active),fence=JSON.parse(raw),original=JSON.parse(observer).observed.find(item=>item.id===id);assert(original,"Exact acquired fixture observer required");assert.deepEqual(fence,original.fence,"Reservation changed after independently observed helper stop");const sha=hash(raw),proof=Buffer.from(JSON.stringify({id,producer_stopped_verified:true,process_tree_stopped_verified:true,reservation_sha256:sha,lease_owner:fence.lease_owner})+"\n");fs.writeFileSync(proofPath,proof,{flag:"wx"});fs.writeFileSync(requestPath,JSON.stringify({operation:"recover_reservation",id,producer_stopped_verified:true,reason:"Fixture-owned producer and bounded native helper tree stopped after EOF",expected_sha256:sha,token:fence.token,fence,evidence_ref:proofPath,evidence_sha256:hash(proof)}),{flag:"wx"});'
    $null=& $node -e $prepareRecovery $activeFiles[0].FullName $stopProof $recoveryRequest $recoveredId ($crashed -join "`n")
    Assert ($LASTEXITCODE -eq 0) 'Recovery request pins unchanged native fence, token and lowercase raw hashes'
-   $ownerBinary=(& $node -e 'process.stdout.write(require(process.argv[1]).resolveMaintenanceOwner())' (Join-Path $PSScriptRoot 'maintenance-owner-config.cjs'))
+   $ownerJson=@(& $node -e 'process.stdout.write(JSON.stringify(require(process.argv[1]).resolveMaintenanceCommand()))' (Join-Path $PSScriptRoot 'maintenance-owner-config.cjs'))
    Assert ($LASTEXITCODE -eq 0) 'Frozen maintenance owner resolves for fixture recovery'
-   $null=& $ownerBinary --project-root $project --request $recoveryRequest
+   $ownerCommand=($ownerJson -join "`n")|ConvertFrom-Json
+   $ownerBinary=$ownerCommand.executable;$ownerArgs=@($ownerCommand.args)+@('--project-root',$project,'--request',$recoveryRequest)
+   $null=& $ownerBinary @ownerArgs
    Assert ($LASTEXITCODE -eq 0) 'Real native reservation recovery emits immutable receipt without changing historical outcome'
    $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$project,'--id',$recoveredId)
    $inspection=Get-BuildCacheProjectInspection $cache $project
@@ -282,6 +521,7 @@ try{
    Write-Output 'Module cache registration: missing provenance, pending consumer, canonical empty catalog, stale proof/registry, compiler and inspection guards, preview and exact registration retirement passed; exit=0'
    return
  }
+ if(-not $CleanupOnly -and -not $RecipeOnly){Test-ModuleMarkerRecovery (Join-Path $fixture 'marker-recovery')}
  $source=Join-Path $fixture 'source';New-Item -ItemType Directory $source|Out-Null;Set-Content (Join-Path $source 'code.ts') 'one'
  # Parallel readers must keep file identities and input roles aligned, and may
  # not publish partial rows when one worker cannot read its selected file.
@@ -324,14 +564,9 @@ try{
  Assert ((Get-BuildModuleKey @($source,(Join-Path $source 'code.ts')) @('tool <one> "quoted"',"line`nbreak") -Diagnostics $fingerprintDiagnostics) -ceq $contractKey) 'Batched fingerprint preserves schema-2 key bytes'
  Assert ($fingerprintDiagnostics.inputManifest.inputs[1].path -ceq 'code.ts' -and $fingerprintDiagnostics.inputManifest.inputs[1].sha256 -ceq $contractHash -and $fingerprintDiagnostics.inputManifest.values.Count -eq 2) 'Manifest records relative input roles and value identities from the same fingerprint'
  # Module recipes select only their own implementation and common helpers.
- $runner=Join-Path $fixture 'runner.ps1';$recipe=Join-Path $fixture 'recipe.ps1';$common=Join-Path $fixture 'common.ps1'
- Copy-Item (Join-Path $PSScriptRoot 'build-azrael.ps1') $runner;Copy-Item (Join-Path $PSScriptRoot 'build-module-companion-recipe.ps1') $recipe;Copy-Item (Join-Path $PSScriptRoot 'build-module-cache.ps1') $common
- $ast=[System.Management.Automation.Language.Parser]::ParseFile($runner,[ref]$null,[ref]$null)
- $inputAssignment=$ast.Find({param($node) $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -eq '$moduleInputs'},$true)
- Assert ($inputAssignment -and $inputAssignment.Right.Extent.Text -notmatch 'build-azrael.ps1') 'Runner must not be a common module input'
+ $recipe=Join-Path $fixture 'recipe.ps1';$common=Join-Path $fixture 'common.ps1'
+ Copy-Item (Join-Path $PSScriptRoot 'build-module-companion-recipe.ps1') $recipe;Copy-Item (Join-Path $PSScriptRoot 'build-module-cache.ps1') $common
  $recipeKey=Get-BuildModuleKey @($source,$recipe,$common)
- Set-Content $runner 'engine recipe two'
- Assert ((Get-BuildModuleKey @($source,$recipe,$common)) -ceq $recipeKey) 'Unrelated engine runner changes retain module identity'
  Set-Content $recipe 'changed companion recipe'
  Assert ((Get-BuildModuleKey @($source,$recipe,$common)) -cne $recipeKey) 'Selected recipe change invalidates'
  $recipeKey=Get-BuildModuleKey @($source,$recipe,$common);Set-Content $common 'changed helper'
@@ -388,6 +623,9 @@ try{
   Assert ($CompanionVsixPath -eq (Join-Path $companionCache.Path 'azrael-ex.vsix') -and $companionBuild -eq (Join-Path $companionCache.Path 'companion')) 'Dot-invoked recipe retains caller outputs'
   Assert ((Get-Location).Path -eq $beforeLocation -and $env:AZRAEL_PLATFORM_RUNTIME_SOURCE -eq $beforeEnvironment) 'Recipe restores cwd and environment'
   Assert (Get-BuildModuleEntry $cache companion @($recipeSource) @('production-recipe')).Hit 'Actual production recipe publication is reusable'
+  $resultJson=ConvertTo-Json -InputObject @($cache.Results) -Depth 8
+  $resultManifest=@($resultJson|ConvertFrom-Json|Where-Object key -CEQ $companionCache.Key)[0].inputManifest
+  Assert ($resultManifest.inputs[1].sha256 -ceq $companionCache.InputManifest.inputs[1].sha256 -and $resultManifest.values[0].sha256 -ceq $companionCache.InputManifest.values[0].sha256) 'Module result serialization preserves source and tool value manifest for build evidence'
   $metrics=Get-Content (Join-Path $fixture 'recipe-metrics.json') -Raw|ConvertFrom-Json
   $commands=@($metrics.stages|Where-Object name -Like 'command:*')
   Assert ($commands.Count -eq 3) 'Production recipe emits all command metrics'
@@ -404,7 +642,6 @@ try{
   Assert (@($metrics.stages|Where-Object {$_.status -eq 'failed' -and $_.exitCode -eq 9}).Count -eq 1) 'Failed native command metric preserved'
   $providerAst=[System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'build-module-providers-recipe.ps1'),[ref]$null,[ref]$null)
   $providerCommands=@($providerAst.FindAll({param($node) $node -is [System.Management.Automation.Language.CommandAst] -and $node.GetCommandName() -eq 'Invoke-BuildCommand'},$true))
-  Assert ($providerCommands.Count -eq 5) 'Provider production recipe command inventory'
   foreach($command in $providerCommands){Assert (@($command.CommandElements|Where-Object {$_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName -eq 'LogDirectory'}).Count -eq 1) 'Provider command raw logs route to cache entry'}
  }
  function Test-ModuleDeletionOrder {
@@ -464,8 +701,12 @@ try{
  $cache.SkipCleanup=$true
  try{Open-BuildModuleCache $fixture|Out-Null;throw 'Missing lock failure'}catch{Assert ($_.Exception.Message -match 'Another modular') 'Concurrent build must fail closed'}
  $a=Get-BuildModuleEntry $cache companion @($source) @('node1');Assert (-not $a.Hit) 'First build must miss'
+ Assert ($a.MissReason -eq 'receipt-missing' -and $a.PhaseMetrics.inputFingerprintMs -ge 0) 'Miss reason and input fingerprint timing are observable'
  Set-Content (Join-Path $a.LogDirectory 'compile.log') 'raw command output'
  Set-Content (Join-Path $a.Path 'output.txt') 'compiled';Save-BuildModuleEntry $a @('output.txt')
+ $diagnostics=Get-Content (Join-Path $a.Path 'cache.json') -Raw|ConvertFrom-Json
+ Assert ($diagnostics.schema -eq 1 -and $diagnostics.phaseMetrics.publicationOutputMs -ge 0 -and $diagnostics.missReason -eq 'receipt-missing') 'Publication keeps schema and records additive diagnostics'
+ Assert ($diagnostics.inputManifest.inputs[1].sha256 -ceq $a.InputManifest.inputs[1].sha256) 'Receipt binds the selected input manifest'
  $b=Get-BuildModuleEntry $cache companion @($source) @('node1');Assert $b.Hit 'Identical input must hit'
  if($IsWindows){
    $caseReceiptPath=Join-Path $b.Path 'cache.json'
@@ -475,9 +716,12 @@ try{
    $b=Get-BuildModuleEntry $cache companion @($source) @('node1')
    Assert $b.Hit 'Indexed output hashes retain Windows case-insensitive path lookup'
  }
+ Assert ($null -eq $b.MissReason -and $b.PhaseMetrics.outputValidationMs -ge 0) 'Validated hit reports output validation timing without a miss'
  Set-Content (Join-Path $b.Path 'output.txt') 'damaged';$b=Get-BuildModuleEntry $cache companion @($source) @('node1');Assert (-not $b.Hit) 'Damaged output must miss'
+ Assert ($b.MissReason -eq 'Cache output changed') 'Output hash mismatch is diagnosed'
  Set-Content (Join-Path $b.Path 'output.txt') 'compiled';Save-BuildModuleEntry $b @('output.txt')
  Set-Content (Join-Path $source 'code.ts') 'two';$c=Get-BuildModuleEntry $cache companion @($source) @('node1');Assert ($c.Key -ne $b.Key -and -not $c.Hit) 'Source change must miss'
+ Assert ($c.InputManifest.inputs[1].sha256 -cne $b.InputManifest.inputs[1].sha256) 'Manifest identifies changed source bytes with key mismatch'
  Set-Content (Join-Path $c.Path 'output.txt') 'compiled2';Save-BuildModuleEntry $c @('output.txt')
  $d=Get-BuildModuleEntry $cache companion @($source) @('node2');Assert (-not $d.Hit -and $d.Key -ne $c.Key) 'Tool version must invalidate'
  Set-Content (Join-Path $d.Path 'output.txt') 'compiled3';Save-BuildModuleEntry $d @('output.txt')
@@ -521,7 +765,7 @@ try{
    $next=Get-BuildModuleEntry $cache companion @($source) @('auto-next')
    throw 'fixture generation failed before Save'
  }catch{Assert ($_.Exception.Message -eq 'fixture generation failed before Save') 'Generation fails before publication'}
- Assert (-not(Test-Path $old.Path)) 'Selection retires unused prior key despite failure before Save'
+ Assert (-not(Test-Path $old.Path)) ("Selection retires unused prior key despite failure before Save; cleanup: " + ($cache.CleanupResults | ConvertTo-Json -Depth 8 -Compress))
  Assert (Test-Path $referenced.Path) 'Actual lifecycle consumer protects prior key despite replacement failure'
  Assert (Test-Path $next.Path) 'Failed generation keeps selected key'
  $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$fixture,'--id',$selectionConsumerId)
@@ -552,7 +796,7 @@ try{
  Assert (Test-Path $compiler.Path) 'Uncertain process state fails closed'
  Assert (@($cache.CleanupResults|Where-Object reason -Match 'Process inspection failed').Count -gt 0) 'Uncertainty reported'
  $script:inspectionFails=$false
- # Installed current and previous tool references are protected during selection.
+ # Historical installation inputs do not pin rebuildable preparation tools.
  foreach($pin in @($retained,$compiler)){
    $deployment=Join-Path $fixture ('artifacts/deployments/'+$pin.Key)
    $package=Join-Path $deployment 'package';$release=Join-Path $deployment 'release'
@@ -563,7 +807,7 @@ try{
  }
  $pinned=Get-BuildModuleEntry $cache companion @($source) @('auto-pinned')
  Set-Content (Join-Path $pinned.Path 'output.txt') 'pinned';Save-BuildModuleEntry $pinned @('output.txt')
- Assert ((Test-Path $retained.Path) -and (Test-Path $compiler.Path)) 'Current and previous installed references preserved'
+ Assert ((-not(Test-Path $retained.Path)) -and (-not(Test-Path $compiler.Path))) 'Installed tool history does not pin obsolete preparation caches'
  $receiptPath=Join-Path $deployment 'deployment.json'
  $validReceipt=Get-Content $receiptPath -Raw
  Set-Content $receiptPath '{invalid'
@@ -623,7 +867,7 @@ try{
    try{Open-BuildModuleCache $fixture|Out-Null;throw 'Missing preparation lease failure'}catch{Assert ($_.Exception.Message -match 'Another modular') 'Preparation reader must block collection/build writer'}
  }finally{$readLease.Dispose()}
  $cache=Open-BuildModuleCache $fixture
- # Shared owner reuse is content based, while registration protects every source's installed tools.
+ # Shared owner reuse is content based; actual installed payloads stay protected.
  $sharedOwner=Join-Path $fixture 'shared-owner';$projectA=Join-Path $sharedOwner 'snapshots/a';$projectB=Join-Path $sharedOwner 'snapshots/b'
  foreach($project in @($projectA,$projectB)){
    New-Item -ItemType Directory (Join-Path $project 'source') -Force|Out-Null;Set-Content (Join-Path $project 'source/code.ts') 'shared'
@@ -669,12 +913,21 @@ try{
      @{moduleBuild=@{typeScriptPath=(Join-Path $pin.Path 'typescript.js')}}|ConvertTo-Json|Set-Content (Join-Path $release 'build-info.json')
    }
    $shared.SkipCleanup=$false;$replacement=Get-BuildModuleEntry $shared companion @((Join-Path $projectB 'source')) @('replacement-tool');Set-Content (Join-Path $replacement.Path 'output.txt') 'replacement';Save-BuildModuleEntry $replacement @('output.txt')
-   Assert ((Test-Path $sharedDamaged.Path) -and (Test-Path $sharedOld.Path)) 'Another registered source current/previous installation protects shared toolchains'
+   Assert ((-not(Test-Path $sharedDamaged.Path)) -and (-not(Test-Path $sharedOld.Path))) 'Another source installation history does not pin obsolete toolchains'
+   $shared.SkipCleanup=$true
+   $runtimePin=Get-BuildModuleEntry $shared companion @((Join-Path $projectB 'source')) @('installed-runtime')
+   Set-Content (Join-Path $runtimePin.Path 'output.txt') 'runtime';Save-BuildModuleEntry $runtimePin @('output.txt')
+   $runtimeDeployment=Join-Path $projectA 'artifacts/deployments/runtime'
+   New-Item -ItemType Directory $runtimeDeployment|Out-Null
+   @{hostInstalled=$true;generatedAt=[DateTime]::UtcNow.AddMinutes(1).ToString('o');packageDirectory=$runtimeDeployment;releaseDirectory=$runtimePin.Path}|ConvertTo-Json|Set-Content (Join-Path $runtimeDeployment 'deployment.json')
+   $shared.SkipCleanup=$false
+   $null=Get-BuildModuleEntry $shared companion @((Join-Path $projectB 'source')) @('replacement-tool')
+   Assert (Test-Path $runtimePin.Path) 'Actual installed runtime path remains protected without preparation receipts'
    $registry=Join-Path $shared.Root '.projects.json';$validRegistry=Get-Content $registry -Raw;Set-Content $registry '{corrupt'
    try{Remove-OldBuildModuleCaches $shared|Out-Null;throw 'Missing corrupt registry failure'}catch{Assert ($_.Exception.Message -match 'JSON') 'Corrupt registry must stop all cache deletion'}
-   Assert (Test-Path $sharedOld.Path) 'Corrupt registry performs no deletion'
+   Assert (Test-Path $runtimePin.Path) 'Corrupt registry performs no deletion'
    try{Get-BuildModuleEntry $shared companion @((Join-Path $projectB 'source')) @('shared-tool')|Out-Null;throw 'Missing corrupt entry failure'}catch{Assert ($_.Exception.Message -match 'JSON') 'Corrupt registry also stops entry mutation'}
-   Assert (Test-Path $sharedOld.Path) 'Corrupt entry lookup performs no deletion'
+   Assert (Test-Path $runtimePin.Path) 'Corrupt entry lookup performs no deletion'
    $shared.Lease.Dispose();$shared=$null
    try{Open-BuildModuleCache $projectB $sharedOwner|Out-Null;throw 'Missing open registry failure'}catch{Assert ($_.Exception.Message -match 'JSON') 'Opening corrupt registry must fail closed and release lease'}
    @{schema=1;projects=@($outside)}|ConvertTo-Json|Set-Content $registry

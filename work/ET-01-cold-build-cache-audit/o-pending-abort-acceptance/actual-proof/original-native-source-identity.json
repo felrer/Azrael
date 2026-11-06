@@ -1,0 +1,313 @@
+{
+  "baseSnapshot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811\\inputs\\engine",
+  "selectedOverlay": "primary engine/codex-rs/project-maintenance",
+  "identity": {
+    "crate": {
+      "sha256": "0c70a1873cd223f1ab593dc033bce0260e2dca8433413bd7ba45bf05e53023a5",
+      "files": [
+        {
+          "path": "Cargo.toml",
+          "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "examples/maintenance_dispatch.rs",
+          "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/apply.rs",
+          "sha256": "33a4838706d04031392a70a446163c8906f1bb4c9a5bb84502e645752632b533",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/bin/maintenance_owner.rs",
+          "sha256": "101328eb4f2d8038a2a5981e9fef2e6037426189c11db343c8f5047e057ea5d3",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/duplicate_claims.rs",
+          "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/groups.rs",
+          "sha256": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/lease.rs",
+          "sha256": "e0f9a822ae1243e9b1695de0ba4e0f068ee3df9c7b288e5bb5eba2fb8c87738c",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "d9e55dc722bd993dd808efb3d8dac2e1d88e6671b1dac815499cf502680fa9e0",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/lock_recovery.rs",
+          "sha256": "5947c155dc25131758fc3496be9356df490d1c032b659ee098c4fc1872618519",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/nested_retirement.rs",
+          "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/partitioned_storage.rs",
+          "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/paths.rs",
+          "sha256": "1c39690ad2c409cbe95f590fe689bf5973ab81151dd2bfe8b024e3f733bfc380",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/planning.rs",
+          "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/registration.rs",
+          "sha256": "2748badd373a327ff883f31d95e942a5d7bd1c54f0024b1502ad5c7074983d21",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/registry.rs",
+          "sha256": "4411a3949113af83b489ac5ccad12eb0eb5da3cc9aa23d2a02a01681b6f45e72",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/reservations.rs",
+          "sha256": "6ef5d28d0d8adc6d52ca8802be32c91bbd4f47f4be842dcc9e849f05faa8d6d9",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/retirement.rs",
+          "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/storage.rs",
+          "sha256": "afb3f433c5405d0160f503e7b5c7ba13461456caefedbb9de8ccbc2053bc4a6f",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/timing.rs",
+          "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/windows_delete.rs",
+          "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/absent_adoption.rs",
+          "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/contention.rs",
+          "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/contracts.rs",
+          "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/duplicate_claims.rs",
+          "sha256": "0333ffd08a43b6d94b1537ca3905086af93d9b3a1a23a26bae6718106015f699",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/groups.rs",
+          "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/hardlink_normalization.rs",
+          "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/lock_recovery.rs",
+          "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/nested_retirement.rs",
+          "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/partitioned.rs",
+          "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/registry.rs",
+          "sha256": "e37480ce61d0a00f6cda51e297e2210879a1ce7cb7778d5eee325d045b55679a",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/root_retirement.rs",
+          "sha256": "e680a45636be409f186cf0e6d5e218ae7fc3ef47100b824a219520f3cce1740d",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "tests/verified_junctions.rs",
+          "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2",
+          "mode": 438,
+          "kind": "file"
+        }
+      ],
+      "directories": [
+        {
+          "path": "",
+          "mode": 438
+        },
+        {
+          "path": "examples",
+          "mode": 438
+        },
+        {
+          "path": "src",
+          "mode": 438
+        },
+        {
+          "path": "src/bin",
+          "mode": 438
+        },
+        {
+          "path": "tests",
+          "mode": 438
+        }
+      ],
+      "links": []
+    },
+    "process": {
+      "sha256": "fbdf52357c2dbc4b4bc3d1372c778797044bb33070da302944970d5a108c10aa",
+      "files": [
+        {
+          "path": "BUILD.bazel",
+          "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "Cargo.toml",
+          "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/background_command_tests.rs",
+          "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6",
+          "mode": 438,
+          "kind": "file"
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90",
+          "mode": 438,
+          "kind": "file"
+        }
+      ],
+      "directories": [
+        {
+          "path": "",
+          "mode": 438
+        },
+        {
+          "path": "src",
+          "mode": 438
+        }
+      ],
+      "links": []
+    },
+    "toml": "bb964889aee08665a28a187800effec52935800909dcdcb9e914af0d99e95ce1",
+    "lock": "ddae2e76bff1b29cf223c4c74563e864d7173d20900b51c59213e96d69e858f9",
+    "configs": [
+      {
+        "sha256": "7859f1ad53240a0ca1367e0fa0446891eb73ab6a1ea7ce3b7aadeec0c4bd107c",
+        "files": [
+          {
+            "path": "config.toml",
+            "sha256": "eb1349431a24f07390c70898c240fba3e52d15c365f7ad95fa16828714dc9282",
+            "mode": 438,
+            "kind": "file"
+          }
+        ],
+        "directories": [
+          {
+            "path": "",
+            "mode": 438
+          }
+        ],
+        "links": []
+      },
+      {
+        "sha256": "4bb1925685ebd1227a35f65bd525375f7b34ced54d0d386fde4e983b5eeeed37",
+        "files": [
+          {
+            "path": "audit.toml",
+            "sha256": "6730ec9c5cb6ae9b77ba80388a6ae1dec9485a1beb5c0a9e087ce50298f8a5f6",
+            "mode": 438,
+            "kind": "file"
+          },
+          {
+            "path": "config.toml",
+            "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b",
+            "mode": 438,
+            "kind": "file"
+          }
+        ],
+        "directories": [
+          {
+            "path": "",
+            "mode": 438
+          }
+        ],
+        "links": []
+      }
+    ],
+    "toolchain": "029fd8fde748bb7dd75f20e21576e36f1f567bba8149af4602310086a2a0dc58"
+  }
+}

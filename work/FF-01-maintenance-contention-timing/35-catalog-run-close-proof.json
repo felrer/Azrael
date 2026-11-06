@@ -1,0 +1,59 @@
+{
+  "at": "2026-11-02T10:53:48.207Z",
+  "run_id": "run:ff1:catalog4",
+  "producer_stopped_verified": true,
+  "outcome": "success",
+  "exit_code": 0,
+  "reason": "All owned preparation/metadata/focused/full/native-release/performance/default-smoke processes observed terminal; independent exact input/command/outcome evidence preserved outside run; source and binary identity verified.",
+  "source_matches_accepted": true,
+  "source_files": 42,
+  "native_tests": {
+    "focused": 11,
+    "full": 247,
+    "exit_code": 0,
+    "release_exit_code": 0
+  },
+  "measurement": {
+    "baseline_and_candidate_native_closes": 18,
+    "all_exit0": true,
+    "default_native_closes": 6,
+    "default_all_exit0": true
+  },
+  "inputs": [
+    {
+      "path": "30-catalog-native-acceptance.json",
+      "sha256": "ab068c30551c720cb62a6e0912b6a49fe663620d99cb3bb69facb8d4d1d4d4c4"
+    },
+    {
+      "path": "31-catalog-performance.json",
+      "sha256": "afdddc3b2c112225ce97d4272fdf5c33367e12d3e026c04b1aff0392d1631ad6"
+    },
+    {
+      "path": "32-catalog-version-preparation.json",
+      "sha256": "61bd4d385e853e80d703e1add7e5073f4ceb293de096e8f7baa3bd5665f84d4b"
+    },
+    {
+      "path": "33-catalog-installation.json",
+      "sha256": "41da6d19f36fa5d480d4b825a2c7157e0f8804ecb32574704f464fa0f39dc91a"
+    },
+    {
+      "path": "34-catalog-default-acceptance.json",
+      "sha256": "2ac672f9615a91d93675a4ce1543b67ccd8547c3529b8a9c45f232188f81654c"
+    }
+  ],
+  "retired_storage": {
+    "path": "artifacts/versions/maintenance-owner-ff01-storage-win-x64-20261102",
+    "files": 12,
+    "bytes": 2915578,
+    "active_parent_pids_observed": [
+      12928,
+      23904,
+      32048,
+      56992
+    ],
+    "references_preserved": true,
+    "retention_question": "01a19be3-388c-7f43-a8d4-dc744dcf9af7",
+    "approval": "pending",
+    "condition": "Current consumer jobs release actual use; recheck before exact reference release and owner deletion."
+  }
+}

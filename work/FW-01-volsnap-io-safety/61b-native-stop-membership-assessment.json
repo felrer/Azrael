@@ -1,0 +1,889 @@
+{
+  "schema": 1,
+  "status": "PREPARED_CURRENT_LAST_OUTER60_CORRECTIVE_TERMINAL_PENDING",
+  "id": "run:fw03v:native-613162bb",
+  "sourceRecordIdentity": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e30de69eb75883aabb5999d42b23d898e9a7fdddfae4562274faeb015c49018c.json",
+    "bytes": 578,
+    "sha256": "2c1801ddad2dbad01fee59744ab5b9aa72a78f7eaa0266d4c92c2bd0d7468e45"
+  },
+  "sourceExactRecoveryShape": {
+    "id": "run:fw03v:native-613162bb",
+    "kind": "run",
+    "owner": "FW-01-integrated/native-verification",
+    "version": null,
+    "generation": null,
+    "revision": 1,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": null,
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb",
+        "protection_known": true,
+        "role": "run"
+      }
+    ]
+  },
+  "scope": "Exact formal native run-root producer/output scope. One owned_root member covers all planned inputs/temporary/logs/reports/outputs/source/index/object descendants; no new subtree claims or global process-tree assertion.",
+  "producerPhases": [
+    "baseline/candidate and unit1-6 compile/libtest/same-target/tiny native requests covered by independent15 and named retained terminal reports",
+    "unit7-8 source-normalization/preflight/compile/tests/binary/readonly probes covered by named reports and independent39; no current replay",
+    "unit9 compile101 preserved as observed terminal failure, no retry same inputs",
+    "unit10 distinct source compile/focused2/full210/binary0 plus synthetic CLI actual0 covered by58a",
+    "unit11 current-composite typecheck/public2 terminal0 covered by58c and test-result, no full composite suite claim",
+    "JS validation/failed tiny/explicit continuation/r6 scoped reservation/historical58 use independent43 and46-51/58/58d; original failures unchanged",
+    "root Git transactions45 and c405/58e: pack producer+consumer waited and actual0;58f corrects original collector self-comparison without changing transaction actual outcome",
+    "source official recorder/snapshot and preparatory Python/Node/Git processes are synchronous; r1/r2 failures and final r3 actual0 reports retained; root confirms all private index/object/source consumers ended",
+    "unit10 fw04 handoff61a copy producer0/source ref released/old input native3 calls0/finalized; new unit10 input and producer-null held caller live outside native root",
+    "outer60 corrective producer still consumes NATIVE code/raw/external state now; this is the last currently known active native-owned consumer by root statement; final actual exit/drain/release must be bound once observed"
+  ],
+  "terminalReports": [
+    {
+      "attempt": "candidate-preflight1",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate-preflight1\\compile.json",
+        "bytes": 411,
+        "sha256": "4323c48fed1f3903fd6e893cb08d22b1b04c6b3abf788da42a9c602653ec5094"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "candidate-preflight1",
+      "stage": "full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate-preflight1\\full.json",
+        "bytes": 1376,
+        "sha256": "01eb205a2d7537c7be3f0b7b874d80b7fe57130037c73b65a9a01d1958d13e01"
+      },
+      "exit": 101,
+      "signal": null,
+      "frozenUnchanged": true,
+      "actualCounts": {
+        "passed": 113,
+        "failed": 1,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 114
+      }
+    },
+    {
+      "attempt": "candidate-preflight1",
+      "stage": "integration",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate-preflight1\\integration.json",
+        "bytes": 2113,
+        "sha256": "14d1895a7d364694f3ab45e611ea52c9a39c5a21e440502fd9a1c6ab8080d497"
+      },
+      "exit": 101,
+      "signal": null,
+      "frozenUnchanged": true,
+      "actualCounts": {
+        "passed": 80,
+        "failed": 4,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 84
+      }
+    },
+    {
+      "attempt": "candidate-preflight1",
+      "stage": "integration-remaining",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate-preflight1\\integration-remaining.json",
+        "bytes": 3014,
+        "sha256": "e6166ba5279964f9d8663f34c94145c98f17b1d8544903d66b3f9eebdb7ac857"
+      },
+      "exit": 101,
+      "signal": null,
+      "frozenUnchanged": true,
+      "actualCounts": {
+        "passed": 75,
+        "failed": 5,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 80
+      }
+    },
+    {
+      "attempt": "candidate2",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate2\\compile.json",
+        "bytes": 418,
+        "sha256": "003483190e3b9f19fe3a1929afad94abcdccf8a87f485e37e9be3e74972590ee"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "candidate2",
+      "stage": "full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate2\\full.json",
+        "bytes": 3944,
+        "sha256": "d019fe48411be55e90fe7ea84fc9eb29b8e0f1296aa8a9cccf8ea8d85156ac2c"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "actualCounts": {
+        "passed": 284,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 284
+      }
+    },
+    {
+      "attempt": "candidate3",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate3\\compile.json",
+        "bytes": 418,
+        "sha256": "1edbc59d3ae8aca035e7776ed6f7687739e42d5755a965021574cd5eca2e6195"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "candidate3",
+      "stage": "full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate3\\full.json",
+        "bytes": 3953,
+        "sha256": "ce0c01535a779c5f73a88be426ca7bef288535b67312cb3ab364e0449878c7e7"
+      },
+      "exit": 101,
+      "signal": null,
+      "frozenUnchanged": true,
+      "actualCounts": {
+        "passed": 284,
+        "failed": 1,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 285
+      }
+    },
+    {
+      "attempt": "candidate4",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate4\\compile.json",
+        "bytes": 418,
+        "sha256": "f5b323fdd0315b39dc295ea065b4ce6c5b4ef7636ce9fb31a843f5159555d922"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "candidate4",
+      "stage": "full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate4\\full.json",
+        "bytes": 3955,
+        "sha256": "b3418d9f0ca563cff8ceba9331fbeef0eb6a7925256ad9ec19708edbd9e2437c"
+      },
+      "exit": 101,
+      "signal": null,
+      "frozenUnchanged": true,
+      "actualCounts": {
+        "passed": 284,
+        "failed": 1,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 285
+      }
+    },
+    {
+      "attempt": "candidate4",
+      "stage": "full-quiet1",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate4\\full-quiet1.json",
+        "bytes": 3984,
+        "sha256": "ff829f0342297a8e9ba2de120177cc8cc31fc162e3a4fbc56c990d28246f084a"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "actualCounts": {
+        "passed": 285,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 285
+      }
+    },
+    {
+      "attempt": "candidate4",
+      "stage": "identity-managed",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate4\\identity-managed.json",
+        "bytes": 414,
+        "sha256": "7cfe8a999a1c6e086f39b25dc294eb97d7f123625554194c3e4fa95f08458df2"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "candidate4",
+      "stage": "registry-quiet1-managed",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\candidate4\\registry-quiet1-managed.json",
+        "bytes": 397,
+        "sha256": "6d231dc630247692ee7e205736bb235f39ebbdea2ff215164a0c629c52a82d57"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "unit1",
+      "stage": "metadata-preflight",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit1\\metadata-preflight.json",
+        "bytes": 977,
+        "sha256": "98a89a37dd870cccc77ad0a1448540b8f4743c703ce2b970f2a48c928268c57b"
+      },
+      "actualExit": 0,
+      "signal": null
+    },
+    {
+      "attempt": "unit1",
+      "stage": "metadata-full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit1\\metadata-full.json",
+        "bytes": 861,
+        "sha256": "0fc46fed62c0a132aefaba1ca1201eff2e1c19a1a08ad538069238c4eebe3138"
+      },
+      "actualExit": 101,
+      "signal": null,
+      "targetLeaseAbsent": true
+    },
+    {
+      "attempt": "unit2",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit2\\compile.json",
+        "bytes": 454,
+        "sha256": "cc5459b9a3fe21702f5e9295af19d8f0b76697985d2aabfd743bef4a37e15653"
+      },
+      "exit": 101,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "unit2",
+      "stage": "metadata-normalize",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit2\\metadata-normalize.json",
+        "bytes": 1150,
+        "sha256": "c0ba3e463cc55acec870ec855fb6bacdc75f04311fb9d8e1b5f4a32ec7b9f14b"
+      },
+      "actualExit": 0,
+      "signal": null,
+      "targetLeaseAbsent": true
+    },
+    {
+      "attempt": "unit2",
+      "stage": "terminal-check",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit2\\terminal-check.json",
+        "bytes": 260,
+        "sha256": "293fcb2585ca2b326b4e957a8472b5fad2684bb4171bb49e8b8704fefbd5e386"
+      }
+    },
+    {
+      "attempt": "unit3",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit3\\compile.json",
+        "bytes": 453,
+        "sha256": "20e9fd6623c38a5e7237f7370c5e024857a6ee5cf2d6ed9f3e7cc541d0f875e0"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "unit3",
+      "stage": "full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit3\\full.json",
+        "bytes": 3472,
+        "sha256": "7f675ca004f9be5bcd51eefdbd166e734b2e06385529f57f96493da3f632eee8"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "actualCounts": {
+        "passed": 208,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 208
+      }
+    },
+    {
+      "attempt": "unit4",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit4\\compile.json",
+        "bytes": 453,
+        "sha256": "2768c78e30e4f81116c7b65e4a37375f84740eb30c07acebb6585d6cd9da6759"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "unit5",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit5\\compile.json",
+        "bytes": 453,
+        "sha256": "8f299efae087ad65a2d76ca52d1ffcf13114487636988890ef377e52c12795dd"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "unit5",
+      "stage": "boundaries-managed",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit5\\boundaries-managed.json",
+        "bytes": 386,
+        "sha256": "e8e9bea43ede983edbb7f2eb1dd0e07a31459304ceaef1fe32abccb3a78ff63e"
+      },
+      "actualExit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "unit6",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit6\\compile.json",
+        "bytes": 454,
+        "sha256": "1a4424dd2746bdd41eed73c2e2f8bcc360140b43946b442e9eabb3723e0c7246"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "unit6",
+      "stage": "boundaries-managed",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit6\\boundaries-managed.json",
+        "bytes": 386,
+        "sha256": "9253896895d0f565249cec652f1efe472455ad56af0610108187457ba06e5244"
+      },
+      "actualExit": 0,
+      "signal": null,
+      "frozenUnchanged": true
+    },
+    {
+      "attempt": "unit6",
+      "stage": "full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit6\\full.json",
+        "bytes": 3866,
+        "sha256": "a1ba934e28328e98d866211cb92e872dcc76fee5980438dcfc27578eeb64963b"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "actualCounts": {
+        "passed": 208,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 208
+      }
+    },
+    {
+      "attempt": "unit7",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit7\\compile.json",
+        "bytes": 570,
+        "sha256": "0e85dd94c83f473fabfa20c1e4f889784b1ea7362f3105f79acf8d10b1e8c870"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "sourceSha256": "1e1d72574e0cbbb4687a9d7ca4841af4bb8e0e49a800099fa246dadd13cb88a9"
+    },
+    {
+      "attempt": "unit7",
+      "stage": "cli",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit7\\cli.json",
+        "bytes": 1609,
+        "sha256": "48a01a127541bd99d35638ed11713e2d177056d4e864665877f4e864a7eb5811"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "sourceSha256": "1e1d72574e0cbbb4687a9d7ca4841af4bb8e0e49a800099fa246dadd13cb88a9",
+      "actualCounts": {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 75,
+        "executed": 6
+      }
+    },
+    {
+      "attempt": "unit7",
+      "stage": "full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit7\\full.json",
+        "bytes": 3623,
+        "sha256": "4d6755b713c0a012ccc8a12c2b9b394e10ca785b7710436ad4d7f2d85fb92b8d"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "sourceSha256": "1e1d72574e0cbbb4687a9d7ca4841af4bb8e0e49a800099fa246dadd13cb88a9",
+      "actualCounts": {
+        "passed": 208,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 208
+      }
+    },
+    {
+      "attempt": "unit7",
+      "stage": "binary",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit7\\binary.json",
+        "bytes": 838,
+        "sha256": "969b3ae7e6cf567ec62dbe40063afcf728ccea69f9acc8cd8c78f62f2811bdbc"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "sourceSha256": "1e1d72574e0cbbb4687a9d7ca4841af4bb8e0e49a800099fa246dadd13cb88a9"
+    },
+    {
+      "attempt": "unit7",
+      "stage": "actual-probe",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit7\\actual-probe.json",
+        "bytes": 8808,
+        "sha256": "dec21fd4e2c6e395bdb6c0843714da3f4c686f9df597ad35121af4ae508dc9fb"
+      },
+      "status": "passed",
+      "sourceSha256": "1e1d72574e0cbbb4687a9d7ca4841af4bb8e0e49a800099fa246dadd13cb88a9",
+      "allObservedCallExits": [
+        {
+          "name": "capabilities",
+          "exit": 0
+        },
+        {
+          "name": "inventory-0",
+          "exit": 0
+        },
+        {
+          "name": "run-list-0",
+          "exit": 0
+        },
+        {
+          "name": "run-list-13",
+          "exit": 0
+        },
+        {
+          "name": "run-list-102",
+          "exit": 0
+        },
+        {
+          "name": "run-detail-0",
+          "exit": 0
+        },
+        {
+          "name": "run-detail-1",
+          "exit": 0
+        },
+        {
+          "name": "run-detail-2",
+          "exit": 0
+        }
+      ],
+      "meaning": "Synchronous supported readonly probes only; original accepted report, no new probe invoked"
+    },
+    {
+      "attempt": "unit8",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit8\\compile.json",
+        "bytes": 571,
+        "sha256": "9528353822dedb9e181b396b2086e7f3d9b17c7e8144bb931fde08ff3655c7ee"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18"
+    },
+    {
+      "attempt": "unit8",
+      "stage": "focused",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit8\\focused.json",
+        "bytes": 1771,
+        "sha256": "1d13c0a15c6f21ef7dcf075098c32317a16273d9c92b1e461ef2a65d14f5a235"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18",
+      "actualCounts": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 80,
+        "executed": 1
+      }
+    },
+    {
+      "attempt": "unit8",
+      "stage": "full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit8\\full.json",
+        "bytes": 3623,
+        "sha256": "263f4b1bca7928c4c279da4d9d496232dc0b989d4be5dfd0e1f292155aa06b2b"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18",
+      "actualCounts": {
+        "passed": 208,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 208
+      }
+    },
+    {
+      "attempt": "unit8",
+      "stage": "binary",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit8\\binary.json",
+        "bytes": 838,
+        "sha256": "055cd65dde24f983488dbe781b0a6c6849ce0b1893cd1b386859a5d1780b9b4f"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18"
+    },
+    {
+      "attempt": "unit9",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit9\\compile.json",
+        "bytes": 705,
+        "sha256": "cd659309e1f62a38de6ad8f0a0ebbff6179ae02da4ccfdcd521cbd07a1ee19f1"
+      },
+      "exit": 101,
+      "signal": null,
+      "frozenUnchanged": true,
+      "outcome": "failed",
+      "sourceSha256": "bef4f66de1e51ad610317d1b449dd0f879a7009cfbd4e4bbfe9a58850469c4b8"
+    },
+    {
+      "attempt": "unit10",
+      "stage": "compile",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10\\compile.json",
+        "bytes": 705,
+        "sha256": "cfc78a83a0735dec04b45e9ce606e23eb5d482cd219b423713e51424e400826a"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "outcome": "passed",
+      "sourceSha256": "a2a2358eb864ae5dffc4cf83c831744d500c435c26b0bd811a6065ec8797694a"
+    },
+    {
+      "attempt": "unit10",
+      "stage": "retire-focused",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10\\retire-focused.json",
+        "bytes": 1908,
+        "sha256": "7576512181cf773942c1b0454bd8ee46981a203eeec74602e371677c73da09d1"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "outcome": "passed",
+      "sourceSha256": "a2a2358eb864ae5dffc4cf83c831744d500c435c26b0bd811a6065ec8797694a",
+      "actualCounts": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 81,
+        "executed": 2
+      }
+    },
+    {
+      "attempt": "unit10",
+      "stage": "full",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10\\full.json",
+        "bytes": 4917,
+        "sha256": "368b01bd1a988f52be1b2b6e7ecb05f213b5eebe5539472c1e2ab95dd6e5adaa"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "outcome": "passed",
+      "sourceSha256": "a2a2358eb864ae5dffc4cf83c831744d500c435c26b0bd811a6065ec8797694a",
+      "actualCounts": {
+        "passed": 210,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 0,
+        "executed": 210
+      }
+    },
+    {
+      "attempt": "unit10",
+      "stage": "binary",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10\\binary.json",
+        "bytes": 974,
+        "sha256": "c6a3860c0017a926581c1c7be3370867624ac98de0ecf4cb8c660a8a852daee1"
+      },
+      "exit": 0,
+      "signal": null,
+      "frozenUnchanged": true,
+      "outcome": "passed",
+      "sourceSha256": "a2a2358eb864ae5dffc4cf83c831744d500c435c26b0bd811a6065ec8797694a"
+    },
+    {
+      "attempt": "unit11",
+      "stage": "metadata-normalize",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit11\\metadata-normalize.json",
+        "bytes": 572,
+        "sha256": "e64028d5e80392aa04870138dcb86a65f4f38535c58a06720d458b96ee999838"
+      },
+      "exit": 0,
+      "signal": null,
+      "targetLeaseAbsent": true
+    },
+    {
+      "attempt": "unit11",
+      "stage": "test-result",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit11\\test-result.json",
+        "bytes": 2408,
+        "sha256": "deba3420a956e4a7cadcbe634faf4c50c2c63d49335ec1604138a4fdcf4b8bce"
+      },
+      "exit": 0,
+      "signal": null,
+      "targetLeaseAbsent": true,
+      "outcome": "passed",
+      "frozen50Unchanged": true,
+      "primary47AndControlInputsUnchanged": true,
+      "sourceSha256": "eaca6200b21a097ebc8c720bdea24bf818dbc75fca8f33932548f6c87950d851",
+      "actualCounts": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "filteredOut": 121,
+        "executed": 2
+      }
+    }
+  ],
+  "standaloneEvidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\15-native-verification.json",
+      "bytes": 20752,
+      "sha256": "f8bd44a03d1051459dd4301b5ebc9adcaec6587008e3e76d54fcf6669801b1fd",
+      "status": "Native unit6 full package and same-target8 accepted; larger performance/parallel/VSS still pending",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\39-native-diagnostics-verification.json",
+      "bytes": 29758,
+      "sha256": "b7c04557bb693acd6b2f9378d301451425404dbb9d8219bd1bb9cde3738d4adb",
+      "status": "passed",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\45-cleanup-commit-result.json",
+      "bytes": 8194,
+      "sha256": "303862793e2d3a81e09d75410524b4bcadf2031f94592adf711cca19122935a0",
+      "status": "committed",
+      "actualExit": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\46-empty-publication-tiny-verification.json",
+      "bytes": 322467,
+      "sha256": "ddee639ac7345e7f0b813467e2cde1003e219e2f66ee30ba7cc145b6ad9332e0",
+      "status": "partial-acceptance-blocked-at-test-setup",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\47-tiny-reprepare-continuation.json",
+      "bytes": 481270,
+      "sha256": "c165fb83e14461cd9790958b6e9879eaa3f6d6d77422e19cb11dea10e3c9e5a9",
+      "status": "passed",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\48-historical-empty-publication-recovery.json",
+      "bytes": 20880,
+      "sha256": "29bee4defeda6f47209b3b2105e915977c5e6cae03052d30f522e28e4eb2cc57",
+      "status": "blocked-protected",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\49-scoped-reservation-verification.json",
+      "bytes": 25480,
+      "sha256": "b9ff56e5ed6166899552bba5f9fe109dccd4a921d60260703851f541d679aa9f",
+      "status": "failed-protected",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\50-task49-fixture-recovery.json",
+      "bytes": 60980,
+      "sha256": "35f51a8a15455dd88d89fead7cbbcb15077e1de60b04b2660bb1f523f16e7fef",
+      "status": "passed",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\51-r6-scoped-reservation-tiny.json",
+      "bytes": 90741,
+      "sha256": "825f9e4f3323315bf72f2fbf34105804fc84b1f4269ffa81456c54c8968cbd60",
+      "status": "passed",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58-historical-empty-publication-recovery.json",
+      "bytes": 11302,
+      "sha256": "83ecb5f1cce156b637e2e939448884ba4c45a75119c31a07511289baca405cc1",
+      "status": "passed",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58a-native-source-retirement-verification.json",
+      "bytes": 13217,
+      "sha256": "a6956877ef9d78bc60e1f03c0f1dd29140f1a760c95c8b196e3ec345c546eeb2",
+      "status": "passed",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58b-legacy-source-retirement-result.json",
+      "bytes": 20324,
+      "sha256": "9a25e94c8f0fe7d4aaf8cd7e1758f7a07dfc7cbb4ba6d22e0d0f73cc49ddb071",
+      "status": "passed",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58c-native-source-retirement-integration-verification.json",
+      "bytes": 13731,
+      "sha256": "2bb750e3c0f68d0c8b9aa75c4046a261b0027dbbe2b4919a80baf9f06c85376f",
+      "status": "passed",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58d-retained-recovery-test-integration.json",
+      "bytes": 2176,
+      "sha256": "f495e661c13ba11fb9f71416e3bf8ee626ac57b05508cde85b1b2f42d9800394",
+      "status": "passed",
+      "actualExit": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58e-recovery-commit-result.json",
+      "bytes": 4543,
+      "sha256": "cfce4a3270d76c49275c70d76867f9d7f54c64f21ef153357ada4f0fd82a51a8",
+      "status": "committed-and-selectively-reconciled",
+      "actualExit": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58f-commit-preservation-assessment.json",
+      "bytes": 6212,
+      "sha256": "4c834a508e3db239dddbb5e6d4c1c6b8e07e44761678db412800952483824541",
+      "status": "verified",
+      "actualExit": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\61a-unit10-build-tool-handoff.json",
+      "bytes": 13351,
+      "sha256": "63dc78918faa42e528d2c033fda08289feb6ed9386a3e42f8b329f17a68ffdda",
+      "status": "passed",
+      "actualExit": 0
+    }
+  ],
+  "preservedHistoricalLimits": [
+    {
+      "attempt": "candidate2 actual8",
+      "actualHarnessExit": 1,
+      "cause": "Transient maintenance Busy was interpreted as cancellation; requests failed and4payloads remained. Original initial harness did not preserve all child exit codes; no invented per-child exits."
+    },
+    {
+      "attempt": "host resource CIM diagnostic",
+      "originalExitCode": null,
+      "status": "not recovered; inspection output only, not a passing test",
+      "diagnosticOnly": true,
+      "observedReportPresent": true,
+      "matchingOriginalCommandProcesses": 0,
+      "meaning": "Original command exit was not recovered and remains null. Later inspection/report presence does not turn it into a passing command, test, or causal host-performance proof."
+    }
+  ],
+  "historicalLimitMeaning": "Missing original numeric child exit fields and CIM original null outcome remain missing/null; no historical success or fabricated terminal packet. Existing native record stays pending/no producer/null exit. Current exact scope stop is a separate factual root gate, using actual known actor terminals and root confirmation of the last current consumer, never PID absence.",
+  "membershipBasis": {
+    "formalClaim": "native run-root pendingrev1 with sole root member generated/protection_known true",
+    "completeAtFinalGate": "All planned descendant outputs remain within this single formal owned root; root knows completed source/staging/recorder/test/harness writes and no unowned/new external output is inferred. Absence of an individual optional/failed output does not expand ownership.",
+    "newSourceRoots": [
+      "temporary/e-unit9",
+      "temporary/e-unit10",
+      "temporary/e-unit11",
+      "temporary/s11",
+      "temporary/root-commit-control/isolated-unit/receipt-staging/new-empty-unit-r5",
+      "temporary/root-commit-control/isolated-unit/receipt-staging/new-empty-unit-r6",
+      "temporary/root-commit-control/isolated-unit/receipt-staging/new-empty-unit-r7"
+    ],
+    "whyNoFullScan": "Existing formal whole-root claim and planned outputs/actual terminal reports establish membership at owned-root projection; supported native registration/review still validates current roots/protection/membership before deletion. No new payload hashing or global process scan performed.",
+    "outsideScope": [
+      "fw04 unit10 immutable input and held root-owned pending caller",
+      "original shared engine import",
+      "installed C0CF/version",
+      "work independent evidence",
+      "CONTROL/VSS groups have their own exact owners"
+    ]
+  },
+  "rootAttestationsAlreadyReceived": {
+    "privateSourceIndexObjectConsumersEnded": true,
+    "c405TransactionTerminalActual0": true,
+    "58e58fOriginalReviewFinished": true,
+    "unit10Handoff61aTerminalActual0": true,
+    "currentLastConsumer": "recovery_execution outer60 corrective run, still active at this preparation boundary"
+  },
+  "remainingSpecificStopGap": "Only current outer60 corrective actual terminal/child/native drain/catalog release and root confirmation no later NATIVE writer/consumer remain are unbound. Prior per-child numeric/CIM outcome limitations are retained, not invented or used as PID-absence stop inference.",
+  "VSSInbound": "Existing exact three VSS dependencies must be released after root-accepted bounded stop/current custody checks; zero inbound and cleanup reservation must be freshly observed under supported owner before recoverCleanup",
+  "recoverMeaning": "Direct pending/no-producer recoverCleanup preserves original pending/producer null/outcome unknown; only cleanup eligibility membership becomes complete. Do not call close success or alter original outputs.",
+  "actualOperations": {
+    "newProcessOrNative": 0,
+    "catalogMutation": 0,
+    "cleanup": 0,
+    "sourcePayloadScanOrRehash": 0,
+    "newCleanerClaim": 0
+  },
+  "finalGateRequired": true
+}

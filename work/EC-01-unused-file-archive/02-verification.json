@@ -1,0 +1,197 @@
+{
+  "schema": 1,
+  "work": "EC-01 protection refresh lock contention",
+  "verified_environment": "Windows x64 local; Rust 1.95.0; default test profile",
+  "source_fix_verified": true,
+  "installed_owner_changed": false,
+  "standalone_build_and_replacement": "awaiting user approval; not executed",
+  "source_receipt_sha256": "ebc36ce27a406c17e2c941dd954387872a5f713b16a9da72cf89a07d672d46b5",
+  "source_before_after_unchanged": true,
+  "unrelated_source_descriptors_preserved": true,
+  "preexisting_uncommitted_source_descriptors": 44,
+  "changed_sources": [
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lib.rs",
+      "sha256": "8bf860a9fa04d415be53a5805ee361d4c1eb8ecc78916dade65a4c23316ecfdb"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lease.rs",
+      "sha256": "74b2844fafb5ac9e7fc8337dfb71a0bd7c23c1f6db70c25384e192ab96a9fe77"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+      "sha256": "e5004d00be693b1048df1991dc2755f27f6d3bcc52560855d7d1892497b736bd"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/storage.rs",
+      "sha256": "73f20278793f870af8afa0264cd0a406717d50c46a60b1486a8c13e614ba3e7c"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/registry.rs",
+      "sha256": "66d674894559a08901b71c3242b535ee4c28d6c64cdeb53d8083ed8834aa756d"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/tests/registry.rs",
+      "sha256": "69f4603b973914ea595181b56419348b502fc833fa94e13bec2cfecc2217875b"
+    }
+  ],
+  "tools": [
+    {
+      "name": "check-project-maintenance.cjs",
+      "sha256": "1eea8c6a873bcf17a7899461a4c2e171796054bc13b9e3a48e87d95a8499e87e"
+    },
+    {
+      "name": "cargo-verification.cjs",
+      "sha256": "7673d86f700d4b829bb5b945629827691f1379a90162228c9a2c11dbba5511af"
+    },
+    {
+      "name": "cargo-target-owner.cjs",
+      "sha256": "6bb5299038040a3dde8440adeec32c686817a37d6bc93c564579a8a0bbc0ef1b"
+    },
+    {
+      "name": "cargo-test-preparation.cjs",
+      "sha256": "40772407a2358d38af4fc16927716d122b758b40196fb0e6daacad52a48f5924"
+    }
+  ],
+  "attempts": [
+    {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\refresh-lock-r1\\input-tools\\check-project-maintenance.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\refresh-lock-r1\\inputs\\engine",
+        "--stage",
+        "library"
+      ],
+      "started": "2026-10-27T21:54:13.081Z",
+      "ended": "2026-10-27T21:54:13.190Z",
+      "exit_code": 1,
+      "signal": null,
+      "error": null
+    },
+    {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\refresh-lock-r1\\input-tools\\check-project-maintenance.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\refresh-lock-r1\\inputs\\engine",
+        "--stage",
+        "library"
+      ],
+      "started": "2026-10-27T21:54:29.542Z",
+      "ended": "2026-10-27T21:58:42.981Z",
+      "exit_code": 101,
+      "signal": null,
+      "error": null
+    },
+    {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\refresh-lock-r1\\input-tools\\check-project-maintenance.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\refresh-lock-r1\\inputs\\engine-r2",
+        "--stage",
+        "library"
+      ],
+      "started": "2026-10-27T22:11:41.498Z",
+      "ended": "2026-10-27T22:19:50.725Z",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    }
+  ],
+  "preflight": {
+    "schema": 1,
+    "typeCheck": "selected-tests",
+    "testSelection": "nonzero",
+    "phases": [
+      {
+        "phase": "typeCheck",
+        "args": [
+          "check",
+          "-p",
+          "azrael-project-maintenance",
+          "--locked",
+          "--offline",
+          "--tests",
+          "--profile",
+          "test"
+        ],
+        "startedUtc": "2026-10-27T22:11:41.634Z",
+        "durationMs": 15054,
+        "exitCode": 0,
+        "signal": null
+      },
+      {
+        "phase": "selection",
+        "args": [
+          "test",
+          "-p",
+          "azrael-project-maintenance",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--list",
+          "--format=terse"
+        ],
+        "startedUtc": "2026-10-27T22:11:56.688Z",
+        "durationMs": 31165,
+        "exitCode": 0,
+        "signal": null,
+        "selectedTests": 162
+      },
+      {
+        "phase": "execution",
+        "args": [
+          "test",
+          "-p",
+          "azrael-project-maintenance",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1"
+        ],
+        "startedUtc": "2026-10-27T22:12:27.853Z",
+        "durationMs": 442849,
+        "exitCode": 0,
+        "signal": null
+      }
+    ]
+  },
+  "test_summaries": [
+    "test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.71s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.35s",
+    "test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 87.67s",
+    "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 65.96s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 27.49s",
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.77s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 25.07s",
+    "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 153.19s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.60s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.72s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+  ],
+  "tests_passed": 162,
+  "first_failures": [
+    "Cargo ENOENT before compilation; process PATH corrected",
+    "First native execution exit 101: timeout assertion compared Windows slash spellings; comparison normalized",
+    "First baseline materialization exit 1: pinned original SQL bytes differed from raw Git materialization; a new independent baseline was built only from bytes matching pinned original hashes"
+  ],
+  "baseline_reconstruction": {
+    "receipt_raw_sha256": "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+    "full_importer_exit": 0
+  },
+  "provenance_record_exit": 0,
+  "final_frozen_provenance_exit": 0,
+  "retained_regressions": [
+    "refresh_waits_for_os_locks_without_holding_partial_transactions",
+    "refresh_os_lock_timeout_preserves_manifest_and_identifies_lock",
+    "lock_wait_distinguishes_typed_contention_and_stops_before_expired_retry"
+  ],
+  "format_and_diff_check_exit": 0,
+  "unverified": [
+    "Linux x64 / macOS ARM64 runtime",
+    "Replacement of installed standalone / embedded engine"
+  ],
+  "disposable_run_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\refresh-lock-r1",
+  "raw_logs": "Disposed after result review; this independent receipt preserves outcomes and causal failures"
+}

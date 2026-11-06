@@ -1,0 +1,55 @@
+{
+  "runId": "run:EZ01:auto-approval-r6-mw0mkva4",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4",
+  "frozen": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4\\temporary\\source",
+  "startedAt": "2026-11-03T11:49:42.549Z",
+  "endedAt": "2026-11-03T11:49:56.948Z",
+  "steps": [
+    {
+      "name": "cache",
+      "args": [
+        "--test",
+        "scripts/test-namespace-cache-owner.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4\\logs\\cache.log"
+    },
+    {
+      "name": "approval-render",
+      "args": [
+        "scripts/verify-window-native-approval-render.mjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4\\logs\\approval-render.log"
+    }
+  ],
+  "sourceInputsSha256": "dda200c6fb867d03f61680e4a3437202f9c7fe8fa2be1c939282a50e0ae1fdd1",
+  "approval": {
+    "scope": "Actual pinned native card render functions, React, native buttons/layout/CSS, native elicitation parser/classifier/serverRequest-resolved reducer and production cancel/classifier transforms; fixture adapters for localization/store/host replies. No installed VS Code acceptance.",
+    "checks": [
+      "light 900 native Window Use control app and scopes",
+      "light 900 no horizontal overflow",
+      "light 900 individual control 화이트리스트 설정 repeated trusted navigation stays pending",
+      "light 900 individual control 시큐리티 앱 설정 repeated trusted navigation stays pending"
+    ],
+    "themeColors": {
+      "light": "rgb(26, 28, 31)"
+    },
+    "outcome": "failed",
+    "error": "light 900 individual control keyboard settings retains native actions",
+    "browserExit": {
+      "confirmed": true,
+      "exitCode": 0,
+      "signalCode": null,
+      "processInspectionExitCode": 0,
+      "processIds": []
+    },
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\auto-approval-r6-mw0mkva4\\temporary\\source\\artifacts\\tasks\\verify-window-native-approval-render\\runs\\20261103T114944581Z-a82d6481-6903-45b1-b332-e2c68790c1f6",
+    "lifecycleId": "run:verify-window-native-approval-render:20261103T114944581Z-a82d6481-6903-45b1-b332-e2c68790c1f6",
+    "fixtureRemoved": false,
+    "retentionReason": "Retained fixture, profile and raw results for lifecycle review",
+    "exitCode": 1
+  }
+}

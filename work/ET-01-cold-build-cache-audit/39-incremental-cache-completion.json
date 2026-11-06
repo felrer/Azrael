@@ -1,0 +1,243 @@
+{
+  "startedUtc": "2026-10-30T05:13:03.336Z",
+  "reused_registration_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\33-cargo-cache-deletion.json",
+  "steps": [
+    {
+      "stage": "fresh-review",
+      "exitCode": 0,
+      "signal": null,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 2,
+            "cleanup_status": null,
+            "id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+            "kind": "work",
+            "members_total": 2,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "caf6e41b54cc5280e00fda12d43a2ac61ef6602e080546d007b27e811b210c09",
+            "owner": "CR-01-build-legacy-cleanup",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\225529e4ecc371025f482ab1418da3fe5abf26b46319ba23cafd58c207619743.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "6dd1e4b992e53837eb9f9e2d9b422bd2a96f706554bba41bed5d305e967aabee",
+              "9e123b03e2f80bd7426b07ef374bce0ce876d313e2b52c6663243188338cf2be"
+            ],
+            "group_token": "2130afd9007adda24831540d431f4eff456b88bfadf384e22ac3dc543af26937",
+            "id": "6dd1e4b992e53837eb9f9e2d9b422bd2a96f706554bba41bed5d305e967aabee",
+            "identity": "cd45e0a416822eb96bc44412117f01876852a2c15ab94a85eeecce9859ee5d2b",
+            "lifecycle_group_id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+            "logical_bytes": 234514088593,
+            "measured_at_ms": 1793336326248,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "caf6e41b54cc5280e00fda12d43a2ac61ef6602e080546d007b27e811b210c09",
+              "member_references": {
+                "6dd1e4b992e53837eb9f9e2d9b422bd2a96f706554bba41bed5d305e967aabee": [],
+                "9e123b03e2f80bd7426b07ef374bce0ce876d313e2b52c6663243188338cf2be": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-cargo-incremental-current-inspection.json",
+                  "evidence_sha256": "70451db1b52c0cafacd9f9aced269c8b26b55b11c3e44db11fb40632e4fae86e",
+                  "reason": "Current synchronous cache ownership and process inspection completed; no child producer launched. Historical failed generation preserved in immutable evidence.",
+                  "request_sha256": "0d2b879a1222f353ded9d5eaa5d6b0e9cea184ae9158c526588e6085f0ad8057"
+                },
+                "created_at": "2026-10-20T15:08:45.932Z",
+                "generation": "ET-01-cache-invalidation-inspection-1793331737043",
+                "id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+                "kind": "work",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\incremental",
+                    "protection_known": true,
+                    "role": "compiler-incremental-cache"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\incremental",
+                    "protection_known": true,
+                    "role": "compiler-incremental-cache"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "CR-01-build-legacy-cleanup",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-cargo-incremental-current-inspection.json",
+                  "evidence_sha256": "70451db1b52c0cafacd9f9aced269c8b26b55b11c3e44db11fb40632e4fae86e",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Current synchronous cache ownership and process inspection completed; no child producer launched. Historical failed generation preserved in immutable evidence.",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 4,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-30T03:42:21.255Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793337183578,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\incremental",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  127,
+                  171,
+                  2,
+                  0,
+                  0,
+                  0,
+                  36,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "a244ebaad313d49d9472956167ce3b1bbc478c894ce8207febbdb7616ce3a5ba",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "6dd1e4b992e53837eb9f9e2d9b422bd2a96f706554bba41bed5d305e967aabee",
+              "9e123b03e2f80bd7426b07ef374bce0ce876d313e2b52c6663243188338cf2be"
+            ],
+            "group_token": "2130afd9007adda24831540d431f4eff456b88bfadf384e22ac3dc543af26937",
+            "id": "9e123b03e2f80bd7426b07ef374bce0ce876d313e2b52c6663243188338cf2be",
+            "identity": "078f29d938fa705c006ecd605c1e0c56a7bd50be87b080f8e0d85e3b6b3bf8e2",
+            "lifecycle_group_id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+            "logical_bytes": 143267751163,
+            "measured_at_ms": 1793333428999,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "caf6e41b54cc5280e00fda12d43a2ac61ef6602e080546d007b27e811b210c09",
+              "member_references": {
+                "6dd1e4b992e53837eb9f9e2d9b422bd2a96f706554bba41bed5d305e967aabee": [],
+                "9e123b03e2f80bd7426b07ef374bce0ce876d313e2b52c6663243188338cf2be": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-cargo-incremental-current-inspection.json",
+                  "evidence_sha256": "70451db1b52c0cafacd9f9aced269c8b26b55b11c3e44db11fb40632e4fae86e",
+                  "reason": "Current synchronous cache ownership and process inspection completed; no child producer launched. Historical failed generation preserved in immutable evidence.",
+                  "request_sha256": "0d2b879a1222f353ded9d5eaa5d6b0e9cea184ae9158c526588e6085f0ad8057"
+                },
+                "created_at": "2026-10-20T15:08:45.932Z",
+                "generation": "ET-01-cache-invalidation-inspection-1793331737043",
+                "id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+                "kind": "work",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\incremental",
+                    "protection_known": true,
+                    "role": "compiler-incremental-cache"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\incremental",
+                    "protection_known": true,
+                    "role": "compiler-incremental-cache"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "CR-01-build-legacy-cleanup",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-cargo-incremental-current-inspection.json",
+                  "evidence_sha256": "70451db1b52c0cafacd9f9aced269c8b26b55b11c3e44db11fb40632e4fae86e",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Current synchronous cache ownership and process inspection completed; no child producer launched. Historical failed generation preserved in immutable evidence.",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 4,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-30T03:42:21.255Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793337183588,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\incremental",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  29,
+                  170,
+                  2,
+                  0,
+                  0,
+                  0,
+                  85,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "106dce54293f192d7a7d0847845794caa5d716f078136b51ea49e9648def6ed1",
+            "verification": "registered"
+          }
+        ]
+      },
+      "stderr": "",
+      "durationMs": 6253.133
+    },
+    {
+      "stage": "apply",
+      "exitCode": 4294967295,
+      "signal": null,
+      "result": {
+        "stdout": ""
+      },
+      "stderr": "",
+      "durationMs": 1710158.8511
+    }
+  ]
+}

@@ -729,6 +729,7 @@ mod tests {
     fn turn(turn_id: &str, status: TurnStatus, user_messages: usize) -> Turn {
         Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: turn_id.to_string(),
             root_turn_id: None,

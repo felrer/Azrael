@@ -1,0 +1,442 @@
+{
+  "schema": 1,
+  "scope": "Exactly seven obsolete Window Use permission verification groups; Windows x64",
+  "ownerExecutable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "ownerSha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+  "acceptance": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\window-permissions-acceptance-01.json",
+  "groups": [
+    {
+      "id": "run:EZ01:permissions-source-r2-mw0ael4e",
+      "sourceState": "failed",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-source-r2-mw0ael4e\\reports\\producer-f008ef68b3764717b3e8dca817654d883adad6616b2f47627cfa0f189a8ac078.json",
+        "evidence_sha256": "f008ef68b3764717b3e8dca817654d883adad6616b2f47627cfa0f189a8ac078",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-source-r2-mw0ael4e\\reports\\producer-f008ef68b3764717b3e8dca817654d883adad6616b2f47627cfa0f189a8ac078.json",
+        "evidence_sha256": "f008ef68b3764717b3e8dca817654d883adad6616b2f47627cfa0f189a8ac078",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "e6d340b33e2b86074f7ed9a6f9e35c9d1d6845ae97d59195c35678d098e37774"
+      },
+      "sourceReferences": [],
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-source-r2-mw0ael4e"
+      ],
+      "register": {
+        "exitCode": 0
+      },
+      "finalize": {
+        "id": "run:EZ01:permissions-source-r2-mw0ael4e",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\21650e823616c6231e74f4dc937b748408447ea85bcc2ad212615e40e277ef90.json"
+      },
+      "logicalBytes": 9770152,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-54932-5611-1793687593235",
+        "decision": "delete",
+        "decision_id": "4af89a36c406cb46ca73e3e1a1893f58bccf41175684402f962e8d9b39a70e34",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "590a0f0843b09a5001f94c6e0837dc022846c9fb504fb0afae6a299ebb166660",
+        "lifecycle_group_id": "run:EZ01:permissions-source-r2-mw0ael4e",
+        "reason": "Obsolete verification producer stopped and all consumers released; independent acceptance and actual failure/success metadata preserved in work evidence",
+        "remaining": false,
+        "status": "deleted",
+        "token": "7288d47bfc99f2398b7d85a05a35eff3184e8eed667e388c69c22f3f1ccc59d7"
+      },
+      "remainingPaths": []
+    },
+    {
+      "id": "run:EZ01:permissions-runtime-mw0ansi9",
+      "sourceState": "complete",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-runtime-mw0ansi9\\reports\\producer-7526c6a4ef9538dbc41582ca4817380f0c92553f278172378a613fa4425257a9.json",
+        "evidence_sha256": "7526c6a4ef9538dbc41582ca4817380f0c92553f278172378a613fa4425257a9",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-runtime-mw0ansi9\\reports\\producer-7526c6a4ef9538dbc41582ca4817380f0c92553f278172378a613fa4425257a9.json",
+        "evidence_sha256": "7526c6a4ef9538dbc41582ca4817380f0c92553f278172378a613fa4425257a9",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "131bd5382d6934335734983d10824cbd4ffe710de60a52a09c81272f4be9fb83"
+      },
+      "sourceReferences": [],
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-runtime-mw0ansi9"
+      ],
+      "register": {
+        "exitCode": 0
+      },
+      "finalize": {
+        "id": "run:EZ01:permissions-runtime-mw0ansi9",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\2e7d4a302c25eb246d6fc85908ab5df04583bb64f6282102a6050613c70b9887.json"
+      },
+      "logicalBytes": 9664437,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-54932-5619-1793687746993",
+        "decision": "delete",
+        "decision_id": "a0750ed6fcc27e69e37dd2faf8a00d0b84cb45102038aaf10405d8121354483f",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "ecce1f76353fe31740d31e61401552f389b1d678cdbbf99014c6841b724251c7",
+        "lifecycle_group_id": "run:EZ01:permissions-runtime-mw0ansi9",
+        "reason": "Obsolete verification producer stopped and all consumers released; independent acceptance and actual failure/success metadata preserved in work evidence",
+        "remaining": false,
+        "status": "deleted",
+        "token": "5bc83ffc67754bae06ab4bd28ad989c76793d1e2c78d80dbdd99f23c1dd4983d"
+      },
+      "remainingPaths": []
+    },
+    {
+      "id": "run:EZ01:permissions-native-mw0a3m76",
+      "sourceState": "complete",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-mw0a3m76\\reports\\producer-c6229f4e53a28da47317dab32276a2c7691ecfd61afda38ca8591965ac2f9b0d.json",
+        "evidence_sha256": "c6229f4e53a28da47317dab32276a2c7691ecfd61afda38ca8591965ac2f9b0d",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-mw0a3m76\\reports\\producer-c6229f4e53a28da47317dab32276a2c7691ecfd61afda38ca8591965ac2f9b0d.json",
+        "evidence_sha256": "c6229f4e53a28da47317dab32276a2c7691ecfd61afda38ca8591965ac2f9b0d",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "148b6023e0d1d5ebe8b55cb1bdfb0b5f82e1c721134841fb21ad0488220754f1"
+      },
+      "sourceReferences": [],
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-mw0a3m76"
+      ],
+      "register": {
+        "exitCode": 0
+      },
+      "finalize": {
+        "id": "run:EZ01:permissions-native-mw0a3m76",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\46a561ce72ac34de0f6d46e38b5344b88c6b6f74818c0af51b559ebd0b61a068.json"
+      },
+      "logicalBytes": 509200996,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-54932-5617-1793687711651",
+        "decision": "delete",
+        "decision_id": "8e414b6117b1d2df308c1e790e4d98b588d9f5c91e9a881f56d614c55d3b0235",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "d2b98b0b012ff41801ffe2ce044edeb93e752aa9c20f0a6ae86e7172097f9496",
+        "lifecycle_group_id": "run:EZ01:permissions-native-mw0a3m76",
+        "reason": "Obsolete verification producer stopped and all consumers released; independent acceptance and actual failure/success metadata preserved in work evidence",
+        "remaining": false,
+        "status": "deleted",
+        "token": "b27b66d8720380fc6d38d3a75fbc15f52fd68aefd3e1afc68260f636624b206c"
+      },
+      "remainingPaths": []
+    },
+    {
+      "id": "run:EZ01:permissions-source-r3-mw0aif3c",
+      "sourceState": "failed",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-source-r3-mw0aif3c\\reports\\producer-efcb20048700f82fced1e6a3b08089998990ac653a91d73e093ce01e829ba117.json",
+        "evidence_sha256": "efcb20048700f82fced1e6a3b08089998990ac653a91d73e093ce01e829ba117",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-source-r3-mw0aif3c\\reports\\producer-efcb20048700f82fced1e6a3b08089998990ac653a91d73e093ce01e829ba117.json",
+        "evidence_sha256": "efcb20048700f82fced1e6a3b08089998990ac653a91d73e093ce01e829ba117",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "cba3a28ff46245f2176cc58205cda92c9362885080c90a09b87782e7aeb0e60a"
+      },
+      "sourceReferences": [],
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-source-r3-mw0aif3c"
+      ],
+      "register": {
+        "exitCode": 0
+      },
+      "finalize": {
+        "id": "run:EZ01:permissions-source-r3-mw0aif3c",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\51fee9380164f6c9daa9b22f451d8f93032707c9800131486fef69dba68facc9.json"
+      },
+      "logicalBytes": 9684619,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-54932-5615-1793687675355",
+        "decision": "delete",
+        "decision_id": "a4de15fa8c82e9abdceb38b584d6003f5a0e940ed1aec2f55804bef553df2b35",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "80f662b198834973f7119f10136ead3fd757e6c2bffd2505cf118cb489d7b558",
+        "lifecycle_group_id": "run:EZ01:permissions-source-r3-mw0aif3c",
+        "reason": "Obsolete verification producer stopped and all consumers released; independent acceptance and actual failure/success metadata preserved in work evidence",
+        "remaining": false,
+        "status": "deleted",
+        "token": "016c91fdb3e57469baa00f0d0cce510567eab307b4b3733b757efcb38d9c2900"
+      },
+      "remainingPaths": []
+    },
+    {
+      "id": "run:EZ01:permissions-native-r2-mw0alid9",
+      "sourceState": "complete",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-r2-mw0alid9\\reports\\producer-2d8da150308a608a686875fa964358e9540345c73b3b0866630f103ef57ebaab.json",
+        "evidence_sha256": "2d8da150308a608a686875fa964358e9540345c73b3b0866630f103ef57ebaab",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-r2-mw0alid9\\reports\\producer-2d8da150308a608a686875fa964358e9540345c73b3b0866630f103ef57ebaab.json",
+        "evidence_sha256": "2d8da150308a608a686875fa964358e9540345c73b3b0866630f103ef57ebaab",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "9cc459c6aa2f9771872a263f6a957b7d31295a848e966e1177e4b93e1b7e04ee"
+      },
+      "sourceReferences": [],
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-r2-mw0alid9"
+      ],
+      "register": {
+        "exitCode": 0
+      },
+      "finalize": {
+        "id": "run:EZ01:permissions-native-r2-mw0alid9",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7d2294d57af943c15b0a737f12e3b4881819e5c4ddb454cd4d81b710c48bcfa5.json"
+      },
+      "logicalBytes": 509691038,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-54932-5609-1793687510704",
+        "decision": "delete",
+        "decision_id": "06afd4c023572d28f606d5f5b96aee765f330a331bdd2edef9adfcecf323d0f1",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "35c66bb7bf89234673e2bf3683b24e625115eb9056c5760ead779fe5a4b96a64",
+        "lifecycle_group_id": "run:EZ01:permissions-native-r2-mw0alid9",
+        "reason": "Obsolete verification producer stopped and all consumers released; independent acceptance and actual failure/success metadata preserved in work evidence",
+        "remaining": false,
+        "status": "deleted",
+        "token": "0fe7f55372fb85af48b49f0403911f4d0f6d133744bf0b5589507131afae88ff"
+      },
+      "remainingPaths": []
+    },
+    {
+      "id": "run:verify-use-settings-render:20261103T061309493Z-1ec9e51a-0c7e-4259-92fe-8d2606a647c4",
+      "sourceState": "complete",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-use-settings-render\\runs\\20261103T061309493Z-1ec9e51a-0c7e-4259-92fe-8d2606a647c4\\reports\\producer-0f8b6697dbbfa4bbc8115eb4af6462681dff2ad354662432f73157a0b78d93c3.json",
+        "evidence_sha256": "0f8b6697dbbfa4bbc8115eb4af6462681dff2ad354662432f73157a0b78d93c3",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-use-settings-render\\runs\\20261103T061309493Z-1ec9e51a-0c7e-4259-92fe-8d2606a647c4\\reports\\producer-0f8b6697dbbfa4bbc8115eb4af6462681dff2ad354662432f73157a0b78d93c3.json",
+        "evidence_sha256": "0f8b6697dbbfa4bbc8115eb4af6462681dff2ad354662432f73157a0b78d93c3",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "8283d7fa2a4c3cbe3e4b7c8014a7d79102ba711ef3cc34770a0892bcc94c7c25"
+      },
+      "sourceReferences": [],
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-use-settings-render\\runs\\20261103T061309493Z-1ec9e51a-0c7e-4259-92fe-8d2606a647c4"
+      ],
+      "register": {
+        "exitCode": 0
+      },
+      "finalize": {
+        "id": "run:verify-use-settings-render:20261103T061309493Z-1ec9e51a-0c7e-4259-92fe-8d2606a647c4",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\99c8c9686d5e956268b9da0342f8e02399b62dfd6bfa57acc851d010793946a5.json"
+      },
+      "logicalBytes": 55984731,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-54932-5607-1793687470238",
+        "decision": "delete",
+        "decision_id": "397f9877640215671c3ccb95f844b85d342dc473c93a1aa0b51c0d1e5a1b7e2c",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "058052c1e3801cf91def2339950801dddf3a81eb996f4b0933b2cec05f74f5ee",
+        "lifecycle_group_id": "run:verify-use-settings-render:20261103T061309493Z-1ec9e51a-0c7e-4259-92fe-8d2606a647c4",
+        "reason": "Obsolete verification producer stopped and all consumers released; independent acceptance and actual failure/success metadata preserved in work evidence",
+        "remaining": false,
+        "status": "deleted",
+        "token": "531eeec3bc88deea7ed277951c1444d30db6f702d600bad5edd34bee81f0d4a4"
+      },
+      "remainingPaths": []
+    },
+    {
+      "id": "run:verify-window-native-approval-render:20261103T061720722Z-74d12e11-1244-4263-8b00-81d78a0ee241",
+      "sourceState": "complete",
+      "sourceProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-window-native-approval-render\\runs\\20261103T061720722Z-74d12e11-1244-4263-8b00-81d78a0ee241\\reports\\producer-8f1a13ee7a6d3c864e4090bdc114f433c34f8747203ea0ce4ce71262fb2b6cbb.json",
+        "evidence_sha256": "8f1a13ee7a6d3c864e4090bdc114f433c34f8747203ea0ce4ce71262fb2b6cbb",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "sourceCloseReceipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-window-native-approval-render\\runs\\20261103T061720722Z-74d12e11-1244-4263-8b00-81d78a0ee241\\reports\\producer-8f1a13ee7a6d3c864e4090bdc114f433c34f8747203ea0ce4ce71262fb2b6cbb.json",
+        "evidence_sha256": "8f1a13ee7a6d3c864e4090bdc114f433c34f8747203ea0ce4ce71262fb2b6cbb",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "1c258c80dacbf459608fe36eeb44c6c878fe6bb87735004a1f94a0dc5bb84b8c"
+      },
+      "sourceReferences": [],
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-window-native-approval-render\\runs\\20261103T061720722Z-74d12e11-1244-4263-8b00-81d78a0ee241"
+      ],
+      "register": {
+        "exitCode": 0
+      },
+      "finalize": {
+        "id": "run:verify-window-native-approval-render:20261103T061720722Z-74d12e11-1244-4263-8b00-81d78a0ee241",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d726596a8897c3480ed0f36d52e1652ffbda58d28d19daaa6c1e0c0ad180d265.json"
+      },
+      "logicalBytes": 55549094,
+      "review": {
+        "blockers": [],
+        "references": [],
+        "verification": "registered",
+        "membershipMatches": true
+      },
+      "decision": "delete",
+      "deletion": {
+        "attempt_id": "attempt-54932-5613-1793687636523",
+        "decision": "delete",
+        "decision_id": "5467176a9096f11dbe2c0d084ae0510f66202985414ef4ba07eff235d4b43da4",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "6519d12d858a748892af0a40be9ad3f78fb3b162e41f49ef9f12609307fe54ba",
+        "lifecycle_group_id": "run:verify-window-native-approval-render:20261103T061720722Z-74d12e11-1244-4263-8b00-81d78a0ee241",
+        "reason": "Obsolete verification producer stopped and all consumers released; independent acceptance and actual failure/success metadata preserved in work evidence",
+        "remaining": false,
+        "status": "deleted",
+        "token": "1d24cff22ee897a4bf6b3ec0c9df0778150f84cd5ae5d98b54399713b8400d5d"
+      },
+      "remainingPaths": []
+    }
+  ],
+  "phase": "complete",
+  "reviewExitCode": 0,
+  "applyExitCode": 0,
+  "logicalBytesDeleted": 1159545067,
+  "physicalBytesReclaimed": null,
+  "remainingPaths": []
+}

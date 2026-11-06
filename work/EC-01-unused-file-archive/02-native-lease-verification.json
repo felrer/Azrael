@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "observed": "2026-10-27T22:44:17.822Z",
+  "results": [
+    {
+      "label": "direct",
+      "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3f10cedc-win-x64-ec01-lock-wait\\payload\\maintenance_owner.exe",
+      "pid": 91916,
+      "exit_code": 0,
+      "signal": null,
+      "frames": [
+        {
+          "id": 0,
+          "ok": true,
+          "result": {
+            "acquired_at_ms": 1793141057737,
+            "operation": "EC01.terminal",
+            "parent_pid": 88964,
+            "pid": 91916,
+            "schema": 2,
+            "token": "91916-1793141057737-f75138428c9817d6"
+          }
+        },
+        {
+          "id": 1,
+          "ok": true,
+          "result": {
+            "released": true,
+            "reservations_retained": []
+          }
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "label": "default",
+      "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3f10cedc-win-x64-ec01-lock-wait\\payload\\maintenance_owner.exe",
+      "pid": 85532,
+      "exit_code": 0,
+      "signal": null,
+      "frames": [
+        {
+          "id": 0,
+          "ok": true,
+          "result": {
+            "acquired_at_ms": 1793141057798,
+            "operation": "EC01.terminal",
+            "parent_pid": 88964,
+            "pid": 85532,
+            "schema": 2,
+            "token": "85532-1793141057798-70eca58247ce6c8b"
+          }
+        },
+        {
+          "id": 1,
+          "ok": true,
+          "result": {
+            "released": true,
+            "reservations_retained": []
+          }
+        }
+      ],
+      "stderr": ""
+    }
+  ]
+}

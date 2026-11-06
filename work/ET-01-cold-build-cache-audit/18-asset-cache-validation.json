@@ -1,0 +1,25 @@
+{
+  "observedUtc": "2026-10-30T03:13:54.944Z",
+  "kind": "generation-classification-only",
+  "originalProducerOutcome": "unknown",
+  "writer": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\asset-transform-cache.cjs",
+  "writerSha256": "a2c973b4ccefc868d9ceca914f764347b0acfaa24d15630f8d2ef4a3b7eefcb5",
+  "reports": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\namespace",
+      "files": 394,
+      "bytes": 275418441,
+      "entries": 393,
+      "noops": 1,
+      "errors": []
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\ui-test-transform",
+      "files": 82,
+      "bytes": 187898861,
+      "entries": 82,
+      "noops": 0,
+      "errors": []
+    }
+  ]
+}

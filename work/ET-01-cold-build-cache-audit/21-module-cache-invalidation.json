@@ -1,0 +1,57 @@
+{
+  "observedUtc": "2026-10-30T03:38:30.266Z",
+  "results": [
+    {
+      "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\p",
+      "id": "version:w14r-dw13-r7",
+      "result": {
+        "released": 1,
+        "legacySourceOnly": true,
+        "cacheOwner": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "authority": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\p\\artifacts\\maintenance\\evidence\\et01-preparation-tool-invalidation.json",
+          "evidence_sha256": "659696139804b65cfd3a648798b5f7cfda0fef90bdff7b46d8e0f714d2fc9e9a"
+        }
+      },
+      "originalState": "failed",
+      "resultState": "failed",
+      "originalProducer": {
+        "status": "stopped",
+        "outcome": "failure",
+        "exit_code": 1,
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\p\\artifacts\\tasks\\dw14-r7-engine-reuse\\evidence.json",
+        "evidence_sha256": "2e98a6cd28f7494fe9fc95ed0d51f6cf331b596d0ed4471fb4e55f792c1eb59d",
+        "reason": "Actual r7 deployment terminal1 after source/build/prepare0; failed preservation child1/socket path guard; exact owned tree stopped, original successful engine retained."
+      },
+      "resultingProducer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\p\\artifacts\\tasks\\dw14-r7-engine-reuse\\evidence.json",
+        "evidence_sha256": "2e98a6cd28f7494fe9fc95ed0d51f6cf331b596d0ed4471fb4e55f792c1eb59d",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Actual r7 deployment terminal1 after source/build/prepare0; failed preservation child1/socket path guard; exact owned tree stopped, original successful engine retained.",
+        "status": "stopped"
+      },
+      "remainingReferences": [],
+      "authority": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\p\\artifacts\\maintenance\\evidence\\et01-preparation-tool-invalidation.json"
+    },
+    {
+      "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\q",
+      "id": "version:w14r-dw13-r8",
+      "result": {
+        "released": 1,
+        "legacySourceOnly": true,
+        "cacheOwner": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "authority": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\q\\artifacts\\maintenance\\evidence\\et01-preparation-tool-invalidation.json",
+          "evidence_sha256": "224302bd327d99e4be3cb4a497bbe2183cbf3a980dae45558068ea398652c2c9"
+        }
+      },
+      "originalState": "failed",
+      "resultState": "failed",
+      "originalProducer": null,
+      "resultingProducer": null,
+      "remainingReferences": [],
+      "authority": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\q\\artifacts\\maintenance\\evidence\\et01-preparation-tool-invalidation.json"
+    }
+  ]
+}

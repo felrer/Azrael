@@ -1,0 +1,11 @@
+{
+  "operation": "apply",
+  "decisions": [
+    {
+      "id": "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f",
+      "token": "5ac80a1f4c8e497b7259a1bfa20e4438f20263507de8629847b114257218d8b2",
+      "decision": "delete",
+      "reason": "Verified standalone candidate and independent evidence retained; stopped pre-intent failure recovered; disposable owned run no longer used"
+    }
+  ]
+}

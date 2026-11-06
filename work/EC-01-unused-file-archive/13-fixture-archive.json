@@ -1,0 +1,771 @@
+{
+  "schema": 1,
+  "action": "user-requested-uncertain-fixture-archival",
+  "owner": "/root",
+  "authorization": "User explicitly requests moving these exact five previously retained paths to archive; no deletion authorized",
+  "ownership": "Original invocation attribution remains uncertain; archive custody does not promote generated ownership",
+  "archive_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1",
+  "prepared_at": "2026-10-28T04:31:43.882Z",
+  "primary_catalog_check": {
+    "records": 531,
+    "overlapping_owners": [],
+    "inbound_references": []
+  },
+  "scope": {
+    "files": 5,
+    "logical_bytes": 2451,
+    "roots": 5
+  },
+  "mappings": [
+    {
+      "name": "config-override-GLr6TL",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\config-override-GLr6TL",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\config-override-GLr6TL",
+      "before": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "5629499544005354",
+          "birthtimeNs": "1793160509590353200",
+          "mtimeNs": "1793160509590353200",
+          "size": "0"
+        }
+      ],
+      "status": "archived",
+      "after": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "5629499544005354",
+          "birthtimeNs": "1793160509590353200",
+          "mtimeNs": "1793160509590353200",
+          "size": "0"
+        }
+      ],
+      "source_absent": true
+    },
+    {
+      "name": "pending-Kvzt80",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\pending-Kvzt80",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\pending-Kvzt80",
+      "before": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "5910974520882036",
+          "birthtimeNs": "1793160511428985600",
+          "mtimeNs": "1793160511520112000",
+          "size": "0"
+        },
+        {
+          "relative": "engine",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "4785074614039503",
+          "birthtimeNs": "1793160511430494100",
+          "mtimeNs": "1793160511430494100",
+          "size": "0"
+        }
+      ],
+      "status": "archived",
+      "after": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "5910974520882036",
+          "birthtimeNs": "1793160511428985600",
+          "mtimeNs": "1793160511520112000",
+          "size": "0"
+        },
+        {
+          "relative": "engine",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "4785074614039503",
+          "birthtimeNs": "1793160511430494100",
+          "mtimeNs": "1793160511430494100",
+          "size": "0"
+        }
+      ],
+      "source_absent": true
+    },
+    {
+      "name": "prepare-owner-yju6P8",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\prepare-owner-yju6P8",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\prepare-owner-yju6P8",
+      "before": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "9570149217954429",
+          "birthtimeNs": "1793160507417818300",
+          "mtimeNs": "1793160507420440100",
+          "size": "0"
+        },
+        {
+          "relative": "target",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "4503599637162622",
+          "birthtimeNs": "1793160507420440100",
+          "mtimeNs": "1793160507422440300",
+          "size": "0"
+        }
+      ],
+      "status": "archived",
+      "after": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "9570149217954429",
+          "birthtimeNs": "1793160507417818300",
+          "mtimeNs": "1793160507420440100",
+          "size": "0"
+        },
+        {
+          "relative": "target",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "4503599637162622",
+          "birthtimeNs": "1793160507420440100",
+          "mtimeNs": "1793160507422440300",
+          "size": "0"
+        }
+      ],
+      "source_absent": true
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\shared-owner-kN27rj",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\shared-owner-kN27rj",
+      "before": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "11821949031805117",
+          "birthtimeNs": "1793160508813794300",
+          "mtimeNs": "1793160508823831000",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "12103424008517139",
+          "birthtimeNs": "1793160508823831000",
+          "mtimeNs": "1793160508977263700",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\cache",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "7318349404436069",
+          "birthtimeNs": "1793160508977263700",
+          "mtimeNs": "1793160508977263700",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\cache\\cargo",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "8162774334568041",
+          "birthtimeNs": "1793160508977263700",
+          "mtimeNs": "1793160508978271800",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "6755399451014762",
+          "birthtimeNs": "1793160508978271800",
+          "mtimeNs": "1793160508980270200",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\identity.json",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "7036874427725420",
+          "birthtimeNs": "1793160508978271800",
+          "mtimeNs": "1793160508978271800",
+          "size": "146",
+          "sha256": "a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059"
+        },
+        {
+          "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\target",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "7881299357857394",
+          "birthtimeNs": "1793160508980270200",
+          "mtimeNs": "1793160508982355900",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\maintenance",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "11258999078385176",
+          "birthtimeNs": "1793160508823831000",
+          "mtimeNs": "1793160508982355900",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\maintenance\\cargo-terminal",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "11821949031806579",
+          "birthtimeNs": "1793160508982355900",
+          "mtimeNs": "1793160508983866900",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\maintenance\\cargo-terminal\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059-cache-c49658951fd19c2056ca57aa785be85ce817ce9c19328e9b4fce18ad6e3a3bfe.json",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "12103424008517239",
+          "birthtimeNs": "1793160508983866900",
+          "mtimeNs": "1793160508984874900",
+          "size": "421",
+          "sha256": "c49658951fd19c2056ca57aa785be85ce817ce9c19328e9b4fce18ad6e3a3bfe"
+        },
+        {
+          "relative": "artifacts\\maintenance\\lifecycles",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "16607023635887659",
+          "birthtimeNs": "1793160508824838400",
+          "mtimeNs": "1793160509140551800",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\maintenance\\lifecycles\\catalog.lock",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "5910974520882753",
+          "birthtimeNs": "1793160508904773900",
+          "mtimeNs": "1793160509082826900",
+          "size": "134",
+          "sha256": "1b713989a7db53ee276cf8a32e85ab3e39ffeb2cabbc82a62f91ea21ec5d18c8"
+        },
+        {
+          "relative": "artifacts\\maintenance\\lifecycles\\ebc50eb65a97ef4a9959afdaea80795f29de86f63e0c102da235825705e12e69.json",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "3940649683741350",
+          "birthtimeNs": "1793160508948471000",
+          "mtimeNs": "1793160509117177200",
+          "size": "1738",
+          "sha256": "0bb563336b2e4e546ed6b814595802e62d218004415d64ae4b1b7aa894466939"
+        },
+        {
+          "relative": "source",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "8162774334567895",
+          "birthtimeNs": "1793160508814800500",
+          "mtimeNs": "1793160508814800500",
+          "size": "0"
+        },
+        {
+          "relative": "source\\codex-rs",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "9007199264699866",
+          "birthtimeNs": "1793160508814800500",
+          "mtimeNs": "1793160508815800200",
+          "size": "0"
+        },
+        {
+          "relative": "source\\codex-rs\\Cargo.toml",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "6192449497593310",
+          "birthtimeNs": "1793160508815800200",
+          "mtimeNs": "1793160508815800200",
+          "size": "12",
+          "sha256": "434e102c861f994d2aace9114d392dbc162190e00be8fe357d472150ca439614"
+        }
+      ],
+      "status": "archived",
+      "after": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "3377699732316437",
+          "birthtimeNs": "1793161965433415800",
+          "mtimeNs": "1793161965599871700",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "2251799825473934",
+          "birthtimeNs": "1793161965437933600",
+          "mtimeNs": "1793161965543576800",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\cache",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "1970324848763280",
+          "birthtimeNs": "1793161965439440500",
+          "mtimeNs": "1793161965441447200",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\cache\\cargo",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "1970324848763281",
+          "birthtimeNs": "1793161965441447200",
+          "mtimeNs": "1793161965442958700",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "1970324848763282",
+          "birthtimeNs": "1793161965442958700",
+          "mtimeNs": "1793161965448477000",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\identity.json",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "7036874427725420",
+          "birthtimeNs": "1793160508978271800",
+          "mtimeNs": "1793160508978271800",
+          "size": "146",
+          "sha256": "a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059"
+        },
+        {
+          "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\target",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "1970324848763283",
+          "birthtimeNs": "1793161965448477000",
+          "mtimeNs": "1793161965448477000",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\maintenance",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "7599824381146725",
+          "birthtimeNs": "1793161965543576800",
+          "mtimeNs": "1793161965562156800",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\maintenance\\cargo-terminal",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "7318349404436074",
+          "birthtimeNs": "1793161965545595000",
+          "mtimeNs": "1793161965548596500",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\maintenance\\cargo-terminal\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059-cache-c49658951fd19c2056ca57aa785be85ce817ce9c19328e9b4fce18ad6e3a3bfe.json",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "12103424008517239",
+          "birthtimeNs": "1793160508983866900",
+          "mtimeNs": "1793160508984874900",
+          "size": "421",
+          "sha256": "c49658951fd19c2056ca57aa785be85ce817ce9c19328e9b4fce18ad6e3a3bfe"
+        },
+        {
+          "relative": "artifacts\\maintenance\\lifecycles",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "8725724287989362",
+          "birthtimeNs": "1793161965562156800",
+          "mtimeNs": "1793161965569182300",
+          "size": "0"
+        },
+        {
+          "relative": "artifacts\\maintenance\\lifecycles\\catalog.lock",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "5910974520882753",
+          "birthtimeNs": "1793160508904773900",
+          "mtimeNs": "1793160509082826900",
+          "size": "134",
+          "sha256": "1b713989a7db53ee276cf8a32e85ab3e39ffeb2cabbc82a62f91ea21ec5d18c8"
+        },
+        {
+          "relative": "artifacts\\maintenance\\lifecycles\\ebc50eb65a97ef4a9959afdaea80795f29de86f63e0c102da235825705e12e69.json",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "3940649683741350",
+          "birthtimeNs": "1793160508948471000",
+          "mtimeNs": "1793160509117177200",
+          "size": "1738",
+          "sha256": "0bb563336b2e4e546ed6b814595802e62d218004415d64ae4b1b7aa894466939"
+        },
+        {
+          "relative": "source",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "12384898985227795",
+          "birthtimeNs": "1793161965599871700",
+          "mtimeNs": "1793161965603398300",
+          "size": "0"
+        },
+        {
+          "relative": "source\\codex-rs",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "11540474055095832",
+          "birthtimeNs": "1793161965603398300",
+          "mtimeNs": "1793161965605410000",
+          "size": "0"
+        },
+        {
+          "relative": "source\\codex-rs\\Cargo.toml",
+          "directory": false,
+          "dev": "3057815611",
+          "ino": "6192449497593310",
+          "birthtimeNs": "1793160508815800200",
+          "mtimeNs": "1793160508815800200",
+          "size": "12",
+          "sha256": "434e102c861f994d2aace9114d392dbc162190e00be8fe357d472150ca439614"
+        }
+      ],
+      "source_absent": true
+    },
+    {
+      "name": "signature-UtcGoq",
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\signature-UtcGoq",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\signature-UtcGoq",
+      "before": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "20829148286350245",
+          "birthtimeNs": "1793160511426464900",
+          "mtimeNs": "1793160511426464900",
+          "size": "0"
+        }
+      ],
+      "status": "archived",
+      "after": [
+        {
+          "relative": "",
+          "directory": true,
+          "dev": "3057815611",
+          "ino": "20829148286350245",
+          "birthtimeNs": "1793160511426464900",
+          "mtimeNs": "1793160511426464900",
+          "size": "0"
+        }
+      ],
+      "source_absent": true
+    }
+  ],
+  "review_condition": "Retain archive until independent source ownership evidence and fresh current-consumer/protection review permit an explicit later decision",
+  "nested_metadata": "Historical internal producer/lock metadata is preserved byte-for-byte with original absolute paths. It is not an active relocated project registration; use this mapping to resolve historical evidence.",
+  "status": "archived; native retention registration pending",
+  "verified_at": "2026-10-28T04:33:34.631Z",
+  "verification": {
+    "roots": 5,
+    "files": 5,
+    "logical_bytes": 2451,
+    "all_sources_absent": true,
+    "membership_equal": true,
+    "all_file_sha256_equal": true,
+    "all_file_identities_equal": true,
+    "same_volume": true,
+    "directory_container_changes": 11,
+    "container_change_explanation": "PowerShell Move-Item recreated11 directory containers within shared-owner while moving existing file identities. All five file IDs/bytes/timestamps and full membership are unchanged; four other root IDs are unchanged. This was an ordinary move, not an atomic whole-tree rename."
+  },
+  "directory_container_changes": [
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "",
+      "before": {
+        "relative": "",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "11821949031805117",
+        "birthtimeNs": "1793160508813794300",
+        "mtimeNs": "1793160508823831000",
+        "size": "0"
+      },
+      "after": {
+        "relative": "",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "3377699732316437",
+        "birthtimeNs": "1793161965433415800",
+        "mtimeNs": "1793161965599871700",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "artifacts",
+      "before": {
+        "relative": "artifacts",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "12103424008517139",
+        "birthtimeNs": "1793160508823831000",
+        "mtimeNs": "1793160508977263700",
+        "size": "0"
+      },
+      "after": {
+        "relative": "artifacts",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "2251799825473934",
+        "birthtimeNs": "1793161965437933600",
+        "mtimeNs": "1793161965543576800",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "artifacts\\cache",
+      "before": {
+        "relative": "artifacts\\cache",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "7318349404436069",
+        "birthtimeNs": "1793160508977263700",
+        "mtimeNs": "1793160508977263700",
+        "size": "0"
+      },
+      "after": {
+        "relative": "artifacts\\cache",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "1970324848763280",
+        "birthtimeNs": "1793161965439440500",
+        "mtimeNs": "1793161965441447200",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "artifacts\\cache\\cargo",
+      "before": {
+        "relative": "artifacts\\cache\\cargo",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "8162774334568041",
+        "birthtimeNs": "1793160508977263700",
+        "mtimeNs": "1793160508978271800",
+        "size": "0"
+      },
+      "after": {
+        "relative": "artifacts\\cache\\cargo",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "1970324848763281",
+        "birthtimeNs": "1793161965441447200",
+        "mtimeNs": "1793161965442958700",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059",
+      "before": {
+        "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "6755399451014762",
+        "birthtimeNs": "1793160508978271800",
+        "mtimeNs": "1793160508980270200",
+        "size": "0"
+      },
+      "after": {
+        "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "1970324848763282",
+        "birthtimeNs": "1793161965442958700",
+        "mtimeNs": "1793161965448477000",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\target",
+      "before": {
+        "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\target",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "7881299357857394",
+        "birthtimeNs": "1793160508980270200",
+        "mtimeNs": "1793160508982355900",
+        "size": "0"
+      },
+      "after": {
+        "relative": "artifacts\\cache\\cargo\\a563b8dbcff9701dc8caf0f41c9cddcd72f33663407c3571f5ad51e772eed059\\target",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "1970324848763283",
+        "birthtimeNs": "1793161965448477000",
+        "mtimeNs": "1793161965448477000",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "artifacts\\maintenance",
+      "before": {
+        "relative": "artifacts\\maintenance",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "11258999078385176",
+        "birthtimeNs": "1793160508823831000",
+        "mtimeNs": "1793160508982355900",
+        "size": "0"
+      },
+      "after": {
+        "relative": "artifacts\\maintenance",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "7599824381146725",
+        "birthtimeNs": "1793161965543576800",
+        "mtimeNs": "1793161965562156800",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "artifacts\\maintenance\\cargo-terminal",
+      "before": {
+        "relative": "artifacts\\maintenance\\cargo-terminal",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "11821949031806579",
+        "birthtimeNs": "1793160508982355900",
+        "mtimeNs": "1793160508983866900",
+        "size": "0"
+      },
+      "after": {
+        "relative": "artifacts\\maintenance\\cargo-terminal",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "7318349404436074",
+        "birthtimeNs": "1793161965545595000",
+        "mtimeNs": "1793161965548596500",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "artifacts\\maintenance\\lifecycles",
+      "before": {
+        "relative": "artifacts\\maintenance\\lifecycles",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "16607023635887659",
+        "birthtimeNs": "1793160508824838400",
+        "mtimeNs": "1793160509140551800",
+        "size": "0"
+      },
+      "after": {
+        "relative": "artifacts\\maintenance\\lifecycles",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "8725724287989362",
+        "birthtimeNs": "1793161965562156800",
+        "mtimeNs": "1793161965569182300",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "source",
+      "before": {
+        "relative": "source",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "8162774334567895",
+        "birthtimeNs": "1793160508814800500",
+        "mtimeNs": "1793160508814800500",
+        "size": "0"
+      },
+      "after": {
+        "relative": "source",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "12384898985227795",
+        "birthtimeNs": "1793161965599871700",
+        "mtimeNs": "1793161965603398300",
+        "size": "0"
+      }
+    },
+    {
+      "name": "shared-owner-kN27rj",
+      "relative": "source\\codex-rs",
+      "before": {
+        "relative": "source\\codex-rs",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "9007199264699866",
+        "birthtimeNs": "1793160508814800500",
+        "mtimeNs": "1793160508815800200",
+        "size": "0"
+      },
+      "after": {
+        "relative": "source\\codex-rs",
+        "directory": true,
+        "dev": "3057815611",
+        "ino": "11540474055095832",
+        "birthtimeNs": "1793161965603398300",
+        "mtimeNs": "1793161965605410000",
+        "size": "0"
+      }
+    }
+  ],
+  "access_guard": "All five regular single-link files opened with FileAccess.Read/FileShare.Delete before any move; existing incompatible readers/writers would refuse access. Held until all moves returned.",
+  "attempts": [
+    {
+      "exit_code": 1,
+      "phase": "pre-move file-open guard",
+      "effect": "No destination created/no paths moved",
+      "reason": "PowerShell5 legacy .NET long-path File.Open failure"
+    },
+    {
+      "exit_code": 1,
+      "phase": "pre-move file-open guard",
+      "effect": "No destination created/no paths moved",
+      "reason": "Tool shell override retained legacy shell"
+    },
+    {
+      "exit_code": 0,
+      "phase": "ordinary move",
+      "runtime": "Explicit installed PowerShell7.6.9 with major>=7 assertion"
+    },
+    {
+      "exit_code": 1,
+      "phase": "initial strict verification",
+      "reason": "Directory IDs changed; investigated exact differences, all file identities/content preserved"
+    },
+    {
+      "exit_code": 0,
+      "phase": "file identity/content, complete membership, source absence and directory mapping verification"
+    }
+  ]
+}

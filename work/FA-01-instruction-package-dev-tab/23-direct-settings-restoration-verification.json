@@ -1,0 +1,119 @@
+{
+  "scope": "Restore Direct common settings removal only; Root-compatible root and Subagent-compatible children; preserve unified profiles and Team changes",
+  "platform": "Windows x64 local development tab; common source behavior",
+  "verifiedAt": "2026-11-03T02:32:08.076Z",
+  "tests": {
+    "startedAt": "2026-11-03T02:30:36.723Z",
+    "endedAt": "2026-11-03T02:31:15.252Z",
+    "exitCode": 0,
+    "signal": null,
+    "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261103T023024667Z-18e42b35-7680-496c-b3ed-18785d668f90\\logs\\tests.log",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261103T023024667Z-18e42b35-7680-496c-b3ed-18785d668f90",
+    "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261103T023024667Z-18e42b35-7680-496c-b3ed-18785d668f90",
+    "tests": 76,
+    "pass": 76,
+    "fail": 0
+  },
+  "types": {
+    "scope": "types",
+    "startedAt": "2026-11-03T02:29:26.599Z",
+    "endedAt": "2026-11-03T02:29:29.494Z",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "extensions/azrael-ex/node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "--project",
+      "extensions/azrael-ex/tsconfig.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-ea5bb779\\logs\\types.log",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-ea5bb779",
+    "reusedValidator": null
+  },
+  "native": {
+    "scope": "4 native source files restored by unified_profile_native",
+    "syntaxExitCode": 0,
+    "compile": false,
+    "schema": false,
+    "installedAcceptance": false
+  },
+  "browser": {
+    "url": "http://127.0.0.1:4318/",
+    "section": "Direct common settings",
+    "rootOptions": [
+      "Azrael default",
+      "review profile",
+      "account example"
+    ],
+    "subagentOptions": [
+      "sol_executor",
+      "luna_explorer",
+      "review profile",
+      "account example"
+    ],
+    "screenshotInspected": true,
+    "userFormNotSubmitted": true,
+    "existingUserTabUntouched": true
+  },
+  "liveServer": {
+    "url": "http://127.0.0.1:4318/",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261103T023050768Z-46f5d93e-1fb4-485b-9d64-96ab746add06",
+    "dataRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce\\outputs\\library",
+    "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261103T023050768Z-46f5d93e-1fb4-485b-9d64-96ab746add06",
+    "projects": [
+      {
+        "id": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "name": "pi-harness-init"
+      }
+    ],
+    "startedAt": "2026-11-03T02:31:09.795Z",
+    "pid": 47304
+  },
+  "stoppedServer": {
+    "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T232737852Z-9d1db26c-0954-4894-95af-b03ef60fc7ed",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T232737852Z-9d1db26c-0954-4894-95af-b03ef60fc7ed",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\serve-instruction-workbench.cjs",
+      "--port",
+      "4318",
+      "--data-run",
+      "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce",
+      "--project",
+      "C:/Users/felre/Desktop/pi-harness-init",
+      "--repository",
+      "felrer/Azrael"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Development HTTP server and background package queries stopped",
+    "children": [],
+    "state": "complete",
+    "membership_complete": true
+  },
+  "sources": [
+    {
+      "path": "scripts/instruction-workbench-view.cjs",
+      "sha256": "975d15abaf0e564d5bffb8254ab69d9c317a57a230ab7dfd8c8b3a558415e137"
+    },
+    {
+      "path": "scripts/role-profile-store.cjs",
+      "sha256": "4b22566d92c580af770377e709d55e6469e0652526f7d61bda5251dd4990ba8c"
+    },
+    {
+      "path": "scripts/role-profile-runtime.cjs",
+      "sha256": "347d8202dc59398872d7a4ed79e85f7894cb507d83c31e8b9422b4541eb793bc"
+    },
+    {
+      "path": "scripts/serve-instruction-workbench.cjs",
+      "sha256": "3b15712b262285b5a772c147f9d9d63b1c1b4d2772758129bf41d4bbeb7fdda1"
+    },
+    {
+      "path": "extensions/azrael-ex/src/instructionWorkbenchService.ts",
+      "sha256": "7113dea110676e8b22805f94bed756a674053efae920948e7a2c782f7a0c1f0b"
+    }
+  ],
+  "cleanup": "Three stopped disposable groups pending supported owner deletion; retained data and current live server excluded"
+}

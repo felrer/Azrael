@@ -1,0 +1,27 @@
+{
+  "operation": "register",
+  "group": {
+    "id": "run:EQ-01-protection-timing:locked-catalog-snapshot-r1",
+    "kind": "run",
+    "owner": "locked-catalog-snapshot",
+    "version": null,
+    "membership_complete": true,
+    "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7882629c7c1e99343eeb7bb0216bbefc3aed664b902ae4d5ccfcdd7ed2293ddc.json",
+    "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "membership_source_format": "producer_registry_v1",
+    "members": [
+      {
+        "id": "045a676dc7a6763794c37ad6918ea870c2751e60888e4cfe26fd57bcb0877ecc",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\locked-catalog-snapshot-r1",
+        "role": "run",
+        "lifecycle_role": "artifact",
+        "kind": "run",
+        "owner": "locked-catalog-snapshot",
+        "generated": true,
+        "protection_known": true,
+        "references": [],
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7882629c7c1e99343eeb7bb0216bbefc3aed664b902ae4d5ccfcdd7ed2293ddc.json"
+      }
+    ]
+  }
+}

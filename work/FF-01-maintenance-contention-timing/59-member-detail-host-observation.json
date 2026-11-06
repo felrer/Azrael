@@ -1,0 +1,84 @@
+﻿{
+    "at_utc":  "2026-11-02T13:19:52.5494552Z",
+    "note":  "Single host-resource observation after control80 slowdown; context only, not causal attribution",
+    "memory":  [
+                   {
+                       "AvailableMBytes":  5956,
+                       "PagesInputPersec":  122
+                   }
+               ],
+    "disks":  [
+                  {
+                      "Name":  "0 D:",
+                      "PercentDiskTime":  0,
+                      "CurrentDiskQueueLength":  0,
+                      "DiskReadBytesPersec":  0,
+                      "DiskWriteBytesPersec":  0
+                  },
+                  {
+                      "Name":  "1",
+                      "PercentDiskTime":  0,
+                      "CurrentDiskQueueLength":  0,
+                      "DiskReadBytesPersec":  0,
+                      "DiskWriteBytesPersec":  0
+                  },
+                  {
+                      "Name":  "2 C:",
+                      "PercentDiskTime":  5,
+                      "CurrentDiskQueueLength":  0,
+                      "DiskReadBytesPersec":  446530,
+                      "DiskWriteBytesPersec":  11769262
+                  },
+                  {
+                      "Name":  "_Total",
+                      "PercentDiskTime":  1,
+                      "CurrentDiskQueueLength":  0,
+                      "DiskReadBytesPersec":  446530,
+                      "DiskWriteBytesPersec":  11769262
+                  }
+              ],
+    "top_cpu":  [
+                    {
+                        "Name":  "blender",
+                        "IDProcess":  44580,
+                        "PercentProcessorTime":  759,
+                        "IOReadBytesPersec":  0,
+                        "IOWriteBytesPersec":  0
+                    },
+                    {
+                        "Name":  "node#23",
+                        "IDProcess":  11064,
+                        "PercentProcessorTime":  96,
+                        "IOReadBytesPersec":  9778158,
+                        "IOWriteBytesPersec":  0
+                    },
+                    {
+                        "Name":  "rustc",
+                        "IDProcess":  43536,
+                        "PercentProcessorTime":  96,
+                        "IOReadBytesPersec":  0,
+                        "IOWriteBytesPersec":  0
+                    },
+                    {
+                        "Name":  "RobloxStudioBeta",
+                        "IDProcess":  47792,
+                        "PercentProcessorTime":  40,
+                        "IOReadBytesPersec":  0,
+                        "IOWriteBytesPersec":  0
+                    },
+                    {
+                        "Name":  "RobloxStudioBeta#1",
+                        "IDProcess":  47388,
+                        "PercentProcessorTime":  25,
+                        "IOReadBytesPersec":  0,
+                        "IOWriteBytesPersec":  0
+                    },
+                    {
+                        "Name":  "svchost#40",
+                        "IDProcess":  4796,
+                        "PercentProcessorTime":  15,
+                        "IOReadBytesPersec":  0,
+                        "IOWriteBytesPersec":  0
+                    }
+                ]
+}

@@ -662,6 +662,7 @@ impl TurnRequestProcessor {
                 TurnInputRequest::new(input)
                     .with_thread_settings(thread_settings)
                     .on_start(TurnStartOptions {
+                        agent_profile: params.agent_profile,
                         turn_trigger: params.turn_trigger,
                         parent_turn_id: params.parent_turn_id,
                         initiating_agent_path: None,
@@ -732,6 +733,7 @@ impl TurnRequestProcessor {
             .await;
         let turn = Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: turn_id,
             root_turn_id: Some(root_turn_id),
@@ -1450,6 +1452,7 @@ impl TurnRequestProcessor {
 
         Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: turn_id,
             root_turn_id: None,

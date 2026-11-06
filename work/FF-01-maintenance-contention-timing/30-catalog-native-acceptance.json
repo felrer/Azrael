@@ -1,0 +1,1384 @@
+{
+  "status": "READY_CANDIDATE",
+  "actualEnvironment": "Windows x64 MSVC stable1.98",
+  "productTargets": [
+    "Windows x64",
+    "Linux x64/glibc",
+    "macOS ARM64"
+  ],
+  "unverified": [
+    "Linux execution",
+    "macOS execution",
+    "full application build excluded"
+  ],
+  "args": [
+    "build",
+    "-p",
+    "azrael-project-maintenance",
+    "--release",
+    "--bin",
+    "maintenance_owner",
+    "--offline",
+    "--locked"
+  ],
+  "exit": 0,
+  "pid": 43384,
+  "error": null,
+  "signal": null,
+  "elapsedMs": 32341,
+  "preflight": null,
+  "sourceUnchanged": true,
+  "sourceError": null,
+  "actualProducerTerminated": true,
+  "logs": {
+    "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\native\\release.stdout.log",
+    "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\native\\release.stderr.log"
+  },
+  "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\outputs\\native\\candidate-maintenance_owner.exe",
+  "sha256": "cf9cbd25713cf0a7688d4609271cfe3ec5619635fb1550b7e02e1b59608d56f1",
+  "bytes": 2817024,
+  "frozenAggregateSha256": "f9071c68df8f87984abe48add0a363c8749f9e60a2fce5d4b67fba08030c21ce",
+  "frozenFiles": [
+    {
+      "path": "codex-rs\\.cargo\\config.toml",
+      "bytes": 645,
+      "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b"
+    },
+    {
+      "path": "codex-rs\\Cargo.lock",
+      "bytes": 18124,
+      "sha256": "b7e5a8e4695cf1f18f8368379cfc35322381bcda36c44e4bfd78ca515aef8681"
+    },
+    {
+      "path": "codex-rs\\Cargo.toml",
+      "bytes": 17289,
+      "sha256": "e227853a4b95766f609b8b38eb9ce622bf03772868fe7123c432e858cfb1affa"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\Cargo.toml",
+      "bytes": 591,
+      "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\examples\\maintenance_dispatch.rs",
+      "bytes": 1406,
+      "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\apply.rs",
+      "bytes": 28893,
+      "sha256": "4c1d045738aa66aff479b3894366524789510cd1882e840e4cdd46cb3f792d3c"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\bin\\maintenance_owner.rs",
+      "bytes": 192,
+      "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\cli.rs",
+      "bytes": 13991,
+      "sha256": "9ae3851660bb0826012ee73817149f044dce16fa33de023d75bda9513f43c6f3"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\duplicate_claims.rs",
+      "bytes": 17277,
+      "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\groups.rs",
+      "bytes": 27731,
+      "sha256": "7bb89d82d50a66d6ba487361ace838d9c56d28e2538fe5fe3e0858313ae4aaf5"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\lease.rs",
+      "bytes": 39699,
+      "sha256": "96b1dd485d7098300ba3d876476b1fe033b3cc18e029248ac4e150563a3a60c9"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\lib.rs",
+      "bytes": 49871,
+      "sha256": "44ff675af5dd8c569314d87ab2f81120f6f469927808d9002ba712ac9c6f626a"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\lock_recovery.rs",
+      "bytes": 66894,
+      "sha256": "5adb7f4f7fb6f105000bbc4567a29298091e8301b0a1203324131656703402c5"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\lock_wait.rs",
+      "bytes": 6758,
+      "sha256": "268e547a4128e2cdec28ace5e5266539f37a17c973e43a7259959012352a05be"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\nested_retirement.rs",
+      "bytes": 4200,
+      "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\partitioned_storage.rs",
+      "bytes": 39718,
+      "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\paths.rs",
+      "bytes": 55423,
+      "sha256": "e816e59a38f52d805bb0697fc51326d1f02198ded3bbf08ffd0c080f7a7e7626"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\planning.rs",
+      "bytes": 6150,
+      "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\preferences.rs",
+      "bytes": 13433,
+      "sha256": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\registration.rs",
+      "bytes": 8497,
+      "sha256": "c6d0a2bc7f5739b119345d0b378ede53ad335d0ce8e2a37dc79c3b326cc52aaa"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\registry.rs",
+      "bytes": 72035,
+      "sha256": "c8c4e6cc18f6cac96d4524b8c71be7a8f5756d40c069feec92a2c21048a691e0"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\reservations.rs",
+      "bytes": 79316,
+      "sha256": "e18b5e0ce5faa20ae2aba418095d641ef64473a13cb12ee2a84dfb07bcd8a800"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\retirement.rs",
+      "bytes": 7485,
+      "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\storage.rs",
+      "bytes": 38807,
+      "sha256": "ec6d220f1ae3ebe16e3c39d3ced4d55269df196581dea28b4858d1948c490481"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\timing.rs",
+      "bytes": 5471,
+      "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\src\\windows_delete.rs",
+      "bytes": 42315,
+      "sha256": "8f3308ffe43b141c366ab3b9c4c3b9cb506be7a1cecca0a649f412ccb0e9bfd2"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\absent_adoption.rs",
+      "bytes": 8168,
+      "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\contention.rs",
+      "bytes": 9780,
+      "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\contracts.rs",
+      "bytes": 47299,
+      "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\duplicate_claims.rs",
+      "bytes": 18149,
+      "sha256": "d810b614551801330d5b0a993eadb4d45b99aac5d9939f8e4f9945984f465683"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\groups.rs",
+      "bytes": 49259,
+      "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\hardlink_normalization.rs",
+      "bytes": 6856,
+      "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\lock_recovery.rs",
+      "bytes": 36653,
+      "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\nested_retirement.rs",
+      "bytes": 9610,
+      "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\partitioned.rs",
+      "bytes": 7418,
+      "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\registry.rs",
+      "bytes": 60328,
+      "sha256": "aff5e86643a3f9cbe2346bd3c64552ca6e7a19d349a6a9a6664ab801cb37c262"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\root_retirement.rs",
+      "bytes": 14037,
+      "sha256": "31cc0a35e98b3aec4e7aae8cab04a0a8ad8ef90785e2cb8b8c88aaa5a438690f"
+    },
+    {
+      "path": "codex-rs\\project-maintenance\\tests\\verified_junctions.rs",
+      "bytes": 7832,
+      "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2"
+    },
+    {
+      "path": "codex-rs\\utils\\process\\BUILD.bazel",
+      "bytes": 123,
+      "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da"
+    },
+    {
+      "path": "codex-rs\\utils\\process\\Cargo.toml",
+      "bytes": 321,
+      "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f"
+    },
+    {
+      "path": "codex-rs\\utils\\process\\src\\background_command_tests.rs",
+      "bytes": 2301,
+      "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6"
+    },
+    {
+      "path": "codex-rs\\utils\\process\\src\\lib.rs",
+      "bytes": 991,
+      "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90"
+    }
+  ],
+  "originalFiles": [
+    {
+      "path": "project-maintenance\\Cargo.toml",
+      "bytes": 591,
+      "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b"
+    },
+    {
+      "path": "project-maintenance\\examples\\maintenance_dispatch.rs",
+      "bytes": 1406,
+      "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8"
+    },
+    {
+      "path": "project-maintenance\\src\\apply.rs",
+      "bytes": 28893,
+      "sha256": "4c1d045738aa66aff479b3894366524789510cd1882e840e4cdd46cb3f792d3c"
+    },
+    {
+      "path": "project-maintenance\\src\\bin\\maintenance_owner.rs",
+      "bytes": 192,
+      "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936"
+    },
+    {
+      "path": "project-maintenance\\src\\cli.rs",
+      "bytes": 13991,
+      "sha256": "9ae3851660bb0826012ee73817149f044dce16fa33de023d75bda9513f43c6f3"
+    },
+    {
+      "path": "project-maintenance\\src\\duplicate_claims.rs",
+      "bytes": 17277,
+      "sha256": "48608121170d3c9002762b9153aa9903393f9afe5e3ca95f166604f894190709"
+    },
+    {
+      "path": "project-maintenance\\src\\groups.rs",
+      "bytes": 27731,
+      "sha256": "7bb89d82d50a66d6ba487361ace838d9c56d28e2538fe5fe3e0858313ae4aaf5"
+    },
+    {
+      "path": "project-maintenance\\src\\lease.rs",
+      "bytes": 39699,
+      "sha256": "96b1dd485d7098300ba3d876476b1fe033b3cc18e029248ac4e150563a3a60c9"
+    },
+    {
+      "path": "project-maintenance\\src\\lib.rs",
+      "bytes": 49871,
+      "sha256": "44ff675af5dd8c569314d87ab2f81120f6f469927808d9002ba712ac9c6f626a"
+    },
+    {
+      "path": "project-maintenance\\src\\lock_recovery.rs",
+      "bytes": 66894,
+      "sha256": "5adb7f4f7fb6f105000bbc4567a29298091e8301b0a1203324131656703402c5"
+    },
+    {
+      "path": "project-maintenance\\src\\lock_wait.rs",
+      "bytes": 6758,
+      "sha256": "268e547a4128e2cdec28ace5e5266539f37a17c973e43a7259959012352a05be"
+    },
+    {
+      "path": "project-maintenance\\src\\nested_retirement.rs",
+      "bytes": 4200,
+      "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06"
+    },
+    {
+      "path": "project-maintenance\\src\\partitioned_storage.rs",
+      "bytes": 39718,
+      "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35"
+    },
+    {
+      "path": "project-maintenance\\src\\paths.rs",
+      "bytes": 55423,
+      "sha256": "e816e59a38f52d805bb0697fc51326d1f02198ded3bbf08ffd0c080f7a7e7626"
+    },
+    {
+      "path": "project-maintenance\\src\\planning.rs",
+      "bytes": 6150,
+      "sha256": "386fb6aa8ee3f4c77c9bc9768848fc1a892ceff16d93303d0c8e1162def557f2"
+    },
+    {
+      "path": "project-maintenance\\src\\preferences.rs",
+      "bytes": 13433,
+      "sha256": "4cc9729360b8d03a4bceeb8cbbdd15caeda43c00f76651cee1ffc6d738096541"
+    },
+    {
+      "path": "project-maintenance\\src\\registration.rs",
+      "bytes": 8497,
+      "sha256": "c6d0a2bc7f5739b119345d0b378ede53ad335d0ce8e2a37dc79c3b326cc52aaa"
+    },
+    {
+      "path": "project-maintenance\\src\\registry.rs",
+      "bytes": 72035,
+      "sha256": "c8c4e6cc18f6cac96d4524b8c71be7a8f5756d40c069feec92a2c21048a691e0"
+    },
+    {
+      "path": "project-maintenance\\src\\reservations.rs",
+      "bytes": 79316,
+      "sha256": "e18b5e0ce5faa20ae2aba418095d641ef64473a13cb12ee2a84dfb07bcd8a800"
+    },
+    {
+      "path": "project-maintenance\\src\\retirement.rs",
+      "bytes": 7485,
+      "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807"
+    },
+    {
+      "path": "project-maintenance\\src\\storage.rs",
+      "bytes": 38807,
+      "sha256": "ec6d220f1ae3ebe16e3c39d3ced4d55269df196581dea28b4858d1948c490481"
+    },
+    {
+      "path": "project-maintenance\\src\\timing.rs",
+      "bytes": 5471,
+      "sha256": "80d04ee1a2f806d3cee4e988cc1a665f961c762f59fdb61b6c99203b9b009692"
+    },
+    {
+      "path": "project-maintenance\\src\\windows_delete.rs",
+      "bytes": 42315,
+      "sha256": "8f3308ffe43b141c366ab3b9c4c3b9cb506be7a1cecca0a649f412ccb0e9bfd2"
+    },
+    {
+      "path": "project-maintenance\\tests\\absent_adoption.rs",
+      "bytes": 8168,
+      "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a"
+    },
+    {
+      "path": "project-maintenance\\tests\\contention.rs",
+      "bytes": 9780,
+      "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d"
+    },
+    {
+      "path": "project-maintenance\\tests\\contracts.rs",
+      "bytes": 47299,
+      "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df"
+    },
+    {
+      "path": "project-maintenance\\tests\\duplicate_claims.rs",
+      "bytes": 18149,
+      "sha256": "d810b614551801330d5b0a993eadb4d45b99aac5d9939f8e4f9945984f465683"
+    },
+    {
+      "path": "project-maintenance\\tests\\groups.rs",
+      "bytes": 49259,
+      "sha256": "7722df56767b2d8f779e7359d3a329ce0adc371dc22683c0e52557fb8c3cdd2e"
+    },
+    {
+      "path": "project-maintenance\\tests\\hardlink_normalization.rs",
+      "bytes": 6856,
+      "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf"
+    },
+    {
+      "path": "project-maintenance\\tests\\lock_recovery.rs",
+      "bytes": 36653,
+      "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab"
+    },
+    {
+      "path": "project-maintenance\\tests\\nested_retirement.rs",
+      "bytes": 9610,
+      "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec"
+    },
+    {
+      "path": "project-maintenance\\tests\\partitioned.rs",
+      "bytes": 7418,
+      "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031"
+    },
+    {
+      "path": "project-maintenance\\tests\\registry.rs",
+      "bytes": 60328,
+      "sha256": "aff5e86643a3f9cbe2346bd3c64552ca6e7a19d349a6a9a6664ab801cb37c262"
+    },
+    {
+      "path": "project-maintenance\\tests\\root_retirement.rs",
+      "bytes": 14037,
+      "sha256": "31cc0a35e98b3aec4e7aae8cab04a0a8ad8ef90785e2cb8b8c88aaa5a438690f"
+    },
+    {
+      "path": "project-maintenance\\tests\\verified_junctions.rs",
+      "bytes": 7832,
+      "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2"
+    },
+    {
+      "path": "utils\\process\\BUILD.bazel",
+      "bytes": 123,
+      "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da"
+    },
+    {
+      "path": "utils\\process\\Cargo.toml",
+      "bytes": 321,
+      "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f"
+    },
+    {
+      "path": "utils\\process\\src\\background_command_tests.rs",
+      "bytes": 2301,
+      "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6"
+    },
+    {
+      "path": "utils\\process\\src\\lib.rs",
+      "bytes": 991,
+      "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90"
+    },
+    {
+      "path": ".cargo/config.toml",
+      "bytes": 645,
+      "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b"
+    },
+    {
+      "path": "Cargo.toml",
+      "bytes": 21414,
+      "sha256": "bb964889aee08665a28a187800effec52935800909dcdcb9e914af0d99e95ce1"
+    },
+    {
+      "path": "Cargo.lock",
+      "bytes": 408952,
+      "sha256": "28ba826e9155d63dbea9723e75281fe7566f52decd93339a34f05bb2f139711e"
+    }
+  ],
+  "originalLockSha256": "28ba826e9155d63dbea9723e75281fe7566f52decd93339a34f05bb2f139711e",
+  "focusedLockSha256": "b7e5a8e4695cf1f18f8368379cfc35322381bcda36c44e4bfd78ca515aef8681",
+  "closure": {
+    "total": 79,
+    "external": 77,
+    "exactOriginalIdentitySubset": true,
+    "dependencies": [
+      {
+        "name": "anyhow",
+        "version": "1.0.103",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "azrael-project-maintenance",
+        "version": "0.162.0",
+        "source": null
+      },
+      {
+        "name": "bitflags",
+        "version": "2.13.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "block-buffer",
+        "version": "0.10.4",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "bytes",
+        "version": "1.12.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "cfg-if",
+        "version": "1.0.4",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "codex-utils-process",
+        "version": "0.162.0",
+        "source": null
+      },
+      {
+        "name": "cpufeatures",
+        "version": "0.2.17",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "crypto-common",
+        "version": "0.1.7",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "diff",
+        "version": "0.1.13",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "digest",
+        "version": "0.10.7",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "dunce",
+        "version": "1.0.5",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "equivalent",
+        "version": "1.0.2",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "errno",
+        "version": "0.3.14",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "fastrand",
+        "version": "2.3.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "foldhash",
+        "version": "0.1.5",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "generic-array",
+        "version": "0.14.7",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "getrandom",
+        "version": "0.4.2",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "hashbrown",
+        "version": "0.15.5",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "hashbrown",
+        "version": "0.17.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "heck",
+        "version": "0.5.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "id-arena",
+        "version": "2.3.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "indexmap",
+        "version": "2.14.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "itoa",
+        "version": "1.0.17",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "leb128fmt",
+        "version": "0.1.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "libc",
+        "version": "0.2.186",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "linux-raw-sys",
+        "version": "0.12.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "log",
+        "version": "0.4.34",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "memchr",
+        "version": "2.8.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "mio",
+        "version": "1.2.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "once_cell",
+        "version": "1.21.4",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "pin-project-lite",
+        "version": "0.2.16",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "pretty_assertions",
+        "version": "1.4.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "prettyplease",
+        "version": "0.2.37",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "proc-macro2",
+        "version": "1.0.106",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "quote",
+        "version": "1.0.45",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "r-efi",
+        "version": "6.0.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "rustix",
+        "version": "1.1.4",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "semver",
+        "version": "1.0.27",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "serde",
+        "version": "1.0.228",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "serde_core",
+        "version": "1.0.228",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "serde_derive",
+        "version": "1.0.228",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "serde_json",
+        "version": "1.0.149",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "sha2",
+        "version": "0.10.9",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "signal-hook-registry",
+        "version": "1.4.8",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "syn",
+        "version": "2.0.117",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "tempfile",
+        "version": "3.27.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "tokio",
+        "version": "1.52.3",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "tokio-macros",
+        "version": "2.7.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "typenum",
+        "version": "1.20.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "unicode-ident",
+        "version": "1.0.22",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "unicode-xid",
+        "version": "0.2.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "version_check",
+        "version": "0.9.5",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wasi",
+        "version": "0.11.1+wasi-snapshot-preview1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wasip2",
+        "version": "1.0.2+wasi-0.2.9",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wasip3",
+        "version": "0.4.0+wasi-0.3.0-rc-2026-01-06",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wasm-encoder",
+        "version": "0.244.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wasm-metadata",
+        "version": "0.244.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wasmparser",
+        "version": "0.244.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows-link",
+        "version": "0.2.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows-sys",
+        "version": "0.52.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows-sys",
+        "version": "0.61.2",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows-targets",
+        "version": "0.52.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows_aarch64_gnullvm",
+        "version": "0.52.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows_aarch64_msvc",
+        "version": "0.52.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows_i686_gnu",
+        "version": "0.52.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows_i686_gnullvm",
+        "version": "0.52.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows_i686_msvc",
+        "version": "0.52.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows_x86_64_gnu",
+        "version": "0.52.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows_x86_64_gnullvm",
+        "version": "0.52.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "windows_x86_64_msvc",
+        "version": "0.52.6",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wit-bindgen",
+        "version": "0.51.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wit-bindgen-core",
+        "version": "0.51.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wit-bindgen-rust",
+        "version": "0.51.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wit-bindgen-rust-macro",
+        "version": "0.51.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wit-component",
+        "version": "0.244.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "wit-parser",
+        "version": "0.244.0",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "yansi",
+        "version": "1.0.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      {
+        "name": "zmij",
+        "version": "1.0.19",
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      }
+    ]
+  },
+  "tools": {
+    "cargo": {
+      "path": "C:\\Users\\felre\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\cargo.exe",
+      "sha256": "197c9f582da4994c585b13366abc12e810de2708ce14ddcf0873a8f377f3954e",
+      "version": "cargo 1.98.0 (797e8a9bc 2026-08-05)"
+    },
+    "rustc": {
+      "path": "C:\\Users\\felre\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+      "sha256": "777119d5feeca3d9fc163dc0e0d8be896cfcb65c45255328cef214d833546c6a",
+      "version": "rustc 1.98.0 (88d9e12ae 2026-08-18)"
+    }
+  },
+  "env": {
+    "ALLUSERSPROFILE": "C:\\ProgramData",
+    "APPDATA": "C:\\Users\\felre\\AppData\\Roaming",
+    "CHROME_CRASHPAD_PIPE_NAME": "\\\\.\\pipe\\crashpad_7608_WJEDZHWJFSXOJSPH",
+    "COLORTERM": "",
+    "CommandPromptType": "Native",
+    "CommonProgramFiles": "C:\\Program Files\\Common Files",
+    "CommonProgramFiles(x86)": "C:\\Program Files (x86)\\Common Files",
+    "CommonProgramW6432": "C:\\Program Files\\Common Files",
+    "COMPUTERNAME": "FELRER",
+    "ComSpec": "C:\\WINDOWS\\system32\\cmd.exe",
+    "configsetroot": "C:\\WINDOWS\\ConfigSetRoot",
+    "DEBUG": "release",
+    "DevEnvDir": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\",
+    "DriverData": "C:\\Windows\\System32\\Drivers\\DriverData",
+    "EFC_11688_1262719628": "1",
+    "EFC_11688_1592913036": "1",
+    "EFC_11688_2283032206": "1",
+    "EFC_11688_2946480783": "1",
+    "EFC_11688_344590478": "1",
+    "EFC_11688_3789132940": "1",
+    "EFC_11688_4126798990": "1",
+    "ELECTRON_RUN_AS_NODE": "1",
+    "ExtensionSdkDir": "C:\\Program Files (x86)\\Microsoft SDKs\\Windows Kits\\10\\ExtensionSDKs",
+    "EXTERNAL_INCLUDE": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\include;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\ATLMFC\\include;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Auxiliary\\VS\\include;C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt;C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\um;C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\shared;C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\winrt;C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\cppwinrt;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.8\\include\\um",
+    "FPS_BROWSER_APP_PROFILE_STRING": "Internet Explorer",
+    "FPS_BROWSER_USER_PROFILE_STRING": "Default",
+    "Framework40Version": "v4.0",
+    "FrameworkDir": "C:\\Windows\\Microsoft.NET\\Framework64\\",
+    "FrameworkDir64": "C:\\Windows\\Microsoft.NET\\Framework64\\",
+    "FrameworkVersion": "v4.0.30319",
+    "FrameworkVersion64": "v4.0.30319",
+    "GH_PAGER": "cat",
+    "GIT_PAGER": "cat",
+    "HOMEDRIVE": "C:",
+    "HOMEPATH": "\\Users\\felre",
+    "INCLUDE": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\include;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\ATLMFC\\include;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Auxiliary\\VS\\include;C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt;C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\um;C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\shared;C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\winrt;C:\\Program Files (x86)\\Windows Kits\\10\\\\include\\10.0.26100.0\\\\cppwinrt;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.8\\include\\um",
+    "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.20.8-hotspot\\",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "LC_CTYPE": "C.UTF-8",
+    "LIB": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\ATLMFC\\lib\\x64;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\lib\\x64;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.8\\lib\\um\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.26100.0\\ucrt\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\\\lib\\10.0.26100.0\\\\um\\x64",
+    "LIBPATH": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\ATLMFC\\lib\\x64;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\lib\\x64;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\lib\\x86\\store\\references;C:\\Program Files (x86)\\Windows Kits\\10\\UnionMetadata\\10.0.26100.0;C:\\Program Files (x86)\\Windows Kits\\10\\References\\10.0.26100.0;C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319",
+    "LOCALAPPDATA": "C:\\Users\\felre\\AppData\\Local",
+    "LOGONSERVER": "\\\\FELRER",
+    "NETFXSDKDir": "C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.8\\",
+    "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S": "8e172ec9f458f2e636fc69a1b8c68c217f6bb8d10c41f70a05a0878b73863701",
+    "NO_COLOR": "1",
+    "NUMBER_OF_PROCESSORS": "16",
+    "OPENCODEX_HOME": "C:\\Users\\felre\\.azrael-ex\\azrael\\providers\\opencodex",
+    "OS": "Windows_NT",
+    "PAGER": "cat",
+    "PATH": "C:\\Users\\felre\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\bin\\HostX64\\x64;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\VC\\VCPackages;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\TeamFoundation\\Team Explorer;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\bin\\Roslyn;C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools\\x64\\;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Team Tools\\DiagnosticsHub\\Collector;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\Extensions\\Microsoft\\CodeCoverage.Console;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\\\x64;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\\\MSBuild\\Current\\Bin\\amd64;C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\Tools\\;C:\\Users\\felre\\.azrael-ex\\tmp\\arg0\\codex-arg0Kcnhw9;C:\\Users\\felre\\.azrael-ex\\tmp\\arg0\\codex-arg0tgrpTS;C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.20.8-hotspot\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\GitHub CLI\\;C:\\Program Files\\nodejs\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR;C:\\Program Files\\Tailscale\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files\\dotnet\\;C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\;c:\\Users\\felre\\.vscode\\extensions\\azrael-ex-local.azrael-2026.0.16\\bin\\windows-x86_64;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\VC\\Linux\\bin\\ConnectionManagerExe;C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\vcpkg",
+    "PATHEXT": ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL",
+    "PROCESSOR_ARCHITECTURE": "AMD64",
+    "PROCESSOR_IDENTIFIER": "Intel64 Family 6 Model 165 Stepping 5, GenuineIntel",
+    "PROCESSOR_LEVEL": "6",
+    "PROCESSOR_REVISION": "a505",
+    "ProgramData": "C:\\ProgramData",
+    "ProgramFiles": "C:\\Program Files",
+    "ProgramFiles(x86)": "C:\\Program Files (x86)",
+    "ProgramW6432": "C:\\Program Files",
+    "PROMPT": "$P$G",
+    "PSModulePath": "C:\\Users\\felre\\Documents\\WindowsPowerShell\\Modules;C:\\Program Files\\WindowsPowerShell\\Modules;C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\Modules",
+    "PUBLIC": "C:\\Users\\Public",
+    "SESSIONNAME": "Console",
+    "SystemDrive": "C:",
+    "SystemRoot": "C:\\WINDOWS",
+    "TEMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\native\\tmp",
+    "TERM": "dumb",
+    "TMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\native\\tmp",
+    "UCRTVersion": "10.0.26100.0",
+    "UniversalCRTSdkDir": "C:\\Program Files (x86)\\Windows Kits\\10\\",
+    "USERDOMAIN": "FELRER",
+    "USERDOMAIN_ROAMINGPROFILE": "FELRER",
+    "USERNAME": "felre",
+    "USERPROFILE": "C:\\Users\\felre",
+    "VCIDEInstallDir": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\VC\\",
+    "VCINSTALLDIR": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\",
+    "VCPKG_ROOT": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\vcpkg",
+    "VCToolsInstallDir": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\",
+    "VCToolsRedistDir": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Redist\\MSVC\\14.51.36231\\",
+    "VCToolsVersion": "14.51.36231",
+    "VisualStudioVersion": "18.0",
+    "VS180COMNTOOLS": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\Tools\\",
+    "VSCMD_ARG_app_plat": "Desktop",
+    "VSCMD_ARG_HOST_ARCH": "x64",
+    "VSCMD_ARG_TGT_ARCH": "x64",
+    "VSCMD_VER": "18.9.0",
+    "VSCODE_CODE_CACHE_PATH": "C:\\Users\\felre\\AppData\\Roaming\\Code\\CachedData\\2c33b50b16c472efe58357d1d2a8a5414bc23fbf",
+    "VSCODE_CRASH_REPORTER_PROCESS_TYPE": "extensionHost",
+    "VSCODE_CWD": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code",
+    "VSCODE_ESM_ENTRYPOINT": "vs/workbench/api/node/extensionHostProcess",
+    "VSCODE_HANDLES_UNCAUGHT_ERRORS": "true",
+    "VSCODE_IPC_HOOK": "\\\\.\\pipe\\0b422632-1.144.0-main-sock",
+    "VSCODE_NLS_CONFIG": "{\"userLocale\":\"en-us\",\"osLocale\":\"ko\",\"resolvedLanguage\":\"en\",\"defaultMessagesFile\":\"C:\\\\Users\\\\felre\\\\AppData\\\\Local\\\\Programs\\\\Microsoft VS Code\\\\2c33b50b16\\\\resources\\\\app\\\\out\\\\nls.messages.json\",\"locale\":\"en-us\",\"availableLanguages\":{}}",
+    "VSCODE_NODE_COMPILE_CACHE_KIND": "extension-host",
+    "VSCODE_NODE_COMPILE_CACHE_ROOT": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\2c33b50b16\\resources\\app\\node-compile-cache",
+    "VSCODE_PID": "7608",
+    "VSINSTALLDIR": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\",
+    "windir": "C:\\WINDOWS",
+    "WindowsLibPath": "C:\\Program Files (x86)\\Windows Kits\\10\\UnionMetadata\\10.0.26100.0;C:\\Program Files (x86)\\Windows Kits\\10\\References\\10.0.26100.0",
+    "WindowsSdkBinPath": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\",
+    "WindowsSdkDir": "C:\\Program Files (x86)\\Windows Kits\\10\\",
+    "WindowsSDKLibVersion": "10.0.26100.0\\",
+    "WindowsSdkVerBinPath": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\",
+    "WindowsSDKVersion": "10.0.26100.0\\",
+    "WindowsSDK_ExecutablePath_x64": "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools\\x64\\",
+    "WindowsSDK_ExecutablePath_x86": "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools\\",
+    "ZES_ENABLE_SYSMAN": "1",
+    "__DOTNET_ADD_64BIT": "1",
+    "__DOTNET_PREFERRED_BITNESS": "64",
+    "__VSCMD_PREINIT_PATH": "C:\\Users\\felre\\.azrael-ex\\tmp\\arg0\\codex-arg0Kcnhw9;C:\\Users\\felre\\.azrael-ex\\tmp\\arg0\\codex-arg0tgrpTS;C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.20.8-hotspot\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\GitHub CLI\\;C:\\Program Files\\nodejs\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR;C:\\Program Files\\Tailscale\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files\\dotnet\\;C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance Toolkit\\;c:\\Users\\felre\\.vscode\\extensions\\azrael-ex-local.azrael-2026.0.16\\bin\\windows-x86_64",
+    "CARGO_HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\native\\cargo-home",
+    "CARGO_TARGET_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\outputs\\native\\target",
+    "INSTA_PENDING_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\outputs\\native\\insta-pending",
+    "INSTA_UPDATE": "no",
+    "RUSTC": "C:\\Users\\felre\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "RUSTDOC": "C:\\Users\\felre\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustdoc.exe",
+    "CARGO_BUILD_JOBS": "4",
+    "AZRAEL_CARGO_RUN_ID": "ff1-catalog4-native"
+  },
+  "focused": {
+    "args": [
+      "test",
+      "-p",
+      "azrael-project-maintenance",
+      "--locked",
+      "--offline",
+      "registry::catalog_tests",
+      "--",
+      "--test-threads=4"
+    ],
+    "exit": 0,
+    "pid": 35240,
+    "error": null,
+    "signal": null,
+    "elapsedMs": 35393,
+    "preflight": {
+      "schema": 2,
+      "compilation": "cargo-test",
+      "testExecution": "nonzero-passed",
+      "contract": "selected-tests-v2",
+      "cargoInvocations": 1,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 11,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 80
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 4
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 6
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 35
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 11
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 28
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 4
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 22
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 5
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 5
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 24
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 8
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 4
+          }
+        ],
+        "passed": 11,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 236,
+        "executed": 11
+      },
+      "phases": [
+        {
+          "phase": "compilation-and-execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "registry::catalog_tests",
+            "--",
+            "--test-threads=4"
+          ],
+          "startedUtc": "2026-11-02T10:38:01.749Z",
+          "durationMs": 35376,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "sourceUnchanged": true,
+    "sourceError": null,
+    "actualProducerTerminated": true,
+    "logs": {
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\native\\focused.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\native\\focused.stderr.log"
+    }
+  },
+  "full": {
+    "args": [
+      "test",
+      "-p",
+      "azrael-project-maintenance",
+      "--locked",
+      "--offline",
+      "--",
+      "--test-threads=4"
+    ],
+    "exit": 0,
+    "pid": 53064,
+    "error": null,
+    "signal": null,
+    "elapsedMs": 152388,
+    "preflight": {
+      "schema": 2,
+      "compilation": "cargo-test",
+      "testExecution": "nonzero-passed",
+      "contract": "selected-tests-v2",
+      "cargoInvocations": 1,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 91,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 35,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 11,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 28,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 22,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 24,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 8,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0
+          }
+        ],
+        "passed": 247,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 0,
+        "executed": 247
+      },
+      "phases": [
+        {
+          "phase": "compilation-and-execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=4"
+          ],
+          "startedUtc": "2026-11-02T10:38:56.830Z",
+          "durationMs": 152370,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "sourceUnchanged": true,
+    "sourceError": null,
+    "actualProducerTerminated": true,
+    "logs": {
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\native\\full.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\native\\full.stderr.log"
+    }
+  },
+  "metadata": {
+    "exit": 0,
+    "packages": 79,
+    "compilationStarted": false,
+    "lockUnchanged": true
+  },
+  "copyAudit": {
+    "exit": 0,
+    "checked": 40,
+    "sourceAndCopyExact": true,
+    "originalManifestsPreserved": true
+  },
+  "finalSourceAudit": {
+    "frozenUnchanged": true,
+    "checkoutUnchanged": true,
+    "producerLeaseAbsent": true,
+    "allProducersTerminated": true
+  },
+  "helperIdentityAtHandoff": [
+    {
+      "path": "scripts/cargo-verification.cjs",
+      "sha256": "810fd8a86d749748c805ce3ff39e3af8bb4c7e9420cfe9be620b03dea220df5f"
+    },
+    {
+      "path": "scripts/cargo-target-owner.cjs",
+      "sha256": "fc0b578c02787edb7530d49bbaf1f0eaf2db0a57620347fffaf732d5531cf1a3"
+    }
+  ],
+  "harnessLimitation": "Initial focused PowerShell wrapper exit1 from stderr NativeCommandError; actual managed Cargo and script report exit0. Subsequent wrappers explicitly returned LASTEXITCODE and both exit0."
+}

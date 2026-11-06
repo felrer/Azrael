@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "executor": "exec_command",
+  "chunkId": "d429c8",
+  "sessionId": null,
+  "pid": 23460,
+  "parentPid": 56876,
+  "creationDateUtc": "2026-10-30T20:24:23.9576710Z",
+  "startedUtc": "2026-10-30T20:24:24.046Z",
+  "finishedUtc": "2026-10-30T20:24:30.319Z",
+  "actualExitCode": 0,
+  "lifecycleId": "version:maintenance-owner-et01-lifecycle-pending-win-x64-r4",
+  "revision": 1,
+  "state": "pending",
+  "membershipComplete": false,
+  "actualCliExecuted": false
+}

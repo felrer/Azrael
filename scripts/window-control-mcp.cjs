@@ -56,10 +56,11 @@ function toolDefinitions() {
   const condition = {type:'object',properties:{selector:fullSelector,property:{enum:['exists','enabled','value','selected','toggleState','expandState']},equals:{anyOf:[{type:'string'},{type:'boolean'},parameter]}},required:['selector','property','equals'],additionalProperties:false};
   condition.allOf = [{if:{properties:{property:{enum:['exists','enabled','selected']}}},then:{properties:{equals:{type:'boolean'}}}}];
   const definition = {type:'object',properties:{schema:{const:1},id:{type:'string'},name:{type:'string'},parameters:{type:'array',items:{type:'string'},uniqueItems:true,maxItems:32},steps:{type:'array',minItems:1,maxItems:32,items:{type:'object',properties:{action:{enum:['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','wait_for','assert','capture']},selector:fullSelector,value:{anyOf:[{type:'string',maxLength:32768},parameter,{type:'object',properties:{horizontal:{type:'integer',minimum:-2,maximum:2},vertical:{type:'integer',minimum:-2,maximum:2}},required:['horizontal','vertical'],additionalProperties:false}]},key:{enum:require('./window-task-macros.cjs').KEYS},condition,postcondition:condition,timeoutMs:{type:'integer',minimum:0,maximum:10000}},required:['action'],additionalProperties:false}}},required:['schema','steps'],additionalProperties:false};
-  const discovery = ['context','prepare_permissions','request_stage','resource_status','cleanup','logoff_isolated','list_windows','select_window','list_task_macros','save_task_macro'];
-  const definitions = TOOLS.map(name => {
-    const properties = discovery.includes(name) ? {} : {targetId:{type:'string',description:'Opaque selected target ID from select_window or status.'}};
-    const required = discovery.includes(name) || name === 'status' ? [] : ['targetId'];
+  const discovery = ['context','capture_desktop','desktop_input','release_desktop_input','list_windows','list_task_macros','save_task_macro'];
+  const cooperativeSchemaAvailable=require('node:fs').existsSync(path.join(__dirname,'window-switched-input.cjs'));
+  const definitions = TOOLS.filter(name=>name!=='select_window'&&(cooperativeSchemaAvailable||!['switched_input','release_switched_input','desktop_input','release_desktop_input'].includes(name))).map(name => {
+    const properties = discovery.includes(name) ? {} : {windowId:{type:'string',minLength:1,description:'Stable opaque window ID from list_windows for this thread and exact window.'}};
+    const required = discovery.includes(name) ? [] : ['windowId'];
     if(['invoke','set_value','toggle','select','expand','collapse','scroll','press_key'].includes(name)) {
       properties.observationId = {type:'string'}; properties.elementId = {type:'string'}; required.push('observationId','elementId');
       if(name === 'set_value' || name === 'scroll') {properties.value = name === 'scroll' ? {type:'object',properties:{horizontal:{type:'integer',minimum:-2,maximum:2},vertical:{type:'integer',minimum:-2,maximum:2}},required:['horizontal','vertical'],additionalProperties:false} : {type:'string',maxLength:32768}; required.push('value');}
@@ -74,15 +75,9 @@ function toolDefinitions() {
         {type:'object',properties:{kind:{const:'mouse'},action:{enum:['move','down','up','wheel']},x:coord,y:coord,button:{enum:['left','right','middle']},delta:{type:'integer',minimum:-1200,maximum:1200,not:{const:0}}},required:['kind','action'],additionalProperties:false,allOf:[{if:{required:['x']},then:{required:['y']}},{if:{required:['y']},then:{required:['x']}},{if:{properties:{action:{const:'move'}}},then:{required:['x','y']}},{if:{properties:{action:{enum:['down','up']}}},then:{required:['button']}},{if:{properties:{action:{const:'wheel'}}},then:{required:['delta']}}]}
       ]};required.push('observationId','input');
     }
-    if(name === 'select_window') {properties.candidateId = {type:'string'};required.push('candidateId');}
-    if(name === 'cleanup') properties.ids={type:'array',minItems:1,maxItems:20,items:{type:'string',maxLength:128},description:'Optional owned IDs from resource_status for immediate safe cleanup; omit to apply idle/quota policy.'};
-    if(name === 'logoff_isolated') {properties.reason={type:'string',minLength:1,maxLength:1024};required.push('reason');}
+    if(name === 'switched_input') {properties.observationId={type:'string'};properties.input=require('./window-switched-input.cjs').switchedInputSchema();required.push('observationId','input');}
+    if(name === 'desktop_input') {properties.observationId={type:'string'};properties.input=require('./window-switched-input.cjs').desktopInputSchema();required.push('observationId','input');}
     if(name === 'context') properties.guideVersion = {type:'string'};
-    if(name === 'request_stage' || name === 'prepare_permissions') {properties.stage={enum:[2,3,4]};properties.targetId={type:'string'};properties.reason={type:'string',minLength:1,maxLength:1024};required.push('stage','reason');}
-    if(name === 'request_stage') properties.virtualInput={type:'boolean',description:'Stage 2 general conversations only: explicitly approve DLL input hooking for all windows of this exact PID/process lifetime/executable. Required before virtual_input; does not grant semantic control or desktop input.'};
-    if(name === 'prepare_permissions') properties.candidateIds={type:'array',maxItems:8,uniqueItems:true,items:{type:'string'},description:'Fresh opaque candidate IDs from list_windows for known apps to approve before work. No executable paths or wildcard grants. Selecting a window invalidates old candidates; enumerate again if needed.'};
-    if(name === 'launch_isolated') {required.length=0;properties.packageName={type:'string',pattern:'^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$',description:'Exact registered Windows MSIX package name, e.g. Microsoft.Paint. Host resolves its installed full-trust EXE and requests app consent; no parent window is needed.'};properties.applicationId={type:'string',pattern:'^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$',description:'Exact manifest application ID when the package has multiple full-trust applications.'};}
-    if(name === 'input_isolated') {properties.observationId={type:'string'};properties.input={oneOf:[{type:'object',properties:{kind:{const:'text'},text:{type:'string',maxLength:4096}},required:['kind','text'],additionalProperties:false},{type:'object',properties:{kind:{const:'key'},scanCode:{type:'integer',minimum:1,maximum:127},action:{enum:['down','up']},extended:{type:'boolean'}},required:['kind','scanCode','action'],additionalProperties:false},{type:'object',properties:{kind:{const:'mouse'},x:{type:'integer',minimum:0},y:{type:'integer',minimum:0},action:{enum:['move','down','up','wheel']},button:{enum:['left','right','middle']},delta:{type:'integer',minimum:-1200,maximum:1200}},required:['kind','x','y','action'],additionalProperties:false}]};required.push('observationId','input');}
     if(name === 'inspect') {
       properties.mode={enum:['summary','find','read','changes'],default:'summary'};
       properties.limit={type:'integer',minimum:1,maximum:100,default:20};
@@ -97,36 +92,33 @@ function toolDefinitions() {
     if(name === 'resize') {properties.widthDip = {type:'number',minimum:100,maximum:8192};properties.heightDip = {type:'number',minimum:100,maximum:8192};required.push('widthDip','heightDip');}
     if(name === 'run_size_macro') {properties.macroId = {type:'string'};required.push('macroId');}
     const descriptions = {
-      virtual_input:'Opt-in general-conversation stage 2 only; first request_stage with stage:2 and virtualInput:true for explicit exact-process DLL hooking approval. Deliver target-process virtual input using a fresh capture. Mouse coordinates are physical CLIENT pixels; out-of-client input is rejected. Delivery does not verify app effects. Recapture after each input; never replay unknown input or fall back to global input.',
+      virtual_input:'Optional legacy process-scoped input backend. Requires app control permission and a fresh image. Deliver target-process input using physical client coordinates. Delivery does not verify app effects. Never replay unknown input or fall back to global input.',
       release_virtual_input:'Detach this conversation virtual-input session for the exact target, including while paused. Does not resume a user stop.',
-      context:'Read current Window Use stages, prerequisites and concise guidance. Supply guideVersion to omit unchanged guidance.',
-      request_stage:'Request task authority for 2 current window, 3 isolated execution, or 4 desktop. App grants do not grant stages. Follow returned guidance before input.',
-      logoff_isolated:'Request one-time user approval to log off the existing Windows child session, without a target ID. Healthy sessions require no input owner; failed status/connection verification permits abnormal sessions to be ended regardless of owner. Unsaved work may be lost. Does not delete user files or profiles. Never replay an unknown logoff result.',
-      prepare_permissions:'At task start, request the required stage and known app permissions through Azrael cards before execution. Each request allows 50 seconds. Supply up to eight fresh observed candidateIds. Does not create a child session, launch apps, select a target or perform input. Additional scope still requires approval; call request_stage to activate a prepared child session.',
-      launch_isolated:'Launch an app directly in the authorized Windows child session. Supply either an observed targetId or an exact installed Windows MSIX packageName and optional applicationId. Host resolves and revalidates the executable and requests app consent. No parent app window is required for installed packages. Reuses stored profile data where supported; does not move an existing window.',
-      capture_isolated:'Capture an opaque owned child-session target. Check verification and availability; a returned image alone does not establish app compatibility.',
-      input_isolated:'Send bounded input to the exact owned child target using a fresh capture observation. Never replay uncertain input or fall back to the parent desktop.',
-      resource_status:'Read owned Window Use temporary-resource usage and cleanup protection reasons.',
-      cleanup:'Request cleanup of eligible Window Use temporary resources. Active work and user data remain protected.',
-      list_windows:'Discover opaque candidates and advisory session occupancy for this thread. Defer selection/control if another session occupies the window or occupancy is unknown. Refresh invalidates earlier candidate IDs. No targetId needed.',
-      select_window:'Select a candidate for read-only observation and revalidate its exact identity. Does not request or grant app control. Use request_stage before input.',
-      status:'Call with {} to obtain the selected targetId, minimized state, pauseReason, restoreAllowed, observationRequired and fresh occupancy. Refresh before each action or restore; defer if occupied or unknown. Failures with recovery observe_again permit a fresh capture or inspect after status; never reuse old elements or replay input. A minimized target with restoreAllowed true can be recovered using restore_window. User stops and genuine error pauses require explicit user resume.',
-      restore_window:'Restore the exact selected window after minimization only when fresh status reports restoreAllowed true and no other occupying session. Never resumes a user stop or another error pause. Does not replay input or macros. Obtain a new capture or inspect after restoration; old observations are invalid.',
+      switched_input:'Opt-in shared-foreground mouse collaboration. Control permission is requested or reused automatically. Use fresh image observations and physical SCREEN pixels inside the main client. Start collaboration explicitly and check capability before claiming isolated mouse motion. User mouse actions queue; physical keyboard input stops model input. Recover foreground/occlusion with bounded preparation; never replay partial or unknown input. Delivery needs a new capture to verify effects.',
+      release_switched_input:'Release cooperative mouse routing and tracked model input for this selected target, including while paused. Does not resume a user stop.',
+      desktop_input:'Whole-screen coordinate control, separate from selected-window UI Automation. Automatically requests conversation-only desktop approval when needed, then validates a fresh capture_desktop observationId. Supply screen x/y; drag also requires fromX/fromY. Security Apps cannot be controlled, including when whitelisted. Retargets between app windows; a gesture stays within its authorized root/popup. Uses shared foreground/FIFO mouse collaboration; never replay partial or unknown delivery.',
+      release_desktop_input:'Release desktop input and cursor resources without closing apps or restoring revoked authority. No selected target required.',
+      context:'Read Window Use availability, observation/control/desktop permissions and concise guidance. No numbered stages. Supply guideVersion to omit unchanged guidance.',
+      capture_desktop:'Read the whole current desktop. The host supplies its Security App list; native capture masks blocked app areas. Changed/unknown window geometry causes rejection. Never use another screenshot path to bypass masking.',
+      list_windows:'List windows with stable opaque windowId values for this thread and each exact window. Refresh preserves IDs while the exact window remains valid. Occupancy is advisory; the runtime handles conflicts.',
+      status:'Read the specified window state, pauseReason, restoreAllowed, observationRequired and occupancy. Failures with recovery observe_again permit a fresh capture or inspect; never replay input. User stops and error pauses require explicit user resume.',
+      restore_window:'Restore the exact selected window after minimization when fresh status reports restoreAllowed true. Never resumes a user stop or another error pause. Does not replay input or macros. Obtain a new capture or inspect after restoration; old observations are invalid.',
       inspect:'Read bounded accessibility data: summary, find by condition, read exact element fields/text range, or changes from a base observation. Check retrieval coverage before claiming absence or uniqueness.',
       press_key:'Send one supported key to the selected window through window messages. Delivery is unverified; inspect and assert its effect. Requires a fresh observation.',
-      list_task_macros:'List task definitions and storage revision for the current Azrael workspace. Requires an open workspace; no targetId needed.',
-      save_task_macro:'Save a schema 1 task definition with stable id/name in the current Azrael workspace. Requires an open workspace. Use parameter references for runtime values; never save secrets, element IDs, coordinates or native code. No targetId needed.',
+      list_task_macros:'List task definitions and storage revision for the current Azrael workspace. Requires an open workspace; no windowId needed.',
+      save_task_macro:'Save a schema 1 task definition with stable id/name in the current Azrael workspace. Requires an open workspace. Use parameter references for runtime values; never save secrets, element IDs, coordinates or native code. No windowId needed.',
       run_task_macro:'Run either definition or macroId from the current Azrael workspace using an immutable snapshot and string parameters. Maximum 32 steps, 20 seconds total, waits at most 10 seconds. Selectors match exact name or automationId and optional controlType/ancestor, uniquely resolved afresh each step. wait_for/assert need condition; press_key requires explicit postcondition. Unsupported state is an error. Stops on cancellation, revoked permission, changed identity, failed/unknown mutation; never replays. Returns per-step outcomes and final capture when feasible.'
     };
     const inputSchema = {type:'object',properties,required,additionalProperties:false};
-    if(name === 'launch_isolated') inputSchema.oneOf=[{required:['targetId'],not:{anyOf:[{required:['packageName']},{required:['applicationId']}]}},{required:['packageName'],not:{required:['targetId']}}];
     if(name === 'run_task_macro') inputSchema.oneOf = [{required:['definition'],not:{required:['macroId']}},{required:['macroId'],not:{required:['definition']}}];
-    return {name,description:descriptions[name] || `Selected-window ${name}; requires current stage authority and exact fresh target references. Follow context guidance.`,inputSchema};
+    const description = descriptions[name] || `Window ${name}; requires current app permission and fresh observation references. Follow context guidance.`;
+    const occupancyGuide = discovery.includes(name) ? '' : ' Control automatically acquires occupancy on first control and retains it until 30 seconds after the last owner window request completes. Read-only requests do not acquire occupancy. The runtime waits on conflicts or returns a typed failure.';
+    return {name,description:description + occupancyGuide,inputSchema};
   });
   definitions.push({name:'ui_operation',description:'Complete a prepared application UI operation for the authenticated thread.',inputSchema:{type:'object',properties:{requestToken:{type:'string',pattern:'^[a-fA-F0-9]{64}$',minLength:64,maxLength:64}},required:['requestToken'],additionalProperties:false},_meta:{ui:{visibility:['app']}}});
   return definitions;
 }
-function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs = 30000 } = {}) {
+function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs = 65000 } = {}) {
   return new Promise((resolve, reject) => {
     const socket = connect(pipe); const decoder = new StringDecoder('utf8'); let buffer = ''; let receivedBytes = 0; let settled = false; let stage = 'connection';
     const finish = (error, result) => { if (settled) return; settled = true; socket.destroy(); error ? reject(error) : resolve(result); };
@@ -161,8 +153,7 @@ function createRelay({ codexHome = process.env.CODEX_HOME || path.join(os.homedi
     let session;
     try { const raw = await readFile(path.join(codexHome, 'azrael', 'computer-use', 'window-sessions', threadId + '.json'), 'utf8'); if (raw.length > 16384) throw windowError('unclassified', ''); session = JSON.parse(raw); } catch (cause) { if (cause.code === 'ENOENT') throw windowError('selection_required', 'No selected-window session for this thread', { stage: 'session' }); throw windowError('unclassified', '', { stage: 'session', cause }); }
     if (!session || session.schema !== 1 || Object.keys(session).some(k => !['schema', 'pipe', 'nonce'].includes(k)) || typeof session.pipe !== 'string' || !(process.platform === 'win32' ? /^\\\\\.\\pipe\\azrael-window-[A-Za-z0-9_-]{16,128}$/.test(session.pipe) : /^\/tmp\/azw-[A-Za-z0-9]{6}\/w\.sock$/.test(session.pipe)) || typeof session.nonce !== 'string' || !/^[A-Za-z0-9_-]{32,256}$/.test(session.nonce)) throw expectedError('Invalid selected-window session');
-    return request(session.pipe, { nonce: session.nonce, threadId, method: 'call', tool, arguments: args, _meta: trustedMeta },
-      tool === 'logoff_isolated' || tool === 'request_stage' && args?.stage === 3 ? { timeoutMs: 360000 } : undefined);
+    return request(session.pipe, { nonce: session.nonce, threadId, method: 'call', tool, arguments: args, _meta: trustedMeta });
   };
 }
 function callResult(result) {
@@ -171,21 +162,22 @@ function callResult(result) {
   function observation(value) {
     const projected = {};
     if(value.occupancy) projected.occupancy = occupancy(value.occupancy);
-    for(const key of ['targetId','state','supportedActions','observationId','frameTimestamp','widthPx','heightPx','dpi','observationRequired','delivery','verified','experimental','elementsTruncated','pauseReason','restoreAllowed','restored']) if(Object.hasOwn(value,key)) projected[key] = value[key];
+    for(const key of ['windowId','state','supportedActions','observationId','frameTimestamp','widthPx','heightPx','dpi','observationRequired','delivery','verified','experimental','elementsTruncated','pauseReason','restoreAllowed','restored']) if(Object.hasOwn(value,key)) projected[key] = value[key];
     if(value.window) projected.window = Object.fromEntries(['title','widthPx','heightPx','dpi','minimized'].filter(k => Object.hasOwn(value.window,k)).map(k => [k,value.window[k]]));
     if(Array.isArray(value.elements)) projected.elements = value.elements.map(e => Object.fromEntries(['id','name','controlType','patterns','automationId','parentId','enabled','isPassword','value','valueTruncated','text','textRange','selected','toggleState','expandState'].filter(k => Object.hasOwn(e,k) && !(['value','text'].includes(k) && e.isPassword)).map(k => [k,e[k]])));
     for(const key of ['retrieval','changes']) if(Object.hasOwn(value,key)) projected[key]=value[key];
     return projected;
   }
   const text = observation(result);
-  for(const key of ['logoffConfirmed','filesCleanupState','remainingPaths','health','ownerPresent','mutationOutcome','actionExecuted','runtimeRetirement']) if(Object.hasOwn(result,key)) text[key]=result[key];
-  for(const key of ['stage','backendDirectory','executionContext','enabled','stages','guideVersion','guide','authorized','missingPrerequisite','message','resources','freedBytes','deferred','failed','deleted','childSession','results','bytes','reservedBytes','maxBytes','overLimit','availableBytes','resourceCount','admissionReady','available','contentVerified','code','ok','width','height','delivered','readbackVerified','observationInvalidated','admissionScope','applicationCompatibility','resourceId']) if(Object.hasOwn(result,key)) text[key]=result[key];
+  if(result.inputResult)text.inputResult=require('./window-control-errors.cjs').switchedMetadata(result.inputResult);
+  if(result.inputBackends)text.inputBackends=Object.fromEntries(['virtualInput','switchedInput','switchedInputGranted','desktopControlGranted'].filter(k=>typeof result.inputBackends[k]==='boolean').map(k=>[k,result.inputBackends[k]]));
+  for(const key of ['mutationOutcome','actionExecuted']) if(Object.hasOwn(result,key)) text[key]=result[key];
+  for(const key of ['executionContext','enabled','permissions','capabilities','guideVersion','guide','authorized','permission','missingPrerequisite','message','available','code','ok','delivered','observationInvalidated','originX','originY','redacted','maskedWindowCount']) if(Object.hasOwn(result,key)) text[key]=result[key];
   if(typeof result.detached==='boolean') text.detached=result.detached;
   if(typeof result.prepared==='boolean') text.prepared=result.prepared;
   if(typeof result.appsAuthorized==='boolean') text.appsAuthorized=result.appsAuthorized;
   if(Array.isArray(result.appResults)) text.appResults=result.appResults.slice(0,8).map(r=>({index:r.index,authorized:r.authorized,...(typeof r.code==='string'&&/^[a-z_]{1,64}$/.test(r.code)?{code:r.code}:{})}));
-  if(Array.isArray(result.candidates)) text.candidates = result.candidates.map(c => ({candidateId:c.candidateId,appName:c.appName,title:c.title,minimized:c.minimized,...(c.occupancy ? {occupancy:occupancy(c.occupancy)} : {})}));
-  if(result.diagnostic && typeof result.diagnostic === 'object' && !Array.isArray(result.diagnostic)) text.diagnostic = require('./window-use-isolation.cjs').childDiagnostic({diagnostic:result.diagnostic});
+  if(Array.isArray(result.candidates)) text.candidates = result.candidates.map(c => ({windowId:c.windowId,appName:c.appName,title:c.title,minimized:c.minimized,...(c.occupancy ? {occupancy:occupancy(c.occupancy)} : {})}));
   if(Array.isArray(result.macros)) text.macros = result.schema === 1 ? result.macros.map(m => require('./window-task-macros.cjs').definition(m,true)) : result.macros.map(m => ({id:m.id,name:m.name,steps:m.steps.map(s => ({widthDip:s.widthDip,heightDip:s.heightDip}))}));
   for(const key of ['schema','revision','runId','status','macroId','error']) if(Object.hasOwn(result,key)) text[key] = result[key];
   if(result.definition) text.definition = require('./window-task-macros.cjs').definition(result.definition,true);
@@ -207,10 +199,11 @@ function createProtocol({ relay = createRelay() } = {}) {
     else if (message.method === 'tools/list') result = { tools: toolDefinitions() };
     else if (message.method === 'tools/call') {
       try {
-        const params = message.params; if (!params || (!TOOLS.includes(params.name) && params.name !== 'ui_operation')) throw expectedError('Unsupported selected-window tool');
+        const params = message.params; if (!params || params.name === 'select_window' || (!TOOLS.includes(params.name) && params.name !== 'ui_operation')) throw expectedError('Unsupported selected-window tool');
         const args = params.arguments || {}; const definition = toolDefinitions().find(t => t.name === params.name);
         if (!definition) throw windowError('unsupported_action', 'Window Use is temporarily available only on Windows.', { actionExecuted: false });
         if (!args || typeof args !== 'object' || Array.isArray(args) || Object.keys(args).some(k => !Object.hasOwn(definition.inputSchema.properties, k)) || definition.inputSchema.required.some(k => !Object.hasOwn(args, k))) throw expectedError('Invalid tool arguments');
+        if (definition.inputSchema.required.includes('windowId') && (typeof args.windowId !== 'string' || !args.windowId.length)) throw expectedError('Invalid window ID');
         if (params.name === 'ui_operation' && (typeof args.requestToken !== 'string' || !/^[a-fA-F0-9]{64}$/.test(args.requestToken))) throw expectedError('Invalid prepared UI request token');
         const threadId = parseThreadMetadata(params._meta);
         const trustedMeta = relayMetadata(params._meta);

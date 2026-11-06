@@ -1,0 +1,205 @@
+{
+  "exitCode": 0,
+  "signal": null,
+  "result": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\verification-recovery-20261102-r2.json",
+    "evidence_sha256": "ec4c55939ca9d966f576696d1a37acc2a7ee41e7b90f99a4aabc52b2dbc493c2",
+    "execution_outcome_changed": false,
+    "id": "run:do2:source-20261102-r2",
+    "lease_owner": {
+      "acquired_at_ms": 1793561891488,
+      "operation": "group_reservation",
+      "pid": 32728,
+      "schema": 2,
+      "token": "32728-1793561891488-7c8bbb72795d198d"
+    },
+    "malformed_publication": false,
+    "pending_intents_changed": false,
+    "prior_bytes": null,
+    "prior_reservation": {
+      "group_scope": {
+        "id": "run:do2:source-20261102-r2",
+        "kind": "run",
+        "members": [
+          "71fd174dc97f3b39440eacd1a46840ff0073d4462d79e276174a752b87c23069"
+        ],
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_identity": null,
+        "owner": "DO-01-codex-version-comparison",
+        "version": null
+      },
+      "id": "run:do2:source-20261102-r2",
+      "lease_owner": {
+        "acquired_at_ms": 1793561891488,
+        "operation": "group_reservation",
+        "pid": 32728,
+        "schema": 2,
+        "token": "32728-1793561891488-7c8bbb72795d198d"
+      },
+      "manifest_revision": 4706,
+      "members": [
+        {
+          "generated": true,
+          "id": "71fd174dc97f3b39440eacd1a46840ff0073d4462d79e276174a752b87c23069",
+          "kind": "run",
+          "lifecycle_role": "artifact",
+          "owner": "DO-01-codex-version-comparison",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2",
+          "protection_known": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ff5ce600278b7f05ea81f6b63454c38eb1dafbc95739db93775ca3be832123af.json",
+          "references": [],
+          "role": "run"
+        }
+      ],
+      "purpose": "registration",
+      "registration_sources": [
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "source_fence": "7f0a396201d47989a1c534429ec4d2cda57b6b1a9e00d0182c4b9623ebcf3848",
+          "source_owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\reports\\terminal-reconciliation.json",
+              "evidence_sha256": "cdbf68d7e721973f4a54cf03086ec731f5ee692eed786f539230158302fbcb5a",
+              "reason": "Preserve observed controller failure after successful recorder; exact synchronous child and controller terminal results observed",
+              "request_sha256": "64cd3eacb83319db4d3727df18d0e384686cc01e42da1401c0885247b5b252ac"
+            },
+            "created_at": "2026-11-01T19:15:08.179Z",
+            "id": "run:do2:source-20261102-r2",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2",
+            "owner": "DO-01-codex-version-comparison",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\reports\\terminal-reconciliation.json",
+              "evidence_sha256": "cdbf68d7e721973f4a54cf03086ec731f5ee692eed786f539230158302fbcb5a",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Preserve observed controller failure after successful recorder; exact synchronous child and controller terminal results observed",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-11-01T19:20:03.980Z",
+            "version": null
+          }
+        }
+      ],
+      "schema": 1,
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "source_fence": "7f0a396201d47989a1c534429ec4d2cda57b6b1a9e00d0182c4b9623ebcf3848",
+      "source_owner": {
+        "close_receipt": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\reports\\terminal-reconciliation.json",
+          "evidence_sha256": "cdbf68d7e721973f4a54cf03086ec731f5ee692eed786f539230158302fbcb5a",
+          "reason": "Preserve observed controller failure after successful recorder; exact synchronous child and controller terminal results observed",
+          "request_sha256": "64cd3eacb83319db4d3727df18d0e384686cc01e42da1401c0885247b5b252ac"
+        },
+        "created_at": "2026-11-01T19:15:08.179Z",
+        "id": "run:do2:source-20261102-r2",
+        "kind": "run",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2",
+            "protection_known": true,
+            "role": "run"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\inputs",
+            "protection_known": true,
+            "role": "inputs"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\temporary",
+            "protection_known": true,
+            "role": "temporary"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\logs",
+            "protection_known": true,
+            "role": "logs"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\reports",
+            "protection_known": true,
+            "role": "reports"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\outputs",
+            "protection_known": true,
+            "role": "outputs"
+          }
+        ],
+        "membership_complete": true,
+        "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2",
+        "owner": "DO-01-codex-version-comparison",
+        "ownership_scope": "run-root",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\source-20261102-r2\\reports\\terminal-reconciliation.json",
+          "evidence_sha256": "cdbf68d7e721973f4a54cf03086ec731f5ee692eed786f539230158302fbcb5a",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Preserve observed controller failure after successful recorder; exact synchronous child and controller terminal results observed",
+          "status": "stopped"
+        },
+        "references": [],
+        "revision": 2,
+        "schema": 1,
+        "state": "failed",
+        "updated_at": "2026-11-01T19:20:03.980Z",
+        "version": null
+      },
+      "status": "active",
+      "token": "32728-1793561891488-7c8bbb72795d198d"
+    },
+    "reason": "Exact synchronous failed registration and wrapper termination observed; release retained pre-intent reservation without changing failed outcome",
+    "reservation_sha256": "a4c2640adcc49cda1c7c0b386d0ac651e6c40cef65111d1b1274d0e693e9b877",
+    "status": "reservation_recovered"
+  }
+}

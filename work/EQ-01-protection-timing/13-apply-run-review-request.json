@@ -1,0 +1,6 @@
+{
+  "operation": "review",
+  "group_ids": [
+    "run:EQ-01-protection-timing:delete-apply-profile-r1"
+  ]
+}

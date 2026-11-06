@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "scope": "Exact stopped UI04 registration reservation recovery",
+  "groupId": "run:verify-user-wait-time-render-EK-01:ui-20261029-04",
+  "reservationToken": "56520-1793243760710-0c1392e107693ec4",
+  "ownerPid": 56520,
+  "originalOutcome": {
+    "sessionId": 48848,
+    "exitCode": 1,
+    "reason": "Synchronous standalone registration failed with catalog OS lock error; failed outcome is preserved"
+  },
+  "terminationEvidence": {
+    "parentDecisionRequest": "01a185b2-5ecf-7550-8898-b4e473b8b6ba",
+    "parentStatement": "Prior cleanup session48848 synchronously invoked verified standalone via spawnSync, registered UI01..03, then UI04 registration returned catalog-lock error and parent exited1. No detached producer wrapper.",
+    "sourceInspection": {
+      "entry": "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs::run",
+      "dispatch": "engine/codex-rs/project-maintenance/src/lib.rs::dispatch",
+      "registration": "engine/codex-rs/project-maintenance/src/registry.rs",
+      "findings": "Entry reads request and synchronously dispatches. Registration/dispatch/reservation sources contain no process Command/spawn path; registration producer has no spawned descendants."
+    },
+    "currentProcessObservation": "Win32_Process snapshot found no PID56520. Combined with synchronous returned terminal result and no-descendant source; absence alone is not stop proof."
+  },
+  "producerStoppedVerified": true,
+  "id": "run:verify-user-wait-time-render-EK-01:ui-20261029-04",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "417a8326b3dd14ebcb263055913e09142b6530c19e23aa92b1cf72479d9ee89d",
+  "lease_owner": {
+    "acquired_at_ms": 1793243760710,
+    "operation": "group_reservation",
+    "pid": 56520,
+    "schema": 2,
+    "token": "56520-1793243760710-0c1392e107693ec4"
+  }
+}

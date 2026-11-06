@@ -1,0 +1,3670 @@
+{
+  "schema": 1,
+  "at": "2026-11-02T13:55:27.875Z",
+  "complete": true,
+  "scope": "Windows x64 local shared host; identical timing1/detail1 both binaries; sibling1KiB files; no external membership source or catalog background",
+  "harness_sha256": "03e23c3873d58760169dd230606bea27d21f5b6ae5e25d03f2debd78c5b0e584",
+  "binaries": {
+    "baseline": {
+      "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\outputs\\native\\baseline-maintenance_owner.exe",
+      "sha256": "02766a214a6285f51fb40ede2bfd38c4e2684e4cdfa1594218a393cfa9fc5a57"
+    },
+    "candidate": {
+      "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\outputs\\native\\candidate-maintenance_owner.exe",
+      "sha256": "01c5d3a2f853f27bc8e22893b0a29bd217b8f9080e4d3b279761d3571143666d"
+    }
+  },
+  "actual_order": [
+    "b004",
+    "b801",
+    "c004",
+    "c801",
+    "c802",
+    "b802"
+  ],
+  "cases": [
+    {
+      "label": "b004",
+      "binary": "baseline",
+      "members": 4,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\b004",
+      "wall_ms": {
+        "register": 493.6149,
+        "review": 59.3453,
+        "apply": 2218.9258
+      },
+      "native_closes": [
+        {
+          "stage": "register",
+          "pid": 16400,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\b004-register"
+        },
+        {
+          "stage": "review",
+          "pid": 15700,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\b004-review"
+        },
+        {
+          "stage": "apply",
+          "pid": 19664,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\b004-apply"
+        }
+      ],
+      "checks": {
+        "actual_absent": 4,
+        "durable_items_deleted": 4,
+        "durable_deleted_outcomes": 4,
+        "durable_group_deleted": true,
+        "no_pending": true,
+        "prior_native_runs_preserved": true,
+        "prior_native_decisions_preserved": 0,
+        "state_commits": 8,
+        "intent_saves": 4,
+        "actual_result_saves": 4,
+        "preintent_current_reviews": 4
+      },
+      "apply_spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 10,
+          "total_us": 336817,
+          "max_us": 68775,
+          "attempts": 10,
+          "outcomes": {
+            "acquired": 10
+          }
+        },
+        "maintenance.phase:apply.initial_group_review": {
+          "count": 1,
+          "total_us": 15006,
+          "max_us": 15006,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.reservation.acquire": {
+          "count": 1,
+          "total_us": 36791,
+          "max_us": 36791,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 129121,
+          "max_us": 77314,
+          "attempts": 2,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 9,
+          "total_us": 525427,
+          "max_us": 126480,
+          "attempts": 9,
+          "outcomes": {
+            "verified": 9
+          }
+        },
+        "maintenance.phase:apply.normalization_preflight": {
+          "count": 4,
+          "total_us": 15526,
+          "max_us": 3906,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 6,
+          "total_us": 24,
+          "max_us": 6,
+          "attempts": 6,
+          "outcomes": {
+            "success": 6
+          }
+        },
+        "maintenance.phase:apply.reservation.verify.before_item": {
+          "count": 4,
+          "total_us": 122741,
+          "max_us": 82551,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:group.relations.build": {
+          "count": 1,
+          "total_us": 52,
+          "max_us": 52,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.current.relations": {
+          "count": 4,
+          "total_us": 112,
+          "max_us": 79,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:group.current.members": {
+          "count": 4,
+          "total_us": 144660,
+          "max_us": 53445,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:group.current.combine": {
+          "count": 4,
+          "total_us": 176,
+          "max_us": 55,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.current_review": {
+          "count": 4,
+          "total_us": 161544,
+          "max_us": 62508,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.safe_entries.pre_intent": {
+          "count": 4,
+          "total_us": 230145,
+          "max_us": 97657,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:state.prepare_local": {
+          "count": 8,
+          "total_us": 318,
+          "max_us": 60,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.read": {
+          "count": 8,
+          "total_us": 15723,
+          "max_us": 2561,
+          "attempts": 8,
+          "outcomes": {
+            "read": 8
+          }
+        },
+        "maintenance.phase:state.merge": {
+          "count": 8,
+          "total_us": 308,
+          "max_us": 54,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.open_pending": {
+          "count": 8,
+          "total_us": 2277,
+          "max_us": 359,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.serialize": {
+          "count": 8,
+          "total_us": 189,
+          "max_us": 42,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.write_pending": {
+          "count": 8,
+          "total_us": 711,
+          "max_us": 108,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.sync_pending": {
+          "count": 8,
+          "total_us": 28271,
+          "max_us": 3622,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.rename": {
+          "count": 8,
+          "total_us": 12940,
+          "max_us": 2076,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.commit": {
+          "count": 8,
+          "total_us": 178787,
+          "max_us": 24800,
+          "attempts": 8,
+          "outcomes": {
+            "committed": 8
+          }
+        },
+        "maintenance.phase:state.save": {
+          "count": 8,
+          "total_us": 417481,
+          "max_us": 67333,
+          "attempts": 8,
+          "outcomes": {
+            "committed": 8
+          }
+        },
+        "maintenance.phase:apply.intent_save": {
+          "count": 4,
+          "total_us": 209984,
+          "max_us": 67343,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.physical_delete": {
+          "count": 4,
+          "total_us": 1161959,
+          "max_us": 1104404,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.actual_result_save": {
+          "count": 4,
+          "total_us": 207610,
+          "max_us": 55604,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.final_presence": {
+          "count": 4,
+          "total_us": 9459,
+          "max_us": 3692,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.reservation.finalize": {
+          "count": 1,
+          "total_us": 25245,
+          "max_us": 25245,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 2059770,
+          "max_us": 2059770,
+          "attempts": 1,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      },
+      "apply_details": {
+        "group.current.members:contents.combine": {
+          "scope": "group.current.members",
+          "operation": "contents.combine",
+          "records": 4,
+          "count": 10,
+          "total_us": 53,
+          "max_us": 9
+        },
+        "group.current.members:contents.related": {
+          "scope": "group.current.members",
+          "operation": "contents.related",
+          "records": 4,
+          "count": 10,
+          "total_us": 0,
+          "max_us": 0
+        },
+        "group.current.members:member.contents": {
+          "scope": "group.current.members",
+          "operation": "member.contents",
+          "records": 4,
+          "count": 10,
+          "total_us": 21975,
+          "max_us": 4138
+        },
+        "group.current.members:member.live": {
+          "scope": "group.current.members",
+          "operation": "member.live",
+          "records": 4,
+          "count": 10,
+          "total_us": 127893,
+          "max_us": 24810
+        },
+        "group.current.members:member.reservation": {
+          "scope": "group.current.members",
+          "operation": "member.reservation",
+          "records": 4,
+          "count": 10,
+          "total_us": 105898,
+          "max_us": 20670
+        },
+        "group.current.members:metadata.ancestor": {
+          "scope": "group.current.members",
+          "operation": "metadata.ancestor",
+          "records": 4,
+          "count": 904,
+          "total_us": 124253,
+          "max_us": 620
+        },
+        "group.current.members:metadata.authorize": {
+          "scope": "group.current.members",
+          "operation": "metadata.authorize",
+          "records": 4,
+          "count": 960,
+          "total_us": 657,
+          "max_us": 2
+        },
+        "group.current.members:metadata.leaf": {
+          "scope": "group.current.members",
+          "operation": "metadata.leaf",
+          "records": 4,
+          "count": 56,
+          "total_us": 8469,
+          "max_us": 346
+        },
+        "group.current.members:metadata.total": {
+          "scope": "group.current.members",
+          "operation": "metadata.total",
+          "records": 4,
+          "count": 56,
+          "total_us": 135297,
+          "max_us": 5689
+        },
+        "group.current.members:observation.identity": {
+          "scope": "group.current.members",
+          "operation": "observation.identity",
+          "records": 4,
+          "count": 10,
+          "total_us": 1679,
+          "max_us": 410
+        },
+        "group.current.members:observation.nested_junctions": {
+          "scope": "group.current.members",
+          "operation": "observation.nested_junctions",
+          "records": 4,
+          "count": 10,
+          "total_us": 0,
+          "max_us": 0
+        },
+        "group.current.members:reservation.ownership": {
+          "scope": "group.current.members",
+          "operation": "reservation.ownership",
+          "records": 4,
+          "count": 10,
+          "total_us": 59,
+          "max_us": 9
+        },
+        "group.current.members:reservation.parse_validate": {
+          "scope": "group.current.members",
+          "operation": "reservation.parse_validate",
+          "records": 4,
+          "count": 10,
+          "total_us": 400,
+          "max_us": 55
+        },
+        "group.current.members:reservation.read_bytes": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_bytes",
+          "records": 4,
+          "count": 10,
+          "total_us": 79182,
+          "max_us": 14899
+        },
+        "group.current.members:reservation.read_payload": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_payload",
+          "records": 4,
+          "count": 20,
+          "total_us": 4833,
+          "max_us": 517
+        },
+        "group.current.members:single.measurement": {
+          "scope": "group.current.members",
+          "operation": "single.measurement",
+          "records": 4,
+          "count": 10,
+          "total_us": 23,
+          "max_us": 4
+        },
+        "group.current.members:single.observation": {
+          "scope": "group.current.members",
+          "operation": "single.observation",
+          "records": 4,
+          "count": 10,
+          "total_us": 21448,
+          "max_us": 4085
+        },
+        "group.current.members:single.proofs": {
+          "scope": "group.current.members",
+          "operation": "single.proofs",
+          "records": 4,
+          "count": 10,
+          "total_us": 0,
+          "max_us": 0
+        },
+        "group.current.members:single.protection": {
+          "scope": "group.current.members",
+          "operation": "single.protection",
+          "records": 4,
+          "count": 10,
+          "total_us": 125,
+          "max_us": 18
+        },
+        "group.current.members:single.recovery": {
+          "scope": "group.current.members",
+          "operation": "single.recovery",
+          "records": 4,
+          "count": 10,
+          "total_us": 0,
+          "max_us": 0
+        },
+        "group.current.members:single.response": {
+          "scope": "group.current.members",
+          "operation": "single.response",
+          "records": 4,
+          "count": 10,
+          "total_us": 58,
+          "max_us": 8
+        },
+        "group.current.members:single.runs": {
+          "scope": "group.current.members",
+          "operation": "single.runs",
+          "records": 4,
+          "count": 10,
+          "total_us": 0,
+          "max_us": 0
+        },
+        "group.current.members:single.token": {
+          "scope": "group.current.members",
+          "operation": "single.token",
+          "records": 4,
+          "count": 10,
+          "total_us": 192,
+          "max_us": 40
+        },
+        "group.current.members:single.total": {
+          "scope": "group.current.members",
+          "operation": "single.total",
+          "records": 4,
+          "count": 10,
+          "total_us": 21908,
+          "max_us": 4129
+        },
+        "group.current.members:member.completed": {
+          "scope": "group.current.members",
+          "operation": "member.completed",
+          "records": 3,
+          "count": 6,
+          "total_us": 15329,
+          "max_us": 4339
+        }
+      }
+    },
+    {
+      "label": "b801",
+      "binary": "baseline",
+      "members": 80,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\b801",
+      "wall_ms": {
+        "register": 1427.0764,
+        "review": 374.4107,
+        "apply": 53176.6205
+      },
+      "native_closes": [
+        {
+          "stage": "register",
+          "pid": 51856,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\b801-register"
+        },
+        {
+          "stage": "review",
+          "pid": 49764,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\b801-review"
+        },
+        {
+          "stage": "apply",
+          "pid": 30088,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\b801-apply"
+        }
+      ],
+      "checks": {
+        "actual_absent": 80,
+        "durable_items_deleted": 80,
+        "durable_deleted_outcomes": 80,
+        "durable_group_deleted": true,
+        "no_pending": true,
+        "prior_native_runs_preserved": true,
+        "prior_native_decisions_preserved": 0,
+        "state_commits": 160,
+        "intent_saves": 80,
+        "actual_result_saves": 80,
+        "preintent_current_reviews": 80
+      },
+      "apply_spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 162,
+          "total_us": 4661328,
+          "max_us": 318158,
+          "attempts": 162,
+          "outcomes": {
+            "acquired": 162
+          }
+        },
+        "maintenance.phase:apply.initial_group_review": {
+          "count": 1,
+          "total_us": 301588,
+          "max_us": 301588,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.reservation.acquire": {
+          "count": 1,
+          "total_us": 45145,
+          "max_us": 45145,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 427011,
+          "max_us": 377388,
+          "attempts": 2,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 161,
+          "total_us": 8373795,
+          "max_us": 431200,
+          "attempts": 161,
+          "outcomes": {
+            "verified": 161
+          }
+        },
+        "maintenance.phase:apply.normalization_preflight": {
+          "count": 80,
+          "total_us": 393537,
+          "max_us": 7100,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 82,
+          "total_us": 286,
+          "max_us": 9,
+          "attempts": 82,
+          "outcomes": {
+            "success": 82
+          }
+        },
+        "maintenance.phase:apply.reservation.verify.before_item": {
+          "count": 80,
+          "total_us": 930504,
+          "max_us": 34090,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.relations.build": {
+          "count": 1,
+          "total_us": 11138,
+          "max_us": 11138,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.current.relations": {
+          "count": 80,
+          "total_us": 14832,
+          "max_us": 11171,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.current.members": {
+          "count": 80,
+          "total_us": 35869119,
+          "max_us": 1095071,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.current.combine": {
+          "count": 80,
+          "total_us": 21728,
+          "max_us": 615,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.current_review": {
+          "count": 80,
+          "total_us": 40319683,
+          "max_us": 1201348,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.safe_entries.pre_intent": {
+          "count": 80,
+          "total_us": 41080285,
+          "max_us": 1232664,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:state.prepare_local": {
+          "count": 160,
+          "total_us": 61617,
+          "max_us": 845,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.read": {
+          "count": 160,
+          "total_us": 358514,
+          "max_us": 6072,
+          "attempts": 160,
+          "outcomes": {
+            "read": 160
+          }
+        },
+        "maintenance.phase:state.merge": {
+          "count": 160,
+          "total_us": 47497,
+          "max_us": 730,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.open_pending": {
+          "count": 160,
+          "total_us": 45382,
+          "max_us": 639,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.serialize": {
+          "count": 160,
+          "total_us": 32554,
+          "max_us": 514,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.write_pending": {
+          "count": 160,
+          "total_us": 21415,
+          "max_us": 434,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.sync_pending": {
+          "count": 160,
+          "total_us": 807816,
+          "max_us": 235295,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.rename": {
+          "count": 160,
+          "total_us": 245972,
+          "max_us": 3368,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.commit": {
+          "count": 160,
+          "total_us": 3681102,
+          "max_us": 251816,
+          "attempts": 160,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        "maintenance.phase:state.save": {
+          "count": 160,
+          "total_us": 8308912,
+          "max_us": 337889,
+          "attempts": 160,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        "maintenance.phase:apply.intent_save": {
+          "count": 80,
+          "total_us": 4562973,
+          "max_us": 337898,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.physical_delete": {
+          "count": 80,
+          "total_us": 1734521,
+          "max_us": 726103,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.actual_result_save": {
+          "count": 80,
+          "total_us": 3747747,
+          "max_us": 106727,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.final_presence": {
+          "count": 80,
+          "total_us": 121937,
+          "max_us": 3838,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.reservation.finalize": {
+          "count": 1,
+          "total_us": 24813,
+          "max_us": 24813,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 52705624,
+          "max_us": 52705624,
+          "attempts": 1,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      },
+      "apply_details": {
+        "group.current.members:contents.combine": {
+          "scope": "group.current.members",
+          "operation": "contents.combine",
+          "records": 80,
+          "count": 3240,
+          "total_us": 17858,
+          "max_us": 243
+        },
+        "group.current.members:contents.related": {
+          "scope": "group.current.members",
+          "operation": "contents.related",
+          "records": 80,
+          "count": 3240,
+          "total_us": 62,
+          "max_us": 21
+        },
+        "group.current.members:member.contents": {
+          "scope": "group.current.members",
+          "operation": "member.contents",
+          "records": 80,
+          "count": 3240,
+          "total_us": 5386458,
+          "max_us": 28714
+        },
+        "group.current.members:member.live": {
+          "scope": "group.current.members",
+          "operation": "member.live",
+          "records": 80,
+          "count": 3240,
+          "total_us": 31332650,
+          "max_us": 42000
+        },
+        "group.current.members:member.reservation": {
+          "scope": "group.current.members",
+          "operation": "member.reservation",
+          "records": 80,
+          "count": 3240,
+          "total_us": 25937739,
+          "max_us": 30436
+        },
+        "group.current.members:metadata.ancestor": {
+          "scope": "group.current.members",
+          "operation": "metadata.ancestor",
+          "records": 80,
+          "count": 309920,
+          "total_us": 29428660,
+          "max_us": 11278
+        },
+        "group.current.members:metadata.authorize": {
+          "scope": "group.current.members",
+          "operation": "metadata.authorize",
+          "records": 80,
+          "count": 329280,
+          "total_us": 147531,
+          "max_us": 432
+        },
+        "group.current.members:metadata.leaf": {
+          "scope": "group.current.members",
+          "operation": "metadata.leaf",
+          "records": 80,
+          "count": 19360,
+          "total_us": 2198415,
+          "max_us": 2980
+        },
+        "group.current.members:metadata.total": {
+          "scope": "group.current.members",
+          "operation": "metadata.total",
+          "records": 80,
+          "count": 19360,
+          "total_us": 32421038,
+          "max_us": 15492
+        },
+        "group.current.members:observation.identity": {
+          "scope": "group.current.members",
+          "operation": "observation.identity",
+          "records": 80,
+          "count": 3240,
+          "total_us": 392970,
+          "max_us": 26527
+        },
+        "group.current.members:observation.nested_junctions": {
+          "scope": "group.current.members",
+          "operation": "observation.nested_junctions",
+          "records": 80,
+          "count": 3240,
+          "total_us": 58,
+          "max_us": 2
+        },
+        "group.current.members:reservation.ownership": {
+          "scope": "group.current.members",
+          "operation": "reservation.ownership",
+          "records": 80,
+          "count": 3240,
+          "total_us": 225274,
+          "max_us": 439
+        },
+        "group.current.members:reservation.parse_validate": {
+          "scope": "group.current.members",
+          "operation": "reservation.parse_validate",
+          "records": 80,
+          "count": 3240,
+          "total_us": 1015506,
+          "max_us": 1189
+        },
+        "group.current.members:reservation.read_bytes": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_bytes",
+          "records": 80,
+          "count": 3240,
+          "total_us": 18684906,
+          "max_us": 26810
+        },
+        "group.current.members:reservation.read_payload": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_payload",
+          "records": 80,
+          "count": 6480,
+          "total_us": 1314139,
+          "max_us": 4106
+        },
+        "group.current.members:single.measurement": {
+          "scope": "group.current.members",
+          "operation": "single.measurement",
+          "records": 80,
+          "count": 3240,
+          "total_us": 7152,
+          "max_us": 135
+        },
+        "group.current.members:single.observation": {
+          "scope": "group.current.members",
+          "operation": "single.observation",
+          "records": 80,
+          "count": 3240,
+          "total_us": 5256842,
+          "max_us": 28639
+        },
+        "group.current.members:single.proofs": {
+          "scope": "group.current.members",
+          "operation": "single.proofs",
+          "records": 80,
+          "count": 3240,
+          "total_us": 26,
+          "max_us": 2
+        },
+        "group.current.members:single.protection": {
+          "scope": "group.current.members",
+          "operation": "single.protection",
+          "records": 80,
+          "count": 3240,
+          "total_us": 37571,
+          "max_us": 283
+        },
+        "group.current.members:single.recovery": {
+          "scope": "group.current.members",
+          "operation": "single.recovery",
+          "records": 80,
+          "count": 3240,
+          "total_us": 4,
+          "max_us": 2
+        },
+        "group.current.members:single.response": {
+          "scope": "group.current.members",
+          "operation": "single.response",
+          "records": 80,
+          "count": 3240,
+          "total_us": 16768,
+          "max_us": 176
+        },
+        "group.current.members:single.runs": {
+          "scope": "group.current.members",
+          "operation": "single.runs",
+          "records": 80,
+          "count": 3240,
+          "total_us": 10,
+          "max_us": 2
+        },
+        "group.current.members:single.token": {
+          "scope": "group.current.members",
+          "operation": "single.token",
+          "records": 80,
+          "count": 3240,
+          "total_us": 27142,
+          "max_us": 54
+        },
+        "group.current.members:single.total": {
+          "scope": "group.current.members",
+          "operation": "single.total",
+          "records": 80,
+          "count": 3240,
+          "total_us": 5363986,
+          "max_us": 28703
+        },
+        "group.current.members:member.completed": {
+          "scope": "group.current.members",
+          "operation": "member.completed",
+          "records": 79,
+          "count": 3160,
+          "total_us": 4507936,
+          "max_us": 10807
+        }
+      }
+    },
+    {
+      "label": "c004",
+      "binary": "candidate",
+      "members": 4,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\c004",
+      "wall_ms": {
+        "register": 609.6844,
+        "review": 80.4898,
+        "apply": 1794.3861
+      },
+      "native_closes": [
+        {
+          "stage": "register",
+          "pid": 2068,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\c004-register"
+        },
+        {
+          "stage": "review",
+          "pid": 44824,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\c004-review"
+        },
+        {
+          "stage": "apply",
+          "pid": 54456,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\c004-apply"
+        }
+      ],
+      "checks": {
+        "actual_absent": 4,
+        "durable_items_deleted": 4,
+        "durable_deleted_outcomes": 4,
+        "durable_group_deleted": true,
+        "no_pending": true,
+        "prior_native_runs_preserved": true,
+        "prior_native_decisions_preserved": 0,
+        "state_commits": 8,
+        "intent_saves": 4,
+        "actual_result_saves": 4,
+        "preintent_current_reviews": 4
+      },
+      "apply_spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 10,
+          "total_us": 342732,
+          "max_us": 74256,
+          "attempts": 10,
+          "outcomes": {
+            "acquired": 10
+          }
+        },
+        "maintenance.phase:apply.initial_group_review": {
+          "count": 1,
+          "total_us": 16253,
+          "max_us": 16253,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.reservation.acquire": {
+          "count": 1,
+          "total_us": 41878,
+          "max_us": 41878,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 145128,
+          "max_us": 87706,
+          "attempts": 2,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 9,
+          "total_us": 540611,
+          "max_us": 140050,
+          "attempts": 9,
+          "outcomes": {
+            "verified": 9
+          }
+        },
+        "maintenance.phase:apply.normalization_preflight": {
+          "count": 4,
+          "total_us": 20513,
+          "max_us": 6305,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 6,
+          "total_us": 30,
+          "max_us": 10,
+          "attempts": 6,
+          "outcomes": {
+            "success": 6
+          }
+        },
+        "maintenance.phase:apply.reservation.verify.before_item": {
+          "count": 4,
+          "total_us": 52998,
+          "max_us": 14824,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:group.relations.build": {
+          "count": 1,
+          "total_us": 52,
+          "max_us": 52,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.current.relations": {
+          "count": 4,
+          "total_us": 134,
+          "max_us": 98,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:group.current.members": {
+          "count": 4,
+          "total_us": 125154,
+          "max_us": 42653,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:group.current.combine": {
+          "count": 4,
+          "total_us": 151,
+          "max_us": 51,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.current_review": {
+          "count": 4,
+          "total_us": 135239,
+          "max_us": 42892,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.safe_entries.pre_intent": {
+          "count": 4,
+          "total_us": 177900,
+          "max_us": 53188,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:state.prepare_local": {
+          "count": 8,
+          "total_us": 286,
+          "max_us": 57,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.read": {
+          "count": 8,
+          "total_us": 15264,
+          "max_us": 2237,
+          "attempts": 8,
+          "outcomes": {
+            "read": 8
+          }
+        },
+        "maintenance.phase:state.merge": {
+          "count": 8,
+          "total_us": 341,
+          "max_us": 51,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.open_pending": {
+          "count": 8,
+          "total_us": 2473,
+          "max_us": 363,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.serialize": {
+          "count": 8,
+          "total_us": 240,
+          "max_us": 63,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.write_pending": {
+          "count": 8,
+          "total_us": 964,
+          "max_us": 156,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.sync_pending": {
+          "count": 8,
+          "total_us": 27359,
+          "max_us": 3603,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.rename": {
+          "count": 8,
+          "total_us": 13841,
+          "max_us": 2142,
+          "attempts": 8,
+          "outcomes": {
+            "success": 8
+          }
+        },
+        "maintenance.phase:state.commit": {
+          "count": 8,
+          "total_us": 182438,
+          "max_us": 26058,
+          "attempts": 8,
+          "outcomes": {
+            "committed": 8
+          }
+        },
+        "maintenance.phase:state.save": {
+          "count": 8,
+          "total_us": 420690,
+          "max_us": 58573,
+          "attempts": 8,
+          "outcomes": {
+            "committed": 8
+          }
+        },
+        "maintenance.phase:apply.intent_save": {
+          "count": 4,
+          "total_us": 222995,
+          "max_us": 58582,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.physical_delete": {
+          "count": 4,
+          "total_us": 829041,
+          "max_us": 770092,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.actual_result_save": {
+          "count": 4,
+          "total_us": 197804,
+          "max_us": 53865,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.final_presence": {
+          "count": 4,
+          "total_us": 7302,
+          "max_us": 2220,
+          "attempts": 4,
+          "outcomes": {
+            "success": 4
+          }
+        },
+        "maintenance.phase:apply.reservation.finalize": {
+          "count": 1,
+          "total_us": 29298,
+          "max_us": 29298,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 1623358,
+          "max_us": 1623358,
+          "attempts": 1,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      },
+      "apply_details": {
+        "group.current.members:contents.combine": {
+          "scope": "group.current.members",
+          "operation": "contents.combine",
+          "records": 4,
+          "count": 10,
+          "total_us": 43,
+          "max_us": 9
+        },
+        "group.current.members:contents.related": {
+          "scope": "group.current.members",
+          "operation": "contents.related",
+          "records": 4,
+          "count": 10,
+          "total_us": 0,
+          "max_us": 0
+        },
+        "group.current.members:member.contents": {
+          "scope": "group.current.members",
+          "operation": "member.contents",
+          "records": 4,
+          "count": 10,
+          "total_us": 19163,
+          "max_us": 2478
+        },
+        "group.current.members:member.live": {
+          "scope": "group.current.members",
+          "operation": "member.live",
+          "records": 4,
+          "count": 10,
+          "total_us": 114143,
+          "max_us": 14932
+        },
+        "group.current.members:member.reservation": {
+          "scope": "group.current.members",
+          "operation": "member.reservation",
+          "records": 4,
+          "count": 10,
+          "total_us": 94956,
+          "max_us": 12850
+        },
+        "group.current.members:metadata.ancestor": {
+          "scope": "group.current.members",
+          "operation": "metadata.ancestor",
+          "records": 4,
+          "count": 904,
+          "total_us": 107525,
+          "max_us": 1118
+        },
+        "group.current.members:metadata.ancestor.query": {
+          "scope": "group.current.members",
+          "operation": "metadata.ancestor.query",
+          "records": 4,
+          "count": 904,
+          "total_us": 106974,
+          "max_us": 1118
+        },
+        "group.current.members:metadata.authorize": {
+          "scope": "group.current.members",
+          "operation": "metadata.authorize",
+          "records": 4,
+          "count": 960,
+          "total_us": 625,
+          "max_us": 3
+        },
+        "group.current.members:metadata.leaf": {
+          "scope": "group.current.members",
+          "operation": "metadata.leaf",
+          "records": 4,
+          "count": 56,
+          "total_us": 7481,
+          "max_us": 185
+        },
+        "group.current.members:metadata.plan": {
+          "scope": "group.current.members",
+          "operation": "metadata.plan",
+          "records": 4,
+          "count": 56,
+          "total_us": 23,
+          "max_us": 2
+        },
+        "group.current.members:metadata.total": {
+          "scope": "group.current.members",
+          "operation": "metadata.total",
+          "records": 4,
+          "count": 56,
+          "total_us": 117297,
+          "max_us": 4166
+        },
+        "group.current.members:observation.identity": {
+          "scope": "group.current.members",
+          "operation": "observation.identity",
+          "records": 4,
+          "count": 10,
+          "total_us": 1215,
+          "max_us": 140
+        },
+        "group.current.members:observation.nested_junctions": {
+          "scope": "group.current.members",
+          "operation": "observation.nested_junctions",
+          "records": 4,
+          "count": 10,
+          "total_us": 0,
+          "max_us": 0
+        },
+        "group.current.members:reservation.ownership": {
+          "scope": "group.current.members",
+          "operation": "reservation.ownership",
+          "records": 4,
+          "count": 10,
+          "total_us": 65,
+          "max_us": 9
+        },
+        "group.current.members:reservation.parse_validate": {
+          "scope": "group.current.members",
+          "operation": "reservation.parse_validate",
+          "records": 4,
+          "count": 10,
+          "total_us": 424,
+          "max_us": 64
+        },
+        "group.current.members:reservation.read_bytes": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_bytes",
+          "records": 4,
+          "count": 10,
+          "total_us": 72290,
+          "max_us": 9808
+        },
+        "group.current.members:reservation.read_payload": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_payload",
+          "records": 4,
+          "count": 20,
+          "total_us": 3952,
+          "max_us": 248
+        },
+        "group.current.members:single.measurement": {
+          "scope": "group.current.members",
+          "operation": "single.measurement",
+          "records": 4,
+          "count": 10,
+          "total_us": 22,
+          "max_us": 3
+        },
+        "group.current.members:single.observation": {
+          "scope": "group.current.members",
+          "operation": "single.observation",
+          "records": 4,
+          "count": 10,
+          "total_us": 18657,
+          "max_us": 2419
+        },
+        "group.current.members:single.proofs": {
+          "scope": "group.current.members",
+          "operation": "single.proofs",
+          "records": 4,
+          "count": 10,
+          "total_us": 0,
+          "max_us": 0
+        },
+        "group.current.members:single.protection": {
+          "scope": "group.current.members",
+          "operation": "single.protection",
+          "records": 4,
+          "count": 10,
+          "total_us": 131,
+          "max_us": 19
+        },
+        "group.current.members:single.recovery": {
+          "scope": "group.current.members",
+          "operation": "single.recovery",
+          "records": 4,
+          "count": 10,
+          "total_us": 0,
+          "max_us": 0
+        },
+        "group.current.members:single.response": {
+          "scope": "group.current.members",
+          "operation": "single.response",
+          "records": 4,
+          "count": 10,
+          "total_us": 54,
+          "max_us": 8
+        },
+        "group.current.members:single.runs": {
+          "scope": "group.current.members",
+          "operation": "single.runs",
+          "records": 4,
+          "count": 10,
+          "total_us": 1,
+          "max_us": 1
+        },
+        "group.current.members:single.token": {
+          "scope": "group.current.members",
+          "operation": "single.token",
+          "records": 4,
+          "count": 10,
+          "total_us": 172,
+          "max_us": 41
+        },
+        "group.current.members:single.total": {
+          "scope": "group.current.members",
+          "operation": "single.total",
+          "records": 4,
+          "count": 10,
+          "total_us": 19103,
+          "max_us": 2467
+        },
+        "group.current.members:member.completed": {
+          "scope": "group.current.members",
+          "operation": "member.completed",
+          "records": 3,
+          "count": 6,
+          "total_us": 9706,
+          "max_us": 1929
+        }
+      }
+    },
+    {
+      "label": "c801",
+      "binary": "candidate",
+      "members": 80,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\c801",
+      "wall_ms": {
+        "register": 1485.9895,
+        "review": 416.6662,
+        "apply": 67374.1972
+      },
+      "native_closes": [
+        {
+          "stage": "register",
+          "pid": 28988,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\c801-register"
+        },
+        {
+          "stage": "review",
+          "pid": 24304,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\c801-review"
+        },
+        {
+          "stage": "apply",
+          "pid": 19332,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\c801-apply"
+        }
+      ],
+      "checks": {
+        "actual_absent": 80,
+        "durable_items_deleted": 80,
+        "durable_deleted_outcomes": 80,
+        "durable_group_deleted": true,
+        "no_pending": true,
+        "prior_native_runs_preserved": true,
+        "prior_native_decisions_preserved": 0,
+        "state_commits": 160,
+        "intent_saves": 80,
+        "actual_result_saves": 80,
+        "preintent_current_reviews": 80
+      },
+      "apply_spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 162,
+          "total_us": 5714021,
+          "max_us": 215968,
+          "attempts": 162,
+          "outcomes": {
+            "acquired": 162
+          }
+        },
+        "maintenance.phase:apply.initial_group_review": {
+          "count": 1,
+          "total_us": 334509,
+          "max_us": 334509,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.reservation.acquire": {
+          "count": 1,
+          "total_us": 48142,
+          "max_us": 48142,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 485141,
+          "max_us": 418236,
+          "attempts": 2,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 161,
+          "total_us": 10162917,
+          "max_us": 472222,
+          "attempts": 161,
+          "outcomes": {
+            "verified": 161
+          }
+        },
+        "maintenance.phase:apply.normalization_preflight": {
+          "count": 80,
+          "total_us": 424953,
+          "max_us": 7095,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 82,
+          "total_us": 373,
+          "max_us": 9,
+          "attempts": 82,
+          "outcomes": {
+            "success": 82
+          }
+        },
+        "maintenance.phase:apply.reservation.verify.before_item": {
+          "count": 80,
+          "total_us": 1234557,
+          "max_us": 20157,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.relations.build": {
+          "count": 1,
+          "total_us": 11686,
+          "max_us": 11686,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.current.relations": {
+          "count": 80,
+          "total_us": 15879,
+          "max_us": 11717,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.current.members": {
+          "count": 80,
+          "total_us": 45899010,
+          "max_us": 1617512,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.current.combine": {
+          "count": 80,
+          "total_us": 25588,
+          "max_us": 597,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.current_review": {
+          "count": 80,
+          "total_us": 51794006,
+          "max_us": 1665745,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.safe_entries.pre_intent": {
+          "count": 80,
+          "total_us": 52753507,
+          "max_us": 1678028,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:state.prepare_local": {
+          "count": 160,
+          "total_us": 72481,
+          "max_us": 962,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.read": {
+          "count": 160,
+          "total_us": 467461,
+          "max_us": 8555,
+          "attempts": 160,
+          "outcomes": {
+            "read": 160
+          }
+        },
+        "maintenance.phase:state.merge": {
+          "count": 160,
+          "total_us": 57777,
+          "max_us": 1336,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.open_pending": {
+          "count": 160,
+          "total_us": 53540,
+          "max_us": 893,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.serialize": {
+          "count": 160,
+          "total_us": 43064,
+          "max_us": 584,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.write_pending": {
+          "count": 160,
+          "total_us": 23445,
+          "max_us": 301,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.sync_pending": {
+          "count": 160,
+          "total_us": 766683,
+          "max_us": 193688,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.rename": {
+          "count": 160,
+          "total_us": 300501,
+          "max_us": 4184,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.commit": {
+          "count": 160,
+          "total_us": 4456742,
+          "max_us": 213616,
+          "attempts": 160,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        "maintenance.phase:state.save": {
+          "count": 160,
+          "total_us": 10141589,
+          "max_us": 248030,
+          "attempts": 160,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        "maintenance.phase:apply.intent_save": {
+          "count": 80,
+          "total_us": 5716955,
+          "max_us": 248045,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.physical_delete": {
+          "count": 80,
+          "total_us": 1971396,
+          "max_us": 736527,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.actual_result_save": {
+          "count": 80,
+          "total_us": 4426842,
+          "max_us": 78873,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.final_presence": {
+          "count": 80,
+          "total_us": 160127,
+          "max_us": 2902,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.reservation.finalize": {
+          "count": 1,
+          "total_us": 36623,
+          "max_us": 36623,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 66854041,
+          "max_us": 66854041,
+          "attempts": 1,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      },
+      "apply_details": {
+        "group.current.members:contents.combine": {
+          "scope": "group.current.members",
+          "operation": "contents.combine",
+          "records": 80,
+          "count": 3240,
+          "total_us": 17454,
+          "max_us": 111
+        },
+        "group.current.members:contents.related": {
+          "scope": "group.current.members",
+          "operation": "contents.related",
+          "records": 80,
+          "count": 3240,
+          "total_us": 25,
+          "max_us": 1
+        },
+        "group.current.members:member.contents": {
+          "scope": "group.current.members",
+          "operation": "member.contents",
+          "records": 80,
+          "count": 3240,
+          "total_us": 6851045,
+          "max_us": 33328
+        },
+        "group.current.members:member.live": {
+          "scope": "group.current.members",
+          "operation": "member.live",
+          "records": 80,
+          "count": 3240,
+          "total_us": 39975251,
+          "max_us": 96408
+        },
+        "group.current.members:member.reservation": {
+          "scope": "group.current.members",
+          "operation": "member.reservation",
+          "records": 80,
+          "count": 3240,
+          "total_us": 33114862,
+          "max_us": 84039
+        },
+        "group.current.members:metadata.ancestor": {
+          "scope": "group.current.members",
+          "operation": "metadata.ancestor",
+          "records": 80,
+          "count": 309920,
+          "total_us": 38190598,
+          "max_us": 8148
+        },
+        "group.current.members:metadata.ancestor.query": {
+          "scope": "group.current.members",
+          "operation": "metadata.ancestor.query",
+          "records": 80,
+          "count": 309920,
+          "total_us": 37980146,
+          "max_us": 8145
+        },
+        "group.current.members:metadata.authorize": {
+          "scope": "group.current.members",
+          "operation": "metadata.authorize",
+          "records": 80,
+          "count": 329280,
+          "total_us": 229429,
+          "max_us": 1342
+        },
+        "group.current.members:metadata.leaf": {
+          "scope": "group.current.members",
+          "operation": "metadata.leaf",
+          "records": 80,
+          "count": 19360,
+          "total_us": 2712429,
+          "max_us": 33134
+        },
+        "group.current.members:metadata.plan": {
+          "scope": "group.current.members",
+          "operation": "metadata.plan",
+          "records": 80,
+          "count": 19360,
+          "total_us": 12627,
+          "max_us": 47
+        },
+        "group.current.members:metadata.total": {
+          "scope": "group.current.members",
+          "operation": "metadata.total",
+          "records": 80,
+          "count": 19360,
+          "total_us": 41710920,
+          "max_us": 38306
+        },
+        "group.current.members:observation.identity": {
+          "scope": "group.current.members",
+          "operation": "observation.identity",
+          "records": 80,
+          "count": 3240,
+          "total_us": 457722,
+          "max_us": 1449
+        },
+        "group.current.members:observation.nested_junctions": {
+          "scope": "group.current.members",
+          "operation": "observation.nested_junctions",
+          "records": 80,
+          "count": 3240,
+          "total_us": 144,
+          "max_us": 3
+        },
+        "group.current.members:reservation.ownership": {
+          "scope": "group.current.members",
+          "operation": "reservation.ownership",
+          "records": 80,
+          "count": 3240,
+          "total_us": 250032,
+          "max_us": 499
+        },
+        "group.current.members:reservation.parse_validate": {
+          "scope": "group.current.members",
+          "operation": "reservation.parse_validate",
+          "records": 80,
+          "count": 3240,
+          "total_us": 1240908,
+          "max_us": 4408
+        },
+        "group.current.members:reservation.read_bytes": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_bytes",
+          "records": 80,
+          "count": 3240,
+          "total_us": 23909622,
+          "max_us": 63905
+        },
+        "group.current.members:reservation.read_payload": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_payload",
+          "records": 80,
+          "count": 6480,
+          "total_us": 1620888,
+          "max_us": 3844
+        },
+        "group.current.members:single.measurement": {
+          "scope": "group.current.members",
+          "operation": "single.measurement",
+          "records": 80,
+          "count": 3240,
+          "total_us": 8105,
+          "max_us": 31
+        },
+        "group.current.members:single.observation": {
+          "scope": "group.current.members",
+          "operation": "single.observation",
+          "records": 80,
+          "count": 3240,
+          "total_us": 6674764,
+          "max_us": 16375
+        },
+        "group.current.members:single.proofs": {
+          "scope": "group.current.members",
+          "operation": "single.proofs",
+          "records": 80,
+          "count": 3240,
+          "total_us": 56,
+          "max_us": 18
+        },
+        "group.current.members:single.protection": {
+          "scope": "group.current.members",
+          "operation": "single.protection",
+          "records": 80,
+          "count": 3240,
+          "total_us": 73497,
+          "max_us": 31023
+        },
+        "group.current.members:single.recovery": {
+          "scope": "group.current.members",
+          "operation": "single.recovery",
+          "records": 80,
+          "count": 3240,
+          "total_us": 11,
+          "max_us": 2
+        },
+        "group.current.members:single.response": {
+          "scope": "group.current.members",
+          "operation": "single.response",
+          "records": 80,
+          "count": 3240,
+          "total_us": 19612,
+          "max_us": 971
+        },
+        "group.current.members:single.runs": {
+          "scope": "group.current.members",
+          "operation": "single.runs",
+          "records": 80,
+          "count": 3240,
+          "total_us": 13,
+          "max_us": 1
+        },
+        "group.current.members:single.token": {
+          "scope": "group.current.members",
+          "operation": "single.token",
+          "records": 80,
+          "count": 3240,
+          "total_us": 31898,
+          "max_us": 414
+        },
+        "group.current.members:single.total": {
+          "scope": "group.current.members",
+          "operation": "single.total",
+          "records": 80,
+          "count": 3240,
+          "total_us": 6828156,
+          "max_us": 33318
+        },
+        "group.current.members:member.completed": {
+          "scope": "group.current.members",
+          "operation": "member.completed",
+          "records": 79,
+          "count": 3160,
+          "total_us": 5878363,
+          "max_us": 8987
+        }
+      }
+    },
+    {
+      "label": "c802",
+      "binary": "candidate",
+      "members": 80,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\c802",
+      "wall_ms": {
+        "register": 1732.7244,
+        "review": 386.571,
+        "apply": 63143.1859
+      },
+      "native_closes": [
+        {
+          "stage": "register",
+          "pid": 35356,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\c802-register"
+        },
+        {
+          "stage": "review",
+          "pid": 52480,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\c802-review"
+        },
+        {
+          "stage": "apply",
+          "pid": 51500,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\c802-apply"
+        }
+      ],
+      "checks": {
+        "actual_absent": 80,
+        "durable_items_deleted": 80,
+        "durable_deleted_outcomes": 80,
+        "durable_group_deleted": true,
+        "no_pending": true,
+        "prior_native_runs_preserved": true,
+        "prior_native_decisions_preserved": 0,
+        "state_commits": 160,
+        "intent_saves": 80,
+        "actual_result_saves": 80,
+        "preintent_current_reviews": 80
+      },
+      "apply_spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 162,
+          "total_us": 5385228,
+          "max_us": 296600,
+          "attempts": 162,
+          "outcomes": {
+            "acquired": 162
+          }
+        },
+        "maintenance.phase:apply.initial_group_review": {
+          "count": 1,
+          "total_us": 339360,
+          "max_us": 339360,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.reservation.acquire": {
+          "count": 1,
+          "total_us": 46773,
+          "max_us": 46773,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 540227,
+          "max_us": 427021,
+          "attempts": 2,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 161,
+          "total_us": 9734740,
+          "max_us": 477553,
+          "attempts": 161,
+          "outcomes": {
+            "verified": 161
+          }
+        },
+        "maintenance.phase:apply.normalization_preflight": {
+          "count": 80,
+          "total_us": 426513,
+          "max_us": 6833,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 82,
+          "total_us": 377,
+          "max_us": 50,
+          "attempts": 82,
+          "outcomes": {
+            "success": 82
+          }
+        },
+        "maintenance.phase:apply.reservation.verify.before_item": {
+          "count": 80,
+          "total_us": 1117504,
+          "max_us": 20009,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.relations.build": {
+          "count": 1,
+          "total_us": 9945,
+          "max_us": 9945,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.current.relations": {
+          "count": 80,
+          "total_us": 13593,
+          "max_us": 9975,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.current.members": {
+          "count": 80,
+          "total_us": 42795341,
+          "max_us": 1505368,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.current.combine": {
+          "count": 80,
+          "total_us": 22088,
+          "max_us": 523,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.current_review": {
+          "count": 80,
+          "total_us": 48161727,
+          "max_us": 1514557,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.safe_entries.pre_intent": {
+          "count": 80,
+          "total_us": 49054333,
+          "max_us": 1529890,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:state.prepare_local": {
+          "count": 160,
+          "total_us": 66330,
+          "max_us": 1188,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.read": {
+          "count": 160,
+          "total_us": 432563,
+          "max_us": 5964,
+          "attempts": 160,
+          "outcomes": {
+            "read": 160
+          }
+        },
+        "maintenance.phase:state.merge": {
+          "count": 160,
+          "total_us": 51722,
+          "max_us": 1086,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.open_pending": {
+          "count": 160,
+          "total_us": 53678,
+          "max_us": 1393,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.serialize": {
+          "count": 160,
+          "total_us": 37647,
+          "max_us": 522,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.write_pending": {
+          "count": 160,
+          "total_us": 19578,
+          "max_us": 728,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.sync_pending": {
+          "count": 160,
+          "total_us": 886962,
+          "max_us": 157886,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.rename": {
+          "count": 160,
+          "total_us": 278996,
+          "max_us": 4829,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.commit": {
+          "count": 160,
+          "total_us": 4351881,
+          "max_us": 178155,
+          "attempts": 160,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        "maintenance.phase:state.save": {
+          "count": 160,
+          "total_us": 9691435,
+          "max_us": 322237,
+          "attempts": 160,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        "maintenance.phase:apply.intent_save": {
+          "count": 80,
+          "total_us": 4892022,
+          "max_us": 150823,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.physical_delete": {
+          "count": 80,
+          "total_us": 1914028,
+          "max_us": 751027,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.actual_result_save": {
+          "count": 80,
+          "total_us": 4801701,
+          "max_us": 322246,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.final_presence": {
+          "count": 80,
+          "total_us": 146573,
+          "max_us": 3088,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.reservation.finalize": {
+          "count": 1,
+          "total_us": 61544,
+          "max_us": 61544,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 62566951,
+          "max_us": 62566951,
+          "attempts": 1,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      },
+      "apply_details": {
+        "group.current.members:contents.combine": {
+          "scope": "group.current.members",
+          "operation": "contents.combine",
+          "records": 80,
+          "count": 3240,
+          "total_us": 15868,
+          "max_us": 135
+        },
+        "group.current.members:contents.related": {
+          "scope": "group.current.members",
+          "operation": "contents.related",
+          "records": 80,
+          "count": 3240,
+          "total_us": 9,
+          "max_us": 1
+        },
+        "group.current.members:member.contents": {
+          "scope": "group.current.members",
+          "operation": "member.contents",
+          "records": 80,
+          "count": 3240,
+          "total_us": 6375947,
+          "max_us": 21301
+        },
+        "group.current.members:member.live": {
+          "scope": "group.current.members",
+          "operation": "member.live",
+          "records": 80,
+          "count": 3240,
+          "total_us": 37300235,
+          "max_us": 113994
+        },
+        "group.current.members:member.reservation": {
+          "scope": "group.current.members",
+          "operation": "member.reservation",
+          "records": 80,
+          "count": 3240,
+          "total_us": 30915602,
+          "max_us": 92689
+        },
+        "group.current.members:metadata.ancestor": {
+          "scope": "group.current.members",
+          "operation": "metadata.ancestor",
+          "records": 80,
+          "count": 309920,
+          "total_us": 35661831,
+          "max_us": 6624
+        },
+        "group.current.members:metadata.ancestor.query": {
+          "scope": "group.current.members",
+          "operation": "metadata.ancestor.query",
+          "records": 80,
+          "count": 309920,
+          "total_us": 35462712,
+          "max_us": 6621
+        },
+        "group.current.members:metadata.authorize": {
+          "scope": "group.current.members",
+          "operation": "metadata.authorize",
+          "records": 80,
+          "count": 329280,
+          "total_us": 210996,
+          "max_us": 302
+        },
+        "group.current.members:metadata.leaf": {
+          "scope": "group.current.members",
+          "operation": "metadata.leaf",
+          "records": 80,
+          "count": 19360,
+          "total_us": 2508991,
+          "max_us": 1781
+        },
+        "group.current.members:metadata.plan": {
+          "scope": "group.current.members",
+          "operation": "metadata.plan",
+          "records": 80,
+          "count": 19360,
+          "total_us": 9821,
+          "max_us": 65
+        },
+        "group.current.members:metadata.total": {
+          "scope": "group.current.members",
+          "operation": "metadata.total",
+          "records": 80,
+          "count": 19360,
+          "total_us": 38939063,
+          "max_us": 28997
+        },
+        "group.current.members:observation.identity": {
+          "scope": "group.current.members",
+          "operation": "observation.identity",
+          "records": 80,
+          "count": 3240,
+          "total_us": 431078,
+          "max_us": 1329
+        },
+        "group.current.members:observation.nested_junctions": {
+          "scope": "group.current.members",
+          "operation": "observation.nested_junctions",
+          "records": 80,
+          "count": 3240,
+          "total_us": 87,
+          "max_us": 2
+        },
+        "group.current.members:reservation.ownership": {
+          "scope": "group.current.members",
+          "operation": "reservation.ownership",
+          "records": 80,
+          "count": 3240,
+          "total_us": 220413,
+          "max_us": 276
+        },
+        "group.current.members:reservation.parse_validate": {
+          "scope": "group.current.members",
+          "operation": "reservation.parse_validate",
+          "records": 80,
+          "count": 3240,
+          "total_us": 1163073,
+          "max_us": 1102
+        },
+        "group.current.members:reservation.read_bytes": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_bytes",
+          "records": 80,
+          "count": 3240,
+          "total_us": 22365181,
+          "max_us": 78324
+        },
+        "group.current.members:reservation.read_payload": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_payload",
+          "records": 80,
+          "count": 6480,
+          "total_us": 1513154,
+          "max_us": 2190
+        },
+        "group.current.members:single.measurement": {
+          "scope": "group.current.members",
+          "operation": "single.measurement",
+          "records": 80,
+          "count": 3240,
+          "total_us": 7040,
+          "max_us": 7
+        },
+        "group.current.members:single.observation": {
+          "scope": "group.current.members",
+          "operation": "single.observation",
+          "records": 80,
+          "count": 3240,
+          "total_us": 6242393,
+          "max_us": 21249
+        },
+        "group.current.members:single.proofs": {
+          "scope": "group.current.members",
+          "operation": "single.proofs",
+          "records": 80,
+          "count": 3240,
+          "total_us": 12,
+          "max_us": 1
+        },
+        "group.current.members:single.protection": {
+          "scope": "group.current.members",
+          "operation": "single.protection",
+          "records": 80,
+          "count": 3240,
+          "total_us": 39785,
+          "max_us": 93
+        },
+        "group.current.members:single.recovery": {
+          "scope": "group.current.members",
+          "operation": "single.recovery",
+          "records": 80,
+          "count": 3240,
+          "total_us": 14,
+          "max_us": 9
+        },
+        "group.current.members:single.response": {
+          "scope": "group.current.members",
+          "operation": "single.response",
+          "records": 80,
+          "count": 3240,
+          "total_us": 17340,
+          "max_us": 144
+        },
+        "group.current.members:single.runs": {
+          "scope": "group.current.members",
+          "operation": "single.runs",
+          "records": 80,
+          "count": 3240,
+          "total_us": 50,
+          "max_us": 25
+        },
+        "group.current.members:single.token": {
+          "scope": "group.current.members",
+          "operation": "single.token",
+          "records": 80,
+          "count": 3240,
+          "total_us": 28796,
+          "max_us": 87
+        },
+        "group.current.members:single.total": {
+          "scope": "group.current.members",
+          "operation": "single.total",
+          "records": 80,
+          "count": 3240,
+          "total_us": 6355053,
+          "max_us": 21292
+        },
+        "group.current.members:member.completed": {
+          "scope": "group.current.members",
+          "operation": "member.completed",
+          "records": 79,
+          "count": 3160,
+          "total_us": 5458340,
+          "max_us": 8014
+        }
+      }
+    },
+    {
+      "label": "b802",
+      "binary": "baseline",
+      "members": 80,
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\temporary\\measurement\\b802",
+      "wall_ms": {
+        "register": 2589.5028,
+        "review": 473.946,
+        "apply": 69520.1597
+      },
+      "native_closes": [
+        {
+          "stage": "register",
+          "pid": 32880,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\b802-register"
+        },
+        {
+          "stage": "review",
+          "pid": 38112,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\b802-review"
+        },
+        {
+          "stage": "apply",
+          "pid": 52544,
+          "exit_code": 0,
+          "signal": null,
+          "actual_close": true,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\ancestor7\\logs\\measurement\\b802-apply"
+        }
+      ],
+      "checks": {
+        "actual_absent": 80,
+        "durable_items_deleted": 80,
+        "durable_deleted_outcomes": 80,
+        "durable_group_deleted": true,
+        "no_pending": true,
+        "prior_native_runs_preserved": true,
+        "prior_native_decisions_preserved": 0,
+        "state_commits": 160,
+        "intent_saves": 80,
+        "actual_result_saves": 80,
+        "preintent_current_reviews": 80
+      },
+      "apply_spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 162,
+          "total_us": 10403537,
+          "max_us": 2867679,
+          "attempts": 162,
+          "outcomes": {
+            "acquired": 162
+          }
+        },
+        "maintenance.phase:apply.initial_group_review": {
+          "count": 1,
+          "total_us": 376371,
+          "max_us": 376371,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.reservation.acquire": {
+          "count": 1,
+          "total_us": 50014,
+          "max_us": 50014,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 527283,
+          "max_us": 461292,
+          "attempts": 2,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 161,
+          "total_us": 17105082,
+          "max_us": 4092653,
+          "attempts": 161,
+          "outcomes": {
+            "verified": 161
+          }
+        },
+        "maintenance.phase:apply.normalization_preflight": {
+          "count": 80,
+          "total_us": 419324,
+          "max_us": 6692,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 82,
+          "total_us": 320,
+          "max_us": 12,
+          "attempts": 82,
+          "outcomes": {
+            "success": 82
+          }
+        },
+        "maintenance.phase:apply.reservation.verify.before_item": {
+          "count": 80,
+          "total_us": 1075990,
+          "max_us": 22192,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.relations.build": {
+          "count": 1,
+          "total_us": 13594,
+          "max_us": 13594,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.current.relations": {
+          "count": 80,
+          "total_us": 17268,
+          "max_us": 13636,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.current.members": {
+          "count": 80,
+          "total_us": 42172020,
+          "max_us": 1241887,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:group.current.combine": {
+          "count": 80,
+          "total_us": 24423,
+          "max_us": 743,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.current_review": {
+          "count": 80,
+          "total_us": 47383129,
+          "max_us": 1244142,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.safe_entries.pre_intent": {
+          "count": 80,
+          "total_us": 48234170,
+          "max_us": 1254081,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:state.prepare_local": {
+          "count": 160,
+          "total_us": 68074,
+          "max_us": 1270,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.read": {
+          "count": 160,
+          "total_us": 428580,
+          "max_us": 5766,
+          "attempts": 160,
+          "outcomes": {
+            "read": 160
+          }
+        },
+        "maintenance.phase:state.merge": {
+          "count": 160,
+          "total_us": 52652,
+          "max_us": 926,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.open_pending": {
+          "count": 160,
+          "total_us": 53941,
+          "max_us": 1370,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.serialize": {
+          "count": 160,
+          "total_us": 35245,
+          "max_us": 482,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.write_pending": {
+          "count": 160,
+          "total_us": 22437,
+          "max_us": 314,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.sync_pending": {
+          "count": 160,
+          "total_us": 3287165,
+          "max_us": 1207517,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.rename": {
+          "count": 160,
+          "total_us": 274526,
+          "max_us": 3329,
+          "attempts": 160,
+          "outcomes": {
+            "success": 160
+          }
+        },
+        "maintenance.phase:state.commit": {
+          "count": 160,
+          "total_us": 6650665,
+          "max_us": 1226894,
+          "attempts": 160,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        "maintenance.phase:state.save": {
+          "count": 160,
+          "total_us": 17008302,
+          "max_us": 4094897,
+          "attempts": 160,
+          "outcomes": {
+            "committed": 160
+          }
+        },
+        "maintenance.phase:apply.intent_save": {
+          "count": 80,
+          "total_us": 9713241,
+          "max_us": 4094907,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.physical_delete": {
+          "count": 80,
+          "total_us": 1915516,
+          "max_us": 769977,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.actual_result_save": {
+          "count": 80,
+          "total_us": 7297164,
+          "max_us": 3020460,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.final_presence": {
+          "count": 80,
+          "total_us": 142277,
+          "max_us": 2828,
+          "attempts": 80,
+          "outcomes": {
+            "success": 80
+          }
+        },
+        "maintenance.phase:apply.reservation.finalize": {
+          "count": 1,
+          "total_us": 33721,
+          "max_us": 33721,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 68961030,
+          "max_us": 68961030,
+          "attempts": 1,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      },
+      "apply_details": {
+        "group.current.members:contents.combine": {
+          "scope": "group.current.members",
+          "operation": "contents.combine",
+          "records": 80,
+          "count": 3240,
+          "total_us": 18261,
+          "max_us": 26
+        },
+        "group.current.members:contents.related": {
+          "scope": "group.current.members",
+          "operation": "contents.related",
+          "records": 80,
+          "count": 3240,
+          "total_us": 48,
+          "max_us": 2
+        },
+        "group.current.members:member.contents": {
+          "scope": "group.current.members",
+          "operation": "member.contents",
+          "records": 80,
+          "count": 3240,
+          "total_us": 6344351,
+          "max_us": 14458
+        },
+        "group.current.members:member.live": {
+          "scope": "group.current.members",
+          "operation": "member.live",
+          "records": 80,
+          "count": 3240,
+          "total_us": 36950147,
+          "max_us": 50144
+        },
+        "group.current.members:member.reservation": {
+          "scope": "group.current.members",
+          "operation": "member.reservation",
+          "records": 80,
+          "count": 3240,
+          "total_us": 30596383,
+          "max_us": 46129
+        },
+        "group.current.members:metadata.ancestor": {
+          "scope": "group.current.members",
+          "operation": "metadata.ancestor",
+          "records": 80,
+          "count": 309920,
+          "total_us": 35024004,
+          "max_us": 13008
+        },
+        "group.current.members:metadata.authorize": {
+          "scope": "group.current.members",
+          "operation": "metadata.authorize",
+          "records": 80,
+          "count": 329280,
+          "total_us": 194589,
+          "max_us": 351
+        },
+        "group.current.members:metadata.leaf": {
+          "scope": "group.current.members",
+          "operation": "metadata.leaf",
+          "records": 80,
+          "count": 19360,
+          "total_us": 2496653,
+          "max_us": 12973
+        },
+        "group.current.members:metadata.total": {
+          "scope": "group.current.members",
+          "operation": "metadata.total",
+          "records": 80,
+          "count": 19360,
+          "total_us": 38384988,
+          "max_us": 24676
+        },
+        "group.current.members:observation.identity": {
+          "scope": "group.current.members",
+          "operation": "observation.identity",
+          "records": 80,
+          "count": 3240,
+          "total_us": 421778,
+          "max_us": 919
+        },
+        "group.current.members:observation.nested_junctions": {
+          "scope": "group.current.members",
+          "operation": "observation.nested_junctions",
+          "records": 80,
+          "count": 3240,
+          "total_us": 35,
+          "max_us": 2
+        },
+        "group.current.members:reservation.ownership": {
+          "scope": "group.current.members",
+          "operation": "reservation.ownership",
+          "records": 80,
+          "count": 3240,
+          "total_us": 238004,
+          "max_us": 465
+        },
+        "group.current.members:reservation.parse_validate": {
+          "scope": "group.current.members",
+          "operation": "reservation.parse_validate",
+          "records": 80,
+          "count": 3240,
+          "total_us": 1100117,
+          "max_us": 7633
+        },
+        "group.current.members:reservation.read_bytes": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_bytes",
+          "records": 80,
+          "count": 3240,
+          "total_us": 22145793,
+          "max_us": 34320
+        },
+        "group.current.members:reservation.read_payload": {
+          "scope": "group.current.members",
+          "operation": "reservation.read_payload",
+          "records": 80,
+          "count": 6480,
+          "total_us": 1493670,
+          "max_us": 9185
+        },
+        "group.current.members:single.measurement": {
+          "scope": "group.current.members",
+          "operation": "single.measurement",
+          "records": 80,
+          "count": 3240,
+          "total_us": 7865,
+          "max_us": 62
+        },
+        "group.current.members:single.observation": {
+          "scope": "group.current.members",
+          "operation": "single.observation",
+          "records": 80,
+          "count": 3240,
+          "total_us": 6208795,
+          "max_us": 14376
+        },
+        "group.current.members:single.proofs": {
+          "scope": "group.current.members",
+          "operation": "single.proofs",
+          "records": 80,
+          "count": 3240,
+          "total_us": 20,
+          "max_us": 1
+        },
+        "group.current.members:single.protection": {
+          "scope": "group.current.members",
+          "operation": "single.protection",
+          "records": 80,
+          "count": 3240,
+          "total_us": 39419,
+          "max_us": 73
+        },
+        "group.current.members:single.recovery": {
+          "scope": "group.current.members",
+          "operation": "single.recovery",
+          "records": 80,
+          "count": 3240,
+          "total_us": 2,
+          "max_us": 1
+        },
+        "group.current.members:single.response": {
+          "scope": "group.current.members",
+          "operation": "single.response",
+          "records": 80,
+          "count": 3240,
+          "total_us": 17811,
+          "max_us": 50
+        },
+        "group.current.members:single.runs": {
+          "scope": "group.current.members",
+          "operation": "single.runs",
+          "records": 80,
+          "count": 3240,
+          "total_us": 25,
+          "max_us": 10
+        },
+        "group.current.members:single.token": {
+          "scope": "group.current.members",
+          "operation": "single.token",
+          "records": 80,
+          "count": 3240,
+          "total_us": 29005,
+          "max_us": 59
+        },
+        "group.current.members:single.total": {
+          "scope": "group.current.members",
+          "operation": "single.total",
+          "records": 80,
+          "count": 3240,
+          "total_us": 6321189,
+          "max_us": 14444
+        },
+        "group.current.members:member.completed": {
+          "scope": "group.current.members",
+          "operation": "member.completed",
+          "records": 79,
+          "count": 3160,
+          "total_us": 5189205,
+          "max_us": 7563
+        }
+      }
+    }
+  ],
+  "common_metadata_count_checks": [
+    {
+      "members": 4,
+      "operation": "metadata.total",
+      "count": 56,
+      "labels": [
+        "b004",
+        "c004"
+      ],
+      "all_equal": true
+    },
+    {
+      "members": 4,
+      "operation": "metadata.authorize",
+      "count": 960,
+      "labels": [
+        "b004",
+        "c004"
+      ],
+      "all_equal": true
+    },
+    {
+      "members": 4,
+      "operation": "metadata.ancestor",
+      "count": 904,
+      "labels": [
+        "b004",
+        "c004"
+      ],
+      "all_equal": true
+    },
+    {
+      "members": 4,
+      "operation": "metadata.leaf",
+      "count": 56,
+      "labels": [
+        "b004",
+        "c004"
+      ],
+      "all_equal": true
+    },
+    {
+      "members": 80,
+      "operation": "metadata.total",
+      "count": 19360,
+      "labels": [
+        "b801",
+        "c801",
+        "c802",
+        "b802"
+      ],
+      "all_equal": true
+    },
+    {
+      "members": 80,
+      "operation": "metadata.authorize",
+      "count": 329280,
+      "labels": [
+        "b801",
+        "c801",
+        "c802",
+        "b802"
+      ],
+      "all_equal": true
+    },
+    {
+      "members": 80,
+      "operation": "metadata.ancestor",
+      "count": 309920,
+      "labels": [
+        "b801",
+        "c801",
+        "c802",
+        "b802"
+      ],
+      "all_equal": true
+    },
+    {
+      "members": 80,
+      "operation": "metadata.leaf",
+      "count": 19360,
+      "labels": [
+        "b801",
+        "c801",
+        "c802",
+        "b802"
+      ],
+      "all_equal": true
+    }
+  ],
+  "statistics80": {
+    "register_wall_ms": {
+      "baseline": {
+        "samples": 2,
+        "total": 4016.5792,
+        "mean": 2008.2896,
+        "min": 1427.0764,
+        "max": 2589.5028
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 3218.7138999999997,
+        "mean": 1609.3569499999999,
+        "min": 1485.9895,
+        "max": 1732.7244
+      },
+      "candidate_mean_over_baseline_ratio": 0.8013570104630328,
+      "mean_change_percent": -19.864298953696725
+    },
+    "review_wall_ms": {
+      "baseline": {
+        "samples": 2,
+        "total": 848.3567,
+        "mean": 424.17835,
+        "min": 374.4107,
+        "max": 473.946
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 803.2372,
+        "mean": 401.6186,
+        "min": 386.571,
+        "max": 416.6662
+      },
+      "candidate_mean_over_baseline_ratio": 0.9468154138465577,
+      "mean_change_percent": -5.318458615344235
+    },
+    "apply_wall_ms": {
+      "baseline": {
+        "samples": 2,
+        "total": 122696.78020000001,
+        "mean": 61348.390100000004,
+        "min": 53176.6205,
+        "max": 69520.1597
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 130517.38309999999,
+        "mean": 65258.691549999996,
+        "min": 63143.1859,
+        "max": 67374.1972
+      },
+      "candidate_mean_over_baseline_ratio": 1.0637392675443653,
+      "mean_change_percent": 6.373926754436532
+    },
+    "apply.current_review_total_us": {
+      "baseline": {
+        "samples": 2,
+        "total": 87702812,
+        "mean": 43851406,
+        "min": 40319683,
+        "max": 47383129
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 99955733,
+        "mean": 49977866.5,
+        "min": 48161727,
+        "max": 51794006
+      },
+      "mean_change_percent": 13.970955686118703
+    },
+    "group.current.members_total_us": {
+      "baseline": {
+        "samples": 2,
+        "total": 78041139,
+        "mean": 39020569.5,
+        "min": 35869119,
+        "max": 42172020
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 88694351,
+        "mean": 44347175.5,
+        "min": 42795341,
+        "max": 45899010
+      },
+      "mean_change_percent": 13.650764374415392
+    },
+    "state.save_total_us": {
+      "baseline": {
+        "samples": 2,
+        "total": 25317214,
+        "mean": 12658607,
+        "min": 8308912,
+        "max": 17008302
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 19833024,
+        "mean": 9916512,
+        "min": 9691435,
+        "max": 10141589
+      },
+      "mean_change_percent": -21.661901661059545
+    },
+    "state.commit_total_us": {
+      "baseline": {
+        "samples": 2,
+        "total": 10331767,
+        "mean": 5165883.5,
+        "min": 3681102,
+        "max": 6650665
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 8808623,
+        "mean": 4404311.5,
+        "min": 4351881,
+        "max": 4456742
+      },
+      "mean_change_percent": -14.74233787889332
+    },
+    "metadata.total_total_us": {
+      "baseline": {
+        "samples": 2,
+        "total": 70806026,
+        "mean": 35403013,
+        "min": 32421038,
+        "max": 38384988
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 80649983,
+        "mean": 40324991.5,
+        "min": 38939063,
+        "max": 41710920
+      },
+      "mean_change_percent": 13.902710766453685
+    },
+    "metadata.authorize_total_us": {
+      "baseline": {
+        "samples": 2,
+        "total": 342120,
+        "mean": 171060,
+        "min": 147531,
+        "max": 194589
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 440425,
+        "mean": 220212.5,
+        "min": 210996,
+        "max": 229429
+      },
+      "mean_change_percent": 28.73406991698819
+    },
+    "metadata.ancestor_total_us": {
+      "baseline": {
+        "samples": 2,
+        "total": 64452664,
+        "mean": 32226332,
+        "min": 29428660,
+        "max": 35024004
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 73852429,
+        "mean": 36926214.5,
+        "min": 35661831,
+        "max": 38190598
+      },
+      "mean_change_percent": 14.583982129893025
+    },
+    "metadata.leaf_total_us": {
+      "baseline": {
+        "samples": 2,
+        "total": 4695068,
+        "mean": 2347534,
+        "min": 2198415,
+        "max": 2496653
+      },
+      "candidate": {
+        "samples": 2,
+        "total": 5221420,
+        "mean": 2610710,
+        "min": 2508991,
+        "max": 2712429
+      },
+      "mean_change_percent": 11.21074284760093
+    }
+  },
+  "limitations": [
+    "Native prehistory is empty; history preservation assertion has empty input.",
+    "Nested phase/detail spans overlap; do not sum across levels or infer pure CPU savings. Acquisition includes checks; queued_wait is separate.",
+    "Two80samples per binary expose variation but do not establish statistical confidence or eliminate host/cache/order effects.",
+    "scope_exit detail is timing only; actual close and durable assertions establish success.",
+    "Outer fixture/control state/harness/log cleanup belongs to run:ff1:ancestor7; selected target deletion is not full fixture cleanup.",
+    "Only two sequential80samples perbinary; baseline samples bracket candidate samples but samplecount and sharedhost/cache effects do not support causal speedup or significance.",
+    "Bothbinaries receive identical phase/detail diagnostic env. Candidate adds new spans, so diagnostic costs are not precisely identical.",
+    "metadata.ancestor.query is nested beneath common metadata.ancestor; query spans must not be added to ancestor totals.",
+    "metadata.plan.build is not emitted inside currentmembers scope. This does not establish zero cache builds elsewhere or global build count.",
+    "Observed currentmembers candidate plan durations are small, while common ancestor query time dominates. Measurement did not demonstrate overall or ancestor-stage improvement.",
+    "Counts demonstrate diagnostics at the relevant boundaries, not independently prove syscall semantics. Source/tests remain the preservation evidence for fresh OS queries.",
+    "All apply acquisition records have attempts=count and outcome acquired; no queued_wait records were emitted. No contention-only delay is established."
+  ],
+  "conclusion": "No demonstrated improvement; mean candidate80 apply wall exceeds baseline80 mean and ranges overlap. Conditional default activation should remain held pending parent decision.",
+  "configuration_bytes_equal": true,
+  "candidate80_new_detail": [
+    {
+      "label": "c801",
+      "plan": {
+        "scope": "group.current.members",
+        "operation": "metadata.plan",
+        "records": 80,
+        "count": 19360,
+        "total_us": 12627,
+        "max_us": 47
+      },
+      "plan_build_emitted": null,
+      "ancestor_query": {
+        "scope": "group.current.members",
+        "operation": "metadata.ancestor.query",
+        "records": 80,
+        "count": 309920,
+        "total_us": 37980146,
+        "max_us": 8145
+      }
+    },
+    {
+      "label": "c802",
+      "plan": {
+        "scope": "group.current.members",
+        "operation": "metadata.plan",
+        "records": 80,
+        "count": 19360,
+        "total_us": 9821,
+        "max_us": 65
+      },
+      "plan_build_emitted": null,
+      "ancestor_query": {
+        "scope": "group.current.members",
+        "operation": "metadata.ancestor.query",
+        "records": 80,
+        "count": 309920,
+        "total_us": 35462712,
+        "max_us": 6621
+      }
+    }
+  ],
+  "actual_native_close_exit0": 18,
+  "metadata_direct_children": [
+    {
+      "label": "b004",
+      "parent": "metadata.total",
+      "parent_total_us": 135297,
+      "direct_children": [
+        "metadata.authorize",
+        "metadata.ancestor",
+        "metadata.leaf"
+      ],
+      "children_total_us": 133379,
+      "residual_us": 1918,
+      "ancestor_query_nested": null,
+      "ancestor_minus_query_us": null
+    },
+    {
+      "label": "b801",
+      "parent": "metadata.total",
+      "parent_total_us": 32421038,
+      "direct_children": [
+        "metadata.authorize",
+        "metadata.ancestor",
+        "metadata.leaf"
+      ],
+      "children_total_us": 31774606,
+      "residual_us": 646432,
+      "ancestor_query_nested": null,
+      "ancestor_minus_query_us": null
+    },
+    {
+      "label": "c004",
+      "parent": "metadata.total",
+      "parent_total_us": 117297,
+      "direct_children": [
+        "metadata.authorize",
+        "metadata.ancestor",
+        "metadata.leaf",
+        "metadata.plan"
+      ],
+      "children_total_us": 115654,
+      "residual_us": 1643,
+      "ancestor_query_nested": {
+        "scope": "group.current.members",
+        "operation": "metadata.ancestor.query",
+        "records": 4,
+        "count": 904,
+        "total_us": 106974,
+        "max_us": 1118
+      },
+      "ancestor_minus_query_us": 551
+    },
+    {
+      "label": "c801",
+      "parent": "metadata.total",
+      "parent_total_us": 41710920,
+      "direct_children": [
+        "metadata.authorize",
+        "metadata.ancestor",
+        "metadata.leaf",
+        "metadata.plan"
+      ],
+      "children_total_us": 41145083,
+      "residual_us": 565837,
+      "ancestor_query_nested": {
+        "scope": "group.current.members",
+        "operation": "metadata.ancestor.query",
+        "records": 80,
+        "count": 309920,
+        "total_us": 37980146,
+        "max_us": 8145
+      },
+      "ancestor_minus_query_us": 210452
+    },
+    {
+      "label": "c802",
+      "parent": "metadata.total",
+      "parent_total_us": 38939063,
+      "direct_children": [
+        "metadata.authorize",
+        "metadata.ancestor",
+        "metadata.leaf",
+        "metadata.plan"
+      ],
+      "children_total_us": 38391639,
+      "residual_us": 547424,
+      "ancestor_query_nested": {
+        "scope": "group.current.members",
+        "operation": "metadata.ancestor.query",
+        "records": 80,
+        "count": 309920,
+        "total_us": 35462712,
+        "max_us": 6621
+      },
+      "ancestor_minus_query_us": 199119
+    },
+    {
+      "label": "b802",
+      "parent": "metadata.total",
+      "parent_total_us": 38384988,
+      "direct_children": [
+        "metadata.authorize",
+        "metadata.ancestor",
+        "metadata.leaf"
+      ],
+      "children_total_us": 37715246,
+      "residual_us": 669742,
+      "ancestor_query_nested": null,
+      "ancestor_minus_query_us": null
+    }
+  ]
+}

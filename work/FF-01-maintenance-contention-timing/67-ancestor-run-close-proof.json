@@ -1,0 +1,66 @@
+{
+  "at": "2026-11-02T14:14:57.831Z",
+  "run_id": "run:ff1:ancestor7",
+  "producer_stopped_verified": true,
+  "outcome": "success",
+  "exit_code": 0,
+  "source_files": 44,
+  "source_matches_accepted": true,
+  "native_tests": {
+    "baseline_prior253_reused": true,
+    "trial1_focused98_full254_exit0": true,
+    "trial2_focused98_full254_exit0": true,
+    "all_releases_exit0": true
+  },
+  "actual_native_closes": {
+    "trial1_performance": 18,
+    "trial2_performance_fresh": 12,
+    "default_smoke": 6,
+    "total_unique": 36,
+    "all_exit0": true
+  },
+  "trial1": {
+    "accepted_for_installation": false,
+    "code_reverted": true,
+    "reason": "No demonstrated performance gain"
+  },
+  "trial2": {
+    "accepted_for_installation": true,
+    "scope": "Immediate duplicate initial metadata observation fused; no cross-member observation cache"
+  },
+  "inputs": [
+    {
+      "path": "61-ancestor-baseline-native.json",
+      "sha256": "fe64ee3d2396181e738ce12bb588ae05fdacfed01ed71fa21e7e0495a38b5bb0"
+    },
+    {
+      "path": "62-ancestor-candidate-native.json",
+      "sha256": "a6884a0975a57be34032afc52d1f8f19dced873a7a07603ab3b2d0037357aeed"
+    },
+    {
+      "path": "63-ancestor-preparation-only-performance.json",
+      "sha256": "9da3ce47c06fb997905f88224cce0c7c3acd21f11879a0e349be9a941ab6cae2"
+    },
+    {
+      "path": "72-ancestor-reservation-native.json",
+      "sha256": "b4b8158f246500002879f2fef978f6cbd64a666dd38f1f84a86a46958a83b8b1"
+    },
+    {
+      "path": "73-ancestor-reservation-performance.json",
+      "sha256": "e10bd3e1a418a5e9add0ca88b1a6d656b77d125211abce5ef87b240edac42056"
+    },
+    {
+      "path": "64-ancestor-version-preparation.json",
+      "sha256": "fef36d26b1bbe954ba9e3065f93ae140c41a3787aa81d4a747cec081e98f5e81"
+    },
+    {
+      "path": "65-ancestor-installation.json",
+      "sha256": "cbd435d1425501e2f796573e8f0e879566becb67523698eebf307bbb0fe47cfb"
+    },
+    {
+      "path": "66-ancestor-default-acceptance.json",
+      "sha256": "f4aaa353d138d4f6b4d6189075962d22cc1b2c49936d13e97cfd44a54946cc16"
+    }
+  ],
+  "reason": "All owned baseline/candidate preparation/test/release/performance/default processes observed terminal; exact independent evidence preserved outside disposable run; current source44 verified."
+}

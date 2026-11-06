@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "status": "verified-not-installed",
+  "platform": "windows-x64",
+  "version_id": "version:maintenance-owner:ec01:unknown-recovery",
+  "executable_sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+  "executable_bytes": 2087936,
+  "source": {
+    "engine_sha256": "723a6b27abc57d7038ccaf59d842c15668c6ac6fcee8e36f385a2b9150ebfe0f",
+    "activeBefore": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9332,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "27d0db9893c7f27d7f7f0c6bdf874817524abbc0be736a1d09330d1d5213c07d",
+      "importedReceiptSha256": "dcd088f8633f2908af1f05e31fc110c11d7d80a19cc4dc0bdffc553c9b600206",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "723a6b27abc57d7038ccaf59d842c15668c6ac6fcee8e36f385a2b9150ebfe0f",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "recordedExpectedPaths": [
+      "codex-rs/project-maintenance/src/registry.rs",
+      "codex-rs/shell-command/src/bash.rs",
+      "codex-rs/shell-command/src/command_safety/is_deletion_command.rs"
+    ]
+  },
+  "native": {
+    "build_exit_code": 0,
+    "frozen_inputs_unchanged": true,
+    "full_package_exit_code": 0,
+    "selected_tests": 176,
+    "summary": [
+      "test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.73s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.54s",
+      "test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 69.35s",
+      "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 41.48s",
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.84s",
+      "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.91s",
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.17s",
+      "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 125.85s",
+      "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.05s",
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.27s",
+      "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+    ],
+    "binary_unchanged": true
+  },
+  "cli": {
+    "exit_code": 0,
+    "cases": [
+      {
+        "id": "pending-no-terminal",
+        "blockedWithoutRecovery": true,
+        "eligibleAfterRecovery": true,
+        "changedProofBlocked": true,
+        "historicalProducer": null,
+        "deleted": true,
+        "finalized": true
+      },
+      {
+        "id": "stopped-unknown",
+        "blockedWithoutRecovery": true,
+        "eligibleAfterRecovery": true,
+        "changedProofBlocked": true,
+        "historicalProducer": {
+          "status": "stopped",
+          "outcome": "unknown",
+          "exit_code": null,
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\temporary\\root-cli-acceptance\\stopped-unknown-terminal.json",
+          "evidence_sha256": "7d65f8b700782ab5d7d2ff0c2e26375f8abf8dbc822674af78b00245649b7357",
+          "reason": "Fixture has no launched producer tree; historical outcome intentionally unknown"
+        },
+        "deleted": true,
+        "finalized": true
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "original_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\reports\\verification.json",
+      "sha256": "a2a69a3711d052f70881143d41b0f73023b626b2c1d0236de272a6d7014058da"
+    },
+    {
+      "original_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\reports\\integration-result.json",
+      "sha256": "86f1ad7082ca89b028a90a18d33447b766552bcbe1f0c512f700b28636f36e15"
+    },
+    {
+      "original_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\reports\\root-cli-acceptance.json",
+      "sha256": "0ed5b2ffa5b69f68be563aef0a38f9e7587bac94f3c594c8011cb442018f9fbe"
+    }
+  ],
+  "pending": [
+    "supported producer close",
+    "persistent version ownership and executable handoff",
+    "default selector replacement and actual default lease verification",
+    "archive native run after handoff"
+  ]
+}

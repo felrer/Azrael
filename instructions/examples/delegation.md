@@ -134,7 +134,7 @@ Done when: Verify the common response contract and native capture and permission
 Return format: STATUS / CHANGED / VALIDATION / UNRESOLVED / ARTIFACTS
 ```
 
-When delegating UI work, pass the OpenAI style requirement and owning locations of existing pages, setting rows, toggles, buttons and theme tokens to reuse. Completion criteria must include actual rendering in light and dark themes and verification of key interactions. Prioritize a different style if the user requests it.
+When delegating UI work, pass the OpenAI style requirement and owning locations of existing pages, setting rows, toggles, buttons and theme tokens to reuse. Completion criteria must include actual rendering and verification of key interactions. Prioritize a different style if the user requests it.
 
 For a materially different independent objective that warrants delegation, create a fresh child with `fork_turns="none"`. If unsupported, use the smallest supported history scope and disclose the limitation. Send only the delta to the existing owner for corrections and verification of the same objective; do not split coupled work merely because it completed or to refresh context.
 

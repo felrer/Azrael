@@ -199,4 +199,4 @@ function injectPetsCleanup(text, relativePath, vp) {
   parse(text, vp);
   return { text, count: 1 };
 }
-module.exports = { PETS_CLEANUP_ASSETS, MARKER, injectPetsCleanup };
+module.exports = { PETS_CLEANUP_ASSETS, MARKER, injectPetsCleanup, hostStatements };

@@ -7,6 +7,60 @@ use codex_tools::JsonSchemaType;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
+// Tool catalog customization must not restore model/agent-type bypasses for profiled sessions.
+#[test]
+fn role_profile_spawn_schema_requires_only_admitted_child_profiles() {
+    let policy = serde_json::from_value(json!({
+        "role":"lead", "profile_id":"lead", "profiles":[
+            {"id":"lead","name":"Lead","allowed_roles":["lead"],"model":"model","instructions":"lead"},
+            {"id":"root","name":"Root","allowed_roles":["root"],"model":"model","instructions":"root"}
+        ], "root_profile_ids":["root"], "subagent_profile_ids":[]
+    })).unwrap();
+    let options = SpawnAgentToolOptions {
+        role_profile: Some(policy),
+        expose_spawn_agent_model_overrides: true,
+        ..Default::default()
+    };
+    let ToolSpec::Function(tool) = create_spawn_agent_tool_v2(options.clone(), None) else {
+        panic!("expected function");
+    };
+    let properties = tool.parameters.properties.unwrap();
+    assert_eq!(
+        properties["profile_id"].enum_values,
+        Some(vec![json!("root")])
+    );
+    assert!(
+        tool.parameters
+            .required
+            .unwrap()
+            .contains(&"profile_id".to_owned())
+    );
+    for forbidden in ["agent_type", "model", "reasoning_effort"] {
+        assert!(!properties.contains_key(forbidden));
+    }
+    assert!(
+        !tool
+            .description
+            .contains(SPAWN_AGENT_INHERITED_MODEL_GUIDANCE)
+    );
+    let ToolSpec::Function(unavailable) = create_spawn_agent_tool_v2(
+        SpawnAgentToolOptions {
+            role_profile_error: Some("missing Team copy".to_owned()),
+            ..options
+        },
+        None,
+    ) else {
+        panic!("expected function");
+    };
+    assert!(
+        unavailable.parameters.properties.unwrap()["profile_id"]
+            .description
+            .as_ref()
+            .unwrap()
+            .contains("missing Team copy")
+    );
+}
+
 fn model_preset(id: &str, show_in_picker: bool) -> ModelPreset {
     ModelPreset {
         id: id.to_string(),
@@ -203,6 +257,8 @@ fn spawn_agent_tool_caps_visible_model_summaries() {
     let tool = create_spawn_agent_tool_v2(
         SpawnAgentToolOptions {
             model_catalog_in_context: false,
+            role_profile: None,
+            role_profile_error: None,
             available_models: vec![
                 model_preset("first", /*show_in_picker*/ true),
                 model_preset("second", /*show_in_picker*/ true),

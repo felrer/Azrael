@@ -1,0 +1,21 @@
+{
+  "id": "run:EK01-user-wait-native:core01",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "bf7a178ef33f88f38b0a2f0ebf377ff71cb85cc3e2794b383396496daebe7ee3",
+  "lease_owner": {
+    "acquired_at_ms": 1793252170580,
+    "operation": "group_reservation",
+    "pid": 56428,
+    "schema": 2,
+    "token": "56428-1793252170580-663a116f7106504f"
+  },
+  "originalOutcome": {
+    "synchronousExecSession": 82548,
+    "ownerExitCode": 1,
+    "error": "OS33",
+    "returnedPerItemResults": false,
+    "selectedRootAbsentAfterExit": false
+  },
+  "terminationEvidence": "Own synchronous spawnSync returned terminal exit1 without detached/background path. Previously inspected native apply has no spawned descendants; exact process tree stopped. Native recovery independently validates owner/live lease. Preserve original failed/unknown per-item outcome."
+}

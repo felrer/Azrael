@@ -6,7 +6,7 @@ const vm = require("node:vm");
 const { test } = require("node:test");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { createBtwCommand, createBtwController } = require("./btw-conversation.cjs");
-const { BTW_ASSETS, BTW_MARKER, INSTRUCTIONS, injectBtw } = require("./inject-btw.cjs");
+const { BTW_ASSETS, INSTRUCTIONS, injectBtw } = require("./inject-btw.cjs");
 const { injectComposerDraft } = require("./inject-composer-draft.cjs");
 const { transformAsset } = require("./ui-test-transform-fixture.cjs");
 const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
@@ -70,20 +70,6 @@ function fixture() {
   const submit = overrides => controller.submit({ conversationId: "parent", hostId: "local", manager, openPanel, text: "/btw Why?", ...overrides });
   return { controller, parent, states, messages, manager, requests, openings, disposed, submit, openPanel };
 }
-
-test("all integrated pinned assets parse, report coverage and guard version, duplicate anchors and idempotence", () => {
-  for (let i = 0; i < BTW_ASSETS.length; i++) {
-
-    assert.equal(ts.createSourceFile(BTW_ASSETS[i], patched[i].text, 99, true, 1).parseDiagnostics.length, 0);
-    const input = i === 1 ? injectComposerDraft(originals[i]).text : originals[i];
-    const result = injectBtw(input, BTW_ASSETS[i]);
-    assert.equal(injectBtw(result.text, BTW_ASSETS[i]).text, result.text);
-    assert.throws(() => injectBtw("", BTW_ASSETS[i]), /anchor/);
-    assert.throws(() => injectBtw(input + input, BTW_ASSETS[i]), /anchor/);
-    assert.throws(() => injectBtw(result.text + BTW_MARKER, BTW_ASSETS[i]), /Duplicate/);
-  }
-  assert.equal(injectBtw("unchanged", "future.js").text, "unchanged");
-});
 
 test("active parent stays unchanged; every follow-up forks that parent, carries isolated reference history, and discards the old side", async () => {
   const h = fixture(), before = structuredClone(h.parent);

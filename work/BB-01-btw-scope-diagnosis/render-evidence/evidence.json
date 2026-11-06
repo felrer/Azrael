@@ -1,0 +1,12 @@
+{
+  "command": "node scripts/verify-btw-render.mjs",
+  "sourceRunRoot": "artifacts/tasks/verify-btw-render/runs/20261019T034132436Z-a89e20a2-6070-4d0b-a1ab-339c4604c294",
+  "originalLifecycleId": "run:verify-btw-render:20261019T034132436Z-a89e20a2-6070-4d0b-a1ab-339c4604c294",
+  "independentCopies": true,
+  "identities": {
+    "summary.json": "4a9fb50642a3486027b900a2599ecd778c3626c9af3b74ff9bfab4811764a8ad",
+    "light.png": "fdbb6debce04cedeffcae5eba34e38f50510ab14890bd7c07c21e4a02a9caf23",
+    "dark.png": "ac976e7dae329f212149de0eed39447614d6179b68583a8a18549e456055ec1c",
+    "producer.json": "66130a18cf347b8129f236081d982f88380081382bc8bc235baacb2b8f036773"
+  }
+}

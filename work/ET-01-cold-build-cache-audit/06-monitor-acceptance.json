@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "scope": "Windows x64 known child trace accepted; whole build and installation not started",
+  "recordedAt": "2026-10-30T01:26:38.456Z",
+  "originalProbeStatus": "failed",
+  "originalProbeOuterExitCode": null,
+  "allOriginalTrackedChildrenTerminal": true,
+  "wprStopped": true,
+  "knownIOPassed": true,
+  "readBytes": 6291456,
+  "writeBytes": 2097152,
+  "eventsLost": 0,
+  "unresolvedKnownChildIO": 0,
+  "fixture": {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\shared\\cache-monitor-probe-et01",
+    "etl": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\shared\\cache-monitor-probe-et01\\probe.etl",
+    "sha256": "32eafc148f14dde529a1bba60b06f92030059a9e3ffa9c56be6ae7cfea7cbded",
+    "bytes": 34603008,
+    "purpose": "Input for the full cache-monitor analyzer check; remove after that check"
+  },
+  "analyzer": {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\cache-monitor-decoder-et01-win-x64",
+    "payload": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\cache-monitor-decoder-et01-win-x64\\payload\\Decoder.dll",
+    "sha256": "fb8fcf7a07324215dae2ad8c258f8e81ba1ac34716449cf33606b8f981928213",
+    "resultSha256": "22a4fbdde37844b7eaec0dba0e62ad88994dfbc272446379024d2f3145d40ca9",
+    "purpose": "Decode the authorized cold build trace"
+  },
+  "nativeSourceWarningClassification": {
+    "guid": "01853a65-418f-4f36-aefc-dc0f1d2fd235",
+    "opcode": 12,
+    "meaning": "Logical disk configuration metadata",
+    "source": "https://learn.microsoft.com/en-us/windows/win32/etw/systemconfig"
+  },
+  "commands": [
+    {
+      "name": "restore",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 4896.3234
+    },
+    {
+      "name": "build",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": 3849.4480999999996
+    },
+    {
+      "name": "restore-short",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 4780.2285999999995
+    },
+    {
+      "name": "build-short",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 10484.014900000002
+    },
+    {
+      "name": "decode",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 1695.9177999999993
+    }
+  ],
+  "currentProductBuildCount": 0,
+  "currentInstallCount": 0
+}

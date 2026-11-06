@@ -30,11 +30,15 @@ native apply는 aborted:false, 두 그룹 최종 status:deleted, 세 항목 모�
 
 # 실행 근거
 
-실행 기록: `artifacts/tasks/DN-01-disk-cleanup-candidates/runs/approved-log-retirement-20261024-r2/reports/`.
+실행 기록: 원래 `artifacts/tasks/DN-01-disk-cleanup-candidates/runs/approved-log-retirement-20261024-r2/reports/`의 5개 감사 보고서를 SHA256 일치 검증 후 `work/EC-01-unused-file-archive/07-dn-retirement-evidence/`로 인계했다. 아래 링크는 독립 보존본을 읽는다.
 
-- [보호 해제 요청의 실제 거부 결과](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/approved-log-retirement-20261024-r2/reports/custody-release-attempt.json)
-- [삭제 직전 native review](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/approved-log-retirement-20261024-r2/reports/delete-known-review.json)
-- [실제 삭제 결과](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/approved-log-retirement-20261024-r2/reports/delete-known-result.json)
-- [잔여 경계·처리 결과](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/approved-log-retirement-20261024-r2/reports/final-result.json)
+- [보호 해제 요청의 실제 거부 결과](../EC-01-unused-file-archive/07-dn-retirement-evidence/custody-release-attempt.json)
+- [삭제 직전 native review](../EC-01-unused-file-archive/07-dn-retirement-evidence/delete-known-review.json)
+- [실제 삭제 결과](../EC-01-unused-file-archive/07-dn-retirement-evidence/delete-known-result.json)
+- [잔여 경계·처리 결과](../EC-01-unused-file-archive/07-dn-retirement-evidence/final-result.json)
 
 실행은 2026-10-24 11:42 KST경 시작했고 native 삭제 호출은 약 2분 소요됐습니다. 같은 삭제 producer를 재실행하지 않았습니다. 새 보고서 묶음은 잔여 보호 진단·후속 삭제의 인계 증거로 보존하며, 보호 이관과 구버전 삭제가 해결되고 최종 결과를 work 문서로 이관하면 제거를 재검토합니다.
+## r2 보고서 산출물 정리 (EC-01)
+
+위 감사5파일을 독립 인계한 뒤 원래 r2 reports group을 현재 소유·참조·비사용 기준으로 재심사했다. full registration/review/apply actual0, remainingfalse와 finalize를 확인했다([실제 결과](../EC-01-unused-file-archive/07-cf-cn-dn-cleanup.json)). 이 퇴역은 원래 r2 실행의 부분 삭제·거절·미해결 분할 결과를 성공으로 바꾸지 않는다.
+

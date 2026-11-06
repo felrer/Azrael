@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile, mkdir } from 'node:fs/promises';
 import { waitForExit } from './lib/azrael-rpc-check.mjs';
-import { parseVersion, checkSocketPath, queryEngineEndpoint, SHARED_CHECK_STARTUP_ARGS, startSharedProvider, resolveBridgePath, resolveCodeHostPath, codeModeChildSource, validateOwnedDaemonReceipt, startupRemaining, RPC_TIMEOUT_MS, windowAccountStateFile, resumePendingTurn, generatedGitAttributeRepair, validateAccountStateProgress, runCheck, diagnosticRootPids, captureOwnedProcessTree } from './check-shared-engine.mjs';
+import { checkSocketPath, queryEngineEndpoint, supportsPluginStartupTestHook, SHARED_CHECK_STARTUP_ARGS, sharedCheckStartupArgs, CODE_MODE_SMOKE_SOURCE, validateCodeModeSmokeOutput, startSharedProvider, resolveBridgePath, resolveCodeHostPath, codeModeChildSource, validateOwnedDaemonReceipt, windowAccountStateFile, resumePendingTurn, generatedGitAttributeRepair, validateAccountStateProgress, runCheck, diagnosticRootPids, captureOwnedProcessTree } from './check-shared-engine.mjs';
 
 test('Windows PowerShell process-tree probe handles a JSON PID array and records owned process identity', { skip: process.platform !== 'win32' }, async () => {
   const child = spawn(process.execPath, ['-e', 'process.stdin.resume();process.stdin.on("end",()=>process.exit(0));setTimeout(()=>process.exit(0),20000);'],
@@ -43,6 +43,8 @@ test('process tree diagnostics accept only bounded unique explicit native PIDs',
 test('account continuity mode rejects missing extended flag before executable or state access', { skip: process.platform !== 'win32' }, async () => {
   await assert.rejects(runCheck(resolve('unused-engine.exe'), resolve('artifacts', 'verification', 'unused-account-flag-test'),
     { accountRejoinState: true }), /account_rejoin_state_requires_extended/);
+  await assert.rejects(runCheck(resolve('unused-engine.exe'), resolve('artifacts', 'verification', 'unused-code-mode-test'),
+    { codeModeCompatibilityOnly: true }), /code_mode_compatibility_requires_extended_and_host/);
 });
 
 test('account rejoin requires one engine UUID and increasing revisions across distinct contexts', () => {
@@ -106,21 +108,6 @@ test('new owners of one workspace get separate session selections and owner relo
   assert.throws(() => windowAccountStateFile(run, 'a', '../outside'), /window_owner/);
 });
 
-test('native startup consumes one bounded launch budget while ordinary RPC remains shorter', () => {
-  assert.equal(startupRemaining(1_000, 1_000), 90_000);
-  assert.equal(startupRemaining(1_000, 61_000), 30_000);
-  assert.equal(startupRemaining(1_000, 66_000, 70_000), 5_000);
-  assert.throws(() => startupRemaining(1_000, 91_000), /startup_deadline_exhausted/);
-  assert.equal(RPC_TIMEOUT_MS, 30_000);
-});
-
-test('native version parser accepts branded output and refuses arbitrary output', () => {
-  assert.equal(parseVersion('azrael-cli 0.162.0\n'), '0.162.0');
-  assert.equal(parseVersion('codex-cli 0.162.0\n'), '0.162.0');
-  for (const output of ['0.162.0', 'error 0.162.0', 'azrael-cli unknown', 'azrael-cli 0.162.0-extra']) {
-    assert.throws(() => parseVersion(output), /unexpected_native_version/);
-  }
-});
 test('Windows socket preflight rejects an overlength native AF_UNIX path', () => {
   const short = resolve(parse(process.cwd()).root, 'bj-home', 'selected-instance.sock');
   assert.equal(checkSocketPath(short, 'win32'), short);
@@ -187,39 +174,59 @@ test('owned code-mode fixture resolves branded host and quotes literal PowerShel
   assert(source.startsWith('// @exec: {"yield_time_ms":60000}'));
   assert.throws(() => codeModeChildSource('relative.exe', resolve('child.cjs')), /absolute_owned_child/);
 });
-test('loopback code-mode scenario uses native custom exec wire schema', async () => {
-  const source = codeModeChildSource(resolve('node.exe'), resolve('owned-child.cjs'));
-  const provider = await startSharedProvider({ codeModeSource: source });
-  try {
-    const result = await fetch(`${provider.baseUrl}/responses`, { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ input: [{ role: 'user', content: [{ type: 'input_text', text: 'BJ_MODE:codechild:owned-child' }] }] }) });
-    assert.equal(result.status, 200);
-    const events = (await result.text()).split('\n').filter(line => line.startsWith('data: ')).map(line => JSON.parse(line.slice(6)));
-    assert.deepEqual(events[1].item, { type: 'custom_tool_call', call_id: 'bj-owned-child', name: 'exec', input: source });
-    assert.equal(provider.errors.length, 0);
-  } finally { await provider.close(); }
-});
-test('loopback provider holds tools, requests a denyable approval, and completes released or explicit turns', async () => {
+test('code-mode compatibility requires decoded terminal text and native delegate result', async () => {
   const provider = await startSharedProvider();
-  const response = async (mode, token, answered = false) => {
-    const result = await fetch(`${provider.baseUrl}/responses`, { method: 'POST',
-      headers: { 'content-type': 'application/json' }, body: JSON.stringify({ model: 'fixture',
-        input: [{ role: 'user', content: [{ type: 'input_text', text: `BJ_MODE:${mode}:${token}` }] },
-          ...(answered ? [{ type: 'function_call_output', call_id: `bj-${token}`, output: 'released' }] : [])] }) });
-    assert.equal(result.status, 200);
-    return (await result.text()).split('\n').filter(line => line.startsWith('data: ')).map(line => JSON.parse(line.slice(6)));
+  const request = async output => {
+    const input = [{role:'user',content:[{type:'input_text',text:'BJ_MODE:codesmoke:ipc-smoke'}]}];
+    if (output !== undefined) input.push({type:'custom_tool_call_output',call_id:'bj-ipc-smoke',output});
+    const result = await fetch(provider.baseUrl+'/responses',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({input})});
+    return {status:result.status,body:await result.text()};
   };
   try {
-    const held = await response('hold', 'a');
-    assert.equal(held[1].item.namespace, 'shared_probe');
-    assert.equal(held[1].item.name, 'hold');
-    assert.equal(held[1].item.call_id, 'bj-a');
-    assert.equal((await response('hold', 'a', true))[1].item.type, 'message');
-    const approval = (await response('approval', 'b'))[1].item;
-    assert.equal(approval.name, 'exec_command');
-    assert.equal(JSON.parse(approval.arguments).sandbox_permissions, 'require_escalated');
-    assert.equal((await response('finish', 'c'))[1].item.content[0].text, 'BJ_COMPLETED:c');
-    assert.equal(provider.requests.length, 4);
-    assert.equal(provider.errors.length, 0);
-  } finally { await provider.close(); }
+    const first = await request();
+    assert.equal(first.status,200);
+    const item=first.body.split('\n').filter(line=>line.startsWith('data: ')).map(line=>JSON.parse(line.slice(6)))[1].item;
+    assert.deepEqual(item,{type:'custom_tool_call',call_id:'bj-ipc-smoke',name:'exec',input:CODE_MODE_SMOKE_SOURCE});
+    const ok = await request('Script completed\nIPC_TEXT_OK\nIPC_COMPLETE_OK');
+    assert.equal(ok.status,200); assert(ok.body.includes('BJ_COMPLETED:ipc-smoke'));
+    for(const output of ['failed to decode code-mode IPC frame: unknown field result_buffered_for_ns','Script completed',
+      'IPC_TEXT_OK\nScript running with cell ID 1', 'Error executing text("IPC_TEXT_OK"); text("IPC_COMPLETE_OK")']) {
+      assert.equal((await request(output)).status,500);
+    }
+    assert.equal(provider.errors.length,4);
+  } finally {await provider.close();}
+});
+
+test('code-mode smoke accepts text content arrays and propagates delegate execution failures', async () => {
+  validateCodeModeSmokeOutput([{type:'input_text',text:'IPC_TEXT_OK'},{type:'input_text',text:'IPC_COMPLETE_OK'}]);
+  assert.throws(()=>validateCodeModeSmokeOutput(null),/completed_text_and_delegate/);
+  const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
+  const source=CODE_MODE_SMOKE_SOURCE.slice(CODE_MODE_SMOKE_SOURCE.indexOf('\n')+1);
+  const execute=new AsyncFunction('tools','text',source);
+  const seen=[];
+  await execute({exec_command:async()=>({exit_code:0,output:'IPC_DELEGATE_OK'})},text=>seen.push(text));
+  assert.deepEqual(seen,['IPC_TEXT_OK','IPC_COMPLETE_OK']);
+  for(const result of [{exit_code:1,output:'IPC_DELEGATE_OK'},{exit_code:0,output:'wrong output'}]) {
+    await assert.rejects(execute({exec_command:async()=>result},()=>{}),/delegate did not complete/);
+  }
+});
+
+
+test('native release startup omits only the explicitly unsupported debug-only hook', async () => {
+  assert.equal(sharedCheckStartupArgs(), SHARED_CHECK_STARTUP_ARGS);
+  const probe = async (error, stderr) => supportsPluginStartupTestHook(process.execPath, {
+    execFile(executable, args, options, callback) {
+      assert.equal(executable, process.execPath);
+      assert.deepEqual(args, ['app-server', '--disable-plugin-startup-tasks-for-tests', '--version']);
+      assert.equal(options.timeout, 10000);
+      callback(error, '', stderr);
+    },
+  });
+  assert.equal(await probe(null, ''), true);
+  const unsupported = Object.assign(new Error('unsupported option'), { code: 2 });
+  assert.equal(await probe(unsupported, "error: unexpected argument '--disable-plugin-startup-tasks-for-tests' found\n"), false);
+  assert.deepEqual(sharedCheckStartupArgs(true), SHARED_CHECK_STARTUP_ARGS.filter(arg => arg !== '--disable-plugin-startup-tasks-for-tests'));
+  await assert.rejects(probe(Object.assign(new Error('missing engine'), { code: 'ENOENT' }), ''), /missing engine/);
+  await assert.rejects(probe(Object.assign(new Error('timeout'), { code: 2, killed: true }), "error: unexpected argument '--disable-plugin-startup-tasks-for-tests' found\n"), /timeout/);
+  await assert.rejects(probe(Object.assign(new Error('different invalid option'), { code: 2 }), "error: unexpected argument '--other' found\n"), /different invalid option/);
 });

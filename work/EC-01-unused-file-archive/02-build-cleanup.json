@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "group_id": "run:EC-01:standalone-build-r2",
+  "registration": {
+    "started": "2026-10-27T22:54:34.147Z",
+    "ended": "2026-10-27T22:57:36.337Z",
+    "pid": 31292,
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "stderr": "",
+    "stdout": "{\"group\":{\"cleanup_status\":null,\"id\":\"run:EC-01:standalone-build-r2\",\"kind\":\"run\",\"members\":[\"ddd4ba94ae89a3c3f4c912c7e1af23b3d9d4c771c23760931c9fd2a06ddc44a6\"],\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_format\":\"producer_registry_v1\",\"membership_source_identity\":\"9e8161a3dc5af494efeffa78873c310d57a6d4545051affa9a05ba52e4b88fa6\",\"owner\":\"/root\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\f3b129dc5183edc517dc3319c94b51372539d29867b0dca20a736b6807f3d13a.json\",\"registered_at_ms\":1793141817981,\"version\":null},\"items\":[{\"cache_schema\":null,\"created_at_ms\":null,\"generated\":true,\"id\":\"ddd4ba94ae89a3c3f4c912c7e1af23b3d9d4c771c23760931c9fd2a06ddc44a6\",\"identity\":\"b845743d6945b894faf54145351cede6cc78d1ea1898302031aac6980fde3fd9\",\"kind\":\"verification\",\"lifecycle_group_id\":\"run:EC-01:standalone-build-r2\",\"lifecycle_role\":\"evidence\",\"logical_bytes\":273904126,\"measured_at_ms\":1793141805607,\"owner\":\"/root\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\EC-01-unused-file-archive\\\\runs\\\\standalone-build-r2\",\"presence\":\"present\",\"protection_known\":true,\"provenance\":null,\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\f3b129dc5183edc517dc3319c94b51372539d29867b0dca20a736b6807f3d13a.json\",\"references\":[],\"registered_at_ms\":1793141805607,\"remaining\":true,\"role\":\"verification\",\"source_path\":null,\"tool\":null,\"version\":null}]}\n"
+  },
+  "state": "deleted and finalized",
+  "build-cleanup-review": {
+    "started": "2026-10-27T22:59:52.702Z",
+    "ended": "2026-10-27T22:59:57.167Z",
+    "pid": 85144,
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "stderr": "",
+    "value": {
+      "groups": [
+        {
+          "cached_live_members": 1,
+          "cleanup_status": null,
+          "id": "run:EC-01:standalone-build-r2",
+          "kind": "run",
+          "members_total": 1,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "9e8161a3dc5af494efeffa78873c310d57a6d4545051affa9a05ba52e4b88fa6",
+          "owner": "/root",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3b129dc5183edc517dc3319c94b51372539d29867b0dca20a736b6807f3d13a.json",
+          "version": null
+        }
+      ],
+      "items": [
+        {
+          "blockers": [],
+          "group_member_ids": [
+            "ddd4ba94ae89a3c3f4c912c7e1af23b3d9d4c771c23760931c9fd2a06ddc44a6"
+          ],
+          "group_token": "0086e38e8ac7270695d23b1aea0a65be138eec1f55143087838f7d0b379cbd5e",
+          "id": "ddd4ba94ae89a3c3f4c912c7e1af23b3d9d4c771c23760931c9fd2a06ddc44a6",
+          "identity": "b845743d6945b894faf54145351cede6cc78d1ea1898302031aac6980fde3fd9",
+          "lifecycle_group_id": "run:EC-01:standalone-build-r2",
+          "logical_bytes": 273904126,
+          "measured_at_ms": 1793141805607,
+          "membership_source_observation": {
+            "blockers": [],
+            "identity": "9e8161a3dc5af494efeffa78873c310d57a6d4545051affa9a05ba52e4b88fa6",
+            "member_references": {
+              "ddd4ba94ae89a3c3f4c912c7e1af23b3d9d4c771c23760931c9fd2a06ddc44a6": []
+            },
+            "membership_matches": true,
+            "owner": {
+              "close_receipt": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\02-standalone-verification.json",
+                "evidence_sha256": "9e14f36c0bf3d2ade7ddb1ceb3b9be23af91583c4d9e32cee1dea56ba50a9679",
+                "reason": "All synchronous build/acceptance/publication/install producers ended; preserve first harness/publication acquisition failure while independent evidence records final successful acceptance",
+                "request_sha256": "5bd4257ecf1cbc07492206a2a2ae181dd9057f9ca6f364e5c78bbb4316dab271"
+              },
+              "created_at": "2026-10-27T22:29:33.294Z",
+              "id": "run:EC-01:standalone-build-r2",
+              "kind": "run",
+              "members": [
+                {
+                  "generated": true,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\standalone-build-r2",
+                  "protection_known": true,
+                  "role": "verification"
+                }
+              ],
+              "membership_complete": true,
+              "owner": "/root",
+              "producer": {
+                "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\02-standalone-verification.json",
+                "evidence_sha256": "9e14f36c0bf3d2ade7ddb1ceb3b9be23af91583c4d9e32cee1dea56ba50a9679",
+                "exit_code": 1,
+                "outcome": "failure",
+                "reason": "All synchronous build/acceptance/publication/install producers ended; preserve first harness/publication acquisition failure while independent evidence records final successful acceptance",
+                "status": "stopped"
+              },
+              "references": [],
+              "revision": 2,
+              "schema": 1,
+              "state": "failed",
+              "updated_at": "2026-10-27T22:50:18.817Z",
+              "version": null
+            },
+            "references": [],
+            "settled": true,
+            "status": "measured"
+          },
+          "observation_error": null,
+          "observed_at_ms": 1793141992889,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\standalone-build-r2",
+          "presence": "present",
+          "related_items": [],
+          "remaining": true,
+          "root_observation": {
+            "identity": {
+              "file_id": [
+                215,
+                29,
+                152,
+                0,
+                0,
+                0,
+                21,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "volume": 14318705318996120000
+            },
+            "kind": "directory",
+            "presence": "present"
+          },
+          "token": "1dbd55343116351b4ae17b10c99f6bf3271d4a9e263e2fcb48ce10191dfb7d9c",
+          "verification": "registered"
+        }
+      ]
+    }
+  },
+  "build-cleanup-apply": {
+    "started": "2026-10-27T22:59:57.170Z",
+    "ended": "2026-10-27T23:03:26.112Z",
+    "pid": 87632,
+    "exit_code": 0,
+    "signal": null,
+    "error": null,
+    "stderr": "",
+    "value": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:EC-01:standalone-build-r2",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-87632-3602-1793142037051",
+          "decision": "delete",
+          "decision_id": "a97efb63ed7602da3f587c5ccb399dbbbe19058ef2365de8813535f9b3bffdb7",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "ddd4ba94ae89a3c3f4c912c7e1af23b3d9d4c771c23760931c9fd2a06ddc44a6",
+          "lifecycle_group_id": "run:EC-01:standalone-build-r2",
+          "reason": "All owned standalone build/input/acceptance outputs are disposable after installed version copied independent verification and default selection passed",
+          "remaining": false,
+          "status": "deleted",
+          "token": "1dbd55343116351b4ae17b10c99f6bf3271d4a9e263e2fcb48ce10191dfb7d9c"
+        }
+      ]
+    }
+  },
+  "actual_source_absent": true,
+  "finalization": {
+    "id": "run:EC-01:standalone-build-r2",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3b129dc5183edc517dc3319c94b51372539d29867b0dca20a736b6807f3d13a.json"
+  },
+  "temporary_controls_removed": [
+    "02-build-cleanup-register.tmp.json",
+    "02-build-cleanup-register-result.tmp.json",
+    "02-build-cleanup-review.tmp.json",
+    "02-build-cleanup-apply.tmp.json"
+  ],
+  "empty_containers_removed": [
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive"
+  ]
+}

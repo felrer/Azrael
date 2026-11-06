@@ -1,0 +1,330 @@
+{
+  "at": "2026-11-02T07:38:49.247Z",
+  "run_id": "run:ff1:perf2",
+  "producer_stopped_verified": true,
+  "source_matches_accepted": true,
+  "inputs": [
+    {
+      "path": "09-native-acceptance.json",
+      "sha256": "5ddcb809f33662c7bf9af20f8add2c7e208e94518da7a1860bdc6f9b9442e63a"
+    },
+    {
+      "path": "10-version-preparation.json",
+      "sha256": "68d85bf1f496b1ae94b09fc8bd0e8d39563a21dc675ea686805cc90dc42fca26"
+    },
+    {
+      "path": "11-performance.json",
+      "sha256": "d166e8504712590a28fc9bd4a7e63f265a7b8edecb4fc941a6f76c7cf6bb1978"
+    },
+    {
+      "path": "12-installation.json",
+      "sha256": "8924a1be8a883cbb5fc1ce4ac603a77a3240c79eaf0c8c9248e6f09a86dd486a"
+    },
+    {
+      "path": "13-default-acceptance.json",
+      "sha256": "960f915da1865e3e1ab7f1c199287777b4242b5e8d96d4801126ae439d8c575c"
+    },
+    {
+      "path": "14-native-close.json",
+      "sha256": "b040aa299d868ff29d1d1ba5170379b440f1d3d5b1295e99b83135e2fe94093e"
+    }
+  ],
+  "measurements": [
+    {
+      "label": "base0000",
+      "status": "passed",
+      "started": "2026-11-02T07:14:49.951Z",
+      "finished": "2026-11-02T07:20:51.430Z",
+      "executions": [
+        {
+          "name": "catalog-register",
+          "pid": 42236,
+          "status": "success",
+          "started": "2026-11-02T07:14:50.314Z",
+          "finished": "2026-11-02T07:15:36.679Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "catalog-review",
+          "pid": 46188,
+          "status": "success",
+          "started": "2026-11-02T07:15:36.683Z",
+          "finished": "2026-11-02T07:15:41.545Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "catalog-apply",
+          "pid": 41392,
+          "status": "success",
+          "started": "2026-11-02T07:15:41.548Z",
+          "finished": "2026-11-02T07:15:53.158Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "members-register",
+          "pid": 9824,
+          "status": "success",
+          "started": "2026-11-02T07:15:53.235Z",
+          "finished": "2026-11-02T07:15:54.864Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "members-review",
+          "pid": 46880,
+          "status": "success",
+          "started": "2026-11-02T07:15:54.868Z",
+          "finished": "2026-11-02T07:15:55.269Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "members-apply",
+          "pid": 32752,
+          "status": "success",
+          "started": "2026-11-02T07:15:55.273Z",
+          "finished": "2026-11-02T07:19:05.826Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "large-register",
+          "pid": 37692,
+          "status": "success",
+          "started": "2026-11-02T07:19:10.475Z",
+          "finished": "2026-11-02T07:19:23.579Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "large-review",
+          "pid": 45308,
+          "status": "success",
+          "started": "2026-11-02T07:19:23.583Z",
+          "finished": "2026-11-02T07:19:23.650Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "large-apply",
+          "pid": 52220,
+          "status": "success",
+          "started": "2026-11-02T07:19:23.654Z",
+          "finished": "2026-11-02T07:20:51.425Z",
+          "exit_code": 0,
+          "signal": null
+        }
+      ],
+      "all_targets_deleted_and_absent": true
+    },
+    {
+      "label": "cand0000",
+      "status": "passed",
+      "started": "2026-11-02T07:26:53.841Z",
+      "finished": "2026-11-02T07:29:49.826Z",
+      "executions": [
+        {
+          "name": "catalog-register",
+          "pid": 44952,
+          "status": "success",
+          "started": "2026-11-02T07:26:54.248Z",
+          "finished": "2026-11-02T07:27:10.191Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "catalog-review",
+          "pid": 14024,
+          "status": "success",
+          "started": "2026-11-02T07:27:10.194Z",
+          "finished": "2026-11-02T07:27:13.565Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "catalog-apply",
+          "pid": 48788,
+          "status": "success",
+          "started": "2026-11-02T07:27:13.569Z",
+          "finished": "2026-11-02T07:27:23.364Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "members-register",
+          "pid": 56292,
+          "status": "success",
+          "started": "2026-11-02T07:27:23.441Z",
+          "finished": "2026-11-02T07:27:25.055Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "members-review",
+          "pid": 7420,
+          "status": "success",
+          "started": "2026-11-02T07:27:25.058Z",
+          "finished": "2026-11-02T07:27:25.415Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "members-apply",
+          "pid": 30600,
+          "status": "success",
+          "started": "2026-11-02T07:27:25.418Z",
+          "finished": "2026-11-02T07:28:22.935Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "large-register",
+          "pid": 28552,
+          "status": "success",
+          "started": "2026-11-02T07:28:26.413Z",
+          "finished": "2026-11-02T07:28:38.007Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "large-review",
+          "pid": 57464,
+          "status": "success",
+          "started": "2026-11-02T07:28:38.011Z",
+          "finished": "2026-11-02T07:28:38.099Z",
+          "exit_code": 0,
+          "signal": null
+        },
+        {
+          "name": "large-apply",
+          "pid": 53856,
+          "status": "success",
+          "started": "2026-11-02T07:28:38.101Z",
+          "finished": "2026-11-02T07:29:49.819Z",
+          "exit_code": 0,
+          "signal": null
+        }
+      ],
+      "all_targets_deleted_and_absent": true
+    }
+  ],
+  "native_tests": {
+    "exit_code": 0,
+    "passed": 240,
+    "failed": 0,
+    "selected_tests_v2_accepted": true
+  },
+  "actual_default_direct_processes": [
+    {
+      "name": "set-attributes",
+      "executable": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "$item=Get-Item -LiteralPath 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture\\generated\\check'; $item.Attributes=$item.Attributes -bor [IO.FileAttributes]::ReadOnly -bor [IO.FileAttributes]::Hidden; [int]$item.Attributes"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-set-attributes.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-set-attributes.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 27352,
+      "signal": null
+    },
+    {
+      "name": "register",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-register.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-register.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 24412,
+      "signal": null
+    },
+    {
+      "name": "review",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-review.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-review.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 27984,
+      "signal": null
+    },
+    {
+      "name": "apply",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture",
+        "--request",
+        "-"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-apply.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-apply.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 55460,
+      "signal": null
+    },
+    {
+      "name": "holder",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [
+        "--lease",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture\\artifacts\\maintenance\\lifecycles\\catalog.lock",
+        "--operation",
+        "default.smoke.holder",
+        "--wait-ms",
+        "0",
+        "--parent-pid",
+        "1864"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-holder.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-holder.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 32976,
+      "signal": null
+    },
+    {
+      "name": "queue-client",
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\smoke.cjs",
+        "queue-client",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\fixture\\artifacts\\maintenance\\lifecycles\\catalog.lock"
+      ],
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-queue-client.stdout",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-queue-client.stderr",
+      "exit_code": 0,
+      "close_observed": true,
+      "pid": 20004,
+      "signal": null
+    }
+  ],
+  "stopped_evidence": "All managed compilation, release, measurement, deployment and successful smoke producer sessions observed terminal. Supplemental exact native handle closed; known older lease-only PIDs absent with no active owned descendants. Failed probe and missed exit codes retained in14-native-close.json.",
+  "retained_old_version": {
+    "path": "artifacts/versions/maintenance-owner-ff01-queued-win-x64-20261102",
+    "files": 9,
+    "bytes": 2704492,
+    "approval": "User explicitly approved retention until instruction workbench server stops",
+    "release_condition": "Server ends; recheck actual process use and references, release exact old installation reference and owner cleanup"
+  },
+  "outcome": "success",
+  "exit_code": 0
+}

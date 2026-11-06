@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "status": "recovered-and-cleaned",
+  "attempt": 2,
+  "pid": 59220,
+  "recoveredUtc": "2026-10-30T20:19:42.734Z",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-cargo-list-recovery-20261030a",
+  "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-contained-registry-win-x64\\payload\\maintenance_owner.exe",
+  "binarySha256": "2a14a04c64ae2752f1cb98be27fe1d102855a780190b3f32729ea201a11259be",
+  "result": {
+    "recovered": true,
+    "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\g",
+    "receipt_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-cargo-list-recovery-20261030a\\outputs\\lease-recovery-receipt.json",
+    "result": {
+      "status": "unknown",
+      "exitCode": null
+    }
+  },
+  "leaseAbsent": true,
+  "preserved": [
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-cargo-list-recovery-20261030a\\inputs\\original-owner.json",
+      "preserved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\q-cargo-list-recovery\\original-owner.json",
+      "sha256": "e6e7d295ae7e07835a5bfa6e4033b536f878d084093d09722f9ff3449bb96d2f"
+    },
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-cargo-list-recovery-20261030a\\reports\\exact-q-tree-stop-proof.json",
+      "preserved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\q-cargo-list-recovery\\exact-q-tree-stop-proof.json",
+      "sha256": "d3cffb1b2ccd5d1132fa05056614ad26b292b2ef840b2f2ed342b52a397787d6"
+    },
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-cargo-list-recovery-20261030a\\outputs\\lease-recovery-receipt.json",
+      "preserved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\q-cargo-list-recovery\\lease-recovery-receipt.json",
+      "sha256": "0a0818eeeca45e1446847b8ad2acc4f6ad989c81736b654072e16bce224e983d"
+    }
+  ],
+  "cleanup": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\q-cargo-list-recovery\\cleanup.json",
+    "sha256": "29248a078f5cae564104648fa59ec86e1898475c71b46aaa9a9d96b29118c0d7",
+    "actualExitCode": 0,
+    "pid": 20248,
+    "utc": "2026-10-30T20:19:58.0074161Z",
+    "remaining": false,
+    "nativeFinish": {
+      "finished": true,
+      "reservations_retained": []
+    },
+    "finalization": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:q-cargo-list-recovery-20261030a",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\df0f5de2fcbb90ad12d1d5d27a36b40ed6c2c86e0cfe8242b9307c58cf9051fe.json"
+      }
+    ]
+  },
+  "finalLeaseAbsent": true,
+  "completedUtc": "2026-10-30T20:20:02.264Z",
+  "priorAttempt": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\q-cargo-list-recovery\\attempt-1-unknown.json",
+    "sha256": "682c48e5bbb7565583defd2091aa8acb6ecd4fc228d843c19edecab862b5cfa6",
+    "actualExitCode": 1,
+    "nativeExitCode": null
+  }
+}

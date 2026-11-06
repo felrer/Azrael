@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "actualExit": 1,
+  "nodePid": null,
+  "nativeClaimPid": 31812,
+  "nativeCatalogPid": 40532,
+  "nativeExitObserved": false,
+  "nativeExitCode": null,
+  "primaryError": "beginArtifactRun did not return; .run-claim.lock release Native lease timeout/outcome unknown",
+  "runJsonPendingRootAbsent": true,
+  "retryBasis": "Root accepted actual Node1, absent exact metadata and new actual0 acquire/release on both OS leases as writer-stop boundary",
+  "quiescencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\q-recovery-catalog-quiescence-20261031a.json",
+  "quiescenceSha256": "28e70a3dc12eda5d4ab73c163e843570c1e8236455c71acd3d1c609abe36c0f6",
+  "quiescence": {
+    "schema": 1,
+    "startedUtc": "2026-10-30T20:19:01.7627191Z",
+    "parentPid": 22092,
+    "checks": [
+      {
+        "startedUtc": "2026-10-30T20:19:01.7657199Z",
+        "finishedUtc": "2026-10-30T20:19:01.9177973Z",
+        "name": ".run-claim.lock",
+        "frames": [
+          "{\"id\":0,\"ok\":true,\"result\":{\"acquired_at_ms\":1793391541882,\"operation\":\"audit.quiescence\",\"parent_pid\":22092,\"pid\":57544,\"schema\":2,\"token\":\"57544-1793391541882-26f468d6d0db3504\"}}",
+          "{\"id\":1,\"ok\":true,\"result\":{\"released\":true,\"reservations_retained\":[]}}"
+        ],
+        "actualExitCode": 0
+      },
+      {
+        "startedUtc": "2026-10-30T20:19:01.9213039Z",
+        "finishedUtc": "2026-10-30T20:19:01.9592503Z",
+        "name": "catalog.lock",
+        "frames": [
+          "{\"id\":0,\"ok\":true,\"result\":{\"acquired_at_ms\":1793391541934,\"operation\":\"audit.quiescence\",\"parent_pid\":22092,\"pid\":43776,\"schema\":2,\"token\":\"43776-1793391541934-62b966feafd7e0b5\"}}",
+          "{\"id\":1,\"ok\":true,\"result\":{\"released\":true,\"reservations_retained\":[]}}"
+        ],
+        "actualExitCode": 0
+      }
+    ],
+    "finishedUtc": "2026-10-30T20:19:01.9592503Z"
+  },
+  "releaseRequest": {
+    "operation": "release",
+    "requestId": 1,
+    "lockPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\.run-claim.lock",
+    "workerTerminationRequested": true,
+    "nativeExitObserved": false,
+    "nativeExitCode": null
+  },
+  "sourceLeaseUntouched": true,
+  "recoveryNotCalled": true
+}

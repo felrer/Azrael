@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-02T09:38:35.995Z",
+  "id": "version:maintenance-owner:ff01:storage-20261102",
+  "version": "storage-20261102",
+  "directory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-storage-win-x64-20261102",
+  "binary_sha256": "f98ae805137e50035a475b2873e7ee5ab71b45c4a9e513ce5a60203625bceb00",
+  "binary_bytes": 2712064,
+  "copy_equal": true,
+  "producer_actual_exit_code": 0,
+  "producer_closed_observed_at": "2026-11-02T09:38:45.105Z"
+}

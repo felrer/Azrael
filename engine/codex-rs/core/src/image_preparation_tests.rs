@@ -645,3 +645,53 @@ fn preparation_errors_use_bounded_actionable_placeholders() {
         assert_eq!(error.placeholder(), expected);
     }
 }
+
+// Relaying after a resize must use the prepared image ID exposed to the recipient.
+#[tokio::test(flavor = "multi_thread")]
+async fn agent_image_label_matches_prepared_snapshot_and_preserves_opaque_content() {
+    let (image_url, _) = png_data_url(2048, 2048);
+    let original_id = crate::image_attachments::image_attachment_id(&image_url);
+    let mut communication = codex_protocol::protocol::InterAgentCommunication::new_encrypted(
+        codex_protocol::AgentPath::root(),
+        codex_protocol::AgentPath::root(),
+        Vec::new(),
+        "opaque".to_string(),
+        false,
+    );
+    communication
+        .attachments
+        .push(codex_protocol::protocol::ImageAttachment {
+            attachment_id: original_id.clone(),
+            image_url,
+        });
+    let mut items = vec![communication.to_model_input_item()];
+    prepare_response_items(
+        "agent-image-preparation",
+        false,
+        &mut items,
+        ImagePreparationMode::DetailBased,
+        ImageResizeNoticeMode::Disabled,
+        &InlineAttachmentStore,
+    )
+    .await;
+    let ResponseItem::AgentMessage { content, .. } = &items[0] else {
+        panic!("expected agent message")
+    };
+    let AgentMessageInputContent::InputImage {
+        image: ImageReference::Inline { image_url },
+        ..
+    } = content.last().expect("prepared image")
+    else {
+        panic!("expected inline image")
+    };
+    let prepared_id = crate::image_attachments::image_attachment_id(image_url);
+    assert_ne!(prepared_id, original_id);
+    assert_eq!(
+        content[content.len() - 2],
+        AgentMessageInputContent::InputText {
+            text: format!("Image attachment ID: {prepared_id}")
+        }
+    );
+    assert!(content.iter().any(|part| matches!(part, AgentMessageInputContent::EncryptedContent { encrypted_content } if encrypted_content == "opaque")));
+    assert_eq!(communication.attachments[0].attachment_id, original_id);
+}

@@ -1,0 +1,1055 @@
+{
+  "note": "Latest observed result by exact test title; repeated titles are deduplicated, so this is not a total test count. Actual command exits and runner totals are retained in separate run reports.",
+  "results": [
+    {
+      "test": "pinned computer-use approval injection and transformed host handlers",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "transformed core notifications and MCP flow never load an absent Window Use backend",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "pinned computer-use settings visibility preserves eligibility, navigation and redirects",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "pinned computer-use approval card cancels the request through the native response closure",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "unified Window Use settings replace legacy management while preserving native gates, queries and memo correctness",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "generic Node runtime excludes retired Sky and skills while preserving dependencies",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "MCP admits only declared bounded input after initialization and hides tools on unsupported platforms",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "JSONL transport preserves split Unicode and emits no replies for notifications",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "unrelated selections have no prerequisites or effects",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "all missing prerequisites aggregate with structured evidence",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "explicit instruction roots must be nonempty absolute but may have another registered owner",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "generic Node runtime and sync consumers use self-contained fixtures without vendor prerequisites",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "legacy and current link assets stay hardcoded while current package honors its override",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "instruction host requires current source metadata and accepts exact existing latest codex fallback",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "service requires an absolute root and explicit engine bypasses latest; management requires only its root",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "malformed current metadata and nonregular engine paths block without changes",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "selected pinned consumers require their actual closure as regular files at the hardcoded pin",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "small pinned consumers do not require unrelated matrix assets",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "instruction release readiness rejects absent, outside, linked and nested-checkout parents without writing",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "Windows stable Cargo readiness checks the actual planned linker path before fixture creation",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "schema3 normalizes exact EXE lists, rejects retired authority, and enforces CAS",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "schema2 keeps its master and schema1 keeps implicit Window Use enablement without importing retired grants",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "control approvals never authorize Security App observation; session grants expire on settings and stop",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "desktop consent is thread-only, nonpersistent and independent of the control whitelist",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "Security App desktop exception ignores whitelist and old control grants and expires with global consent",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "desktop and exception pending approvals cannot survive stop, lifecycle end, or changed policy",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "persistent exact Window Use control grants survive and remain removable without changing observation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "host acknowledges shared settings and rejects stale revisions and forged request fields",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "trusted picker grants fresh exact process identity only and keeps Computer Use grants separate",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "removal requires current entry and native confirmation; opening is independent of turn state",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "unavailable and disposed hosts respond safely without retaining webviews",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "production store uses the actual bridge envelope for initial read and acknowledged update",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "observation blacklist and control whitelist remain independent and remove through their own list",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "store saves only host acknowledged flags and renders host failures with retry",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "bounded polling, response timeout, and disposal own all subscriptions and timers",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "native component initializes lazily and passes row aria props, switch booleans, and secondary button props",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "late timed-out replies cannot complete or overwrite the active request",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "first dispatch accepts synchronous bridge acknowledgment and owns no pending timeout",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "Window Use master OFF immediately preempts a held quiet poll without optimistic flags",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "preempted quiet poll preserves visible CAS conflicts and next acknowledged revision",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "add, remove, and open preempt quiet polls and never replay after timeout or close",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "notification follows delivered card, only navigates pending approval, and rebinding does not duplicate it",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "dedicated approval activation reveals its panel without ordinary navigation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "decline retires notification and rejects stale activation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "cancel retires notification and rejects stale activation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "disconnect retires notification and rejects stale activation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "dispose retires notification and rejects stale activation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "turn retires notification and rejects stale activation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "approval ending while focus awaits blocks navigation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "notification show failure leaves consent usable",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "show finishing after cancellation is hidden and never navigates",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "failed card delivery never shows a notification",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "detached app approval retains its notification and navigation through ordinary turn completion",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "restoring a pending card and retrying its scope do not ring another notification",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "backend routes notification methods and activation subscriptions without settling requests",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "backend activation event leaves an outstanding request pending until its own reply",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "backend rejects malformed activation and does not notify subscribers",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "transformed native callback binds stable navigation and checks pending state after opening sidebar",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "actual Window Use host consumes transformed native approvals, scopes and expiry without engine passthrough",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "fast approval records the offered decision once and executes no action before approval",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "30ms pending survives ordinary turn completion; late accept resumes once and a fresh call consumes the receipt",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "same-scope pending requests coalesce without replacing their ledger identity or grace timer",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "the 30ms synchronous grace begins only after UI delivery succeeds",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "pending stop blocks a late accept and resume",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "pending policy blocks a late accept and resume",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "pending approval and private owner key survive host recreation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "resolve overlapping the grace deadline cannot execute the detached tool call",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "a late app receipt never permits input to a window whose process identity changed",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "resolve failure before commit re-lists pending authority and requires another explicit click",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "committed accept with lost transport reconciles its terminal ledger without replay",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "committed decline with lost transport reconciles its terminal ledger without replay",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "active resolve transport failure reports an observed response without executing the waiting operation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "thread/closed withdraws a pending card and ignores late approval",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "thread/archived withdraws a pending card and ignores late approval",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "thread/deleted withdraws a pending card and ignores late approval",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "Linux executable approvals preserve case and reject relative paths (0.6778ms) # SKIP",
+      "status": "skip",
+      "run": "desktop-source"
+    },
+    {
+      "test": "selected window authorization respects app grants and revocation across owners",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "window store ignores retired desktop grants and enablement changes cancel pending authority",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "session absence differs from unreadable or corrupt session state",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "corrupt saved task definitions are internal errors rather than invalid caller input",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "tool errors retain known recovery information and suppress arbitrary exception text",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "user stop reports explicit resume guidance through MCP: User stop requires explicit resume",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "user stop reports explicit resume guidance through MCP: Selected window paused by the user; explicit resume required",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "user stop blocks app permission prompts and reselection until the user resume path",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "recovery instructions round trip through host transport and MCP with strict field validation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "minimized pause metadata round trips with strict enum and boolean validation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "approval and native permission details survive serialization with strict field types",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "approval progress is not a terminal result and expiry reports awaiting approval",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "connection closing during approval reports expiry rather than user decline",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "explicit decline stays distinct through host transport and model protocol",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "fragmented progress and terminal response share a stream without losing structured cause",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "transport expiry after a mutation starts does not imply the app was unchanged",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "partial accessibility and experimental key flags survive model projection",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "recoverable observation failure survives the host pipe and permits the next capture",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "all socket requests retain the initial bounded deadline",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "socket cancellation before queued execution prevents another approval or response",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "thread/start pins Window Use relay to the declared release without mutating user configuration",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "thread/resume pins Window Use relay to the declared release without mutating user configuration",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "thread/start binds an explicit Node executable without a desktop runtime",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "thread/resume binds an explicit Node executable without a desktop runtime",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "relative explicit Node fails closed even with a valid fallback desktop directory",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "synthetic fixtures and inactive module wrapper preserve original request objects",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "incomplete declared runtime fails closed at the owned thread boundary",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "dedicated start uses the same release binding and explicitly enables Window Use",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "oversized requests report a request limit instead of an unexplained disconnect",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "unresolved approval detaches, releases queued status, and retains its card for a late receipt",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "socket-close cancels pending consent without a late grant",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "socket-timeout cancels pending consent without a late grant",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "turn/started cancels pending consent without a late grant",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "turn/completed cancels pending consent without a late grant",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "disconnect cancels pending consent without a late grant",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "dispose cancels pending consent without a late grant",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "approval answer 거부 yields approval_declined",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "approval answer undefined yields cancelled",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "이 대화에서 허용 grants only the chosen scope",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "항상 허용 grants only the chosen scope",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "wrong native, unknown IDs and malformed answers cannot grant authority",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "missing UI transport fails explicitly without a fallback modal",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "UI delivery false releases approval without authority",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "UI delivery throw releases approval without authority",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "UI delivery reject releases approval without authority",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "native card persistence metadata retains session scope",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "replacing a UI registration preserves the pending consent until a valid response",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "store failure returns unclassified rather than refusal",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "settings failure returns unclassified rather than refusal",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "save failure returns unclassified rather than refusal",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "a disconnected queued request never starts or opens another approval",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "app revocation cancels consent before any grant or resume",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "policy revocation cancels consent before any grant or resume",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "stored consent with no resulting grant returns permission_denied",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "accepted consent with no resulting grant returns permission_denied",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "scripts\\test-window-control-host.cjs",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "core provider request, notification, response and teardown bypass an absent Window Use host",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "native window bridge transforms compose with recovery and reject pinned-source drift",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "injected bridge calls preserve native request and lifecycle behavior",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "Computer Use settings launcher is scoped, idempotent and dispatches the owned UI command",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "window boundary observer failure clears the selected owner and preserves ordinary native delivery",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "result publication defers native dispatch once and retains bridge context",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "deferred lifecycle responses preserve the pinned dispatcher receipt and line queue",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "Window Use classifier is exact, guarded and tracked by packaging",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "selected runtime request preparation precedes registration and actual native send",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "scripts\\test-window-control-mcp.cjs",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "optional multi-pointer CLI stages its native manifest and both host modules",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "optional virtual input stages both native files and its exact provider closure",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "stage closure includes required owned files and release binds provenance",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "native source fingerprint excludes target while observing source content",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "prepared host binds declared release, copied bundle and host modules",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "tampered, missing and unrecorded files fail closed",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "native license notices bind source provenance and required release payload",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "task macro code is bound in runtime and host payloads",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "missing required entry, unsafe paths and forged binary provenance rejected",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "rollback release without feature is allowed; undeclared or mismatched runtime rejected",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "occupancy dependency is required and its runtime hash is verified",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "Linux payload stages without retired helpers and rejects Windows multi-pointer inputs",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "fragmented and coalesced stop events never settle a pending native action",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "malformed event rejected: wrong type",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "malformed event rejected: negative generation",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "malformed event rejected: extra field",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "malformed event rejected: invalid UUID",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "stop bypasses stalled act, cancels queued mutation, and requires explicit resume",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "manual selection releases only the successfully selected stopped identity",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "show failure prevents mutation; hide failures reach diagnostics",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "macro progress uses safe action and step labels without parameter content",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "host stop callback revokes only stopped thread approval during stalled act",
+      "status": "pass",
+      "run": "desktop-source"
+    },
+    {
+      "test": "public schema forwards native actions and operation identity without exposing pointer or target selection",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "lazy provider pins exactly one root; status/collaboration never create or activate a pointer",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "guard revocation cleans up before action; unverified stop blocks replacement and retains allowlist",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "exact manifest and valid identities are required; unsupported hosts never launch",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "desktop retargeting preserves one broker and cosmetic calls consume no operation identity",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "desktop drag explicitly retargets its start and preserves endpoint semantics",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "standalone visualization retains selected authority and native capacity failure is not resent",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "enabled observation is free and context exposes app permissions without stage cards",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "observation blacklist approval is independent of control and prepare uses selected identity",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "desktop permission needs no selected app, is session-only and survives ordinary turn completion until stop",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "selectedWindow conversation ceiling rejects global desktop permission before consent",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "control whitelist skips all prompts and permits an actual selected-window mutation",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "desktop observation forwards blacklist and rejects malformed or unredacted native output",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "desktop observation rejects a response after abort",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "desktop observation rejects a response after policy",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "retired stage, isolated-session and desktop-authority routes are unavailable",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "host task macros use the runtime workspace",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "saved multi-root workspace owns macros rather than its first folder",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "ordinary start publishes the exact session before replay with no panel and repeats safely",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "resume mismatch and cross-bridge ownership fail without replacing an existing session",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "ordinary lifecycle tracks active turns and denies stale or inexact permission proof each call",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "ordinary threads select independently with app consent and reject stale candidates",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "session-file collision fails closed and preserves the other owner",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "disconnect during publication cancels ownership and removes its session",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "thread/closed during publication cancels ownership and removes its session",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "different host code homes share occupancy and disconnect releases it",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "switched input preserves fresh-image authority, native result and stop cleanup",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "desktop input uses a fresh whole-screen observation without a selected window and honors Stop",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "individual semantic actions show and idle the model cursor without injecting duplicate input",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "selected config preserves Azrael owners and replaces only managed Codex fields",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "a managed root key does not delete an unselected nested key with the same name",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "multiline managed and protected values are compared and merged semantically",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "TOML parse and serialization round-trip apostrophes, backslashes, and dollar literals",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "TOML parse and serialization round-trip Hangul and emoji paths and values",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "generated Devin role reuses only the effective Sol developer instructions",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "artifact state detects changed and deleted paths",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "managed targets reject an ordinary-state junction in their parent path",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "only enabled plugin selectors are materialized",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "owned Computer Use replaces transport and external environment while preserving native owners",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "selected-window owned MCP replaces stale transport while preserving unrelated configuration",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "owned Computer Use supplies js_repl even when ordinary Codex lacks it",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "owned Computer Use preserves browser and Chrome configuration with home path rewriting",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "owned transaction fixture verifies the unified Window Use runtime closure without an engine",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "owned snapshot transaction installs instructions, repairs drift, and rejects invalid payloads",
+      "status": "pass",
+      "run": "desktop-source-r2"
+    },
+    {
+      "test": "desktop input without selection enforces live full authority",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    },
+    {
+      "test": "desktop input without selection enforces live full authority and Security App exception over whitelist",
+      "status": "pass",
+      "run": "desktop-source-r3"
+    }
+  ]
+}

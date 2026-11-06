@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "lifecycleId": "run:ET-01-cold-build-cache-audit:cache-invalidation-legacy-162edc41",
+  "wrapper": {
+    "exec_session": 49203,
+    "exitCode": 1,
+    "terminal_observed": true,
+    "failure": "finishArtifactRun catalog.lock busy"
+  },
+  "tests": {
+    "exitCode": 0,
+    "count": 11,
+    "report": "reports/validation.json",
+    "log": "logs/preparation.log"
+  },
+  "producer_stopped_verified": true,
+  "stop_basis": "Synchronous test spawn completed and returned child status0; controlling wrapper session completed exit1; no asynchronous product producer was launched"
+}

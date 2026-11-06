@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "path": "C:/Users/felre/Virtual Machines/Azrael-CUA-Test",
+  "user_reported_deleted": true,
+  "observed_at": "2026-10-28T02:56:38.398Z",
+  "exists": false,
+  "previous_contents": {
+    "files": 2,
+    "logical_bytes": 8225407088,
+    "items": [
+      "approved-configuration.json",
+      "downloads/26300.9457.26h2-enterprise-eval-ko-kr.iso"
+    ]
+  },
+  "previous_checks": {
+    "virtual_disk_or_vm_configuration_found": false,
+    "iso_attached": false,
+    "running_vm_or_path_process_found": false,
+    "current_target_management_reference_found": false
+  },
+  "deletion_actor": "user-reported",
+  "deletion_command": null,
+  "deletion_exit_code": null,
+  "reclaimed_physical_bytes": null,
+  "additional_deletion_performed": false,
+  "status": "absence-confirmed"
+}

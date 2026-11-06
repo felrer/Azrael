@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "lifecycleId": "run:verify-use-settings-render:20261103T063902187Z-cc25c984-9d4a-4f82-80e1-75bdf9033e0b",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-use-settings-render\\runs\\20261103T063902187Z-cc25c984-9d4a-4f82-80e1-75bdf9033e0b",
+  "exitCode": 0,
+  "scope": "Actual production settings section, real pinned React/native components/CSS and production settings host/store/persistence; synthetic running-window and confirmation decisions. No full installed VS Code navigation.",
+  "checks": [
+    "initial schema3 Window Use on with independent empty app lists",
+    "native accessible switches",
+    "quiet background read leaves rendered controls enabled",
+    "rendered OFF click preempts quiet read with update request",
+    "save awaits host acknowledgement",
+    "real host persisted disabled Window Use before ack",
+    "unrelated request/error ignored",
+    "preempting update acknowledgement renders OFF",
+    "held quiet read contains previous ON policy",
+    "late quiet read cannot undo acknowledged OFF",
+    "master off keeps one master switch and preserves independent lists",
+    "native switch receives keyboard focus",
+    "keyboard Space toggles focused native switch",
+    "CAS rejection visible and preserves policy",
+    "retry clears server error",
+    "observation app picker persists blacklist without control grant",
+    "control app picker persists whitelist independently",
+    "long executable path wraps within page",
+    "light native page keeps added settings within normal section gap",
+    "dark native page keeps added settings within normal section gap",
+    "light and dark theme tokens differ",
+    "narrow layout has no horizontal overflow",
+    "dark-theme native master interaction persists",
+    "control whitelist removal leaves observation blacklist intact",
+    "observation blacklist removal leaves control unapproved",
+    "no browser console exceptions",
+    "unmount disposes production store bridge listener"
+  ],
+  "wrapping": {
+    "scroll": 0,
+    "width": 0,
+    "height": 47,
+    "sectionWidth": 768,
+    "pageOverflow": false
+  },
+  "light": {
+    "background": "rgba(0, 0, 0, 0)",
+    "color": "rgb(26, 28, 31)",
+    "switchBackground": "rgba(0, 0, 0, 0)",
+    "gap": 40
+  },
+  "dark": {
+    "background": "rgba(0, 0, 0, 0)",
+    "color": "rgb(223, 223, 223)",
+    "switchBackground": "rgba(0, 0, 0, 0)",
+    "gap": 40
+  },
+  "outcome": "passed",
+  "requests": [
+    {
+      "action": "read",
+      "requestId": "478debbc-8b8a-4dc1-9866-6c3f1576a69d"
+    },
+    {
+      "action": "read",
+      "requestId": "8a707274-5f0d-41a4-aa35-45e72a95f23e"
+    },
+    {
+      "action": "update",
+      "requestId": "35b89d3b-46ee-4405-8aba-65425a6f1493"
+    },
+    {
+      "action": "update",
+      "requestId": "a8fe4ab1-b15f-41a5-88c5-caff7a1de58a"
+    },
+    {
+      "action": "update",
+      "requestId": "55835ec9-9ecc-4dfc-af63-59461a3f1f68"
+    },
+    {
+      "action": "read",
+      "requestId": "9780071b-2255-4fa1-af95-e2dec887c9cb"
+    },
+    {
+      "action": "addApp",
+      "requestId": "e0989fd1-6889-4343-b0ce-f99203c661f5"
+    },
+    {
+      "action": "addApp",
+      "requestId": "8180ac28-1e2c-4e1a-9962-a61f802f7845"
+    },
+    {
+      "action": "update",
+      "requestId": "8f19d21b-0a5a-40e8-aedd-a03af5d7460f"
+    },
+    {
+      "action": "update",
+      "requestId": "2bc88797-a9da-41e3-83c4-56a378ccfadb"
+    },
+    {
+      "action": "removeApp",
+      "requestId": "f2b91f9e-2d47-4fb2-9ad1-3740eb7de3c1"
+    },
+    {
+      "action": "removeApp",
+      "requestId": "7f174e87-0b48-4ab1-9343-83274719bf4b"
+    }
+  ],
+  "browserExit": {
+    "confirmed": true,
+    "exitCode": 0,
+    "signalCode": null,
+    "processInspectionExitCode": 0,
+    "processIds": []
+  },
+  "fixtureRemoved": false,
+  "retentionReason": "Retained fixture, profile and raw results for lifecycle review"
+}

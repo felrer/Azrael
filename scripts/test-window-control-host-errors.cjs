@@ -16,26 +16,26 @@ test('recoverable observation failure survives the host pipe and permits the nex
     return { window: descriptor, observationId: 'host-observation-' + ++sequence, frameTimestamp: 'now',
       widthPx: 800, heightPx: 600, dpi: 96, elementsTruncated: false, elements: [], image: { mimeType: 'image/png', data: 'YQ==' } };
   });
-  const selecting = f.socketCall('select_window', { candidateId: await f.candidate() });
+  const selecting = f.socketCall('status', { windowId: await f.candidate() });
   const selected = (await selecting.reply).result;
-  assert.ok(selected.targetId);
-  const args = { targetId: selected.targetId };
+  assert.ok(selected.windowId);
+  const args = { windowId: selected.windowId };
   const response = await f.socketCall('capture', args).reply;
   assert.equal(response.error.recovery, 'observe_again'); assert.equal(response.error.observationRequired, true); assert.equal(response.error.actionExecuted, false);
-  const status = (await f.socketCall('status', {}).reply).result;
-  assert.equal(status.state, 'ready'); assert.equal(status.observationRequired, true); assert.equal(status.targetId, selected.targetId);
+  const status = (await f.socketCall('status', args).reply).result;
+  assert.equal(status.state, 'ready'); assert.equal(status.observationRequired, true); assert.equal(status.windowId, selected.windowId);
   failed = false;
   const captured = (await f.socketCall('capture', args).reply).result;
   assert.equal(captured.state, 'ready'); assert.equal(captured.observationId, 'host-observation-1');
 });
 async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, registerThread = true, requestBackend) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-errors-'));
-  let connect, resolveAnswer, latestRequest, promptCount = 0, posts = [], turn = 'turn-one', socketPath;
+  let connect, resolveAnswer, latestRequest, promptCount = 0, posts = [], turn = 'turn-one', socketPath, listedWindowId;
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
   const descriptor = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: app, title: 'Fixture', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   const host = createHost({ runtime: { codexHome: home, ...runtimeOverrides }, occupancyDirectory: path.join(home, 'occupancy'), approvals, approvalTimeoutMs,
     vscode: { window: { showInformationMessage() { throw Error('External app consent modal forbidden'); }, showWarningMessage: async () => '허용' } },
-    backend: { async request(method, args) { return requestBackend ? requestBackend(method, args, descriptor) : method === 'listWindows' ? [descriptor] : descriptor; }, async dispose() {} },
+    backend: { async request(method, args) { return requestBackend ? requestBackend(method, args, descriptor) : method === 'listWindows' ? [descriptor] : method === 'observe' ? ({window:{...descriptor},observationId:"fixture-observation",frameTimestamp:"fixture-time",widthPx:descriptor.widthPx,heightPx:descriptor.heightPx,dpi:descriptor.dpi,elements:[],elementsTruncated:false,image:{mimeType:"image/png",data:"aW1hZ2U="}}) : descriptor; }, async dispose() {} },
     createServer(listener) { connect = listener; const server = new EventEmitter(); server.listen = (pipe, done) => {
       if (process.platform === 'win32') return done();
       // Model bind's filesystem side effect while retaining the synthetic
@@ -45,7 +45,7 @@ async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, regist
     }; server.close = () => {}; return server; }
   });
   const native = { registerProvider() { return { dispose() {} }; } }; const {engine}=require('./window-approval-engine-fixture.cjs').attachApprovalEngine(host,native,()=>{});
-  host.registerApprovalUI(native, envelope => { if(envelope.type==='mcp-request' && envelope.request.params._meta.window_use_approval_kind==='stage') {queueMicrotask(()=>host.respondApproval(native,envelope.request.id,{action:'accept',content:{persist:'session'}}));return true;} posts.push(envelope); if (envelope.type === 'mcp-request') { promptCount++; latestRequest = envelope.request; resolveAnswer = value => host.respondApproval(native, envelope.request.id, { action: value === '거부' ? 'decline' : value === undefined ? 'cancel' : 'accept', content: { persist: value === '항상 허용' ? 'always' : 'session' } }); } });
+  host.registerApprovalUI(native, envelope => {  posts.push(envelope); if (envelope.type === 'mcp-request') { promptCount++; latestRequest = envelope.request; resolveAnswer = value => host.respondApproval(native, envelope.request.id, { action: value === '거부' ? 'decline' : value === undefined ? 'cancel' : 'accept', content: { persist: value === '항상 허용' ? 'always' : 'session' } }); } });
   const started = id => { turn = id; host.observe(native, { method: 'turn/started', params: { threadId: thread, turn: { id } } }); };
   t.after(async () => { await host.dispose(); if (socketPath) await assert.rejects(fs.stat(path.dirname(socketPath)), { code: 'ENOENT' }); await fs.rm(home, { recursive: true }); });
   if (registerThread) { started(turn); await host.threads.get(thread).ready; }
@@ -64,41 +64,24 @@ async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, regist
     if (!deferData) send();
     return { socket, reply, progress, timeouts, send, ended: () => ended };
   }
-  async function controlRequest(candidateId) { const selected = await host.handlePipe(request('select_window', { candidateId: candidateId ?? await candidate() })); return socketCall('request_stage', { stage: 2, targetId: selected.targetId, reason: 'Verify the requested fixture control and approval lifecycle' }); }
-  async function candidate() { return (await host.handlePipe(request('list_windows'))).candidates[0].candidateId; }
+  async function controlRequest(windowId) { return socketCall('resize', { windowId: windowId ?? await candidate(), widthDip:700,heightDip:500 }); }
+  async function candidate() { listedWindowId = (await host.handlePipe(request('list_windows'))).candidates[0].windowId; return listedWindowId; }
   async function prompted() { for (let i = 0; i < 100 && !resolveAnswer; i++) await new Promise(resolve => setImmediate(resolve)); assert.ok(resolveAnswer); }
-  return { host, native, home, approvals, posts, engine, latestRequest: () => latestRequest, request, started, socketCall, controlRequest, candidate, prompted, answer: value => resolveAnswer(value), promptCount: () => promptCount };
+  return { host, native, home, approvals, posts, engine, latestRequest: () => latestRequest, request, started, socketCall, controlRequest, candidate, windowId: () => listedWindowId, prompted, answer: value => resolveAnswer(value), promptCount: () => promptCount };
 }
 
-test('only a complete stage3 admission request extends the initial socket deadline', async t => {
-  const f = await fixture(t);
-  const admission = f.socketCall('request_stage', { stage: 3, reason: 'Verify admission deadline' }, { deferData: true });
-  assert.deepEqual(admission.timeouts, [30000], 'initial read retains its bounded deadline');
-  admission.send();
-  assert.deepEqual(admission.timeouts, [30000, 360000]);
-  await admission.reply;
-  for (const [tool, args, method] of [
-    ['status', {}, 'call'], ['request_stage', { stage: 2 }, 'call'],
-    ['request_stage', { stage: '3' }, 'call'], ['request_stage', { stage: 3 }, 'desktop_authority'],
-    ['capture_isolated', { stage: 3 }, 'call'],
-  ]) {
-    const ordinary = f.socketCall(tool, args, { method });
-    assert.deepEqual(ordinary.timeouts, [30000]);
-    await ordinary.reply;
+test('all socket requests retain the initial bounded deadline', async t => {
+  const f=await fixture(t);
+  for(const [tool,args,method] of [['status',{},'call'],['resize',{windowId:'missing',widthDip:700,heightDip:500},'call'],['request_stage',{stage:3},'call'],['capture_isolated',{},'call'],['status',{},'desktop_authority']]) {
+    const request=f.socketCall(tool,args,{deferData:true,method});assert.deepEqual(request.timeouts,[65000]);request.send();
+    const reply=await request.reply;if(tool==='request_stage'||tool==='capture_isolated'||method==='desktop_authority')assert.ok(reply.error);assert.equal(request.timeouts.includes(360000),false);
   }
 });
-
-test('extended stage3 socket deadline preserves cancellation before queued execution', async t => {
-  const f = await fixture(t, 5000), pending = await f.controlRequest(); await f.prompted();
-  const admission = f.socketCall('request_stage', { stage: 3, reason: 'Verify cancelled admission' });
-  assert.deepEqual(admission.timeouts, [30000, 360000]);
-  admission.socket.expire();
-  assert.equal(admission.socket.destroyed, true);
-  f.answer(undefined); await pending.reply;
-  await f.socketCall('status').reply;
-  assert.equal(admission.ended(), false, 'cancelled request never delivers a late response');
-  assert.equal(f.promptCount(), 1, 'cancelled request cannot open another consent');
-  assert.equal(f.approvals.hasAppApproval(app, thread), false);
+test('socket cancellation before queued execution prevents another approval or response', async t=>{
+  const f=await fixture(t,5000),pending=await f.controlRequest();await f.prompted();
+  const cancelled=f.socketCall('resize',{windowId:f.windowId(),widthDip:700,heightDip:500});cancelled.socket.expire();
+  assert.equal(cancelled.socket.destroyed,true);f.answer(undefined);await pending.reply;await f.socketCall('status', { windowId: f.windowId() }).reply;
+  assert.equal(cancelled.ended(),false);assert.equal(f.promptCount(),1);assert.equal(f.approvals.hasAppApproval(app,thread),false);
 });
 
 for (const method of ['thread/start', 'thread/resume']) test(`${method} pins Window Use relay to the declared release without mutating user configuration`, async t => {
@@ -134,7 +117,6 @@ test('synthetic fixtures and inactive module wrapper preserve original request o
   assert.equal(require('./window-control-host.cjs').prepareRequest('thread/start', params), params);
 });
 for (const runtime of [{ windowControl: {} }, { windowControl: { mcpScript: 'relative.cjs' }, computerUse: { directory: 'C:/runtime' } }, { windowControl: { mcpScript: 'C:/runtime/mcp.cjs' }, computerUse: { directory: 'relative' } }, { windowControl: { mcpScript: 'C:/runtime/mcp.cjs' }, computerUse: { directory: 'C:/runtime' }, codexHome: 'relative' }]) test('incomplete declared runtime fails closed at the owned thread boundary', async t => {
-  if(runtime.codexHome && !path.isAbsolute(runtime.codexHome)) {assert.throws(()=>createHost({runtime,backend:{request:async()=>{},dispose:async()=>{}},vscode:{}}),/absolute dedicated resource directory/);return;}
   const f = await fixture(t, 100, runtime, false);
   for (const method of ['thread/start', 'thread/resume']) assert.throws(() => f.host.prepareRequest(method, {}), { code: 'connection_error', stage: 'connection', message: 'Window Use runtime binding is incomplete' });
 });
@@ -152,20 +134,10 @@ test('oversized requests report a request limit instead of an unexplained discon
   assert.equal(reply.error.code, 'invalid_request');
   assert.equal(reply.error.message, '요청 크기가 Window Use 제한을 초과했습니다.');
 });
-test('unresolved approval detaches, releases queued status, and retains its card for a late receipt', async t => {
-  const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
-  const status = f.socketCall('status');
-  const result = await selecting.reply;
-  assert.equal(result.error.code,'permission_pending');assert.equal(result.error.approvalState,'pending');assert.equal(result.error.approvalRequestId,f.latestRequest().id);assert.equal(result.error.actionExecuted,false);
-  assert.ok(f.host.owner.peek(thread)?.targetId);
-  assert.equal(f.posts.some(post=>post.notification?.params?.requestId===f.latestRequest().id),false,'detaching does not resolve the card');
-  assert.deepEqual(selecting.progress, ['queued', 'running', 'approval','running','approval','running']);
-  assert.ok(selecting.timeouts.filter(ms=>ms===10100).length===2,'each card refreshes the approval inactivity budget');
-  assert.equal((await status.reply).result.state, 'selected');
-  f.answer('항상 허용'); for(let i=0;i<100&&!f.engine.resumes.length;i++)await new Promise(resolve=>setImmediate(resolve));
-  assert.equal(f.engine.resumes.length,1,'late acceptance creates a typed resume receipt');
-  assert.equal(f.approvals.hasAppApproval(app, thread), false);
-  assert.equal((await f.host.handlePipe(f.request('status'))).state, 'selected');
+test('approval timeout returns a distinct terminal error and ignores late acceptance',async t=>{
+  const f=await fixture(t),selecting=await f.controlRequest();await f.prompted();const result=await selecting.reply;
+  assert.equal(result.error.code,'approval_timeout');assert.equal(result.error.approvalState,'expired');assert.equal(result.error.userResponded,false);assert.equal(result.error.actionExecuted,false);
+  f.answer('?? ??');await new Promise(resolve=>setImmediate(resolve));assert.equal(f.approvals.hasAppApproval(app,thread),false);assert.deepEqual(f.engine.resumes,[]);
 });
 for (const boundary of ['socket-close', 'socket-timeout', 'turn/started', 'turn/completed', 'disconnect', 'dispose']) test(`${boundary} cancels pending consent without a late grant`, async t => {
   const f = await fixture(t, 5000), selecting = await f.controlRequest(); await f.prompted();
@@ -178,23 +150,23 @@ for (const boundary of ['socket-close', 'socket-timeout', 'turn/started', 'turn/
   if (!boundary.startsWith('socket')) { const error = (await selecting.reply).error; assert.equal(error.code, 'cancelled'); assert.equal(error.approvalState, 'cancelled'); assert.equal(error.userResponded, false); assert.equal(error.actionExecuted, false); }
   f.answer('항상 허용'); await new Promise(resolve => setImmediate(resolve));
   assert.equal(f.approvals.hasAppApproval(app, thread), false);
-  if (boundary.startsWith('socket')) { assert.equal(selecting.ended(), false); assert.equal((await f.socketCall('status').reply).result.state, 'selected'); }
+  if (boundary.startsWith('socket')) { assert.equal(selecting.ended(), false); assert.equal((await f.socketCall('status', { windowId: f.windowId() }).reply).result.state, 'selected'); }
 });
-for (const [answer, code] of [['거부', 'approval_declined'], [undefined, 'cancelled']]) test(`approval answer ${String(answer)} yields ${code}`, async t => {
+for (const [answer, code] of [['거부', 'approval_denied'], [undefined, 'cancelled']]) test(`approval answer ${String(answer)} yields ${code}`, async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted(); f.answer(answer);
-  const error = (await selecting.reply).error; assert.equal(error.code, code); assert.equal(error.approvalState, code === 'approval_declined' ? 'declined' : 'cancelled'); assert.equal(error.userResponded, true); assert.equal(error.actionExecuted, false); assert.equal(f.approvals.hasAppApproval(app, thread), false);
+  const error = (await selecting.reply).error; assert.equal(error.code, code); assert.equal(error.approvalState, code === 'approval_denied' ? 'declined' : 'cancelled'); assert.equal(error.userResponded, true); assert.equal(error.actionExecuted, false); assert.equal(f.approvals.hasAppApproval(app, thread), false);
 });
 for (const [answer, persistent] of [['이 대화에서 허용', false], ['항상 허용', true]]) test(`${answer} grants only the chosen scope`, async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
   const request = f.latestRequest(); assert.match(request.id, /^azrael-window-consent-/); assert.equal(request.params.mode, 'form'); assert.deepEqual(request.params.requestedSchema, { type: 'object', properties: {} }); assert.equal(request.params._meta.connector_name, 'Window Use'); assert.equal(request.params._meta.codex_approval_kind, 'mcp_tool_call'); assert.equal(request.params._meta.tool_params_display[0].display_name, 'App');
-  f.answer(answer); assert.equal((await selecting.reply).result.authorized, true); assert.equal(f.approvals.hasAppApproval(app, thread), true); f.approvals.stop(thread); assert.equal(f.approvals.hasAppApproval(app, thread), persistent);
+  f.answer(answer); assert.ok((await selecting.reply).result); assert.equal(f.approvals.hasAppApproval(app, thread), true); f.approvals.stop(thread); assert.equal(f.approvals.hasAppApproval(app, thread), persistent);
 });
 test('wrong native, unknown IDs and malformed answers cannot grant authority', async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
   const id = f.latestRequest().id, answer = { action: 'accept', content: { persist: 'always' } };
   assert.equal(f.host.respondApproval({}, id, answer), true); assert.equal(f.host.respondApproval(f.native, 'azrael-window-consent-retired', answer), true); assert.equal(f.host.respondApproval(f.native, 'engine-request', answer), false);
   assert.equal(f.host.respondApproval(f.native, id, { action: 'accept', content: { persist: 'invalid' } }), true); assert.equal(f.approvals.hasAppApproval(app, thread), false);
-  f.answer('거부'); assert.equal((await selecting.reply).error.code, 'approval_declined'); assert.equal(f.host.respondApproval(f.native, id, answer), true); assert.equal(f.approvals.hasAppApproval(app, thread), false);
+  f.answer('거부'); assert.equal((await selecting.reply).error.code, 'approval_denied'); assert.equal(f.host.respondApproval(f.native, id, answer), true); assert.equal(f.approvals.hasAppApproval(app, thread), false);
 });
 test('missing UI transport fails explicitly without a fallback modal', async t => {
   const f = await fixture(t); f.host.registerApprovalUI(f.native, undefined);
@@ -212,33 +184,39 @@ for (const delivery of ['false', 'throw', 'reject']) test(`UI delivery ${deliver
 test('native card persistence metadata retains session scope', async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
   assert.equal(f.host.respondApproval(f.native, f.latestRequest().id, { action: 'accept', _meta: { persist: 'session' } }), true);
-  assert.equal((await selecting.reply).result.authorized, true); assert.equal(f.approvals.hasAppApproval(app, thread), true); f.approvals.stop(thread); assert.equal(f.approvals.hasAppApproval(app, thread), false);
+  assert.equal(Boolean((await selecting.reply).result), true); assert.equal(f.approvals.hasAppApproval(app, thread), true); f.approvals.stop(thread); assert.equal(f.approvals.hasAppApproval(app, thread), false);
 });
 test('replacing a UI registration preserves the pending consent until a valid response', async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
   f.host.registerApprovalUI(f.native, () => {});
-  f.answer('항상 허용');assert.equal((await selecting.reply).result.authorized,true);assert.equal(f.approvals.hasAppApproval(app,thread),true);
+  f.answer('항상 허용');assert.equal(Boolean((await selecting.reply).result),true);assert.equal(f.approvals.hasAppApproval(app,thread),true);
 });
 for (const failure of ['store', 'settings', 'save']) test(`${failure} failure returns unclassified rather than refusal`, async t => {
   const f = await fixture(t), candidateId = await f.candidate();
+  const selected=await f.host.handlePipe(f.request('status',{windowId:candidateId}));
   if (failure !== 'save') {
     const file = path.join(f.home, 'azrael', failure === 'store' ? 'window-use/app-approvals.json' : 'computer-use/use-settings.json');
     await fs.mkdir(path.dirname(file), { recursive: true }); await fs.writeFile(file, 'corrupt');
   }
-  const selecting = failure === 'settings' ? f.socketCall('request_stage', { stage: 2, reason: 'Verify corrupt settings fail closed' }) : await f.controlRequest(candidateId);
+  const selecting=f.socketCall('resize',{windowId:selected.windowId,widthDip:700,heightDip:500});
   if (failure === 'save') { await f.prompted(); const lock = path.join(f.home, 'azrael/window-use/app-approvals.json.lock'); await fs.mkdir(path.dirname(lock), { recursive: true }); await fs.writeFile(lock, 'occupied'); f.answer('항상 허용'); }
   assert.deepEqual((await selecting.reply).error, { code: 'unclassified', message: '미분류된 오류' });
 });
-test('a disconnected queued request never starts or opens another approval', async t => {
-  const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
-  const queued = f.socketCall('select_window', { candidateId: 'unused' }); queued.socket.destroy(); f.answer('거부');
+test('a disconnected request never reaches native input or opens another approval', async t => {
+  const backendCalls = [];
+  const f = await fixture(t, 100, {}, true, (method, _args, descriptor) => {
+    backendCalls.push(method); return method === 'listWindows' ? [descriptor] : { window: descriptor };
+  }), selecting = await f.controlRequest(); await f.prompted();
+  const beforeDisconnect = backendCalls.length;
+  const queued = f.socketCall('status', { windowId: 'unused' }); queued.socket.destroy(); f.answer('거부');
   await selecting.reply; await new Promise(resolve => setImmediate(resolve));
-  assert.deepEqual(queued.progress, ['queued']); assert.equal(queued.ended(), false); assert.equal(f.promptCount(), 1);
+  assert.deepEqual(queued.progress, ['queued', 'running']); assert.equal(queued.ended(), false); assert.equal(f.promptCount(), 1);
+  assert.equal(backendCalls.length, beforeDisconnect); assert.equal(backendCalls.some(method => ['act', 'resize', 'restore'].includes(method)), false);
 });
 for (const revocation of ['app', 'policy']) test(`${revocation} revocation cancels consent before any grant or resume`, async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
   if (revocation === 'app') f.approvals.removeAppApproval(app);
-  else require('./use-control-settings.cjs').createSettingsOwner(f.home).updateSettings({ windowUseAllowAll: true }, 0);
+  else {const settings=require('./use-control-settings.cjs').createSettingsOwner(f.home);settings.updateSettings({windowUseEnabled:false},settings.getSettings().revision);}
   f.answer('항상 허용');
   const error=(await selecting.reply).error;assert.equal(error.code,'cancelled');assert.equal(error.actionExecuted,false);
   assert.equal(f.engine.resumes.length,0);
@@ -246,7 +224,7 @@ for (const revocation of ['app', 'policy']) test(`${revocation} revocation cance
 });
 for (const grant of ['stored', 'accepted']) test(`${grant} consent with no resulting grant returns permission_denied`, async t => {
   const f = await fixture(t), candidateId = await f.candidate();
-  f.approvals.hasAppApproval = () => false;
+  const hasAppApproval=f.approvals.hasAppApproval;f.approvals.hasAppApproval = (executable,threadId,permission='control') => permission==='observation'&&hasAppApproval(executable,threadId,permission);
   if (grant === 'stored') f.approvals.receive = (request, send) => send(request.id, { action: 'accept' });
   const selecting = await f.controlRequest(candidateId);
   if (grant === 'accepted') { await f.prompted(); f.answer('이 대화에서 허용'); }

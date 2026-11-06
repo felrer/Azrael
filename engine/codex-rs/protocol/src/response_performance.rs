@@ -20,7 +20,7 @@ pub enum ResponseSpeedMode {
 impl ResponseSpeedMode {
     pub fn from_service_tier(tier: Option<&str>) -> Option<Self> {
         match tier {
-            None | Some("default" | "standard") => Some(Self::Standard),
+            Some("default" | "standard") => Some(Self::Standard),
             Some("priority" | "fast") => Some(Self::Fast),
             Some("ultrafast") => Some(Self::Ultrafast),
             _ => None,
@@ -37,7 +37,8 @@ pub struct ResponseMinuteSample {
     pub output_tokens: u64,
     #[ts(type = "number")]
     pub request_duration_ms: u64,
-    #[serde(default)]
+    // Older `mode` values were requested tiers, not server confirmation.
+    #[serde(default, rename = "actualMode")]
     pub mode: Option<ResponseSpeedMode>,
 }
 
@@ -301,14 +302,19 @@ mod tests {
             Some(ResponseSpeedMode::Ultrafast)
         );
         assert_eq!(stats.output_tokens, 450);
-        assert_eq!(
-            ResponseSpeedMode::from_service_tier(None),
-            Some(ResponseSpeedMode::Standard)
-        );
-        assert_eq!(
-            ResponseSpeedMode::from_service_tier(Some("priority")),
-            Some(ResponseSpeedMode::Fast)
-        );
+        assert_eq!(ResponseSpeedMode::from_service_tier(None), None);
+        for (tier, expected) in [
+            ("default", ResponseSpeedMode::Standard),
+            ("standard", ResponseSpeedMode::Standard),
+            ("priority", ResponseSpeedMode::Fast),
+            ("fast", ResponseSpeedMode::Fast),
+            ("ultrafast", ResponseSpeedMode::Ultrafast),
+        ] {
+            assert_eq!(
+                ResponseSpeedMode::from_service_tier(Some(tier)),
+                Some(expected)
+            );
+        }
         assert_eq!(ResponseSpeedMode::from_service_tier(Some("other")), None);
     }
 
@@ -376,10 +382,26 @@ mod tests {
     #[test]
     fn response_performance_old_snapshots_have_no_invented_clock_or_mode() {
         let old = serde_json::json!({"turnId":"old", "outputTokens":10, "requestDurationMs":1000,
-            "completedRequests":1,"unmeasuredRequests":0,"minuteSamples":[{"minute":0,"outputTokens":10,"requestDurationMs":1000}]});
+            "completedRequests":1,"unmeasuredRequests":0,"minuteSamples":[{"minute":0,"outputTokens":10,"requestDurationMs":1000,"mode":"ultrafast"}]});
         let stats: ResponsePerformance = serde_json::from_value(old).unwrap();
         assert_eq!(stats.started_at_unix_ms, None);
         assert_eq!(stats.minute_samples[0].mode, None);
         assert!(stats.history.is_empty());
+        assert_eq!(stats.minute_samples[0].output_tokens, 10);
+        let wire = serde_json::to_value(&stats).unwrap();
+        assert!(wire["minuteSamples"][0].get("mode").is_none());
+        assert!(wire["minuteSamples"][0]["actualMode"].is_null());
+        let actual: ResponseMinuteSample = serde_json::from_value(serde_json::json!({
+            "minute":0,"outputTokens":10,"requestDurationMs":1000,
+            "mode":"ultrafast","actualMode":"standard"
+        }))
+        .unwrap();
+        assert_eq!(actual.mode, Some(ResponseSpeedMode::Standard));
+        let wire = serde_json::to_value(&actual).unwrap();
+        assert_eq!(wire["actualMode"], "standard");
+        assert_eq!(
+            serde_json::from_value::<ResponseMinuteSample>(wire).unwrap(),
+            actual
+        );
     }
 }

@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "work": "EG-01",
+  "registrationFailure": {
+    "id": "run:eg01:handoff-r2",
+    "pid": 46436,
+    "token": "46436-1793198572845-cd8e735186970040",
+    "actualExitCode": 1,
+    "error": "OS lock busy: lifecycle catalog",
+    "executionSession": 37590,
+    "verification": "Original exact native registration command returned terminal exit 1; registration branch does not launch subprocesses. A subsequent Win32_Process query found no maintenance_owner process. No PID-only assumption or producer result rewriting.",
+    "reservedPayload": "artifacts/tasks/eg01-handoff-r2"
+  },
+  "cleanupPending": true,
+  "id": "run:eg01:handoff-r2",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "453758203f8cc42794c28f790e24b973e62c043b5ae7c750819a6653acf39203",
+  "lease_owner": {
+    "acquired_at_ms": 1793198572845,
+    "operation": "group_reservation",
+    "pid": 46436,
+    "schema": 2,
+    "token": "46436-1793198572845-cd8e735186970040"
+  }
+}

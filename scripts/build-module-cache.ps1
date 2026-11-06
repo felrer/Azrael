@@ -99,12 +99,13 @@ function Get-BuildModuleFiles([string]$Path,[string]$Root) {
         if(-not $item.PSIsContainer){$item}
     }
 }
-function Get-BuildCacheProjects($Cache,[switch]$RequireExisting) {
+function Get-BuildCacheProjects($Cache,[switch]$RequireExisting,[switch]$ForProtection) {
     $registry=Assert-BuildCachePath (Join-Path $Cache.Root '.projects.json') $Cache.Root
     if(-not(Test-Path -LiteralPath $registry)){throw 'Missing module cache project registry.'}
     $data=Get-Content -LiteralPath $registry -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop
     if($data.schema -ne 1 -or $data.projects -isnot [array] -or -not $data.projects.Count){throw 'Invalid module cache project registry.'}
-    return @(foreach($project in $data.projects){
+    $selected=if($ForProtection){@($Cache.Owner)+@($data.projects)}else{@($data.projects)}
+    return @(foreach($project in @($selected|Select-Object -Unique)){
       if($project -isnot [string] -or -not [IO.Path]::IsPathFullyQualified($project)){throw 'Invalid registered cache project.'}
       $validated=Assert-BuildCachePath $project $Cache.Owner
       if($RequireExisting -and -not(Test-Path -LiteralPath $validated -PathType Container -ErrorAction Stop)){throw "Missing registered cache project: $validated"}
@@ -185,10 +186,17 @@ if(snapshot){let buffer="";process.stdin.setEncoding("utf8");process.stdin.on("d
 function Get-BuildCacheProjectInspection($Cache,[string]$Project) {
     $registry=Assert-BuildCachePath (Join-Path $Cache.Root '.projects.json') $Cache.Root
     $project=Assert-BuildCachePath $Project $Cache.Owner
-    $result=[ordered]@{project=$project;status='blocked';reason=$null;recoveryCondition=$null;registrySha256=(Get-BuildModuleFileHash $registry);catalogSha256=$null;groups=@()}
+    $result=[ordered]@{project=$project;cacheOwner=$Cache.Owner;durableConsumers=@();reuseEligibility='requires-entry-validation';status='blocked';reason=$null;recoveryCondition=$null;registrySha256=(Get-BuildModuleFileHash $registry);catalogSha256=$null;groups=@()}
     $catalogClient=$null;$reservationClient=$null
     try {
       if($project -notin @(Get-BuildCacheProjects $Cache)){throw 'Project is not registered'}
+      $consumers=& node (Join-Path $PSScriptRoot 'module-cache-consumers.cjs') list-consumers $Cache.Owner $project
+      if($LASTEXITCODE -ne 0){throw 'Cannot inspect durable cache consumers'}
+      $proxies=@($consumers|ConvertFrom-Json)
+      $result.durableConsumers=$proxies
+      $live=@($proxies|Where-Object {@($_.references).Count})
+      if($live.Count){throw ('Durable cache consumer remains: '+($live.id -join ', '))}
+      if($proxies.Count){throw ('Released cache consumer receipts require canonical cleanup before project retirement: '+($proxies.id -join ', '))}
       if(-not(Test-Path -LiteralPath $project -PathType Container -ErrorAction Stop)){throw 'Missing registered cache project; inspect-legacy requires independently retained consumer evidence for retirement'}
       $catalog=Assert-BuildCachePath (Join-Path $project 'artifacts/maintenance/lifecycles') $Cache.Owner
       if(-not(Test-Path -LiteralPath $catalog -PathType Container)){
@@ -373,6 +381,65 @@ function Remove-BuildCacheLegacyProjectRegistration($Cache,[string]$Project,[str
     }
     $result
 }
+function Remove-BuildCacheAbsentProjectRegistration($Cache,[string]$Project,[string]$EvidencePath,[string]$EvidenceSha256,[string]$ReceiptPath,[switch]$Apply) {
+    if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite -or $Cache.Lease -isnot [IO.FileStream] -or $Cache.Lease.Name -ine (Join-Path $Cache.Root '.lock')){throw 'Project invalidation requires the physical cache lease.'}
+    foreach($plain in @($Project,$EvidencePath,$ReceiptPath)){
+      if(-not [IO.Path]::IsPathFullyQualified($plain) -or $plain.Split([char[]]@('\','/')) -contains '..'){throw 'Fully qualified plain invalidation paths required'}
+    }
+    $inspection=Get-BuildCacheLegacyProjectInspection $Cache $Project
+    if($inspection.status -ne 'ready-for-proof' -or $inspection.projectState -cne 'absent'){throw 'Only an absent registered project may be invalidated'}
+    $project=$inspection.project
+    $evidence=Assert-BuildCacheRetirementEvidencePath $Cache $project $EvidencePath
+    if($EvidenceSha256 -notmatch '^[a-fA-F0-9]{64}$' -or (Get-BuildModuleFileHash $evidence) -ine $EvidenceSha256){throw 'Stale invalidation evidence identity'}
+    $proof=Get-Content -LiteralPath $evidence -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop
+    if($proof.schema -ne 1 -or $proof.action -cne 'invalidate-absent-project-cache-registration' -or $proof.user_authorized -isnot [bool] -or -not $proof.user_authorized -or $proof.project -cne $project -or $proof.cache_owner -cne $Cache.Owner -or $proof.registry_sha256 -ine $inspection.registrySha256 -or $proof.reason -isnot [string] -or [string]::IsNullOrWhiteSpace($proof.reason)){throw 'Exact user-authorized cache invalidation evidence required'}
+    $receipt=Assert-BuildCachePath $ReceiptPath $Cache.Owner
+    foreach($boundary in @($project,$Cache.Root)){
+      $relative=[IO.Path]::GetRelativePath($boundary,$receipt)
+      if($relative -eq '.' -or (-not [IO.Path]::IsPathRooted($relative) -and $relative -ne '..' -and -not $relative.StartsWith('..'+[IO.Path]::DirectorySeparatorChar))){throw 'Invalidation receipt must survive project and cache retirement'}
+    }
+    if(Test-Path -LiteralPath $receipt){throw 'Create-new invalidation receipt required'}
+    $registry=Assert-BuildCachePath (Join-Path $Cache.Root '.projects.json') $Cache.Root
+    $original=[IO.File]::ReadAllBytes($registry)
+    $check={
+      $processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)
+      $boundaries=@($project,$Cache.Root)
+      foreach($process in $processes){
+        if($process.ProcessId -eq $PID){continue}
+        if($process.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$'){throw 'Running project process or compiler reference'}
+        foreach($boundary in $boundaries){
+          if(($process.CommandLine -and $process.CommandLine.IndexOf($boundary,[StringComparison]::OrdinalIgnoreCase) -ge 0) -or ($process.ExecutablePath -and ($process.ExecutablePath -ieq $boundary -or $process.ExecutablePath.StartsWith($boundary.TrimEnd('\','/')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)))){throw 'Running project or cache process reference'}
+        }
+      }
+      $consumers=& node (Join-Path $PSScriptRoot 'module-cache-consumers.cjs') list-consumers $Cache.Owner $project
+      if($LASTEXITCODE -ne 0){throw 'Cannot inspect durable cache consumers'}
+      if(@($consumers|ConvertFrom-Json|Where-Object {@($_.references).Count}).Count){throw 'Durable cache consumer remains'}
+      $fresh=Get-BuildCacheLegacyProjectInspection $Cache $project
+      $null=Assert-BuildCacheRetirementEvidencePath $Cache $project $evidence
+      $null=Assert-BuildCachePath $receipt $Cache.Owner
+      if($fresh.status -ne 'ready-for-proof' -or $fresh.projectState -cne 'absent' -or $fresh.registrySha256 -cne $inspection.registrySha256 -or (Get-BuildModuleFileHash $evidence) -ine $EvidenceSha256){throw 'Cache invalidation inputs changed'}
+    }
+    & $check
+    $result=[ordered]@{project=$project;action=$proof.action;status='selected';registrationAbsent=$false;historicalOutcome='unknown';historical_consumer_index='unavailable';registrySha256=$inspection.registrySha256;evidence=$evidence;evidenceSha256=$EvidenceSha256;receipt=$receipt;reason=$proof.reason}
+    if($Apply){
+      $projects=@(Get-BuildCacheProjects $Cache|Where-Object {$_ -ine $project})
+      $temporary=Join-Path $Cache.Root ('.projects-'+[guid]::NewGuid().ToString('N')+'.tmp')
+      try{
+        @{schema=1;projects=$projects}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath $temporary -Encoding utf8NoBOM
+        & $check
+        # The create-new receipt records intent and original bytes, never invents a historical outcome.
+        $document=@{schema=1;action=$proof.action;removed_project=$project;cache_owner=$Cache.Owner;historicalOutcome='unknown';historical_consumer_index='unavailable';original_registry_sha256=$inspection.registrySha256;original_registry_base64=[Convert]::ToBase64String($original);authority_ref=$evidence;authority_sha256=$EvidenceSha256;authority=$proof;reason=$proof.reason}
+        $bytes=[Text.Encoding]::UTF8.GetBytes(($document|ConvertTo-Json -Depth 12))
+        $stream=[IO.File]::Open($receipt,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::Read)
+        try{$stream.Write($bytes,0,$bytes.Length);$stream.Flush($true)}finally{$stream.Dispose()}
+        & $check
+        [IO.File]::Move($temporary,$registry,$true)
+      }finally{if(Test-Path -LiteralPath $temporary){Remove-Item -LiteralPath $temporary -ErrorAction Stop}}
+      $result.registrationAbsent=$project -notin @(Get-BuildCacheProjects $Cache)
+      $result.status=if($result.registrationAbsent){'invalidated'}else{'blocked'}
+    }
+    $result
+}
 function Open-BuildModuleCache([string]$ProjectRoot,[string]$CacheProjectRoot) {
     if($CacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($CacheProjectRoot)){throw 'CacheProjectRoot must be fully qualified.'}
     $owner=if($CacheProjectRoot){[IO.Path]::GetFullPath($CacheProjectRoot)}else{[IO.Path]::GetFullPath($ProjectRoot)}
@@ -468,7 +535,7 @@ function Get-BuildModuleLifecycleRecord($Cache,[string]$Module,[string]$Key,[str
     return $record
 }
 function Assert-BuildModuleConsumers($Cache,[string]$Id) {
-    $projects=@(Get-BuildCacheProjects $Cache -RequireExisting)
+    $projects=@(Get-BuildCacheProjects $Cache -RequireExisting -ForProtection)
     foreach($project in $projects){
       $registry=Assert-BuildCachePath (Join-Path $project 'artifacts/maintenance/lifecycles') $Cache.Owner
       if($project -ine $Cache.Owner -and -not(Test-Path -LiteralPath $registry -PathType Container)){throw "Missing lifecycle catalog for registered cache project: $project"}
@@ -502,21 +569,54 @@ function Remove-BuildModuleOwnedContents($Cache,[string]$Path) {
     }
     Remove-Item -LiteralPath $Path -ErrorAction Stop
 }
-function Remove-BuildModuleEntry($Cache,[string]$Module,[string]$Key,[string]$Path,[string[]]$ProtectedPaths=@(),[switch]$Preview,[switch]$Retry) {
+# Marker validation does not replace the lifecycle owner's recovery proof checks.
+function Assert-BuildModuleRecoveredOwner($Cache,[string]$Module,[string]$Key,[string]$Path,$Record,[string]$Sha256,[long]$Revision) {
+    if(-not [OperatingSystem]::IsWindows()){throw 'Module marker recovery is supported only on Windows'}
+    if($Cache.Lease -isnot [IO.FileStream] -or -not $Cache.Lease.CanWrite -or $Cache.Lease.SafeFileHandle.IsClosed -or $Cache.Lease.Name -ine (Join-Path $Cache.Root '.lock')){throw 'Recovery requires the physical cache lease.'}
+    if($Module -cnotin @('companion','providers') -or $Key -cnotmatch '^[a-f0-9]{64}$' -or $Path -cne (Join-Path $Cache.Root "$Module/$Key")){throw 'Unexpected recovery module cache path'}
+    Assert-BuildCachePath $Path $Cache.Root|Out-Null
+    if($Record.revision -ne $Revision -or $Record.state -cne 'pending' -or $Record.membership_complete -ne $true -or -not $Record.cleanup_recovery -or $Record.producer.status -cne 'stopped' -or $Record.producer.outcome -cne 'unknown' -or $null -ne $Record.producer.exit_code){throw 'Exact stopped unknown lifecycle cleanup recovery revision required'}
+    $marker=Assert-BuildCachePath (Join-Path $Path 'owner.json') $Path
+    $item=Get-Item -LiteralPath $marker -Force -ErrorAction Stop
+    if($item.PSIsContainer -or $item.LinkType -or $item.Length -lt 1 -or $item.Length -gt 64KB){throw 'Recovery requires a plain single-link bounded NUL owner marker'}
+    Initialize-ArtifactWindowsIdentity
+    $identity=[ArtifactRemovalNative]::Identity($marker)
+    if($identity.Split(':')[-1] -cne '1'){throw 'Recovery requires a single-link owner marker'}
+    $stream=[IO.File]::Open($marker,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+    try {
+      if($stream.Length -lt 1 -or $stream.Length -gt 64KB){throw 'Recovery requires a bounded NUL owner marker'}
+      $bytes=[byte[]]::new([int]$stream.Length)
+      $stream.ReadExactly($bytes,0,$bytes.Length)
+      if(@($bytes|Where-Object {$_ -ne 0}).Count){throw 'Recovery requires an exclusively NUL owner marker'}
+      if([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant() -cne $Sha256){throw 'Recovery owner marker SHA256 mismatch'}
+      Assert-BuildCachePath $marker $Path|Out-Null
+      if([ArtifactRemovalNative]::Identity($marker) -cne $identity -or ([ArtifactRemovalNative]::Attributes($marker) -band [IO.FileAttributes]::ReparsePoint)){throw 'Recovery owner marker identity changed'}
+    } finally {$stream.Dispose()}
+}
+function Remove-BuildModuleEntry($Cache,[string]$Module,[string]$Key,[string]$Path,[string[]]$ProtectedPaths=@(),[switch]$Preview,[switch]$Retry,[string]$RecoveredOwnerSha256,[long]$ExpectedRecoveryRevision) {
     if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite){throw 'Cleanup requires the cache lease.'}
     $record=Get-BuildModuleLifecycleRecord $Cache $Module $Key $Path
-    $owner=Get-Content -LiteralPath (Join-Path $Path 'owner.json') -Raw|ConvertFrom-Json
-    if($owner.schema -ne 1 -or $owner.module -cne $Module -or $owner.key -cne $Key){throw 'Unknown cache owner'}
+    $recoveryMode=$PSBoundParameters.ContainsKey('RecoveredOwnerSha256') -or $PSBoundParameters.ContainsKey('ExpectedRecoveryRevision')
+    if($recoveryMode){
+      if($Retry){throw 'Recovery cannot retry or change the unknown producer outcome'}
+      if($RecoveredOwnerSha256 -cnotmatch '^[a-f0-9]{64}$' -or $ExpectedRecoveryRevision -lt 1){throw 'Exact recovery SHA256 and positive revision required'}
+      Assert-BuildModuleRecoveredOwner $Cache $Module $Key $Path $record $RecoveredOwnerSha256 $ExpectedRecoveryRevision
+    } else {
+      $owner=Get-Content -LiteralPath (Join-Path $Path 'owner.json') -Raw|ConvertFrom-Json
+      if($owner.schema -ne 1 -or $owner.module -cne $Module -or $owner.key -cne $Key){throw 'Unknown cache owner'}
+    }
     $check={param($member)
       if($member -ine $Path){return 'Unexpected module lifecycle member'}
       try {
         Assert-BuildCacheTree $member $Cache.Root
-        Get-BuildModuleLifecycleRecord $Cache $Module $Key $Path|Out-Null
+        $freshRecord=Get-BuildModuleLifecycleRecord $Cache $Module $Key $Path
+        if($recoveryMode){Assert-BuildModuleRecoveredOwner $Cache $Module $Key $Path $freshRecord $RecoveredOwnerSha256 $ExpectedRecoveryRevision}
         Assert-BuildModuleConsumers $Cache $record.id
         $protected=@($ProtectedPaths)+@(Get-ProtectedBuildCachePaths $Cache)
         if(@($protected|Where-Object {$_ -and ([IO.Path]::GetFullPath($_).Equals($Path,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFullPath($_).StartsWith($Path+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase))}).Count){return 'Installed or protected module cache'}
         $processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)
         if(@($processes|Where-Object {$_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$' -or ($_.CommandLine -and $_.CommandLine.IndexOf($Path,[StringComparison]::OrdinalIgnoreCase) -ge 0)}).Count){return 'Running process or compiler reference'}
+        if($recoveryMode){Assert-BuildModuleRecoveredOwner $Cache $Module $Key $Path (Get-BuildModuleLifecycleRecord $Cache $Module $Key $Path) $RecoveredOwnerSha256 $ExpectedRecoveryRevision}
       }catch{return $_.Exception.Message}
     }
     $reason=& $check $Path
@@ -530,16 +630,30 @@ function Remove-BuildModuleEntry($Cache,[string]$Module,[string]$Key,[string]$Pa
     Invoke-ArtifactLifecycleCleanup -ProjectRoot $Cache.Owner -CandidatePath $Path -ProtectedPaths $ProtectedPaths -Apply (-not $Preview) -CheckMember $check -RemoveMember $remove
 }
 function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][string]$Module,[string[]]$Inputs,[string[]]$Values=@(),[switch]$Force,[scriptblock]$AdditionalInputs) {
-    Get-BuildCacheProjects $Cache -RequireExisting|Out-Null
+    if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite){throw 'Module selection requires the cache lease.'}
+    $phase=[Diagnostics.Stopwatch]::StartNew()
+    Get-BuildCacheProjects $Cache|Out-Null
+    $metrics=[ordered]@{registryMs=$phase.Elapsed.TotalMilliseconds;inputFingerprintMs=0.0;outputValidationMs=0.0;publicationInputMs=0.0;publicationOutputMs=0.0}
+    $phase.Restart()
     $sourceInputs=$Inputs
     if($AdditionalInputs){$Inputs=@($sourceInputs)+@(& $AdditionalInputs)}
-    $key=Get-BuildModuleKey $Inputs $Values;$path=Assert-BuildCachePath (Join-Path $Cache.Root "$Module/$key") $Cache.Root
-    $entry=@{Module=$Module;Key=$key;Path=$path;Inputs=$Inputs;SourceInputs=$sourceInputs;AdditionalInputs=$AdditionalInputs;Values=$Values;Hit=$false;Cache=$Cache;LifecycleId="run:module-cache:${Module}:$key";LogDirectory=(Join-Path $path 'logs')}
+    $diagnostics=@{}
+    $key=Get-BuildModuleKey $Inputs $Values -Diagnostics $diagnostics;$path=Assert-BuildCachePath (Join-Path $Cache.Root "$Module/$key") $Cache.Root
+    $metrics.inputFingerprintMs=$phase.Elapsed.TotalMilliseconds
+    $entry=@{Module=$Module;Key=$key;Path=$path;Inputs=$Inputs;SourceInputs=$sourceInputs;AdditionalInputs=$AdditionalInputs;Values=$Values;Hit=$false;MissReason=$(if($Force){'forced'}else{'receipt-missing'});PhaseMetrics=$metrics;Cache=$Cache;LifecycleId="run:module-cache:${Module}:$key";LogDirectory=(Join-Path $path 'logs')}
+    $entry.InputManifest=$diagnostics.inputManifest
     $receiptPath=Join-Path $path 'cache.json'
     if(-not $Force -and (Test-Path -LiteralPath $receiptPath)){
+      $phase.Restart()
       try{
+        Assert-BuildCachePath $receiptPath $path|Out-Null
         $receipt=Get-Content -LiteralPath $receiptPath -Raw|ConvertFrom-Json
         if($receipt.schema -ne 1 -or $receipt.module -cne $Module -or $receipt.key -cne $key -or -not @($receipt.files).Count -or -not @($receipt.outputs).Count){throw 'Invalid cache receipt'}
+        $markerPath=Assert-BuildCachePath (Join-Path $path 'owner.json') $path
+        $marker=Get-Content -LiteralPath $markerPath -Raw|ConvertFrom-Json
+        if($marker.schema -ne 1 -or $marker.module -cne $Module -or $marker.key -cne $key){throw 'Unknown cache owner'}
+        $record=Get-BuildModuleLifecycleRecord $Cache $Module $key $path
+        if($record.state -cne 'complete' -or $record.membership_complete -ne $true -or ($record.producer -and ($record.producer.status -cne 'stopped' -or $record.producer.outcome -cne 'success'))){throw 'Completed module lifecycle required for reuse'}
         $outputPaths=[string[]]@(foreach($output in $receipt.outputs){Join-Path $path $output})
         $inventoryFiles=@([Azrael.BuildModuleFingerprint]::Scan($outputPaths,$false,$path)|Where-Object FullName)
         $inventory=@($inventoryFiles|ForEach-Object {[IO.Path]::GetRelativePath($path,$_.FullName)})
@@ -550,8 +664,9 @@ function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][stri
         foreach($file in $receipt.files){
           if($hashes[$file.path] -ine $file.sha256){throw 'Cache output changed'}
         }
-        $receipt.lastUsedUtc=[DateTime]::UtcNow.ToString('o');$receipt|ConvertTo-Json -Depth 6|Set-Content -LiteralPath $receiptPath -Encoding utf8NoBOM;(Get-Item -LiteralPath $path).LastWriteTimeUtc=[DateTime]::UtcNow;$entry.Hit=$true
-      }catch{$entry.Hit=$false}
+        $receipt.lastUsedUtc=[DateTime]::UtcNow.ToString('o');$receipt|ConvertTo-Json -Depth 6|Set-Content -LiteralPath $receiptPath -Encoding utf8NoBOM;(Get-Item -LiteralPath $path).LastWriteTimeUtc=[DateTime]::UtcNow;$entry.Hit=$true;$entry.MissReason=$null
+      }catch{$entry.Hit=$false;$entry.MissReason=$_.Exception.Message}
+      finally{$metrics.outputValidationMs=$phase.Elapsed.TotalMilliseconds}
     }
     if(-not $entry.Hit){
       if(Test-Path -LiteralPath $path){
@@ -562,7 +677,7 @@ function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][stri
       [IO.Directory]::CreateDirectory($entry.LogDirectory)|Out-Null
       @{schema=1;module=$Module;key=$key}|ConvertTo-Json|Set-Content (Join-Path $path 'owner.json') -Encoding utf8NoBOM
     }
-    $Cache.Entries+=,$entry;$Cache.Results+=@{module=$Module;key=$key;reused=$entry.Hit;path=$path}
+    $Cache.Entries+=,$entry;$Cache.Results+=@{module=$Module;key=$key;reused=$entry.Hit;path=$path;missReason=$entry.MissReason;phaseMetrics=$metrics;inputManifest=$entry.InputManifest}
     # Selection supersedes unused keys even when generation fails before publication.
     if(-not $Cache.SkipCleanup){
       try {
@@ -582,16 +697,24 @@ function Get-BuildModuleCurrentKey($Entry) {
     Get-BuildModuleKey $inputs $Entry.Values
 }
 function Save-BuildModuleEntry($Entry,[string[]]$Outputs) {
-    Get-BuildCacheProjects $Entry.Cache -RequireExisting|Out-Null
+    if(-not $Entry.Cache.Lease -or -not $Entry.Cache.Lease.CanWrite){throw 'Module publication requires the cache lease.'}
+    Get-BuildCacheProjects $Entry.Cache|Out-Null
     Get-BuildModuleLifecycleRecord $Entry.Cache $Entry.Module $Entry.Key $Entry.Path|Out-Null
-    if((Get-BuildModuleCurrentKey $Entry) -cne $Entry.Key){throw 'Module inputs changed during compilation; cache is not reusable.'}
-    $outputPaths=[string[]]@(foreach($output in $Outputs){Join-Path $Entry.Path $output})
-    foreach($outputPath in $outputPaths){if(-not(Test-Path -LiteralPath $outputPath)){throw "Missing module output: $outputPath"}}
-    $files=@([Azrael.BuildModuleFingerprint]::Scan($outputPaths,$false,$Entry.Path)|Where-Object FullName|ForEach-Object {@{path=[IO.Path]::GetRelativePath($Entry.Path,$_.FullName);sha256=$_.Sha256}})
-    if((Get-BuildModuleCurrentKey $Entry) -cne $Entry.Key){throw 'Module inputs changed before cache publication.'}
+    $phase=[Diagnostics.Stopwatch]::StartNew()
+    try{if((Get-BuildModuleCurrentKey $Entry) -cne $Entry.Key){throw 'Module inputs changed during compilation; cache is not reusable.'}}
+    finally{$Entry.PhaseMetrics.publicationInputMs+=$phase.Elapsed.TotalMilliseconds}
+    $phase.Restart()
+    try{
+      $outputPaths=[string[]]@(foreach($output in $Outputs){Join-Path $Entry.Path $output})
+      foreach($outputPath in $outputPaths){if(-not(Test-Path -LiteralPath $outputPath)){throw "Missing module output: $outputPath"}}
+      $files=@([Azrael.BuildModuleFingerprint]::Scan($outputPaths,$false,$Entry.Path)|Where-Object FullName|ForEach-Object {@{path=[IO.Path]::GetRelativePath($Entry.Path,$_.FullName);sha256=$_.Sha256}})
+    }finally{$Entry.PhaseMetrics.publicationOutputMs=$phase.Elapsed.TotalMilliseconds}
+    $phase.Restart()
+    try{if((Get-BuildModuleCurrentKey $Entry) -cne $Entry.Key){throw 'Module inputs changed before cache publication.'}}
+    finally{$Entry.PhaseMetrics.publicationInputMs+=$phase.Elapsed.TotalMilliseconds}
     $temporary=Join-Path $Entry.Path ('cache-'+[guid]::NewGuid().ToString('N')+'.tmp')
     try {
-      @{schema=1;module=$Entry.Module;key=$Entry.Key;lastUsedUtc=[DateTime]::UtcNow.ToString('o');outputs=$Outputs;files=$files}|ConvertTo-Json -Depth 6|Set-Content $temporary -Encoding utf8NoBOM
+      @{schema=1;module=$Entry.Module;key=$Entry.Key;lastUsedUtc=[DateTime]::UtcNow.ToString('o');outputs=$Outputs;files=$files;missReason=$Entry.MissReason;phaseMetrics=$Entry.PhaseMetrics;inputManifest=$Entry.InputManifest}|ConvertTo-Json -Depth 6|Set-Content $temporary -Encoding utf8NoBOM
       [IO.File]::Move($temporary,(Join-Path $Entry.Path 'cache.json'),$true)
     } finally {if(Test-Path -LiteralPath $temporary){Remove-Item -LiteralPath $temporary -ErrorAction Stop}}
     $null=Register-ArtifactLifecycle -ProjectRoot $Entry.Cache.Owner -Id $Entry.LifecycleId -Kind run -Owner 'module-build-cache' -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{'cache-entry'=$Entry.Path}
@@ -618,7 +741,7 @@ function Assert-BuildCacheTree([string]$Path,[string]$Root) {
 }
 function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[string[]]$ProtectedPaths=@(),[switch]$Preview,[ValidateSet('companion','providers')][string[]]$Module=@('companion','providers')) {
     if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite){throw 'Cleanup requires the cache lease.'}
-    Get-BuildCacheProjects $Cache -RequireExisting|Out-Null
+    Get-BuildCacheProjects $Cache -RequireExisting -ForProtection|Out-Null
     $selected=@(foreach($name in @('companion','providers')){$Cache.Entries|Where-Object Module -EQ $name|Select-Object -Last 1})
     $protected=@($ProtectedPaths)+@($selected|ForEach-Object Path);$report=@()
     try {$processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)}catch{return @{path=$Cache.Root;status='preserved';reason="Process inspection failed: $($_.Exception.Message)";absent=(-not(Test-Path -LiteralPath $Cache.Root));deletedItemCount=0;deletedFileCount=0;deletedBytes=[long]0;cleanupComplete=$false;revisitCondition='Restore complete process inspection, then preview and recheck cache protections.'}}
@@ -658,13 +781,17 @@ function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[s
 }
 function Get-ProtectedBuildCachePaths($Cache) {
     $paths=@()
-    foreach($project in @(Get-BuildCacheProjects $Cache -RequireExisting)){
+    foreach($project in @(Get-BuildCacheProjects $Cache -RequireExisting -ForProtection)){
     $deployments=Assert-BuildCachePath (Join-Path $project 'artifacts/deployments') $Cache.Owner
     if(Test-Path $deployments){
       $receipts=@(Get-ChildItem $deployments -Directory -ErrorAction Stop|ForEach-Object {$p=Assert-BuildCachePath (Join-Path $_.FullName 'deployment.json') $Cache.Owner;if(Test-Path $p){$r=Get-Content $p -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop;if($r.hostInstalled){[pscustomobject]@{Receipt=$r;Time=$r.generatedAt}}}}|Sort-Object Time -Descending|Select-Object -First 2)
       foreach($item in $receipts){
-        $p=Assert-BuildCachePath (Join-Path $item.Receipt.packageDirectory 'preparation-inputs.json') $Cache.Owner;if(-not(Test-Path $p)){throw "Missing installed tool receipt: $p"};$paths+=(Get-Content $p -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop).toolDirectory
-        $p=Assert-BuildCachePath (Join-Path $item.Receipt.releaseDirectory 'build-info.json') $Cache.Owner;if(-not(Test-Path $p)){throw "Missing installed build receipt: $p"};$paths+=(Get-Content $p -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop).moduleBuild.typeScriptPath
+        # Preparation tools are rebuildable inputs, not installed runtime payloads.
+        # Active readers hold a cache lease; durable consumers have lifecycle refs.
+        foreach($name in @('packageDirectory','releaseDirectory')){
+          if ([string]::IsNullOrWhiteSpace([string]$item.Receipt.$name) -or -not [IO.Path]::IsPathFullyQualified([string]$item.Receipt.$name)) { throw "Missing or invalid installed payload path: $name" }
+          $paths+=Assert-BuildCachePath ([string]$item.Receipt.$name) $Cache.Owner
+        }
       }
     }
     }
@@ -672,7 +799,7 @@ function Get-ProtectedBuildCachePaths($Cache) {
 }
 function Remove-OldBuildStaging($Cache,[ValidateRange(0,10)][int]$Keep=0,[string[]]$ProtectedPaths=@(),[switch]$Preview) {
     if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite){throw 'Cleanup requires the cache lease.'}
-    Get-BuildCacheProjects $Cache -RequireExisting|Out-Null
+    Get-BuildCacheProjects $Cache -RequireExisting -ForProtection|Out-Null
     $container=Join-Path $Cache.Project 'artifacts/build';$report=@();if(-not(Test-Path $container)){return $report}
     $candidates=@(Get-ChildItem $container -Directory|Where-Object {(Test-Path (Join-Path $_.FullName 'companion/package.json')) -or (Test-Path (Join-Path $_.FullName 'opencodex/package.json'))}|Sort-Object LastWriteTimeUtc -Descending)
     try {$processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)}catch{return @{path=$container;status='preserved';reason="Process inspection failed: $($_.Exception.Message)"}}

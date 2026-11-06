@@ -31,14 +31,14 @@ async function runtime(config, env) {
   return { node: { executable: process.execPath, sha256: sha(await fs.promises.readFile(process.execPath)),
     version: process.version, platform: process.platform, arch: process.arch },
     os: { release: os.release(), version: os.version(), machine: os.machine() },
-    environmentSha256: sha(canonical(env)),
+    environmentSha256: sha(canonical(Object.fromEntries(Object.entries(env).filter(([name]) => name !== 'AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH')))),
     binaries: await contentState(config.engineDirectory, BINARY_FILES),
     catalog: await contentState(config.engineSourceRoot, ['codex-rs/models-manager/models.json']) };
 }
 
 async function key(config, group, runtimeIdentity) {
   const files = new Set(['scripts/feature-preservation.cjs', 'scripts/native-verification-cache.cjs',
-    'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
+    'scripts/verification-result-cache.cjs', 'scripts/verification-reuse-policy.cjs', 'scripts/directory-state.cjs']);
   const declared = group.entries.map(({ feature, check }) => {
     feature.owners.forEach(file => files.add(file)); files.add(feature.contract);
     check.nativeCacheInputs.files.forEach(file => files.add(file));
@@ -52,6 +52,7 @@ async function key(config, group, runtimeIdentity) {
     runtime: runtimeIdentity }));
 }
 
-const options = config => ({ projectRoot: config.projectRoot, cacheRoot: rootFor(config) });
+const options = config => ({ projectRoot: config.projectRoot, cacheRoot: rootFor(config),
+  ...(config.reuseDecisionsPath === undefined ? {} : { reuseDecisionsPath: config.reuseDecisionsPath }) });
 module.exports = { validateInputs, runtime, key, options, CACHE_SCHEMA: storage.CACHE_SCHEMA,
   begin: storage.begin, prune: storage.prune, pruneObsoleteVersions: storage.pruneObsoleteVersions, pruneRemovedChecks: storage.pruneRemovedChecks };

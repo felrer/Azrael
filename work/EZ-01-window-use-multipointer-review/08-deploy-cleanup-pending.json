@@ -1,0 +1,17 @@
+{
+  "status": "temporary-retention-approved",
+  "approval": "User explicitly approved temporary retention of these exact six paths and 1,587,698 bytes until the cleanup-owner boundary issue is resolved; then delete through the existing owner.",
+  "owner": "test-deploy-azrael",
+  "logicalBytes": 1587698,
+  "reason": "Owned short TEMP roots are outside configured managed roots; adding each exact path makes it a protected managed root. No delete was attempted; temporary configuration changes were reverted.",
+  "items": [
+    { "path": "artifacts/tasks/deploy-checks/runs/5c12196397f54bf4935dfc10d1cd0660", "bytes": 498258 },
+    { "path": "artifacts/tasks/deploy-checks/runs/4875afd22c7a431dba1d2a1db40144e9", "bytes": 500108 },
+    { "path": "artifacts/tasks/deploy-checks/runs/a4b1859857614053893deb2d1b379093", "bytes": 589332 },
+    { "path": "artifacts/t-5c12", "bytes": 0 },
+    { "path": "artifacts/t-4875", "bytes": 0 },
+    { "path": "artifacts/t-a4b1", "bytes": 0 }
+  ],
+  "revisitCondition": "Explicit cleanup-owner boundary decision, then fresh owner review/apply/finalize. Preserve guards and exact group membership.",
+  "separateFromPreviouslyApprovedEightGroups": true
+}

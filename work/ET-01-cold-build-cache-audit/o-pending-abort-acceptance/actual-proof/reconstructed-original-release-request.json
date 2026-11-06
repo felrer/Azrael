@@ -1,0 +1,10 @@
+{
+  "owner": "azrael-deployment-temporary",
+  "expected_revision": 3,
+  "reference_ids": [
+    "8ae0aaa926427a37a49ee1f747df0461bb4438d2efa6a478d14e8dd78c7a97c7"
+  ],
+  "reason": "Exact O execution dependency has terminated; all unrelated references remain untouched.",
+  "evidence_ref": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/temp-reset-o-terminal.json",
+  "evidence_sha256": "f720ab769ba54e480c049d6df8f4c1f52c7436ff5d2b30dbc8b00cd6e9918100"
+}

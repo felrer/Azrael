@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+  "executable_sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+  "calls": [
+    {
+      "operation": "inventory",
+      "limit": 1000,
+      "exit_code": 1,
+      "error": "limit must be 1..200; no payload mutation"
+    },
+    {
+      "operation": "inventory",
+      "offset": 0,
+      "limit": 200,
+      "exit_code": 0
+    },
+    {
+      "operation": "inventory",
+      "offset": 200,
+      "limit": 200,
+      "exit_code": 0
+    },
+    {
+      "operation": "inventory",
+      "offset": 400,
+      "limit": 200,
+      "exit_code": 0
+    }
+  ],
+  "pagination": {
+    "bundles_total": 52,
+    "decisions_total": 1354,
+    "groups_total": 523,
+    "limit": 200,
+    "offset": 400,
+    "runs_total": 75,
+    "total": 1188
+  },
+  "groups": []
+}

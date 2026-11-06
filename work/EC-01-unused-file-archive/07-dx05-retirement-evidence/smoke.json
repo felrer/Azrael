@@ -1,0 +1,78 @@
+{
+  "verified_at": "2026-10-26T10:42:32.091Z",
+  "binary": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6f6f874e-win-x64-dx05\\payload\\maintenance_owner.exe",
+    "sha256": "6ffd3d7e5787439381740a8bb3a32a7f4d4ab0d91beba4ee145c954287a06a96",
+    "size": 1597440
+  },
+  "platform": "Windows x64 MSVC",
+  "calls": [
+    {
+      "label": "primary-inventory",
+      "exit_code": 0,
+      "seconds": 0.2589204,
+      "error": null
+    },
+    {
+      "label": "fixture-register",
+      "exit_code": 0,
+      "seconds": 0.11292410000000001,
+      "error": null
+    },
+    {
+      "label": "fixture-review",
+      "exit_code": 0,
+      "seconds": 0.04701069999999999,
+      "error": null
+    },
+    {
+      "label": "fixture-apply",
+      "exit_code": 0,
+      "seconds": 0.9989201999999999,
+      "error": null
+    },
+    {
+      "label": "execution-rejected",
+      "exit_code": 1,
+      "seconds": 0.03171859999999992,
+      "error": null
+    },
+    {
+      "label": "external-request-rejected",
+      "exit_code": 1,
+      "seconds": 0.024822599999999966,
+      "error": null
+    },
+    {
+      "label": "relative-project-rejected",
+      "exit_code": 1,
+      "seconds": 0.024990499999999884,
+      "error": null
+    }
+  ],
+  "inventory_keys": [
+    "bundles",
+    "decisions",
+    "groups",
+    "items",
+    "logical_bytes",
+    "measurement",
+    "pagination",
+    "policy",
+    "project_id",
+    "project_root",
+    "runs"
+  ],
+  "actual_deletion_verified": true,
+  "unselected_preserved": true,
+  "unsupported_execution_rejected": true,
+  "external_request_rejected": true,
+  "relative_root_rejected": true,
+  "binary_unchanged": true,
+  "reused_native_regression": {
+    "count": 137,
+    "result": "pass",
+    "record": "work/DX-01-cleanup-performance/03-plan.md",
+    "source_unchanged": true
+  }
+}

@@ -1,0 +1,385 @@
+{
+  "schema": 1,
+  "status": "source-fix-verified-and-cleaned",
+  "contract": "same project sessions use per-thread retained processor routes without window ownership gating",
+  "platforms": {
+    "target": [
+      "Windows x64",
+      "Linux x64",
+      "macOS ARM64"
+    ],
+    "verified": [
+      "Windows x64 Node regressions",
+      "Windows x64 native Rust module and engine-lease tests"
+    ],
+    "nativeRust": "Windows x64: 18 shared-server + 5 engine-lease tests passed; standalone diagnostic retry passed",
+    "installed": "not changed"
+  },
+  "sourceTests": {
+    "exitCode": 0,
+    "tests": 21,
+    "passed": 21,
+    "failed": 0,
+    "stdoutSha256": "a562cc9d11f1c0717b19f56565fd8135901e021a849860cf73b34af727e47dda",
+    "logRoot": "artifacts/tasks/EU01-project-sessions/runs/source-r1"
+  },
+  "cleanup": {
+    "pending": [],
+    "sourceApply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:EU01-project-sessions:source-r1",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-34308-4393-1793429917511",
+          "decision": "delete",
+          "decision_id": "424c9dd87b1e09eac511f512cfb0da665fefc0b6f934d40a0c0dfc7d8f664ba9",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "8ea1ed790d948a29bb598fb7b1a13223539a77533bd42edc6fccfba123419b6d",
+          "lifecycle_group_id": "run:EU01-project-sessions:source-r1",
+          "reason": "Completed source regression; independent actual counts and acceptance retained",
+          "remaining": false,
+          "status": "deleted",
+          "token": "c7bb1a6b68f01a47e792aeec6936beb04ad4e2e6f777114abb92d2114c39b166"
+        }
+      ]
+    },
+    "finalized": [
+      {
+        "id": "run:EU01-project-sessions:source-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\497edfbab5fc222e52310b538ef881fa1713fc67d0f64535474d4da9ea2f051b.json"
+      },
+      {
+        "id": "run:EU01-project-sessions:windows-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\65140b91807b266712b2746048a0cc49c51420e763c318066c58b714c729af6d.json"
+      },
+      {
+        "id": "run:EU01-project-sessions:windows-r2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\bfd494d53d0f310e93050b8190e40ab16ec5a092879d1b7637b1452880609f23.json"
+      }
+    ],
+    "nativeApply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:EU01-project-sessions:windows-r1",
+          "status": "deleted"
+        },
+        {
+          "id": "run:EU01-project-sessions:windows-r2",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-30784-4397-1793431082466",
+          "decision": "delete",
+          "decision_id": "2d5108c0fc0ab58c6a7d3019cd7400359c50194e1fe11f31a6db1c55daf6cdc6",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "622c9188f62dbf564839623eb6d9347b4e653e8579a264f00e4e97093a70dc0a",
+          "lifecycle_group_id": "run:EU01-project-sessions:windows-r1",
+          "reason": "Completed Windows project-session regression; independent counts, source identities and initial failure retained in acceptance",
+          "remaining": false,
+          "status": "deleted",
+          "token": "75486b55b7098db2077babcd75980e6898684338466bc7eff9c9c976c8f3d106"
+        },
+        {
+          "attempt_id": "attempt-30784-4399-1793431300399",
+          "decision": "delete",
+          "decision_id": "4e69775a1bc425088c659e50fbb1b656e9912429a6813af9e853c9381e4044e0",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "e11eea51e2c8d6f5031fcb14fad1a51af95bffbd738e072168d3c7edd68b68d1",
+          "lifecycle_group_id": "run:EU01-project-sessions:windows-r2",
+          "reason": "Completed Windows project-session regression; independent counts, source identities and initial failure retained in acceptance",
+          "remaining": false,
+          "status": "deleted",
+          "token": "480f476d844b5e889200a2104b9d13b2a983f47cec76f3bf2f189a08491afa61"
+        }
+      ]
+    },
+    "emptyTaskNamespaceRemoved": true,
+    "completedUtc": "2026-10-31T07:22:42.332Z"
+  },
+  "nativeAttempts": [
+    {
+      "id": "windows-r1",
+      "results": [
+        {
+          "filter": "azrael_shared_server::tests::",
+          "exitCode": 101,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": false,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "FAILED",
+                  "passed": 17,
+                  "failed": 1,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 482
+                }
+              ],
+              "passed": 17,
+              "failed": 1,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 482,
+              "executed": 18
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-app-server",
+                  "--lib",
+                  "azrael_shared_server::tests::",
+                  "--locked",
+                  "--offline",
+                  "--target",
+                  "x86_64-pc-windows-msvc",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-31T06:51:16.912Z",
+                "durationMs": 827924,
+                "exitCode": 101,
+                "signal": null
+              }
+            ]
+          }
+        }
+      ],
+      "exitCode": 1,
+      "failingTest": "azrael_shared_server::tests::diagnostic_snapshot_preserves_shape_and_storage_failure_is_nonfatal",
+      "failure": "snapshot count 0, expected 1; production path can return empty on storage failure or 2-second timeout",
+      "changedSessionCases": "passed",
+      "failureExcerpt": "---- azrael_shared_server::tests::diagnostic_snapshot_preserves_shape_and_storage_failure_is_nonfatal stdout ----\n\nthread 'azrael_shared_server::tests::diagnostic_snapshot_preserves_shape_and_storage_failure_is_nonfatal' (32488) panicked at app-server\\src\\azrael_shared_server\\tests.rs:316:5:\nassertion `left == right` failed\n  left: 0\n right: 1\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+      "diagnosis": "Single diagnostic snapshot assertion failed initially; unchanged-input standalone retry and entire-module rerun passed. Exact original storage error versus timeout not established."
+    },
+    {
+      "id": "windows-r2",
+      "results": [
+        {
+          "filter": "azrael_shared_server::tests::diagnostic_snapshot_preserves_shape_and_storage_failure_is_nonfatal",
+          "exitCode": 0,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 1,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 499
+                }
+              ],
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 499,
+              "executed": 1
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-app-server",
+                  "--lib",
+                  "azrael_shared_server::tests::diagnostic_snapshot_preserves_shape_and_storage_failure_is_nonfatal",
+                  "--locked",
+                  "--offline",
+                  "--target",
+                  "x86_64-pc-windows-msvc",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-31T07:06:36.346Z",
+                "durationMs": 56520,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          }
+        },
+        {
+          "filter": "azrael_shared_server::tests::",
+          "exitCode": 0,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 18,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 482
+                }
+              ],
+              "passed": 18,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 482,
+              "executed": 18
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-app-server",
+                  "--lib",
+                  "azrael_shared_server::tests::",
+                  "--locked",
+                  "--offline",
+                  "--target",
+                  "x86_64-pc-windows-msvc",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-31T07:07:32.870Z",
+                "durationMs": 18801,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          }
+        },
+        {
+          "filter": "azrael_thread_engines::tests::",
+          "exitCode": 0,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 5,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 495
+                }
+              ],
+              "passed": 5,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 495,
+              "executed": 5
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-app-server",
+                  "--lib",
+                  "azrael_thread_engines::tests::",
+                  "--locked",
+                  "--offline",
+                  "--target",
+                  "x86_64-pc-windows-msvc",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-10-31T07:07:51.675Z",
+                "durationMs": 19507,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          }
+        }
+      ],
+      "exitCode": 0
+    }
+  ],
+  "inputs": {
+    "frozenManifestSha256": "addfba601cb1953191ef7679824cb3dbb3d98e2999b2e21d43542f46e1d48e1d",
+    "changedEngineFiles": {
+      "engine/codex-rs/app-server/src/azrael_shared_server.rs": "c48cc658d13e2cf6742cd9f790bce68e38095e2865db10de867f2513e5eab474",
+      "engine/codex-rs/app-server/src/azrael_shared_server/tests.rs": "f724837b387f39d7d51c28dab5f11963b3d86b18c3b268b4ade57879cbd0aa1d"
+    }
+  },
+  "commit": {
+    "status": "deferred",
+    "reason": "Unrelated pre-existing staged changes and mixed prior IPC edits in shared checker/docs/work record; index preserved"
+  },
+  "remaining": [
+    "New product binary IPC/installed-host acceptance not run; installation unchanged",
+    "Linux/macOS native execution unverified",
+    "Earlier IPC task protected cleanup groups still await scoped retention approval"
+  ]
+}

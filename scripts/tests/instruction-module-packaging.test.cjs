@@ -25,7 +25,7 @@ async function packageDirectory(name, parent) {
 }
 
 async function fixture(t, { omitDirect, omitTransitive } = {}) {
-  const fixtures = path.join(root, "artifacts/verification");
+  const fixtures = process.env.AZRAEL_WORKBENCH_TEST_ROOT || path.join(root, "artifacts/verification");
   await fs.mkdir(fixtures, { recursive: true });
   const directory = await fs.mkdtemp(path.join(fixtures, "instruction-module-package-"));
   t.after(async () => {
@@ -58,12 +58,15 @@ async function fixture(t, { omitDirect, omitTransitive } = {}) {
   // No hand-maintained extra packages: undeclared runtime dependencies must fail.
   for (const name of Object.keys(manifest.dependencies ?? {})) await dependency(name, sourceAccount);
   for (const name of instructionModules) await fs.copyFile(path.join(root, "scripts", name), path.join(account, name));
+  await fs.writeFile(path.join(account, "role-profile-defaults.json"), JSON.stringify(await require("../role-profile-defaults.cjs").buildDefaultProfiles(root)));
   return { directory, account };
 }
 
 test("real instruction modules load from the declared packaged production dependency closure", async t => {
   const { account } = await fixture(t);
   assert.deepEqual(checkInstructionModules(account), { modules: instructionModules });
+  await fs.unlink(path.join(account, "role-profile-defaults.json"));
+  assert.throws(() => checkInstructionModules(account), /role-profile-defaults/);
 });
 
 for (const [kind, name, options] of [
@@ -97,4 +100,13 @@ for (const [kind, name, options] of [
 
 test("packaging guard rejects relative account-ui roots", () => {
   assert.throws(() => checkInstructionModules("account-ui"), /Absolute account-ui directory required/);
+});
+
+test("cross-platform host staging includes the verified instruction and role module closure", async () => {
+  const source = await fs.readFile(path.join(root, "scripts/prepare-platform-host.cjs"), "utf8");
+  const list = source.match(/const accountModules=(\[[^;]+\]);/)?.[1];
+  assert.ok(list, "the production account module declaration is present");
+  const staged = JSON.parse(list);
+  for (const name of instructionModules) assert.ok(staged.includes(name), `Platform account-ui omits ${name}`);
+  assert.match(source, /account-ui\/role-profile-defaults\.json/);
 });

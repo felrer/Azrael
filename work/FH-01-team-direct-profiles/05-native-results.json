@@ -1,0 +1,62 @@
+{
+  "generation": "g2-positive-and-current-fork-fixture",
+  "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\fh01-34fdc6ea\\engine",
+  "observedWrapperExitCode": 1,
+  "results": [
+    {
+      "filter": "role_profile",
+      "observedExitCode": 0,
+      "passed": 7,
+      "failed": 0,
+      "stdoutSha256": "a9639790b1eb1f13191cb238f96e9cd79c0335e3ee3d87605a8d7ced1c2bc163"
+    },
+    {
+      "filter": "spawn_agent_fork",
+      "observedExitCode": 0,
+      "passed": 6,
+      "failed": 0,
+      "stdoutSha256": "53b3e81eb190fcb1dbafef33d0c8c9eac50b7c2c1407bf459fd083aa3df1457b"
+    },
+    {
+      "filter": "multi_agent_v2_spawn_fork_turns_all_applies_agent_type_override",
+      "observedExitCode": 0,
+      "passed": 1,
+      "failed": 0,
+      "stdoutSha256": "35618794dbbec7d48f0e288076158874af2ade36c8dbad164aa79654d9bf524b"
+    },
+    {
+      "filter": "spawn_agent_can_fork_parent_thread_history_with_sanitized_items",
+      "observedExitCode": 0,
+      "passed": 1,
+      "failed": 0,
+      "stdoutSha256": "01512d460ab366c2944ce4c89938618696236b2490036fffbcc396fc5897e245"
+    },
+    {
+      "filter": "root_coordination",
+      "observedExitCode": 0,
+      "passed": 11,
+      "failed": 0,
+      "stdoutSha256": "21c3a3eddf3430a6a154bb1b76fc8237270ea138f6365d47043c6c4e6d22765b"
+    },
+    {
+      "filter": "defer_root_registration",
+      "observedExitCode": 0,
+      "passed": 1,
+      "failed": 0,
+      "stdoutSha256": "52c99d047c9b40db6777a5741fa7ed66c0f58f4b040eeb95cd17210da253e9bb"
+    }
+  ],
+  "passed": 27,
+  "failure": {
+    "phase": "before seventh Cargo launch",
+    "code": "ENOENT",
+    "path": "artifacts/tasks/verify-window-native-approval-render/runs/20261102T094456269Z-fe82d8ae-5c46-4ed8-9ab2-51e99fc34df8/inputs",
+    "stackOwner": "artifact-lifecycle.cjs catalogSnapshot -> cargo-shared-cache.cjs beginExecution",
+    "reason": "Concurrent owner cleanup removed a catalog ancestor during snapshot"
+  },
+  "unrun": [
+    "config::schema::tests::config_schema_matches_fixture",
+    "schema_fixtures_tests::"
+  ],
+  "next": "Wait for current owner cleanup to end, then run only two unrun schema filters using unchanged frozen source; do not weaken cleanup or execution guards"
+}

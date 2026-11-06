@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "action": "recover-cleanup",
+  "source": {
+    "id": "shared:cargo-pending:dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+    "kind": "work",
+    "owner": "cargo-target-owner",
+    "version": null,
+    "generation": "5fdf3e98-6425-4179-9ab7-1ff29516f4f9",
+    "revision": 21,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": null,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-pending\\dec40d0d0e18389b84045c74dedceb9d2df79e1c1f9890b88fdee4fd1e21895f",
+        "role": "pending",
+        "generated": true,
+        "protection_known": true
+      }
+    ]
+  },
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "stop_basis": "Verified Windows boot 2026-10-28T05:55:33.5000000Z follows this exact generation; no related local Cargo process or selected-path owner is live",
+  "membership_basis": "Original full-root generated ownership is unchanged, no other owner overlaps or consumes it; non-following metadata traversal reconciled current entire selected root without links/special files; Cargo cache identity equals its key",
+  "producer_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\20-reboot-evidence.json",
+      "sha256": "0eb9d80b20c858d331d87217852abdeed1920695edd1c535d25da9d3e07af729"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\20-reboot-membership.json",
+      "sha256": "36910d4feaf460fb366f07bd8610779faa24ddbfed0a69263fe03486de3556bc"
+    }
+  ]
+}

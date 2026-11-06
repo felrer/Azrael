@@ -77,6 +77,7 @@ pub(crate) fn without_notification_media(notification: ServerNotification) -> Se
         | ServerNotification::ThreadTokenUsageUpdated(_)
         | ServerNotification::TurnStarted(_)
         | ServerNotification::TurnDeferred(_)
+        | ServerNotification::UserWaitTimingUpdated(_)
         | ServerNotification::RootResumeWaitUpdated(_)
         | ServerNotification::HookStarted(_)
         | ServerNotification::TurnCompleted(_)

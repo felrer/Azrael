@@ -1,0 +1,63 @@
+{
+  "lifecycleId": "run:EZ01:desktop-native-mw0hdhiy",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\desktop-native-mw0hdhiy",
+  "hashes": [
+    [
+      "approval_notification.rs",
+      "b124297c4de32a98ba96369d535d1862d11dd3cb6cfbc70446fc6e2e5d81cbb4"
+    ],
+    [
+      "capture.rs",
+      "8cd8b1ddb2dce5a074065d1147e85789dffe539c2b1f18cab1065a04538456df"
+    ],
+    [
+      "desktop_capture.rs",
+      "9208ff47a0b7dab6feea49e6e77d3f96e3f7c3569010e3d7ce64f4d2e2b37e36"
+    ],
+    [
+      "lifetime.rs",
+      "c4e486f5f464f75cc4f28e1bf852d1d647191e8c899e3be3d367a3ec76c7c740"
+    ],
+    [
+      "linux_backend.py",
+      "ebe789ea3e86dbae1d0509b81ded359411d8b569991f559430f23ac1ce84ee06"
+    ],
+    [
+      "main.rs",
+      "e957be0216283b8abce6214aad6e9f378ee24491e3e6d80505d8745973d83544"
+    ],
+    [
+      "overlay.rs",
+      "fd0f7deac61470b050502ccb26bdf4ba2980b0613059d6f3d7ab265cdbc20a09"
+    ],
+    [
+      "protocol.rs",
+      "9eae4a9e893cb0db3d36205882983a5894ec1154e95fea19afb0bcadae56b049"
+    ],
+    [
+      "uia.rs",
+      "46af97e845cd79c3c11fdc0472b82c5a4a01842702efd402bc25c600ad8737de"
+    ],
+    [
+      "windows_backend.rs",
+      "a8af7810d537410a6b3f9241755a522995b219db41e8f60b273a9e5c1e14dddf"
+    ]
+  ],
+  "steps": [
+    {
+      "op": "test",
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\desktop-native-mw0hdhiy\\logs\\test.log"
+    },
+    {
+      "op": "build",
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\desktop-native-mw0hdhiy\\logs\\build.log"
+    }
+  ],
+  "startedAt": "2026-11-03T09:23:55.190Z",
+  "exitCode": 0,
+  "endedAt": "2026-11-03T09:24:53.310Z"
+}

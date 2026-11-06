@@ -169,6 +169,25 @@ async fn ephemeral_goal_tools_preserve_specs_but_reject_execution() -> anyhow::R
             .collect::<Vec<_>>(),
     );
     for tool in tools {
+        assert_eq!(
+            tool.exposure(),
+            codex_tools::ToolExposure::DeferredModelOnly
+        );
+        assert_eq!(
+            tool.tool_name().namespace.as_deref(),
+            Some("legacy_codex_tools")
+        );
+        let codex_tools::ToolSpec::Namespace(namespace) = tool.spec() else {
+            panic!("goal tool must use its runtime namespace");
+        };
+        assert_eq!(namespace.name, "legacy_codex_tools");
+        let [codex_tools::ResponsesApiNamespaceTool::Function(function)] =
+            namespace.tools.as_slice()
+        else {
+            panic!("goal namespace must contain its function schema");
+        };
+        assert_eq!(function.name, tool.tool_name().name);
+        assert!(tool.search_info().is_some());
         let Err(error) = tool
             .handle(tool_call(&tool.tool_name().name, "ephemeral", json!({})))
             .await
@@ -1909,7 +1928,14 @@ impl GoalExtensionHarness {
         outcome: ToolCallOutcome,
     ) {
         let turn_store = ExtensionData::new(turn_id);
-        let tool_name = codex_extension_api::ToolName::plain(tool_name);
+        let tool_name = if matches!(tool_name, "get_goal" | "create_goal" | "update_goal") {
+            codex_extension_api::ToolName::namespaced(
+                codex_tools::LEGACY_CODEX_TOOLS_NAMESPACE,
+                tool_name,
+            )
+        } else {
+            codex_extension_api::ToolName::plain(tool_name)
+        };
         for contributor in self.registry.tool_lifecycle_contributors() {
             contributor
                 .on_tool_finish(ToolFinishInput {
@@ -1955,7 +1981,13 @@ fn tool_by_name<'a>(
 ) -> &'a Arc<dyn for<'call> ToolExecutor<ToolCall<'call>>> {
     tools
         .iter()
-        .find(|tool| tool.tool_name().namespace.is_none() && tool.tool_name().name == name)
+        .find(|tool| {
+            tool.tool_name()
+                == codex_tools::ToolName::namespaced(
+                    codex_tools::LEGACY_CODEX_TOOLS_NAMESPACE,
+                    name,
+                )
+        })
         .expect("requested goal tool should exist")
 }
 
@@ -1963,7 +1995,10 @@ fn tool_call(tool_name: &str, call_id: &str, arguments: serde_json::Value) -> To
     ToolCall {
         turn_id: "turn-1".to_string(),
         call_id: call_id.to_string(),
-        tool_name: codex_extension_api::ToolName::plain(tool_name),
+        tool_name: codex_extension_api::ToolName::namespaced(
+            codex_tools::LEGACY_CODEX_TOOLS_NAMESPACE,
+            tool_name,
+        ),
         model: "gpt-test".to_string(),
         codex_turn_metadata: None,
         truncation_policy: TruncationPolicy::Bytes(1024),

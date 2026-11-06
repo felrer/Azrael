@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { mkdtempSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import { infer } from '../inference.ts';
 import { loadConfig, saveConfig } from '../vendor/src/config.ts';
 import { saveCredential } from '../vendor/src/oauth/store.ts';
@@ -10,6 +11,16 @@ import { createProgressMonitor } from '../../devin/progress.mjs';
 import { UNAVAILABLE_TOOL_NAMESPACE } from '../inference-mapping.mjs';
 
 const wire = (value: any) => `event: ${value.type}\ndata: ${JSON.stringify(value)}\n\n`;
+async function removeFixture(root: string) {
+  // Bound transient Windows sharing failures; preserve other errors and sustained locks.
+  for (let retry = 0; ; retry++) {
+    try { rmSync(root, { recursive: true }); return; }
+    catch (error) {
+      if (process.platform !== 'win32' || (error as NodeJS.ErrnoException).code !== 'EBUSY' || retry >= 5) throw error;
+      await delay((retry + 1) * 100);
+    }
+  }
+}
 test('actual Anthropic adapter exposes safe raw/parser mapping evidence and ping-only argument stall', async () => {
   const root = mkdtempSync(join(tmpdir(), 'azrael-tool-diagnostics-'));
   const oldHome = process.env.CODEX_HOME, oldOcx = process.env.OPENCODEX_HOME;
@@ -117,6 +128,6 @@ test('actual Anthropic adapter exposes safe raw/parser mapping evidence and ping
   } finally {
     if (oldHome === undefined) delete process.env.CODEX_HOME; else process.env.CODEX_HOME = oldHome;
     if (oldOcx === undefined) delete process.env.OPENCODEX_HOME; else process.env.OPENCODEX_HOME = oldOcx;
-    rmSync(root, { recursive: true });
+    await removeFixture(root);
   }
 });

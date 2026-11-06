@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "controllerPid": 31896,
+  "argv": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\script-delta-d-claims-cleanup-20261031a.cjs"
+  ],
+  "startedUtc": "2026-10-30T17:15:49.084Z",
+  "projectRoot": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+  "ownerExecutable": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-et01-duplicate-claims-win-x64/payload/maintenance_owner.exe",
+    "sha256": "3993e9a52598149898fa210d46c7ca888e589abcae72cba973dd9727f9cee76c"
+  },
+  "steps": [
+    {
+      "operation": "close-d",
+      "startedUtc": "2026-10-30T17:15:49.218Z",
+      "finishedUtc": "2026-10-30T17:15:49.354Z",
+      "id": "run:ET-01-cold-build-cache-audit:script-delta-inputs-20261030d",
+      "revision": 4,
+      "state": "failed",
+      "references": [],
+      "producer": {
+        "status": "stopped",
+        "outcome": "failure",
+        "exit_code": 1,
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\script-delta-d-claims-cleanup-20261031a-evidence.json",
+        "evidence_sha256": "b08b8196d4978d48a72c50040c6ced6eefcd7c6dac0cc3174a90c5114fc9326e",
+        "reason": "Root observed actual failed d process terminal1; no product child or compilation, exact derived outputs never created."
+      }
+    },
+    {
+      "operation": "close-absent",
+      "id": "workspace:83cbb21168600bc46b9fa4d4",
+      "revision": 2,
+      "state": "failed",
+      "startedUtc": "2026-10-30T17:15:49.354Z",
+      "finishedUtc": "2026-10-30T17:15:49.577Z"
+    },
+    {
+      "operation": "release-dependencies",
+      "id": "workspace:83cbb21168600bc46b9fa4d4",
+      "revision": 3,
+      "references": [],
+      "startedUtc": "2026-10-30T17:15:49.577Z",
+      "finishedUtc": "2026-10-30T17:15:49.709Z"
+    },
+    {
+      "operation": "finalize-absent",
+      "id": "workspace:83cbb21168600bc46b9fa4d4",
+      "startedUtc": "2026-10-30T17:15:49.709Z",
+      "finishedUtc": "2026-10-30T17:15:49.884Z",
+      "result": {
+        "id": "workspace:83cbb21168600bc46b9fa4d4",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\bed56aa78f3a62adb01a69b63b1266190eba1a9d6657b5cdb9e4fcd027d8c8e1.json"
+      }
+    },
+    {
+      "operation": "close-absent",
+      "id": "input:83cbb21168600bc46b9fa4d4",
+      "revision": 2,
+      "state": "failed",
+      "startedUtc": "2026-10-30T17:15:49.884Z",
+      "finishedUtc": "2026-10-30T17:15:50.052Z"
+    },
+    {
+      "operation": "release-dependencies",
+      "id": "input:83cbb21168600bc46b9fa4d4",
+      "revision": 3,
+      "references": [],
+      "startedUtc": "2026-10-30T17:15:50.052Z",
+      "finishedUtc": "2026-10-30T17:15:50.151Z"
+    },
+    {
+      "operation": "finalize-absent",
+      "id": "input:83cbb21168600bc46b9fa4d4",
+      "startedUtc": "2026-10-30T17:15:50.151Z",
+      "finishedUtc": "2026-10-30T17:15:50.321Z",
+      "result": {
+        "id": "input:83cbb21168600bc46b9fa4d4",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\cdac60643b35555edae08e17ed7e9a0a4262a11d51fe9ab9e0a1f39cc6f7fb38.json"
+      }
+    }
+  ],
+  "evidence": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/script-delta-d-claims-cleanup-20261031a-evidence.json",
+    "sha256": "b08b8196d4978d48a72c50040c6ced6eefcd7c6dac0cc3174a90c5114fc9326e"
+  },
+  "run": {
+    "id": "run:ET-01-cold-build-cache-audit:script-delta-inputs-20261030d",
+    "revision": 4,
+    "state": "failed",
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\script-delta-d-claims-cleanup-20261031a-evidence.json",
+      "evidence_sha256": "b08b8196d4978d48a72c50040c6ced6eefcd7c6dac0cc3174a90c5114fc9326e",
+      "reason": "Root observed actual failed d process terminal1; no product child or compilation, exact derived outputs never created."
+    },
+    "references": [],
+    "physicalRunRetained": true
+  },
+  "finalAbsence": {
+    "inputIdAbsent": true,
+    "workspaceIdAbsent": true,
+    "i5Absent": true,
+    "zAbsent": true
+  },
+  "baselineRecordsUnchanged": true,
+  "payloadDeletionPerformed": false,
+  "finishedUtc": "2026-10-30T17:15:50.395Z"
+}

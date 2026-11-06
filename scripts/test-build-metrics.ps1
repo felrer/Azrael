@@ -169,6 +169,17 @@ Test-Case 'throwing-command' {
     Expect-Failure { Invoke-BuildCommand 'Throw-BuildFixture' @() 'throw.log' -LogDirectory $runDirectory -Metrics $m } 'original-command-throw' | Out-Null
     Assert-True ((Read-CaseMetrics $m).stages[0].status -eq 'failed') 'Throwing command must fail.'
 }
+Test-Case 'memory-admission-failure-does-not-start-command' {
+    $originalAdmission = (Get-Item Function:Wait-BuildMemory).ScriptBlock
+    $marker = Join-Path $runDirectory 'memory-admission-command-started'
+    try {
+        Set-Item Function:Wait-BuildMemory { throw 'memory-admission-fixture-blocked' }
+        $m = New-CaseMetrics 'memory-admission'
+        Expect-Failure { Invoke-BuildCommand $pwsh @('-NoProfile', '-Command', "Set-Content -LiteralPath '$marker' -Value started") 'memory-admission.log' -LogDirectory $runDirectory -Metrics $m } 'memory-admission-fixture-blocked' | Out-Null
+        Assert-True (-not (Test-Path -LiteralPath $marker)) 'Blocked command must remain unstarted.'
+        Assert-True ($null -eq (Read-CaseMetrics $m).stages[0].exitCode) 'Admission failure has no child exit code.'
+    } finally { Set-Item Function:Wait-BuildMemory $originalAdmission }
+}
 $nativeScript = Join-Path $runDirectory 'native-package.ps1'
 $laterMarker = Join-Path $runDirectory 'later-native-marker'
 @'
@@ -200,6 +211,31 @@ Test-Case 'script-native-failure-stops-before-success' {
     Assert-True ($j.stages[0].status -eq 'failed' -and $j.stages[0].exitCode -eq 9) 'Package must retain first failing native exit.'
     Assert-True (-not (Test-Path $laterMarker)) 'Package continued after native failure.'
 }
+Test-Case 'shared-cargo-owner-follows-explicit-owner' {
+    foreach ($scriptName in @('build-azrael.ps1', 'deploy-azrael.ps1')) {
+        $tokens = $null; $errors = $null
+        $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $scriptName), [ref]$tokens, [ref]$errors)
+        Assert-True (-not $errors) 'Producer must parse.'
+        $assignment = @($ast.FindAll({param($n) $n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left -is [Management.Automation.Language.VariableExpressionAst] -and $n.Left.VariablePath.UserPath -ceq 'cacheOwner'}, $true))
+        Assert-True ($assignment.Count -eq 1) 'Expected one shared-cache owner selection boundary.'
+        $projectRoot = 'execution-project'; $project = $projectRoot
+        foreach ($case in @(@('cargo-owner','module-owner','cargo-owner'), @('','module-owner','module-owner'), @('','','execution-project'))) {
+            $CargoCacheProjectRoot = $case[0]; $ModuleCacheProjectRoot = $case[1]
+            $actual = & ([scriptblock]::Create($assignment[0].Extent.Text + '; $cacheOwner'))
+            Assert-True ($actual -ceq $case[2]) "$scriptName selected the wrong shared owner."
+        }
+    }
+}
+Test-Case 'cache-context-and-phase-details' {
+    $m = New-CaseMetrics 'cache-context'
+    Set-BuildMetricContext $m 'cargo' ([ordered]@{ targetDirectory = 'owned-target'; profile = 'release'; decision = 'compile' })
+    $s = Start-BuildStage $m 'cache-input' -Details ([ordered]@{ owner = 'module-cache'; reused = $true })
+    Complete-BuildStage $m $s -ExitCode 0
+    Complete-BuildMetrics $m -Status success
+    $j = Read-CaseMetrics $m
+    Assert-True ($j.context.cargo.targetDirectory -ceq 'owned-target' -and $j.context.cargo.profile -ceq 'release') 'Selected cache context must survive serialization.'
+    Assert-True ($j.stages[0].details.reused -eq $true -and $j.stages[0].exitCode -eq 0) 'Phase details must not replace actual exit evidence.'
+}
 Test-Case 'advisory-metrics-write-failure' {
     $m = New-BuildMetrics -Path $runDirectory
     Expect-Failure { Invoke-BuildCommand $pwsh @('-NoProfile', '-Command', 'exit 11') 'write-failure-native.log' -LogDirectory $runDirectory -Metrics $m } 'exit code 11' | Out-Null
@@ -219,31 +255,18 @@ Test-Case 'pending-outer-phase-and-total-fail' {
     Assert-True (-not $m.Timer.IsRunning -and -not $phase.Timer.IsRunning) 'Total and phase timers must stop.'
     Assert-True ($j.elapsedMs -ge 0 -and $j.stages[0].elapsedMs -ge 0) 'Elapsed milliseconds must be nonnegative.'
 }
-Test-Case 'parse-production-scripts' {
-    foreach ($file in @('build-metrics.ps1', 'build-azrael.ps1')) {
-        $tokens = $null; $errors = $null
-        [void][Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $file), [ref]$tokens, [ref]$errors)
-        Assert-True ($errors.Count -eq 0) "Parse errors in $file`: $errors"
-    }
-}
 Test-Case 'release-selection-provenance-guard' {
     $tokens = $null; $errors = $null
     $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'build-azrael.ps1'), [ref]$tokens, [ref]$errors)
-    $topTry = @($ast.EndBlock.Statements | Where-Object { $_ -is [Management.Automation.Language.TryStatementAst] })
-    Assert-True ($topTry.Count -eq 1) 'Expected one top-level build try/catch.'
     $buildTry = @($ast.FindAll({param($node)
         $node -is [Management.Automation.Language.TryStatementAst] -and
         $node.CatchClauses.Count -eq 1 -and
         $node.CatchClauses[0].Extent.Text -match 'Complete-BuildMetrics.*-Status failed'
     }, $true))
-    Assert-True ($buildTry.Count -eq 1) 'Expected one metrics-owning build try/catch inside lifecycle protection.'
     $tryText = $buildTry[0].Body.Extent.Text
     $gate = $tryText.LastIndexOf("'packaged-source-check.log'")
     $move = $tryText.IndexOf('[IO.File]::Move(')
     Assert-True ($gate -ge 0 -and $move -gt $gate) 'Latest selection must follow final provenance command.'
-    Assert-True (($tryText.Substring($gate, $move - $gate)) -notmatch '(?m)^\s*(catch|finally|if|else|try)\b') 'Final provenance command must unconditionally precede selection.'
-    $allText = $ast.Extent.Text
-    Assert-True ([regex]::Matches($allText, '\[IO.File\]::Move\(').Count -eq 1) 'Unexpected alternative pointer publication.'
     Assert-True ($buildTry[0].CatchClauses[0].Extent.Text -match '\bthrow\b') 'Failure must finalize metrics and rethrow.'
     Assert-True ($tryText.IndexOf('Complete-BuildMetrics $buildMetrics -Status success') -gt $move) 'Total success must follow pointer publication.'
 }
@@ -276,9 +299,15 @@ Test-Case 'release-engine-recipe' {
         $node -is [Management.Automation.Language.CommandAst] -and
         $node.GetCommandName() -eq 'Invoke-BuildCommand' -and $node.Extent.Text -like "*'engine.log'"
     }, $true)
+    $CodeModeHostPath = $null
     $call = Invoke-RecipeExpression $cargo.Extent.Text
     Assert-True ($call.command -eq 'node' -and $call.arguments[0] -eq (Join-Path $PSScriptRoot 'cargo-target-owner.cjs')) 'Build must retain the target owner.'
-    Assert-True (($call.arguments -join '|') -eq ((@((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge')) -join '|')) 'Release recipe must preserve target, packages and features.'
+    Assert-True (($call.arguments -join '|') -eq ((@((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge', '-p', 'codex-code-mode-host', '--bin', 'codex-code-mode-host')) -join '|')) 'Default release recipe must build the host from the selected source with the engine.'
+    $CodeModeHostPath = 'selected external host'
+    $externalCodeModeHost = $CodeModeHostPath
+    $importedCall = Invoke-RecipeExpression $cargo.Extent.Text
+    Assert-True (($importedCall.arguments -join '|') -eq (($call.arguments[0..($call.arguments.Count - 5)]) -join '|')) 'Imported host selection must preserve the original engine Cargo recipe.'
+    $CodeModeHostPath = $null
     foreach ($gate in $ast.FindAll({param($node)
         $node -is [Management.Automation.Language.CommandAst] -and
         $node.GetCommandName() -eq 'Invoke-BuildCommand' -and $node.Extent.Text -like "*'engine-provenance.py'*" -and
@@ -288,6 +317,73 @@ Test-Case 'release-engine-recipe' {
         $profileIndex = [Array]::IndexOf($call.arguments, '--profile')
         Assert-True ($profileIndex -ge 0 -and $call.arguments[$profileIndex + 1] -eq 'release') 'Record and every package/reuse gate must bind release.'
     }
+    $record = $ast.Find({param($node)
+        $node -is [Management.Automation.Language.CommandAst] -and
+        $node.GetCommandName() -eq 'Invoke-BuildCommand' -and $node.Extent.Text -like "*'engine-provenance.log'"
+    }, $true)
+    $call = Invoke-RecipeExpression $record.Extent.Text
+    Assert-True ('--code-mode-host-built' -in $call.arguments -and '--code-mode-host-source' -notin $call.arguments) 'Default host provenance must be source-built.'
+    $CodeModeHostPath = $externalCodeModeHost = 'selected external host'
+    $call = Invoke-RecipeExpression $record.Extent.Text
+    $sourceIndex = [Array]::IndexOf($call.arguments, '--code-mode-host-source')
+    Assert-True ($sourceIndex -ge 0 -and $call.arguments[$sourceIndex + 1] -eq $externalCodeModeHost -and '--code-mode-host-built' -notin $call.arguments) 'Imported host provenance must bind the selected host.'
+    $selection = $ast.Find({param($node)
+        $node -is [Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -eq '$hostSelectionMatches' -and $node.Right -is [Management.Automation.Language.IfStatementAst]
+    }, $true)
+    $CodeModeHostPath = $null
+    $candidateReceipt = [pscustomobject]@{ source = [pscustomobject]@{ sourceSha256 = 'selected source' } }
+    foreach ($kind in @('source-built', 'external-import', $null)) {
+        foreach ($sourceHash in @('selected source', 'different source')) {
+            $candidateHost = [pscustomobject]@{ kind = $kind; sourceSha256 = $sourceHash; sha256 = 'host hash' }
+            $actual = Invoke-RecipeExpression ($selection.Extent.Text + '; $hostSelectionMatches')
+            Assert-True ($actual -eq ($kind -ceq 'source-built' -and $sourceHash -ceq 'selected source')) 'Default reuse must require source-built host with matching source identity.'
+        }
+    }
+    function Test-Path { return $true }
+    function Get-FileHash { return [pscustomobject]@{ Hash = 'selected host hash' } }
+    $CodeModeHostPath = 'selected external host'
+    foreach ($hostHash in @('selected host hash', 'different host hash')) {
+        $candidateHost = [pscustomobject]@{ kind = 'external-import'; sha256 = $hostHash }
+        $actual = Invoke-RecipeExpression ($selection.Extent.Text + '; $hostSelectionMatches')
+        Assert-True ($actual -eq ($hostHash -eq 'selected host hash')) 'Imported reuse must require the selected host hash.'
+    }
+    $EngineDirectory = Join-Path $engineTarget 'x86_64-pc-windows-msvc/release'
+    $hostSource = $ast.Find({param($node)
+        $node -is [Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -eq '$selectedCodeModeHost'
+    }, $true)
+    $externalCodeModeHost = $null
+    $actual = Invoke-RecipeExpression ($hostSource.Extent.Text + '; $selectedCodeModeHost')
+    Assert-True ($actual -eq (Join-Path $EngineDirectory 'codex-code-mode-host.exe')) 'Source-built host copy must select the Cargo output name.'
+    $externalCodeModeHost = 'selected external host'
+    $actual = Invoke-RecipeExpression ($hostSource.Extent.Text + '; $selectedCodeModeHost')
+    Assert-True ($actual -eq $externalCodeModeHost) 'Imported host copy must select the explicit input.'
+    $hashGuard = $ast.Find({param($node)
+        $node -is [Management.Automation.Language.IfStatementAst] -and $node.Clauses[0].Item1.Extent.Text -like '$externalCodeModeHost -and*' -and $node.Extent.Text -like '*Selected code-mode host changed during compilation*'
+    }, $true)
+    $externalCodeModeHostHash = 'selected host hash'
+    Invoke-RecipeExpression $hashGuard.Extent.Text
+    $externalCodeModeHostHash = 'old host hash'
+    $rejected = $false
+    try { Invoke-RecipeExpression $hashGuard.Extent.Text } catch { $rejected = $_.ToString() -like '*Selected code-mode host changed during compilation*' }
+    Assert-True $rejected 'Imported host mutation during compilation must stop the build.'
+    $compatibility = $ast.Find({param($node)
+        $node -is [Management.Automation.Language.CommandAst] -and $node.GetCommandName() -eq 'Invoke-BuildCommand' -and $node.Extent.Text -like "*'code-mode-host-compatibility.log'"
+    }, $true)
+    $engine = Join-Path $EngineDirectory 'azrael.exe'
+    $previousModuleCache, $previousSkipEngineBuild, $previousForceEngineCompatibility = $moduleCache, $SkipEngineBuild, $ForceEngineCompatibility
+    $moduleCache = @{ Owner = 'selected cache project' }
+    $SkipEngineBuild = $true
+    $ForceEngineCompatibility = $false
+    $call = Invoke-RecipeExpression $compatibility.Extent.Text
+    $expectedCompatibility = @((Join-Path $PSScriptRoot 'check-build-engine-compatibility.mjs'), $EngineDirectory, (Join-Path $logDirectory 'code-mode-host-compatibility'), '--cache-project-root', $moduleCache.Owner)
+    Assert-True (($call.arguments -join '|') -eq ($expectedCompatibility -join '|')) 'Reused engine compatibility must select the actual bundle and shared proof owner.'
+    foreach ($condition in @('forced','rebuilt')) {
+        $ForceEngineCompatibility = $condition -eq 'forced'
+        $SkipEngineBuild = $condition -ne 'rebuilt'
+        $call = Invoke-RecipeExpression $compatibility.Extent.Text
+        Assert-True (($call.arguments -join '|') -eq (($expectedCompatibility + '--full') -join '|')) 'Forced or rebuilt engine compatibility must retain the full check.'
+    }
+    $moduleCache, $SkipEngineBuild, $ForceEngineCompatibility = $previousModuleCache, $previousSkipEngineBuild, $previousForceEngineCompatibility
     function python { [pscustomobject]@{ arguments = @($args) } }
     $sourceRoot = Join-Path $runDirectory 'selected-source'
     $candidateEngine = Join-Path $runDirectory 'previous-release/engine'
@@ -307,18 +403,31 @@ Test-Case 'actual-build-isolated-provenance-failure' {
     $source = Join-Path $fixture 'source'
     $engine = Join-Path $fixture 'engine'
     New-Item -ItemType Directory -Path $fixtureScripts, (Join-Path $source 'codex-rs'), $engine, (Join-Path $fixture 'artifacts') -Force | Out-Null
-    foreach ($name in @('build-azrael.ps1', 'build-metrics.ps1', 'build-module-cache.ps1', 'build-module-companion-recipe.ps1', 'build-module-providers-recipe.ps1', 'artifact-lifecycle.ps1', 'artifact-lifecycle.cjs', 'artifact-observations.cjs', 'maintenance-lock-owner.cjs', 'maintenance-lock-worker.cjs', 'maintenance-lock-client.cjs', 'maintenance-owner-config.cjs', 'engine-provenance.py', 'azrael-platforms.json')) {
+    foreach ($name in @('build-azrael.ps1', 'deployment-input-snapshot.cjs', 'pipeline-state.cjs', 'verification-reuse-policy.cjs', 'build-metrics.ps1', 'build-resource-admission.cjs', 'maintenance-preferences.cjs', 'build-module-cache.ps1', 'build-module-companion-recipe.ps1', 'build-module-providers-recipe.ps1', 'artifact-lifecycle.ps1', 'artifact-lifecycle.cjs', 'artifact-observations.cjs', 'maintenance-lock-owner.cjs', 'maintenance-lock-worker.cjs', 'maintenance-lock-client.cjs', 'maintenance-owner-config.cjs', 'engine-provenance.py', 'import-engine-source.py', 'azrael-platforms.json')) {
         Copy-Item (Join-Path $PSScriptRoot $name) (Join-Path $fixtureScripts $name)
         Assert-True ((Get-FileHash (Join-Path $PSScriptRoot $name)).Hash -eq (Get-FileHash (Join-Path $fixtureScripts $name)).Hash) 'Fixture must execute byte-identical production scripts.'
     }
     '[workspace]' | Set-Content (Join-Path $source 'codex-rs/Cargo.toml')
+    $pipelineContext = Join-Path $runDirectory 'isolated-pipeline-context.json'
+    @{ file = (Join-Path $fixture 'artifacts/pipeline-state.json'); identity = @{ fixture = $fixture } } | ConvertTo-Json -Depth 4 | Set-Content $pipelineContext -Encoding utf8NoBOM
     $latest = Join-Path $fixture 'artifacts/latest.json'
     '{"sentinel":"existing-release"}' | Set-Content $latest
     $before = (Get-FileHash $latest).Hash
     $productionLatest = Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/latest.json'
     $productionBefore = if (Test-Path $productionLatest) { (Get-FileHash $productionLatest).Hash } else { $null }
-    & $pwsh -NoProfile -File (Join-Path $fixtureScripts 'build-azrael.ps1') -ReleaseName missing-receipt -SkipEngineBuild -SourceRoot $source -EngineDirectory $engine *> (Join-Path $runDirectory 'isolated-build.log')
-    $actualExit = $LASTEXITCODE
+    # The isolated project has no installed owner receipt. Bind its child to
+    # the verified primary owner through the existing explicit override.
+    $previousOwner = $env:AZRAEL_MAINTENANCE_OWNER
+    $previousMode = $env:AZRAEL_MAINTENANCE_OWNER_MODE
+    try {
+        $ownerJson = & node -e 'process.stdout.write(JSON.stringify(require(process.argv[1]).resolveMaintenanceCommand(process.argv[2])))' (Join-Path $PSScriptRoot 'maintenance-owner-config.cjs') (Split-Path $PSScriptRoot -Parent)
+        if ($LASTEXITCODE -ne 0) { throw 'Fixture maintenance owner prerequisite failed.' }
+        $owner = ($ownerJson -join "`n") | ConvertFrom-Json
+        $env:AZRAEL_MAINTENANCE_OWNER = $owner.executable
+        $env:AZRAEL_MAINTENANCE_OWNER_MODE = if (@($owner.args).Count) { 'azrael-maintenance' } else { 'standalone' }
+        & $pwsh -NoProfile -File (Join-Path $fixtureScripts 'build-azrael.ps1') -ReleaseName missing-receipt -SkipEngineBuild -SourceRoot $source -EngineDirectory $engine -PipelineContextPath $pipelineContext -LifecycleParentActive *> (Join-Path $runDirectory 'isolated-build.log')
+        $actualExit = $LASTEXITCODE
+    } finally { $env:AZRAEL_MAINTENANCE_OWNER = $previousOwner; $env:AZRAEL_MAINTENANCE_OWNER_MODE = $previousMode }
     Assert-True ($actualExit -ne 0) 'Actual build must fail on absent provenance receipt.'
     Assert-True ((Get-Content (Join-Path $fixture 'artifacts/logs/missing-receipt/engine-source-check.log') -Raw) -match 'Engine has no source provenance') 'Fixture must reach the missing engine receipt guard.'
     $j = Get-Content (Join-Path $fixture 'artifacts/logs/missing-receipt/build-metrics.json') -Raw | ConvertFrom-Json

@@ -1,0 +1,669 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "selection": {
+    "command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    },
+    "sha256": "31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89",
+    "normal_parent_environment": true,
+    "pins": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\owner-installation.json",
+        "sha256": "b5a33c2b6e9fc76e0cd1f743a6af775c6991c831d56c92f7784bb400b33ec6dd",
+        "after_sha256": "b5a33c2b6e9fc76e0cd1f743a6af775c6991c831d56c92f7784bb400b33ec6dd",
+        "bytes_unchanged": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\deployments\\maintenance-owner-dw16\\installation.json",
+        "sha256": "b5a33c2b6e9fc76e0cd1f743a6af775c6991c831d56c92f7784bb400b33ec6dd",
+        "after_sha256": "b5a33c2b6e9fc76e0cd1f743a6af775c6991c831d56c92f7784bb400b33ec6dd",
+        "bytes_unchanged": true
+      }
+    ]
+  },
+  "parent_environment": {
+    "AZRAEL_STATE_ROOT": null,
+    "CODEX_HOME": "C:\\Users\\felre\\.azrael-ex",
+    "AZRAEL_MAINTENANCE_OWNER": null,
+    "AZRAEL_MAINTENANCE_OWNER_MODE": null,
+    "AZRAEL_MAINTENANCE_INSTALLATION": null
+  },
+  "native_environment": {
+    "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\default-smoke\\state-home",
+    "CODEX_HOME": "C:\\Users\\felre\\.azrael-ex",
+    "AZRAEL_MAINTENANCE_OWNER": null,
+    "AZRAEL_MAINTENANCE_OWNER_MODE": null,
+    "AZRAEL_MAINTENANCE_INSTALLATION": null,
+    "AZRAEL_MAINTENANCE_TIMING": "1"
+  },
+  "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\default-smoke",
+  "native": [
+    {
+      "label": "capabilities",
+      "wall_ms": 151.2883,
+      "pid": 10976,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "args": [
+        "capabilities"
+      ],
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\default-capabilities",
+      "spans": {},
+      "non_timing_stderr": []
+    },
+    {
+      "label": "lease",
+      "wall_ms": 90.4542,
+      "pid": 5144,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "args": [
+        "--lease",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\default-smoke\\catalog.lock",
+        "--operation",
+        "group.default.acceptance",
+        "--wait-ms",
+        "0",
+        "--parent-pid",
+        "13276"
+      ],
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\default-lease",
+      "spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 1,
+          "total_us": 32948,
+          "max_us": 32948,
+          "attempts": 1,
+          "outcomes": {
+            "acquired": 1
+          }
+        },
+        "maintenance.lock_hold:group.default.acceptance": {
+          "count": 1,
+          "total_us": 39631,
+          "max_us": 39631,
+          "attempts": 1,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      },
+      "non_timing_stderr": []
+    },
+    {
+      "label": "register",
+      "wall_ms": 350.6133,
+      "pid": 27204,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\default-register",
+      "spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 2,
+          "total_us": 124648,
+          "max_us": 68828,
+          "attempts": 2,
+          "outcomes": {
+            "acquired": 2
+          }
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 179483,
+          "max_us": 101001,
+          "attempts": 2,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 2,
+          "total_us": 259107,
+          "max_us": 135805,
+          "attempts": 2,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 5,
+          "total_us": 20,
+          "max_us": 8,
+          "attempts": 5,
+          "outcomes": {
+            "success": 5
+          }
+        },
+        "maintenance.phase:state.read": {
+          "count": 1,
+          "total_us": 1709,
+          "max_us": 1709,
+          "attempts": 1,
+          "outcomes": {
+            "read": 1
+          }
+        },
+        "maintenance.phase:state.prepare_local": {
+          "count": 1,
+          "total_us": 9,
+          "max_us": 9,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:state.open_pending": {
+          "count": 1,
+          "total_us": 379,
+          "max_us": 379,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:state.serialize": {
+          "count": 1,
+          "total_us": 5,
+          "max_us": 5,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:state.write_pending": {
+          "count": 1,
+          "total_us": 66,
+          "max_us": 66,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:state.sync_pending": {
+          "count": 1,
+          "total_us": 3199,
+          "max_us": 3199,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:state.rename": {
+          "count": 1,
+          "total_us": 1284,
+          "max_us": 1284,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:state.commit": {
+          "count": 1,
+          "total_us": 14179,
+          "max_us": 14179,
+          "attempts": 1,
+          "outcomes": {
+            "committed": 1
+          }
+        },
+        "maintenance.phase:state.save": {
+          "count": 1,
+          "total_us": 14220,
+          "max_us": 14220,
+          "attempts": 1,
+          "outcomes": {
+            "committed": 1
+          }
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 208589,
+          "max_us": 208589,
+          "attempts": 1,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      },
+      "non_timing_stderr": []
+    },
+    {
+      "label": "review",
+      "wall_ms": 54.9079,
+      "pid": 23820,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\default-review",
+      "spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 1,
+          "total_us": 2267,
+          "max_us": 2267,
+          "attempts": 1,
+          "outcomes": {
+            "acquired": 1
+          }
+        }
+      },
+      "non_timing_stderr": []
+    },
+    {
+      "label": "apply",
+      "wall_ms": 1091.7901,
+      "pid": 30540,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\default-apply",
+      "spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 4,
+          "total_us": 158828,
+          "max_us": 73470,
+          "attempts": 4,
+          "outcomes": {
+            "acquired": 4
+          }
+        },
+        "maintenance.phase:apply.initial_group_review": {
+          "count": 1,
+          "total_us": 5247,
+          "max_us": 5247,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.reservation.acquire": {
+          "count": 1,
+          "total_us": 37656,
+          "max_us": 37656,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:catalog": {
+          "count": 2,
+          "total_us": 126194,
+          "max_us": 70822,
+          "attempts": 2,
+          "outcomes": {
+            "verified": 2
+          }
+        },
+        "maintenance.lock_hold:maintenance": {
+          "count": 3,
+          "total_us": 218873,
+          "max_us": 123373,
+          "attempts": 3,
+          "outcomes": {
+            "verified": 3
+          }
+        },
+        "maintenance.phase:apply.normalization_preflight": {
+          "count": 1,
+          "total_us": 4523,
+          "max_us": 4523,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:reservation.verify_sources": {
+          "count": 3,
+          "total_us": 12,
+          "max_us": 5,
+          "attempts": 3,
+          "outcomes": {
+            "success": 3
+          }
+        },
+        "maintenance.phase:apply.reservation.verify.before_item": {
+          "count": 1,
+          "total_us": 11026,
+          "max_us": 11026,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.relations.build": {
+          "count": 1,
+          "total_us": 22,
+          "max_us": 22,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.current.relations": {
+          "count": 1,
+          "total_us": 45,
+          "max_us": 45,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.current.members": {
+          "count": 1,
+          "total_us": 9007,
+          "max_us": 9007,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:group.current.combine": {
+          "count": 1,
+          "total_us": 19,
+          "max_us": 19,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.current_review": {
+          "count": 1,
+          "total_us": 9200,
+          "max_us": 9200,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.safe_entries.pre_intent": {
+          "count": 1,
+          "total_us": 17748,
+          "max_us": 17748,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:state.prepare_local": {
+          "count": 2,
+          "total_us": 29,
+          "max_us": 19,
+          "attempts": 2,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        "maintenance.phase:state.read": {
+          "count": 2,
+          "total_us": 5356,
+          "max_us": 3323,
+          "attempts": 2,
+          "outcomes": {
+            "read": 2
+          }
+        },
+        "maintenance.phase:state.merge": {
+          "count": 2,
+          "total_us": 66,
+          "max_us": 42,
+          "attempts": 2,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        "maintenance.phase:state.open_pending": {
+          "count": 2,
+          "total_us": 812,
+          "max_us": 422,
+          "attempts": 2,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        "maintenance.phase:state.serialize": {
+          "count": 2,
+          "total_us": 50,
+          "max_us": 29,
+          "attempts": 2,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        "maintenance.phase:state.write_pending": {
+          "count": 2,
+          "total_us": 250,
+          "max_us": 146,
+          "attempts": 2,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        "maintenance.phase:state.sync_pending": {
+          "count": 2,
+          "total_us": 6908,
+          "max_us": 3545,
+          "attempts": 2,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        "maintenance.phase:state.rename": {
+          "count": 2,
+          "total_us": 2964,
+          "max_us": 1658,
+          "attempts": 2,
+          "outcomes": {
+            "success": 2
+          }
+        },
+        "maintenance.phase:state.commit": {
+          "count": 2,
+          "total_us": 45355,
+          "max_us": 24796,
+          "attempts": 2,
+          "outcomes": {
+            "committed": 2
+          }
+        },
+        "maintenance.phase:state.save": {
+          "count": 2,
+          "total_us": 100182,
+          "max_us": 56328,
+          "attempts": 2,
+          "outcomes": {
+            "committed": 2
+          }
+        },
+        "maintenance.phase:apply.intent_save": {
+          "count": 1,
+          "total_us": 43866,
+          "max_us": 43866,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.physical_delete": {
+          "count": 1,
+          "total_us": 695281,
+          "max_us": 695281,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.actual_result_save": {
+          "count": 1,
+          "total_us": 56339,
+          "max_us": 56339,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.final_presence": {
+          "count": 1,
+          "total_us": 1994,
+          "max_us": 1994,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.phase:apply.reservation.finalize": {
+          "count": 1,
+          "total_us": 28843,
+          "max_us": 28843,
+          "attempts": 1,
+          "outcomes": {
+            "success": 1
+          }
+        },
+        "maintenance.lock_hold:group_reservation": {
+          "count": 1,
+          "total_us": 938654,
+          "max_us": 938654,
+          "attempts": 1,
+          "outcomes": {
+            "verified": 1
+          }
+        }
+      },
+      "non_timing_stderr": []
+    },
+    {
+      "label": "inventory",
+      "wall_ms": 55.0941,
+      "pid": 33316,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\logs\\measurement\\default-inventory",
+      "spans": {
+        "maintenance.lock_wait:wait_for_lock": {
+          "count": 1,
+          "total_us": 2103,
+          "max_us": 2103,
+          "attempts": 1,
+          "outcomes": {
+            "acquired": 1
+          }
+        }
+      },
+      "non_timing_stderr": []
+    }
+  ],
+  "checks": {
+    "actual_absent": 1,
+    "durable_items_deleted": 1,
+    "durable_group_deleted": true,
+    "durable_deleted_outcomes": 1,
+    "prior_native_runs_preserved": true,
+    "prior_native_decisions_preserved": 0,
+    "no_pending": true,
+    "intent_saves": 1,
+    "actual_result_saves": 1,
+    "state_commits": 2,
+    "preintent_current_reviews": 1,
+    "default_resolver": true,
+    "capabilities": true,
+    "direct_lease_released": true,
+    "inventory_deleted": true,
+    "both_pins_identical_unchanged": true,
+    "final_resolver_identity_unchanged": true,
+    "six_actual_native_close_exit0": true,
+    "native_build_target_lease_absent": true
+  },
+  "capabilities": {
+    "max_lock_wait_ms": 600000,
+    "operations": [
+      "inventory",
+      "register",
+      "review",
+      "apply",
+      "recover_lock",
+      "recover_reservation",
+      "recover_refresh_pending",
+      "recover_lifecycle_pending",
+      "partition_storage",
+      "compact_storage",
+      "reconcile_duplicate_groups"
+    ],
+    "platform": {
+      "arch": "x64",
+      "os": "win32"
+    },
+    "preferences": true,
+    "protocol": "maintenance-owner-lease-v1",
+    "request_file_policy": "outside-maintenance-state",
+    "request_transports": [
+      "file",
+      "stdin"
+    ],
+    "schema": 1,
+    "storage_formats": [
+      "legacy",
+      "partitioned-v1"
+    ]
+  },
+  "lease_packets": [
+    {
+      "id": 0,
+      "ok": true,
+      "result": {
+        "acquired_at_ms": 1793620434046,
+        "operation": "group.default.acceptance",
+        "parent_pid": 13276,
+        "pid": 5144,
+        "schema": 2,
+        "token": "5144-1793620434046-3d78e09009d20077"
+      }
+    },
+    {
+      "id": 1,
+      "ok": true,
+      "result": {
+        "released": true,
+        "reservations_retained": []
+      }
+    }
+  ],
+  "cleanup": {
+    "owner": "run:ff1:group5",
+    "status": "root outer owner cleanup pending; only selected payload files deleted"
+  },
+  "target_lease_check": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\group5\\outputs\\native\\target\\.azrael-cargo-owner",
+    "absent": true
+  },
+  "scope": "Standalone maintenance owner default pin on local Windows x64; no full Azrael installation or extension activation verified."
+}

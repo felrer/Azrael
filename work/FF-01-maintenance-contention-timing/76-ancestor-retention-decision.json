@@ -1,0 +1,47 @@
+{
+  "at": "2026-11-02T14:22:11.876Z",
+  "request": {
+    "operation": "apply",
+    "verification": "registered",
+    "lock_wait_ms": 600000,
+    "decisions": [
+      {
+        "id": "06d4bcf62fe92aa6f3862c6a180d6c0b582a466c7911ae5a449c7be2b416e7d0",
+        "token": "f9417e37222dc1750c95aeebc3116c8ec861e18a327f5ab75e6fbe1ea34187b5",
+        "decision": "defer",
+        "reason": "Retired group standalone remains in use by exact observed parent36632/native33604; preserve active installation reference. Explicit scoped retention approval pending.",
+        "revisit_condition": "After that job stops using this version, recheck exact runtime/parent identity and all references, release only retired installation reference, refresh/review and ordinary native owner deletion."
+      }
+    ]
+  },
+  "pid": 45676,
+  "exit_code": 0,
+  "signal": null,
+  "actual_close": true,
+  "wall_ms": 9156,
+  "stderr": "",
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "version:maintenance-owner:ff01:group-20261102",
+        "status": "deferred"
+      }
+    ],
+    "results": [
+      {
+        "decision": "defer",
+        "decision_id": "c29fef60510a5a75c1284585a3e2a084ba47c97e2edf57c4b9a7a7b333289b5f",
+        "group_status": "deferred",
+        "id": "06d4bcf62fe92aa6f3862c6a180d6c0b582a466c7911ae5a449c7be2b416e7d0",
+        "lifecycle_group_id": "version:maintenance-owner:ff01:group-20261102",
+        "reason": "Retired group standalone remains in use by exact observed parent36632/native33604; preserve active installation reference. Explicit scoped retention approval pending.",
+        "remaining": true,
+        "revisit_condition": "After that job stops using this version, recheck exact runtime/parent identity and all references, release only retired installation reference, refresh/review and ordinary native owner deletion.",
+        "status": "deferred",
+        "token": "f9417e37222dc1750c95aeebc3116c8ec861e18a327f5ab75e6fbe1ea34187b5"
+      }
+    ]
+  }
+}

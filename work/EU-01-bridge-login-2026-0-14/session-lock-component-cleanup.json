@@ -1,0 +1,463 @@
+{
+  "operations": [
+    {
+      "operation": "register",
+      "group": "run:EU01-session-lock-removal:tracker-windows-r1",
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-session-lock-removal:tracker-windows-r1",
+          "kind": "run",
+          "members": [
+            "6ca0c67cecd76e8b9bf605ec3a1ac19390ac2a652cd05d7a60fc6f9ec43a57f1"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "b88f2f756a3ed78e8de896c14e9205b32892f3108286796c084e3ec0e62ec4f1",
+          "owner": "session-lock-removal",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1ae59fbc908a910fd78625a1f5473c09228f6da2350efe44f66750343b15e50e.json",
+          "registered_at_ms": 1793437375192,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "6ca0c67cecd76e8b9bf605ec3a1ac19390ac2a652cd05d7a60fc6f9ec43a57f1",
+            "identity": "f5952430c7a32dc17c6e6922f692913da386dbe22702c449ae44298f48dca18b",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:tracker-windows-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 193655128,
+            "measured_at_ms": 1793437352333,
+            "owner": "session-lock-removal",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1ae59fbc908a910fd78625a1f5473c09228f6da2350efe44f66750343b15e50e.json",
+            "references": [],
+            "registered_at_ms": 1793437352333,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "register",
+      "group": "run:EU01-session-lock-removal:tracker-windows-r2",
+      "exitCode": 0,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EU01-session-lock-removal:tracker-windows-r2",
+          "kind": "run",
+          "members": [
+            "c8f912febef18f8a4c902acd51bff052e0572fb77343fdae29d0d80cb07e9af2"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "51ee683d3c26952d343a896299aba5c082391fdba81f8b1f3f4229b537dde118",
+          "owner": "session-lock-removal",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1ec9608761e1d6dd50f410aff30087e5bb05f098e847b8a6851e7709182620d2.json",
+          "registered_at_ms": 1793437658605,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "c8f912febef18f8a4c902acd51bff052e0572fb77343fdae29d0d80cb07e9af2",
+            "identity": "ee4f48fea7d71cfcdf8943a63950c6c6fdccf31acae0297e9c947ff66051e206",
+            "kind": "run",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:tracker-windows-r2",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 193671261,
+            "measured_at_ms": 1793437629459,
+            "owner": "session-lock-removal",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1ec9608761e1d6dd50f410aff30087e5bb05f098e847b8a6851e7709182620d2.json",
+            "references": [],
+            "registered_at_ms": 1793437629459,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "review",
+      "exitCode": 0,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-session-lock-removal:tracker-windows-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "b88f2f756a3ed78e8de896c14e9205b32892f3108286796c084e3ec0e62ec4f1",
+            "owner": "session-lock-removal",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1ae59fbc908a910fd78625a1f5473c09228f6da2350efe44f66750343b15e50e.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EU01-session-lock-removal:tracker-windows-r2",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "51ee683d3c26952d343a896299aba5c082391fdba81f8b1f3f4229b537dde118",
+            "owner": "session-lock-removal",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1ec9608761e1d6dd50f410aff30087e5bb05f098e847b8a6851e7709182620d2.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "6ca0c67cecd76e8b9bf605ec3a1ac19390ac2a652cd05d7a60fc6f9ec43a57f1"
+            ],
+            "group_token": "060abdbd48c284c5c1bdbc986abb15e95e5cf1244a2b1085199bb96451f29190",
+            "id": "6ca0c67cecd76e8b9bf605ec3a1ac19390ac2a652cd05d7a60fc6f9ec43a57f1",
+            "identity": "f5952430c7a32dc17c6e6922f692913da386dbe22702c449ae44298f48dca18b",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:tracker-windows-r1",
+            "logical_bytes": 193655128,
+            "measured_at_ms": 1793437352333,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "b88f2f756a3ed78e8de896c14e9205b32892f3108286796c084e3ec0e62ec4f1",
+              "member_references": {
+                "6ca0c67cecd76e8b9bf605ec3a1ac19390ac2a652cd05d7a60fc6f9ec43a57f1": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1\\reports\\producer-b2da16688ab050f7bf1fe536e4abcd011206934c5895d2cd835ee5af513a0b85.json",
+                  "evidence_sha256": "b2da16688ab050f7bf1fe536e4abcd011206934c5895d2cd835ee5af513a0b85",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "329aa81a42af63bcc722f93e9c674267aa185b58b246c420187de14da1895042"
+                },
+                "created_at": "2026-10-31T08:34:39.417Z",
+                "id": "run:EU01-session-lock-removal:tracker-windows-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1",
+                "owner": "session-lock-removal",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1\\reports\\producer-b2da16688ab050f7bf1fe536e4abcd011206934c5895d2cd835ee5af513a0b85.json",
+                  "evidence_sha256": "b2da16688ab050f7bf1fe536e4abcd011206934c5895d2cd835ee5af513a0b85",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T08:44:42.467Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793437733222,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  240,
+                  242,
+                  27,
+                  0,
+                  0,
+                  0,
+                  31,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "f28c818224112dd35c80d42feb67f9d9b3e35e9c1cbf710e07ec34207cd69069",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "c8f912febef18f8a4c902acd51bff052e0572fb77343fdae29d0d80cb07e9af2"
+            ],
+            "group_token": "0520924a8514ac95e92d76040344a84ddde088c5bf57fc902f5714ef2ed76e80",
+            "id": "c8f912febef18f8a4c902acd51bff052e0572fb77343fdae29d0d80cb07e9af2",
+            "identity": "ee4f48fea7d71cfcdf8943a63950c6c6fdccf31acae0297e9c947ff66051e206",
+            "lifecycle_group_id": "run:EU01-session-lock-removal:tracker-windows-r2",
+            "logical_bytes": 193671261,
+            "measured_at_ms": 1793437629459,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "51ee683d3c26952d343a896299aba5c082391fdba81f8b1f3f4229b537dde118",
+              "member_references": {
+                "c8f912febef18f8a4c902acd51bff052e0572fb77343fdae29d0d80cb07e9af2": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2\\reports\\producer-a048734be3b4b5a9dc4b80e6f5b4e2bad3c8382419d6f997d6d215fee2b15983.json",
+                  "evidence_sha256": "a048734be3b4b5a9dc4b80e6f5b4e2bad3c8382419d6f997d6d215fee2b15983",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "7714b8cb55fe0b7304e75fb4d1ae49e16b2ccdf3fa4252ddade111d70ae9a92d"
+                },
+                "created_at": "2026-10-31T08:46:51.619Z",
+                "id": "run:EU01-session-lock-removal:tracker-windows-r2",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2",
+                "owner": "session-lock-removal",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2\\reports\\producer-a048734be3b4b5a9dc4b80e6f5b4e2bad3c8382419d6f997d6d215fee2b15983.json",
+                  "evidence_sha256": "a048734be3b4b5a9dc4b80e6f5b4e2bad3c8382419d6f997d6d215fee2b15983",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-10-31T08:57:20.721Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793437740353,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-session-lock-removal\\runs\\tracker-windows-r2",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  233,
+                  239,
+                  219,
+                  0,
+                  0,
+                  0,
+                  2,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "43926f15289fad95e65dd4330d5baf6663e6282f1130e4be6904256f9459f037",
+            "verification": "registered"
+          }
+        ]
+      }
+    }
+  ],
+  "apply": {
+    "exitCode": 0,
+    "result": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:EU01-session-lock-removal:tracker-windows-r1",
+          "status": "deleted"
+        },
+        {
+          "id": "run:EU01-session-lock-removal:tracker-windows-r2",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-11220-4403-1793437882214",
+          "decision": "delete",
+          "decision_id": "db0bbd3115fbfbbcdb5046546ccce06fca49a6388b9ac4ac40cbbb7d5e753613",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "6ca0c67cecd76e8b9bf605ec3a1ac19390ac2a652cd05d7a60fc6f9ec43a57f1",
+          "lifecycle_group_id": "run:EU01-session-lock-removal:tracker-windows-r1",
+          "reason": "Stopped component test attempts; independent actual results and failure context preserved in session-lock-removal-acceptance.json; no consumers remain",
+          "remaining": false,
+          "status": "deleted",
+          "token": "f28c818224112dd35c80d42feb67f9d9b3e35e9c1cbf710e07ec34207cd69069"
+        },
+        {
+          "attempt_id": "attempt-11220-4405-1793438076719",
+          "decision": "delete",
+          "decision_id": "02c6ea556ff41f934d5cbc704d7c29550b477522627e6563a61390dc0408f334",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "c8f912febef18f8a4c902acd51bff052e0572fb77343fdae29d0d80cb07e9af2",
+          "lifecycle_group_id": "run:EU01-session-lock-removal:tracker-windows-r2",
+          "reason": "Stopped component test attempts; independent actual results and failure context preserved in session-lock-removal-acceptance.json; no consumers remain",
+          "remaining": false,
+          "status": "deleted",
+          "token": "43926f15289fad95e65dd4330d5baf6663e6282f1130e4be6904256f9459f037"
+        }
+      ]
+    }
+  },
+  "finalized": [
+    {
+      "id": "run:EU01-session-lock-removal:tracker-windows-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1ae59fbc908a910fd78625a1f5473c09228f6da2350efe44f66750343b15e50e.json"
+    },
+    {
+      "id": "run:EU01-session-lock-removal:tracker-windows-r2",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1ec9608761e1d6dd50f410aff30087e5bb05f098e847b8a6851e7709182620d2.json"
+    }
+  ]
+}

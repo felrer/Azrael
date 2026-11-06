@@ -1,0 +1,279 @@
+{
+  "schema": 1,
+  "platform": "win32",
+  "arch": "x64",
+  "variants": [
+    {
+      "name": "installed",
+      "id": "version:maintenance-owner:ec01:unknown-recovery",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+      "expected": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+      "sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26"
+    },
+    {
+      "name": "improved",
+      "id": "version:maintenance-owner:eq01:protection-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+      "expected": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+      "sha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76"
+    }
+  ],
+  "results": [
+    {
+      "variant": "installed",
+      "records": 2,
+      "payload_bytes": 1048576,
+      "initial_registration_ms": 1504.6413,
+      "protection": [
+        {
+          "node_ms": 131.42589999999996,
+          "refresh_ms": 170.0976999999998,
+          "total_ms": 301.52359999999976,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 120.29770000000008,
+          "refresh_ms": 163.5365999999999,
+          "total_ms": 283.8343,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 125.17440000000033,
+          "refresh_ms": 195.88419999999996,
+          "total_ms": 321.0586000000003,
+          "exit_code": 0
+        }
+      ],
+      "release": [
+        {
+          "node_ms": 119.63089999999988,
+          "refresh_ms": 163.41789999999992,
+          "total_ms": 283.0487999999998,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 163.64420000000018,
+          "refresh_ms": 170.88070000000016,
+          "total_ms": 334.52490000000034,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 150.60600000000022,
+          "refresh_ms": 190.27340000000004,
+          "total_ms": 340.87940000000026,
+          "exit_code": 0
+        }
+      ],
+      "protected_review_blockers": [
+        "references active or unknown",
+        "producer inbound consumer protects group: holder",
+        "a lifecycle group member is protected"
+      ],
+      "deletion": {
+        "review_ms": 131.90819999999985,
+        "apply_ms": 1913.7080999999998,
+        "total_ms": 2045.6162999999997,
+        "exit_code": 0,
+        "status": "deleted",
+        "remaining": false,
+        "samples": 1
+      },
+      "fixture_removed": true
+    },
+    {
+      "variant": "improved",
+      "records": 2,
+      "payload_bytes": 1048576,
+      "initial_registration_ms": 1641.9696999999996,
+      "protection": [
+        {
+          "node_ms": 135.83679999999913,
+          "refresh_ms": 170.6862000000001,
+          "total_ms": 306.52299999999923,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 133.1824999999999,
+          "refresh_ms": 177.65120000000024,
+          "total_ms": 310.83370000000014,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 145.09580000000096,
+          "refresh_ms": 187.72909999999865,
+          "total_ms": 332.8248999999996,
+          "exit_code": 0
+        }
+      ],
+      "release": [
+        {
+          "node_ms": 113.41370000000006,
+          "refresh_ms": 178.95120000000043,
+          "total_ms": 292.3649000000005,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 140.78949999999895,
+          "refresh_ms": 219.03279999999904,
+          "total_ms": 359.822299999998,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 155.27789999999914,
+          "refresh_ms": 212.53609999999935,
+          "total_ms": 367.8139999999985,
+          "exit_code": 0
+        }
+      ],
+      "protected_review_blockers": [
+        "references active or unknown",
+        "producer inbound consumer protects group: holder",
+        "a lifecycle group member is protected"
+      ],
+      "deletion": {
+        "review_ms": 158.20600000000013,
+        "apply_ms": 1663.7744999999995,
+        "total_ms": 1821.9804999999997,
+        "exit_code": 0,
+        "status": "deleted",
+        "remaining": false,
+        "samples": 1
+      },
+      "fixture_removed": true
+    },
+    {
+      "variant": "improved",
+      "records": 100,
+      "payload_bytes": 1048576,
+      "initial_registration_ms": 30912.0399,
+      "protection": [
+        {
+          "node_ms": 381.1999999999971,
+          "refresh_ms": 1677.249100000001,
+          "total_ms": 2058.449099999998,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 378.8726999999999,
+          "refresh_ms": 1649.4231999999975,
+          "total_ms": 2028.2958999999973,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 348.53319999999803,
+          "refresh_ms": 1740.1365000000005,
+          "total_ms": 2088.6696999999986,
+          "exit_code": 0
+        }
+      ],
+      "release": [
+        {
+          "node_ms": 111.65559999999823,
+          "refresh_ms": 1684.9979000000021,
+          "total_ms": 1796.6535000000003,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 126.86089999999967,
+          "refresh_ms": 1788.3070000000007,
+          "total_ms": 1915.1679000000004,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 112.74380000000383,
+          "refresh_ms": 1728.2459999999992,
+          "total_ms": 1840.989800000003,
+          "exit_code": 0
+        }
+      ],
+      "protected_review_blockers": [
+        "references active or unknown",
+        "producer inbound consumer protects group: holder",
+        "a lifecycle group member is protected"
+      ],
+      "deletion": {
+        "review_ms": 1656.1438999999955,
+        "apply_ms": 11115.24270000001,
+        "total_ms": 12771.386600000005,
+        "exit_code": 0,
+        "status": "deleted",
+        "remaining": false,
+        "samples": 1
+      },
+      "fixture_removed": true
+    },
+    {
+      "variant": "installed",
+      "records": 100,
+      "payload_bytes": 1048576,
+      "initial_registration_ms": 32455.786899999992,
+      "protection": [
+        {
+          "node_ms": 392.984300000011,
+          "refresh_ms": 1918.3793000000005,
+          "total_ms": 2311.3636000000115,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 390.2914000000019,
+          "refresh_ms": 1837.6386999999959,
+          "total_ms": 2227.9300999999978,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 375.5783999999985,
+          "refresh_ms": 1696.1857000000018,
+          "total_ms": 2071.7641000000003,
+          "exit_code": 0
+        }
+      ],
+      "release": [
+        {
+          "node_ms": 117.2216999999946,
+          "refresh_ms": 1911.6103000000003,
+          "total_ms": 2028.8319999999949,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 124.81870000000345,
+          "refresh_ms": 1791.3981000000058,
+          "total_ms": 1916.2168000000092,
+          "exit_code": 0
+        },
+        {
+          "node_ms": 114.81130000000121,
+          "refresh_ms": 1783.1919000000053,
+          "total_ms": 1898.0032000000065,
+          "exit_code": 0
+        }
+      ],
+      "protected_review_blockers": [
+        "references active or unknown",
+        "producer inbound consumer protects group: holder",
+        "a lifecycle group member is protected"
+      ],
+      "deletion": {
+        "review_ms": 1742.306500000006,
+        "apply_ms": 15804.920899999997,
+        "total_ms": 17547.227400000003,
+        "exit_code": 0,
+        "status": "deleted",
+        "remaining": false,
+        "samples": 1
+      },
+      "fixture_removed": true
+    }
+  ],
+  "run_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\protection-delete-measure-r1",
+  "controller_exit_code": 0,
+  "producer_stopped_verified": true,
+  "stop_basis": "Managed measurement controller exited 0 after every synchronous native request returned exit 0 and all owned fixtures were removed. No request timed out; native deletion workers completed through the existing owned protocol.",
+  "limitations": [
+    "Windows x64 isolated synthetic catalogs only",
+    "Same current Node adapter for both native binaries",
+    "Protection/release: median of 3; deletion: one sample including fresh review and apply",
+    "Initial registration excluded from operation timings",
+    "Default selector and application installation unchanged"
+  ],
+  "timestamp": "2026-10-30T00:21:55.237Z"
+}

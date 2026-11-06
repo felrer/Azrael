@@ -1,0 +1,23 @@
+{
+  "id": "run:verify-task-work-time-render:20261029T030302630Z-11d8381f-7097-4fe1-88a7-68553619ed40",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "4a1206e2ab5bee6e33aa8f525c11a0ccd0b0c6013a1ac4527d4be4e863bf8366",
+  "lease_owner": {
+    "acquired_at_ms": 1793247490979,
+    "operation": "group_reservation",
+    "pid": 34400,
+    "schema": 2,
+    "token": "34400-1793247490979-2398f44436730b34"
+  },
+  "originalOutcome": {
+    "synchronousExecSession": 69997,
+    "ownerExitCode": 0,
+    "aborted": true,
+    "protocol01Deleted": true,
+    "schema01Blocked": true,
+    "ui04AndAggregateUnattempted": true,
+    "reason": "Observation persistence failed after recorded protocol deletion; original partial destructive result preserved"
+  },
+  "terminationEvidence": "Own synchronous child_process.spawnSync returned terminal exit0 with aborted:true. No detached launch or background wrapper. Root inspected native apply path and confirmed no spawned descendants; exact full process tree stopped. Native recovery independently validates owner and live lease."
+}

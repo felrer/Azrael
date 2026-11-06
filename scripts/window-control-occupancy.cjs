@@ -1,5 +1,5 @@
 'use strict';
-// Advisory only: these records never grant window authority or serialize input.
+// Occupancy publication is advisory; createLeaseCoordinator separately arbitrates control.
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
@@ -75,3 +75,51 @@ function createRegistry({ directory, entries, now = Date.now, ttlMs = 30000, hea
   return { publish, read, dispose() { if (disposed) return; disposed = true; clearInterval(timer); try { fs.unlinkSync(filename); } catch {} } };
 }
 module.exports = { createRegistry, publicOccupancy, commonDirectory };
+
+// mkdir is the cross-process atomic arbitration primitive. An occupied/uncertain
+// mutex is never stolen. Busy records cannot expire, even after host failure.
+function createLeaseCoordinator({directory, now = Date.now, idleMs = 30000, workspaceName = 'Azrael'}) {
+  const owner = randomUUID(), held = new Map(), releasing = new Set(), known = new Map();
+  const key = w => require('node:crypto').createHash('sha256').update(JSON.stringify(['hwnd','pid','processCreated','executable'].map(k=>w[k]))).digest('hex');
+  function transaction(w, fn) {
+    if(!identity(w))throw new Error('Invalid claim identity');
+    fs.mkdirSync(directory,{recursive:true});
+    if(!fs.lstatSync(directory).isDirectory()||fs.lstatSync(directory).isSymbolicLink())throw new Error('Invalid claim directory');
+    if(!known.has(key(w))&&known.size>=1024)throw new Error('Window claim limit');
+    known.set(key(w),w);
+    const base=path.join(directory,key(w)), mutex=base+'.lock', record=base+'.json';
+    fs.mkdirSync(mutex);
+    try {
+      let state;
+      try {const stat=fs.lstatSync(record);if(!stat.isFile()||stat.isSymbolicLink()||stat.size>262144)throw new Error('Invalid lease record');state=JSON.parse(fs.readFileSync(record,'utf8'));} catch(e) {if(e.code!=='ENOENT')throw e;state={epoch:randomUUID(),owner:null,session:null,busy:[],lastCompletedAt:0};}
+      if(!text(state.epoch)||!(state.owner===null||text(state.owner))||!(state.session===null||text(state.session))||!Array.isArray(state.busy)||state.busy.length>256||state.busy.some(t=>!text(t))||!Number.isSafeInteger(state.lastCompletedAt)||state.lastCompletedAt<0)throw new Error('Invalid lease record');
+      if(state.owner && !state.busy.length && now()-state.lastCompletedAt>=idleMs) state={epoch:randomUUID(),owner:null,session:null,busy:[],lastCompletedAt:0};
+      const result=fn(state);
+      // The mutex guards readers too, so an interrupted write fails closed.
+      if(state.retired&&!state.owner&&!state.busy.length){try{fs.unlinkSync(record);}catch(e){if(e.code!=='ENOENT')throw e;}}else fs.writeFileSync(record,JSON.stringify(state),{mode:0o600});
+      return result;
+    } finally {fs.rmdirSync(mutex);}
+  }
+  const busy = () => require('./window-control-errors.cjs').windowError('window_busy','Window control is busy or unavailable',{actionExecuted:false});
+  return {
+    dispose() {for(const {session} of held.values())this.releaseSession(session);for(const w of known.values()){try{transaction(w,s=>{if(!s.owner&&!s.busy.length)s.retired=true;});}catch{}}},
+    beginAction() {try{fs.mkdirSync(directory,{recursive:true});if(!fs.lstatSync(directory).isDirectory()||fs.lstatSync(directory).isSymbolicLink())throw new Error('Invalid claim directory');const mutex=path.join(directory,'physical-input.lock');fs.mkdirSync(mutex);let closed=false;return ()=>{if(!closed){fs.rmdirSync(mutex);closed=true;}};}catch{throw busy();}},
+    read(w,session) {try{return transaction(w,s=>({status:s.owner&&!(s.owner===owner&&s.session===session)?'occupied':'available',sessions:s.owner?[{sessionId:s.session,workspaceName:text(s.workspaceName)?s.workspaceName:'Azrael',state:s.busy.length?'running':'ready',isCurrentSession:s.owner===owner&&s.session===session,updatedAt:s.lastCompletedAt}]:[]}));}catch{return {status:'unknown',sessions:[]};}},
+    hasOther(w,session) {for(const [id,item] of held){if(item.session===session && id!==key(w)){try{if(transaction(item.window,s=>s.owner===owner&&s.session===session))return true;}catch{return true;}}}return false;},
+    observation(w,session) {try{return transaction(w,s=>({epoch:s.epoch,usable:!s.owner||(s.owner===owner&&s.session===session)}));}catch{return {epoch:null,usable:false};}},
+    begin(w,session,control,refreshIdle = true) {
+      try{return transaction(w,s=>{
+        const mine=s.owner===owner&&s.session===session;
+        if(control&&s.owner&&!mine)throw busy();
+        if(control&&!s.owner){s.owner=owner;s.session=session;s.workspaceName=workspaceName;releasing.delete(session);} if(control)held.set(key(w),{window:w,session});
+        const token=randomUUID(), pinned=mine||control;
+        if(pinned){if(s.busy.length>=256)throw busy();s.busy.push(token);}
+        return {epoch:s.epoch,usable:!s.owner||mine||control,complete(){if(!pinned)return;transaction(w,current=>{if(current.epoch!==s.epoch||current.owner!==owner||current.session!==session)throw new Error('Lease identity changed');current.busy=current.busy.filter(t=>t!==token);if(refreshIdle)current.lastCompletedAt=now();if(!current.busy.length&&releasing.has(session)){current.owner=null;current.session=null;current.epoch=randomUUID();current.retired=true;}});}};
+      });}catch(error){if(error.code==='window_busy')throw error;throw busy();}
+    },
+    pinSession(session,refreshIdle = false) {return [...held.values()].filter(item=>item.session===session).map(item=>this.begin(item.window,session,false,refreshIdle));},
+    releaseSession(session) {releasing.add(session);for(const item of held.values())if(item.session===session)this.release(item.window,session);},
+    release(w,session) {return transaction(w,s=>{if(s.owner===owner&&s.session===session&&!s.busy.length){s.owner=null;s.session=null;s.epoch=randomUUID();s.retired=true;}});},
+  };
+}
+module.exports.createLeaseCoordinator = createLeaseCoordinator;

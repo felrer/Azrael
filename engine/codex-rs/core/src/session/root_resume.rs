@@ -204,6 +204,7 @@ impl Session {
             work_ids,
             reason,
             RootResumeReasoningSettings {
+                agent_profile: turn.agent_profile.clone(),
                 effort: turn.next_step_settings.load().effective_reasoning_effort(),
             },
         )
@@ -226,7 +227,7 @@ impl Session {
         if control.closed.load(Ordering::Acquire) {
             return Err(invalid("root runtime is closing"));
         }
-        if turn.session_source.is_non_root_agent() {
+        if !crate::agent::role_profile::has_root_authority(&turn.config, &turn.session_source) {
             return Err(invalid("defer_root is available only to the root agent"));
         }
         if !turn.provider.info().is_openai() {
@@ -850,16 +851,18 @@ impl Session {
                 }
                 let environments = session.activate_turn_environments(&configuration).await;
                 let context = session
-                    .new_turn_from_configuration(
+                    .new_profiled_turn_from_configuration(
                         claimed.resume_turn_id.clone(),
                         configuration,
                         environments,
                         NewTurnContextOptions {
+                    provider_account: None,
+                            agent_profile: claimed.reasoning_settings.as_ref().and_then(|s| s.agent_profile.clone()),
                             final_output_json_schema: claimed.final_output_json_schema.clone(),
                             cyber_access_program: previous.and_then(|c| c.cyber_access_program),
                         },
                     )
-                    .await;
+                    .await?;
                 phase.finish(true);
                 if let Some(timing) = &timing {
                     context.extension_data.insert(timing.clone());
@@ -1077,9 +1080,14 @@ impl Session {
         }
         self.set_root_resume_record(Some(record.clone()));
         let context = self
-            .new_turn_with_default_settings(
+            .new_profiled_turn_with_default_settings(
                 record.originating_turn_id.clone(),
                 NewTurnContextOptions {
+                    provider_account: None,
+                    agent_profile: record
+                        .reasoning_settings
+                        .as_ref()
+                        .and_then(|s| s.agent_profile.clone()),
                     final_output_json_schema: record.final_output_json_schema.clone(),
                     cyber_access_program: self
                         .reference_context_item()
@@ -1087,7 +1095,7 @@ impl Session {
                         .and_then(|c| c.cyber_access_program),
                 },
             )
-            .await;
+            .await?;
         *control
             .parked_context
             .lock()

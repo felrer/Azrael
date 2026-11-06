@@ -10,6 +10,7 @@ use windows::{
     Win32::{
         Foundation::*,
         Graphics::Gdi::*,
+        Security::*,
         System::{Com::*, Threading::*, WinRT::*},
         UI::{Accessibility::*, HiDpi::*, WindowsAndMessaging::*},
     },
@@ -17,6 +18,8 @@ use windows::{
 
 #[path = "capture.rs"]
 mod capture;
+#[path = "desktop_capture.rs"]
+mod desktop_capture;
 #[path = "lifetime.rs"]
 mod lifetime;
 #[path = "uia.rs"]
@@ -85,6 +88,19 @@ impl Backend {
             if let Some(window) = selected.as_ref() { crate::overlay::guard(window)?; }
         }
         let result = match method {
+            "windowAtPoint" => {
+                let p: protocol::WindowAtPoint = protocol::params(params)?;
+                window_at_point(POINT { x: p.x, y: p.y })
+            }
+            "actionPoint" => {
+                let p: protocol::ActionPoint = protocol::params(params)?;
+                self.action_point(p)
+            }
+            "captureDesktop" => {
+                let p: protocol::DesktopCapture = protocol::params(params)?;
+                p.validate()?;
+                desktop_capture::capture(&p.blocked_apps)
+            }
             "listWindows" => list_windows(),
             "observe" => {
                 let p: protocol::Target = protocol::params(params)?;
@@ -154,6 +170,10 @@ impl Backend {
                 .ok_or_else(|| Error::new("backend-exhausted", "Observation sequence exhausted"))?;
             let id = format!("observation-{}", self.sequence);
             self.last_frames.insert(identity, frame.timestamp);
+            self.observation = Some(Observation {
+                id: id.clone(), window: after_capture.clone(), elements: HashMap::new(),
+                descriptors: Vec::new(), coverage: json!("image-only"), signature: Value::Null,
+            });
             Ok(
                 json!({ "window": after_capture, "observationId": id, "frameTimestamp": frame.timestamp.to_string(),
                 "widthPx": frame.width, "heightPx": frame.height, "dpi": after_capture.dpi, "captureProtection": frame.protection,
@@ -242,6 +262,60 @@ impl Backend {
             descriptors:descriptors.clone(), coverage:retrieval["coverage"].clone(), signature:retained_signature });
         Ok(json!({ "window": after, "observationId": id, "elements": descriptors,
             "elementsTruncated": retrieval["coverage"] == "partial", "retrieval":retrieval,"changes":changes }))
+    }
+    fn action_point(&self, p: protocol::ActionPoint) -> Result<Value> {
+        let current = query_window(&p.window)?;
+        let observation = self.observation.as_ref().ok_or_else(||
+            Error::new("stale-observation", "A retained observation is required"))?;
+        if observation.id != p.observation_id || !observation.window.same_identity(&current) {
+            return Err(Error::new("stale-observation", "Observation does not belong to this window"));
+        }
+        ensure_capture_geometry(&observation.window, &current)?;
+        let hwnd = handle(&current)?;
+        unsafe {
+            let mut outer = RECT::default();
+            GetWindowRect(hwnd, &mut outer)?;
+            let bounds = if let Some(id) = p.element_id.as_ref() {
+                let element = observation.elements.get(id).ok_or_else(||
+                    Error::new("unknown-element", "Element was not retained in this observation"))?;
+                uia::assert_descendant(&self.automation, hwnd, element)?;
+                // CompareElements compares provider runtime identities, including after refreshing
+                // the retained reference. No UIA action or global input is performed.
+                let cache = self.automation.CreateCacheRequest()?;
+                cache.SetTreeScope(TreeScope_Element)?;
+                let fresh = element.BuildUpdatedCache(&cache)?;
+                if !self.automation.CompareElements(element, &fresh)?.as_bool()
+                    || !fresh.CurrentIsEnabled()?.as_bool() || fresh.CurrentIsOffscreen()?.as_bool() {
+                    return Err(Error::new("stale-element", "Element identity or enabled visibility changed"));
+                }
+                uia::assert_descendant(&self.automation, hwnd, &fresh)?;
+                let rect = fresh.CurrentBoundingRectangle()?;
+                RECT { left: rect.left.max(outer.left), top: rect.top.max(outer.top),
+                    right: rect.right.min(outer.right), bottom: rect.bottom.min(outer.bottom) }
+            } else {
+                let mut client = RECT::default();
+                GetClientRect(hwnd, &mut client)?;
+                let mut origin = POINT::default();
+                ClientToScreen(hwnd, &mut origin).ok()?;
+                if client.right > client.left && client.bottom > client.top {
+                    RECT { left: origin.x, top: origin.y,
+                        right: origin.x.checked_add(client.right).ok_or_else(point_bounds_error)?,
+                        bottom: origin.y.checked_add(client.bottom).ok_or_else(point_bounds_error)? }
+                } else { outer }
+            };
+            let point = rect_center(&bounds)?;
+            if point.x < outer.left || point.x >= outer.right || point.y < outer.top || point.y >= outer.bottom
+                || MonitorFromPoint(point, MONITOR_DEFAULTTONULL).0.is_null() {
+                return Err(point_bounds_error());
+            }
+            query_window(&p.window)?;
+            let mut after = RECT::default();
+            GetWindowRect(hwnd, &mut after)?;
+            if outer.left != after.left || outer.top != after.top || outer.right != after.right || outer.bottom != after.bottom {
+                return Err(Error::new("stale-observation", "Window moved while resolving action point"));
+            }
+            Ok(json!({"x":point.x,"y":point.y}))
+        }
     }
     fn act(&mut self, p: protocol::Act) -> Result<Value> {
         ensure_not_minimized(&verify(&p.window)?)?;
@@ -480,6 +554,133 @@ fn list_windows() -> Result<Value> {
         EnumWindows(Some(collect), LPARAM(&mut windows as *mut _ as isize))?;
     }
     Ok(json!({ "windows": windows }))
+}
+
+fn point_bounds_error() -> Error {
+    Error::new("unobservable-target", "No valid screen point exists inside target bounds")
+}
+fn rect_center(rect: &RECT) -> Result<POINT> {
+    if rect.right <= rect.left || rect.bottom <= rect.top { return Err(point_bounds_error()); }
+    Ok(POINT {
+        x: (rect.left as i64 + (rect.right as i64 - rect.left as i64) / 2) as i32,
+        y: (rect.top as i64 + (rect.bottom as i64 - rect.top as i64) / 2) as i32,
+    })
+}
+
+// Query-only admission. Existing selected-window action authority remains unchanged.
+fn query_window(requested: &Window) -> Result<Window> {
+    let current = verify(requested)?;
+    ensure_not_minimized(&current)?;
+    let hwnd = handle(&current)?;
+    unsafe {
+        if crate::overlay::owns(hwnd) || !IsWindowVisible(hwnd).as_bool() {
+            return Err(Error::new("unobservable-target", "Window is hidden or belongs to the overlay"));
+        }
+        let mut affinity = 0;
+        GetWindowDisplayAffinity(hwnd, &mut affinity)?;
+        if affinity != 0 {
+            return Err(Error::new("protected-target", "Window is capture protected"));
+        }
+        let mut owner = hwnd;
+        let mut seen = std::collections::HashSet::new();
+        while !owner.0.is_null() {
+            if seen.len() >= 64 || !seen.insert(owner.0 as usize) {
+                return Err(Error::new("invalid-target", "Window owner chain is invalid"));
+            }
+            let descriptor = verify(&describe(owner)?)?;
+            query_process(descriptor.pid)?;
+            let mut owner_affinity = 0;
+            GetWindowDisplayAffinity(owner, &mut owner_affinity)?;
+            if owner_affinity != 0 {
+                return Err(Error::new("protected-target", "Window owner is capture protected"));
+            }
+            owner = GetWindow(owner, GW_OWNER).unwrap_or_default();
+        }
+    }
+    verify(&current)
+}
+
+unsafe fn token_information(token: HANDLE, class: TOKEN_INFORMATION_CLASS) -> Result<Vec<usize>> {
+    let mut bytes = 0;
+    let _ = GetTokenInformation(token, class, None, 0, &mut bytes);
+    if bytes == 0 || bytes > 65536 {
+        return Err(Error::new("inaccessible-target", "Token information has invalid size"));
+    }
+    let mut data = vec![0usize; (bytes as usize + size_of::<usize>() - 1) / size_of::<usize>()];
+    GetTokenInformation(token, class, Some(data.as_mut_ptr().cast()), bytes, &mut bytes)?;
+    Ok(data)
+}
+unsafe fn query_process(pid: u32) -> Result<()> {
+    let process = Process(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid)?);
+    let mut own_handle = HANDLE::default();
+    OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &mut own_handle)?;
+    let own = Process(own_handle);
+    let mut target_handle = HANDLE::default();
+    OpenProcessToken(process.0, TOKEN_QUERY, &mut target_handle)?;
+    let target = Process(target_handle);
+    let own_user = token_information(own.0, TokenUser)?;
+    let target_user = token_information(target.0, TokenUser)?;
+    EqualSid((*(own_user.as_ptr().cast::<TOKEN_USER>())).User.Sid,
+        (*(target_user.as_ptr().cast::<TOKEN_USER>())).User.Sid)
+        .map_err(|_| Error::new("protected-target", "Window belongs to another user"))?;
+    let own_session = token_information(own.0, TokenSessionId)?;
+    let target_session = token_information(target.0, TokenSessionId)?;
+    if *own_session.as_ptr().cast::<u32>() != *target_session.as_ptr().cast::<u32>() {
+        return Err(Error::new("protected-target", "Window belongs to another session"));
+    }
+    let integrity = |token| -> Result<u32> {
+        let info = token_information(token, TokenIntegrityLevel)?;
+        let sid = (*info.as_ptr().cast::<TOKEN_MANDATORY_LABEL>()).Label.Sid;
+        if !IsValidSid(sid).as_bool() { return Err(Error::new("inaccessible-target", "Invalid integrity SID")); }
+        let count = *GetSidSubAuthorityCount(sid);
+        if count == 0 { return Err(Error::new("inaccessible-target", "Missing integrity level")); }
+        Ok(*GetSidSubAuthority(sid, count as u32 - 1))
+    };
+    if integrity(target.0)? > integrity(own.0)? {
+        return Err(Error::new("protected-target", "Window has higher integrity than the backend"));
+    }
+    Ok(())
+}
+
+fn window_at_point(point: POINT) -> Result<Value> {
+    unsafe {
+        if MonitorFromPoint(point, MONITOR_DEFAULTTONULL).0.is_null() {
+            return Err(point_bounds_error());
+        }
+        let resolve = || -> Result<HWND> {
+            let hit = WindowFromPoint(point);
+            if hit.0.is_null() { return Err(Error::new("unobservable-target", "No window exists at this screen point")); }
+            let root = GetAncestor(hit, GA_ROOT);
+            if !crate::overlay::owns(root) { return Ok(root); }
+            // Only our transparent overlay is bypassed. Unknown foreign layers
+            // must never cause a guessed selection beneath them.
+            let mut below = GetWindow(root, GW_HWNDNEXT).unwrap_or_default();
+            for _ in 0..4096 {
+                if below.0.is_null() { break; }
+                if !crate::overlay::owns(below) && IsWindowVisible(below).as_bool() {
+                    let mut rect = RECT::default();
+                    GetWindowRect(below, &mut rect)?;
+                    if point.x >= rect.left && point.x < rect.right && point.y >= rect.top && point.y < rect.bottom {
+                        // A region or transparent foreign layer prevents a safe rectangular hit.
+                        let region = CreateRectRgn(0, 0, 0, 0);
+                        if region.0.is_null() { return Err(point_bounds_error()); }
+                        let kind = GetWindowRgn(below, region);
+                        let _ = DeleteObject(region);
+                        if kind.0 != ERROR || GetWindowLongPtrW(below, GWL_EXSTYLE) & WS_EX_TRANSPARENT.0 as isize != 0 {
+                            return Err(Error::new("unobservable-target", "Cannot safely resolve the window beneath the overlay"));
+                        }
+                        return Ok(below);
+                    }
+                }
+                below = GetWindow(below, GW_HWNDNEXT).unwrap_or_default();
+            }
+            Err(Error::new("unobservable-target", "No safe window exists beneath the overlay"))
+        };
+        let hwnd = resolve()?;
+        let window = query_window(&describe(hwnd)?)?;
+        if resolve()? != hwnd { return Err(Error::new("stale-target", "Screen point target changed during query")); }
+        Ok(json!({"window":query_window(&window)?}))
+    }
 }
 
 #[derive(PartialEq, Eq)]

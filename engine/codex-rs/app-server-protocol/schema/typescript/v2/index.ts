@@ -17,6 +17,7 @@ export type { AdditionalNetworkPermissions } from "./AdditionalNetworkPermission
 export type { AdditionalPermissionProfile } from "./AdditionalPermissionProfile";
 export type { AgentMessageDelivery } from "./AgentMessageDelivery";
 export type { AgentMessageDeltaNotification } from "./AgentMessageDeltaNotification";
+export type { AgentProfileRef } from "./AgentProfileRef";
 export type { AllowDenyRequirement } from "./AllowDenyRequirement";
 export type { AnalyticsConfig } from "./AnalyticsConfig";
 export type { AppBranding } from "./AppBranding";
@@ -665,6 +666,10 @@ export type { TurnSteerResponse } from "./TurnSteerResponse";
 export type { TurnToolOutput } from "./TurnToolOutput";
 export type { TurnsPage } from "./TurnsPage";
 export type { UserInput } from "./UserInput";
+export type { UserWaitInterval } from "./UserWaitInterval";
+export type { UserWaitRequest } from "./UserWaitRequest";
+export type { UserWaitTiming } from "./UserWaitTiming";
+export type { UserWaitTimingUpdatedNotification } from "./UserWaitTimingUpdatedNotification";
 export type { WarningNotification } from "./WarningNotification";
 export type { WebSearchAction } from "./WebSearchAction";
 export type { WindowsSandboxImplementation } from "./WindowsSandboxImplementation";

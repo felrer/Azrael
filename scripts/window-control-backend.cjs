@@ -5,7 +5,7 @@ const path = require('node:path');
 const { StringDecoder } = require('node:string_decoder');
 const { verifyRuntime } = require('./window-control-runtime.cjs');
 const { windowError } = require('./window-control-errors.cjs');
-const METHODS = new Set(['listWindows', 'status', 'observe', 'inspect', 'restore', 'resize', 'act', 'overlayShow', 'overlayHide', 'approvalNotificationShow', 'approvalNotificationHide']);
+const METHODS = new Set(['windowAtPoint', 'actionPoint', 'captureDesktop', 'listWindows', 'status', 'observe', 'inspect', 'restore', 'resize', 'act', 'overlayShow', 'overlayHide', 'approvalNotificationShow', 'approvalNotificationHide']);
 const MUTATIONS = new Set(['act', 'resize', 'restore']);
 function nativeError(payload, method, uncorrelated = false) {
   const nativeCode = typeof payload?.code === 'string' && /^[a-z][a-z0-9-]{0,127}$/.test(payload.code) ? payload.code : undefined;
@@ -22,6 +22,7 @@ function nativeError(payload, method, uncorrelated = false) {
     else if (['observe', 'inspect'].includes(method) && nativeCode === 'capture-unsupported') { code = 'unsupported_action'; message = 'Selected-window capture is unavailable on this system'; }
     else if (['observe', 'inspect'].includes(method) && nativeCode === 'protected-target') { code = 'unsupported_action'; message = 'The selected window prevents screen capture'; }
     else if (['observe', 'inspect'].includes(method) && ['capture-device', 'capture-format', 'capture-encode', 'capture-clock', 'capture-size'].includes(nativeCode)) { code = 'state_changed'; message = 'The selected window snapshot could not be captured; observe it again'; }
+    else if (method === 'captureDesktop') { code = 'state_changed'; message = 'Desktop capture could not be safely redacted; observe again'; }
     else if (nativeCode === 'uncertain-delivery') { code = 'connection_error'; message = 'Window action delivery could not be confirmed'; }
   }
   return windowError(code, message, { stage: 'native', nativeCode,

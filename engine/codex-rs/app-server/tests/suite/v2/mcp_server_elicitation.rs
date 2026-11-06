@@ -194,9 +194,11 @@ async fn assert_standard_form_elicitation_round_trip(
             .build()
             .map_err(anyhow::Error::msg)?,
     )?)?;
+    assert!(params.user_wait_request_id.as_deref().is_some_and(|id| id.starts_with(&format!("mcp:{}:", params.server_name))));
     assert_eq!(
         params,
         McpServerElicitationRequestParams {
+            user_wait_request_id: params.user_wait_request_id.clone(),
             thread_id: fixture.thread_id.clone(),
             turn_id: Some(fixture.turn_id.clone()),
             server_name: "codex_apps".to_string(),
@@ -240,9 +242,11 @@ async fn mcp_server_legacy_sep1034_elicitation_defaults_round_trip() -> Result<(
 async fn mcp_server_openai_form_elicitation_round_trip() -> Result<()> {
     let mut fixture = ElicitationRoundTripFixture::start(ElicitationScenario::OpenAiForm).await?;
     let (request_id, params) = fixture.read_elicitation().await?;
+    assert!(params.user_wait_request_id.as_deref().is_some_and(|id| id.starts_with(&format!("mcp:{}:", params.server_name))));
     assert_eq!(
         params,
         McpServerElicitationRequestParams {
+            user_wait_request_id: params.user_wait_request_id.clone(),
             thread_id: fixture.thread_id.clone(),
             turn_id: Some(fixture.turn_id.clone()),
             server_name: "codex_apps".to_string(),
@@ -279,9 +283,11 @@ async fn mcp_server_openai_elicitation_form_round_trip() -> Result<()> {
     let mut fixture =
         ElicitationRoundTripFixture::start(ElicitationScenario::OpenAiElicitationForm).await?;
     let (request_id, params) = fixture.read_elicitation().await?;
+    assert!(params.user_wait_request_id.as_deref().is_some_and(|id| id.starts_with(&format!("mcp:{}:", params.server_name))));
     assert_eq!(
         params,
         McpServerElicitationRequestParams {
+            user_wait_request_id: params.user_wait_request_id.clone(),
             thread_id: fixture.thread_id.clone(),
             turn_id: Some(fixture.turn_id.clone()),
             server_name: "codex_apps".to_string(),

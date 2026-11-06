@@ -1,0 +1,717 @@
+{
+  "schema": 1,
+  "group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+  "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+  "provenance_sha256": "cb63beb0cfb3aed2f8d6de6bfd6e82474cb794f4bbb44062a84326b5c77d87b4",
+  "operations": [
+    {
+      "operation": "inventory",
+      "offset": 0,
+      "pid": 41292,
+      "exit_code": 0,
+      "stderr": "",
+      "matching_groups": [],
+      "pagination": {
+        "bundles_total": 52,
+        "decisions_total": 1290,
+        "groups_total": 518,
+        "limit": 200,
+        "offset": 0,
+        "runs_total": 75,
+        "total": 1129
+      }
+    },
+    {
+      "operation": "inventory",
+      "offset": 200,
+      "pid": 40376,
+      "exit_code": 0,
+      "stderr": "",
+      "matching_groups": [],
+      "pagination": {
+        "bundles_total": 52,
+        "decisions_total": 1290,
+        "groups_total": 518,
+        "limit": 200,
+        "offset": 200,
+        "runs_total": 75,
+        "total": 1129
+      }
+    },
+    {
+      "operation": "inventory",
+      "offset": 400,
+      "pid": 73716,
+      "exit_code": 0,
+      "stderr": "",
+      "matching_groups": [],
+      "pagination": {
+        "bundles_total": 52,
+        "decisions_total": 1290,
+        "groups_total": 518,
+        "limit": 200,
+        "offset": 400,
+        "runs_total": 75,
+        "total": 1129
+      }
+    },
+    {
+      "operation": "register",
+      "pid": 91156,
+      "exit_code": 0,
+      "elapsed_ms": 4453,
+      "stderr": "",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+          "kind": "work",
+          "members": [
+            "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+            "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+            "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+            "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+            "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655"
+          ],
+          "membership_complete": true,
+          "membership_source_identity": null,
+          "owner": "EC-01-user-archive-custody",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+          "registered_at_ms": 1793162119134,
+          "version": "user-archive-r1"
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": false,
+            "id": "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+            "identity": "3a8d0210e8751380aa5ebbe755776f7e9f3a83ba95dbba1b3860cd0a557aaa04",
+            "kind": "historical-fixture",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 0,
+            "measured_at_ms": 1793162119134,
+            "owner": "EC-01-user-archive-custody",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\signature-UtcGoq",
+            "presence": "present",
+            "protection_known": false,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+            "references": [
+              "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+            ],
+            "registered_at_ms": 1793162119134,
+            "remaining": true,
+            "role": "historical-fixture",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          },
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": false,
+            "id": "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+            "identity": "2a32b06df1c4835920032f0e3990d0fe018f5588c8b711d80cbeb9a2da681655",
+            "kind": "historical-fixture",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 0,
+            "measured_at_ms": 1793162119068,
+            "owner": "EC-01-user-archive-custody",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\pending-Kvzt80",
+            "presence": "present",
+            "protection_known": false,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+            "references": [
+              "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+            ],
+            "registered_at_ms": 1793162119068,
+            "remaining": true,
+            "role": "historical-fixture",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          },
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": false,
+            "id": "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+            "identity": "eb06aca90fe83141e39d4562a93edee50243d268d42fbf5a1041b203c2908d0d",
+            "kind": "historical-fixture",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 0,
+            "measured_at_ms": 1793162119073,
+            "owner": "EC-01-user-archive-custody",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\prepare-owner-yju6P8",
+            "presence": "present",
+            "protection_known": false,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+            "references": [
+              "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+            ],
+            "registered_at_ms": 1793162119073,
+            "remaining": true,
+            "role": "historical-fixture",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          },
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": false,
+            "id": "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+            "identity": "412cf70daef679c97a09b91d4731da56ed84462e618070d74bddd6367622aa25",
+            "kind": "historical-fixture",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 0,
+            "measured_at_ms": 1793162119063,
+            "owner": "EC-01-user-archive-custody",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\config-override-GLr6TL",
+            "presence": "present",
+            "protection_known": false,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+            "references": [
+              "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+            ],
+            "registered_at_ms": 1793162119063,
+            "remaining": true,
+            "role": "historical-fixture",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          },
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": false,
+            "id": "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655",
+            "identity": "ceda49f8c68cc3c5a191ebef219b4f8480b21f4700a9251e2833814863471cec",
+            "kind": "historical-fixture",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 2451,
+            "measured_at_ms": 1793162119130,
+            "owner": "EC-01-user-archive-custody",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\shared-owner-kN27rj",
+            "presence": "present",
+            "protection_known": false,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+            "references": [
+              "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+            ],
+            "registered_at_ms": 1793162119130,
+            "remaining": true,
+            "role": "historical-fixture",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "review",
+      "pid": 84468,
+      "exit_code": 0,
+      "elapsed_ms": 831,
+      "stderr": "",
+      "value": {
+        "groups": [
+          {
+            "cached_live_members": 5,
+            "cleanup_status": null,
+            "id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "kind": "work",
+            "members_total": 5,
+            "membership_complete": true,
+            "membership_source": null,
+            "membership_source_format": null,
+            "membership_source_identity": null,
+            "owner": "EC-01-user-archive-custody",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+            "version": "user-archive-r1"
+          }
+        ],
+        "items": [
+          {
+            "blockers": [
+              "generation or usage protection unconfirmed",
+              "references active or unknown",
+              "outside configured managed roots",
+              "a lifecycle group member is protected"
+            ],
+            "group_member_ids": [
+              "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+              "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+              "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+              "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+              "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655"
+            ],
+            "group_token": "5b28bb2539a87925fa648225fe804dfdfe995180fee29b89b770a1006c3a36da",
+            "id": "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+            "identity": "3a8d0210e8751380aa5ebbe755776f7e9f3a83ba95dbba1b3860cd0a557aaa04",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "logical_bytes": 0,
+            "measured_at_ms": 1793162119134,
+            "membership_source_observation": null,
+            "observation_error": null,
+            "observed_at_ms": 1793162132356,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\signature-UtcGoq",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  165,
+                  243,
+                  148,
+                  0,
+                  0,
+                  0,
+                  74,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "1c1b01923b140695c89965dc48b387873b5b89e37099ced30d101a00eff6543f",
+            "verification": "registered"
+          },
+          {
+            "blockers": [
+              "generation or usage protection unconfirmed",
+              "references active or unknown",
+              "outside configured managed roots",
+              "a lifecycle group member is protected"
+            ],
+            "group_member_ids": [
+              "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+              "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+              "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+              "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+              "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655"
+            ],
+            "group_token": "5b28bb2539a87925fa648225fe804dfdfe995180fee29b89b770a1006c3a36da",
+            "id": "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+            "identity": "2a32b06df1c4835920032f0e3990d0fe018f5588c8b711d80cbeb9a2da681655",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "logical_bytes": 0,
+            "measured_at_ms": 1793162119068,
+            "membership_source_observation": null,
+            "observation_error": null,
+            "observed_at_ms": 1793162132377,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\pending-Kvzt80",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  116,
+                  243,
+                  151,
+                  0,
+                  0,
+                  0,
+                  21,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "e81739c7db6cc147bc2bf7dc9929bb00130671ab468e0b451310bae99ee42fbf",
+            "verification": "registered"
+          },
+          {
+            "blockers": [
+              "generation or usage protection unconfirmed",
+              "references active or unknown",
+              "outside configured managed roots",
+              "a lifecycle group member is protected"
+            ],
+            "group_member_ids": [
+              "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+              "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+              "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+              "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+              "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655"
+            ],
+            "group_token": "5b28bb2539a87925fa648225fe804dfdfe995180fee29b89b770a1006c3a36da",
+            "id": "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+            "identity": "eb06aca90fe83141e39d4562a93edee50243d268d42fbf5a1041b203c2908d0d",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "logical_bytes": 0,
+            "measured_at_ms": 1793162119073,
+            "membership_source_observation": null,
+            "observation_error": null,
+            "observed_at_ms": 1793162132397,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\prepare-owner-yju6P8",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  125,
+                  106,
+                  149,
+                  0,
+                  0,
+                  0,
+                  34,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "4a30746d8b512abfe746405a68cd5ee456bc880acbc3181194516e44e193ad38",
+            "verification": "registered"
+          },
+          {
+            "blockers": [
+              "generation or usage protection unconfirmed",
+              "references active or unknown",
+              "outside configured managed roots",
+              "a lifecycle group member is protected"
+            ],
+            "group_member_ids": [
+              "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+              "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+              "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+              "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+              "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655"
+            ],
+            "group_token": "5b28bb2539a87925fa648225fe804dfdfe995180fee29b89b770a1006c3a36da",
+            "id": "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+            "identity": "412cf70daef679c97a09b91d4731da56ed84462e618070d74bddd6367622aa25",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "logical_bytes": 0,
+            "measured_at_ms": 1793162119063,
+            "membership_source_observation": null,
+            "observation_error": null,
+            "observed_at_ms": 1793162132419,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\config-override-GLr6TL",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  234,
+                  106,
+                  149,
+                  0,
+                  0,
+                  0,
+                  20,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "863b610248f18fe5bcdcdf65153fc0d81ad2be0bddc7ac76216666588f87dca0",
+            "verification": "registered"
+          },
+          {
+            "blockers": [
+              "generation or usage protection unconfirmed",
+              "references active or unknown",
+              "outside configured managed roots",
+              "a lifecycle group member is protected"
+            ],
+            "group_member_ids": [
+              "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+              "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+              "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+              "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+              "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655"
+            ],
+            "group_token": "5b28bb2539a87925fa648225fe804dfdfe995180fee29b89b770a1006c3a36da",
+            "id": "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655",
+            "identity": "ceda49f8c68cc3c5a191ebef219b4f8480b21f4700a9251e2833814863471cec",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "logical_bytes": 2451,
+            "measured_at_ms": 1793162119130,
+            "membership_source_observation": null,
+            "observation_error": null,
+            "observed_at_ms": 1793162132438,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\shared-owner-kN27rj",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  21,
+                  225,
+                  179,
+                  0,
+                  0,
+                  0,
+                  12,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "271f35e53b898646b999fb6d76eefc808fbe50bdbf07b4e9cc7c56f5f28a0755",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "operation": "apply",
+      "pid": 81020,
+      "exit_code": 0,
+      "elapsed_ms": 8838,
+      "stderr": "",
+      "value": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "status": "deferred"
+          }
+        ],
+        "results": [
+          {
+            "decision": "defer",
+            "decision_id": "31f1c1db5d3b50fb253d699db3d7c3ed79f0393e8eaa4177fa8e44e38785ff62",
+            "group_status": "deferred",
+            "id": "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "reason": "User requested archive retention; custody only, original invocation attribution and generation/use protection unresolved; no deletion authorized",
+            "remaining": true,
+            "revisit_condition": "Independent original invocation ownership evidence and current references/protections verified, then fresh review and explicit scoped disposition",
+            "status": "deferred",
+            "token": "1c1b01923b140695c89965dc48b387873b5b89e37099ced30d101a00eff6543f"
+          },
+          {
+            "decision": "defer",
+            "decision_id": "2673974bf89e694c6c820a6cf04fb9e9e90162228efcae5d8dd2c752c0fd1ee2",
+            "group_status": "deferred",
+            "id": "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "reason": "User requested archive retention; custody only, original invocation attribution and generation/use protection unresolved; no deletion authorized",
+            "remaining": true,
+            "revisit_condition": "Independent original invocation ownership evidence and current references/protections verified, then fresh review and explicit scoped disposition",
+            "status": "deferred",
+            "token": "e81739c7db6cc147bc2bf7dc9929bb00130671ab468e0b451310bae99ee42fbf"
+          },
+          {
+            "decision": "defer",
+            "decision_id": "8f4de967995deaaad578e1a11bb34515200f431d4ff851e92a3f200db37be090",
+            "group_status": "deferred",
+            "id": "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "reason": "User requested archive retention; custody only, original invocation attribution and generation/use protection unresolved; no deletion authorized",
+            "remaining": true,
+            "revisit_condition": "Independent original invocation ownership evidence and current references/protections verified, then fresh review and explicit scoped disposition",
+            "status": "deferred",
+            "token": "4a30746d8b512abfe746405a68cd5ee456bc880acbc3181194516e44e193ad38"
+          },
+          {
+            "decision": "defer",
+            "decision_id": "d640b72391c84cb6771057a558761b3474b8e3441815f4861966f9eec0abd87d",
+            "group_status": "deferred",
+            "id": "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "reason": "User requested archive retention; custody only, original invocation attribution and generation/use protection unresolved; no deletion authorized",
+            "remaining": true,
+            "revisit_condition": "Independent original invocation ownership evidence and current references/protections verified, then fresh review and explicit scoped disposition",
+            "status": "deferred",
+            "token": "863b610248f18fe5bcdcdf65153fc0d81ad2be0bddc7ac76216666588f87dca0"
+          },
+          {
+            "decision": "defer",
+            "decision_id": "ec7c384d66770668848340f4166938ae2e98a8b3590d6d614664e51e4feaecb1",
+            "group_status": "deferred",
+            "id": "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655",
+            "lifecycle_group_id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+            "reason": "User requested archive retention; custody only, original invocation attribution and generation/use protection unresolved; no deletion authorized",
+            "remaining": true,
+            "revisit_condition": "Independent original invocation ownership evidence and current references/protections verified, then fresh review and explicit scoped disposition",
+            "status": "deferred",
+            "token": "271f35e53b898646b999fb6d76eefc808fbe50bdbf07b4e9cc7c56f5f28a0755"
+          }
+        ]
+      }
+    }
+  ],
+  "registration_request": {
+    "operation": "register",
+    "group": {
+      "id": "work:EC-01:unattributed-fixture-archive-20261028-r1",
+      "kind": "work",
+      "owner": "EC-01-user-archive-custody",
+      "version": "user-archive-r1",
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+      "members": [
+        {
+          "id": "de06bf3922891bbdd0ec0b1d6f76ed5fd317f07cab7c281ad74d69f3a997dae2",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\config-override-GLr6TL",
+          "kind": "historical-fixture",
+          "role": "historical-fixture",
+          "owner": "EC-01-user-archive-custody",
+          "generated": false,
+          "protection_known": false,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+          "references": [
+            "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+          ]
+        },
+        {
+          "id": "b8e1fba40638142db6a4b263b6a061a667f8c85a473f0795584bf0b9fd791da0",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\pending-Kvzt80",
+          "kind": "historical-fixture",
+          "role": "historical-fixture",
+          "owner": "EC-01-user-archive-custody",
+          "generated": false,
+          "protection_known": false,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+          "references": [
+            "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+          ]
+        },
+        {
+          "id": "dbf00510223acbd30564a8fcd4ad8ace486664815878c874ade7403023938599",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\prepare-owner-yju6P8",
+          "kind": "historical-fixture",
+          "role": "historical-fixture",
+          "owner": "EC-01-user-archive-custody",
+          "generated": false,
+          "protection_known": false,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+          "references": [
+            "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+          ]
+        },
+        {
+          "id": "fd7d2b4dd498b8020bfe6dfcb83ed8edccf1f01d5951382823c0f92240504655",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\shared-owner-kN27rj",
+          "kind": "historical-fixture",
+          "role": "historical-fixture",
+          "owner": "EC-01-user-archive-custody",
+          "generated": false,
+          "protection_known": false,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+          "references": [
+            "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+          ]
+        },
+        {
+          "id": "27777d6af9906d73b3831402caba577555f2de1ab5bc0de08ed0d408d23c6012",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\signature-UtcGoq",
+          "kind": "historical-fixture",
+          "role": "historical-fixture",
+          "owner": "EC-01-user-archive-custody",
+          "generated": false,
+          "protection_known": false,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\13-fixture-archive.json",
+          "references": [
+            "User-requested archive; original invocation attribution unresolved; retain until independent ownership evidence and fresh review"
+          ]
+        }
+      ]
+    }
+  },
+  "verified_paths": [
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\config-override-GLr6TL",
+      "source_absent": true,
+      "archive": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\config-override-GLr6TL",
+      "archive_present": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\pending-Kvzt80",
+      "source_absent": true,
+      "archive": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\pending-Kvzt80",
+      "archive_present": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\prepare-owner-yju6P8",
+      "source_absent": true,
+      "archive": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\prepare-owner-yju6P8",
+      "archive_present": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\shared-owner-kN27rj",
+      "source_absent": true,
+      "archive": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\shared-owner-kN27rj",
+      "archive_present": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\signature-UtcGoq",
+      "source_absent": true,
+      "archive": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-unattributed-fixtures-20261028-r1\\signature-UtcGoq",
+      "archive_present": true
+    }
+  ],
+  "state": "user archive custody registered and fresh reviewed; all five explicitly deferred with remaining true; source absent, archive present",
+  "provenance_unchanged": true,
+  "temporary_request_absent": true
+}

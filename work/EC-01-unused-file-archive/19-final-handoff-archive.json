@@ -1,0 +1,1059 @@
+{
+  "schema": 1,
+  "action": "user-requested-final-verification-and-superseded-version-archive",
+  "owner": "EC-01-user-archive-custody",
+  "platform": "Windows x64",
+  "installation": {
+    "schema": 1,
+    "status": "installed",
+    "version_id": "version:maintenance-owner:ec01:unknown-recovery",
+    "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery",
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+    "sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+    "acceptance_sha256": "ac556350d1575c668d78f5b6f6125a74c8e4744f2a7fa38637c2a1bf35e06f36",
+    "installation_proof": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\verification\\installation-verification.json",
+    "installation_proof_sha256": "978922ed849c4904d65873c3e464f8f783e9544814de3b4a7f6bdb534ca36a20",
+    "installation_revision": 12,
+    "old_reference_released": "ad3c4b1b22f471e6f8400ddc935d0ce828d931e2ab83fbc729c71f5d9ff3997b",
+    "default_native_exit_code": 0
+  },
+  "copy_verification": [
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\reports\\verification.json",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\verification\\source-verification.json",
+      "sha256": "a2a69a3711d052f70881143d41b0f73023b626b2c1d0236de272a6d7014058da",
+      "verified": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\reports\\integration-result.json",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\verification\\native-regression.json",
+      "sha256": "86f1ad7082ca89b028a90a18d33447b766552bcbe1f0c512f700b28636f36e15",
+      "verified": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\reports\\root-cli-acceptance.json",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\verification\\cli-acceptance.json",
+      "sha256": "0ed5b2ffa5b69f68be563aef0a38f9e7587bac94f3c594c8011cb442018f9fbe",
+      "verified": true
+    }
+  ],
+  "archive_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-final-handoff-20261028-r1",
+  "planned": [
+    {
+      "id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+      "owner": "/root/unknown_cleanup_native",
+      "record": {
+        "close_receipt": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\reports\\producer-69fdabd25ef652c96e6cfe817a82d794b43c4b0f74a35d013c77d9a88c75ab84.json",
+          "evidence_sha256": "69fdabd25ef652c96e6cfe817a82d794b43c4b0f74a35d013c77d9a88c75ab84",
+          "reason": "Synchronous preparation and Cargo test/release controllers returned terminally; catalog quiet boundary approved",
+          "request_sha256": "8a39bfb6678562345e958d8951308d58323a101a0798f9b429f51a32e5b91b45"
+        },
+        "created_at": "2026-10-28T04:18:56.938Z",
+        "id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+        "kind": "run",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2",
+            "protection_known": true,
+            "role": "run"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\inputs",
+            "protection_known": true,
+            "role": "inputs"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\temporary",
+            "protection_known": true,
+            "role": "temporary"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\logs",
+            "protection_known": true,
+            "role": "logs"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\reports",
+            "protection_known": true,
+            "role": "reports"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\outputs",
+            "protection_known": true,
+            "role": "outputs"
+          }
+        ],
+        "membership_complete": true,
+        "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2",
+        "owner": "/root/unknown_cleanup_native",
+        "ownership_scope": "run-root",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2\\reports\\producer-69fdabd25ef652c96e6cfe817a82d794b43c4b0f74a35d013c77d9a88c75ab84.json",
+          "evidence_sha256": "69fdabd25ef652c96e6cfe817a82d794b43c4b0f74a35d013c77d9a88c75ab84",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Synchronous preparation and Cargo test/release controllers returned terminally; catalog quiet boundary approved",
+          "status": "stopped"
+        },
+        "references": [],
+        "revision": 2,
+        "schema": 1,
+        "state": "complete",
+        "updated_at": "2026-10-28T05:18:21.573Z",
+        "version": null
+      },
+      "producer_proof": {
+        "lifecycleId": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Synchronous preparation and Cargo test/release controllers returned terminally; catalog quiet boundary approved",
+        "children": [],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-final-handoff-20261028-r1\\native-r2",
+      "before": {
+        "dev": "3057815611",
+        "ino": "4785074614043621",
+        "directory": true,
+        "size": "0",
+        "birthtimeNs": "1793161142431135900",
+        "mtimeNs": "1793161142433635200"
+      },
+      "after": {
+        "dev": "3057815611",
+        "ino": "4785074614043621",
+        "directory": true,
+        "size": "0",
+        "birthtimeNs": "1793161142431135900",
+        "mtimeNs": "1793161142433635200"
+      },
+      "source_absent": true,
+      "status": "archived"
+    },
+    {
+      "id": "version:maintenance-owner:ec01:pending-refresh",
+      "owner": "EC-01",
+      "record": {
+        "close_receipt": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh\\verification\\acceptance.json",
+          "evidence_sha256": "48426c5dacb0b0c54d03b30b6013e2fb15953ebfafbd31b3e03e2351eeed6d89",
+          "reason": "Exact standalone build, full gated native suite, binary boundaries and actual incident recovery passed",
+          "request_sha256": "1a2d1d0504f50781d92673230e1953fa4bf3de0032da43809a13f62e47c2b8cb"
+        },
+        "created_at": "2026-10-28T00:51:37.029Z",
+        "id": "version:maintenance-owner:ec01:pending-refresh",
+        "kind": "version",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh",
+            "protection_known": true,
+            "role": "release"
+          }
+        ],
+        "membership_complete": true,
+        "owner": "EC-01",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh\\verification\\acceptance.json",
+          "evidence_sha256": "48426c5dacb0b0c54d03b30b6013e2fb15953ebfafbd31b3e03e2351eeed6d89",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Exact standalone build, full gated native suite, binary boundaries and actual incident recovery passed",
+          "status": "stopped"
+        },
+        "references": [],
+        "revision": 2,
+        "schema": 1,
+        "state": "complete",
+        "updated_at": "2026-10-28T00:51:51.003Z",
+        "version": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529-windows-x64-pending-refresh-v1"
+      },
+      "producer_proof": {
+        "schema": 1,
+        "id": "version:maintenance-owner:ec01:pending-refresh",
+        "version": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529-windows-x64-pending-refresh-v1",
+        "executable_sha256": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529",
+        "source_receipt_sha256": "afa43fdaabe93651bfd02afe55cad719a05c3a5c034d501eebf5056c7c431122",
+        "source_before_after_unchanged": true,
+        "environment": "Windows x64 local, Rust 1.95.0",
+        "stages": [
+          {
+            "name": "freeze-engine",
+            "started": "2026-10-28T00:36:22.167Z",
+            "ended": "2026-10-28T00:37:11.116Z",
+            "exit_code": 0,
+            "source_receipt_sha256": "afa43fdaabe93651bfd02afe55cad719a05c3a5c034d501eebf5056c7c431122"
+          },
+          {
+            "name": "r3-provenance-before",
+            "command": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+            "args": [
+              "-B",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\input-tools\\engine-provenance.py",
+              "snapshot",
+              "--root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\inputs\\engine-r3",
+              "--target",
+              "x86_64-pc-windows-msvc",
+              "--file",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\source-r3-before.json"
+            ],
+            "started": "2026-10-28T00:37:11.147Z",
+            "ended": "2026-10-28T00:39:46.279Z",
+            "pid": 33572,
+            "exit_code": 0,
+            "signal": null,
+            "error": null
+          },
+          {
+            "name": "r3-focused-refresh",
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\focused-refresh.cjs",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\inputs\\engine-r3"
+            ],
+            "started": "2026-10-28T00:39:46.284Z",
+            "ended": "2026-10-28T00:40:29.812Z",
+            "pid": 72104,
+            "exit_code": 0,
+            "signal": null,
+            "error": null
+          },
+          {
+            "name": "r3-release-build",
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\input-tools\\cargo-target-owner.cjs",
+              "build",
+              "--release",
+              "-p",
+              "azrael-project-maintenance",
+              "--bin",
+              "maintenance_owner",
+              "--locked",
+              "--offline"
+            ],
+            "started": "2026-10-28T00:40:29.812Z",
+            "ended": "2026-10-28T00:41:14.101Z",
+            "pid": 81688,
+            "exit_code": 0,
+            "signal": null,
+            "error": null
+          },
+          {
+            "name": "r3-binary-acceptance",
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\accept-binary-r3.cjs",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\target\\release\\maintenance_owner.exe"
+            ],
+            "started": "2026-10-28T00:41:14.102Z",
+            "ended": "2026-10-28T00:41:14.989Z",
+            "pid": 12692,
+            "exit_code": 0,
+            "signal": null,
+            "error": null
+          },
+          {
+            "name": "r3-library-tests",
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\input-tools\\check-project-maintenance.cjs",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\inputs\\engine-r3",
+              "--stage",
+              "library"
+            ],
+            "started": "2026-10-28T00:41:14.990Z",
+            "ended": "2026-10-28T00:48:19.047Z",
+            "pid": 82672,
+            "exit_code": 0,
+            "signal": null,
+            "error": null
+          },
+          {
+            "name": "r3-provenance-after",
+            "command": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+            "args": [
+              "-B",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\input-tools\\engine-provenance.py",
+              "snapshot",
+              "--root",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\inputs\\engine-r3",
+              "--target",
+              "x86_64-pc-windows-msvc",
+              "--file",
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\source-r3-after.json"
+            ],
+            "started": "2026-10-28T00:48:19.049Z",
+            "ended": "2026-10-28T00:50:09.988Z",
+            "pid": 90608,
+            "exit_code": 0,
+            "signal": null,
+            "error": null
+          }
+        ],
+        "native_preflight": {
+          "schema": 1,
+          "typeCheck": "selected-tests",
+          "testSelection": "nonzero",
+          "phases": [
+            {
+              "phase": "typeCheck",
+              "args": [
+                "check",
+                "-p",
+                "azrael-project-maintenance",
+                "--locked",
+                "--offline",
+                "--tests",
+                "--profile",
+                "test"
+              ],
+              "startedUtc": "2026-10-28T00:41:15.067Z",
+              "durationMs": 6536,
+              "exitCode": 0,
+              "signal": null
+            },
+            {
+              "phase": "selection",
+              "args": [
+                "test",
+                "-p",
+                "azrael-project-maintenance",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1",
+                "--list",
+                "--format=terse"
+              ],
+              "startedUtc": "2026-10-28T00:41:21.603Z",
+              "durationMs": 16761,
+              "exitCode": 0,
+              "signal": null,
+              "selectedTests": 172
+            },
+            {
+              "phase": "execution",
+              "args": [
+                "test",
+                "-p",
+                "azrael-project-maintenance",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-10-28T00:41:38.364Z",
+              "durationMs": 400646,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        "test_summaries": [
+          {
+            "status": "ok",
+            "passed": 42,
+            "failed": 0,
+            "summary": "test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.53s"
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "summary": "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.41s"
+          },
+          {
+            "status": "ok",
+            "passed": 35,
+            "failed": 0,
+            "summary": "test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 67.36s"
+          },
+          {
+            "status": "ok",
+            "passed": 28,
+            "failed": 0,
+            "summary": "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 49.25s"
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.26s"
+          },
+          {
+            "status": "ok",
+            "passed": 19,
+            "failed": 0,
+            "summary": "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.45s"
+          },
+          {
+            "status": "ok",
+            "passed": 5,
+            "failed": 0,
+            "summary": "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.90s"
+          },
+          {
+            "status": "ok",
+            "passed": 23,
+            "failed": 0,
+            "summary": "test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 175.54s"
+          },
+          {
+            "status": "ok",
+            "passed": 8,
+            "failed": 0,
+            "summary": "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.99s"
+          },
+          {
+            "status": "ok",
+            "passed": 4,
+            "failed": 0,
+            "summary": "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.32s"
+          },
+          {
+            "status": "ok",
+            "passed": 0,
+            "failed": 0,
+            "summary": "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+          }
+        ],
+        "binary_acceptance": {
+          "schema": 1,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\target\\release\\maintenance_owner.exe",
+          "sha256": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529",
+          "verified_environment": "Windows x64 local",
+          "stopped_fixture_producer": {
+            "pid": 77924,
+            "exit_code": 0
+          },
+          "cases": [
+            {
+              "mode": "success",
+              "started": "2026-10-28T00:41:14.261Z",
+              "ended": "2026-10-28T00:41:14.516Z",
+              "pid": 92004,
+              "exit_code": 0,
+              "stdout": "{\"group_id\":\"g\",\"manifest_sha256\":\"5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29\",\"operation\":\"recover_refresh_pending\",\"receipt_ref\":\"artifacts\\\\maintenance\\\\evidence\\\\attempt.json\",\"receipt_sha256\":\"5e495571b7930a8dd065b3e62dcc52b5917d646c3ed663491ce5db90b932f005\",\"status\":\"discarded\"}\n",
+              "stderr": "",
+              "manifest_sha256": "5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29",
+              "manifest_unchanged": true,
+              "pending_remaining": false
+            },
+            {
+              "mode": "absent-before",
+              "started": "2026-10-28T00:41:14.523Z",
+              "ended": "2026-10-28T00:41:14.656Z",
+              "pid": 80636,
+              "exit_code": 0,
+              "stdout": "{\"group_id\":\"g\",\"manifest_sha256\":\"1a3446dbcd20eb9bad39f00cbdbb19928a16f1ac203bd337f4894adfbdc3f383\",\"operation\":\"recover_refresh_pending\",\"receipt_ref\":\"artifacts\\\\maintenance\\\\evidence\\\\attempt.json\",\"receipt_sha256\":\"2f48e0870536f1e924f60ffd1746082c5c72d2e27e21548ab4ba33776127136a\",\"status\":\"discarded\"}\n",
+              "stderr": "",
+              "manifest_sha256": "1a3446dbcd20eb9bad39f00cbdbb19928a16f1ac203bd337f4894adfbdc3f383",
+              "manifest_unchanged": true,
+              "pending_remaining": false
+            },
+            {
+              "mode": "wrong-hash",
+              "started": "2026-10-28T00:41:14.661Z",
+              "ended": "2026-10-28T00:41:14.805Z",
+              "pid": 88284,
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "{\"error\":\"manifest or pending SHA-256 differs\"}\n",
+              "manifest_sha256": "5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29",
+              "manifest_unchanged": true,
+              "pending_remaining": true
+            },
+            {
+              "mode": "non-refresh",
+              "started": "2026-10-28T00:41:14.810Z",
+              "ended": "2026-10-28T00:41:14.912Z",
+              "pid": 84132,
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "{\"error\":\"pending transaction is not exclusively a protection_revision refresh\"}\n",
+              "manifest_sha256": "5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29",
+              "manifest_unchanged": true,
+              "pending_remaining": true
+            },
+            {
+              "mode": "live-pid",
+              "started": "2026-10-28T00:41:14.919Z",
+              "ended": "2026-10-28T00:41:14.971Z",
+              "pid": 39392,
+              "exit_code": 1,
+              "stdout": "",
+              "stderr": "{\"error\":\"live owner PID vetoes recovery\"}\n",
+              "manifest_sha256": "5b2d5daf271ff565176b17daa4960607e8dc1b5f4becd30d880945bca2059a29",
+              "manifest_unchanged": true,
+              "pending_remaining": true
+            }
+          ]
+        },
+        "actual_recovery": {
+          "group_id": "run:instruction-yazl-a",
+          "manifest_sha256": "a15e926fe1b3ad4ed06d51bf92187d3fe36088c2b00d43408bf75d03d4124228",
+          "operation": "recover_refresh_pending",
+          "receipt_ref": "artifacts/maintenance/evidence/ec01-pending-recovery-r1/discard-attempt.json",
+          "receipt_sha256": "cee3b8a3fbc1fb553ed6a1311c303d717e52b6d3ebc6e6a3e5cb7cdbc7bdf901",
+          "status": "discarded"
+        },
+        "manifest_unchanged_during_recovery": true,
+        "pending_absent": true,
+        "actual_group_refresh_exit_code": 0,
+        "direct_native_lease": {
+          "pid": 76088,
+          "exit_code": 0,
+          "signal": null,
+          "frames": [
+            {
+              "id": 0,
+              "ok": true,
+              "result": {
+                "acquired_at_ms": 1793148692017,
+                "operation": "EC01.acceptance",
+                "parent_pid": 5632,
+                "pid": 76088,
+                "schema": 2,
+                "token": "76088-1793148692017-9e11829e984fe825"
+              }
+            },
+            {
+              "id": 1,
+              "ok": true,
+              "result": {
+                "released": true,
+                "reservations_retained": []
+              }
+            }
+          ]
+        },
+        "first_failures_preserved": [
+          {
+            "schema": 1,
+            "attempt": "r1",
+            "controller_exit_code": 1,
+            "release_build_exit_code": 0,
+            "executable_sha256": "c13ad1e00759f3a59c46747bf8701acbc114e0369684d057a7a6f4a6a00826e0",
+            "executable_bytes": 2084352,
+            "binary_acceptance_exit_code": 1,
+            "first_causal_error": "Windows error33: secondary read handle cannot read byte range held by own exclusive guard/lease",
+            "actual_root_pending_touched": false,
+            "library_tests_started": false,
+            "source_after_audit_completed": false,
+            "logs": [
+              "logs/release-build.log",
+              "logs/binary-acceptance.log"
+            ]
+          },
+          {
+            "attempt": "r2",
+            "focused_typecheck_exit_code": 0,
+            "selected_tests": 9,
+            "execution_exit_code": 101,
+            "passed": 8,
+            "failed": 1,
+            "cause": "Test assumed read-only pending deletion must fail; corrected to actual Windows delete-sharing denial; production code unchanged",
+            "small_real_probe": {
+              "exit_code": 1,
+              "manifest_unchanged": true,
+              "pending_unchanged": true,
+              "receipt_retained": true
+            }
+          }
+        ],
+        "unverified": [
+          "Linux/macOS native",
+          "embedded engine and full application build/install"
+        ]
+      },
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-final-handoff-20261028-r1\\old-version",
+      "before": {
+        "dev": "3057815611",
+        "ino": "2533274802049693",
+        "directory": true,
+        "size": "0",
+        "birthtimeNs": "1793148702067176800",
+        "mtimeNs": "1793148702069183900"
+      },
+      "after": {
+        "dev": "3057815611",
+        "ino": "2533274802049693",
+        "directory": true,
+        "size": "0",
+        "birthtimeNs": "1793148702067176800",
+        "mtimeNs": "1793148702069183900"
+      },
+      "source_absent": true,
+      "status": "archived"
+    }
+  ],
+  "operations": [
+    {
+      "operation": "inventory",
+      "offset": 0,
+      "pid": 84792,
+      "exit_code": 0,
+      "stderr": "",
+      "matching_groups": [],
+      "pagination": {
+        "bundles_total": 52,
+        "decisions_total": 1354,
+        "groups_total": 521,
+        "limit": 200,
+        "offset": 0,
+        "runs_total": 75,
+        "total": 1186
+      }
+    },
+    {
+      "operation": "inventory",
+      "offset": 200,
+      "pid": 93076,
+      "exit_code": 0,
+      "stderr": "",
+      "matching_groups": [],
+      "pagination": {
+        "bundles_total": 52,
+        "decisions_total": 1354,
+        "groups_total": 521,
+        "limit": 200,
+        "offset": 200,
+        "runs_total": 75,
+        "total": 1186
+      }
+    },
+    {
+      "operation": "inventory",
+      "offset": 400,
+      "pid": 92536,
+      "exit_code": 0,
+      "stderr": "",
+      "matching_groups": [
+        {
+          "cached_live_members": 1,
+          "cleanup_status": null,
+          "id": "version:maintenance-owner:ec01:pending-refresh",
+          "kind": "version",
+          "members_total": 1,
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "1bc08b270991188bd4e6218f3035793fecc2c5ee5257f7a1ff0ca7fe377bf5b4",
+          "owner": "EC-01",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\dd650af4954468dad993932d8cf60e743e462ae38d01acb1b7ce56e8de4be213.json",
+          "version": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529-windows-x64-pending-refresh-v1"
+        }
+      ],
+      "pagination": {
+        "bundles_total": 52,
+        "decisions_total": 1354,
+        "groups_total": 521,
+        "limit": 200,
+        "offset": 400,
+        "runs_total": 75,
+        "total": 1186
+      }
+    },
+    {
+      "operation": "register",
+      "group_id": "version:maintenance-owner:ec01:unknown-recovery",
+      "pid": 82608,
+      "exit_code": 0,
+      "elapsed_ms": 79855,
+      "stderr": "",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "version:maintenance-owner:ec01:unknown-recovery",
+          "kind": "version",
+          "members": [
+            "d163432631111362063906fab5279aff63ad51f3dfe5adb2d05532924f6cec09"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "b2f82bbf911a9b0d11dd2ab7366eae7c96828e316190866422316e69151305a7",
+          "owner": "EC-01",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c9845b37cff2a1111bf300ba7209e5ace6db718edda465f0e43f8a0a8d17b979.json",
+          "registered_at_ms": 1793164879420,
+          "version": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26-windows-x64-unknown-recovery-v1"
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "d163432631111362063906fab5279aff63ad51f3dfe5adb2d05532924f6cec09",
+            "identity": "2cd819286b8b9805a6d2478c4fb37762d745e2f028acc568e96c60f8199df99f",
+            "kind": "release",
+            "lifecycle_group_id": "version:maintenance-owner:ec01:unknown-recovery",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 2190519,
+            "measured_at_ms": 1793164866395,
+            "owner": "EC-01",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c9845b37cff2a1111bf300ba7209e5ace6db718edda465f0e43f8a0a8d17b979.json",
+            "references": [
+              "work:installation:maintenance-owner:dw16:Verified unknown cleanup recovery and pre-spawn ownership standalone"
+            ],
+            "registered_at_ms": 1793164866395,
+            "remaining": true,
+            "role": "release",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "register",
+      "group_id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+      "pid": 53292,
+      "exit_code": 0,
+      "elapsed_ms": 182703,
+      "stderr": "",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+          "kind": "run",
+          "members": [
+            "32ccb7445ed167f5b202ba59e5d81ddda72e930e76b1f438f2fe73c49263d80e"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "c39172d72583c80f7f0f79e512f0c47998a6a1109c5cefd86ab2288d1cfc8f6a",
+          "owner": "/root/unknown_cleanup_native",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\079f5a73ee4a939dd8b42bd6b45aeb39b615dceff85e48c8afcb2694012cc7bf.json",
+          "registered_at_ms": 1793165064427,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "32ccb7445ed167f5b202ba59e5d81ddda72e930e76b1f438f2fe73c49263d80e",
+            "identity": "84b14f18f5eff40a6ff5b318698cd47af4019f3e8ae58897d9a5c06614e425bb",
+            "kind": "run",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 871758468,
+            "measured_at_ms": 1793165050854,
+            "owner": "/root/unknown_cleanup_native",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\079f5a73ee4a939dd8b42bd6b45aeb39b615dceff85e48c8afcb2694012cc7bf.json",
+            "references": [],
+            "registered_at_ms": 1793165050854,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "register",
+      "group_id": "version:maintenance-owner:ec01:pending-refresh",
+      "pid": 86168,
+      "exit_code": 0,
+      "elapsed_ms": 5220,
+      "stderr": "",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "version:maintenance-owner:ec01:pending-refresh",
+          "kind": "version",
+          "members": [
+            "a591fef8e33875ea0ec04ae52c34b5b277ee8f171216387502298c810f615137"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "7c58e6547e1505341bd6b0f37b4efa13d132149b46cb532f0793d239a7eef82b",
+          "owner": "EC-01",
+          "protection_revision": "7c58e6547e1505341bd6b0f37b4efa13d132149b46cb532f0793d239a7eef82b",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\dd650af4954468dad993932d8cf60e743e462ae38d01acb1b7ce56e8de4be213.json",
+          "registered_at_ms": 1793148790160,
+          "version": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529-windows-x64-pending-refresh-v1"
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "a591fef8e33875ea0ec04ae52c34b5b277ee8f171216387502298c810f615137",
+            "identity": "85129f7484334ba41ff7cbf50d1ff00a7614878a5d4884e007aa5205831a422e",
+            "kind": "release",
+            "lifecycle_group_id": "version:maintenance-owner:ec01:pending-refresh",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 2097460,
+            "measured_at_ms": 1793148769253,
+            "owner": "EC-01",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh",
+            "presence": "present",
+            "protection_known": true,
+            "protection_revision": "7c58e6547e1505341bd6b0f37b4efa13d132149b46cb532f0793d239a7eef82b",
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\dd650af4954468dad993932d8cf60e743e462ae38d01acb1b7ce56e8de4be213.json",
+            "references": [],
+            "registered_at_ms": 1793148769253,
+            "remaining": true,
+            "role": "release",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "review",
+      "pid": 30944,
+      "exit_code": 0,
+      "elapsed_ms": 13828,
+      "stderr": "",
+      "value": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "c39172d72583c80f7f0f79e512f0c47998a6a1109c5cefd86ab2288d1cfc8f6a",
+            "owner": "/root/unknown_cleanup_native",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\079f5a73ee4a939dd8b42bd6b45aeb39b615dceff85e48c8afcb2694012cc7bf.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "version:maintenance-owner:ec01:pending-refresh",
+            "kind": "version",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "7c58e6547e1505341bd6b0f37b4efa13d132149b46cb532f0793d239a7eef82b",
+            "owner": "EC-01",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\dd650af4954468dad993932d8cf60e743e462ae38d01acb1b7ce56e8de4be213.json",
+            "version": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529-windows-x64-pending-refresh-v1"
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "version:maintenance-owner:ec01:unknown-recovery",
+            "kind": "version",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "b2f82bbf911a9b0d11dd2ab7366eae7c96828e316190866422316e69151305a7",
+            "owner": "EC-01",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c9845b37cff2a1111bf300ba7209e5ace6db718edda465f0e43f8a0a8d17b979.json",
+            "version": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26-windows-x64-unknown-recovery-v1"
+          }
+        ],
+        "items": [
+          {
+            "id": "32ccb7445ed167f5b202ba59e5d81ddda72e930e76b1f438f2fe73c49263d80e",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2",
+            "lifecycle_group_id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+            "blockers": [],
+            "token": "8951423dcc8c2aeca8a952ed875b9a2b419d13a8e93e92349a2806a6ca4230cb",
+            "identity": "84b14f18f5eff40a6ff5b318698cd47af4019f3e8ae58897d9a5c06614e425bb",
+            "logical_bytes": 871758468,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  229,
+                  3,
+                  152,
+                  0,
+                  0,
+                  0,
+                  17,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            }
+          },
+          {
+            "id": "a591fef8e33875ea0ec04ae52c34b5b277ee8f171216387502298c810f615137",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh",
+            "lifecycle_group_id": "version:maintenance-owner:ec01:pending-refresh",
+            "blockers": [],
+            "token": "dd6e9ac782f1f82204777d0f1dff567148bcc19f766818880f0949ee17e8dfe2",
+            "identity": "85129f7484334ba41ff7cbf50d1ff00a7614878a5d4884e007aa5205831a422e",
+            "logical_bytes": 2097460,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  157,
+                  210,
+                  177,
+                  0,
+                  0,
+                  0,
+                  9,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            }
+          },
+          {
+            "id": "d163432631111362063906fab5279aff63ad51f3dfe5adb2d05532924f6cec09",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery",
+            "lifecycle_group_id": "version:maintenance-owner:ec01:unknown-recovery",
+            "blockers": [
+              "references active or unknown",
+              "producer inbound consumer protects group: work:installation:maintenance-owner:dw16",
+              "a lifecycle group member is protected"
+            ],
+            "token": "fbf7b49d8d4a1cca6e36c7ea0ee34db5c60ff763382d542cd3d7cc6a23cc5d5d",
+            "identity": "2cd819286b8b9805a6d2478c4fb37762d745e2f028acc568e96c60f8199df99f",
+            "logical_bytes": 2190519,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  104,
+                  174,
+                  13,
+                  0,
+                  0,
+                  0,
+                  20,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "retention": {
+    "authority": "User requests archiving unused task-owned outputs instead of deleting",
+    "condition": "Retain exact archive until independent ownership/current references/protections review and explicit future disposition"
+  },
+  "state": "Immutable user archive custody: exact two stopped unreferenced roots archived via dev/ino-preserving rename; source finalization outcomes in19-final-handoff-results.json",
+  "installed_version_identity": {
+    "dev": "3057815611",
+    "ino": "5629499535109736",
+    "directory": true,
+    "size": "0",
+    "birthtimeNs": "1793164746523211400",
+    "mtimeNs": "1793164746524217800"
+  },
+  "native_archive_registration": {
+    "omitted": true,
+    "authority": "Parent explicitly approved exact two-root exception to avoid mandatory repeat archive payload measurement",
+    "custody": "Immutable work19 custody record, source native historical records retained",
+    "future_cleanup": "Forbidden until formal fresh native registration, review and explicit disposition; no guard or allowlist changed"
+  },
+  "owner_plan": {
+    "groups": [
+      {
+        "id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\unknown-recovery-native-r2",
+            "protection_known": true,
+            "role": "run"
+          }
+        ],
+        "blockers": [],
+        "registered": true
+      },
+      {
+        "id": "version:maintenance-owner:ec01:pending-refresh",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh",
+            "protection_known": true,
+            "role": "release"
+          }
+        ],
+        "blockers": [],
+        "registered": true
+      }
+    ],
+    "blockers": [],
+    "standalone": []
+  },
+  "archived_at": "2026-10-28T05:26:08.066Z",
+  "producer_stopped_verified": true,
+  "installed_version_unmoved": true
+}

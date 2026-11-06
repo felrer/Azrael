@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "commit": "d0fcac37543a4f7134e9a4a2ed13e610cd4dae75",
+  "parent": "c8e4246b357ceface92dd45d223d162e063ae01f",
+  "files": [
+    "docs/ops/development.md",
+    "scripts/cargo-preflight-recipes.cjs",
+    "scripts/check-project-maintenance.cjs",
+    "scripts/test-cargo-preflight-recipes.cjs",
+    "work/ET-01-cold-build-cache-audit/maintenance-concurrency-cleanup.json",
+    "work/ET-01-cold-build-cache-audit/maintenance-concurrency.json"
+  ],
+  "output": "[master d0fcac37] perf: parallelize isolated maintenance library tests\n 6 files changed, 2608 insertions(+), 5 deletions(-)\n create mode 100644 work/ET-01-cold-build-cache-audit/maintenance-concurrency-cleanup.json\n create mode 100644 work/ET-01-cold-build-cache-audit/maintenance-concurrency.json\n",
+  "finishedUtc": "2026-10-31T02:24:17.631Z",
+  "unrelatedStagingPreserved": true
+}

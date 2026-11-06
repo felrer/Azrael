@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+  "kind": "run",
+  "owner": "/root/native_check_schedule-pilot",
+  "version": null,
+  "state": "pending",
+  "membership_complete": false,
+  "members": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z",
+      "role": "run",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\inputs",
+      "role": "inputs",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\temporary",
+      "role": "temporary",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\logs",
+      "role": "logs",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\reports",
+      "role": "reports",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\outputs",
+      "role": "outputs",
+      "generated": true,
+      "protection_known": true
+    }
+  ],
+  "references": [],
+  "revision": 2,
+  "created_at": "2026-10-23T14:47:42.890Z",
+  "updated_at": "2026-10-23T14:47:45.808Z",
+  "producer": {
+    "status": "stopped",
+    "outcome": "unknown",
+    "exit_code": null,
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\reports\\producer.json",
+    "evidence_sha256": "52363f457862473c6eb62a66f14da216dc184c880ce8ae02c706f867d4ccf255",
+    "reason": "Exact fixed leaf stopped; observed child close and bounded source/CIM proof"
+  },
+  "close_receipt": {
+    "request_sha256": "839b3a3e016514629e8dc91b77ed3943b2a576d9dd429b5473f7210f5bdd4004",
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\reports\\producer.json",
+    "evidence_sha256": "52363f457862473c6eb62a66f14da216dc184c880ce8ae02c706f867d4ccf255",
+    "reason": "Exact fixed leaf stopped; observed child close and bounded source/CIM proof"
+  }
+}

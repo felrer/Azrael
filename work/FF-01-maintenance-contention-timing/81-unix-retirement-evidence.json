@@ -1,0 +1,636 @@
+{
+  "schema": 1,
+  "id": "run:ff1:unix8",
+  "started_utc": "2026-11-02T22:42:00.658Z",
+  "stages": [
+    {
+      "name": "inventory",
+      "started_utc": "2026-11-02T22:42:02.212Z",
+      "request": {
+        "operation": "inventory",
+        "offset": 0,
+        "limit": 1,
+        "lock_wait_ms": 600000
+      },
+      "pid": 40488,
+      "actual_close": true,
+      "exit_code": 0,
+      "signal": null,
+      "stderr": "",
+      "ended_utc": "2026-11-02T22:42:02.553Z",
+      "result": {
+        "bundles": [
+          {
+            "argv": [
+              "node",
+              "--test",
+              "scripts/test-shared-engine-host.cjs",
+              "scripts/test-integrated-entry.cjs",
+              "scripts/test-ordinary-runtime-node.cjs",
+              "scripts/test-recovery-state.cjs",
+              "scripts/test-preparation-state.cjs",
+              "scripts/test-check-shared-engine.mjs"
+            ],
+            "cwd": ".",
+            "depends_on": [],
+            "env": {},
+            "guards": [],
+            "id": "engine-startup-admission-source",
+            "inputs": [
+              "scripts/shared-engine-host.cjs",
+              "scripts/integrated-azrael-entry.cjs",
+              "scripts/ordinary-runtime.cjs",
+              "scripts/platform-runtime.cjs",
+              "scripts/recovery-state.cjs",
+              "scripts/preparation-state.cjs",
+              "scripts/check-shared-engine.mjs",
+              "scripts/test-shared-engine-host.cjs",
+              "scripts/test-integrated-entry.cjs",
+              "scripts/test-ordinary-runtime-node.cjs",
+              "scripts/test-recovery-state.cjs",
+              "scripts/test-preparation-state.cjs",
+              "scripts/test-check-shared-engine.mjs"
+            ],
+            "kind": "test",
+            "purpose": "retained",
+            "resource": null
+          }
+        ],
+        "decisions": [
+          {
+            "attempt_id": "attempt-26768-1-1792027879953",
+            "decision": "delete",
+            "id": "BI-01-acceptance-root",
+            "reason": "독립 프로젝트의 실패·수정·재실행·백업 보존/정리 검증이 끝났고 필요한 실행 근거는 외부 작업 로그에 보존함",
+            "remaining": false,
+            "status": "deleted",
+            "token": "5473cf54ec7aeab0eff13763ea54adc96985266e9d837dcfb6e9d91e0cd4f4ea"
+          }
+        ],
+        "groups": [
+          {
+            "cached_live_members": 0,
+            "cleanup_status": "deleted",
+            "id": "AV-01-condition-labels-20261017",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": null,
+            "membership_source_format": null,
+            "membership_source_identity": null,
+            "owner": "AV-01-root-resume-label-review",
+            "provenance_ref": "work/AV-01-root-resume-label-review/01-plan.md",
+            "version": "20261017"
+          }
+        ],
+        "items": [
+          {
+            "cache_schema": null,
+            "cleanup_status": "deleted",
+            "created_at_ms": null,
+            "due_for_review": false,
+            "generated": true,
+            "id": "00036e18b9810d9658b861e8a4ae49d1e37572158941084f6b3b46d790f84527",
+            "identity": "3df7857f5eea9311ea1915e3f31b81d43795c71b03dcf4f8f44366c84f37041a",
+            "kind": "run",
+            "lifecycle_group_id": "run:BO-02-tps-history:acceptance-schema-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 0,
+            "measured_at_ms": 1792695679924,
+            "owner": "tps_schema",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BO-02-tps-history\\runs\\acceptance-schema-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e3b6c0994ae3ce9e30f75e9dcca92c6e29a400c855feb23fab8c111f1df6ac8b.json",
+            "references": [],
+            "registered_at_ms": 1792695679924,
+            "remaining": false,
+            "review_reasons": [],
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ],
+        "logical_bytes": 399347570202,
+        "measurement": "cached logical bytes; not reclaimed physical space",
+        "pagination": {
+          "bundles_total": 63,
+          "decisions_total": 1931,
+          "groups_total": 963,
+          "limit": 1,
+          "offset": 0,
+          "runs_total": 93,
+          "total": 1791
+        },
+        "policy": {
+          "policy": {
+            "automatic_cleanup": false,
+            "classification": "mixed: common Rust meaning; Windows PowerShell producer/cleanup integration",
+            "reuse_owner": "Existing verification caches; bundle inputs are provenance hints, not adapter cache keys",
+            "verified_environment": "Windows x64 only"
+          }
+        },
+        "project_id": "azrael",
+        "project_root": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "runs": {
+          "run-12672-1391-1792650771795208300": {
+            "owner": "model",
+            "plan_id": "plan-e9b40631a254be1b3752af7467bae72b183223ca0c9416b4dd8936459863b0d7",
+            "run_id": "run-12672-1391-1792650771795208300",
+            "status": "passed",
+            "steps_total": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "register",
+      "started_utc": "2026-11-02T22:42:04.119Z",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:ff1:unix8",
+          "kind": "run",
+          "owner": "FF-01-maintenance-contention-timing",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7681e0125fe0dc3c5b10c31e62ed06fce1b51e8f9f420f60b8581cb11ea1237f.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "5d4f8fb6ec142da36714accf351e99bd087af977e16e785f65387a7bdba189b4",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\unix8",
+              "role": "run-root",
+              "lifecycle_role": "artifact",
+              "kind": "run-root",
+              "owner": "FF-01-maintenance-contention-timing",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7681e0125fe0dc3c5b10c31e62ed06fce1b51e8f9f420f60b8581cb11ea1237f.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 600000
+      },
+      "pid": 56504,
+      "actual_close": true,
+      "exit_code": 0,
+      "signal": null,
+      "stderr": "",
+      "ended_utc": "2026-11-02T22:43:07.278Z",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:ff1:unix8",
+          "kind": "run",
+          "members": [
+            "5d4f8fb6ec142da36714accf351e99bd087af977e16e785f65387a7bdba189b4"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "8ca34aa3f1be6f9e32ad3028ddb72531dfd7a7c2075c35cdc96262b363364385",
+          "owner": "FF-01-maintenance-contention-timing",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7681e0125fe0dc3c5b10c31e62ed06fce1b51e8f9f420f60b8581cb11ea1237f.json",
+          "registered_at_ms": 1793659383571,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "5d4f8fb6ec142da36714accf351e99bd087af977e16e785f65387a7bdba189b4",
+            "identity": "2cd5d62fcc36770a574eee04c35e03e21c446a30cf74a8a61a460efa810b5b3f",
+            "kind": "run-root",
+            "lifecycle_group_id": "run:ff1:unix8",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1128225283,
+            "measured_at_ms": 1793659378334,
+            "owner": "FF-01-maintenance-contention-timing",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\unix8",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7681e0125fe0dc3c5b10c31e62ed06fce1b51e8f9f420f60b8581cb11ea1237f.json",
+            "references": [],
+            "registered_at_ms": 1793659378334,
+            "remaining": true,
+            "role": "run-root",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "review",
+      "started_utc": "2026-11-02T22:43:07.279Z",
+      "request": {
+        "operation": "review",
+        "group_ids": [
+          "run:ff1:unix8"
+        ],
+        "verification": "registered",
+        "lock_wait_ms": 600000
+      },
+      "pid": 20608,
+      "actual_close": true,
+      "exit_code": 0,
+      "signal": null,
+      "stderr": "",
+      "ended_utc": "2026-11-02T22:43:13.415Z",
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:ff1:unix8",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "8ca34aa3f1be6f9e32ad3028ddb72531dfd7a7c2075c35cdc96262b363364385",
+            "owner": "FF-01-maintenance-contention-timing",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7681e0125fe0dc3c5b10c31e62ed06fce1b51e8f9f420f60b8581cb11ea1237f.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "5d4f8fb6ec142da36714accf351e99bd087af977e16e785f65387a7bdba189b4"
+            ],
+            "group_token": "a26936e1f2307a2e39d202286b462339b0df622e7aa99d27ce023e495fddd862",
+            "id": "5d4f8fb6ec142da36714accf351e99bd087af977e16e785f65387a7bdba189b4",
+            "identity": "2cd5d62fcc36770a574eee04c35e03e21c446a30cf74a8a61a460efa810b5b3f",
+            "lifecycle_group_id": "run:ff1:unix8",
+            "logical_bytes": 1128225283,
+            "measured_at_ms": 1793659378334,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "8ca34aa3f1be6f9e32ad3028ddb72531dfd7a7c2075c35cdc96262b363364385",
+              "member_references": {
+                "5d4f8fb6ec142da36714accf351e99bd087af977e16e785f65387a7bdba189b4": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\79-unix-verification.json",
+                  "evidence_sha256": "5167165530c3739936ddc2d88bdad775569eb121abf8e9c7fefa374e211b9d88",
+                  "reason": "All owned verification producers terminated; platform acceptance independently preserved; temporary payload use ended",
+                  "request_sha256": "5a37b2ad52d9999338d19957433643317773afdf863add471188a180a37b9293"
+                },
+                "created_at": "2026-11-02T22:17:45.479Z",
+                "id": "run:ff1:unix8",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\unix8",
+                    "protection_known": true,
+                    "role": "run-root"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\unix8",
+                "owner": "FF-01-maintenance-contention-timing",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\79-unix-verification.json",
+                  "evidence_sha256": "5167165530c3739936ddc2d88bdad775569eb121abf8e9c7fefa374e211b9d88",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "All owned verification producers terminated; platform acceptance independently preserved; temporary payload use ended",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-02T22:42:02.030Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793659387533,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\unix8",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  71,
+                  149,
+                  208,
+                  0,
+                  0,
+                  0,
+                  20,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "af5c6b1d32647a566776090c105f317568cadf55cbc02b8b57db1d7237c7c57a",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "name": "apply",
+      "started_utc": "2026-11-02T22:43:13.417Z",
+      "request": {
+        "operation": "apply",
+        "verification": "registered",
+        "decisions": [
+          {
+            "id": "5d4f8fb6ec142da36714accf351e99bd087af977e16e785f65387a7bdba189b4",
+            "token": "af5c6b1d32647a566776090c105f317568cadf55cbc02b8b57db1d7237c7c57a",
+            "decision": "delete",
+            "reason": "Exact task-owned temporary verification environment; independent receipts preserved and all producers/consumers released"
+          }
+        ],
+        "lock_wait_ms": 600000
+      },
+      "pid": 3788,
+      "actual_close": true,
+      "exit_code": 0,
+      "signal": null,
+      "stderr": "",
+      "ended_utc": "2026-11-02T22:45:52.447Z",
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:ff1:unix8",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-3788-5443-1793659436522",
+            "decision": "delete",
+            "decision_id": "b82dd41482ba0edff85da968af120da9b5c6e2b8a9b7e855ac947ef7dd86f501",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "5d4f8fb6ec142da36714accf351e99bd087af977e16e785f65387a7bdba189b4",
+            "lifecycle_group_id": "run:ff1:unix8",
+            "reason": "Exact task-owned temporary verification environment; independent receipts preserved and all producers/consumers released",
+            "remaining": false,
+            "status": "deleted",
+            "token": "af5c6b1d32647a566776090c105f317568cadf55cbc02b8b57db1d7237c7c57a"
+          }
+        ]
+      }
+    }
+  ],
+  "status": "payload-deleted",
+  "remote_cleanup": {
+    "mac": {
+      "schema": 1,
+      "remote_root": "/Users/felrer/azrael-ff1-unix8",
+      "exit": 0,
+      "owner": {
+        "owner": "run:ff1:unix8",
+        "root": "/Users/felrer/azrael-ff1-unix8",
+        "token": "617e2a31-ac71-4026-a081-7155f7c287c7",
+        "uid": 501,
+        "dev": 16777234,
+        "ino": 16900968,
+        "membership": [
+          "apfs-fixture.dmg",
+          "cargo-home",
+          "frozen",
+          "frozen.json",
+          "frozen4",
+          "frozen4.json",
+          "home",
+          "insta-pending",
+          "original",
+          "original4",
+          "reports",
+          "run.cjs",
+          "run4.cjs",
+          "target",
+          "tmp",
+          "transfer3.tar",
+          "transfer4.tar",
+          "volume-fixture",
+          "volume.py"
+        ],
+        "terminal_receipts_verified": true,
+        "leases_absent": true,
+        "owned_images_attached": false
+      },
+      "operations": [
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/target"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/cargo-home"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/apfs-fixture.dmg"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/transfer3.tar"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/transfer4.tar"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/frozen"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/frozen4"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/original"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/original4"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/volume-fixture"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/home"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/tmp"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/insta-pending"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/run.cjs"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/run4.cjs"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/volume.py"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/frozen.json"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/frozen4.json"
+        },
+        {
+          "stage": "member-deleted",
+          "path": "/Users/felrer/azrael-ff1-unix8/reports"
+        },
+        {
+          "stage": "cleanup-complete",
+          "root": "/Users/felrer/azrael-ff1-unix8",
+          "deleted": [
+            "target",
+            "cargo-home",
+            "apfs-fixture.dmg",
+            "transfer3.tar",
+            "transfer4.tar",
+            "frozen",
+            "frozen4",
+            "original",
+            "original4",
+            "volume-fixture",
+            "home",
+            "tmp",
+            "insta-pending",
+            "run.cjs",
+            "run4.cjs",
+            "volume.py",
+            "frozen.json",
+            "frozen4.json",
+            "reports"
+          ],
+          "root_absent": true,
+          "ordinary_deletion": true
+        }
+      ],
+      "ordinary_deletion": true,
+      "root_absent": true,
+      "stdout_sha256": "b9715f5cd0db2d205ad7bd3c2833cfa8c872ddcbe9cef87861d242e5bac99141",
+      "authorization": "parent CLEAN response request01a19e69-7823-7572-aae0-e5a881c2468f; independently promoted receipt work/FF-01-maintenance-contention-timing/79-unix-verification.json"
+    },
+    "linux": {
+      "root": "/home/ubuntu/azrael-ff1-unix8",
+      "ownerToken": "4913a174-d302-477f-92a4-f273443bee17",
+      "uid": 1000,
+      "deleted": true,
+      "remaining": false,
+      "ordinaryDeletion": true,
+      "bytes": 3116607153,
+      "elapsedSeconds": 0.14760160446166992,
+      "producerChecksPassed": true,
+      "mountsAbsent": true,
+      "promotedEvidenceVerified": true,
+      "deletionExitCode": 0,
+      "independentAbsenceCheck": {
+        "root": "/home/ubuntu/azrael-ff1-unix8",
+        "absent": true,
+        "uid": 1000,
+        "mountsAbsent": true
+      },
+      "fileEntryLogicalBytes": 3116607153,
+      "bytesMeaning": "Sum of deleted file-entry logical sizes; hardlinked target artifacts may be counted more than once",
+      "physicalBytesReclaimed": null,
+      "releasedReferences": [
+        "Linux task-owned producer execution references closed",
+        "Linux native source/toolchain/cache/fixture paths removed; no remaining Linux payload"
+      ],
+      "remainingPaths": []
+    }
+  },
+  "owner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680"
+  },
+  "closed": {
+    "created_at": "2026-11-02T22:17:45.479Z",
+    "id": "run:ff1:unix8",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\unix8",
+        "protection_known": true,
+        "role": "run-root"
+      }
+    ],
+    "membership_complete": true,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\unix8",
+    "owner": "FF-01-maintenance-contention-timing",
+    "ownership_scope": "run-root",
+    "references": [],
+    "revision": 2,
+    "schema": 1,
+    "state": "complete",
+    "updated_at": "2026-11-02T22:42:02.030Z",
+    "version": null,
+    "producer": {
+      "status": "stopped",
+      "outcome": "success",
+      "exit_code": 0,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\79-unix-verification.json",
+      "evidence_sha256": "5167165530c3739936ddc2d88bdad775569eb121abf8e9c7fefa374e211b9d88",
+      "reason": "All owned verification producers terminated; platform acceptance independently preserved; temporary payload use ended"
+    },
+    "close_receipt": {
+      "request_sha256": "5a37b2ad52d9999338d19957433643317773afdf863add471188a180a37b9293",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\79-unix-verification.json",
+      "evidence_sha256": "5167165530c3739936ddc2d88bdad775569eb121abf8e9c7fefa374e211b9d88",
+      "reason": "All owned verification producers terminated; platform acceptance independently preserved; temporary payload use ended"
+    }
+  },
+  "actual_absence": true
+}

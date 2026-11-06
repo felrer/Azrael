@@ -1,0 +1,114 @@
+[
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+    "original_state": "pending",
+    "original_outcome": "unknown",
+    "original_native_exit_code": null,
+    "registration_exit_code": 0,
+    "review_exit_code": 0,
+    "items": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+        "logical_bytes": 84477,
+        "blockers": []
+      }
+    ],
+    "apply_exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-34292-4620-1793543113295",
+          "decision": "delete",
+          "decision_id": "2e29617f3d54fb58fd41b5346d51b0589e560df24a09fadf2e390882ff139980",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "f4f336e2751cd41b2e5fafb6e9b514e5dfc1a4a912e92b160dae39b1cd74d1e3",
+          "lifecycle_group_id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+          "reason": "Explicit abandoned recovery artifact cleanup; original creator/work and bounded fixture membership verified, preboot process tree stopped, current nonuse checked, original unknown outcome preserved.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "c3d8d4323b01930d798da8eac10f56c9febd2f6a370131728ca54793bb29f8bb"
+        }
+      ]
+    },
+    "finalize": {
+      "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\2face6736c1bdcc769e75ba5ecfac3cc82c765c1c01c9fb8527078d3f4c9873f.json"
+    },
+    "status": "finalized"
+  },
+  {
+    "id": "work:engine-check-retirement-r1",
+    "original_state": "pending",
+    "original_outcome": "unknown",
+    "original_native_exit_code": null,
+    "registration_exit_code": 0,
+    "review_exit_code": 0,
+    "items": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r1",
+        "logical_bytes": 20971,
+        "blockers": []
+      }
+    ],
+    "apply_exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "work:engine-check-retirement-r1",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-31772-4623-1793543311041",
+          "decision": "delete",
+          "decision_id": "d5fb09f80f9299f0d6b78f3293e88565ffbb6f5f244c47e9b47fa6f07ef6a17d",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "a0679b7ab589b502f120619ceedac0eebd852790966595cc4ec5be9e1fa20e47",
+          "lifecycle_group_id": "work:engine-check-retirement-r1",
+          "reason": "Explicit abandoned recovery artifact cleanup; original creator/work and bounded fixture membership verified, preboot process tree stopped, current nonuse checked, original unknown outcome preserved.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "c6a87bf6818d76233d3c80287cb3a78b7b7f771f8f01facb385ab8d7091f888e"
+        }
+      ]
+    },
+    "finalize": {
+      "id": "work:engine-check-retirement-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9c4745b4a27d2988a140e6e17fabd20796997167509eabfde1aeae3b96a04f36.json"
+    },
+    "status": "finalized"
+  }
+]

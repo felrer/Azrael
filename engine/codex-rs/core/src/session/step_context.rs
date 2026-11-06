@@ -53,8 +53,7 @@ pub(crate) struct StepContext {
 impl StepContext {
     /// Whether new context windows should record tool declarations in history.
     pub(crate) fn incremental_tools_enabled(&self) -> bool {
-        !self.harness_profile.uses_claude_tools()
-            && self.settings.model_info.use_responses_lite
+        self.settings.model_info.use_responses_lite
             && self
                 .turn
                 .config
@@ -111,7 +110,6 @@ pub(crate) fn resolve_harness_profile(
     let rendered = codex_prompts::compose_harness_instructions(
         &profile.prompt_variant,
         profile.behavior_template.as_deref(),
-        profile.uses_claude_tools(),
         config.base_instructions.as_deref(),
     );
     let rendered = if model.starts_with("api/") {

@@ -35,6 +35,9 @@ pub(super) async fn recover(
     if cancellation.is_cancelled() {
         return Err(CodexErr::TurnAborted);
     }
+    if ctx.agent_profile_account.is_some() {
+        return Ok(false);
+    }
     // This recovery replaces history and opens a new context window. Keep the
     // original quota error and account when automatic compaction is disabled.
     if !sess.auto_compaction_enabled().await {

@@ -92,8 +92,8 @@ try{
   await evaluate('fixtureState.locale="en";fixtureState.performance={...fixtureState.performance,truncatedMinutes:false,minuteSamples:'+JSON.stringify(minuteSamples)+'};fixtureRerender()');await open();await wait("!!document.querySelector('[data-azrael-response-tps-graph]')");
   const graphEnd=new Date(2026,9,23,12,40).getTime(),graphStart=graphEnd-40*60000;
   const timedPerformance={turnId:'waiting',startedAtUnixMs:graphEnd,observedAtUnixMs:graphEnd,outputTokens:0,requestDurationMs:0,completedRequests:0,unmeasuredRequests:0,graphEstimated:false,minuteSamples:[],history:[
-   {turnId:'earlier',startedAtUnixMs:graphStart-30000,minuteSamples:[{minute:0,outputTokens:100,requestDurationMs:1000,mode:'standard'},{minute:1,outputTokens:100,requestDurationMs:3000,mode:'standard'},{minute:3,outputTokens:0,requestDurationMs:1000,mode:'fast'},{minute:4,outputTokens:400,requestDurationMs:1000,mode:'fast'},{minute:4,outputTokens:300,requestDurationMs:1000,mode:'ultrafast'},{minute:5,outputTokens:200,requestDurationMs:1000,mode:null}]},
-   {turnId:'prior',startedAtUnixMs:graphEnd-8*60000,minuteSamples:[{minute:0,outputTokens:50,requestDurationMs:1000,mode:'standard'}]}
+   {turnId:'earlier',startedAtUnixMs:graphStart-30000,minuteSamples:[{minute:0,outputTokens:100,requestDurationMs:1000,actualMode:'standard'},{minute:1,outputTokens:100,requestDurationMs:3000,actualMode:'standard'},{minute:3,outputTokens:0,requestDurationMs:1000,actualMode:'fast'},{minute:4,outputTokens:400,requestDurationMs:1000,actualMode:'fast'},{minute:4,outputTokens:300,requestDurationMs:1000,actualMode:'ultrafast'},{minute:5,outputTokens:200,requestDurationMs:1000,actualMode:null}]},
+   {turnId:'prior',startedAtUnixMs:graphEnd-8*60000,minuteSamples:[{minute:0,outputTokens:50,requestDurationMs:1000,actualMode:'standard'}]}
   ]};
   await evaluate('fixtureState.performance='+JSON.stringify(timedPerformance)+';fixtureRerender()');await open();
   await wait("!!document.querySelector('[data-tps-average-toggle] [role=switch]')");
@@ -108,16 +108,16 @@ try{
   const modeColors=summary[theme+'ModeColors'];
   check(theme+' themed orange darker and purple brighter',modeColors.fast.luminance<modeColors.baseFast.luminance&&modeColors.ultrafast.luminance>modeColors.baseUltrafast.luminance);
   check(theme+' mode brightness gap within tolerance',Math.abs(modeColors.fast.luminance-modeColors.ultrafast.luminance)<0.05);
+  await evaluate("fixtureState.performance.history[0].minuteSamples[0].mode='ultrafast';fixtureState.performance=structuredClone(fixtureState.performance);fixtureRerender()");
+  await wait("document.querySelector('[data-turn-id=earlier][data-minute=\"0\"][data-mode=standard]')!==null");
+  check(theme+' server actual mode overrides requested ultrafast',true);
+  await evaluate("for(const turn of fixtureState.performance.history)for(const sample of turn.minuteSamples){sample.mode=sample.actualMode;delete sample.actualMode}fixtureState.performance=structuredClone(fixtureState.performance);fixtureRerender()");
+  await wait("document.querySelectorAll('[data-mode=unknown]').length===6&&!document.querySelector('[data-mode-average]')");
+  check(theme+' legacy requested modes remain neutral without named averages',true);
+  await evaluate('fixtureState.performance='+JSON.stringify(timedPerformance)+';fixtureRerender()');
+  await wait("document.querySelectorAll('[data-mode-average]').length===3");
   await evaluate("document.querySelector('[data-tps-average-toggle] [role=switch]').focus()");await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',text:' ',windowsVirtualKeyCode:32});await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});
   await wait("!document.querySelector('[data-mode-average]')");check(theme+' native average switch keyboard toggle',true);
-  await evaluate("document.querySelector('[data-tps-average-toggle] [role=switch]').click()");await wait("!!document.querySelector('[data-mode-average]')");
-  for(const width of [1000,474,360]){
-   await send('Emulation.setDeviceMetricsOverride',{width,height:950,deviceScaleFactor:1,mobile:false});await open();await evaluate('new Promise(r=>setTimeout(r,180))');
-   check(theme+' TPS tooltip fits '+width,await evaluate("(()=>{const e=document.querySelector('[data-azrael-context-compaction]').closest('[data-radix-popper-content-wrapper]')||document.querySelector('[data-azrael-context-compaction]').parentElement;const r=e.getBoundingClientRect();return r.left>=-1&&r.right<=innerWidth+1&&e.scrollWidth<=e.clientWidth+1})()"));
-   check(theme+' graph fits '+width,await evaluate("(()=>{const g=document.querySelector('[data-azrael-response-tps-graph] svg'),r=g.getBoundingClientRect();return r.width>100&&r.left>=0&&r.right<=innerWidth&&r.height<160})()"));
-   summary[theme+'TimestampAlignment'+width]=await evaluate("[...document.querySelectorAll('[data-turn-timestamp]')].map(e=>{const r=e.getBoundingClientRect(),line=[...document.querySelectorAll('[data-turn-boundary]')].find(l=>l.dataset.turnBoundary===e.dataset.turnTimestamp).getBoundingClientRect();return {id:e.dataset.turnTimestamp,center:(r.left+r.right)/2,lineX:line.left,error:Math.abs((r.left+r.right)/2-line.left)}})");
-   check(theme+' timestamps centered on request boundaries '+width,summary[theme+'TimestampAlignment'+width].every(e=>e.error<1));
-   await writeFile(join(evidence,theme+'-tps-graph-'+width+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   await wait("fixtureModeAverage===false&&!document.querySelector('[data-tps-average-toggle] [role=switch]').disabled");
   await evaluate("fixtureState.id='other-project-chat';fixtureRerender()");await open();await wait("document.querySelector('[data-tps-average-toggle] [role=switch]').getAttribute('aria-checked')==='false'");
   check(theme+' average off survives conversation/project change',true);
@@ -128,6 +128,14 @@ try{
   await evaluate("fixtureAverageFail=false;fixtureModeAverage=true;window.dispatchEvent(new Event('focus'))");await wait("document.querySelector('[data-tps-average-toggle] [role=switch]').getAttribute('aria-checked')==='true'&&!document.body.innerText.includes('Could not read or save mode averages setting.')");
   check(theme+' focus reads another engine client change',true);
   await evaluate("document.querySelector('[data-tps-average-toggle] [role=switch]').click()");await wait("fixtureModeAverage===false&&!document.querySelector('[data-mode-average]')&&!document.querySelector('[data-tps-average-toggle] [role=switch]').disabled");
+  await evaluate("document.querySelector('[data-tps-average-toggle] [role=switch]').click()");await wait("!!document.querySelector('[data-mode-average]')");
+  for(const width of [1000,474,360]){
+   await send('Emulation.setDeviceMetricsOverride',{width,height:950,deviceScaleFactor:1,mobile:false});await open();await evaluate('new Promise(r=>setTimeout(r,180))');
+   check(theme+' TPS tooltip fits '+width,await evaluate("(()=>{const e=document.querySelector('[data-azrael-context-compaction]').closest('[data-radix-popper-content-wrapper]')||document.querySelector('[data-azrael-context-compaction]').parentElement;const r=e.getBoundingClientRect();return r.left>=-1&&r.right<=innerWidth+1&&e.scrollWidth<=e.clientWidth+1})()"));
+   check(theme+' graph fits '+width,await evaluate("(()=>{const g=document.querySelector('[data-azrael-response-tps-graph] svg'),r=g.getBoundingClientRect();return r.width>100&&r.left>=0&&r.right<=innerWidth&&r.height<160})()"));
+   summary[theme+'TimestampAlignment'+width]=await evaluate("[...document.querySelectorAll('[data-turn-timestamp]')].map(e=>{const r=e.getBoundingClientRect(),line=[...document.querySelectorAll('[data-turn-boundary]')].find(l=>l.dataset.turnBoundary===e.dataset.turnTimestamp).getBoundingClientRect();return {id:e.dataset.turnTimestamp,center:(r.left+r.right)/2,lineX:line.left,error:Math.abs((r.left+r.right)/2-line.left)}})");
+   check(theme+' timestamps centered on request boundaries '+width,summary[theme+'TimestampAlignment'+width].every(e=>e.error<1));
+   await writeFile(join(evidence,theme+'-tps-graph-'+width+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   }
   const closeTurns=[0,1,2].map(i=>({turnId:'close-'+i,startedAtUnixMs:graphEnd-3000+i*1000,minuteSamples:[]}));
   await evaluate('fixtureState.performance={...fixtureState.performance,history:'+JSON.stringify(closeTurns)+'};fixtureRerender()');await open();

@@ -299,6 +299,29 @@ impl PartialEq for ConfigLayerStack {
 }
 
 impl ConfigLayerStack {
+    /// Adds a validated turn contribution while preserving requirements and source metadata.
+    /// The caller owns the allowlist; this never changes the original stack.
+    pub fn with_session_overlay(&self, overlay: TomlValue) -> Self {
+        let mut stack = self.clone();
+        if let Some(layer) = stack
+            .layers
+            .iter_mut()
+            .find(|layer| layer.name == ConfigLayerSource::SessionFlags)
+        {
+            let mut config = layer.config.clone();
+            merge_toml_values(&mut config, &overlay);
+            layer.version = version_for_toml(&config);
+            layer.config = config;
+            layer.raw_toml = None;
+        } else {
+            stack.layers.push(ConfigLayerEntry::new(
+                ConfigLayerSource::SessionFlags,
+                overlay,
+            ));
+        }
+        stack
+    }
+
     pub fn new(
         layers: Vec<ConfigLayerEntry>,
         requirements: ConfigRequirements,

@@ -13,14 +13,9 @@ function fixture(t) {
   const sourceRoot = path.join(root, 'source'), scriptDirectory = path.join(root, 'scripts'), skillDirectory = path.join(root, 'skill');
   for (const directory of [path.join(sourceRoot, 'src'), scriptDirectory, skillDirectory]) fs.mkdirSync(directory, { recursive: true });
   for (const [rel, content] of [['Cargo.toml', '[package]'], ['Cargo.lock', 'lock'], ['THIRD_PARTY_NOTICES.md', 'Fixture third-party license notices'], ['src/main.rs', 'fn main() {}']]) fs.writeFileSync(path.join(sourceRoot, rel), content);
-  for (const name of ['window-control-mcp.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-task-macros.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs']) fs.writeFileSync(path.join(scriptDirectory, name), "'use strict';\n");
-  for (const name of ['request-window-child-logoff.ps1', 'window-child-session-cleanup.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(scriptDirectory, name));
-  fs.mkdirSync(path.join(root, 'windows-child-session'));
-  fs.writeFileSync(path.join(root, 'windows-child-session/probe.ps1'), 'fixture read-only probe');
-  const guidance = path.join(skillDirectory, 'selected-window.md');
+  for (const name of ['window-control-mcp.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-task-macros.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs']) fs.writeFileSync(path.join(scriptDirectory, name), "'use strict';\n");
+  const guidance = path.join(skillDirectory, 'common.md');
   fs.writeFileSync(guidance, 'Selected window instructions');
-  fs.mkdirSync(path.join(skillDirectory, 'window-use'));
-  for (const name of ['common', 'stage-1', 'stage-2', 'stage-3', 'stage-4']) fs.writeFileSync(path.join(skillDirectory, 'window-use', `${name}.md`), `${name} instructions`);
   const executable = path.join(root, 'helper.exe'), provenance = path.join(root, 'build.json'), release = path.join(root, 'release'), destination = path.join(release, 'window-control');
   fs.writeFileSync(executable, 'fixture owned native binary');
   fs.writeFileSync(provenance, JSON.stringify({ schema: 1, sourceSha256: fingerprintNativeSource(sourceRoot), executableSha256: hash(fs.readFileSync(executable)) }));
@@ -37,6 +32,36 @@ function virtualFixture(f) {
   fs.writeFileSync(path.join(directory,'manifest.json'),JSON.stringify({schema:1,kind:'azrael-virtual-input',platform:'win32',arch:'x64',sourceSha256:'a'.repeat(64),files}));
   return directory;
 }
+function multiPointerFixture(f) {
+  const directory = path.join(f.sourceRoot, '..', 'multi-pointer-runtime'); fs.mkdirSync(directory);
+  const files = ['azrael-multi-pointer.exe', 'THIRD_PARTY_NOTICES.md'].map(name => {
+    const bytes = Buffer.from('owned multi-pointer fixture ' + name); fs.writeFileSync(path.join(directory, name), bytes);
+    return { path: name, bytes: bytes.length, sha256: hash(bytes) };
+  });
+  for (const name of ['multi-pointer-mcp.cjs', 'window-switched-input.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(f.scriptDirectory, name));
+  fs.writeFileSync(path.join(directory, 'manifest.json'), JSON.stringify({ schema: 1, kind: 'azrael-multi-pointer', platform: 'win32', arch: 'x64', sourceSha256: 'a'.repeat(64), files }));
+  return directory;
+}
+
+test('optional multi-pointer CLI stages its native manifest and both host modules', t => {
+  const f = fixture(t), directory = multiPointerFixture(f);
+  const args = ['sourceRoot', 'executable', 'provenance', 'scriptDirectory', 'guidance', 'destination'].flatMap(key => ['--' + key.replace(/[A-Z]/g, c => '-' + c.toLowerCase()), f.options[key]]);
+  const staged = spawnSync(process.execPath, [path.join(__dirname, 'window-control-runtime.cjs'), 'stage', ...args, '--multi-pointer-directory', directory], { encoding: 'utf8' });
+  assert.equal(staged.status, 0, staged.stderr);
+  const result = verifyRuntime(f.destination);
+  assert.deepEqual(result.multiPointer, { directory: path.join(f.destination, 'multi-pointer'), manifestSha256: hash(fs.readFileSync(path.join(directory, 'manifest.json'))), modulePath: path.join(f.destination, 'multi-pointer-mcp.cjs') });
+  assert.deepEqual(JSON.parse(staged.stdout).multiPointer, result.multiPointer);
+  for (const name of ['multi-pointer/manifest.json', 'multi-pointer/azrael-multi-pointer.exe', 'multi-pointer/THIRD_PARTY_NOTICES.md', 'multi-pointer-mcp.cjs', 'window-switched-input.cjs']) assert(result.manifest.files.some(entry => entry.path === name));
+  assert.equal(result.virtualInput, undefined);
+  const adapter = path.join(f.destination, 'window-switched-input.cjs');
+  fs.appendFileSync(adapter, '\n// modified');
+  assert.throws(() => verifyRuntime(f.destination), /hash mismatch/);
+  fs.copyFileSync(path.join(f.scriptDirectory, 'window-switched-input.cjs'), adapter);
+  const manifestFile = path.join(f.destination, 'manifest.json');
+  const manifest = result.manifest; delete manifest.multiPointer;
+  fs.writeFileSync(manifestFile, JSON.stringify(manifest));
+  assert.throws(() => verifyRuntime(f.destination), /Undeclared multi-pointer/);
+});
 
 test('optional virtual input stages both native files and its exact provider closure', t => {
   const f=fixture(t),directory=virtualFixture(f);
@@ -51,7 +76,7 @@ test('stage closure includes required owned files and release binds provenance',
   const f = fixture(t), result = stageRuntime(f.options);
   const sha256 = { 'window-control/manifest.json': result.manifestSha256 };
   fs.mkdirSync(path.join(f.release, 'host'));
-  for (const module of ['window-control-host.cjs', 'window-desktop-authority.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
+  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'use-settings-host.cjs']) {
     const content = `fixture ${module}`;
     fs.writeFileSync(path.join(f.release, 'host', module), content); sha256[`host/${module}`] = hash(content);
   }
@@ -75,27 +100,14 @@ test('native source fingerprint excludes target while observing source content',
   assert.throws(() => stageRuntime(f.options), /build provenance mismatch/);
 });
 
-test('Windows child runtime binds the administrator wrapper and common finalizer', t => {
-  const f = fixture(t), helper = path.join(f.sourceRoot, '..', 'logoff-child.exe');
-  fs.writeFileSync(helper, 'synthetic child helper');
-  const result = stageRuntime({ ...f.options, childSessionExecutable: helper });
-  assert.equal(result.manifest.childSession.logoffCleanupVersion, 1);
-  assert.equal(result.childSession.logoffScript, path.join(f.destination, 'request-window-child-logoff.ps1'));
-  assert.ok(result.manifest.files.some(entry => entry.path === 'window-child-session-cleanup.cjs'));
-  const manifest = result.manifest;
-  manifest.files = manifest.files.filter(entry => entry.path !== 'window-child-session-cleanup.cjs');
-  fs.unlinkSync(path.join(f.destination, 'window-child-session-cleanup.cjs'));
-  fs.writeFileSync(path.join(f.destination, 'manifest.json'), JSON.stringify(manifest));
-  assert.throws(() => verifyRuntime(f.destination), /logoff cleanup closure/);
-});
+
 test('prepared host binds declared release, copied bundle and host modules', t => {
-  const f = fixture(t), helper = path.join(f.sourceRoot, '..', 'prepared-child.exe');
-  fs.writeFileSync(helper, 'synthetic child helper');
-  const runtime = stageRuntime({ ...f.options, childSessionExecutable: helper,virtualInputDirectory:virtualFixture(f) }), host = path.join(path.dirname(f.release), 'host');
+  const f = fixture(t);
+  const runtime = stageRuntime({ ...f.options, virtualInputDirectory:virtualFixture(f), multiPointerDirectory: multiPointerFixture(f) }), host = path.join(path.dirname(f.release), 'host');
   const sha256 = { 'window-control/manifest.json': runtime.manifestSha256 };
   fs.mkdirSync(path.join(host, 'out'), { recursive: true });
   fs.mkdirSync(path.join(f.release, 'host'));
-  for (const module of ['window-virtual-input.cjs','window-control-host.cjs', 'window-desktop-authority.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
+  for (const module of ['multi-pointer-mcp.cjs', 'window-switched-input.cjs', 'window-virtual-input.cjs','window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'use-settings-host.cjs']) {
     const content = fs.readFileSync(path.join(__dirname, module));
     fs.writeFileSync(path.join(host, 'out', module), content); fs.writeFileSync(path.join(f.release, 'host', module), content); sha256[`host/${module}`] = hash(content);
   }
@@ -110,14 +122,13 @@ test('prepared host binds declared release, copied bundle and host modules', t =
   assert.equal(copiedVerifier.status,0,copiedVerifier.stderr);
   const provider=path.join(host,'out/window-virtual-input.cjs'),providerBytes=fs.readFileSync(provider);
   fs.unlinkSync(provider);assert.throws(()=>verifyPreparedHost(host,f.release),/ENOENT/);fs.writeFileSync(provider,providerBytes);
-  const branding = path.join(host, 'out/computer-use-branding.cjs'), brandingBytes = fs.readFileSync(branding);
-  fs.unlinkSync(branding);
-  assert.throws(() => verifyPreparedHost(host, f.release), /ENOENT/);
-  const missingBranding = loadHost();
-  assert.notEqual(missingBranding.status, 0);
-  assert.match(missingBranding.stderr, /Cannot find module '\.\/computer-use-branding\.cjs'/);
-  fs.writeFileSync(branding, brandingBytes);
-  assert.equal(loadHost().status, 0);
+  for (const name of ['multi-pointer-mcp.cjs', 'window-switched-input.cjs']) {
+    const file = path.join(host, 'out', name), bytes = fs.readFileSync(file);
+    fs.unlinkSync(file); assert.throws(() => verifyPreparedHost(host, f.release), /ENOENT/); fs.writeFileSync(file, bytes);
+  }
+  fs.writeFileSync(configFile, JSON.stringify({ windowControl: { ...windowControl, multiPointer: { ...windowControl.multiPointer, modulePath: 'external.cjs' } } }));
+  assert.throws(() => verifyPreparedHost(host, f.release), /multi-pointer configuration mismatch/);
+  fs.writeFileSync(configFile, JSON.stringify({ windowControl }));
   const dependency = path.join(host, 'out/computer-use-runtime.cjs'), dependencyBytes = fs.readFileSync(dependency);
   fs.unlinkSync(dependency);
   assert.throws(() => verifyPreparedHost(host, f.release), /ENOENT/);
@@ -131,8 +142,6 @@ test('prepared host binds declared release, copied bundle and host modules', t =
   assert.equal(verifyPreparedHost(host, f.release).manifestSha256, runtime.manifestSha256);
   fs.writeFileSync(configFile, JSON.stringify({ windowControl: { ...windowControl, executable: 'external.exe' } }));
   assert.throws(() => verifyPreparedHost(host, f.release), /configuration mismatch/);
-  fs.writeFileSync(configFile, JSON.stringify({ windowControl: { ...windowControl, childSession: { ...windowControl.childSession, executable: 'external-child.exe' } } }));
-  assert.throws(() => verifyPreparedHost(host, f.release), /child-session configuration mismatch/);
   fs.writeFileSync(configFile, JSON.stringify({ windowControl }));
   fs.writeFileSync(path.join(host, 'out/window-control-host.cjs'), 'tampered module');
   assert.throws(() => verifyPreparedHost(host, f.release), /host module mismatch/);
@@ -196,30 +205,9 @@ test('occupancy dependency is required and its runtime hash is verified',t=>{
 });
 
 
-test('Windows child helper is optional, hash-bound and returned only as a verified payload identity', t => {
-  const f = fixture(t), helper = path.join(f.sourceRoot, '..', 'fixture-child.exe');
-  fs.writeFileSync(helper, 'synthetic pinned executable; not native acceptance');
-  const result = stageRuntime({ ...f.options, childSessionExecutable: helper });
-  assert.deepEqual(result.childSession, { executable: path.join(f.destination, 'child-session/windows-child-session.exe'), sha256: hash(fs.readFileSync(helper)), probeScript: path.join(f.destination, 'child-session/probe.ps1'), logoffScript: path.join(f.destination, 'request-window-child-logoff.ps1') });
-  fs.appendFileSync(result.childSession.executable, 'tampered');
-  assert.throws(() => verifyRuntime(f.destination), /hash mismatch/);
-  fs.writeFileSync(result.childSession.executable, fs.readFileSync(helper));
-  const file = path.join(f.destination, 'manifest.json'), original = fs.readFileSync(file), manifest = JSON.parse(original);
-  delete manifest.childSession;
-  fs.writeFileSync(file, JSON.stringify(manifest));
-  assert.throws(() => verifyRuntime(f.destination), /Undeclared.*helper/);
-  fs.writeFileSync(file, original);
-  fs.unlinkSync(result.childSession.probeScript);
-  assert.throws(() => verifyRuntime(f.destination), /ENOENT/);
-});
-test('Windows read-only child probe stages without claiming helper availability', t => {
-  const f = fixture(t), result = stageRuntime(f.options);
-  assert.equal(result.childSession, undefined);
-  assert(result.manifest.files.some(entry => entry.path === 'child-session/probe.ps1'));
-  for (const name of ['window-use-resources.cjs', 'window-child-session.cjs']) assert(result.manifest.files.some(entry => entry.path === name));
-  assert.throws(() => stageRuntime({ ...f.options, destination: path.join(f.release, 'relative-child'), childSessionExecutable: 'relative.exe' }), /absolute Windows input/);
-});
-test('Linux payload excludes Windows child probe and helper and rejects Windows helper inputs', t => {
+
+
+test('Linux payload stages without retired helpers and rejects Windows multi-pointer inputs', t => {
   const f = fixture(t), linux = path.join(f.sourceRoot, '..', 'linux_backend.py');
   fs.writeFileSync(linux, '# synthetic Linux fixture');
   fs.writeFileSync(f.provenance, JSON.stringify({ schema: 1, sourceSha256: fingerprintNativeSource(f.sourceRoot), executableSha256: hash(fs.readFileSync(linux)) }));
@@ -227,5 +215,5 @@ test('Linux payload excludes Windows child probe and helper and rejects Windows 
   assert.equal(result.manifest.platform, 'linux');
   assert.equal(result.childSession, undefined);
   assert.equal(result.manifest.files.some(entry => entry.path.startsWith('child-session/')), false);
-  assert.throws(() => stageRuntime({ ...options, destination: path.join(f.release, 'linux-helper'), childSessionExecutable: linux }), /absolute Windows input/);
+  assert.throws(() => stageRuntime({ ...options, destination: path.join(f.release, 'linux-multi-pointer'), multiPointerDirectory: path.dirname(linux) }), /absolute Windows runtime directory/);
 });

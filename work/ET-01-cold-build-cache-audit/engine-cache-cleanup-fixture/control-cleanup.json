@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+  "ownerSha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+  "lifecycleId": "run:ET-01-cold-build-cache-audit:engine-cleanup-chain-796b38dc",
+  "controlPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-chain-796b38dc",
+  "configExpectedSha256": "a6dc3cca4dc764fa6c6d7d318f9d3906d87d0c74826a77e548254a3ce8e5a434",
+  "phases": [
+    {
+      "name": "control-reregister",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 141878.1192
+    },
+    {
+      "name": "control-review",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 6312.692099999986
+    },
+    {
+      "name": "control-apply",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 96906.6592
+    }
+  ],
+  "error": null,
+  "registration": {
+    "group": "run:ET-01-cold-build-cache-audit:engine-cleanup-chain-796b38dc",
+    "items": [
+      {
+        "id": "9f17712dce123b3287e1377cb2da7df0e6ff5331e629587a8d07f211fb73db5a",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-chain-796b38dc",
+        "logicalBytes": 238581,
+        "identity": "846b0ea36045cbbc6c143dc32a601d5db82e28c4e072e9e6670c70e8bb73cd7f",
+        "references": [],
+        "generated": true,
+        "protectionKnown": true
+      }
+    ]
+  },
+  "review": [
+    {
+      "id": "9f17712dce123b3287e1377cb2da7df0e6ff5331e629587a8d07f211fb73db5a",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\engine-cleanup-chain-796b38dc",
+      "blockers": [],
+      "logicalBytes": 238581
+    }
+  ],
+  "applied": [
+    {
+      "id": "9f17712dce123b3287e1377cb2da7df0e6ff5331e629587a8d07f211fb73db5a",
+      "status": "deleted",
+      "remaining": false,
+      "group": "run:ET-01-cold-build-cache-audit:engine-cleanup-chain-796b38dc",
+      "groupStatus": "deleted"
+    }
+  ],
+  "controlAbsent": true,
+  "finalization": {
+    "id": "run:ET-01-cold-build-cache-audit:engine-cleanup-chain-796b38dc",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9b3e32251856c292d97da5d2f349a4a0a9a29d5173e153bd300ddbbd9c48165c.json"
+  },
+  "sourceRecordAbsent": true,
+  "configAfterSha256": "a6dc3cca4dc764fa6c6d7d318f9d3906d87d0c74826a77e548254a3ce8e5a434",
+  "configExactBytesRestored": true
+}

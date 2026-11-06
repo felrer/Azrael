@@ -1,0 +1,351 @@
+[
+  {
+    "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+    "source": {
+      "schema": 1,
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+      "kind": "run",
+      "owner": "/root/board-verification",
+      "version": "ui-1792388395582-d1a343de",
+      "state": "failed",
+      "membership_complete": true,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\logs",
+          "role": "logs",
+          "generated": true,
+          "protection_known": true
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports",
+          "role": "reports",
+          "generated": true,
+          "protection_known": true
+        }
+      ],
+      "references": [],
+      "revision": 2,
+      "created_at": "2026-10-19T05:39:56.289Z",
+      "updated_at": "2026-10-19T05:40:06.879Z"
+    },
+    "files": [
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports\\producer.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792388395582-d1a343de\\producer.json",
+        "sha256": "619e6e761b73d24388bc37c3e21e52964fe232094a1937b17ceb502316fa72a6",
+        "bytes": 587
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports\\result.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792388395582-d1a343de\\result.json",
+        "sha256": "2c4006f7e9249a9e70d87ccce7485021a76db1c270760033fc001e8bf95c3772",
+        "bytes": 679
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports\\render-summary.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792388395582-d1a343de\\render-summary.json",
+        "sha256": "2c8ce3853566b51f737ff333d84aa6148df6a5fd77c1cfb8369786d3210072be",
+        "bytes": 5874
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\logs\\command.log",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792388395582-d1a343de\\command.log",
+        "sha256": "db6df396a3fc47515e61f4dc75f00e97acfef7d44bf657b38cac55953d9f2580",
+        "bytes": 3701
+      }
+    ],
+    "result": {
+      "runId": "ui-1792388395582-d1a343de",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de",
+      "evidenceId": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+      "temporaryId": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:temporary",
+      "stage": "ui",
+      "board": "catalog",
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\docs\\boards\\tests\\catalog-render.mjs"
+      ],
+      "startedAt": "2026-10-19T05:39:56.294Z",
+      "node": "v26.7.0",
+      "platform": "win32",
+      "arch": "x64",
+      "pid": 46136,
+      "exitCode": 1,
+      "signal": null,
+      "endedAt": "2026-10-19T05:40:06.882Z"
+    },
+    "retirement_basis": "Owning plan 01-plan.md records stopped Chrome/server and both failure causes corrected by later successful UI verification (52 checks for selection issue). Preserve exact observed failure1, never claim this failed run passed. These declared generated temporary/evidence members have no references. Preboot stop plus fresh current-use proof is required before supported close/full registration/review."
+  },
+  {
+    "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:temporary",
+    "source": {
+      "schema": 1,
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:temporary",
+      "kind": "run",
+      "owner": "/root/board-verification",
+      "version": "ui-1792388395582-d1a343de",
+      "state": "failed",
+      "membership_complete": true,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\temporary",
+          "role": "temporary",
+          "generated": true,
+          "protection_known": true
+        }
+      ],
+      "references": [],
+      "revision": 2,
+      "created_at": "2026-10-19T05:39:56.282Z",
+      "updated_at": "2026-10-19T05:40:06.873Z"
+    },
+    "files": [
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports\\producer.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792388395582-d1a343de\\producer.json",
+        "sha256": "619e6e761b73d24388bc37c3e21e52964fe232094a1937b17ceb502316fa72a6",
+        "bytes": 587
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports\\result.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792388395582-d1a343de\\result.json",
+        "sha256": "2c4006f7e9249a9e70d87ccce7485021a76db1c270760033fc001e8bf95c3772",
+        "bytes": 679
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports\\render-summary.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792388395582-d1a343de\\render-summary.json",
+        "sha256": "2c8ce3853566b51f737ff333d84aa6148df6a5fd77c1cfb8369786d3210072be",
+        "bytes": 5874
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\logs\\command.log",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792388395582-d1a343de\\command.log",
+        "sha256": "db6df396a3fc47515e61f4dc75f00e97acfef7d44bf657b38cac55953d9f2580",
+        "bytes": 3701
+      }
+    ],
+    "result": {
+      "runId": "ui-1792388395582-d1a343de",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de",
+      "evidenceId": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+      "temporaryId": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:temporary",
+      "stage": "ui",
+      "board": "catalog",
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\docs\\boards\\tests\\catalog-render.mjs"
+      ],
+      "startedAt": "2026-10-19T05:39:56.294Z",
+      "node": "v26.7.0",
+      "platform": "win32",
+      "arch": "x64",
+      "pid": 46136,
+      "exitCode": 1,
+      "signal": null,
+      "endedAt": "2026-10-19T05:40:06.882Z"
+    },
+    "retirement_basis": "Owning plan 01-plan.md records stopped Chrome/server and both failure causes corrected by later successful UI verification (52 checks for selection issue). Preserve exact observed failure1, never claim this failed run passed. These declared generated temporary/evidence members have no references. Preboot stop plus fresh current-use proof is required before supported close/full registration/review."
+  },
+  {
+    "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+    "source": {
+      "schema": 1,
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+      "kind": "run",
+      "owner": "/root/board-verification",
+      "version": "ui-1792389925582-cf185d66",
+      "state": "failed",
+      "membership_complete": true,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\logs",
+          "role": "logs",
+          "generated": true,
+          "protection_known": true
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports",
+          "role": "reports",
+          "generated": true,
+          "protection_known": true
+        }
+      ],
+      "references": [],
+      "revision": 2,
+      "created_at": "2026-10-19T06:05:26.588Z",
+      "updated_at": "2026-10-19T06:05:27.931Z"
+    },
+    "files": [
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports\\producer.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792389925582-cf185d66\\producer.json",
+        "sha256": "596cd7bf9c130d707502e7a871199f6715797dccc3ad682684d94f9f3f747ab2",
+        "bytes": 587
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports\\result.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792389925582-cf185d66\\result.json",
+        "sha256": "5380200865ab1132a348dca169ebd6d619d7fb6881810dec15cc34bdc74e43be",
+        "bytes": 679
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports\\render-summary.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792389925582-cf185d66\\render-summary.json",
+        "sha256": "cc91ea6d5f959b6c4df15a071d5d0c530dbfca0de7e1da818b0e00a0ca900612",
+        "bytes": 1221
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\logs\\command.log",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792389925582-cf185d66\\command.log",
+        "sha256": "9a432d500795ccb818b76dd66012023fdc79edc99d39285ec3309a7f7efe7863",
+        "bytes": 602
+      }
+    ],
+    "result": {
+      "runId": "ui-1792389925582-cf185d66",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66",
+      "evidenceId": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+      "temporaryId": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+      "stage": "ui",
+      "board": "catalog",
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\docs\\boards\\tests\\catalog-render.mjs"
+      ],
+      "startedAt": "2026-10-19T06:05:26.592Z",
+      "node": "v26.7.0",
+      "platform": "win32",
+      "arch": "x64",
+      "pid": 16868,
+      "exitCode": 1,
+      "signal": null,
+      "endedAt": "2026-10-19T06:05:27.934Z"
+    },
+    "retirement_basis": "Owning plan 01-plan.md records stopped Chrome/server and both failure causes corrected by later successful UI verification (52 checks for selection issue). Preserve exact observed failure1, never claim this failed run passed. These declared generated temporary/evidence members have no references. Preboot stop plus fresh current-use proof is required before supported close/full registration/review."
+  },
+  {
+    "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+    "source": {
+      "schema": 1,
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+      "kind": "run",
+      "owner": "/root/board-verification",
+      "version": "ui-1792389925582-cf185d66",
+      "state": "failed",
+      "membership_complete": true,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\temporary",
+          "role": "temporary",
+          "generated": true,
+          "protection_known": true
+        }
+      ],
+      "references": [],
+      "revision": 2,
+      "created_at": "2026-10-19T06:05:26.583Z",
+      "updated_at": "2026-10-19T06:05:27.927Z"
+    },
+    "files": [
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports\\producer.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792389925582-cf185d66\\producer.json",
+        "sha256": "596cd7bf9c130d707502e7a871199f6715797dccc3ad682684d94f9f3f747ab2",
+        "bytes": 587
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports\\result.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792389925582-cf185d66\\result.json",
+        "sha256": "5380200865ab1132a348dca169ebd6d619d7fb6881810dec15cc34bdc74e43be",
+        "bytes": 679
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports\\render-summary.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792389925582-cf185d66\\render-summary.json",
+        "sha256": "cc91ea6d5f959b6c4df15a071d5d0c530dbfca0de7e1da818b0e00a0ca900612",
+        "bytes": 1221
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\logs\\command.log",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-cn-retirement-evidence\\ui-1792389925582-cf185d66\\command.log",
+        "sha256": "9a432d500795ccb818b76dd66012023fdc79edc99d39285ec3309a7f7efe7863",
+        "bytes": 602
+      }
+    ],
+    "result": {
+      "runId": "ui-1792389925582-cf185d66",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66",
+      "evidenceId": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+      "temporaryId": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+      "stage": "ui",
+      "board": "catalog",
+      "argv": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\docs\\boards\\tests\\catalog-render.mjs"
+      ],
+      "startedAt": "2026-10-19T06:05:26.592Z",
+      "node": "v26.7.0",
+      "platform": "win32",
+      "arch": "x64",
+      "pid": 16868,
+      "exitCode": 1,
+      "signal": null,
+      "endedAt": "2026-10-19T06:05:27.934Z"
+    },
+    "retirement_basis": "Owning plan 01-plan.md records stopped Chrome/server and both failure causes corrected by later successful UI verification (52 checks for selection issue). Preserve exact observed failure1, never claim this failed run passed. These declared generated temporary/evidence members have no references. Preboot stop plus fresh current-use proof is required before supported close/full registration/review."
+  },
+  {
+    "id": "run:DN-01:approved-log-retirement-20261024-r2",
+    "source": {
+      "schema": 1,
+      "id": "run:DN-01:approved-log-retirement-20261024-r2",
+      "kind": "run",
+      "owner": "DN-01-log-retirement",
+      "version": null,
+      "state": "retained",
+      "membership_complete": true,
+      "members": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\approved-log-retirement-20261024-r2\\reports",
+          "role": "reports",
+          "generated": true,
+          "protection_known": true
+        }
+      ],
+      "references": [],
+      "revision": 2,
+      "created_at": "2026-10-24T02:42:35.110Z",
+      "updated_at": "2026-10-24T02:47:08.897Z"
+    },
+    "files": [
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\approved-log-retirement-20261024-r2\\reports\\custody-release-attempt.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-dn-retirement-evidence\\custody-release-attempt.json",
+        "sha256": "57ebdd065610c6e668c5f73ae4a1d0ab23eb3c307646e371038a8e4ac990d629",
+        "bytes": 231
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\approved-log-retirement-20261024-r2\\reports\\delete-known-result.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-dn-retirement-evidence\\delete-known-result.json",
+        "sha256": "65a67a744c2854b4d766fd17243f2ed35111a3a30bfc4e944bb837639a00ea01",
+        "bytes": 2445
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\approved-log-retirement-20261024-r2\\reports\\delete-known-review.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-dn-retirement-evidence\\delete-known-review.json",
+        "sha256": "ba1f5b340742327e53a775a6a6e2f38d7506bf9da48d74dc600d36fbff03e373",
+        "bytes": 5326
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\approved-log-retirement-20261024-r2\\reports\\final-result.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-dn-retirement-evidence\\final-result.json",
+        "sha256": "8702ed0fae0ec23c9671968683ddbd6916c9c010ad05146c81c8c78f11afeabe",
+        "bytes": 198425
+      },
+      {
+        "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\approved-log-retirement-20261024-r2\\reports\\process-references.json",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-dn-retirement-evidence\\process-references.json",
+        "sha256": "5822ce145a13b82a29d34178f3eba3ae32f8d4dbb58f6346bf11d4cccbfe73cd",
+        "bytes": 392
+      }
+    ],
+    "retirement_basis": "Path-level deletion and refusal audit copied with hashes; later owning 05-formal-cleanup-result.md supersedes the r2 summary. No producer outcome is asserted by retiring the old retained reports."
+  }
+]

@@ -1,0 +1,146 @@
+{
+  "exit_code": 0,
+  "signal": null,
+  "elapsed_ms": 3082.7988,
+  "stderr": "",
+  "result": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EQ-01-protection-timing\\23-apply-stop-proof.json",
+    "evidence_sha256": "8b13d3a4728387095bf52b15cb7b3d372cecf597da0a90fad310b6dfcce04f30",
+    "execution_outcome_changed": false,
+    "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+    "lease_owner": {
+      "acquired_at_ms": 1793552831530,
+      "operation": "group_reservation",
+      "pid": 31072,
+      "schema": 2,
+      "token": "31072-1793552831530-0fc73a8ba6334d64"
+    },
+    "malformed_publication": false,
+    "pending_intents_changed": false,
+    "prior_bytes": null,
+    "prior_reservation": {
+      "group_scope": {
+        "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+        "kind": "run",
+        "members": [
+          "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f"
+        ],
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_identity": "dfdc26f58317efbaedd12ed06868a95f8dd510d2af5fdccb9ed49fb41c44dd63",
+        "owner": "standalone-candidate-preparation",
+        "version": null
+      },
+      "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+      "lease_owner": {
+        "acquired_at_ms": 1793552831530,
+        "operation": "group_reservation",
+        "pid": 31072,
+        "schema": 2,
+        "token": "31072-1793552831530-0fc73a8ba6334d64"
+      },
+      "manifest_revision": 4665,
+      "members": [
+        {
+          "cache_schema": null,
+          "created_at_ms": null,
+          "generated": true,
+          "id": "5e97cda214f7f914d41923a401d1207d14d047d4c229b5d6f540bc113f35ab1f",
+          "identity": "52636e9dfbd160484d739943a952edbf2efe8fcf5c573e5c59da35ac256305c1",
+          "kind": "run",
+          "lifecycle_group_id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+          "lifecycle_role": "artifact",
+          "logical_bytes": 718938275,
+          "measured_at_ms": 1793552749369,
+          "owner": "standalone-candidate-preparation",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1",
+          "presence": "present",
+          "protection_known": true,
+          "provenance": null,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\29c6a2a826d8db61e9deb30a52a3b3bc44161a7fdf3da04e0e29cee62f7f50b3.json",
+          "references": [],
+          "registered_at_ms": 1793552749369,
+          "remaining": true,
+          "role": "run",
+          "source_path": null,
+          "tool": null,
+          "version": null
+        }
+      ],
+      "schema": 1,
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "source_fence": "dfdc26f58317efbaedd12ed06868a95f8dd510d2af5fdccb9ed49fb41c44dd63",
+      "source_owner": {
+        "close_receipt": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\reports\\producer-6c08fa81cd55832e4d616b8648bdf092a57757604c6d1089c3aa41443ea5ea04.json",
+          "evidence_sha256": "6c08fa81cd55832e4d616b8648bdf092a57757604c6d1089c3aa41443ea5ea04",
+          "reason": "Current-source standalone build and all exact-binary acceptance finished; existing installation retained",
+          "request_sha256": "888f0dc3a0ea14b5e7daa77e4f62cbf7f393685ae2949c459c22c62ab4827922"
+        },
+        "created_at": "2026-11-01T16:57:18.383Z",
+        "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+        "kind": "run",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1",
+            "protection_known": true,
+            "role": "run"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\inputs",
+            "protection_known": true,
+            "role": "inputs"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\temporary",
+            "protection_known": true,
+            "role": "temporary"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\logs",
+            "protection_known": true,
+            "role": "logs"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\reports",
+            "protection_known": true,
+            "role": "reports"
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\outputs",
+            "protection_known": true,
+            "role": "outputs"
+          }
+        ],
+        "membership_complete": true,
+        "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1",
+        "owner": "standalone-candidate-preparation",
+        "ownership_scope": "run-root",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\latest-owner-20261102-r1\\reports\\producer-6c08fa81cd55832e4d616b8648bdf092a57757604c6d1089c3aa41443ea5ea04.json",
+          "evidence_sha256": "6c08fa81cd55832e4d616b8648bdf092a57757604c6d1089c3aa41443ea5ea04",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Current-source standalone build and all exact-binary acceptance finished; existing installation retained",
+          "status": "stopped"
+        },
+        "references": [],
+        "revision": 2,
+        "schema": 1,
+        "state": "complete",
+        "updated_at": "2026-11-01T17:03:14.448Z",
+        "version": null
+      },
+      "status": "active",
+      "token": "31072-1793552831530-0fc73a8ba6334d64"
+    },
+    "reason": "Release exact stopped pre-intent failed cleanup reservation while preserving failed outcome",
+    "reservation_sha256": "c15fb363f04ff2f81c17969848996069dd5f1957fe8efe5944fa2045e38d58c5",
+    "status": "reservation_recovered"
+  }
+}

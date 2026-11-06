@@ -1,0 +1,90 @@
+{
+  "exit_code": 0,
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:EQ-01-protection-timing:locked-catalog-snapshot-r1",
+        "status": "deleted"
+      },
+      {
+        "id": "version:maintenance-owner:eq01:precheck-removal-r1",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-30984-4236-1793326044946",
+        "decision": "delete",
+        "decision_id": "8cf245fea8babb5344cdd42309d03407dd8505c5ab98a19987a269b366753406",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "045a676dc7a6763794c37ad6918ea870c2751e60888e4cfe26fd57bcb0877ecc",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:locked-catalog-snapshot-r1",
+        "reason": "Fresh review after config change; independent verification retained in eef3 candidate and work/18-locked-catalog-acceptance.json; completed run and uninstalled superseded ef98 candidate have no consumers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "7ada9edc099e541b3561b27eefbcc0e0da79ec543faadb5b4d29b821d21fb481"
+      },
+      {
+        "attempt_id": "attempt-30984-4238-1793326111189",
+        "decision": "delete",
+        "decision_id": "892bfe353819699ebc5f364e15d298d564bcb17d97c4d24d953ad79102cf25e9",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "41d34eb5e044ddb128e5eef04136f577ee8ce35fc0439fea267e6f491de2e1be",
+        "lifecycle_group_id": "version:maintenance-owner:eq01:precheck-removal-r1",
+        "reason": "Fresh review after config change; independent verification retained in eef3 candidate and work/18-locked-catalog-acceptance.json; completed run and uninstalled superseded ef98 candidate have no consumers",
+        "remaining": false,
+        "status": "deleted",
+        "token": "7d3e5631849270d9be7d755b7c4f40cd02d74baf1e12bf9dcd3b6be30ae6b05f"
+      }
+    ]
+  },
+  "config_sha256_before": "f6e0f55fe9fd180b82e5281937687b77017db99d49a928e1433b53b88f34df93",
+  "config_sha256_after": "f6e0f55fe9fd180b82e5281937687b77017db99d49a928e1433b53b88f34df93",
+  "logical_bytes": 731107258,
+  "finalized": [
+    {
+      "id": "run:EQ-01-protection-timing:locked-catalog-snapshot-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\locked-catalog-snapshot-r1",
+      "path_absent": true,
+      "producer_record_absent": true,
+      "finalize": {
+        "id": "run:EQ-01-protection-timing:locked-catalog-snapshot-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7882629c7c1e99343eeb7bb0216bbefc3aed664b902ae4d5ccfcdd7ed2293ddc.json"
+      }
+    },
+    {
+      "id": "version:maintenance-owner:eq01:precheck-removal-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ef98c385-win-x64-eq01-precheck-removal",
+      "path_absent": true,
+      "producer_record_absent": true,
+      "finalize": {
+        "id": "version:maintenance-owner:eq01:precheck-removal-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fbac20537a7448ba76db89a111459ee756729055400d95c9d9edb855a1052425.json"
+      }
+    }
+  ]
+}

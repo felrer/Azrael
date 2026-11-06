@@ -1,0 +1,88 @@
+{
+  "reservationOwnerPid": 20760,
+  "remainingReservations": 0,
+  "finalized": [
+    {
+      "id": "run:EU01-cargo-time:lock-refresh",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9e132636bc8272e2390a4ac93a5451e0cde6e6f46646db10986f61035eb9a582.json"
+    },
+    {
+      "id": "run:EU01-cargo-time:lock-resolve",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\18ac7937ad8e81457a2779dff42ae181dbbf8a5121ee0e771050ea63e316600c.json"
+    },
+    {
+      "id": "run:EU01-cargo-time:p1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7c8e128b16be0f09c3d88ed43826077ce9c11e4b64b0f79dbd6c652559cb37ab.json"
+    },
+    {
+      "id": "run:EU01-cargo-time:source-v8",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6919d34cbd37bdee1dc36843df1e14d05949bf8a09c864a57b80cf24ebf02e39.json"
+    },
+    {
+      "id": "run:EU01-cargo-time:v2",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\af4a2a786de3ffa51e5404446d195b436ab1e6f4b46fd1e97f8e4311dee6397e.json"
+    },
+    {
+      "id": "run:EU01-cargo-time:v3",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\caaee59347dbe213a469e384d2c63ac38cde0fab3f9f170a759d22109197a846.json"
+    },
+    {
+      "id": "run:EU01-cargo-time:v4",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ad62ce40339bfa80ee58317ea683394de5ee1519cfc39a392aba1ed6a6c02b57.json"
+    },
+    {
+      "id": "run:EU01-cargo-time:v5",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7ce8c5351838353c531acf730189ee66fe78d2718dd7d4af29d36b2bcbd70c75.json"
+    },
+    {
+      "id": "run:EU01-cargo-time:v6",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\49d274aef3599111c3af1e7bc8359dd75afb464a2baba4c78fe9f3bbea9432f7.json"
+    },
+    {
+      "id": "run:EU01-cargo-time:engine-source-v8",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d15079c9ae4d0288a9cebbd21d8c7d298487ec3fc47844d3fa647f7dabf6caa4.json"
+    }
+  ],
+  "archivedSourceHistory": "run:EU01-cargo-time:v8-source retained to preserve interrupted native deletion intent; archive location is recorded in cargo-archive-move.json",
+  "completedUtc": "2026-10-31T15:56:15.502Z"
+}

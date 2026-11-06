@@ -1,0 +1,49 @@
+{
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9",
+  "lifecycleId": "run:ET-01-cold-build-cache-audit:cache-invalidation-336345b9",
+  "results": [
+    {
+      "name": "preparation",
+      "exe": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "--test",
+        "scripts/test-preparation-state.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9\\logs\\preparation.log"
+    },
+    {
+      "name": "absent-invalidation",
+      "exe": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+      "args": [
+        "-NoProfile",
+        "-File",
+        "scripts/test-build-module-cache.ps1",
+        "-InvalidationOnly",
+        "-FixtureRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9\\outputs\\invalidation"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9\\logs\\absent-invalidation.log"
+    },
+    {
+      "name": "missing-registry-default",
+      "exe": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+      "args": [
+        "-NoProfile",
+        "-File",
+        "scripts/test-build-module-cache.ps1",
+        "-MissingRegistryOnly",
+        "-FixtureRoot",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9\\outputs\\missing-registry"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-336345b9\\logs\\missing-registry-default.log"
+    }
+  ],
+  "inputsUnchanged": true,
+  "exitCode": 1
+}

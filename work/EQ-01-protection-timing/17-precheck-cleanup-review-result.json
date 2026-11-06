@@ -1,0 +1,253 @@
+{
+  "exit_code": 0,
+  "signal": null,
+  "stderr": "",
+  "result": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "0c3e5cc178da7435c8461d88b4006e59c192cd4e1b34e189aa660acbd8b7de28",
+        "owner": "delete-precheck-removal",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\66fc580a06f9a1a7799817114f3602e8991c8d473a028e5a275d3ece9568c4de.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "version:maintenance-owner:eq01:delete-apply-r1",
+        "kind": "version",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "50e778a46ed607c1a8f2f99b25734fe29420ca82e07345bb292738fcce0b4bcd",
+        "owner": "EQ-01",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7a88d7c6a0d1735bb90890b7a4acac4fcd4188626acf00619844c57320427009.json",
+        "version": "6a39e9c6c6002f3eee110a1822403108b803869e586498ae15ce8dda02b39b92-windows-x64-delete-apply-v1"
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "abe610c1ad0edfffdbea51140cc7d2c7271f8ed574803e7eb728f37148d340c0"
+        ],
+        "group_token": "24472a5ba72ebb5c181f2206e7238f5c43e6dec9063500712b0f1323262d4e7d",
+        "id": "abe610c1ad0edfffdbea51140cc7d2c7271f8ed574803e7eb728f37148d340c0",
+        "identity": "7207e96248d7697f52fc65471d5b37ad758b40c85eb158f73ac50936c03e33a3",
+        "lifecycle_group_id": "version:maintenance-owner:eq01:delete-apply-r1",
+        "logical_bytes": 2386159,
+        "measured_at_ms": 1793324266145,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "50e778a46ed607c1a8f2f99b25734fe29420ca82e07345bb292738fcce0b4bcd",
+          "member_references": {
+            "abe610c1ad0edfffdbea51140cc7d2c7271f8ed574803e7eb728f37148d340c0": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EQ-01-protection-timing\\12-apply-acceptance.json",
+              "evidence_sha256": "07f39eaad1b49cb2df3a8b86c5d1edbd5c1b76059ed685368bf6b0b786b046ef",
+              "reason": "Verified new candidate production and test commands completed",
+              "request_sha256": "e0df79c7119df0e4e4fc246fe0375faf6aef192b60e2341b93db2a6255938d3e"
+            },
+            "created_at": "2026-10-30T00:51:52.823Z",
+            "id": "version:maintenance-owner:eq01:delete-apply-r1",
+            "kind": "version",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6a39e9c6-win-x64-eq01-delete-apply",
+                "protection_known": true,
+                "role": "release"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "EQ-01",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EQ-01-protection-timing\\12-apply-acceptance.json",
+              "evidence_sha256": "07f39eaad1b49cb2df3a8b86c5d1edbd5c1b76059ed685368bf6b0b786b046ef",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Verified new candidate production and test commands completed",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-30T00:53:40.694Z",
+            "version": "6a39e9c6c6002f3eee110a1822403108b803869e586498ae15ce8dda02b39b92-windows-x64-delete-apply-v1"
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793324363424,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6a39e9c6-win-x64-eq01-delete-apply",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              24,
+              162,
+              28,
+              0,
+              0,
+              0,
+              17,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "065b7792e6c4ba6bd09cb86c9439314a665195a94a587fc44600b6012b54596f",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "cc22fc8c60a6dabf67e2424bb2faf455d24552b8fe0a6c3c224fd8b4ec7d5332"
+        ],
+        "group_token": "540ca4518be2d8f5a32e08c621aef82e2587a8819394b9d8bbe8fb6407c98c81",
+        "id": "cc22fc8c60a6dabf67e2424bb2faf455d24552b8fe0a6c3c224fd8b4ec7d5332",
+        "identity": "f75f8c3d1d929cb808377dd4fb26e91c416dc20b63b429c5b6e923b78155a29a",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+        "logical_bytes": 713485581,
+        "measured_at_ms": 1793323485420,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "0c3e5cc178da7435c8461d88b4006e59c192cd4e1b34e189aa660acbd8b7de28",
+          "member_references": {
+            "cc22fc8c60a6dabf67e2424bb2faf455d24552b8fe0a6c3c224fd8b4ec7d5332": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1\\reports\\producer-c5bc2b17c6541f2077ae654cdd2b612e563d1705b7a54226f0228e49e3157825.json",
+              "evidence_sha256": "c5bc2b17c6541f2077ae654cdd2b612e563d1705b7a54226f0228e49e3157825",
+              "reason": "Final frozen native and exact-binary Node verification plus six isolated deletion measurements completed",
+              "request_sha256": "1521f2d188cde0a6c2b5eadb97d097914781036664226542618a92edabb010f2"
+            },
+            "created_at": "2026-10-30T01:14:30.872Z",
+            "id": "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1",
+            "owner": "delete-precheck-removal",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1\\reports\\producer-c5bc2b17c6541f2077ae654cdd2b612e563d1705b7a54226f0228e49e3157825.json",
+              "evidence_sha256": "c5bc2b17c6541f2077ae654cdd2b612e563d1705b7a54226f0228e49e3157825",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Final frozen native and exact-binary Node verification plus six isolated deletion measurements completed",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-30T01:23:25.214Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793324357697,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\delete-precheck-removal-r1",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              66,
+              55,
+              178,
+              0,
+              0,
+              0,
+              16,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "ad0b20ed23bfd06b8b90c292824368863e2a3632073dc5f4f65f37110cb8b9f6",
+        "verification": "registered"
+      }
+    ]
+  }
+}

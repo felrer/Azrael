@@ -1,0 +1,88 @@
+{
+  "request": {
+    "operation": "register",
+    "group": {
+      "id": "run:fw03v:internal-junction63-01",
+      "kind": "run",
+      "owner": "FW-01/internal-junction63",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a064b650d7d36e7e1e51a5a8ff7f6687514fc2733b244ee77c6b3ad02aecbec6.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\internal-junction63-01",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "FW-01/internal-junction63",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a064b650d7d36e7e1e51a5a8ff7f6687514fc2733b244ee77c6b3ad02aecbec6.json"
+        }
+      ]
+    },
+    "lock_wait_ms": 600000
+  },
+  "observed": {
+    "pid": 49108,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "error": null,
+    "close_observed": true,
+    "stdout_drained": true,
+    "stderr_drained": true
+  },
+  "result": {
+    "group": {
+      "cleanup_status": null,
+      "id": "run:fw03v:internal-junction63-01",
+      "kind": "run",
+      "members": [
+        "f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "6fd76287ac03b720a75f5bdc5b290478ab36153769828c2bf7b20bddcda5540c",
+      "owner": "FW-01/internal-junction63",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a064b650d7d36e7e1e51a5a8ff7f6687514fc2733b244ee77c6b3ad02aecbec6.json",
+      "registered_at_ms": 1793950281553,
+      "version": null
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99",
+        "identity": "400f2bcbe41c13fae0e62960e0811ec039e9e4ee5fadcaf0c9292a03713baa09",
+        "kind": "run",
+        "lifecycle_group_id": "run:fw03v:internal-junction63-01",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 1080802,
+        "measured_at_ms": 1793950273106,
+        "owner": "FW-01/internal-junction63",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\internal-junction63-01",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a064b650d7d36e7e1e51a5a8ff7f6687514fc2733b244ee77c6b3ad02aecbec6.json",
+        "references": [],
+        "registered_at_ms": 1793950273106,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  },
+  "stdout": "{\"group\":{\"cleanup_status\":null,\"id\":\"run:fw03v:internal-junction63-01\",\"kind\":\"run\",\"members\":[\"f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99\"],\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_format\":\"producer_registry_v1\",\"membership_source_identity\":\"6fd76287ac03b720a75f5bdc5b290478ab36153769828c2bf7b20bddcda5540c\",\"owner\":\"FW-01/internal-junction63\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\a064b650d7d36e7e1e51a5a8ff7f6687514fc2733b244ee77c6b3ad02aecbec6.json\",\"registered_at_ms\":1793950281553,\"version\":null},\"items\":[{\"cache_schema\":null,\"created_at_ms\":null,\"generated\":true,\"id\":\"f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99\",\"identity\":\"400f2bcbe41c13fae0e62960e0811ec039e9e4ee5fadcaf0c9292a03713baa09\",\"kind\":\"run\",\"lifecycle_group_id\":\"run:fw03v:internal-junction63-01\",\"lifecycle_role\":\"artifact\",\"logical_bytes\":1080802,\"measured_at_ms\":1793950273106,\"owner\":\"FW-01/internal-junction63\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\internal-junction63-01\",\"presence\":\"present\",\"protection_known\":true,\"provenance\":null,\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\a064b650d7d36e7e1e51a5a8ff7f6687514fc2733b244ee77c6b3ad02aecbec6.json\",\"references\":[],\"registered_at_ms\":1793950273106,\"remaining\":true,\"role\":\"run\",\"source_path\":null,\"tool\":null,\"version\":null}]}\n",
+  "stderr": ""
+}

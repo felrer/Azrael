@@ -4,6 +4,7 @@ pub(crate) mod child_config;
 pub(crate) mod control;
 mod registry;
 pub(crate) mod role;
+pub(crate) mod role_profile;
 pub(crate) mod status;
 pub(crate) mod types;
 

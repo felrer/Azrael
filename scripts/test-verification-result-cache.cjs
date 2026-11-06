@@ -19,6 +19,17 @@ async function setup(name) {
   return { options: { projectRoot, cacheRoot, runDirectory, checkId: 'check', key: sha('one') }, record: { exitCode: 0, signal: null, logPath, errorPath }, slot: path.join(cacheRoot, `v${CACHE_SCHEMA}`, sha('check')) };
 }
 async function test(name, action) { await action(); passed++; console.log(`PASS ${name}`); }
+async function reviewed(options, action, reason = 'Changed input reviewed for this fixture') {
+  let review;
+  await assert.rejects(begin(options), error => {
+    assert.equal(error.code, 'VERIFICATION_REVIEW_REQUIRED'); review = error.review; return true;
+  });
+  const reuseDecisionsPath = path.join(options.projectRoot, 'reuse-decisions.json');
+  await fs.writeFile(reuseDecisionsPath, JSON.stringify({ schema: 1, decisions: [{
+    scope: review.scope, reviewId: review.reviewId, action, reason,
+  }] }));
+  return begin({ ...options, reuseDecisionsPath });
+}
 async function retirement(options, lease) {
   const identity = await inspectLease({ ...options, lease });
   const evidence_ref = path.join(options.projectRoot, `termination-${crypto.randomUUID()}.json`);
@@ -339,10 +350,10 @@ async function main() {
     const hitOptions = { ...options, runDirectory: path.join(options.projectRoot, 'second') };
     const hit = await begin(hitOptions); assert.equal(hit.hit.reused, true); assert.equal(hit.hit.stdout, 'success\n');
     assert.equal(hit.hit.logSha256, sha('success\n')); assert.equal(hit.hit.logPath, path.join(hitOptions.runDirectory, 'check.log')); await hit.close();
-    const replacement = await begin({ ...options, key: sha('two') });
+    const replacement = await reviewed({ ...options, key: sha('two') }, 'rerun');
     assert.equal((await replacement.publish(record)).published, true); await replacement.close();
     assert.deepEqual(await fs.readdir(slot), [sha('two')]); assert.equal(await fs.readFile(hit.hit.logPath, 'utf8'), 'success\n');
-    const old = await begin(options); assert.equal(old.hit, null); await old.close();
+    await assert.rejects(begin(options), error => error.code === 'VERIFICATION_REVIEW_REQUIRED');
   });
   await test('failed, signaled, unknown and error checks cannot publish', async () => {
     const { options, record, slot } = await setup('failure'); const handle = await begin(options);
@@ -350,13 +361,37 @@ async function main() {
     assert.deepEqual(await fs.readdir(slot), []); await handle.close();
     assert.equal((await handle.publish(record)).reason, 'closed');
   });
-  await test('key change immediately prunes stale success even when replacement fails', async () => {
+  await test('key change preserves evidence until explicit rerun, including a failed replacement', async () => {
     const { options, record, slot } = await setup('failed-replacement');
     const first = await begin(options); await first.publish(record); await first.close();
-    const next = await begin({ ...options, key: sha('changed') });
+    const changed = { ...options, key: sha('changed') };
+    await assert.rejects(begin(changed), error => error.code === 'VERIFICATION_REVIEW_REQUIRED');
+    assert.deepEqual(await fs.readdir(slot), [options.key]);
+    const next = await reviewed(changed, 'rerun');
     assert.deepEqual(await fs.readdir(slot), []);
     assert.equal((await next.publish({ ...record, exitCode: 1 })).published, false); await next.close();
     assert.deepEqual(await fs.readdir(slot), []);
+  });
+  await test('reviewed reuse binds original evidence, preserves reason and cannot republish', async () => {
+    const { options, record, slot } = await setup('reviewed-reuse');
+    const first = await begin(options); await first.publish(record); await first.close();
+    const changed = { ...options, key: sha('reviewed-change'), runDirectory: path.join(options.projectRoot, 'reviewed-run') };
+    const reused = await reviewed(changed, 'reuse', 'Only unrelated inputs changed');
+    assert.equal(reused.hit.sourceKey, options.key);
+    assert.equal(reused.hit.reuseReview.mode, 'reviewed');
+    assert.equal(reused.hit.reuseReview.decision.reason, 'Only unrelated inputs changed');
+    assert.equal(reused.hit.stdout, 'success\n');
+    assert.equal((await reused.publish(reused.hit)).published, false);
+    assert.deepEqual(await fs.readdir(slot), [options.key]);
+    await reused.close();
+    const reuseDecisionsPath = path.join(options.projectRoot, 'reuse-decisions.json');
+    await assert.rejects(begin({ ...changed, key: sha('different-change'), reuseDecisionsPath }), error =>
+      error.code === 'VERIFICATION_REVIEW_REQUIRED' && /stale/.test(error.message));
+    const invalid = JSON.parse(await fs.readFile(reuseDecisionsPath)); invalid.decisions[0].reason = ' ';
+    await fs.writeFile(reuseDecisionsPath, JSON.stringify(invalid));
+    await assert.rejects(begin({ ...changed, reuseDecisionsPath }), error => error.code === 'VERIFICATION_REUSE_DECISIONS_INVALID');
+    assert.deepEqual(await fs.readdir(path.join(options.cacheRoot, '.leases')), []);
+    assert.equal(await exists(path.join(options.cacheRoot, '.lifecycle')), false);
   });
   await test('removed check slots prune idle and protect active checks', async () => {
     const { options, record, slot } = await setup('removed-checks');
@@ -469,18 +504,19 @@ async function main() {
     assert.deepEqual((await prune({ ...options, checkIds: [] })).deferred, []);
     assert.equal(await exists(old), false); assert.equal(await exists(slot), false);
   });
-  await test('corrupt receipt, extra fields and altered evidence miss then replace', async () => {
+  await test('corrupt receipt, extra fields and altered evidence hard-deny reuse', async () => {
     const { options, record, slot } = await setup('corrupt');
     let handle = await begin(options); await handle.publish(record); await handle.close();
     const receiptPath = path.join(slot, options.key, 'receipt.json');
     const receipt = JSON.parse(await fs.readFile(receiptPath, 'utf8'));
     await fs.writeFile(receiptPath, JSON.stringify({ ...receipt, extra: 'unsafe' }));
-    handle = await begin(options); assert.equal(handle.hit, null); assert.match(handle.reason, /Invalid cache receipt/);
-    assert.equal((await handle.publish(record)).published, true); await handle.close();
+    await assert.rejects(begin(options), error => error.code === 'VERIFICATION_EVIDENCE_INVALID');
+    await fs.writeFile(receiptPath, JSON.stringify(receipt));
     await fs.writeFile(path.join(slot, options.key, 'stdout.log'), 'tampered');
-    handle = await begin(options); assert.equal(handle.hit, null); assert.match(handle.reason, /hash mismatch/); await handle.close();
+    await assert.rejects(begin(options), /hash mismatch/);
+    await fs.writeFile(path.join(slot, options.key, 'stdout.log'), 'success\n');
     await fs.unlink(path.join(slot, options.key, 'stderr.log'));
-    handle = await begin(options); assert.equal(handle.hit, null); await handle.close();
+    await assert.rejects(begin(options), error => error.code === 'VERIFICATION_EVIDENCE_INVALID');
   });
   await test('active same-check lease bypass and unrelated check preservation', async () => {
     const { options, record, slot } = await setup('leases');
@@ -494,7 +530,7 @@ async function main() {
     assert.equal((await first.publish(record)).published, true); await first.close();
     assert.equal(await exists(path.join(options.cacheRoot, '.leases', sha('other'))), true);
     assert.equal(await exists(path.join(options.cacheRoot, `v${CACHE_SCHEMA}`, sha('other'), options.key)), true);
-    const newer = await begin({ ...options, key: sha('three') }); await newer.publish(record); await newer.close();
+    const newer = await reviewed({ ...options, key: sha('three') }, 'rerun'); await newer.publish(record); await newer.close();
     assert.deepEqual(await fs.readdir(slot), [sha('three')]); await other.close();
   });
   await test('obsolete versions cleaned idle and deferred during active or abandoned leases', async () => {

@@ -113,6 +113,7 @@ async fn responses_stream_parses_items_and_completed_end_to_end() -> Result<()> 
         "type": "response.completed",
         "response": {
             "id": "resp1",
+            "service_tier": "default",
             "usage_metadata": { "amount": "0.12345678901234567890" },
             "usage": {
                 "input_tokens": 10,
@@ -131,7 +132,7 @@ async fn responses_stream_parses_items_and_completed_end_to_end() -> Result<()> 
 
     let mut stream = client
         .stream(
-            serde_json::json!({"echo": true}),
+            serde_json::json!({"echo": true, "service_tier": "ultrafast"}),
             HeaderMap::new(),
             Compression::None,
             /*turn_state*/ None,
@@ -169,9 +170,11 @@ async fn responses_stream_parses_items_and_completed_end_to_end() -> Result<()> 
             response_id,
             token_usage,
             usage_metadata,
+            service_tier,
             end_turn,
         } => {
             assert_eq!(response_id, "resp1");
+            assert_eq!(service_tier.as_deref(), Some("default"));
             assert_eq!(
                 usage_metadata,
                 &Some(codex_protocol::ResponseUsageMetadata {

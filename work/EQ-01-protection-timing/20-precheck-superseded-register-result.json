@@ -1,0 +1,50 @@
+{
+  "exit_code": 0,
+  "signal": null,
+  "stderr": "",
+  "result": {
+    "group": {
+      "cleanup_status": null,
+      "id": "version:maintenance-owner:eq01:precheck-removal-r1",
+      "kind": "version",
+      "members": [
+        "41d34eb5e044ddb128e5eef04136f577ee8ce35fc0439fea267e6f491de2e1be"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "df0c6f0bf29f655f80ea6ccf87c244d19c43bb275c99ab239a3d99b656502fa0",
+      "owner": "EQ-01",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fbac20537a7448ba76db89a111459ee756729055400d95c9d9edb855a1052425.json",
+      "registered_at_ms": 1793325823931,
+      "version": "ef98c385803703783a2fda63b182837ed2d47a6a571c48a3137fc71cc922ad84-windows-x64-precheck-removal-v1"
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "41d34eb5e044ddb128e5eef04136f577ee8ce35fc0439fea267e6f491de2e1be",
+        "identity": "5429eab6d904f4c32489c31349de5a7de50c7cea9d0d4b45e6b6ea5f5eb1b49d",
+        "kind": "version",
+        "lifecycle_group_id": "version:maintenance-owner:eq01:precheck-removal-r1",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 2356384,
+        "measured_at_ms": 1793325806445,
+        "owner": "EQ-01",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ef98c385-win-x64-eq01-precheck-removal",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fbac20537a7448ba76db89a111459ee756729055400d95c9d9edb855a1052425.json",
+        "references": [],
+        "registered_at_ms": 1793325806445,
+        "remaining": true,
+        "role": "version",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  }
+}

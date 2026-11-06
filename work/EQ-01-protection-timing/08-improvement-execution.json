@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "owner": "protection-improvement",
+  "run_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\protection-improve-r1",
+  "producer_stopped_verified": true,
+  "stop_basis": "All managed executions returned terminal results. Synchronous native register children have no descendant executables; spawnSync timeout returned after terminating the owned baseline child. No unknown process is inferred stopped from PID absence.",
+  "final_native_distinct_tests_passed": 208,
+  "node_lifecycle_passed": 205,
+  "node_final": {
+    "results": [
+      {
+        "name": "powershell",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 2927.4545000000003
+      },
+      {
+        "name": "lock-owner-v2",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 3054.6986
+      },
+      {
+        "name": "immediate-busy",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 1970.1401999999998
+      },
+      {
+        "name": "explicit-wait",
+        "exit_code": 0,
+        "signal": null,
+        "elapsed_ms": 3629.8163999999997
+      }
+    ],
+    "immutable_inputs_unchanged": true
+  },
+  "baseline_scaling_probe": {
+    "controller_exit_code": 1,
+    "child_result": "ETIMEDOUT",
+    "deadline_ms": 120000,
+    "native_exit_code": null,
+    "outcome": "not_success"
+  },
+  "default_selector_changed": false,
+  "deployment_attempt": "Rejected before execution by approval review; explicit deployment authorization required",
+  "timestamp": "2026-10-29T16:42:55.972Z"
+}

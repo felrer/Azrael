@@ -1,6 +1,7 @@
 #![allow(clippy::module_inception)]
 
 use std::sync::Arc;
+use std::sync::OnceLock;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use tokio::sync::Mutex;
@@ -34,6 +35,8 @@ use super::UNIFIED_EXEC_OUTPUT_MAX_TOKENS;
 use super::UnifiedExecError;
 use super::head_tail_buffer::HeadTailBuffer;
 use super::process_state::ProcessState;
+use crate::session::work_completion::ExecutionCompletion;
+use crate::session::work_completion::WorkCompletionState;
 use crate::shell_snapshot::ShellSnapshotFile;
 
 const EARLY_EXIT_GRACE_PERIOD: Duration = Duration::from_millis(150);
@@ -127,6 +130,8 @@ pub(crate) struct UnifiedExecProcess {
     output_task: Option<JoinHandle<()>>,
     sandbox_type: Option<SandboxType>,
     timed_out: AtomicBool,
+    work_completion: OnceLock<ExecutionCompletion>,
+    completion_recorded: AtomicBool,
     /// Explicit termination overrides retention of remote output after exit.
     pub(super) termination_requested: AtomicBool,
     _spawn_lifecycle: Option<SpawnLifecycleHandle>,
@@ -175,6 +180,8 @@ impl UnifiedExecProcess {
             output_task: None,
             sandbox_type,
             timed_out: AtomicBool::new(false),
+            work_completion: OnceLock::new(),
+            completion_recorded: AtomicBool::new(false),
             termination_requested: AtomicBool::new(false),
             _spawn_lifecycle: spawn_lifecycle,
             _shell_snapshot: None,
@@ -238,6 +245,11 @@ impl UnifiedExecProcess {
         if self.timed_out() {
             return Some(124);
         }
+        self.raw_exit_code()
+    }
+
+    /// Executor-observed status only; timeout's presentation code is not an exit.
+    fn raw_exit_code(&self) -> Option<i32> {
         let state = self.state_rx.borrow().clone();
         match &self.process_handle {
             ProcessHandle::Local(process_handle) => {
@@ -264,6 +276,10 @@ impl UnifiedExecProcess {
     }
 
     pub(super) fn terminate(&self) {
+        if self.raw_exit_code().is_some() {
+            self.record_work_completion();
+        }
+        self.termination_requested.store(true, Ordering::Release);
         match &self.process_handle {
             ProcessHandle::Local(process_handle) => process_handle.terminate(),
             ProcessHandle::ExecServer(process_handle) => {
@@ -277,6 +293,10 @@ impl UnifiedExecProcess {
     }
 
     pub(super) async fn terminate_confirmed(&self) -> Result<(), UnifiedExecError> {
+        if self.raw_exit_code().is_some() {
+            self.record_work_completion();
+        }
+        self.termination_requested.store(true, Ordering::Release);
         match &self.process_handle {
             ProcessHandle::Local(process_handle) => process_handle.terminate(),
             ProcessHandle::ExecServer(process_handle) => {
@@ -286,7 +306,7 @@ impl UnifiedExecProcess {
                     .map_err(|err| UnifiedExecError::process_failed(err.to_string()))?;
             }
         }
-        self.signal_exit(self.exit_code());
+        self.signal_exit(self.raw_exit_code());
         self.finish_termination();
         Ok(())
     }
@@ -725,10 +745,93 @@ impl UnifiedExecProcess {
         let _ = self.state_tx.send_replace(state.exited(exit_code));
         self.output.cancellation_token.cancel();
     }
+
+    pub(super) fn attach_work_completion(self: &Arc<Self>, completion: ExecutionCompletion) {
+        if self.work_completion.set(completion.clone()).is_err() {
+            return;
+        }
+        let process = Arc::downgrade(self);
+        let mut state_rx = self.state_rx.clone();
+        let cancellation = self.cancellation_token();
+        tokio::spawn(async move {
+            // Keep the lease, but never keep an unpublished process alive while waiting.
+            let _completion = completion;
+            let mut termination_deadline = None;
+            loop {
+                let Some(process) = process.upgrade() else {
+                    return; // Process Drop owns the final observation.
+                };
+                let raw_exit = process.raw_exit_code();
+                if raw_exit.is_some() {
+                    process.record_work_completion();
+                    return;
+                }
+                if cancellation.is_cancelled() && termination_deadline.is_none() {
+                    termination_deadline =
+                        Some(tokio::time::Instant::now() + Duration::from_millis(250));
+                }
+                if termination_deadline
+                    .is_some_and(|deadline| tokio::time::Instant::now() >= deadline)
+                {
+                    process.record_work_completion();
+                    return;
+                }
+                drop(process);
+                tokio::select! {
+                    result = state_rx.changed() => {
+                        if result.is_err() { return; }
+                    }
+                    _ = cancellation.cancelled(), if termination_deadline.is_none() => {}
+                    _ = tokio::time::sleep(Duration::from_millis(10)), if termination_deadline.is_some() => {}
+                }
+            }
+        });
+    }
+
+    fn record_work_completion(&self) {
+        let Some(completion) = self.work_completion.get() else {
+            return;
+        };
+        if self.completion_recorded.swap(true, Ordering::AcqRel) {
+            return;
+        }
+        let exit_code = self.raw_exit_code();
+        let state = self.state_rx.borrow().clone();
+        let (result, summary) = match exit_code {
+            None => (
+                WorkCompletionState::Unknown,
+                "Executor termination was not observed; process-tree termination is unconfirmed",
+            ),
+            Some(_) if self.timed_out() => (
+                WorkCompletionState::Failed,
+                "Execution timed out; executor exit observed",
+            ),
+            Some(_) if state.failure_message.is_some() || state.sandbox_denied => (
+                WorkCompletionState::Failed,
+                "Execution failed; executor exit observed",
+            ),
+            Some(_) if self.termination_requested.load(Ordering::Acquire) => (
+                WorkCompletionState::Cancelled,
+                "Execution cancelled; executor exit observed",
+            ),
+            Some(0) => (
+                WorkCompletionState::Succeeded,
+                "Executor exited successfully",
+            ),
+            Some(_) => (
+                WorkCompletionState::Failed,
+                "Executor exited unsuccessfully",
+            ),
+        };
+        if let Err(err) = completion.complete(result, exit_code, summary) {
+            tracing::error!(error = %err, "failed to publish execution completion");
+        }
+    }
 }
 
 impl Drop for UnifiedExecProcess {
     fn drop(&mut self) {
+        self.record_work_completion();
         self.terminate();
     }
 }

@@ -1,0 +1,70 @@
+{
+  "at": "2026-11-02T06:15:00.328Z",
+  "accepted": true,
+  "candidate": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "474ec68c553dbea5babcdc4ebf79a84a045b7fa6d2ff3574d3ee14f4778d27c3",
+    "bytes": 2678272,
+    "capabilities": {
+      "max_lock_wait_ms": 600000,
+      "operations": [
+        "inventory",
+        "register",
+        "review",
+        "apply",
+        "recover_lock",
+        "recover_reservation",
+        "recover_refresh_pending",
+        "recover_lifecycle_pending",
+        "partition_storage",
+        "compact_storage",
+        "reconcile_duplicate_groups"
+      ],
+      "platform": {
+        "arch": "x64",
+        "os": "win32"
+      },
+      "preferences": true,
+      "protocol": "maintenance-owner-lease-v1",
+      "request_file_policy": "outside-maintenance-state",
+      "request_transports": [
+        "file",
+        "stdin"
+      ],
+      "schema": 1,
+      "storage_formats": [
+        "legacy",
+        "partitioned-v1"
+      ]
+    },
+    "native_exit": 0
+  },
+  "resolved": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "maxLockWaitMs": 600000
+  },
+  "previous": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+    "version_id": "version:maintenance-owner:fc02:stdin-20261102",
+    "version": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861-windows-x64-20261102",
+    "acceptance_sha256": "0e60cd03012ee4492b19ac6b32b0c32fd0db3612a82b941c6bd1d85e24302ba6"
+  },
+  "next": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "474ec68c553dbea5babcdc4ebf79a84a045b7fa6d2ff3574d3ee14f4778d27c3",
+    "version_id": "version:maintenance-owner:ff01:queued-20261102",
+    "version": "queued-20261102",
+    "acceptance_sha256": "8cf361a27fd45e16278bba5d6a47c38a2eb2524b2eb93e0e30d93d9ceebb52e7",
+    "max_lock_wait_ms": 600000
+  },
+  "installation_revision": 21,
+  "selector_sha256": "1f5e8a4c638567d956cf007f1704bf2f077b5bebd094497ef1a4968f836cb699",
+  "installation_sha256": "1f5e8a4c638567d956cf007f1704bf2f077b5bebd094497ef1a4968f836cb699",
+  "old_reference_retained_until_baseline_closed": true
+}

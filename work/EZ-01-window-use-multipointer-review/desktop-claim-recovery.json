@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "scope": "One ordinary supported wait-ms0 acquire/release of .run-claim.lock; no recovery/deletion; current availability only",
+  "originalOutcome": {
+    "controllerSession": 11548,
+    "controllerExitCode": 1,
+    "nativePid": 32012,
+    "nativeExitObserved": false,
+    "nativeExitCode": null
+  },
+  "owner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680"
+  },
+  "singletonEvidence": {
+    "acceptedLeaseSourceVerified": true,
+    "externalChildrenOnLeasePath": false,
+    "originalPidAbsentObserved": true,
+    "relevantReservationOrRunAbsentObserved": true,
+    "originalExitNotInferred": true
+  },
+  "before": {
+    "sha256": "3fa8bb1591caaf69b3329bf93bda71ef3f247376f03bf2aac9dee7e8cf49315d",
+    "record": {
+      "acquired_at_ms": 1793700229100,
+      "operation": "artifact-run.claim",
+      "pid": 38044,
+      "schema": 2,
+      "token": "38044-1793700229100-ef9e782065fbfa39"
+    }
+  },
+  "probe": {
+    "operation": "desktop-claim.availability-probe",
+    "waitMs": 0,
+    "parentPid": 61384,
+    "plannedAt": "2026-11-03T10:06:10.506Z",
+    "packets": [
+      {
+        "id": 0,
+        "ok": true,
+        "result": {
+          "acquired_at_ms": 1793700370659,
+          "operation": "desktop-claim.availability-probe",
+          "parent_pid": 61384,
+          "pid": 53160,
+          "schema": 2,
+          "token": "53160-1793700370659-2c940a3f1cea16cd"
+        }
+      },
+      {
+        "id": 1,
+        "ok": true,
+        "result": {
+          "released": true,
+          "reservations_retained": []
+        }
+      }
+    ],
+    "pid": 53160,
+    "exitObserved": true,
+    "exitCode": 0,
+    "signal": null,
+    "closeObserved": true,
+    "closeCode": 0,
+    "closeSignal": null,
+    "stderr": "",
+    "closedAt": "2026-11-03T10:06:11.113Z"
+  },
+  "status": "passed",
+  "after": {
+    "sha256": "4c942df9d2a8110cbf141dc6b1e6a38aecec28ffe83aaec33e0250fb9a69bb3d",
+    "record": {
+      "acquired_at_ms": 1793700370659,
+      "operation": "desktop-claim.availability-probe",
+      "pid": 53160,
+      "schema": 2,
+      "token": "53160-1793700370659-2c940a3f1cea16cd"
+    }
+  }
+}

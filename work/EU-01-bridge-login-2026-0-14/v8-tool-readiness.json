@@ -1,0 +1,32 @@
+{
+  "rows": [
+    {
+      "label": "clang",
+      "command": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\rusty-v8-150.4.0-source\\llvm\\bin\\clang.exe",
+      "exitCode": 0,
+      "stdout": "clang version 19.1.7\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\rusty-v8-150.4.0-source\\llvm\\bin\n",
+      "stderr": ""
+    },
+    {
+      "label": "v8-rustc",
+      "command": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\rusty-v8-150.4.0-source\\crate\\third_party\\rust-toolchain\\bin\\rustc.exe",
+      "exitCode": 0,
+      "stdout": "rustc 1.96.0-nightly (4c4205163 2026-04-09) (4c4205163abcbd08948b3efab796c543ba1ea687-4-llvmorg-23-init-10931-g20b6ec66 chromium)\nbinary: rustc\ncommit-hash: 4c4205163abcbd08948b3efab796c543ba1ea687\ncommit-date: 2026-04-09\nhost: x86_64-pc-windows-msvc\nrelease: 1.96.0-nightly\nLLVM version: 23.0.0\n",
+      "stderr": ""
+    },
+    {
+      "label": "python",
+      "command": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+      "exitCode": 0,
+      "stdout": "Python 3.13.15\r\n",
+      "stderr": ""
+    },
+    {
+      "label": "vswhere",
+      "command": "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe",
+      "exitCode": 0,
+      "stdout": "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\r\n",
+      "stderr": ""
+    }
+  ]
+}

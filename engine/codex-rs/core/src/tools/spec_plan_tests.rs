@@ -997,11 +997,12 @@ async fn wait_for_environment_falls_back_for_oversized_host_configuration() {
 #[tokio::test]
 async fn request_user_input_tool_respects_experimental_config_gate() {
     let enabled = probe(|_| {}).await;
-    enabled.assert_visible_contains(&["request_user_input"]);
-    enabled.assert_registered_contains(&["request_user_input"]);
+    enabled.assert_visible_lacks(&["request_user_input", "legacy_codex_tools"]);
+    enabled.assert_registered_contains(&[&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
+    enabled.assert_registered_lacks(&["request_user_input"]);
     assert_eq!(
-        enabled.exposure("request_user_input"),
-        ToolExposure::DirectModelOnly
+        enabled.exposure(&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()),
+        ToolExposure::DeferredModelOnly
     );
 
     let disabled = probe(|turn| {
@@ -1011,7 +1012,7 @@ async fn request_user_input_tool_respects_experimental_config_gate() {
     })
     .await;
     disabled.assert_visible_lacks(&["request_user_input"]);
-    disabled.assert_registered_lacks(&["request_user_input"]);
+    disabled.assert_registered_lacks(&["request_user_input", &ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
 }
 
 #[tokio::test]
@@ -1031,21 +1032,22 @@ async fn update_plan_tool_respects_config_gate() {
 }
 
 #[tokio::test]
-async fn request_user_input_stays_direct_in_code_mode_only() {
+async fn request_user_input_stays_deferred_and_outside_code_mode_only() {
     let plan = probe(|turn| {
         set_features(turn, &[Feature::CodeMode, Feature::CodeModeOnly]);
     })
     .await;
 
     plan.assert_visible_contains(&[
-        "request_user_input",
         codex_code_mode::PUBLIC_TOOL_NAME,
         codex_code_mode::WAIT_TOOL_NAME,
     ]);
-    plan.assert_registered_contains(&["request_user_input"]);
+    plan.assert_visible_lacks(&["request_user_input", "legacy_codex_tools"]);
+    plan.assert_registered_contains(&[&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
+    plan.assert_registered_lacks(&["request_user_input"]);
     assert_eq!(
-        plan.exposure("request_user_input"),
-        ToolExposure::DirectModelOnly
+        plan.exposure(&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()),
+        ToolExposure::DeferredModelOnly
     );
 
     let ToolSpec::Freeform(exec) = plan.visible_spec(codex_code_mode::PUBLIC_TOOL_NAME) else {
@@ -1296,14 +1298,13 @@ async fn sleep_tool_follows_current_time_config() {
         turn.config = Arc::new(config);
     })
     .await;
-    assert_eq!(
-        enabled.namespace_function_names("clock"),
-        ["curr_time", "sleep"]
-    );
+    assert_eq!(enabled.namespace_function_names("clock"), ["curr_time"]);
+    enabled.assert_registered_contains(&[&ToolName::namespaced("legacy_codex_tools", "sleep").to_string()]);
+    disabled.assert_registered_lacks(&[&ToolName::namespaced("legacy_codex_tools", "sleep").to_string()]);
 }
 
 #[tokio::test]
-async fn sleep_tool_stays_direct_and_outside_code_mode() {
+async fn sleep_tool_stays_deferred_and_outside_code_mode() {
     for code_mode_only in [false, true] {
         let plan = probe(|turn| {
             set_features(
@@ -1327,17 +1328,23 @@ async fn sleep_tool_stays_direct_and_outside_code_mode() {
         })
         .await;
 
-        assert!(
-            plan.namespace_function_names("clock")
-                .iter()
-                .any(|name| name == "sleep")
-        );
-        let sleep_tool_name = ToolName::namespaced("clock", "sleep").to_string();
+        if code_mode_only {
+            assert!(plan.namespace_function_names("clock").is_empty());
+        } else {
+            assert_eq!(plan.namespace_function_names("clock"), ["curr_time"]);
+        }
+        plan.assert_visible_lacks(&["legacy_codex_tools"]);
+        plan.assert_registered_lacks(&[&ToolName::namespaced("clock", "sleep").to_string()]);
+        let sleep_tool_name = ToolName::namespaced("legacy_codex_tools", "sleep").to_string();
+        plan.assert_registered_contains(&[&sleep_tool_name]);
+        assert!(!plan.code_mode_tool_names.values().any(|name| {
+            name.namespace.as_deref() == Some("legacy_codex_tools")
+        }));
         let wait_agent_tool_name =
             ToolName::namespaced(MULTI_AGENT_V2_NAMESPACE, "wait_agent").to_string();
         assert_eq!(
             plan.exposure(&sleep_tool_name),
-            ToolExposure::DirectModelOnly
+            ToolExposure::DeferredModelOnly
         );
         plan.assert_registered_lacks(&[wait_agent_tool_name.as_str()]);
 
@@ -1348,115 +1355,145 @@ async fn sleep_tool_stays_direct_and_outside_code_mode() {
             assert!(exec.description.contains("clock__curr_time"));
         }
         assert!(!exec.description.contains("clock__sleep"));
+        assert!(!exec.description.contains("legacy_codex_tools__sleep"));
     }
 }
 
 #[tokio::test]
-async fn claude_mcp_catalog_defers_without_responses_search_capability() {
+async fn anthropic_common_discovery_catalog_follows_model_search_capability() {
     for (slug, count) in [
         ("managed/anthropic/claude-opus-5-5", 587),
         ("managed/anthropic/future-model", 1000),
     ] {
-        let (_session, mut turn) = make_session_and_context().await;
-        Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
-        select_claude_profile_for_test(&mut turn).await;
-        update_turn_settings_for_test(&mut turn, |settings| {
-            let model = Arc::make_mut(&mut settings.model_info);
-            model.slug = slug.to_string();
-            model.supports_search_tool = false;
-            model.shell_type = ConfigShellToolType::UnifiedExec;
-            model.apply_patch_tool_type = Some(ApplyPatchToolType::Freeform);
-        });
-        // Use the production MCP exposure decision, not pre-deferred fixtures.
-        let inputs = ToolPlanInputs {
-            tool_runtimes: (0..count)
-                .map(|index| {
-                    let name = format!("lookup_{index}");
-                    let exposure = super::mcp_tool_exposure(
-                        &turn,
-                        turn.model_info(),
-                        ToolName::namespaced("mcp__large_catalog", &name),
-                        codex_tools::ToolExposures::empty(),
-                    );
-                    mcp_runtime("large_catalog", "mcp__large_catalog", &name, exposure)
-                })
-                .collect(),
-            ..ToolPlanInputs::default()
-        };
-        let plan = ToolPlanProbe::from_router(plan_with_model(&turn, turn.model_info(), inputs));
-        plan.assert_visible_contains(&[
-            "Read",
-            "Edit",
-            "Write",
-            "Bash",
-            "Grep",
-            "Glob",
-            "ToolSearch",
-        ]);
-        plan.assert_visible_lacks(&["mcp__large_catalog", "tool_search"]);
-        let ToolSpec::Function(search) = plan.visible_spec("ToolSearch") else {
-            panic!("expected compatible search function");
-        };
-        assert!(search.description.contains("large_catalog"));
-        assert!(search.description.contains("`ToolSearch`"));
-        assert!(!search.description.contains("`tool_search`"));
-        assert_eq!(plan.tool_mode, ToolMode::Direct);
-        for index in 0..count {
-            assert!(
-                plan.exposure(
-                    &ToolName::namespaced("mcp__large_catalog", format!("lookup_{index}"))
-                        .to_string()
-                )
-                .is_deferred()
-            );
+        for supports_search_tool in [false, true] {
+            let (_session, mut turn) = make_session_and_context().await;
+            Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
+            update_turn_settings_for_test(&mut turn, |settings| {
+                let model = Arc::make_mut(&mut settings.model_info);
+                model.slug = slug.to_string();
+                model.supports_search_tool = supports_search_tool;
+                model.shell_type = ConfigShellToolType::UnifiedExec;
+                model.apply_patch_tool_type = Some(ApplyPatchToolType::Freeform);
+            });
+            // Use the production MCP exposure decision, not pre-deferred fixtures.
+            let inputs = ToolPlanInputs {
+                tool_runtimes: (0..count)
+                    .map(|index| {
+                        let name = format!("lookup_{index}");
+                        let exposure = super::mcp_tool_exposure(
+                            &turn,
+                            turn.model_info(),
+                            ToolName::namespaced("mcp__large_catalog", &name),
+                            codex_tools::ToolExposures::empty(),
+                        );
+                        mcp_runtime("large_catalog", "mcp__large_catalog", &name, exposure)
+                    })
+                    .collect(),
+                ..ToolPlanInputs::default()
+            };
+            let plan =
+                ToolPlanProbe::from_router(plan_with_model(&turn, turn.model_info(), inputs));
+            plan.assert_registered_contains(&["apply_patch", "exec_command", "write_stdin"]);
+            plan.assert_registered_lacks(&[
+                "Read",
+                "Edit",
+                "Write",
+                "Bash",
+                "Grep",
+                "Glob",
+                "ToolSearch",
+            ]);
+            if supports_search_tool {
+                plan.assert_visible_contains(&["tool_search"]);
+                plan.assert_visible_lacks(&["mcp__large_catalog"]);
+                assert!(matches!(
+                    plan.visible_spec("tool_search"),
+                    ToolSpec::ToolSearch { .. }
+                ));
+                assert!(serde_json::to_vec(&plan.visible_specs).unwrap().len() < 64 * 1024);
+            } else {
+                plan.assert_visible_lacks(&["tool_search"]);
+                assert_eq!(
+                    plan.namespace_function_names("mcp__large_catalog").len(),
+                    count
+                );
+            }
+            assert_eq!(plan.tool_mode, ToolMode::Direct);
+            for index in 0..count {
+                assert_eq!(
+                    plan.exposure(
+                        &ToolName::namespaced("mcp__large_catalog", format!("lookup_{index}"))
+                            .to_string()
+                    ),
+                    if supports_search_tool {
+                        ToolExposure::Deferred
+                    } else {
+                        ToolExposure::Direct
+                    },
+                );
+            }
         }
-        assert!(serde_json::to_vec(&plan.visible_specs).unwrap().len() < 64 * 1024);
     }
 }
 
 #[tokio::test]
-async fn claude_mcp_exposure_preserves_omissions_and_provider_isolation() {
-    let (_session, mut turn) = make_session_and_context().await;
-    Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
-    select_claude_profile_for_test(&mut turn).await;
-    update_turn_settings_for_test(&mut turn, |settings| {
-        let model = Arc::make_mut(&mut settings.model_info);
-        model.slug = "managed/anthropic/future-model".to_string();
-        model.supports_search_tool = false;
-    });
-    let name = ToolName::namespaced("mcp__allowed", "lookup");
-    let exposure = |turn: &TurnContext, omissions| {
-        super::mcp_tool_exposure(turn, turn.model_info(), name.clone(), omissions)
-    };
-    assert!(exposure(&turn, codex_tools::ToolExposures::empty()).is_deferred());
-    assert_eq!(
-        exposure(&turn, codex_tools::ToolExposures::ALL),
-        ToolExposure::Hidden
-    );
-    assert_eq!(
-        exposure(&turn, codex_tools::ToolExposures::DEFERRED),
-        ToolExposure::Direct
-    );
-    Arc::make_mut(&mut turn.config)
-        .code_mode
-        .direct_only_tool_namespaces
-        .push("mcp__allowed".to_string());
-    assert_eq!(
-        exposure(&turn, codex_tools::ToolExposures::empty()),
-        ToolExposure::DirectModelOnly
-    );
-    Arc::make_mut(&mut turn.config)
-        .code_mode
-        .direct_only_tool_namespaces
-        .clear();
-    update_turn_settings_for_test(&mut turn, |settings| {
-        Arc::make_mut(&mut settings.model_info).slug =
-            "managed/openrouter/anthropic/claude".to_string();
-    });
-    assert_eq!(
-        exposure(&turn, codex_tools::ToolExposures::empty()),
-        ToolExposure::Direct
-    );
+async fn anthropic_common_discovery_preserves_omissions_and_namespace_isolation() {
+    for slug in [
+        "managed/anthropic/future-model",
+        "managed/openrouter/anthropic/claude",
+    ] {
+        for supports_search_tool in [false, true] {
+            let (_session, mut turn) = make_session_and_context().await;
+            Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
+            update_turn_settings_for_test(&mut turn, |settings| {
+                let model = Arc::make_mut(&mut settings.model_info);
+                model.slug = slug.to_string();
+                model.supports_search_tool = supports_search_tool;
+            });
+            let name = ToolName::namespaced("mcp__allowed", "lookup");
+            let exposure = |turn: &TurnContext, omissions| {
+                super::mcp_tool_exposure(turn, turn.model_info(), name.clone(), omissions)
+            };
+            let ordinary = if supports_search_tool {
+                ToolExposure::Deferred
+            } else {
+                ToolExposure::Direct
+            };
+            assert_eq!(
+                exposure(&turn, codex_tools::ToolExposures::empty()),
+                ordinary
+            );
+            assert_eq!(
+                exposure(&turn, codex_tools::ToolExposures::ALL),
+                ToolExposure::Hidden
+            );
+            assert_eq!(
+                exposure(&turn, codex_tools::ToolExposures::DEFERRED),
+                ToolExposure::Direct
+            );
+            Arc::make_mut(&mut turn.config)
+                .code_mode
+                .direct_only_tool_namespaces
+                .push("mcp__allowed".to_string());
+            assert_eq!(
+                exposure(&turn, codex_tools::ToolExposures::empty()),
+                ToolExposure::DirectModelOnly
+            );
+            assert_eq!(
+                super::mcp_tool_exposure(
+                    &turn,
+                    turn.model_info(),
+                    ToolName::namespaced("mcp__other", "lookup"),
+                    codex_tools::ToolExposures::empty()
+                ),
+                ordinary
+            );
+            assert_eq!(
+                exposure(&turn, codex_tools::ToolExposures::ALL),
+                ToolExposure::Hidden
+            );
+        }
+    }
 }
 
 #[tokio::test]
@@ -1501,6 +1538,9 @@ async fn mcp_and_tool_search_follow_direct_and_deferred_tool_exposure() {
     missing_model_capability.assert_visible_lacks(&["tool_search"]);
 
     let missing_deferred_tools = probe(|turn| {
+        update_config(turn, |config| {
+            config.experimental_request_user_input_enabled = false;
+        });
         set_feature(turn, Feature::Collab, /*enabled*/ false);
         update_turn_settings_for_test(turn, |settings| {
             Arc::make_mut(&mut settings.model_info).supports_search_tool = true;
@@ -1770,6 +1810,10 @@ async fn dynamic_tool_search_does_not_enable_ranked_search_guidance() {
             |turn| {
                 set_features(turn, &[Feature::CodeMode, Feature::CodeModeOnly]);
                 set_feature(turn, Feature::Collab, /*enabled*/ false);
+                set_feature(turn, Feature::SleepTool, /*enabled*/ false);
+                update_config(turn, |config| {
+                    config.experimental_request_user_input_enabled = false;
+                });
                 set_feature(turn, Feature::CodeModeToolSearch, experiment_enabled);
                 update_turn_settings_for_test(turn, |settings| {
                     Arc::make_mut(&mut settings.model_info).supports_search_tool =
@@ -1823,6 +1867,10 @@ async fn code_mode_tool_search_respects_exclusions_and_requires_deferred_tools()
                     ],
                 );
                 set_feature(turn, Feature::Collab, /*enabled*/ false);
+                set_feature(turn, Feature::SleepTool, /*enabled*/ false);
+                update_config(turn, |config| {
+                    config.experimental_request_user_input_enabled = false;
+                });
                 update_turn_settings_for_test(turn, |settings| {
                     Arc::make_mut(&mut settings.model_info).supports_search_tool = true;
                 });
@@ -3732,7 +3780,6 @@ async fn code_mode_only_can_expose_namespaced_multi_agent_v2_as_normal_tools() {
         vec![
             "exec",
             "wait",
-            "request_user_input",
             "agents",
             // Hosted Responses tool.
             "web_search",
@@ -3928,7 +3975,6 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
             // Code-mode entrypoints.
             codex_code_mode::PUBLIC_TOOL_NAME,
             codex_code_mode::WAIT_TOOL_NAME,
-            "request_user_input",
             // Multi-agent v2 tools.
             MULTI_AGENT_V2_NAMESPACE,
             // Hosted Responses tools.
@@ -4118,57 +4164,121 @@ mod strict_third_party;
 
 
 #[tokio::test]
-async fn azrael_defaults_and_explicit_claude_profile_select_executable_tools() {
-    for (slug, compatible) in [("managed/anthropic/future-model", false), ("managed/openrouter/anthropic/claude", false), ("gpt-6", false), ("managed/anthropic/future-model", true)] {
+async fn anthropic_shared_tools_provider_defaults_select_native_execution_and_agents() {
+    for slug in [
+        "managed/anthropic/future-model",
+        "managed/openrouter/anthropic/claude",
+        "gpt-6",
+    ] {
         let (_session, mut turn) = make_session_and_context().await;
-        Arc::make_mut(&mut turn.config).model_provider_id = if slug.starts_with("managed/") { "azrael-managed" } else { "openai" }.to_owned();
-        if compatible {
-            select_claude_profile_for_test(&mut turn).await;
+        Arc::make_mut(&mut turn.config).model_provider_id = if slug.starts_with("managed/") {
+            "azrael-managed"
+        } else {
+            "openai"
         }
+        .to_owned();
+        set_features(&mut turn, &[Feature::ShellTool, Feature::MultiAgentV2]);
         let mut settings = turn.initial_settings.as_ref().clone();
         Arc::make_mut(&mut settings.model_info).slug = slug.to_owned();
         Arc::make_mut(&mut settings.model_info).shell_type = ConfigShellToolType::UnifiedExec;
-        Arc::make_mut(&mut settings.model_info).apply_patch_tool_type = Some(ApplyPatchToolType::Freeform);
+        Arc::make_mut(&mut settings.model_info).apply_patch_tool_type =
+            Some(ApplyPatchToolType::Freeform);
         turn.initial_settings = Arc::new(settings);
-        let plan = ToolPlanProbe::from_router(plan_with_model(&turn, turn.model_info(), ToolPlanInputs::default()));
-        if compatible {
-            plan.assert_registered_contains(&["Read", "Edit", "Write", "Bash", "Grep", "Glob"]);
-            plan.assert_registered_lacks(&["apply_patch", "exec_command", "write_stdin", "request_user_input", "request_user_input_async"]);
-            assert_eq!(plan.tool_mode, ToolMode::Direct);
-            assert!(plan.code_mode_tool_names.is_empty());
-        } else {
-            plan.assert_registered_contains(&["apply_patch", "exec_command", "write_stdin"]);
-            plan.assert_registered_lacks(&["Read", "Edit", "Write", "Bash", "Grep", "Glob", "Agent", "Skill", "ToolSearch", "AskUserQuestion", "TaskOutput", "TaskStop"]);
-        }
+        let plan = ToolPlanProbe::from_router(plan_with_model(
+            &turn,
+            turn.model_info(),
+            ToolPlanInputs::default(),
+        ));
+        plan.assert_registered_contains(&["apply_patch", "exec_command", "write_stdin"]);
+        plan.assert_registered_contains(&[&ToolName::namespaced(
+            crate::config::AZRAEL_AGENT_TOOL_NAMESPACE,
+            "spawn_agent",
+        )
+        .to_string()]);
+        assert!(plan.can_manage_children);
+        plan.assert_registered_lacks(&[
+            "Read",
+            "Edit",
+            "Write",
+            "Bash",
+            "Grep",
+            "Glob",
+            "Agent",
+            "Skill",
+            "ToolSearch",
+            "AskUserQuestion",
+            "TaskOutput",
+            "TaskStop",
+        ]);
     }
 }
 
 #[tokio::test]
-async fn async_question_claude_fallback_retains_withdrawal_only_for_async_backend() {
+async fn anthropic_shared_tools_async_questions_and_withdrawal_follow_root_capability_policy() {
     for blocking in [false, true] {
-        let (_session, mut turn) = make_session_and_context().await;
-        select_claude_profile_for_test(&mut turn).await;
-        let config = Arc::make_mut(&mut turn.config);
-        config.model_provider_id = "azrael-managed".into();
-        config.experimental_request_user_input_enabled = blocking;
-        let mut settings = turn.initial_settings.as_ref().clone();
-        let model = Arc::make_mut(&mut settings.model_info);
-        model.slug = "managed/anthropic/future-model".into();
-        model.experimental_supported_tools.push("request_user_input_async".into());
-        turn.initial_settings = Arc::new(settings);
-        let plan = ToolPlanProbe::from_router(plan_with_model(&turn, turn.model_info(), ToolPlanInputs::default()));
-        plan.assert_registered_contains(&["AskUserQuestion"]);
-        plan.assert_registered_lacks(&["request_user_input_async"]);
-        if blocking { plan.assert_registered_lacks(&["withdraw_user_questions"]); }
-        else { plan.assert_registered_contains(&["withdraw_user_questions"]); }
-        let ToolSpec::Function(tool) = plan.visible_spec("AskUserQuestion") else { panic!("expected compatible function") };
-        assert_eq!(tool.description.matches("If a question becomes unnecessary during subsequent work, withdraw it with withdraw_user_questions.").count(), usize::from(!blocking));
+        for async_supported in [false, true] {
+            for child in [false, true] {
+                let (_session, mut turn) = make_session_and_context().await;
+                let config = Arc::make_mut(&mut turn.config);
+                config.model_provider_id = "azrael-managed".into();
+                config.experimental_request_user_input_enabled = blocking;
+                if child {
+                    turn.session_source = SessionSource::SubAgent(SubAgentSource::ThreadSpawn {
+                        parent_thread_id: ThreadId::new(),
+                        depth: 1,
+                        agent_path: Some(
+                            AgentPath::try_from("/root/worker").expect("valid agent path"),
+                        ),
+                        agent_nickname: None,
+                        agent_role: None,
+                    });
+                }
+                let mut settings = turn.initial_settings.as_ref().clone();
+                let model = Arc::make_mut(&mut settings.model_info);
+                model.slug = "managed/anthropic/future-model".into();
+                model.experimental_supported_tools.retain(|name| {
+                    !matches!(
+                        name.as_str(),
+                        "request_user_input_async" | "send_user_message_async"
+                    )
+                });
+                if async_supported {
+                    model
+                        .experimental_supported_tools
+                        .push("request_user_input_async".into());
+                }
+                turn.initial_settings = Arc::new(settings);
+                let plan = ToolPlanProbe::from_router(plan_with_model(
+                    &turn,
+                    turn.model_info(),
+                    ToolPlanInputs::default(),
+                ));
+                plan.assert_registered_lacks(&["AskUserQuestion"]);
+                if blocking {
+                    plan.assert_registered_contains(&[&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
+                } else {
+                    plan.assert_registered_lacks(&[&ToolName::namespaced("legacy_codex_tools", "request_user_input").to_string()]);
+                }
+                if async_supported && !child {
+                    plan.assert_visible_contains(&[
+                        "request_user_input_async",
+                        "withdraw_user_questions",
+                    ]);
+                    for name in ["request_user_input_async", "withdraw_user_questions"] {
+                        assert_eq!(plan.exposure(name), ToolExposure::DirectModelOnly);
+                    }
+                    let ToolSpec::Function(tool) = plan.visible_spec("request_user_input_async")
+                    else {
+                        panic!("expected native asynchronous question function")
+                    };
+                    assert!(tool.description.contains("withdraw_user_questions"));
+                } else {
+                    plan.assert_registered_lacks(&[
+                        "request_user_input_async",
+                        "withdraw_user_questions",
+                    ]);
+                }
+            }
+        }
     }
-}
-
-async fn select_claude_profile_for_test(turn: &mut TurnContext) {
-    let config = toml::from_str("[providers.anthropic]\nprofile = 'anthropic-default'").unwrap();
-    let filesystem = turn.initial_environments.primary_filesystem().expect("test filesystem");
-    Arc::make_mut(&mut turn.config).harness_profiles =
-        codex_config::harness_profiles::HarnessProfiles::load(config, filesystem.as_ref()).await.unwrap();
 }

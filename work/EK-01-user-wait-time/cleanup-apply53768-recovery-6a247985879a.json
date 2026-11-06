@@ -1,0 +1,20 @@
+{
+  "id": "run:EK01-user-wait-native:core01",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "725392bb1071bb1958aec761200e642f37e6fa7eaf0364d110a9c015a5c39b33",
+  "lease_owner": {
+    "acquired_at_ms": 1793253014379,
+    "operation": "group_reservation",
+    "pid": 53768,
+    "schema": 2,
+    "token": "53768-1793253014379-70913af070279146"
+  },
+  "originalOutcome": {
+    "session": 48754,
+    "exitCode": 1,
+    "stderr": "{\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\"}\n",
+    "perItemResults": null
+  },
+  "terminationEvidence": "Exact verified standalone owner invoked through synchronous spawnSync; session48754 returned terminal exit1. No detached wrapper. Previously inspected native apply path spawns no descendants. Supplemental current CIM showed no maintenance_owner or lifecycle owner process. Exact run root absent after terminal. Original failed execution outcome preserved."
+}

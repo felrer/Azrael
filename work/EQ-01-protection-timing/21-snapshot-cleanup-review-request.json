@@ -1,0 +1,7 @@
+{
+  "operation": "review",
+  "group_ids": [
+    "run:EQ-01-protection-timing:locked-catalog-snapshot-r1",
+    "version:maintenance-owner:eq01:precheck-removal-r1"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "at": "2026-11-02T07:31:20.237Z",
+  "previous": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "474ec68c553dbea5babcdc4ebf79a84a045b7fa6d2ff3574d3ee14f4778d27c3",
+    "version_id": "version:maintenance-owner:ff01:queued-20261102",
+    "version": "queued-20261102",
+    "acceptance_sha256": "8cf361a27fd45e16278bba5d6a47c38a2eb2524b2eb93e0e30d93d9ceebb52e7",
+    "max_lock_wait_ms": 600000
+  },
+  "current": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+    "version_id": "version:maintenance-owner:ff01:perf-20261102",
+    "version": "perf-20261102",
+    "acceptance_sha256": "d166e8504712590a28fc9bd4a7e63f265a7b8edecb4fc941a6f76c7cf6bb1978",
+    "max_lock_wait_ms": 600000
+  },
+  "resolved": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "maxLockWaitMs": 600000
+  },
+  "pins_equal": true
+}

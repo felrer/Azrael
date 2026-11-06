@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "scope": "planned companion release binding and post-package physical seal",
+  "verifiedPlatform": "Windows x64",
+  "sourceBefore": {
+    "scripts/module-cache-consumers.cjs": "f1b37d1afea7fda29858ba0b7dcf866fd4a85fd0973403189f1011c3ee6de7d5",
+    "scripts/build-azrael.ps1": "5a95f45561b9cfaeaadafb3af3efc7d286f6517ce7398e9a0c4fd2b0f970c944",
+    "scripts/test-preparation-state.cjs": "f85bdff296df20cb6b85c46f883b6b2505c4fa6c707bf36b19b4ffb5be94f4fb"
+  },
+  "sourceAfter": {
+    "scripts/module-cache-consumers.cjs": "f1b37d1afea7fda29858ba0b7dcf866fd4a85fd0973403189f1011c3ee6de7d5",
+    "scripts/build-azrael.ps1": "5a95f45561b9cfaeaadafb3af3efc7d286f6517ce7398e9a0c4fd2b0f970c944",
+    "scripts/test-preparation-state.cjs": "f85bdff296df20cb6b85c46f883b6b2505c4fa6c707bf36b19b4ffb5be94f4fb"
+  },
+  "executions": [
+    {
+      "name": "preparation",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-preparation-state.cjs"
+      ],
+      "code": 0,
+      "signal": null
+    },
+    {
+      "name": "powershell-parser",
+      "command": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "& { param($source) $tokens=$null; $errors=$null; [System.Management.Automation.Language.Parser]::ParseFile($source,[ref]$tokens,[ref]$errors)|Out-Null; if($errors.Count){$errors|ForEach-Object{[Console]::Error.WriteLine($_.Message)}; exit 1}; exit 0 }",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\build-azrael.ps1"
+      ],
+      "code": 0,
+      "signal": null
+    }
+  ],
+  "exitCode": 0,
+  "testSummary": [
+    "ℹ tests 12",
+    "ℹ pass 12",
+    "ℹ fail 0",
+    "ℹ skipped 0",
+    "ℹ duration_ms 8843.4617"
+  ],
+  "temporaryFixturesRemoved": true,
+  "cleanupPendingRun": "run:ET-01-cold-build-cache-audit:consumer-planned-release-20261030a"
+}

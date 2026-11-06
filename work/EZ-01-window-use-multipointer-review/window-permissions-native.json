@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "runId": "run:EZ01:permissions-native-r2-mw0alid9",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-r2-mw0alid9",
+  "startedAt": "2026-11-03T06:14:17.709Z",
+  "frozen": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-r2-mw0alid9\\inputs\\native\\window-control",
+  "hashes": [
+    [
+      "approval_notification.rs",
+      "b124297c4de32a98ba96369d535d1862d11dd3cb6cfbc70446fc6e2e5d81cbb4"
+    ],
+    [
+      "capture.rs",
+      "8cd8b1ddb2dce5a074065d1147e85789dffe539c2b1f18cab1065a04538456df"
+    ],
+    [
+      "desktop_capture.rs",
+      "9208ff47a0b7dab6feea49e6e77d3f96e3f7c3569010e3d7ce64f4d2e2b37e36"
+    ],
+    [
+      "lifetime.rs",
+      "c4e486f5f464f75cc4f28e1bf852d1d647191e8c899e3be3d367a3ec76c7c740"
+    ],
+    [
+      "linux_backend.py",
+      "ebe789ea3e86dbae1d0509b81ded359411d8b569991f559430f23ac1ce84ee06"
+    ],
+    [
+      "main.rs",
+      "e957be0216283b8abce6214aad6e9f378ee24491e3e6d80505d8745973d83544"
+    ],
+    [
+      "overlay.rs",
+      "fd0f7deac61470b050502ccb26bdf4ba2980b0613059d6f3d7ab265cdbc20a09"
+    ],
+    [
+      "protocol.rs",
+      "6b8b4877329aa52446a5f6418b5b7ee0616524952f9a45b8411b1e981979cb22"
+    ],
+    [
+      "uia.rs",
+      "46af97e845cd79c3c11fdc0472b82c5a4a01842702efd402bc25c600ad8737de"
+    ],
+    [
+      "windows_backend.rs",
+      "707109c6ec39c60ec2ea24cbd00ef4a714200ef075c1b553adb7a0a0f41b87c7"
+    ]
+  ],
+  "steps": [
+    {
+      "name": "native-tests",
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-r2-mw0alid9\\logs\\native-tests.log",
+      "elapsedMs": 44584
+    },
+    {
+      "name": "native-capture-protocol-prepare",
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-r2-mw0alid9\\logs\\native-capture-protocol-prepare.log",
+      "elapsedMs": 4069
+    }
+  ],
+  "status": "verified",
+  "previousRun": {
+    "id": "run:EZ01:permissions-native-mw0a3m76",
+    "status": "verified",
+    "steps": [
+      {
+        "name": "native-tests",
+        "exitCode": 0,
+        "signal": null,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-mw0a3m76\\logs\\native-tests.log",
+        "elapsedMs": 45664
+      },
+      {
+        "name": "native-capture-protocol-prepare",
+        "exitCode": 0,
+        "signal": null,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-mw0a3m76\\logs\\native-capture-protocol-prepare.log",
+        "elapsedMs": 5129
+      }
+    ]
+  },
+  "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-native-r2-mw0alid9\\temporary\\target\\debug\\azrael-window-control.exe",
+  "endedAt": "2026-11-03T06:15:06.373Z"
+}

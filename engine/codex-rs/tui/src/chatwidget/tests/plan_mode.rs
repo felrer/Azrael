@@ -810,6 +810,7 @@ async fn plan_implementation_popup_skips_replayed_turn_complete() {
     chat.replay_thread_turns(
         vec![AppServerTurn {
             root_resume_wait: None,
+            user_wait_timing: None,
             id: "turn-1".to_string(),
             root_turn_id: None,
             parent_turn_id: None,
@@ -854,6 +855,7 @@ async fn plan_implementation_popup_shows_once_when_replay_precedes_live_turn_com
     chat.replay_thread_turns(
         vec![AppServerTurn {
             root_resume_wait: None,
+            user_wait_timing: None,
             id: "turn-1".to_string(),
             root_turn_id: None,
             parent_turn_id: None,
@@ -1167,6 +1169,7 @@ async fn submit_user_message_queues_while_compaction_turn_is_running() {
             thread_id: thread_id.to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -1216,6 +1219,7 @@ async fn submit_user_message_queues_while_compaction_turn_is_running() {
             thread_id: thread_id.to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,

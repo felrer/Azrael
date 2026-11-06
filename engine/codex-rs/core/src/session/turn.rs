@@ -1694,11 +1694,7 @@ pub(crate) fn build_prompt(
     Prompt {
         tools: if incremental_tools {
             Arc::default()
-        } else if step_context.harness_profile.uses_claude_tools() {
-            step_context.tool_router.chat_specs_with_discovered(
-                &input,
-                crate::tools::router::ChatToolDiscoveryPolicy::RetainDiscovered,
-            )
+
         } else if model.starts_with("api/") {
             step_context.tool_router.chat_specs_with_discovered(
                 &input,
@@ -2017,6 +2013,14 @@ pub(crate) async fn built_tools(
     step_store: &ExtensionData,
     prepared_recommendations: PreparedToolRecommendations,
 ) -> CodexResult<Arc<ToolRouter>> {
+    step_store.insert(turn_context.skills_snapshot().as_ref().clone());
+    if let Some(ids) = turn_context.config.profile_mcp_server_ids() {
+        for id in ids {
+            if mcp.config().mcp_server_catalog.server(&id).is_none() {
+                return Err(CodexErr::InvalidRequest(format!("selected profile MCP server `{id}` is unavailable")));
+            }
+        }
+    }
     let all_mcp_tools = mcp.tools();
     let connector_snapshot = mcp.config().connector_snapshot.clone();
 
@@ -2339,6 +2343,7 @@ pub(super) fn realtime_text_for_event(msg: &EventMsg) -> Option<RealtimeEventTex
         | EventMsg::ThreadSettingsApplied(_)
         | EventMsg::TurnComplete(_)
         | EventMsg::TurnDeferred(_)
+        | EventMsg::UserWaitTimingUpdated(_)
         | EventMsg::RootResumeWaitUpdated(_)
         | EventMsg::TokenCount(_)
         | EventMsg::UserMessage(_)
@@ -2807,7 +2812,7 @@ async fn try_run_sampling_request(
     }
     let mut response_performance = turn_context
         .turn_timing_state
-        .begin_response_performance(step_context.settings.service_tier.as_deref());
+        .begin_response_performance();
     sess.set_server_reasoning_included(step_context.settings.model_info.use_responses_lite)
         .await;
     let mut stream = if crate::managed_catalog::is_managed(&step_context.settings.model_info.slug) {
@@ -3239,6 +3244,7 @@ async fn try_run_sampling_request(
                 response_id,
                 token_usage,
                 usage_metadata,
+                service_tier,
                 end_turn,
             } => {
                 let estimated = usage_metadata.as_ref()
@@ -3249,6 +3255,7 @@ async fn try_run_sampling_request(
                     .unwrap_or(false);
                 response_performance.complete(
                     token_usage.as_ref().filter(|_| !estimated).map(|usage| usage.output_tokens),
+                    service_tier.as_deref(),
                 );
                 sess.services
                     .analytics_events_client

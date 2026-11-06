@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "action": "recover-cleanup",
+  "source": {
+    "id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+    "kind": "run",
+    "owner": "/root/native_check_schedule-pilot",
+    "version": null,
+    "generation": null,
+    "revision": 2,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": {
+      "status": "stopped",
+      "outcome": "unknown",
+      "exit_code": null,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\reports\\producer.json",
+      "evidence_sha256": "52363f457862473c6eb62a66f14da216dc184c880ce8ae02c706f867d4ccf255",
+      "reason": "Exact fixed leaf stopped; observed child close and bounded source/CIM proof"
+    },
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\inputs",
+        "role": "inputs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\temporary",
+        "role": "temporary",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\logs",
+        "role": "logs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\reports",
+        "role": "reports",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z\\outputs",
+        "role": "outputs",
+        "generated": true,
+        "protection_known": true
+      }
+    ]
+  },
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "stop_basis": "Immutable lifecycle record predates the independently observed Windows kernel boot; no historical process tree survives reboot. Current matching process query returned zero; owner checks current incoming consumers and reservations.",
+  "membership_basis": "Original run owner already declares every generated member and its protection. Members are the single task run root and its nested role directories; no external destination is declared. Recovery preserves the original pending/unknown outcome and exact membership.",
+  "producer_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-primary-stop-proof.json",
+      "sha256": "16f7ac745a80544f31600bfd544fef37346293d81e37175545a58e7d2783556b"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-primary-original-1.json",
+      "sha256": "580d63dfea0b63fc652c9d6da47c55803ad09dc73f2f954cfbbd0ec8bc897842"
+    }
+  ]
+}

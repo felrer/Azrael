@@ -1,0 +1,3210 @@
+{
+  "schema": 1,
+  "scope": "Current remaining original native registry scope; not an exhaustive proof that all source/plugin/provider files are unused",
+  "metadata_retry": {
+    "retried": 25,
+    "success": 25,
+    "failure": 0,
+    "reviewed_groups": 125,
+    "reviewed_items": 192,
+    "present": 185,
+    "absent": 7,
+    "clear": [
+      {
+        "id": "run:CR-01-build-legacy-cleanup:protection-release-20261020-r1",
+        "live": 1,
+        "bytes": 4322283
+      },
+      {
+        "id": "run:CF-01-window-use-admin-setup:20261019-cache-management-root-r1",
+        "live": 1,
+        "bytes": 26437
+      },
+      {
+        "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-2",
+        "live": 1,
+        "bytes": 102364044
+      },
+      {
+        "id": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:integration",
+        "live": 2,
+        "bytes": 77219
+      },
+      {
+        "id": "run:CF-01-window-use-admin-setup:20261019-u23-registry-r1",
+        "live": 1,
+        "bytes": 3069
+      },
+      {
+        "id": "run:engine-check-retirement:r2",
+        "live": 1,
+        "bytes": 98169
+      },
+      {
+        "id": "run:DC-01-queue-question-wait-diagnosis:native-6",
+        "live": 1,
+        "bytes": 12879
+      },
+      {
+        "id": "run:CR-01-build-legacy-cleanup:inventory-20261019-r1",
+        "live": 1,
+        "bytes": 661690
+      },
+      {
+        "id": "run:CR-01-build-legacy-cleanup:module-preview-20261019-r1",
+        "live": 1,
+        "bytes": 8346
+      },
+      {
+        "id": "CR-01-retired-host-fixtures",
+        "live": 1,
+        "bytes": 0
+      },
+      {
+        "id": "run:test-scope-reduction:r1",
+        "live": 1,
+        "bytes": 20126
+      },
+      {
+        "id": "bn01-scope-fix-render-01",
+        "live": 1,
+        "bytes": 228634
+      },
+      {
+        "id": "bn01-scope-fix-tests-01",
+        "live": 1,
+        "bytes": 2609
+      },
+      {
+        "id": "bn01-scope-fix-tests-02",
+        "live": 1,
+        "bytes": 1234
+      },
+      {
+        "id": "cf01-logoff-disposable",
+        "live": 1,
+        "bytes": 0
+      },
+      {
+        "id": "du01-native-retrieval-perf-r1",
+        "live": 1,
+        "bytes": 13565
+      },
+      {
+        "id": "work:deployment-temporary:e24e915c4ffbf14916de423fdb9a62ddc0eaf91109139e47899ba01b53ecc2c0",
+        "live": 1,
+        "bytes": 0
+      },
+      {
+        "id": "engine-optimization-r18-default-native-summary",
+        "live": 0,
+        "bytes": 0
+      }
+    ]
+  },
+  "groups": [
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:integration",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 1,
+      "producer_references": [
+        {
+          "id": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:engine",
+          "reason": "Native approval verification is required by integrated source acceptance and future package acceptance.",
+          "reference_id": "fe439a986f0bdc22339ac7909dbd718631048652197fa83d4f0953117687c527"
+        },
+        {
+          "id": "work:CF-01-window-use-admin-setup",
+          "reason": "Retain source acceptance and failed-attempt evidence for separately authorized package and installed acceptance.",
+          "reference_id": "1331f4a529f415d109a5980433376abffc93f166a3054a49e077f9a59b45bf57"
+        }
+      ],
+      "items": [
+        {
+          "id": "01c99d154bd8a07bc5403c93e2737302457e8e8a296d19f5f9c59dab3248b754",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\host\\ledger-producer.json",
+          "remaining": true,
+          "registered_logical_bytes": 584,
+          "blockers": [
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "2711f10e8169123b83b6ec408c2883fb35d26c74357aac82984b818926a9cad1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\integration",
+          "remaining": true,
+          "registered_logical_bytes": 114857,
+          "blockers": [
+            "lifecycle membership source is read-only control evidence",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "31b28ff0ca02c3316b0844f9693c50ff71faee9287a14d0a34d79972387a4982",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\host\\ledger-unit.log",
+          "remaining": true,
+          "registered_logical_bytes": 1362,
+          "blockers": [
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "9a10a63181a722da8b10b6cea0e1c27e174ab464ba0af784e4d02004e560b6fe",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\host\\temporary",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "aa23be1c2f30a1c4318054842e90c4e3d71ba50e22c8344c08d712c33d2ba656",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\producer.json",
+          "remaining": true,
+          "registered_logical_bytes": 1498,
+          "blockers": [
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-5",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "0783bd3f422597e520a9b200e654e70766735f0628708ea264efa99b686f58af",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-5",
+          "remaining": true,
+          "registered_logical_bytes": 101717114,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:protection-release-20261020-r1",
+      "disposition": "archived; source native remaining false and producer finalized",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "0a40a14fe0b1ed0c06b8404e7fa3cd6b80654ea866ae8c9aac856fb3b150ddc0",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\protection-release-20261020-r1",
+          "remaining": true,
+          "registered_logical_bytes": 4322283,
+          "blockers": []
+        }
+      ],
+      "archive_root": "archive/EC-01-lock-retry-20261028-r1",
+      "source_absent_after_archive": true
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:compile-scope-1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 3,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "0aebd7f7572cf57b31e90d4187a974b9751903250122be2c305df23804517f6a",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-1-zero-tests-4sHaVX",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "references active or unknown",
+            "producer inbound consumer protects group: work:BI-01-legacy-custody:20261019",
+            "producer inbound consumer protects group: work:DM-01:preserved-nonlog-input-custody:20261024",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "446a1d79117a6f2cfe3b6f45dc5ee2d05f93d7552dda154b4d275ecf1d811e88",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-0-type-failure-oGaCIk",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "references active or unknown",
+            "producer inbound consumer protects group: work:BI-01-legacy-custody:20261019",
+            "producer inbound consumer protects group: work:DM-01:preserved-nonlog-input-custody:20261024",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "55852fe10d90b2682ffa0b6d5ee257ba2b97d699cc359169ea2780af91a398c1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\command-contract-7AAgeo",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "references active or unknown",
+            "producer inbound consumer protects group: work:BI-01-legacy-custody:20261019",
+            "producer inbound consumer protects group: work:DM-01:preserved-nonlog-input-custody:20261024",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "67a39a25ec2c696067682f7c1b0c0e32610f28d11eca27578a37c87179fe74b1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-1-inconsistent-interruption-ELN4I2",
+          "remaining": true,
+          "registered_logical_bytes": 1224,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "references active or unknown",
+            "producer inbound consumer protects group: work:BI-01-legacy-custody:20261019",
+            "producer inbound consumer protects group: work:DM-01:preserved-nonlog-input-custody:20261024",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "73cac88d27a51917e60ed2d181a34cad7d938cd4f1ed241a776bac4743fdb4ae",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\compile-scope-1",
+          "remaining": true,
+          "registered_logical_bytes": 166179286,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "producer inbound consumer protects group: work:BI-01-legacy-custody:20261019",
+            "producer inbound consumer protects group: work:DM-01:preserved-nonlog-input-custody:20261024",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "786f406c2c886dc58b016cb2fda2bc42f9c253ab9adc20d10a8d3dc12c629256",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-0-missing-tool-LMwZMh",
+          "remaining": true,
+          "registered_logical_bytes": 1131,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "references active or unknown",
+            "producer inbound consumer protects group: work:BI-01-legacy-custody:20261019",
+            "producer inbound consumer protects group: work:DM-01:preserved-nonlog-input-custody:20261024",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "c9fef60504b78f6f7973779c117caabd76d7df4ec93de98de50e709b4f6e6189",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-0-interruption-oFmHKl",
+          "remaining": true,
+          "registered_logical_bytes": 1136,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "references active or unknown",
+            "producer inbound consumer protects group: work:BI-01-legacy-custody:20261019",
+            "producer inbound consumer protects group: work:DM-01:preserved-nonlog-input-custody:20261024",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "e7fac9aa5b0f66ba2ef72843d0a533ef3baf0ec0772fa96fcd3bfc20309b5eaa",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cargo-owner-tests\\gate-1-selection-failure-kv2gW3",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "references active or unknown",
+            "producer inbound consumer protects group: work:BI-01-legacy-custody:20261019",
+            "producer inbound consumer protects group: work:DM-01:preserved-nonlog-input-custody:20261024",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "0cdda5dcce85de0b0792c781e4be460a27c0801dda44a64a693de49ebae9d068",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 602,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete"
+          ]
+        },
+        {
+          "id": "7a84aaf689442a17334539eebc028b94d5e6c1772a2b4a7d060997f758c73558",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 263323,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CX-01:shutdown-r1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 5,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "0fbb3575dee7a29730016e3726d85bab09859a1c3b659d54efda4626701ad3eb",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22a",
+          "remaining": true,
+          "registered_logical_bytes": 476162831,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer projected membership differs from registered member roots or roles"
+          ]
+        },
+        {
+          "id": "34cb1a2774581902675962605e5f5a6902f6ba91b920e2f20862ea20d9646385",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CX-01-azrael-auth-recovery\\runs\\shutdown-r1",
+          "remaining": true,
+          "registered_logical_bytes": 521985369,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer projected membership differs from registered member roots or roles"
+          ]
+        },
+        {
+          "id": "6871ad60645a1e76b84508e1ecb242bafb5cd3c4bbf13f60a94a46e8a068af89",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\cx22b",
+          "remaining": true,
+          "registered_logical_bytes": 198961738,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer projected membership differs from registered member roots or roles"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "version:maintenance-owner:dx05",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "13ef51a9a1b91caa11a927558838fa14ce8b2725486614612ae28fd7b8229ca5",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6f6f874e-win-x64-dx05",
+          "remaining": true,
+          "registered_logical_bytes": 1635228,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:test-scope-reduction:policy",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:windows-2026-0-9:test-scope-reduction-policy",
+          "reason": "Wrapper uses the actual test runner result; only the runner owns generated output.",
+          "reference_id": "674d52606c47bc74818f5c13480e6c535d3c29ddef35500622ab648ce685eaa0"
+        }
+      ],
+      "items": [
+        {
+          "id": "18f15fc18d9e4c4d1668b299de249c283134d53cf423ec26e66c9a4f4ade6a9f",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\test-scope-reduction-policy",
+          "remaining": true,
+          "registered_logical_bytes": 340544,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "1c70f92c4a0ebcc83138c4bdd270008dae072400828f48c92161b1cd8dae0fd6",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66\\temporary",
+          "remaining": true,
+          "registered_logical_bytes": 16654312,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-cache-management-root-r1",
+      "disposition": "persistent producer dependencies/evidence not released",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "work:CF-01-window-use-admin-setup",
+          "reason": "cache-management-integration",
+          "reference_id": "ebc3325d056dab2b9efc846b76a2212bac8b56b1708d0b15b26a36d59b740a7b"
+        },
+        {
+          "id": "work:CF-01-window-use-admin-setup",
+          "reason": "cache-management-integration-evidence",
+          "reference_id": "ed604c88c63bb82bf11423255e3a4fc7975fa75177503aedc2205ff054533a75"
+        }
+      ],
+      "items": [
+        {
+          "id": "1e228adb298f8d85339b350f930f5d7956b0ad10ef675d25c59edc64ef60eb5a",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-management-root-r1",
+          "remaining": true,
+          "registered_logical_bytes": 26437,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:schemas-1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "2013907533bd0a73faf5ed4903c2e6ac709fe2c8e1069e454a3c8bfc4125a862",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\schemas-1",
+          "remaining": true,
+          "registered_logical_bytes": 8876931,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-8",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-3",
+          "kind": "dependency",
+          "reason": "Frozen native verification inputs",
+          "reference_id": "e4e8ab14f14362360b42462652ee441e09c572188ff03107019a8bd6ec320953"
+        },
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-7",
+          "kind": "evidence",
+          "reason": "Passing accepted/compact/turn scopes reused",
+          "reference_id": "15b9271ad5e1a21b0ce27d6ade2ef0b6821dfd813f84d7bffb9272086cd5c900"
+        }
+      ],
+      "items": [
+        {
+          "id": "247b29defa3fc591108a510252290e3c4d6220b45726ec88228297ba1d5da48d",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-8",
+          "remaining": true,
+          "registered_logical_bytes": 51761,
+          "blockers": [
+            "references active or unknown",
+            "producer inbound consumer protects group: run:DC-01-queue-question-wait-diagnosis:native-9",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:compile-scope-2",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "24a18a5873d27e6324716e4a2e6be768a09832215690f56290c20484e6ec2e7e",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\compile-scope-2",
+          "remaining": true,
+          "registered_logical_bytes": 101638959,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "26f7a269f3b3d08104c67ecfda52468961b6a83752d3281826e5d24e8e35b104",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+          "remaining": true,
+          "registered_logical_bytes": 83066,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-2",
+      "disposition": "persistent producer dependencies/evidence not released",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:reply-native-2",
+          "kind": "evidence",
+          "reason": "Reuses immutable source baseline whose native checks passed",
+          "reference_id": "9fd657ddd575c940b8da92991d59b8e2b7614c28c5e2e87477b3e468334dab03"
+        }
+      ],
+      "items": [
+        {
+          "id": "293dfb90102112c81e3027c7f7961a4620b3be2a688af9b587394784ac1aa070",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-2",
+          "remaining": true,
+          "registered_logical_bytes": 102364044,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T003606886Z-fbf867fa-5714-4a31-87d4-40c9144494bb",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "2a45f8d2ac3f59f3f5d813e708c0606066d32dc051fc7e46109bfa0891cff3e1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003606886Z-fbf867fa-5714-4a31-87d4-40c9144494bb",
+          "remaining": true,
+          "registered_logical_bytes": 577411,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:integration",
+      "disposition": "persistent producer dependencies/evidence not released",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "work:CF-01-window-use-admin-setup",
+          "reason": "Automatic child reconnect source verification and future installed acceptance.",
+          "reference_id": "1775e28f307a1be38ce05791a5245cec96ab0faad3d9fee2e362da695f7cad4e"
+        },
+        {
+          "id": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:native",
+          "reason": "Final helper and native checks substantiate source reconnect acceptance.",
+          "reference_id": "df86f17d8d8f9c5515e65f30ef86c90b7faebfc2ec1d64c19705b25ce13b67aa"
+        },
+        {
+          "id": "cf01-reconnect-r1-manager",
+          "reason": "Manager mock race/no-replay evidence supports integrated source acceptance.",
+          "reference_id": "cd1ff7c2e0751f358268dedf7f2f4c3231d07b3d562e6e6b2b61dc962d6575cc"
+        },
+        {
+          "id": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:engine",
+          "reason": "Current host retains async approval engine contract; keep its verified native evidence for future package.",
+          "reference_id": "d71dcf2e85c7a1d4ad5a1291c7f02f49ecf551617fa7fd4695791ec82d0c3dff"
+        }
+      ],
+      "items": [
+        {
+          "id": "2ae377ce9dc9071806daf6a3154483d25f449b2125195495da99736ed1305c88",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-reconnect-r1\\producer.json",
+          "remaining": true,
+          "registered_logical_bytes": 2645,
+          "blockers": []
+        },
+        {
+          "id": "61cc5d1a80d2207607ada27f9e43607b7cdfff8ce67941054184b4c1589a9306",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-reconnect-r1\\integration",
+          "remaining": true,
+          "registered_logical_bytes": 74574,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-u23-registry-r1",
+      "disposition": "persistent producer dependencies/evidence not released",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "work:CF-01-window-use-admin-setup",
+          "reason": "build-integration",
+          "reference_id": "23e9adee9c26efa7846cbecbad069a41a0cd6a3c8302ec34a5aed908b9cd1ba3"
+        }
+      ],
+      "items": [
+        {
+          "id": "2c25c0bf72fc4a9fbd59c22eb06cf02bd223a941fed246e09cf2735016acc451",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-u23-registry-r1",
+          "remaining": true,
+          "registered_logical_bytes": 3069,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "2c72d018a367f10fd0849348474046d494ca989e11453a99253dd595b83c241b",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-1",
+          "remaining": true,
+          "registered_logical_bytes": 106689080,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:sdk-1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-3",
+          "kind": "dependency",
+          "reason": "Immutable source for SDK verification",
+          "reference_id": "089959667e194fd3073b32ec4dcd260144caa44960d0df0dc9470ef2e6cf6ada"
+        }
+      ],
+      "items": [
+        {
+          "id": "2cc8b85e1b3658c9c3f9bec19639f79cc9eaa597c0c2f08f6e5c4e743fd9a920",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\sdk-1",
+          "remaining": true,
+          "registered_logical_bytes": 903,
+          "blockers": [
+            "references active or unknown",
+            "producer inbound consumer protects group: run:DC-01-queue-question-wait-diagnosis:native-4",
+            "producer inbound consumer protects group: run:DC-01-queue-question-wait-diagnosis:native-5",
+            "producer inbound consumer protects group: run:DC-01-queue-question-wait-diagnosis:native-6",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:permission-disabled-host:rmvl4okue",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "2f3825b47d072249bc002366bd66ddbeefd9862aae7c857a4390f7cfb662b0df",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\permission-disabled-host\\runs\\rmvl4okue",
+          "remaining": true,
+          "registered_logical_bytes": 191186,
+          "blockers": [
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "d32e64041f1429dea6f58d7de85a02da06ab87bf53ca7976bfdceb479bb89ea0",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\pd13",
+          "remaining": true,
+          "registered_logical_bytes": 2142679844,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "outside configured managed roots",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:verify-window-native-approval-render:20261019T014508252Z-c874bae8-cc27-4675-a709-f239e279a92a",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "3148b23e116352d06d334f0fcc30328d552996db08cc237e7e048f8918472436",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-window-native-approval-render\\runs\\20261019T014508252Z-c874bae8-cc27-4675-a709-f239e279a92a",
+          "remaining": true,
+          "registered_logical_bytes": 55466397,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "work/BB-01-btw-scope-diagnosis/03-plan.md",
+          "reason": "Source verification and pending installed acceptance",
+          "reference_id": "e804dbc397d07ce6754e1d25059d8672c56803de8706d007254b8bf3ae4022ba"
+        }
+      ],
+      "items": [
+        {
+          "id": "3933b39447b18380faf9cebf5761aaaf361772739bc1b1d3816caa6fdde54e07",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+          "remaining": true,
+          "registered_logical_bytes": 53196,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01:host-4c720674",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "3acc71d235a128bfc5c2c89f9b93e4316b586de491305a4fcac33fb372f34135",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-4c720674",
+          "remaining": true,
+          "registered_logical_bytes": 27179,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DH-01-project-storage-review:retire-old-v2",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 4,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "3c0f1bb6f6b270228d28417091e93eb3672258264db6edc3cd566f00bfe8e89a",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DH-01-project-storage-review\\runs\\retire-old-v2",
+          "remaining": true,
+          "registered_logical_bytes": 15383995,
+          "blockers": [
+            "references active or unknown",
+            "producer inbound consumer protects group: work:DH-01-project-storage-review:retention",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:engine-check-retirement:r2",
+      "disposition": "raw ownership/protection evidence incomplete",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "3cdc472d9d129d7dad5ee41ddc874a3007caa515ff1a28f7e34d6dee42b9b165",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r2",
+          "remaining": true,
+          "registered_logical_bytes": 98169,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:compile-scope-3",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "3e7fc5d347e45038e1cf16e11ed8571ff400f1cb3a136bfc942d18d0cec0f191",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\compile-scope-3",
+          "remaining": true,
+          "registered_logical_bytes": 104443070,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-2",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 1,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "440726894d12631238b703e0a0a337a2425b47aec35d3b60cafe11e906adbda5",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-2",
+          "remaining": true,
+          "registered_logical_bytes": 100238159,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DM-01-legacy-custody:bwd2",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "work:BW-01-profile-dedup-run-03",
+          "kind": "dependency",
+          "reason": "Retained verified BW03 source supplies identical base for exact BW02 recovery with retained two-file patch",
+          "reference_id": "98e1b17b38de63288956dd1ed01226ef439265c9213208664f75a9a9ddcec06f"
+        }
+      ],
+      "items": [
+        {
+          "id": "4c378ff1dd59ed2a232fc2c15c4dfe510e81b118f423d5fa7343cbf26dbabfec",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-legacy-custody\\runs\\bwd2",
+          "remaining": true,
+          "registered_logical_bytes": 7307741,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "52d4173bb6affcc8b16dd81ea005be62fd91fb20cbb5155896f0f98e358ab03d",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+          "remaining": true,
+          "registered_logical_bytes": 224266,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-7",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-3",
+          "kind": "dependency",
+          "reason": "Frozen native verification inputs",
+          "reference_id": "e4e8ab14f14362360b42462652ee441e09c572188ff03107019a8bd6ec320953"
+        },
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-5",
+          "kind": "evidence",
+          "reason": "Passing async-question scope reused",
+          "reference_id": "bbdaaa12408b3d13331bf4cc18cacbf4ca7605edc4a5e7cd0e4e828ad2c52eb1"
+        }
+      ],
+      "items": [
+        {
+          "id": "5314ed8c03bff8068e60ffd63fbff37a6d9ff2e7c2662c8349fa4eb84acd0dae",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-7",
+          "remaining": true,
+          "registered_logical_bytes": 159625,
+          "blockers": [
+            "references active or unknown",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:group-tool-review-20261019-r1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "564edbfb9742ba934fc27fe7cbdbbf353fba8e3988af51903ba39cfcf1cefd5f",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CR-01-build-legacy-cleanup/runs/group-tool-review-20261019-r1",
+          "remaining": true,
+          "registered_logical_bytes": 48517,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-4",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "58118fb04717e6571060b8f241d35de987c6697419f94df1534712aa74e12bf5",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-4",
+          "remaining": true,
+          "registered_logical_bytes": 101727888,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:DW14:pty-unmanaged-cache-r3",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "64ca36af8abeeb4137b9723b5a22de129b0d47ca60960cf3561ea63e9b936834",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:lifecycle-check:080d3acc-97d0-40d1-a5b0-cc7d92315698",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "65ee82bffd95c521f799dda1dfc92c486ee2f090b6b24aeff321834b72c018b4",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\080d3acc97d040d1a5b0cc7d92315698",
+          "remaining": true,
+          "registered_logical_bytes": 9471651,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DN-01:approved-log-retirement-20261024-r2",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "66721d2c79e7728a0dbb2fe24b6511a5abd23c1c28f92d8a0c7aaed31f8b9d0c",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DN-01-disk-cleanup-candidates\\runs\\approved-log-retirement-20261024-r2\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 206819,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-5",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-3",
+          "kind": "dependency",
+          "reason": "Immutable engine source 42db1ed55584f53dd494bd712d77de7cd742c7b1981969f15b3f3ff2a77b2a75",
+          "reference_id": "d5fcb00af0dc6deb77c21c6fef00d73b6f4dfde7cfa048b0a30b464900759699"
+        },
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:sdk-1",
+          "kind": "evidence",
+          "reason": "SDK pass for identical frozen source",
+          "reference_id": "517dfe9995e98bb4080c51d035b26d82c8584b5e09ff363175aee93a97d6e9cb"
+        }
+      ],
+      "items": [
+        {
+          "id": "66a4a91a7f2d16980a341022b72464854c76aee59bffc20c1304c3e71cc18dfd",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-5",
+          "remaining": true,
+          "registered_logical_bytes": 94301,
+          "blockers": [
+            "references active or unknown",
+            "producer inbound consumer protects group: run:DC-01-queue-question-wait-diagnosis:native-6",
+            "producer inbound consumer protects group: run:DC-01-queue-question-wait-diagnosis:native-7",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-5",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:reply-native-2",
+          "kind": "evidence",
+          "reason": "Reuses immutable source baseline whose native checks passed",
+          "reference_id": "9fd657ddd575c940b8da92991d59b8e2b7614c28c5e2e87477b3e468334dab03"
+        }
+      ],
+      "items": [
+        {
+          "id": "6c1c4117994214617a879a7b8ff6af30a2b8d35926efabb8b45a53d77b9da1f0",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-5",
+          "remaining": true,
+          "registered_logical_bytes": 102382836,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-6",
+      "disposition": "persistent producer dependencies/evidence not released",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-3",
+          "kind": "dependency",
+          "reason": "Same immutable engine inputs 42db1ed55584f53dd494bd712d77de7cd742c7b1981969f15b3f3ff2a77b2a75",
+          "reference_id": "05611e558d844ca28fddfc9119e3f8a2cfa70c1844e2285c4caffb0abb90ed9c"
+        },
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-5",
+          "kind": "evidence",
+          "reason": "Reuse successful async-question command from interrupted aggregate",
+          "reference_id": "dc3b1e7e67be057afed067156b99bf9a6176ba22f0d2feb12b23f0429824763d"
+        },
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:sdk-1",
+          "kind": "evidence",
+          "reason": "Reuse SDK compatibility pass",
+          "reference_id": "e025a727ede2a38ef4a7f1c2362c7372dc493afc6996154a29aee7dc8ffbc19c"
+        }
+      ],
+      "items": [
+        {
+          "id": "7102ab138d62035e3b6504a26b23c1c1b60c80772e7140f7fdc03889b36087de",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-6",
+          "remaining": true,
+          "registered_logical_bytes": 12879,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002847408Z-54f38789-20c8-463a-8270-334f7d90aa08",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "77f1a32c05ec077e34f5f126e59d50900279511b93cde715dcda541e2f7b15a3",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002847408Z-54f38789-20c8-463a-8270-334f7d90aa08",
+          "remaining": true,
+          "registered_logical_bytes": 577198,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-3",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:reply-native-2",
+          "kind": "evidence",
+          "reason": "Reuses immutable source baseline whose native checks passed",
+          "reference_id": "9fd657ddd575c940b8da92991d59b8e2b7614c28c5e2e87477b3e468334dab03"
+        }
+      ],
+      "items": [
+        {
+          "id": "7e665271d02493698005aaec0e3b9fc3c412374990142bda1ba3126e783f709d",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-3",
+          "remaining": true,
+          "registered_logical_bytes": 102339424,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CF-01-cache-lease-r1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "cache-lease-implementation",
+          "reason": "Focused verification pending; retain output until integration review",
+          "reference_id": "ca0124ef8e3af4ad72f26014547242a6e0df4023a69043d689dca37051d4a30b"
+        }
+      ],
+      "items": [
+        {
+          "id": "8bf4051754ad8ebea0aabb2920f0c87b478ba3d599d2977532780e4a86092ef2",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1",
+          "remaining": true,
+          "registered_logical_bytes": 9932,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DH-01-project-storage-review:retire-old-v3",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "8e58862049c6340a6eaec67efe1b3cfc82e1ff8b017a0d3ffda115b3d112dbfa",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/DH-01-project-storage-review/runs/retire-old-v3",
+          "remaining": true,
+          "registered_logical_bytes": 734369,
+          "blockers": [
+            "references active or unknown",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:temporary",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "976cc076db16517789e84e6e2bf9e6cb84e2339188f072fb2e17bc06be9e0793",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\temporary",
+          "remaining": true,
+          "registered_logical_bytes": 35073498,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "producer owner membership is not complete"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "version:engine-original-ccbcbf93",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "BU-01-engine-original",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\shared\\engine-original-ccbcbf93",
+          "remaining": true,
+          "registered_logical_bytes": 95478457,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-error-specificity-run-01",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "BU-01-error-specificity-logs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\error-specificity\\runs\\01\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 325424,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "BU-01-error-specificity-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\error-specificity\\runs\\01\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 301060,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-02",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-02-logs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\02\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 135,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-02-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\02\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 10366,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-03",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-03-logs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\03\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 479698,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-03-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\03\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 305714,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-04",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-04-logs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\04\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 6740,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-04-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\04\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 92410,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-05",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-05-logs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\05\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 12636,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-05-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\05\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 50126,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BU-01-refusal-cause-run-01",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "BU-01-refusal-cause-logs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\01\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 1111,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "BU-01-refusal-cause-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\refusal-cause\\runs\\01\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 34785,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BW-01-profile-dedup-run-03",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "BW-01-final-verification",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\bw3",
+          "remaining": true,
+          "registered_logical_bytes": 101477370,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CG-01-implementation-01",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "CG-01-implementation-01-files",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CG-01-startup-session-performance-review\\runs\\implementation-01",
+          "remaining": true,
+          "registered_logical_bytes": 189656165,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:inventory-20261019-r1",
+      "disposition": "raw ownership/protection evidence incomplete",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "CR-01-legacy-inventory",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\inventory-20261019-r1",
+          "remaining": true,
+          "registered_logical_bytes": 661690,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:module-preview-20261019-r1",
+      "disposition": "raw ownership/protection evidence incomplete",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "CR-01-legacy-module-preview",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\module-preview-20261019-r1",
+          "remaining": true,
+          "registered_logical_bytes": 8346,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "CR-01-retired-host-fixtures",
+      "disposition": "historical deletion conflicts with extant path/custody",
+      "items": [
+        {
+          "id": "CR-01-retired-fixture-h20",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/h20",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "CT-01-orphan-output-r1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 4,
+      "producer_references": [
+        {
+          "id": "CT-01-orphan-output-recovery",
+          "reason": "active native regression",
+          "reference_id": "4e2034f5ba2aa66909fbf81c9d7117a5deaa9946cdad0ff389c69457ef4d936e"
+        },
+        {
+          "id": "CT-01-orphan-output-recovery",
+          "reason": "active native regression; retry after tool timeout",
+          "reference_id": "b6d07472a73eda71270bbdf673534be6fcff51de99db1e746eb4f842bb829ae8"
+        },
+        {
+          "id": "CT-01-orphan-output-recovery",
+          "reason": "correct classification assertion and rerun; preserve failed immutable inputs",
+          "reference_id": "99ca122f5b4fc72b051f0a544d0a90187df4ca893e0c3fdacd77f6f8696bb9b2"
+        }
+      ],
+      "items": [
+        {
+          "id": "CT-01-evidence-0",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/orphan-output-recovery/runs/20261019-r1",
+          "remaining": true,
+          "registered_logical_bytes": 1824100,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "CT-01-evidence-1",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/orphan-output-recovery/runs/20261019-r2",
+          "remaining": true,
+          "registered_logical_bytes": 90046,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "CT-01-evidence-2",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/orphan-output-recovery/runs/20261019-r3",
+          "remaining": true,
+          "registered_logical_bytes": 2241738,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "CT-01-source-0",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/ct01",
+          "remaining": true,
+          "registered_logical_bytes": 99903061,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "CT-01-source-1",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/ct01-r2",
+          "remaining": true,
+          "registered_logical_bytes": 99902637,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "CT-01-source-2",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/build/ct01-r3",
+          "remaining": true,
+          "registered_logical_bytes": 99903061,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DB01:native-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "DB01-native-r1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DB-01-window-child-logoff\\runs\\native-r1",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DB01:native-r2",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "DB01-native-r2",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DB-01-window-child-logoff\\runs\\native-r2",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DK-01:native-backend-fixtures",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "DK-01-native-backend-fixtures",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\native-backend",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:DK-01:private-skills-evidence-20261025",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "DK-01-private-skills-logs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\private-skills-20261025-b1b49cd2\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 36048,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "DK-01-private-skills-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\private-skills-20261025-b1b49cd2\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 10731,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:DW-01:source-threshold-unregistered-fixtures",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "DW-01-safe-source-fixture-063",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\AF-01-resume-install\\optimization-20min\\cargo-schema4-mock-benchmark.json",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:engine-check-retirement-r1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 1,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "a0679b7ab589b502f120619ceedac0eebd852790966595cc4ec5be9e1fa20e47",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r1",
+          "remaining": true,
+          "registered_logical_bytes": 20971,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle group membership is incomplete",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T003712055Z-ed612182-8ec1-4aa2-9fd3-bbc09b3f92df",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "a414f8fb761a026071c51d4bcb0aa3e3fad30905e2351ecd0a5828f0f5a7a5fb",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003712055Z-ed612182-8ec1-4aa2-9fd3-bbc09b3f92df",
+          "remaining": true,
+          "registered_logical_bytes": 571752,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-3",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "a79cdcd163a1398514f8ec463a73c10956760ab58d9fb123a1776bb1e34e4bf5",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-3",
+          "remaining": true,
+          "registered_logical_bytes": 104569037,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01:host-35dac893",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "a88a452f3f8b123dd3a93b69aba6f73e04a813fea402d1a60494b1c96e5e4896",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893",
+          "remaining": true,
+          "registered_logical_bytes": 38460,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CN-01-catalog-modules:ui-1792388395582-d1a343de:evidence",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "ad07ecd044fe288480c4481992bd865a94e2c4e672c5a6e0795b1998c65084e2",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 409046,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        },
+        {
+          "id": "dc17393fccaf5a1b2cbf28a978e6f6abf8b1cf552e2ed67746cb4c707780bf6d",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792388395582-d1a343de\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 3701,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DM-01-boundary-pilot:cancel-20261023T144738817Z",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "ad0eb15ef4253ec46a81e264337b09284f91ff2133cba14d6e33d5a82e526db6",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z",
+          "remaining": true,
+          "registered_logical_bytes": 3611,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-2",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "ad4850f2a3fdfe07bea3fa6c8711c91268759aafc226d7a10481c3e00422581e",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-2",
+          "remaining": true,
+          "registered_logical_bytes": 101601165,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:native-6",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "af6afe09e0817c2479af67f36b75cfdc5285a7d98373ff1b3aaf8592d9db00bd",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\native-6",
+          "remaining": true,
+          "registered_logical_bytes": 104358319,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002152367Z-722d1796-bbc6-4543-b4ba-c8faaf2e8c49",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "b328b365c8a393d80b7680cfc4d009497c920a7d4d2cbb848bbfbd1621073398",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002152367Z-722d1796-bbc6-4543-b4ba-c8faaf2e8c49",
+          "remaining": true,
+          "registered_logical_bytes": 1361790,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:test-scope-reduction:r1",
+      "disposition": "raw ownership/protection evidence incomplete",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "b4732815775cea576dcc199efb2475f7cf87508f90b0f9dce2d0712533ade415",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\test-scope-reduction-r1",
+          "remaining": true,
+          "registered_logical_bytes": 20126,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "run:BB-01-btw-panel-route:20261019T034436213Z-c7b81c71-30b4-45d2-adcf-729533a9736e",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "work/BB-01-btw-scope-diagnosis/03-plan.md",
+          "reason": "Source verification and pending installed acceptance",
+          "reference_id": "e804dbc397d07ce6754e1d25059d8672c56803de8706d007254b8bf3ae4022ba"
+        }
+      ],
+      "items": [
+        {
+          "id": "b7ede202355675f4e9dbfcadf9e8ef93b2e26417b2c2af9aeb81a5f08c015b25",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034436213Z-c7b81c71-30b4-45d2-adcf-729533a9736e",
+          "remaining": true,
+          "registered_logical_bytes": 7938,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:instruction-yazl-a",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:instruction-host-iv17",
+          "reason": "Final six-stage host acceptance evidence consumed by installation report",
+          "reference_id": "02d41ae41ab855fd93cecaf7216158ca3242c2d28281b2cda5eee1edb774ceb5"
+        }
+      ],
+      "items": [
+        {
+          "id": "ba4391a7e3361ae47756c0768c4cb3e0de5d98f5b2ab903080f349704788468c",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\instruction-yazl\\runs\\a",
+          "remaining": true,
+          "registered_logical_bytes": 21481355,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "references active or unknown",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-4",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-3",
+          "kind": "dependency",
+          "reason": "Reuse immutable engine inputs 42db1ed55584f53dd494bd712d77de7cd742c7b1981969f15b3f3ff2a77b2a75",
+          "reference_id": "1f4833d60a02416bc35b8d2bd9a5846855e00b1122c1b6fbe9b878c45febc2e0"
+        },
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:sdk-1",
+          "kind": "evidence",
+          "reason": "Reuse SDK compatibility pass for identical frozen models",
+          "reference_id": "323f388c45fa8e6270c82178631b45b7a17a2e3a3b5b6382c884bb92ea9aea4b"
+        }
+      ],
+      "items": [
+        {
+          "id": "bd8e8ebdb65dcdfe31668ba4939da63c5bb296ebda70dd36615936dcceddd3bf",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-4",
+          "remaining": true,
+          "registered_logical_bytes": 1708,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:DH-01-project-storage-review:retention",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 3,
+      "producer_references": [
+        {
+          "id": "run:DH-01-project-storage-review:retire-old-v2",
+          "kind": "evidence",
+          "reason": "Current storage-review work consumes immutable deletion/verification/failure records until remaining32 partitions and additional approval are resolved",
+          "reference_id": "b4f7f8821ce4f00e9f443fcf2d072bddd0f4f3a266746b2431bb17664e296717"
+        },
+        {
+          "id": "run:DH-01-project-storage-review:retire-old-v3",
+          "kind": "evidence",
+          "reason": "Current approved three-root cleanup consumes immutable v3 native decisions and restoration evidence",
+          "reference_id": "be1b56f0c11cd5affa1da345ff56b4be4261e9df721188ee050fac4e54651054"
+        }
+      ],
+      "items": [
+        {
+          "id": "be906b29f70c655c7c9d5bb7916e3f3846586033231196e5719b2878794a1210",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/DH-01-project-storage-review/retention",
+          "remaining": true,
+          "registered_logical_bytes": 1947,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-9",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-3",
+          "kind": "dependency",
+          "reason": "Base frozen source, test-only overlay",
+          "reference_id": "5f70ddf9ee247274cdde4e8874529fe8851bd54225b5d2cfe9940f2d0181b1cd"
+        },
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:native-8",
+          "kind": "evidence",
+          "reason": "Passing full queue scope; product bytes unchanged",
+          "reference_id": "c28b17acf9f9d01c30d5435e3bb820873a11ece335cb9b29ecef5329a9147fd7"
+        }
+      ],
+      "items": [
+        {
+          "id": "bec8232adf1002f958850f7fa4030de0b336c5f6ea4e18957fb5ff9b56de2caf",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-9",
+          "remaining": true,
+          "registered_logical_bytes": 107654900,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bn01-scope-fix-render-01",
+      "disposition": "manual owner/evidence procedure required",
+      "items": [
+        {
+          "id": "bn01-scope-fix-render-01-evidence",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BN-01-image-sketch\\runs\\scope-fix-render-01",
+          "remaining": true,
+          "registered_logical_bytes": 228634,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "bn01-scope-fix-tests-01",
+      "disposition": "manual owner/evidence procedure required",
+      "items": [
+        {
+          "id": "bn01-scope-fix-tests-01-evidence",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BN-01-image-sketch\\runs\\scope-fix-tests-01",
+          "remaining": true,
+          "registered_logical_bytes": 2609,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "bn01-scope-fix-tests-02",
+      "disposition": "manual owner/evidence procedure required",
+      "items": [
+        {
+          "id": "bn01-scope-fix-tests-02-evidence",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BN-01-image-sketch\\runs\\scope-fix-tests-02",
+          "remaining": true,
+          "registered_logical_bytes": 1234,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "bx01-retirement-evidence",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "bx01-retirement-control",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BX-01\\control",
+          "remaining": true,
+          "registered_logical_bytes": 5899,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "bx01-retirement-evidence-files",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BX-01\\evidence\\retirement-01",
+          "remaining": true,
+          "registered_logical_bytes": 28959,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:window-use-diagnostic-20261018-r1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 3,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "c02a8fd87a5d0b0b3c8e29a894834ab28b1dfdaeb731bb3402ffb58c4ee1d26f",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\wd18",
+          "remaining": true,
+          "registered_logical_bytes": 24993009,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "f2d8d47257b0d57c7348f983a256d64bde5d1a24ddbcd8ac5bb5e6d07b625978",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261018-diagnostic-r1",
+          "remaining": true,
+          "registered_logical_bytes": 53297,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DM-01-boundary-reform:postinstall-retirement-r1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 3,
+      "producer_references": [
+        {
+          "id": "run:DM-01-boundary-reform:impl-r1",
+          "kind": "evidence",
+          "reason": "Retain exact task-only hidden cleanup callers and scope restoration source for reproduction",
+          "reference_id": "0b030a820211bd2d8bd6d4f1a46a71847045f64f56569bf9e073d6efff98ae70"
+        }
+      ],
+      "items": [
+        {
+          "id": "c1608b9f90240ffcb88eae2c430b1c8bfd14c88d9a03863bc9744ae1a3514e43",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-reform\\runs\\postinstall-retirement-r1",
+          "remaining": true,
+          "registered_logical_bytes": 1468907,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CL-01-question-withdrawal:cargo-preflight-1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 3,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "c442358784b16c124a7149b836ab375494e7c640b6b117b3d17fa1a9e0771293",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CL-01-question-withdrawal\\runs\\cargo-preflight-1",
+          "remaining": true,
+          "registered_logical_bytes": 13286626,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DM-01-boundary-pilot:unknown-proof-refusal-20261023T144746673Z",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "c651050f2dd90c849b6961f3a7977be7f4dd3c29fa9c2ce087d96437c7b20463",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\unknown-proof-refusal-20261023T144746673Z",
+          "remaining": true,
+          "registered_logical_bytes": 2583,
+          "blockers": [
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-async-approval-r1:engine",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "work:CF-01-window-use-admin-setup",
+          "reason": "Source/native approval integration and future separately authorized package acceptance need immutable inputs, failed diagnostics, schema and terminal verification receipts.",
+          "reference_id": "b51721357406b78b04e4fb762ee726592cf50a174ffafdb47fa958db6fd440cc"
+        }
+      ],
+      "items": [
+        {
+          "id": "c98231fea92bf529b3719467ff762c529f40879fa49bad74586b0477921d51ec",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\engine",
+          "remaining": true,
+          "registered_logical_bytes": 950947515,
+          "blockers": [
+            "references active or unknown",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-4",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:reply-native-2",
+          "kind": "evidence",
+          "reason": "Reuses immutable source baseline whose native checks passed",
+          "reference_id": "9fd657ddd575c940b8da92991d59b8e2b7614c28c5e2e87477b3e468334dab03"
+        }
+      ],
+      "items": [
+        {
+          "id": "cb73558e68d6518b85871f8d5503e7241e7b150f31f71e02f03a1b341b3465fb",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-4",
+          "remaining": true,
+          "registered_logical_bytes": 102396640,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DU-01-approval-async-ui:20261019T014329625Z-001257fa-fd59-4631-b8c1-d7aef3d5b167",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "ce333fa0e83bd44dd521c2685cb628936e11f37428eeb5ab808c4688832fb754",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-approval-async-ui\\runs\\20261019T014329625Z-001257fa-fd59-4631-b8c1-d7aef3d5b167",
+          "remaining": true,
+          "registered_logical_bytes": 1559,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01:types-91c2c6e7",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "ceae4fb64b7d55e23ee7ebd009a5cd897213aadf0bf29f881ff680efbe20cc63",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\types-91c2c6e7",
+          "remaining": true,
+          "registered_logical_bytes": 1361637,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-async-approval-host-tests-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "cf01-async-approval-host-test-evidence",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-async-approval-r1\\host\\tests",
+          "remaining": true,
+          "registered_logical_bytes": 201311,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-bootstrap-length-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "cf01-bootstrap-length-r1-evidence",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-bootstrap-length-r1",
+          "remaining": true,
+          "registered_logical_bytes": 527120,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-logoff-disposable",
+      "disposition": "empty canonical temporary parent",
+      "items": [
+        {
+          "id": "cf01-logoff-temporary",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-logoff-cleanup\\temporary",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "cf01-logoff-verification",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "cf01-logoff-verification-files",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\window-use-logoff-cleanup-20261018",
+          "remaining": true,
+          "registered_logical_bytes": 211754,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-queue-integration-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "cf01-queue-integration-r1-evidence",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-queue-integration-r1",
+          "remaining": true,
+          "registered_logical_bytes": 31347,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-u21a-live-retry005",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "cf01-u21a-live-retry005-io-0",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-attempted.json",
+          "remaining": true,
+          "registered_logical_bytes": 92,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-command.json",
+          "remaining": true,
+          "registered_logical_bytes": 1644,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-2",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-completed.json",
+          "remaining": true,
+          "registered_logical_bytes": 1719,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-3",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-delivered.json",
+          "remaining": true,
+          "registered_logical_bytes": 461,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-4",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-events.jsonl",
+          "remaining": true,
+          "registered_logical_bytes": 224962,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-5",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-phase.json",
+          "remaining": true,
+          "registered_logical_bytes": 63,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-io-6",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\outputs\\agent-io\\retry-005-readback.json",
+          "remaining": true,
+          "registered_logical_bytes": 481,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-u21a-live-retry005-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261018-u21a-live-r1\\reports\\retry005",
+          "remaining": true,
+          "registered_logical_bytes": 10394,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-viewer-live-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "cf01-viewer-live-r1-logs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-live-r1\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 3050,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-viewer-live-r1-outputs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-live-r1\\outputs",
+          "remaining": true,
+          "registered_logical_bytes": 782384,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-viewer-live-r1-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-live-r1\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 67427,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-viewer-live-r1-temporary",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-live-r1\\temporary",
+          "remaining": true,
+          "registered_logical_bytes": 12819,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf01-viewer-revalidation-evidence",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "cf01-viewer-revalidation-logs",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-revalidation\\logs",
+          "remaining": true,
+          "registered_logical_bytes": 50560,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "cf01-viewer-revalidation-reports",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-viewer-revalidation\\reports",
+          "remaining": true,
+          "registered_logical_bytes": 9326,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch01-sky-policy-package-boundary",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "ch01-runtime-and-evidence",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\sky-policy-package-boundary",
+          "remaining": true,
+          "registered_logical_bytes": 373912109,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CR-01-build-legacy-cleanup:managed-group-guidance-20261019-r1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "d532e64ea17c09d822806a33325713f5531324f388b300a14733483308140179",
+          "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CR-01-build-legacy-cleanup/runs/managed-group-guidance-20261019-r1",
+          "remaining": true,
+          "registered_logical_bytes": 24951,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:BZ-01:projection-and-render-03",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 3,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "d8bea75c126313e9e570ae8cab4e76927650e2a9bb37c194b5bf62425076b83a",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BZ-01-resume-list-indicators\\runs\\projection-and-render-03",
+          "remaining": true,
+          "registered_logical_bytes": 128122,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-account-native-1",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "run:DC-01-queue-question-wait-diagnosis:reply-native-2",
+          "kind": "evidence",
+          "reason": "Reuses immutable source baseline whose native checks passed",
+          "reference_id": "9fd657ddd575c940b8da92991d59b8e2b7614c28c5e2e87477b3e468334dab03"
+        }
+      ],
+      "items": [
+        {
+          "id": "dd244bd8eb9e38c11f3082b5c23d7cb6e90d4e87335c72e0b0902d5830b96441",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-account-native-1",
+          "remaining": true,
+          "registered_logical_bytes": 102527960,
+          "blockers": [
+            "lifecycle membership source changed or is unavailable; re-register full current membership"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002621537Z-5509aa03-d7b9-4d3a-8710-2fa3eddd119c",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "deaa547a7bf270beda349316588449ce19577c79ccefbc03895b0978aeda817a",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002621537Z-5509aa03-d7b9-4d3a-8710-2fa3eddd119c",
+          "remaining": true,
+          "registered_logical_bytes": 94750,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "df3b6b56bccff8a51ff90f276b81aaef3d11317b53e21b6b9ed6eb682bebd90b",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+          "remaining": true,
+          "registered_logical_bytes": 54334,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "do1-unused-native-outputs-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "do1-unused-native-all-c71321a47dbe4ed9.exe",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.exe",
+          "remaining": true,
+          "registered_logical_bytes": 303104000,
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do1-unused-native-all-c71321a47dbe4ed9.pdb",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.pdb",
+          "remaining": true,
+          "registered_logical_bytes": 868913152,
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do1-unused-native-codex_app_server-ab0fa3885fa06f43.exe",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_app_server-ab0fa3885fa06f43.exe",
+          "remaining": false,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do1-unused-native-codex_app_server-ab0fa3885fa06f43.pdb",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_app_server-ab0fa3885fa06f43.pdb",
+          "remaining": false,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do1-unused-native-codex_core-ee1b27bb08f71819.exe",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.exe",
+          "remaining": true,
+          "registered_logical_bytes": 321040384,
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do1-unused-native-codex_core-ee1b27bb08f71819.pdb",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.pdb",
+          "remaining": true,
+          "registered_logical_bytes": 910495744,
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do1-unused-native-codex_tui-128ff604062e1c7e.exe",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_tui-128ff604062e1c7e.exe",
+          "remaining": false,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do1-unused-native-codex_tui-128ff604062e1c7e.pdb",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_tui-128ff604062e1c7e.pdb",
+          "remaining": false,
+          "registered_logical_bytes": 0,
+          "blockers": [
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "do2-native-outputs-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "do2-all-c71321a47dbe4ed9.exe",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.exe",
+          "remaining": true,
+          "registered_logical_bytes": 303104000,
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do2-all-c71321a47dbe4ed9.pdb",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\all-c71321a47dbe4ed9.pdb",
+          "remaining": true,
+          "registered_logical_bytes": 868913152,
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do2-codex_core-ee1b27bb08f71819.exe",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.exe",
+          "remaining": true,
+          "registered_logical_bytes": 321040384,
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "do2-codex_core-ee1b27bb08f71819.pdb",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps\\codex_core-ee1b27bb08f71819.pdb",
+          "remaining": true,
+          "registered_logical_bytes": 910495744,
+          "blockers": [
+            "overlapping lifecycle member requires its own whole-group decision",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-approval50-host-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "du01-approval50-host-evidence",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261018-approval50-r1\\host",
+          "remaining": true,
+          "registered_logical_bytes": 53900,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-child-checks-20261017",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "du01-child-checks-r1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\checks-r1",
+          "remaining": true,
+          "registered_logical_bytes": 4404,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-checks-r2",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\checks-r2",
+          "remaining": true,
+          "registered_logical_bytes": 2507,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-checks-r3",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\checks-r3",
+          "remaining": true,
+          "registered_logical_bytes": 2517,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-checks-r4",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\checks-r4",
+          "remaining": true,
+          "registered_logical_bytes": 2848,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-child-native-preparations-20261017",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "du01-child-native-prep-r1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r1",
+          "remaining": true,
+          "registered_logical_bytes": 63989,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r10",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r10",
+          "remaining": true,
+          "registered_logical_bytes": 137087,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r11",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r11",
+          "remaining": true,
+          "registered_logical_bytes": 137245,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r2",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r2",
+          "remaining": true,
+          "registered_logical_bytes": 67563,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r3",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r3",
+          "remaining": true,
+          "registered_logical_bytes": 76034,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r4",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r4",
+          "remaining": true,
+          "registered_logical_bytes": 80564,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r5",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r5",
+          "remaining": true,
+          "registered_logical_bytes": 29022,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r6",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r6",
+          "remaining": true,
+          "registered_logical_bytes": 81416,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r7",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r7",
+          "remaining": true,
+          "registered_logical_bytes": 104107,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r8",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r8",
+          "remaining": true,
+          "registered_logical_bytes": 105121,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-child-native-prep-r9",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-child-r1\\native-prep-r9",
+          "remaining": true,
+          "registered_logical_bytes": 107173,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-desktop-authority-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "du01-desktop-authority-r1-output",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-desktop-authority-r1",
+          "remaining": true,
+          "registered_logical_bytes": 6360,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-explicit-stop-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "du01-explicit-stop-r1-output",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-explicit-stop-r1",
+          "remaining": true,
+          "registered_logical_bytes": 1174326,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-integration-20261017-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "du01-integration-20261017-run",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-integration-r1",
+          "remaining": true,
+          "registered_logical_bytes": 99793,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-native-retrieval-perf-r1",
+      "disposition": "manual owner/evidence procedure required",
+      "items": [
+        {
+          "id": "du01-native-retrieval-perf-r1-evidence",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-retrieval-perf-r1",
+          "remaining": true,
+          "registered_logical_bytes": 13565,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "du01-postboot-20261016-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "du01-postboot-20261016-cleanup",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\window-use-stages\\rdp-postboot-20261016-cleanup-r1.json",
+          "remaining": false,
+          "registered_logical_bytes": 556,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-postboot-20261016-inspection",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\window-use-stages\\rdp-postboot-20261016-inspection-r1.json",
+          "remaining": false,
+          "registered_logical_bytes": 298,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        },
+        {
+          "id": "du01-postboot-20261016-run",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261016-postboot-investigation-r1",
+          "remaining": true,
+          "registered_logical_bytes": 30344,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "du01-settings-r1",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "du01-settings-r1-payload",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DU-01-window-use-stages\\runs\\20261017-settings-r1",
+          "remaining": true,
+          "registered_logical_bytes": 340595,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:BW-01-profile-provider-run-01",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [
+        {
+          "id": "work/BW-01-openai-profile-context-analysis/01-plan.md",
+          "reason": "Current verified inputs, passing evidence and earlier cancelled/failed diagnostic outcomes; retain until isolated integration preserves equivalent evidence.",
+          "reference_id": "5428a8aa33f9a6b591b3a24176600080dc1d8f41dd8df0722da0ece89654c5ff"
+        }
+      ],
+      "items": [
+        {
+          "id": "e325c4de0b933f14a48dc3adad5c66f07770a80283991798231b56ce20311661",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\bwp1",
+          "remaining": true,
+          "registered_logical_bytes": 101802854,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "work:deployment-temporary:e24e915c4ffbf14916de423fdb9a62ddc0eaf91109139e47899ba01b53ecc2c0",
+      "disposition": "manual owner/evidence procedure required",
+      "items": [
+        {
+          "id": "e938d78f0a18ac3173c3933c34e473f3cdade0d4c4093196cacad108b247fce7",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\l\\artifacts\\t",
+          "remaining": true,
+          "registered_logical_bytes": 0,
+          "blockers": []
+        }
+      ]
+    },
+    {
+      "id": "run:CF-01-window-use-admin-setup:20261019-reconnect-r1:native",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 1,
+      "producer_references": [
+        {
+          "id": "work:CF-01-window-use-admin-setup",
+          "reason": "Retain immutable native test inputs, terminal receipts and superseded diagnostics until package/live acceptance.",
+          "reference_id": "17097f98b547e0f2d40c5ba8c9f0a147930cb2b6535cea54309c33bbe20d853b"
+        }
+      ],
+      "items": [
+        {
+          "id": "eb4e9dbe401478fd137d608afbd41ca30c7c2b3b3b10428ea92aca0a94fff9a8",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-reconnect-r1\\native",
+          "remaining": true,
+          "registered_logical_bytes": 2245064,
+          "blockers": [
+            "references active or unknown",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "ebc2feba3931098491119a56116ca3ed0d59a6a9cf2f1ccaa96b730b5be7e00a",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+          "remaining": true,
+          "registered_logical_bytes": 98216,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "version:window-use-u17b",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 5,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "efad417a9bc3cf2d57e4729a8c632006d1a4b2e23e41c86460f70021a1ab16d9",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\window-use-u17b",
+          "remaining": true,
+          "registered_logical_bytes": 258979,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 1,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "f4f336e2751cd41b2e5fafb6e9b514e5dfc1a4a912e92b160dae39b1cd74d1e3",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+          "remaining": true,
+          "registered_logical_bytes": 84477,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "f95e20ea9a00756ea01539bf89184f3a35b8697d57a5c6f9d0ed4e03c5fe92e5",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+          "remaining": true,
+          "registered_logical_bytes": 42294,
+          "blockers": [
+            "generation or usage protection unconfirmed",
+            "lifecycle group membership is incomplete",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:native-3",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "fa13e2e2cb9abc16a8fcdeed3d038c6d4a046c1cc6eccc57e99155f9e2d8bd34",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-3",
+          "remaining": true,
+          "registered_logical_bytes": 105854268,
+          "blockers": [
+            "references active or unknown",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:DC-01-queue-question-wait-diagnosis:reply-native-2",
+      "disposition": "protected by fresh native review",
+      "producer_revision": 2,
+      "producer_references": [],
+      "items": [
+        {
+          "id": "fda26ebd2c586d53a32684969f233ec755f144561bddf5e4f6608a3b6e9793d3",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\reply-native-2",
+          "remaining": true,
+          "registered_logical_bytes": 109274154,
+          "blockers": [
+            "references active or unknown",
+            "lifecycle membership source changed or is unavailable; re-register full current membership",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "session-storage-cleanup-audit-20261022",
+      "disposition": "protected by fresh native review",
+      "items": [
+        {
+          "id": "session-storage-cleanup-audit-20261022-files",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\session-storage-cleanup-20261022\\runs\\audit-1",
+          "remaining": true,
+          "registered_logical_bytes": 8363063,
+          "blockers": [
+            "references active or unknown",
+            "a lifecycle group member is protected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "engine-optimization-r18-default-native-summary",
+      "disposition": "no payload",
+      "items": [
+        {
+          "id": "engine-optimization-r18-default-native-summary",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\test-reduction\\native\\native-summary.json",
+          "remaining": null,
+          "registered_logical_bytes": 25113,
+          "blockers": []
+        }
+      ]
+    }
+  ],
+  "snapshot_note": "Item remaining fields preserve fresh review observation before subsequent confirmed archive; subsequent results are explicit on selected group"
+}

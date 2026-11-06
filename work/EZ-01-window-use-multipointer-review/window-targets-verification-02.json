@@ -1,0 +1,52 @@
+{
+  "runId": "run:EZ01:window-targets-r2-mw1jamd6",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-r2-mw1jamd6",
+  "frozen": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-r2-mw1jamd6\\temporary\\source",
+  "startedAt": "2026-11-04T03:05:37.768Z",
+  "steps": [
+    {
+      "name": "source",
+      "files": [
+        "test-window-request-targets",
+        "test-window-control-occupancy",
+        "test-window-control-policy",
+        "test-window-control-mcp",
+        "test-window-virtual-policy",
+        "test-window-control-observation-recovery",
+        "test-window-control-minimized",
+        "test-window-task-macros",
+        "test-window-use-host",
+        "test-window-control-host",
+        "test-window-control-host-errors",
+        "test-window-control-errors",
+        "test-window-overlay",
+        "test-window-async-approval-host",
+        "test-window-approval-notifications",
+        "test-window-approval-ui-integration",
+        "test-window-control-approval",
+        "test-window-use-async-approvals",
+        "test-window-control-runtime",
+        "test-window-switched-input",
+        "test-use-control-settings",
+        "test-use-settings-host",
+        "test-use-settings-ui"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-r2-mw1jamd6\\logs\\source.log"
+    }
+  ],
+  "endedAt": "2026-11-04T03:06:32.450Z",
+  "summary": {
+    "tests": 244,
+    "pass": 221,
+    "fail": 22,
+    "skip": 1,
+    "causes": [
+      "12 async fixtures lacked owned parent directory (runner preparation)",
+      "Pinned UI path env missing (runner preparation)",
+      "Lease mock missing API, stale test ID, corrupted label, changed65s/parallel request expectations (fixtures corrected)",
+      "Read-only Stop path missing typed metadata (product fixed)"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "operation": "apply",
+  "decisions": [
+    {
+      "id": "045a676dc7a6763794c37ad6918ea870c2751e60888e4cfe26fd57bcb0877ecc",
+      "token": "7ada9edc099e541b3561b27eefbcc0e0da79ec543faadb5b4d29b821d21fb481",
+      "decision": "delete",
+      "reason": "Fresh review after config change; independent verification retained in eef3 candidate and work/18-locked-catalog-acceptance.json; completed run and uninstalled superseded ef98 candidate have no consumers"
+    },
+    {
+      "id": "41d34eb5e044ddb128e5eef04136f577ee8ce35fc0439fea267e6f491de2e1be",
+      "token": "7d3e5631849270d9be7d755b7c4f40cd02d74baf1e12bf9dcd3b6be30ae6b05f",
+      "decision": "delete",
+      "reason": "Fresh review after config change; independent verification retained in eef3 candidate and work/18-locked-catalog-acceptance.json; completed run and uninstalled superseded ef98 candidate have no consumers"
+    }
+  ]
+}

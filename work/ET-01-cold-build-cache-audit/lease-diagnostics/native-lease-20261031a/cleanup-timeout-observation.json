@@ -1,0 +1,648 @@
+{
+  "schema": 1,
+  "apply": {
+    "status": null,
+    "error": "ETIMEDOUT",
+    "wrapper_actual_exit": 1,
+    "native_actual_exit_code": null,
+    "stdout": "",
+    "stderr": ""
+  },
+  "groups": [
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031a",
+      "reservation": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\d28b04022d6fca0e37b445d8b8770766013dcb5ead0e3d222b4e84b64b0618e9.json",
+      "reservationPresent": true,
+      "record": {
+        "group_scope": {
+          "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031a",
+          "kind": "run",
+          "members": [
+            "7d8c969235f8c3156d8de1a1a284a7a77f19c662c80cdaa95db24e73b065e2cf"
+          ],
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_identity": "23a3c8c9a7f3f71546cf8838ca022465700698c3d47c8a5559b710f3c1e5229d",
+          "owner": "cold-build-cache-audit",
+          "version": null
+        },
+        "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031a",
+        "lease_owner": {
+          "acquired_at_ms": 1793392364621,
+          "operation": "group_reservation",
+          "pid": 40200,
+          "schema": 2,
+          "token": "40200-1793392364621-41f54361ece38352"
+        },
+        "manifest_revision": 4329,
+        "members": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "7d8c969235f8c3156d8de1a1a284a7a77f19c662c80cdaa95db24e73b065e2cf",
+            "identity": "26e445015fda29a044d692885c328f5e83bc7669a241bcf70328a652ca128343",
+            "kind": "run",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031a",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 3483,
+            "measured_at_ms": 1793392041307,
+            "owner": "cold-build-cache-audit",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1fefb138aeacdf5ce710075bb1c8e320e10c0a940f9811ea4b38def87a433f2d.json",
+            "references": [],
+            "registered_at_ms": 1793392041307,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ],
+        "schema": 1,
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "source_fence": "23a3c8c9a7f3f71546cf8838ca022465700698c3d47c8a5559b710f3c1e5229d",
+        "source_owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a\\reports\\producer-353582c725bad89a159c917ed454b1b85543a5e5f540bbbe36afd5fa9bb4004b.json",
+            "evidence_sha256": "353582c725bad89a159c917ed454b1b85543a5e5f540bbbe36afd5fa9bb4004b",
+            "reason": "Real native lease regression child returned terminal close; no product build or RecipeOnly execution",
+            "request_sha256": "619cf1213cc800fb5f2a4633f07a6c65ef58c7b331fb44f9f09ce62db555a5e6"
+          },
+          "created_at": "2026-10-30T20:15:46.140Z",
+          "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031a",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a",
+          "owner": "cold-build-cache-audit",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a\\reports\\producer-353582c725bad89a159c917ed454b1b85543a5e5f540bbbe36afd5fa9bb4004b.json",
+            "evidence_sha256": "353582c725bad89a159c917ed454b1b85543a5e5f540bbbe36afd5fa9bb4004b",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Real native lease regression child returned terminal close; no product build or RecipeOnly execution",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 2,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-30T20:15:52.353Z",
+          "version": null
+        },
+        "status": "active",
+        "token": "40200-1793392364621-41f54361ece38352"
+      },
+      "remaining": false
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031b",
+      "reservation": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\58ba16bc2ab3834bff30367c75c0b0a1db7cbc259fc03be5a04c48c8d969ab9a.json",
+      "reservationPresent": true,
+      "record": {
+        "group_scope": {
+          "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031b",
+          "kind": "run",
+          "members": [
+            "837796e6a1495f500af20535876147827040d48a630799f5bb0407d316757274"
+          ],
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_identity": "99ce39a40582adeee417bc3749e1f70388de82163374641cdef8bbd83f5c1545",
+          "owner": "cold-build-cache-audit",
+          "version": null
+        },
+        "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031b",
+        "lease_owner": {
+          "acquired_at_ms": 1793392364863,
+          "operation": "group_reservation",
+          "pid": 40200,
+          "schema": 2,
+          "token": "40200-1793392364863-d642f6c7afc51898"
+        },
+        "manifest_revision": 4329,
+        "members": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "837796e6a1495f500af20535876147827040d48a630799f5bb0407d316757274",
+            "identity": "5528df155bbf9ef63ca989bceb703804a4d29346f395cf29aa6e9f20588e50f5",
+            "kind": "run",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031b",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 4087,
+            "measured_at_ms": 1793392093778,
+            "owner": "cold-build-cache-audit",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7f4b30e548e3a2b2ea2848884e8717813d1722d44ff9bd5944423b6dc61bcb4b.json",
+            "references": [],
+            "registered_at_ms": 1793392093778,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ],
+        "schema": 1,
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "source_fence": "99ce39a40582adeee417bc3749e1f70388de82163374641cdef8bbd83f5c1545",
+        "source_owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b\\reports\\producer-86ca2bd1627cf589207bbee390a72d9b5d41a0a4d9361cf83d4e14f06124d542.json",
+            "evidence_sha256": "86ca2bd1627cf589207bbee390a72d9b5d41a0a4d9361cf83d4e14f06124d542",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "5667d7643765a5187956407b019d54c70de08a30c1028a9c55935bb73258dad0"
+          },
+          "created_at": "2026-10-30T20:17:48.362Z",
+          "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031b",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b",
+          "owner": "cold-build-cache-audit",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b\\reports\\producer-86ca2bd1627cf589207bbee390a72d9b5d41a0a4d9361cf83d4e14f06124d542.json",
+            "evidence_sha256": "86ca2bd1627cf589207bbee390a72d9b5d41a0a4d9361cf83d4e14f06124d542",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 2,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-30T20:17:55.191Z",
+          "version": null
+        },
+        "status": "active",
+        "token": "40200-1793392364863-d642f6c7afc51898"
+      },
+      "remaining": true
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031c",
+      "reservation": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\d7f62a886e12e380e16aedc2cab4d9f08788265ff2235ec424e380860185a0e8.json",
+      "reservationPresent": true,
+      "record": {
+        "group_scope": {
+          "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031c",
+          "kind": "run",
+          "members": [
+            "3a4a168a4146a5b3048b1fbebc35d13151d0f513a5516793e046a30f7d95c32d"
+          ],
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_identity": "09a09d4a64ed91baede8d3b3c4c6a5ab78abd245cfcedc827a7d78141be5e872",
+          "owner": "cold-build-cache-audit",
+          "version": null
+        },
+        "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031c",
+        "lease_owner": {
+          "acquired_at_ms": 1793392365102,
+          "operation": "group_reservation",
+          "pid": 40200,
+          "schema": 2,
+          "token": "40200-1793392365102-31bde95a315d513b"
+        },
+        "manifest_revision": 4329,
+        "members": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "3a4a168a4146a5b3048b1fbebc35d13151d0f513a5516793e046a30f7d95c32d",
+            "identity": "dfb61cc19621e3e4a6cc418149767e2359bb0ec68a5fddd281756cc4d77d3704",
+            "kind": "run",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031c",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 3611,
+            "measured_at_ms": 1793392148146,
+            "owner": "cold-build-cache-audit",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6204ba53dbe85e8418e2e60a60d5c3f1dddbde9fa84a494e2573fa259d17d66c.json",
+            "references": [],
+            "registered_at_ms": 1793392148146,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ],
+        "schema": 1,
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "source_fence": "09a09d4a64ed91baede8d3b3c4c6a5ab78abd245cfcedc827a7d78141be5e872",
+        "source_owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c\\reports\\producer-0e2790ca5ab481c6780e92c91e26ec0df89ab7e4825d5d24c963d7d649c03b76.json",
+            "evidence_sha256": "0e2790ca5ab481c6780e92c91e26ec0df89ab7e4825d5d24c963d7d649c03b76",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "4fba38e05b58dfc2e4e9dedf038e1260dc458dfdbf470fa2297189d6a1c8c1f4"
+          },
+          "created_at": "2026-10-30T20:18:11.824Z",
+          "id": "run:ET-01-cold-build-cache-audit:lease-diagnostics-20261031c",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c",
+          "owner": "cold-build-cache-audit",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c\\reports\\producer-0e2790ca5ab481c6780e92c91e26ec0df89ab7e4825d5d24c963d7d649c03b76.json",
+            "evidence_sha256": "0e2790ca5ab481c6780e92c91e26ec0df89ab7e4825d5d24c963d7d649c03b76",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 2,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-30T20:18:19.927Z",
+          "version": null
+        },
+        "status": "active",
+        "token": "40200-1793392365102-31bde95a315d513b"
+      },
+      "remaining": false
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031a",
+      "reservation": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\c2d45e85b208e1ac92d4252a689e500bb900b92dd84d8f48a23818677701350d.json",
+      "reservationPresent": true,
+      "record": {
+        "group_scope": {
+          "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031a",
+          "kind": "run",
+          "members": [
+            "6ee462ee1ba3c4d457cf61589dee6873d29ede7e981f7759f49534926c5cfdc2"
+          ],
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_identity": "a77e3fdfc5b8840853d087ab30a605e994f42e59e3669c40c66f7c4ec95a080b",
+          "owner": "cold-build-cache-audit",
+          "version": null
+        },
+        "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031a",
+        "lease_owner": {
+          "acquired_at_ms": 1793392365337,
+          "operation": "group_reservation",
+          "pid": 40200,
+          "schema": 2,
+          "token": "40200-1793392365337-9997d050477bf2dd"
+        },
+        "manifest_revision": 4329,
+        "members": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "6ee462ee1ba3c4d457cf61589dee6873d29ede7e981f7759f49534926c5cfdc2",
+            "identity": "6d252fcedefccf384c41cc5866befb4947051e292961e8044a56f3c00595b0f4",
+            "kind": "run",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031a",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1050,
+            "measured_at_ms": 1793392203316,
+            "owner": "cold-build-cache-audit",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031a",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f53d34d1250b397bb264bd1a7ddb1b87a4619ff66b3b8c09807f42594492894a.json",
+            "references": [],
+            "registered_at_ms": 1793392203316,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ],
+        "schema": 1,
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "source_fence": "a77e3fdfc5b8840853d087ab30a605e994f42e59e3669c40c66f7c4ec95a080b",
+        "source_owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\lease-diagnostics\\native-lease-20261031a\\recipe-spawn-failure.json",
+            "evidence_sha256": "814f18abb30211e04981a143b268192ee2827b7aa3082d47ac1b210de69df12c",
+            "reason": "Wrapper failed before PowerShell spawn; no child process was created",
+            "request_sha256": "223c916841af70bb7ee8544751261a43c12be139ed21c9d6860be2900989817e"
+          },
+          "created_at": "2026-10-30T20:25:07.096Z",
+          "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031a",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031a",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031a\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031a\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031a\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031a\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031a\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031a",
+          "owner": "cold-build-cache-audit",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\lease-diagnostics\\native-lease-20261031a\\recipe-spawn-failure.json",
+            "evidence_sha256": "814f18abb30211e04981a143b268192ee2827b7aa3082d47ac1b210de69df12c",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Wrapper failed before PowerShell spawn; no child process was created",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-10-30T20:25:54.817Z",
+          "version": null
+        },
+        "status": "active",
+        "token": "40200-1793392365337-9997d050477bf2dd"
+      },
+      "remaining": false
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031b",
+      "reservation": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations\\e50d05940ac1f78c0b6893802a19f8798a4c07870bd1bf54a6be37448b9d9910.json",
+      "reservationPresent": true,
+      "record": {
+        "group_scope": {
+          "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031b",
+          "kind": "run",
+          "members": [
+            "10b1f8cf1bbf2fab0f7c8e27018a9aece718091f14208e4721813c9310de870e"
+          ],
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_identity": "8393753738d4da40de3ae8d3e018f2dbffb7309b7bc97e08fefe94ae2e9ffb5d",
+          "owner": "cold-build-cache-audit",
+          "version": null
+        },
+        "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031b",
+        "lease_owner": {
+          "acquired_at_ms": 1793392365581,
+          "operation": "group_reservation",
+          "pid": 40200,
+          "schema": 2,
+          "token": "40200-1793392365581-9ae3a706ff36e822"
+        },
+        "manifest_revision": 4329,
+        "members": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "10b1f8cf1bbf2fab0f7c8e27018a9aece718091f14208e4721813c9310de870e",
+            "identity": "03bd58d8a2fe6952fb675a064c5abf935bdea959cbb5c447ae2dd5efad321846",
+            "kind": "run",
+            "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031b",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 3955,
+            "measured_at_ms": 1793392282933,
+            "owner": "cold-build-cache-audit",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\72dec855b224141a9c351e5e999ddad47050a3aa76e242730fc312e2e2c9b313.json",
+            "references": [],
+            "registered_at_ms": 1793392282933,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ],
+        "schema": 1,
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "source_fence": "8393753738d4da40de3ae8d3e018f2dbffb7309b7bc97e08fefe94ae2e9ffb5d",
+        "source_owner": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b\\reports\\producer-960b17c74f6d509fec8bbbbb1704efb3fab4a8254cebe1f581a7e463d3ad9d49.json",
+            "evidence_sha256": "960b17c74f6d509fec8bbbbb1704efb3fab4a8254cebe1f581a7e463d3ad9d49",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "f80b3bb612d1224d4affafc864613763d5e56926cc2424859e94602e73152bc6"
+          },
+          "created_at": "2026-10-30T20:26:04.477Z",
+          "id": "run:ET-01-cold-build-cache-audit:lease-recipe-20261031b",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b",
+          "owner": "cold-build-cache-audit",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-recipe-20261031b\\reports\\producer-960b17c74f6d509fec8bbbbb1704efb3fab4a8254cebe1f581a7e463d3ad9d49.json",
+            "evidence_sha256": "960b17c74f6d509fec8bbbbb1704efb3fab4a8254cebe1f581a7e463d3ad9d49",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 2,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-10-30T20:26:35.807Z",
+          "version": null
+        },
+        "status": "active",
+        "token": "40200-1793392365581-9ae3a706ff36e822"
+      },
+      "remaining": false
+    }
+  ]
+}

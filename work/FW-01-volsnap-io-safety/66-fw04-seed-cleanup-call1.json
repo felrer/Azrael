@@ -1,0 +1,88 @@
+{
+  "request": {
+    "operation": "register",
+    "group": {
+      "id": "run:fw04:isolated-seed-20261106-01",
+      "kind": "run",
+      "owner": "FW04/isolated-official-prerequisite-seed",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "FW04/isolated-official-prerequisite-seed",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json"
+        }
+      ]
+    },
+    "lock_wait_ms": 600000
+  },
+  "observed": {
+    "pid": 24740,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "error": null,
+    "close_observed": true,
+    "stdout_drained": true,
+    "stderr_drained": true
+  },
+  "result": {
+    "group": {
+      "cleanup_status": null,
+      "id": "run:fw04:isolated-seed-20261106-01",
+      "kind": "run",
+      "members": [
+        "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29",
+      "owner": "FW04/isolated-official-prerequisite-seed",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+      "registered_at_ms": 1793973984903,
+      "version": null
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+        "identity": "61cc909d9e7022ecc295d9ee705b74a79ce28cfc2e47d50a76b254be4d8833ef",
+        "kind": "run",
+        "lifecycle_group_id": "run:fw04:isolated-seed-20261106-01",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 616325112,
+        "measured_at_ms": 1793973977061,
+        "owner": "FW04/isolated-official-prerequisite-seed",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+        "references": [],
+        "registered_at_ms": 1793973977061,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  },
+  "stdout": "{\"group\":{\"cleanup_status\":null,\"id\":\"run:fw04:isolated-seed-20261106-01\",\"kind\":\"run\",\"members\":[\"b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f\"],\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_format\":\"producer_registry_v1\",\"membership_source_identity\":\"f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29\",\"owner\":\"FW04/isolated-official-prerequisite-seed\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json\",\"registered_at_ms\":1793973984903,\"version\":null},\"items\":[{\"cache_schema\":null,\"created_at_ms\":null,\"generated\":true,\"id\":\"b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f\",\"identity\":\"61cc909d9e7022ecc295d9ee705b74a79ce28cfc2e47d50a76b254be4d8833ef\",\"kind\":\"run\",\"lifecycle_group_id\":\"run:fw04:isolated-seed-20261106-01\",\"lifecycle_role\":\"artifact\",\"logical_bytes\":616325112,\"measured_at_ms\":1793973977061,\"owner\":\"FW04/isolated-official-prerequisite-seed\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\",\"presence\":\"present\",\"protection_known\":true,\"provenance\":null,\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json\",\"references\":[],\"registered_at_ms\":1793973977061,\"remaining\":true,\"role\":\"run\",\"source_path\":null,\"tool\":null,\"version\":null}]}\n",
+  "stderr": ""
+}

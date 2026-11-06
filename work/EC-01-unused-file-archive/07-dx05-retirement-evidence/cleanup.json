@@ -1,0 +1,41 @@
+{
+  "applied": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DX-05:owner-20261026",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-25564-3050-1793011447948",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "a69826221e7db59173bc3950eeb24cac0f662b0b81556801e2a38dc77d9b55d8",
+        "lifecycle_group_id": "run:DX-05:owner-20261026",
+        "reason": "Build target, TEMP, fixture, requests and raw logs no longer needed; installation verification preserved in version",
+        "remaining": false,
+        "status": "deleted",
+        "token": "b9476f5cc66a825b5611cf6c580e57c9f5af098592653a0b0fcd5e3db0dd2207"
+      }
+    ]
+  },
+  "run_absent": true,
+  "finalized": {
+    "id": "run:DX-05:owner-20261026",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1e8acff80de314c7d3a16ed48575f2247c8c986ad90148aa9163e471e90e574c.json"
+  },
+  "checked_at": "2026-10-26T10:44:20.072Z"
+}

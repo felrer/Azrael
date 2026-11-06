@@ -1,0 +1,1802 @@
+{
+  "schema": 1,
+  "owner": "EC-01/latest-app-build",
+  "run": "run:ec01-latest-build:prepare-r3",
+  "createdUtc": "2026-10-29T05:29:21.297Z",
+  "head": "cbabbf4426c68f6bc7d0885214289ea4c96798bf",
+  "sourceReceiptSha256": "87531eca9161ade6b1a77ab167a38194d6e2b23c292be4e021ed153480f109fb",
+  "baselineReceiptSha256": "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+  "indexStageBytesSha256": "c35af83e1f3a3247db1fdbf2864231cf45c62d84aa4a6993b6208226051cbe8d",
+  "engineStatusBytesSha256": "7e28cda8e38c31d0be06857abac9cd93c1cc4627f530827fd03a07b18ff8e05b",
+  "statusEncoding": "git status --porcelain=v1 -z --untracked-files=all -- engine; original UTF-8 bytes including NUL separators",
+  "indexEncoding": "git ls-files --stage -z; original bytes including NUL separators",
+  "counts": {
+    "status": 198,
+    "present": 192,
+    "ordinary": 175,
+    "migration": 1,
+    "removed": 6,
+    "matched": 15
+  },
+  "expectedPaths": [
+    "codex-rs/analytics/src/client.rs",
+    "codex-rs/analytics/src/client_tests.rs",
+    "codex-rs/analytics/src/tests/support.rs",
+    "codex-rs/app-server-client/src/in_process.rs",
+    "codex-rs/app-server-protocol/schema/json/McpServerElicitationRequestParams.json",
+    "codex-rs/app-server-protocol/schema/json/ServerNotification.json",
+    "codex-rs/app-server-protocol/schema/json/ServerRequest.json",
+    "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.schemas.json",
+    "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ReviewStartResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadForkResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadListResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadMetadataUpdateResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadReadResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadResumeResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadRevertResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadStartResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadStartedNotification.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadTurnsListResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/ThreadUnarchiveResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/TurnCompletedNotification.json",
+    "codex-rs/app-server-protocol/schema/json/v2/TurnDeferredNotification.json",
+    "codex-rs/app-server-protocol/schema/json/v2/TurnStartResponse.json",
+    "codex-rs/app-server-protocol/schema/json/v2/TurnStartedNotification.json",
+    "codex-rs/app-server-protocol/schema/json/v2/UserWaitTimingUpdatedNotification.json",
+    "codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst",
+    "codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst",
+    "codex-rs/app-server-protocol/schema/typescript/ServerNotification.ts",
+    "codex-rs/app-server-protocol/schema/typescript/ServerNotificationEnvelope.ts",
+    "codex-rs/app-server-protocol/schema/typescript/v2/McpServerElicitationRequestParams.ts",
+    "codex-rs/app-server-protocol/schema/typescript/v2/ThreadTimelineEntry.ts",
+    "codex-rs/app-server-protocol/schema/typescript/v2/Turn.ts",
+    "codex-rs/app-server-protocol/schema/typescript/v2/UserWaitInterval.ts",
+    "codex-rs/app-server-protocol/schema/typescript/v2/UserWaitRequest.ts",
+    "codex-rs/app-server-protocol/schema/typescript/v2/UserWaitTiming.ts",
+    "codex-rs/app-server-protocol/schema/typescript/v2/UserWaitTimingUpdatedNotification.ts",
+    "codex-rs/app-server-protocol/schema/typescript/v2/index.ts",
+    "codex-rs/app-server-protocol/src/protocol/common.rs",
+    "codex-rs/app-server-protocol/src/protocol/thread_history.rs",
+    "codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs",
+    "codex-rs/app-server-protocol/src/protocol/thread_history_projection_tests.rs",
+    "codex-rs/app-server-protocol/src/protocol/v2/mcp.rs",
+    "codex-rs/app-server-protocol/src/protocol/v2/mod.rs",
+    "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+    "codex-rs/app-server-protocol/src/protocol/v2/thread_data.rs",
+    "codex-rs/app-server-protocol/src/protocol/v2/user_wait.rs",
+    "codex-rs/app-server/src/bespoke_event_handling.rs",
+    "codex-rs/app-server/src/in_process.rs",
+    "codex-rs/app-server/src/notification_media.rs",
+    "codex-rs/app-server/src/request_processors/thread_processor.rs",
+    "codex-rs/app-server/src/request_processors/thread_processor_tests.rs",
+    "codex-rs/app-server/src/request_processors/thread_queue_processor.rs",
+    "codex-rs/app-server/src/request_processors/thread_resume_redaction.rs",
+    "codex-rs/app-server/src/request_processors/turn_processor.rs",
+    "codex-rs/app-server/src/thread_state.rs",
+    "codex-rs/app-server/src/user_verification_activation_tests.rs",
+    "codex-rs/app-server/src/user_verification_connection_tests.rs",
+    "codex-rs/app-server/src/user_verification_ownership_tests.rs",
+    "codex-rs/app-server/tests/suite/v2/mcp_server_elicitation.rs",
+    "codex-rs/app-server/tests/suite/v2/mcp_tool.rs",
+    "codex-rs/app-server/tests/suite/v2/thread_read.rs",
+    "codex-rs/codex-mcp/src/elicitation.rs",
+    "codex-rs/codex-mcp/src/elicitation_tests.rs",
+    "codex-rs/config/src/harness_profiles.rs",
+    "codex-rs/config/src/loader/tests.rs",
+    "codex-rs/core/src/agent/api.rs",
+    "codex-rs/core/src/agent/control/api.rs",
+    "codex-rs/core/src/agent/control_tests.rs",
+    "codex-rs/core/src/apply_patch.rs",
+    "codex-rs/core/src/apply_patch_tests.rs",
+    "codex-rs/core/src/config/mod.rs",
+    "codex-rs/core/src/context/instruction_state_projection_tests.rs",
+    "codex-rs/core/src/context/world_state/model_tests.rs",
+    "codex-rs/core/src/context/world_state/multi_agent_mode_tests.rs",
+    "codex-rs/core/src/exec_policy.rs",
+    "codex-rs/core/src/exec_policy_tests.rs",
+    "codex-rs/core/src/lib.rs",
+    "codex-rs/core/src/managed_runtime.rs",
+    "codex-rs/core/src/session/mcp.rs",
+    "codex-rs/core/src/session/mod.rs",
+    "codex-rs/core/src/session/multi_agents.rs",
+    "codex-rs/core/src/session/session.rs",
+    "codex-rs/core/src/session/step_context.rs",
+    "codex-rs/core/src/session/tests.rs",
+    "codex-rs/core/src/session/turn.rs",
+    "codex-rs/core/src/session/world_state.rs",
+    "codex-rs/core/src/tasks/mod.rs",
+    "codex-rs/core/src/tools/code_mode/delegate.rs",
+    "codex-rs/core/src/tools/code_mode/execute_handler.rs",
+    "codex-rs/core/src/tools/code_mode/mod.rs",
+    "codex-rs/core/src/tools/handlers/mod.rs",
+    "codex-rs/core/src/tools/router.rs",
+    "codex-rs/core/src/tools/router_tests.rs",
+    "codex-rs/core/src/tools/spec_plan.rs",
+    "codex-rs/core/src/tools/spec_plan_tests.rs",
+    "codex-rs/core/src/turn_timing.rs",
+    "codex-rs/core/src/unified_exec/async_watcher.rs",
+    "codex-rs/core/src/unified_exec/process_manager.rs",
+    "codex-rs/core/src/user_wait_runtime.rs",
+    "codex-rs/core/src/user_wait_timing.rs",
+    "codex-rs/exec/src/event_processor_with_human_output_tests.rs",
+    "codex-rs/exec/src/event_processor_with_jsonl_output_tests.rs",
+    "codex-rs/exec/src/lib_tests.rs",
+    "codex-rs/exec/tests/event_processor_with_json_output.rs",
+    "codex-rs/project-maintenance/src/apply.rs",
+    "codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+    "codex-rs/project-maintenance/src/groups.rs",
+    "codex-rs/project-maintenance/src/lib.rs",
+    "codex-rs/project-maintenance/src/lock_recovery.rs",
+    "codex-rs/project-maintenance/src/partitioned_storage.rs",
+    "codex-rs/project-maintenance/src/registration.rs",
+    "codex-rs/project-maintenance/src/registry.rs",
+    "codex-rs/project-maintenance/src/reservations.rs",
+    "codex-rs/project-maintenance/src/storage.rs",
+    "codex-rs/project-maintenance/src/timing.rs",
+    "codex-rs/project-maintenance/src/windows_delete.rs",
+    "codex-rs/project-maintenance/tests/contention.rs",
+    "codex-rs/project-maintenance/tests/lock_recovery.rs",
+    "codex-rs/project-maintenance/tests/partitioned.rs",
+    "codex-rs/project-maintenance/tests/registry.rs",
+    "codex-rs/prompts/src/model_instructions.rs",
+    "codex-rs/prompts/src/model_instructions_tests.rs",
+    "codex-rs/prompts/src/multi_agent_instructions.rs",
+    "codex-rs/prompts/src/multi_agent_instructions_tests.rs",
+    "codex-rs/protocol/src/lib.rs",
+    "codex-rs/protocol/src/protocol.rs",
+    "codex-rs/protocol/src/user_wait.rs",
+    "codex-rs/rollout-trace/src/protocol_event.rs",
+    "codex-rs/rollout/src/policy.rs",
+    "codex-rs/thread-store/src/local/thread_history.rs",
+    "codex-rs/thread-store/src/local/thread_history/read.rs",
+    "codex-rs/thread-store/src/local/thread_history/realtime.rs",
+    "codex-rs/thread-store/src/local/thread_history/segment_paging.rs",
+    "codex-rs/thread-store/src/local/thread_history_materialization_tests.rs",
+    "codex-rs/thread-store/src/types.rs",
+    "codex-rs/tui/src/app/activity_groups_tests.rs",
+    "codex-rs/tui/src/app/agents_overview_tests.rs",
+    "codex-rs/tui/src/app/app_server_event_targets.rs",
+    "codex-rs/tui/src/app/composer_hints_tests.rs",
+    "codex-rs/tui/src/app/history_completion_tests.rs",
+    "codex-rs/tui/src/app/history_pagination_tests.rs",
+    "codex-rs/tui/src/app/owned_transcript_follow_tests.rs",
+    "codex-rs/tui/src/app/owned_transcript_input_tests.rs",
+    "codex-rs/tui/src/app/owned_transcript_tests.rs",
+    "codex-rs/tui/src/app/pending_interactive_replay.rs",
+    "codex-rs/tui/src/app/recap_tests.rs",
+    "codex-rs/tui/src/app/safety_buffering_tests.rs",
+    "codex-rs/tui/src/app/tests.rs",
+    "codex-rs/tui/src/app/tests/buffered_replay.rs",
+    "codex-rs/tui/src/app/tests/realtime_requests.rs",
+    "codex-rs/tui/src/app/tests/startup.rs",
+    "codex-rs/tui/src/app/tests/user_verification_routes_tests.rs",
+    "codex-rs/tui/src/app/thread_event_buffer_tests.rs",
+    "codex-rs/tui/src/app/thread_events.rs",
+    "codex-rs/tui/src/app/thread_title_tests.rs",
+    "codex-rs/tui/src/app/transcript_export_tests.rs",
+    "codex-rs/tui/src/app_backtrack.rs",
+    "codex-rs/tui/src/app_server_session.rs",
+    "codex-rs/tui/src/bottom_pane/mcp_server_elicitation.rs",
+    "codex-rs/tui/src/chatwidget/protocol.rs",
+    "codex-rs/tui/src/chatwidget/realtime_tests.rs",
+    "codex-rs/tui/src/chatwidget/realtime_tests/caption_replay.rs",
+    "codex-rs/tui/src/chatwidget/tests/app_server.rs",
+    "codex-rs/tui/src/chatwidget/tests/completion_styling_tests.rs",
+    "codex-rs/tui/src/chatwidget/tests/exec_flow.rs",
+    "codex-rs/tui/src/chatwidget/tests/helpers.rs",
+    "codex-rs/tui/src/chatwidget/tests/history_projection.rs",
+    "codex-rs/tui/src/chatwidget/tests/history_replay.rs",
+    "codex-rs/tui/src/chatwidget/tests/plan_mode.rs",
+    "codex-rs/tui/src/chatwidget/tests/review_mode.rs",
+    "codex-rs/tui/src/chatwidget/thread_usage_tests.rs",
+    "codex-rs/tui/src/resume_picker.rs",
+    "codex-rs/tui/src/temporary_structured_request_tests.rs",
+    "codex-rs/tui/src/thread_transcript/computer_groups_tests.rs",
+    "codex-rs/tui/src/transcript_view/mutations_tests.rs"
+  ],
+  "expectedMigrationPaths": [
+    "codex-rs/state/thread_history_migrations/0012_user_wait_timing.sql"
+  ],
+  "expectedRemovedPaths": [
+    "codex-rs/core/src/tools/handlers/claude_controls.rs",
+    "codex-rs/core/src/tools/handlers/claude_files.rs",
+    "codex-rs/core/src/tools/handlers/claude_files_tests.rs",
+    "codex-rs/core/src/tools/handlers/claude_search.rs",
+    "codex-rs/core/src/tools/handlers/claude_shell.rs",
+    "codex-rs/prompts/templates/claude-tool-environment.md"
+  ],
+  "expectedAdaptedPaths": [],
+  "newPaths": [
+    "engine/codex-rs/app-server-protocol/schema/json/v2/UserWaitTimingUpdatedNotification.json",
+    "engine/codex-rs/app-server-protocol/schema/typescript/v2/UserWaitInterval.ts",
+    "engine/codex-rs/app-server-protocol/schema/typescript/v2/UserWaitRequest.ts",
+    "engine/codex-rs/app-server-protocol/schema/typescript/v2/UserWaitTiming.ts",
+    "engine/codex-rs/app-server-protocol/schema/typescript/v2/UserWaitTimingUpdatedNotification.ts",
+    "engine/codex-rs/app-server-protocol/src/protocol/v2/user_wait.rs",
+    "engine/codex-rs/core/src/user_wait_runtime.rs",
+    "engine/codex-rs/core/src/user_wait_timing.rs",
+    "engine/codex-rs/project-maintenance/src/partitioned_storage.rs",
+    "engine/codex-rs/project-maintenance/src/timing.rs",
+    "engine/codex-rs/project-maintenance/tests/contention.rs",
+    "engine/codex-rs/project-maintenance/tests/partitioned.rs",
+    "engine/codex-rs/protocol/src/user_wait.rs",
+    "engine/codex-rs/state/thread_history_migrations/0012_user_wait_timing.sql"
+  ],
+  "observed": [
+    {
+      "status": " M",
+      "path": "engine/SOURCE.json",
+      "present": true,
+      "bytes": 5307943,
+      "sha256": "87531eca9161ade6b1a77ab167a38194d6e2b23c292be4e021ed153480f109fb",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/analytics/src/client.rs",
+      "present": true,
+      "bytes": 37773,
+      "sha256": "359a25dce014909ad5fb9d766421acbd4847ede1599d549a17e72b4c715a5976",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/analytics/src/client_tests.rs",
+      "present": true,
+      "bytes": 44674,
+      "sha256": "344e325ff0f45a1e5874d581ba6d88801cb25e9001d924d84760ab77a07e93ae",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/analytics/src/tests/support.rs",
+      "present": true,
+      "bytes": 24319,
+      "sha256": "2b848530318003388d3ce3159288f3efd44f83083d2b8460eb704f9bcaf27d9e",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-client/src/in_process.rs",
+      "present": true,
+      "bytes": 79137,
+      "sha256": "22c6f909ca0e58a954c5f3a0b6d10d72312a2af7b8c0b6a6fd6885a0d911f1cc",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-daemon/src/session_handoff.rs",
+      "present": true,
+      "bytes": 77938,
+      "sha256": "c0f564cc9e22a1444dfaec7f420b228e06506f5bb6c869245ff668ad8dbcdd54",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/McpServerElicitationRequestParams.json",
+      "present": true,
+      "bytes": 13820,
+      "sha256": "ad309b6bd09db946c043cf5c512fec2ab4128c18f422aa3b71f2490d84ac144b",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/ServerNotification.json",
+      "present": true,
+      "bytes": 231236,
+      "sha256": "ce5566f4df0204429841e425e54e704b5a747ac1695a7d246e2d5550bf878bd4",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/ServerRequest.json",
+      "present": true,
+      "bytes": 50099,
+      "sha256": "1af1485b21a6b3ba930bc788469fe61e18d6dfa7fed3e2028f05fe17951bf07b",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.schemas.json",
+      "present": true,
+      "bytes": 781806,
+      "sha256": "f88c8319857508c13ff7801a653c679f3d33967a92a33114b52d3df5c312ff95",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json",
+      "present": true,
+      "bytes": 675481,
+      "sha256": "47ef2d2c28b89f15a5d4732cb603d3c0af54f700fcce880facf3a8a4157e618c",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ReviewStartResponse.json",
+      "present": true,
+      "bytes": 66828,
+      "sha256": "24824200da9acfab754abd42c74feabf06e8abc9e349dfb227b9940e965e66be",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadForkResponse.json",
+      "present": true,
+      "bytes": 88544,
+      "sha256": "c18f37aabc9b6bbe4cce58511fe477e18d2e7503e5d4522364c76cf2c267e202",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadListResponse.json",
+      "present": true,
+      "bytes": 81304,
+      "sha256": "e5df8a0a9f98e72007e2e353a91b0c001b3cf163410ad95b6163b33a4939547a",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadMetadataUpdateResponse.json",
+      "present": true,
+      "bytes": 80650,
+      "sha256": "25ea4807e60dd96d4caf3ac4fdd60305581afb74d9107d04f7be38c125b15dc9",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadReadResponse.json",
+      "present": true,
+      "bytes": 80640,
+      "sha256": "4a5ab4ad78373ffa5d58dd5224a2b3fa309b22a14ea91b346035de8e2c8178ed",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadResumeResponse.json",
+      "present": true,
+      "bytes": 90847,
+      "sha256": "a07ab0171ec32487f505a28b96a8603e24761090c15a1a52ee9286619da4088c",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadRevertResponse.json",
+      "present": true,
+      "bytes": 81450,
+      "sha256": "a2f56b556e7a71f7d8fb8d7b9384fbd4c68eb3323143810a1401209d8dbe12c7",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadStartResponse.json",
+      "present": true,
+      "bytes": 88306,
+      "sha256": "07a0f67f24892beee9ea05f4e976fbe59e65ceb7e22949766494905c4a8542b2",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadStartedNotification.json",
+      "present": true,
+      "bytes": 80647,
+      "sha256": "80fcb52b65dd09566e19085e190c3ebe8ab28cd733c02c5d3a01e2ae2e1048a1",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadTurnsListResponse.json",
+      "present": true,
+      "bytes": 67193,
+      "sha256": "c10e03e04aa76da464b03a2eda54efc419372583b5fff1d730e8daaa14efc224",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/ThreadUnarchiveResponse.json",
+      "present": true,
+      "bytes": 80645,
+      "sha256": "c4b122fce48139dcb9849697aebb7b50a057effccdf62c0d62b9ed3eda40b049",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/TurnCompletedNotification.json",
+      "present": true,
+      "bytes": 66635,
+      "sha256": "620559071a048bfbea0d9dfee37ddda9045a72225d2b42bcdc67685e63a3b806",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/TurnDeferredNotification.json",
+      "present": true,
+      "bytes": 66708,
+      "sha256": "7acdfb3d91137cd3007b7823ee6d4d8c1729de47b58a568ebc6b82b2197f7861",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/TurnStartResponse.json",
+      "present": true,
+      "bytes": 66563,
+      "sha256": "f340fe845865f6be9faf3a368132b44c353c87ead21d8ff259a40df79a7326d6",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/TurnStartedNotification.json",
+      "present": true,
+      "bytes": 66633,
+      "sha256": "7a08bff99cc5d4a1d4269ea60f9a666720559698dc9f9e1947263900bf1a4ebf",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst",
+      "present": true,
+      "bytes": 174761,
+      "sha256": "cfddfdfe16c4f2a08051d5b694fd8ba7671feb7f2dc2812285e56d6f001c478b",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst",
+      "present": true,
+      "bytes": 170178,
+      "sha256": "41ee57f44f00d4cde2f58b52dc69be1ec39cf44539e2a22513e2d68a8b5b89b2",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/ServerNotification.ts",
+      "present": true,
+      "bytes": 16180,
+      "sha256": "fe941f530b96e217b8e750f5afe2f23fac5d30a18d1b584d806957aae3b9d59d",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/ServerNotificationEnvelope.ts",
+      "present": true,
+      "bytes": 16578,
+      "sha256": "e1b3a1f737aac6f05dcbc8ecbb1ca26ac96306a4769255576d6193ee6e5bba9c",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/McpServerElicitationRequestParams.ts",
+      "present": true,
+      "bytes": 1294,
+      "sha256": "e5cd3fad84059b54f07ba35963ef2ad6cc193d3a18e8690ac8ee29357f6015ea",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/ThreadTimelineEntry.ts",
+      "present": true,
+      "bytes": 1089,
+      "sha256": "e294d6fe71a3bfcacc33d8fa4dc3aae2377254c5aea73b12e301bbd6932dce4b",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/Turn.ts",
+      "present": true,
+      "bytes": 1763,
+      "sha256": "a01db5e991c3bcf5dd6041aa00d300d5a08acf80f79a043c6eb61feb258e8ba2",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/index.ts",
+      "present": true,
+      "bytes": 50335,
+      "sha256": "90c6543150cf0d427a1291053ec5b9536f1beb5b76d2bc7749cf3287e8b6f168",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/src/protocol/common.rs",
+      "present": true,
+      "bytes": 177361,
+      "sha256": "cc368734ba5fab376fdd5931d1c24fdd83a1e71531af06c3dc91d4377f4d43ab",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs",
+      "present": true,
+      "bytes": 242305,
+      "sha256": "9effedd77e276b3fa2fc0f17f9ead5c3644522cbd3536f8d40d04c2e2936cc80",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs",
+      "present": true,
+      "bytes": 6672,
+      "sha256": "b340bfeaffc71564059e7a13aafd771eea4daa274832241748a00a2568804dde",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection_tests.rs",
+      "present": true,
+      "bytes": 13735,
+      "sha256": "f32c117958a872d8058c2a67718c31bb5268342dcd964876155f01a0d4b48684",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/src/protocol/v2/mcp.rs",
+      "present": true,
+      "bytes": 34097,
+      "sha256": "f9f772231d2859cf56ace5f77c99b6309dc540166f676218402d7b5355a7986d",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/src/protocol/v2/mod.rs",
+      "present": true,
+      "bytes": 1851,
+      "sha256": "170b35ce69b701eddc30db726f03e9d17fb207206d15b9506dc4121d488d694a",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+      "present": true,
+      "bytes": 89330,
+      "sha256": "2c8104acc034ef5060a9c2591613aaa06508f079ff04ab3e17c5200d1cf7202f",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server-protocol/src/protocol/v2/thread_data.rs",
+      "present": true,
+      "bytes": 20413,
+      "sha256": "ff10bf645cab2d2037f18e6b3ffcf9e8964d432f7f5b34186cd0da58b3a37232",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/bespoke_event_handling.rs",
+      "present": true,
+      "bytes": 175192,
+      "sha256": "c2fe710e528d03f472b323b01023c982e9c66009d97e9e4b9bfbbd102bcba387",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/in_process.rs",
+      "present": true,
+      "bytes": 49544,
+      "sha256": "b066f2a1fab0c893cfc2ac951ecb16dcc10508b61ca25ad09d42ba0448349399",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/notification_media.rs",
+      "present": true,
+      "bytes": 10968,
+      "sha256": "3ab5ee7936771fba163d42e5fb2871a8ff35c267f52e6378c136fc47b29df973",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/request_processors/thread_processor.rs",
+      "present": true,
+      "bytes": 279631,
+      "sha256": "866218d64bf8664cce039ca856d05d8ec5ef702dcceda9ce5241b0f256282ff0",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/request_processors/thread_processor_tests.rs",
+      "present": true,
+      "bytes": 53117,
+      "sha256": "30b8df8c260f2a9e3f89e20d4dc93b22d981a6a4d1a5d8c0d7069fe71fb59125",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/request_processors/thread_queue_processor.rs",
+      "present": true,
+      "bytes": 24174,
+      "sha256": "aee94f8a1f5d0a9f916661784c7dd28fbba50efbe9b342f868786b42eee41fda",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/request_processors/thread_resume_redaction.rs",
+      "present": true,
+      "bytes": 9866,
+      "sha256": "075acb1d3fda860dec51fcf5c104243045e1776746da28afec9bb24bc2c97ffd",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/request_processors/turn_processor.rs",
+      "present": true,
+      "bytes": 71089,
+      "sha256": "523e0ce07d8acf41365e45b1757f2c865733daa58b98622e1d196262961cf5d5",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/thread_state.rs",
+      "present": true,
+      "bytes": 27239,
+      "sha256": "9e80e76572c5bce2c69a691538bf293bb839bb9da6f9e0098c0602750b9d1756",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/user_verification_activation_tests.rs",
+      "present": true,
+      "bytes": 4800,
+      "sha256": "a45e9e7c34fb10b8430768a4a34fd012dd41020e6c1d6c765abec2836496342e",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/user_verification_connection_tests.rs",
+      "present": true,
+      "bytes": 6445,
+      "sha256": "bb2441f4025b9a7290d22db76ac976bb969e09f38ad006da8e67e7d8b9f5270e",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/src/user_verification_ownership_tests.rs",
+      "present": true,
+      "bytes": 11026,
+      "sha256": "37097ed9c7378dc9e699a524a8bf1bf7b9f537e45b8b1ca7bc9b9607f1e48b6b",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/tests/suite/v2/mcp_server_elicitation.rs",
+      "present": true,
+      "bytes": 61125,
+      "sha256": "4e72a4a60f09098059246b414bd0fa34560197539717cb5328210fa520830044",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/tests/suite/v2/mcp_tool.rs",
+      "present": true,
+      "bytes": 60588,
+      "sha256": "e899a41b3897ed0ce437acdfe829ce5f6a32a52c0323a57fc25ae2c3b3d4e062",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/app-server/tests/suite/v2/thread_read.rs",
+      "present": true,
+      "bytes": 94383,
+      "sha256": "82c21df41ef06cf02511c350710e68ef294a6d0b0f31a7c729a090f531b7faa0",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/codex-mcp/src/elicitation.rs",
+      "present": true,
+      "bytes": 23305,
+      "sha256": "13bc6d53ddecb4266cdd9d16df73733a41434f346790a3e531b2dd89d16a0cc4",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/codex-mcp/src/elicitation_tests.rs",
+      "present": true,
+      "bytes": 30449,
+      "sha256": "1e546f6fc03599a864bf7e57c6c697e21b905aa575cd33013d4e090090b1d019",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/config/src/harness_profiles.rs",
+      "present": true,
+      "bytes": 26469,
+      "sha256": "374410857086d73e9228ec8551c15ed64c222ea998ab43efc67a97dc89512d60",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/config/src/loader/tests.rs",
+      "present": true,
+      "bytes": 43021,
+      "sha256": "eb17a452d33be00fca33ba549bebffa05e0e9e87a0300787aeee6252c61621aa",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/agent/api.rs",
+      "present": true,
+      "bytes": 12580,
+      "sha256": "8e4b70dfad7b736a1f9a91fe1001d9f876a031386b7070bcc0da46a32098fcef",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/agent/control/api.rs",
+      "present": true,
+      "bytes": 19921,
+      "sha256": "a62df16a45c1e18ca35027c18f06edaadb37934181a5dc36527d5f7c0851165f",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/agent/control_tests.rs",
+      "present": true,
+      "bytes": 205362,
+      "sha256": "435fe255fdd78b177c155de0118e9bbbe2ba879443a3c6cecff6f06b230c2115",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/apply_patch.rs",
+      "present": true,
+      "bytes": 3558,
+      "sha256": "22f8bc6315bcdd002644062581c35368e77b9621167046b61fbf1af88742c6cd",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/apply_patch_tests.rs",
+      "present": true,
+      "bytes": 5479,
+      "sha256": "660f89dcf4916eb82c9765202eb428d883c59b2e4917804b6704504eec8e9e3b",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/config/mod.rs",
+      "present": true,
+      "bytes": 208880,
+      "sha256": "e165fcb3f6f9a716a7577f70c8cc01821740c17d13b0dc84cc471735c6a8a634",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/context/instruction_state_projection_tests.rs",
+      "present": true,
+      "bytes": 15503,
+      "sha256": "324b2af5d91636abe85ccc47caf6c80af2b9fe9e8066b04e17e1f2292a16151d",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/context/world_state/model_tests.rs",
+      "present": true,
+      "bytes": 10852,
+      "sha256": "6f7d4bf7a273a6dc556a94d8228fa62150e68c9471e78304f56d8f78a285a374",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/context/world_state/multi_agent_mode_tests.rs",
+      "present": true,
+      "bytes": 5742,
+      "sha256": "aab228219ec0a5da909105ee8f5a4ac0008eec7d44bebbfab619e0c807ba7f9e",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/exec_policy.rs",
+      "present": true,
+      "bytes": 45218,
+      "sha256": "ec883c35683528ce66094e478b4cade9d2a6925a69d64f8424aed12287c54994",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/exec_policy_tests.rs",
+      "present": true,
+      "bytes": 92139,
+      "sha256": "ae30273479efbbb421ff53cb80a2f9e48d26e8b1e49bd8ecdc17b04628fe5347",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/lib.rs",
+      "present": true,
+      "bytes": 9495,
+      "sha256": "4224fa00ab7936844dc8a1831867ea7ec9ef32ea4a54b7ee96dd488f8755e7bd",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/managed_runtime.rs",
+      "present": true,
+      "bytes": 14973,
+      "sha256": "f913fa045d0797a35516259e7590e3ad78d0fe611916616ac26adc902361f6d0",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/mcp.rs",
+      "present": true,
+      "bytes": 55487,
+      "sha256": "4ae8071a2a2dd2d25cd4edd2327fe11859ef72fd42b0e5e4ea77f2356e4c5af9",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/mod.rs",
+      "present": true,
+      "bytes": 223786,
+      "sha256": "4f4d343278f8cdcaba0a458f67125fa6cc98fb01afe00eac22e57268eb463065",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/multi_agents.rs",
+      "present": true,
+      "bytes": 4716,
+      "sha256": "5baa66224a527b2151c41ed675d7d16788fb887784ea87a5d1c8b045e104bebf",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/session.rs",
+      "present": true,
+      "bytes": 103329,
+      "sha256": "1bb2e04ae54e14665eea82110fb7e3941bba813482d0e558cde30a13235e9b7a",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/step_context.rs",
+      "present": true,
+      "bytes": 5740,
+      "sha256": "839c65d5ac8277c5a7b09557b352013f19454ba6ee47e283ccd1c27b12d05661",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/tests.rs",
+      "present": true,
+      "bytes": 504281,
+      "sha256": "8730bfe4f2d698f6bda6d0c4e0fb8a5c77fce9ebbb7e2ffc7bbca0e23985e89e",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/turn.rs",
+      "present": true,
+      "bytes": 139849,
+      "sha256": "38fb0786096dcce5ee2923b1a6bfeb52fcfd3957d1a9e08cf28b5559af7078bf",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/work_completion.rs",
+      "present": true,
+      "bytes": 18454,
+      "sha256": "cb1d99709767181f2dfdc292a1c2b37ca10ebe6a470a72d219aaa161f73be00f",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/work_completion_tests.rs",
+      "present": true,
+      "bytes": 15841,
+      "sha256": "0ee5be65a0cc7a913f697a5050264fc5361954a6040c1c73c3b7cdb040ff9f67",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/session/world_state.rs",
+      "present": true,
+      "bytes": 23778,
+      "sha256": "81aab229aca38fd9fb87a2cf28034554aec60e6078dbb7bbac9f84ff58a371fe",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tasks/mod.rs",
+      "present": true,
+      "bytes": 43667,
+      "sha256": "b049c4d6bab27e04de6a81d1c1d53c6143fa3569524076cade5f7c7868f0948f",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/code_mode/delegate.rs",
+      "present": true,
+      "bytes": 21518,
+      "sha256": "a2ed0a77f14d4d74e9e4ab7e17ea0e1a557b8870dd9affe85ea9dda9d5f5ac29",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/code_mode/execute_handler.rs",
+      "present": true,
+      "bytes": 9901,
+      "sha256": "bdf49783b984a730827e5865f8fe6b8e96e34371243954a133716628d74d5d62",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/code_mode/mod.rs",
+      "present": true,
+      "bytes": 21143,
+      "sha256": "b73ef6535dfa77d771498cc025a090c3cdd7b66f20b3a4e9e93e281c95a853f1",
+      "classification": "ordinary"
+    },
+    {
+      "status": "D ",
+      "path": "engine/codex-rs/core/src/tools/handlers/claude_controls.rs",
+      "present": false,
+      "classification": "removed"
+    },
+    {
+      "status": "D ",
+      "path": "engine/codex-rs/core/src/tools/handlers/claude_files.rs",
+      "present": false,
+      "classification": "removed"
+    },
+    {
+      "status": "D ",
+      "path": "engine/codex-rs/core/src/tools/handlers/claude_files_tests.rs",
+      "present": false,
+      "classification": "removed"
+    },
+    {
+      "status": "D ",
+      "path": "engine/codex-rs/core/src/tools/handlers/claude_search.rs",
+      "present": false,
+      "classification": "removed"
+    },
+    {
+      "status": "D ",
+      "path": "engine/codex-rs/core/src/tools/handlers/claude_shell.rs",
+      "present": false,
+      "classification": "removed"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/handlers/mod.rs",
+      "present": true,
+      "bytes": 24499,
+      "sha256": "c47e757bad1cb4f5e52cc87e0e61736f81ed3d158f6a7a97246fc3aba5504176",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/handlers/multi_agents_spec.rs",
+      "present": true,
+      "bytes": 40975,
+      "sha256": "7c6503d1438e5720b6457f2dc729e6c4386ac7c9d2f2e312400e107e9ae3f189",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/handlers/shell_spec.rs",
+      "present": true,
+      "bytes": 14231,
+      "sha256": "6b37464e17ec722113f1d2c8d5eacf0d5ac0e4e8320b7b77e51fb2014668cb4d",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/handlers/unified_exec/exec_command.rs",
+      "present": true,
+      "bytes": 28227,
+      "sha256": "21626e7b4230f1e13b26f6670917517b0bc3023f40ebbc354b1d2064a28b344b",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/handlers/work_completion.rs",
+      "present": true,
+      "bytes": 7893,
+      "sha256": "977537f9a5eb0f84f04ece8cd78138ccfae21e2f998c58f664a6df42e88df218",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/router.rs",
+      "present": true,
+      "bytes": 21661,
+      "sha256": "16d170b7cf55dcf80d7e8ba2b09478b2865195f0dcbd0d775f5a6c55d9a9c0f6",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/router_tests.rs",
+      "present": true,
+      "bytes": 56727,
+      "sha256": "3a4ce9e04b93b864ebcd547eab414975b841af152ef4af30ff43f6da6700ea8e",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/spec_plan.rs",
+      "present": true,
+      "bytes": 75781,
+      "sha256": "bb7f8c6fb615f124b227160fac85364b0d9549d4026afcbba001186d64a0c187",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/tools/spec_plan_tests.rs",
+      "present": true,
+      "bytes": 158910,
+      "sha256": "f363799ffce8c7ba49a6594c4602c46b0fcf4ef8ac3c66cc0771cf539cb31de1",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/turn_timing.rs",
+      "present": true,
+      "bytes": 20019,
+      "sha256": "64dad4f352c9d9964fa92413485109953eabe3ebb9c783cc7c1c9a3dbfbf4b97",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/unified_exec/async_watcher.rs",
+      "present": true,
+      "bytes": 16735,
+      "sha256": "edb91e9b7540b4dbb37e20c8d0f366142427bd99a78ee5251ecaab5ff551fccd",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/unified_exec/mod.rs",
+      "present": true,
+      "bytes": 8566,
+      "sha256": "a4c108bcebe76838604772fbadb6b1889b27758b824b1e9654a39ed5c6050d95",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/unified_exec/oneshot.rs",
+      "present": true,
+      "bytes": 5316,
+      "sha256": "3a960f360185cc084024d05b62167ae7d2f7e19009657789cc786e35c5cd67a0",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/unified_exec/process.rs",
+      "present": true,
+      "bytes": 33755,
+      "sha256": "163cae5195e2389d6ba1d07ccfb97b0aa4c7be2cb3f1ac7dfae6c3568d3ea866",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/unified_exec/process_manager.rs",
+      "present": true,
+      "bytes": 80185,
+      "sha256": "0f2aade5cc55aac0ea2c3662dd4985ee7067aaf612d3b6f17c436bf75ab6d3c7",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/unified_exec/process_manager_tests.rs",
+      "present": true,
+      "bytes": 37311,
+      "sha256": "4790d636e869cf835f3b390efb8006645548660de9513016f3663d214db21cc1",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/core/src/unified_exec/process_tests.rs",
+      "present": true,
+      "bytes": 16081,
+      "sha256": "472110a2882c106f1db451835d825cfca6d866e2be2b00d9e247dc7885cbc413",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/exec/src/event_processor_with_human_output_tests.rs",
+      "present": true,
+      "bytes": 18857,
+      "sha256": "d536fc966d5bbe00edcf4bfcac36c46557d7bb9fefc7a5931a2424ad98dee225",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/exec/src/event_processor_with_jsonl_output_tests.rs",
+      "present": true,
+      "bytes": 5791,
+      "sha256": "ab8fa7b254d9aedc6cb7e04a42a849c6adeda81d24688633b1241c6873e3cacc",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/exec/src/lib_tests.rs",
+      "present": true,
+      "bytes": 31686,
+      "sha256": "21400b95ddf2dca338660a4e09f68f0bfebb600d4c3079e1d07af6de58012c1f",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/exec/tests/event_processor_with_json_output.rs",
+      "present": true,
+      "bytes": 69151,
+      "sha256": "74ec2a34c9263034a49565f6ff42556577d47148c68baf6b3c8d7b9ebc0a23ba",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/apply.rs",
+      "present": true,
+      "bytes": 23703,
+      "sha256": "22097ec26632c593bc34e886cea85876b4432e580538455b46e8b07bfcc0847d",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+      "present": true,
+      "bytes": 4458,
+      "sha256": "0393f50b0ed5994672f22878ed08e1e6a7fc0f7a5c803ed1ada750250f4add21",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/groups.rs",
+      "present": true,
+      "bytes": 25169,
+      "sha256": "e3084079e479ee6bf17d023e49bdbf395f0ffbca45d08148f7bb2a9f240c34ca",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/lease.rs",
+      "present": true,
+      "bytes": 17503,
+      "sha256": "74b2844fafb5ac9e7fc8337dfb71a0bd7c23c1f6db70c25384e192ab96a9fe77",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/lib.rs",
+      "present": true,
+      "bytes": 47826,
+      "sha256": "8b69b8173dd067d62224164273ef4fcf7e0531bda2ac87af3e747c960a498ce5",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+      "present": true,
+      "bytes": 51619,
+      "sha256": "8229c419ca87aad589aa2213ac057403ffabeb06a39571537b160680cfbd288e",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/registration.rs",
+      "present": true,
+      "bytes": 7379,
+      "sha256": "874265c861fd8249026b71d76ccb263346b8a1670f8ed654d6b9319d50023f85",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/registry.rs",
+      "present": true,
+      "bytes": 53739,
+      "sha256": "0e11d6c19e86cb547e4a2e361f65feec84da9adc28ced3ecc602df56d870cc1d",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/reservations.rs",
+      "present": true,
+      "bytes": 64374,
+      "sha256": "600e5d4df99a010259e367b758b335a2d0d0fb7ddb0cf8e804f6eeeaaf65a58b",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/storage.rs",
+      "present": true,
+      "bytes": 26128,
+      "sha256": "2b1a0f1de868046b2611dcd4e9c2756ec9c8bba3d9c637c46496766017edbc7d",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/src/windows_delete.rs",
+      "present": true,
+      "bytes": 39891,
+      "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/tests/lock_recovery.rs",
+      "present": true,
+      "bytes": 36329,
+      "sha256": "73d9fee4907d21de92879fbf038f5cf64bef65fc7ece2db2a7176f0dcde638eb",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/project-maintenance/tests/registry.rs",
+      "present": true,
+      "bytes": 46708,
+      "sha256": "ccac5193bf5e79254f065acf18dcc8bad735c401327eb289fcd75a170b446c3c",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/prompts/src/model_instructions.rs",
+      "present": true,
+      "bytes": 4938,
+      "sha256": "60ea7a797154b7d041a7ed740b1273d69d2f14dd99f2b08e8b90ea76a2ca3a41",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/prompts/src/model_instructions_tests.rs",
+      "present": true,
+      "bytes": 11125,
+      "sha256": "bc36e05fe0c661127e708e660c51c3e15f7538dd4f0c603aff4dd60dc16d9382",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/prompts/src/multi_agent_instructions.rs",
+      "present": true,
+      "bytes": 5458,
+      "sha256": "a93c3baf496752c33899da77c35734e8dd4d3fac46a74f2c353779d2f320265b",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/prompts/src/multi_agent_instructions_tests.rs",
+      "present": true,
+      "bytes": 4961,
+      "sha256": "5c6eca3f5a7b75321d2e24b3f130fbd59e4d4a6adca9086cf01d30f366f287c2",
+      "classification": "ordinary"
+    },
+    {
+      "status": "D ",
+      "path": "engine/codex-rs/prompts/templates/claude-tool-environment.md",
+      "present": false,
+      "classification": "removed"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/protocol/src/lib.rs",
+      "present": true,
+      "bytes": 1653,
+      "sha256": "d2017158595977985c5ed0cfd17b55f99b5730e2d6132b59ecebdc98b780e54c",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/protocol/src/protocol.rs",
+      "present": true,
+      "bytes": 249500,
+      "sha256": "28639e6309ff37c656647c6c81a187a5056b32a44177f1465d6157ec69fb6e0e",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/rollout-trace/src/protocol_event.rs",
+      "present": true,
+      "bytes": 23356,
+      "sha256": "9a3cc7f19c5e55529aad01e017f9a3d6134ef5f0fe4ac7b41ee6c79e65e253cf",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/rollout/src/policy.rs",
+      "present": true,
+      "bytes": 12214,
+      "sha256": "6014ef49a230522ebec95c38b9436a8352a41c52a2c20cabc8d429e179b506db",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/shell-command/src/bash.rs",
+      "present": true,
+      "bytes": 20294,
+      "sha256": "af4a536fc7a62146879777f38b1b4af1c9b5bedf76c37d64bf2d93fb4ded2b39",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/shell-command/src/command_safety/is_deletion_command.rs",
+      "present": true,
+      "bytes": 7813,
+      "sha256": "88722a165433c33c906f915ea3eb6571396b9cadeff0cf393235efb60550dc5b",
+      "classification": "receipt"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/thread-store/src/local/thread_history.rs",
+      "present": true,
+      "bytes": 26942,
+      "sha256": "935bded5e12a57f7d4b220c2f58e1e855ad83a577922946255a41589f580c841",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/thread-store/src/local/thread_history/read.rs",
+      "present": true,
+      "bytes": 16039,
+      "sha256": "79cb31ee859fd3a7f87e507c34c46ccdcca24105d27f7e44e8e6eb0511212fa0",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/thread-store/src/local/thread_history/realtime.rs",
+      "present": true,
+      "bytes": 9575,
+      "sha256": "0f0df4b47c0e3f6f9783d2e389cedbfdf89aae9101fe3464231f923156478abc",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/thread-store/src/local/thread_history/segment_paging.rs",
+      "present": true,
+      "bytes": 19712,
+      "sha256": "e54b9794b1d82de7c4bb30bc35e0d2e9aa27c27acfe6248ea472e5cb800153cc",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/thread-store/src/local/thread_history_materialization_tests.rs",
+      "present": true,
+      "bytes": 134243,
+      "sha256": "4f26af60810175b52a61fae300a967f5f71789f13aed723fd1d9059e4410ad5c",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/thread-store/src/types.rs",
+      "present": true,
+      "bytes": 44124,
+      "sha256": "95b6266dbda5f6f75ba2940c7ece6ef5d78d57974a7e9bfcfb769985191c837e",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/activity_groups_tests.rs",
+      "present": true,
+      "bytes": 11699,
+      "sha256": "011d3decfcc7a8d389c65b47cbf0790d43988c4dea6bbf548a55f45900c0dc47",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/agents_overview_tests.rs",
+      "present": true,
+      "bytes": 120197,
+      "sha256": "c6df28f58c2e4294c22d900831e28c9fe2885a0457c79caeff6cd448b2cb40b3",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/app_server_event_targets.rs",
+      "present": true,
+      "bytes": 17706,
+      "sha256": "4b15680246c914cfe040ca40ea22d0f22ffbbb57fd4ac8360a41d0427ac4c024",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/composer_hints_tests.rs",
+      "present": true,
+      "bytes": 10851,
+      "sha256": "d0226e1f2400f02ee353ce2b8671d4d304f5ac1ba446fa9822f95c8824bfab90",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/history_completion_tests.rs",
+      "present": true,
+      "bytes": 2571,
+      "sha256": "b9e96ea57cbb5e6316a25b34ed32e6a664587c33d9a72e2db6c7ab9072ea1046",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/history_pagination_tests.rs",
+      "present": true,
+      "bytes": 9155,
+      "sha256": "1ba66907d4e1bd03a113b6de7a7328566244dea7becfb6870f84cdab619b31d7",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/owned_transcript_follow_tests.rs",
+      "present": true,
+      "bytes": 8132,
+      "sha256": "e48c6e884d9f566331f162b5b33dcba72d84cd2830a6bd4eaddecf33c8560a51",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/owned_transcript_input_tests.rs",
+      "present": true,
+      "bytes": 34403,
+      "sha256": "469509d0328631a9f3bff9204e287bf93f071696de3c3be7ff473dad8922c382",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/owned_transcript_tests.rs",
+      "present": true,
+      "bytes": 74071,
+      "sha256": "f116861f936b7cc306a5d9b3b6ec4faefc6e2c8e4b2d37f5a59cf636b92f4d8a",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/pending_interactive_replay.rs",
+      "present": true,
+      "bytes": 41210,
+      "sha256": "05fc5c95dfe8cab46981179eba8d5a2c530b1d5c3c6dc2f8cbc571715c02f6ec",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/recap_tests.rs",
+      "present": true,
+      "bytes": 36993,
+      "sha256": "dd28d478deae16aba8f5f5a2b416023283a6606cf52464774a728f7245896759",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/safety_buffering_tests.rs",
+      "present": true,
+      "bytes": 1571,
+      "sha256": "1f3e836da1e89330f184ef22470426f8273d68dfc7e51db19903983017019652",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/tests.rs",
+      "present": true,
+      "bytes": 366948,
+      "sha256": "c29a6f7d4f5cdf4eac665e2df2a61b06600292b727785f0ba228d3b614b08acc",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/tests/buffered_replay.rs",
+      "present": true,
+      "bytes": 32958,
+      "sha256": "b6076374253f07498208cfbe19386815683e4bc10f96df3ba5f0a2dd56b171eb",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/tests/realtime_requests.rs",
+      "present": true,
+      "bytes": 88341,
+      "sha256": "6ae288e5dfb55fdd08d491c423cd0171507be25724dbbe3d66c641b1bb62ba86",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/tests/startup.rs",
+      "present": true,
+      "bytes": 68660,
+      "sha256": "40337d1817f6ab5c840edf94c973f69a5d43698fc232e592ceeb239bd3c069ae",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/tests/user_verification_routes_tests.rs",
+      "present": true,
+      "bytes": 12926,
+      "sha256": "ed100978b3356eea30fc007527c4907c6f1887ae6ba264b9086f5ea1b0f2bf33",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/thread_event_buffer_tests.rs",
+      "present": true,
+      "bytes": 9544,
+      "sha256": "dc9c38dcfa1f8b0e54b6796b3cc4a26eb71d4497a9d73f4554c65f351f5184b1",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/thread_events.rs",
+      "present": true,
+      "bytes": 47922,
+      "sha256": "5a6730fbff73896cae9c89650c96b0263cf8e94429b7eb6d4e6eb2d4bade0fa2",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/thread_title_tests.rs",
+      "present": true,
+      "bytes": 31907,
+      "sha256": "31a0898d364439852a0efc238347cb3c398fe1a461567ba2d70404c2258ea535",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app/transcript_export_tests.rs",
+      "present": true,
+      "bytes": 9014,
+      "sha256": "a19fe9dac7b83d955edadc8e0519bc2ecd5430cb57ce0f671eb006e0f01745e3",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app_backtrack.rs",
+      "present": true,
+      "bytes": 44553,
+      "sha256": "ac5f98997c934c6c9ded97cb977b88c313eab54984dcba4e66dce751412a6649",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/app_server_session.rs",
+      "present": true,
+      "bytes": 168612,
+      "sha256": "53fa8d5a8ea6d1fee318673d9ff76b75a0a4b93e0e2f0d4d795f5d532eb10fd8",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/bottom_pane/mcp_server_elicitation.rs",
+      "present": true,
+      "bytes": 104521,
+      "sha256": "387c64a8482e062cee22bb91f44c8c68e00e0780e14a9700331e1706f11e3558",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/protocol.rs",
+      "present": true,
+      "bytes": 32407,
+      "sha256": "a0dedbd6fc3f1d37a656566253e4be48814225eb322af71be1b3270f063e7757",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/realtime_tests.rs",
+      "present": true,
+      "bytes": 5493,
+      "sha256": "0a32c2b42fd0123252371d7b9932cbbf8c7036735bd7bc44183aff6c304521f4",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/realtime_tests/caption_replay.rs",
+      "present": true,
+      "bytes": 16004,
+      "sha256": "84e94f1a6114bab6a221c764155d3201fc5ba22c330aadb0f7338ca0aa9c4d33",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/tests/app_server.rs",
+      "present": true,
+      "bytes": 87041,
+      "sha256": "e169902a3a7b41baea9ef77bbf7a3ac70de813ca458b638769b8b6ac521bd367",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/tests/completion_styling_tests.rs",
+      "present": true,
+      "bytes": 11048,
+      "sha256": "a32e42b61b19dd9a7239bac5dd528a22885b5e4110d1c344584a903373674dbb",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/tests/exec_flow.rs",
+      "present": true,
+      "bytes": 72149,
+      "sha256": "9021cef09bfd9f399d7f0e2975a0535052e5cf93207f9e08f92d256eac5d8b05",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/tests/helpers.rs",
+      "present": true,
+      "bytes": 62023,
+      "sha256": "7ef3080609bb66a23506545e1591add9c40fbc1c8e537af50068a306f6a68f8c",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/tests/history_projection.rs",
+      "present": true,
+      "bytes": 14974,
+      "sha256": "d44ab6cadaff105f10e1f17fe161c0c278a45a9736095f08479e0c472e8a4ff8",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/tests/history_replay.rs",
+      "present": true,
+      "bytes": 67505,
+      "sha256": "82c1c9bb35360c10b8c0aab0c143f5ced0af7650abe18888dcb374dfd6560ae8",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/tests/plan_mode.rs",
+      "present": true,
+      "bytes": 70098,
+      "sha256": "a3a0db055a7f3a575d6a2fd552d13e529854b0945305ccea138742fe28f6d960",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/tests/review_mode.rs",
+      "present": true,
+      "bytes": 57551,
+      "sha256": "3d7713e957bbbd226d4cf87122ccfa49dab5c832c86087ba703b645fcc88a7da",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/chatwidget/thread_usage_tests.rs",
+      "present": true,
+      "bytes": 40362,
+      "sha256": "cdb29f976dddd39415e1c4a34bcdbb184cfd0292fee795e45b05db7dea3b4228",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/resume_picker.rs",
+      "present": true,
+      "bytes": 255346,
+      "sha256": "926181983855613d34326b1d8440ca3efcee2e2048af8f710c24d971e4682177",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/temporary_structured_request_tests.rs",
+      "present": true,
+      "bytes": 11660,
+      "sha256": "35ba60b5f811505cbf8c1ad3ff453ed73b8ab56d7454ff7ebb4bca19de388036",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/thread_transcript/computer_groups_tests.rs",
+      "present": true,
+      "bytes": 6206,
+      "sha256": "16949116df2b8fde87b8c4ba8170b417ae556e5f1e216623349545b5211e6728",
+      "classification": "ordinary"
+    },
+    {
+      "status": " M",
+      "path": "engine/codex-rs/tui/src/transcript_view/mutations_tests.rs",
+      "present": true,
+      "bytes": 17047,
+      "sha256": "71e844d96d9c72329115e7837d0fa8f63474efe9b1e8f2e1f861ca484ca9a970",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/app-server-protocol/schema/json/v2/UserWaitTimingUpdatedNotification.json",
+      "present": true,
+      "bytes": 2813,
+      "sha256": "93e8f7f2d5f32c37d07e55571cbeb4aa9ab63a34ed687850db631734edd41256",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/UserWaitInterval.ts",
+      "present": true,
+      "bytes": 311,
+      "sha256": "35a25a59b3121aec9c83b652f9e53166a55bd773174aaa01f86084e09a7a61b3",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/UserWaitRequest.ts",
+      "present": true,
+      "bytes": 380,
+      "sha256": "f28a688c5e24ed86ffac2bfb234fdf7c8f5fdcf58c6bb744b09451b8b68d4ac0",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/UserWaitTiming.ts",
+      "present": true,
+      "bytes": 697,
+      "sha256": "5975c7906143d987fbc7afb355a71bdf14d7cdef8c9b14c3153b0faddc90592c",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/app-server-protocol/schema/typescript/v2/UserWaitTimingUpdatedNotification.ts",
+      "present": true,
+      "bytes": 399,
+      "sha256": "494224886f96ad63de4243e6a17210f5ef9bd514f6fbfbaffeb870a0159ceed3",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/app-server-protocol/src/protocol/v2/user_wait.rs",
+      "present": true,
+      "bytes": 452,
+      "sha256": "e9b5491afff71aae1dfb46a879add8c95298ebd77ab415bd886c1662067d00f2",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/core/src/user_wait_runtime.rs",
+      "present": true,
+      "bytes": 22946,
+      "sha256": "5ab53b7d40d1553c7db4955967c446fe6feb30f5a8a65e34bc98684387eee339",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/core/src/user_wait_timing.rs",
+      "present": true,
+      "bytes": 15673,
+      "sha256": "f58740fbb174b54594d6e5da2a5ec74bc83568d9fbcefbbe0a41edbb3deb4f0a",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/project-maintenance/src/partitioned_storage.rs",
+      "present": true,
+      "bytes": 39718,
+      "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/project-maintenance/src/timing.rs",
+      "present": true,
+      "bytes": 4376,
+      "sha256": "8cd2311daf8d6a5fdf0f739cdb2829c48d0b36655dab5d8f0f2dec1609cff8f9",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/project-maintenance/tests/contention.rs",
+      "present": true,
+      "bytes": 5977,
+      "sha256": "9a7f29ed398f413a7052ec85b939e9190b46946ab54b8d5e86738e159d79ceae",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/project-maintenance/tests/partitioned.rs",
+      "present": true,
+      "bytes": 7418,
+      "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/protocol/src/user_wait.rs",
+      "present": true,
+      "bytes": 1640,
+      "sha256": "4961784f149325ad842a4b710137dcaa1fdfd953002b73e9c045f292b5850bbc",
+      "classification": "ordinary"
+    },
+    {
+      "status": "??",
+      "path": "engine/codex-rs/state/thread_history_migrations/0012_user_wait_timing.sql",
+      "present": true,
+      "bytes": 64,
+      "sha256": "86a5eeac6a2cea58be124fa6e2377e44f5644571fb67019969522d642b88ec90",
+      "classification": "migration"
+    }
+  ],
+  "freeBytes": "11238170624",
+  "authorization": "Pinset only; staging/recorder/capture/Cargo remain HOLD"
+}

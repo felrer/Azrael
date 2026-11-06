@@ -1,0 +1,169 @@
+{
+  "checked_at": "2026-11-01T09:15:55.735Z",
+  "actual_exit_code": 0,
+  "groups": 81,
+  "roots": 193,
+  "preserved_management_configs": [
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\project-maintenance.json",
+      "archive": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-7c13ccb422b5a84292d3\\18-project-maintenance.json",
+      "bytes": 52542,
+      "sha256": "710cc2452f6e5d7a5ed0082704e981c3078b47cb0056b968ca5655772c4bb7e8"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\x\\project-maintenance.json",
+      "archive": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-3a6546173894a10680e6\\18-project-maintenance.json",
+      "bytes": 49980,
+      "sha256": "8ee43985e5bade1ef4bb29d823537119a81292ad5757d769fe6d0520b507fadb"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w\\project-maintenance.json",
+      "archive": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-023da50d1a8c39efcde8\\18-project-maintenance.json",
+      "bytes": 49980,
+      "sha256": "8ee43985e5bade1ef4bb29d823537119a81292ad5757d769fe6d0520b507fadb"
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14b\\project-maintenance.json",
+      "archive": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\archive-bundles\\primary-c136c6be833bfef68d01\\18-project-maintenance.json",
+      "bytes": 52537,
+      "sha256": "57502bfd4f460538fba715998c83ce2fba166a6dbce1f9b71e21b1bd3dcb6722"
+    }
+  ],
+  "protected_original_paths": [
+    {
+      "scope": "primary",
+      "id": "workspace:66b9e879d0a15d55e7ebda6c",
+      "reason": "protected-or-current-or-unresolved",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\.agents",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\.gitattributes",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\.github",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\.gitignore",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\.gitmodules",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\.vscode",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\AGENTS.md",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\LICENSE",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\README.ko.md",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\README.md",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\THIRD_PARTY_NOTICES.md",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\control",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\docs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\engine",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\extensions",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\instructions",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\native",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\plugins",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\project-maintenance.json",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\providers",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\scripts",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\upstream",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\work"
+      ]
+    },
+    {
+      "scope": "primary",
+      "id": "work:EU01-install-014-ao-fixtures",
+      "reason": "protected-or-current-or-unresolved",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\upstream-ui",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\tools\\bun-1.4.2",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\sf"
+      ]
+    },
+    {
+      "scope": "primary",
+      "id": "run:EU01-install-014:freeze-resume-ao",
+      "reason": "protected-or-current-or-unresolved",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\freeze-resume-ao"
+      ]
+    },
+    {
+      "scope": "primary",
+      "id": "run:EU01-install-014:acceptance-az",
+      "reason": "consumer-outside-archive-cohort",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\acceptance-az",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\6",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\azf",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\n"
+      ]
+    },
+    {
+      "scope": "primary",
+      "id": "input:66b9e879d0a15d55e7ebda6c",
+      "reason": "protected-or-current-or-unresolved",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\014ao"
+      ]
+    },
+    {
+      "scope": "primary",
+      "id": "run:EU01-install-014:acceptance-ba",
+      "reason": "protected-or-current-or-unresolved",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\acceptance-ba",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\7",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\baf",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\o"
+      ]
+    },
+    {
+      "scope": "primary",
+      "id": "run:EU01-install-014:freeze-readonly-ac",
+      "reason": "active-cleanup-reservation",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\freeze-readonly-ac"
+      ]
+    },
+    {
+      "scope": "primary",
+      "id": "run:EU01-install-014:cleanup-be",
+      "reason": "protected-or-current-or-unresolved",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\cleanup-be"
+      ]
+    },
+    {
+      "scope": "primary",
+      "id": "run:EU01-install-014:readonly-handoff-ab",
+      "reason": "protected-or-current-or-unresolved",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\readonly-handoff-ab",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\z"
+      ]
+    },
+    {
+      "scope": "wu14h",
+      "id": "run:verification:win014-eu01-20261101-k",
+      "reason": "no-present-payload",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\v-k"
+      ]
+    },
+    {
+      "scope": "wu14h",
+      "id": "run:verification:win014-eu01-20261101-j",
+      "reason": "no-present-payload",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\v-j"
+      ]
+    },
+    {
+      "scope": "wu14h",
+      "id": "run:verification:win014-eu01-20261101-h",
+      "reason": "no-present-payload",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\v-h"
+      ]
+    },
+    {
+      "scope": "wu14h",
+      "id": "run:EU01-final-cleanup:wu14h",
+      "reason": "protected-or-current-or-unresolved",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\tasks\\EU01-final-cleanup\\runs\\metadata"
+      ]
+    }
+  ]
+}

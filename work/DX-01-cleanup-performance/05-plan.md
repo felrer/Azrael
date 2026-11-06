@@ -1,4 +1,4 @@
-상태: 설치·검증·정리 완료. 최적화된 별도 실행기를 앞으로 이 체크아웃의 Windows 정리에 사용한다.
+상태: 당시 설치·검증·정리를 완료했으며 이후 f167 실행기로 교체됐다. DX05 이전 version은 EC-01 정리에서 사용·소비 참조를 재확인한 뒤 삭제·finalize했다. 현재 실행기 선택은 `artifacts/maintenance/owner-installation.json`이 소유한다.
 
 # 최적화 관리 실행기 설치
 
@@ -20,3 +20,7 @@
 - 설치물의 최소 build/smoke/cleanup 영수증을 version `verification/`으로 보존하고 run의 모든 생성물을 native register/review/apply로 삭제했다. 정리 apply exit 0, 22.710초, deleted/remaining=false/error=null/attributes=[] 및 실제 run 경로 부재를 확인했다. 원래 lifecycle은 finalized, remaining/references/blockers=[]이다. 기존 archive는 변경하지 않았다.
 - 지속 사용 version은 lifecycle `version:maintenance-owner:dx05`의 retained/complete-membership 설치물로 등록하고 마지막 receipt까지 전체 재등록했다. 실행기와 최소 검증 근거만 남겼다. 교체 또는 사용 종료 시 현재 참조를 검토하여 폐기한다. 남은 일회성 cache·fixture·raw log·source copy는 없다. 제어 파일 `.git/dx05-plan-body.md`, `.git/dx05-cleanup-request.json`도 일반 삭제 후 부재를 확인했다.
 - 최종 문서 diff 검사는 exit 0이다. 작업 commit은 `AGENTS.md`, `docs/ops/project-maintenance.md`, 본 계획에 한정하며 기존 index 항목과 작업 소스를 보존한다. 추가 앱 빌드나 재시작은 필요하지 않다.
+## 이전 실행기 퇴역 (EC-01)
+
+최소 검증4파일은 [독립 보존 디렉터리](../EC-01-unused-file-archive/07-dx05-retirement-evidence/)로 SHA256 일치 인계했다. [교체·비사용 근거](../EC-01-unused-file-archive/07-dx05-retirement-proof.json)와 [실제 정리 결과](../EC-01-unused-file-archive/07-dx05-cleanup.json)를 보존한다. full register/review/apply는 모두 actual exit0, payload remainingfalse이며 source finalize를 확인했다. 현재 f167 실행기와 설치본은 이 퇴역으로 교체하지 않았다.
+

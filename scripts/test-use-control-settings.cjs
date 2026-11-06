@@ -1,69 +1,124 @@
 "use strict";
-const test = require("node:test"), assert = require("node:assert/strict"), fs = require("node:fs"), os = require("node:os"), path = require("node:path");
-const { createSettingsOwner, stageEnabled } = require("./use-control-settings.cjs");
-function fixture(run) { const home = fs.mkdtempSync(path.join(os.tmpdir(), "use-settings-")); try { run(home); } finally { fs.rmSync(home, { recursive: true }); } }
-test("settings defaults, strict validation, revision CAS and exclusive writes", () => fixture(home => {
-  const a = createSettingsOwner(home), b = createSettingsOwner(home), initial = a.getSettings();
-  assert.deepEqual(initial, { schema: 2, revision: 0, windowUseEnabled: true, stage1Enabled: true, stage2Enabled: true, stage3Enabled: false, stage4Enabled: true, windowUseAllowAll: false, computerUseGeneration: 0, windowUseGeneration: 0 });
-  assert.equal(a.assertComputerUseEnabled(), undefined);
-  const next = a.updateSettings({ stage4Enabled: false }, 0);
-  assert.equal(next.computerUseGeneration, 1); assert.equal(b.getSettings().stage4Enabled, false);
-  assert.throws(() => b.updateSettings({ windowUseAllowAll: true }, 0), { code: "REVISION_CONFLICT" });
-  assert.throws(() => b.assertComputerUseEnabled(), /disabled/);
-  const unchanged = b.updateSettings({ stage4Enabled: false }, 1); assert.equal(unchanged.revision, 2); assert.equal(unchanged.computerUseGeneration, 1);
-  const changed = a.updateSettings({ stage4Enabled: true, windowUseAllowAll: true }, 2); assert.equal(changed.windowUseGeneration, 2); assert.equal(changed.computerUseGeneration, 2);
-  assert.throws(() => a.updateSettings({ revision: 0 }, 3)); assert.throws(() => a.updateSettings({ stage4Enabled: 1 }, 3));
-  const file = path.join(home, "azrael/computer-use/use-settings.json");
-  fs.writeFileSync(file + ".lock", ""); assert.throws(() => a.updateSettings({}, 3), { code: "EEXIST" }); fs.unlinkSync(file + ".lock");
-  for (const bad of ["corrupt", JSON.stringify({ ...changed, extra: true }), JSON.stringify({ ...changed, revision: -1 }), " ".repeat(16385)]) { fs.writeFileSync(file, bad); assert.throws(() => a.getSettings()); assert.throws(() => a.assertComputerUseEnabled()); assert.throws(() => a.updateSettings({}, 3)); }
-  fs.unlinkSync(file); fs.mkdirSync(file); assert.throws(() => a.getSettings());
-}));
-test("separate processes cannot both commit the same expected revision", async () => {
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), "use-settings-cas-"));
-  try {
-    const { spawn } = require("node:child_process");
-    const modulePath = path.join(__dirname, "use-control-settings.cjs");
-    const code = `const owner = require(process.argv[1]).createSettingsOwner(process.argv[2]); try { owner.updateSettings({windowUseAllowAll:true}, 0); process.exit(0); } catch(e) { if(['REVISION_CONFLICT','EEXIST'].includes(e.code)) process.exit(2); console.error(e); process.exit(3); }`;
-    const results = await Promise.all([1, 2].map(() => new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, ["-e", code, modulePath, home], { stdio: ["ignore", "ignore", "pipe"] });
-      let errors = ""; child.stderr.on("data", data => errors += data); child.on("error", reject); child.on("close", exit => resolve({ exit, errors }));
-    })));
-    assert.deepEqual(results.map(r => r.exit).sort(), [0, 2], JSON.stringify(results));
-    assert.equal(createSettingsOwner(home).getSettings().revision, 1);
-  } finally { fs.rmSync(home, { recursive: true }); }
+const test = require("node:test"), assert = require("node:assert/strict"), fs = require("node:fs"), path = require("node:path");
+const { createSettingsOwner, normalizeExecutable } = require("./use-control-settings.cjs");
+const { createOwner } = require("./window-use-approvals.cjs");
+// The invoking verification owner registers and cleans this complete test root.
+function fixture() {
+  const root = process.env.AZRAEL_WINDOW_SETTINGS_TEST_ROOT;
+  if (!root || !path.isAbsolute(root)) throw new Error("Set an owned absolute AZRAEL_WINDOW_SETTINGS_TEST_ROOT before filesystem tests");
+  fs.mkdirSync(root, { recursive: true });
+  const home = fs.mkdtempSync(path.join(root, "settings-"));
+  return { home, settings: createSettingsOwner(home), approvals: createOwner(home) };
+}
+const app = "C:\\Apps\\Example.exe", key = app.toLowerCase();
+function ask(owner, id, permission = "control", persist = ["session", "always"], threadId = "thread") {
+  let sent, shown;
+  owner.receive({ id, method: "mcpServer/elicitation/request", params: { serverName: "azrael_window", threadId, _meta: { connector_id: "window-use", tool_params: { ...(permission === "desktop" ? {} : { app }), permission }, persist } } }, (_id, answer) => { sent = answer; }, request => { shown = request; });
+  return { sent, shown };
+}
+const accept = persist => ({ action: "accept", content: { persist } });
+
+test("schema3 normalizes exact EXE lists, rejects retired authority, and enforces CAS", () => {
+  const { settings } = fixture();
+  assert.deepEqual(settings.getSettings(), { schema: 3, revision: 0, windowUseEnabled: true, observationBlockedApps: [], controlAllowedApps: [], windowUseGeneration: 0 });
+  const state = settings.updateSettings({ controlAllowedApps: [app, key], observationBlockedApps: [app] }, 0);
+  assert.deepEqual(state.controlAllowedApps, [key]); assert.deepEqual(state.observationBlockedApps, [key]); assert.equal(state.windowUseGeneration, 1);
+  assert.throws(() => settings.updateSettings({ windowUseEnabled: false }, 0), { code: "REVISION_CONFLICT" });
+  for (const patch of [{ windowUseAllowAll: true }, { stage1Enabled: true }, { windowUseEnabled: 1 }, { controlAllowedApps: ["Example"] }, { observationBlockedApps: ["C:\\Apps\\*.exe"] }]) assert.throws(() => settings.updateSettings(patch, 1));
+  assert.throws(() => normalizeExecutable("C:\\Apps\\?.exe"));
+  assert.equal(settings.updateSettings({ controlAllowedApps: [app] }, 1).windowUseGeneration, 1);
+  settings.updateSettings({ windowUseEnabled: false }, 2); assert.throws(() => settings.assertEnabled(), /disabled/);
+  fs.writeFileSync(settings.file + ".lock", ""); assert.throws(() => settings.updateSettings({}, 3), { code: "EEXIST" }); fs.unlinkSync(settings.file + ".lock");
 });
 
-test("schema1 migration preserves disabled desktop, revisions, generations and all-app setting", () => fixture(home => {
-  const file = path.join(home, "azrael/computer-use/use-settings.json");
-  fs.mkdirSync(path.dirname(file), { recursive: true });
+test("schema2 keeps its master and schema1 keeps implicit Window Use enablement without importing retired grants", () => {
+  const { settings } = fixture(); fs.mkdirSync(path.dirname(settings.file), { recursive: true });
   for (const enabled of [false, true]) {
-    fs.writeFileSync(file, JSON.stringify({ schema: 1, revision: 7, computerUseEnabled: enabled, windowUseAllowAll: true, computerUseGeneration: 5, windowUseGeneration: 3 }));
-    const owner = createSettingsOwner(home), state = owner.getSettings();
-    assert.equal(state.schema, 2); assert.equal(state.stage4Enabled, enabled); assert.equal(state.stage3Enabled, false);
-    assert.equal(state.windowUseEnabled, true); assert.equal(state.stage1Enabled, true); assert.equal(state.stage2Enabled, true);
-    assert.equal(state.revision, 7); assert.equal(state.windowUseGeneration, 3); assert.equal(state.computerUseGeneration, 5); assert.equal(state.windowUseAllowAll, true);
-    assert.equal(Object.hasOwn(state, "computerUseEnabled"), false);
-    owner.updateSettings({ stage3Enabled: true }, 7);
-    assert.equal(JSON.parse(fs.readFileSync(file)).schema, 2);
+    fs.writeFileSync(settings.file, JSON.stringify({ schema: 2, revision: 7, windowUseEnabled: enabled, stage1Enabled: true, stage2Enabled: true, stage3Enabled: true, stage4Enabled: true, windowUseAllowAll: true, computerUseGeneration: 5, windowUseGeneration: 3 }));
+    const state = settings.getSettings(); assert.equal(state.schema, 3); assert.equal(state.windowUseEnabled, enabled); assert.equal(state.revision, 7); assert.equal(state.windowUseGeneration, 4);
+    assert.deepEqual(state.controlAllowedApps, []); assert.deepEqual(state.observationBlockedApps, []);
+    settings.updateSettings({}, 7); assert.equal(JSON.parse(fs.readFileSync(settings.file)).schema, 3);
+    fs.writeFileSync(settings.file, JSON.stringify({ schema: 1, revision: 7, computerUseEnabled: enabled, windowUseAllowAll: true, computerUseGeneration: 5, windowUseGeneration: 3 }));
+    assert.equal(settings.getSettings().windowUseEnabled, true); assert.deepEqual(settings.getSettings().controlAllowedApps, []);
   }
-}));
-test("independent stage switches and master override preserve stored values and revoke generations", () => fixture(home => {
-  const owner = createSettingsOwner(home);
-  for (let mask = 0; mask < 16; mask++) {
-    const patch = Object.fromEntries([1,2,3,4].map(stage => [`stage${stage}Enabled`, Boolean(mask & (1 << (stage-1)))]));
-    for (const master of [true, false]) {
-      const before = owner.getSettings(), state = owner.updateSettings({ ...patch, windowUseEnabled: master }, before.revision);
-      const changed = Object.keys(patch).some(key => before[key] !== patch[key]) || before.windowUseEnabled !== master;
-      assert.equal(state.windowUseGeneration, before.windowUseGeneration + Number(changed));
-      assert.equal(state.computerUseGeneration, before.computerUseGeneration + Number(before.windowUseEnabled !== master || before.stage4Enabled !== patch.stage4Enabled));
-      for (let stage=1; stage<=4; stage++) {
-        assert.equal(state[`stage${stage}Enabled`], patch[`stage${stage}Enabled`]);
-        assert.equal(stageEnabled(state, stage), master && patch[`stage${stage}Enabled`]);
-        if (stageEnabled(state, stage)) owner.assertStageEnabled(stage); else assert.throws(() => owner.assertStageEnabled(stage), /disabled/);
-      }
-      if (stageEnabled(state, 4)) owner.assertComputerUseEnabled(); else assert.throws(() => owner.assertComputerUseEnabled(), /disabled/);
-    }
+});
+
+test("control approvals never authorize Security App observation; session grants expire on settings and stop", () => {
+  const { settings, approvals } = fixture();
+  assert.equal(approvals.hasAppApproval(app, "thread", "observation"), true);
+  assert.equal(approvals.hasAppApproval(app, "thread"), false);
+  settings.updateSettings({ observationBlockedApps: [app] }, 0);
+  const blocked=ask(approvals,"control");assert.equal(blocked.sent.content.windowError.code,"security_app_blocked");assert.equal(blocked.shown,undefined);
+  assert.equal(approvals.hasAppApproval(app, "thread"), false); assert.equal(approvals.hasAppApproval(app, "thread", "observation"), false);
+  assert.deepEqual(ask(approvals, "observation", "observation").shown.params._meta.persist, ["session"]);
+  assert.equal(approvals.response("observation", accept("session")).action, "accept"); assert.equal(approvals.hasAppApproval(app, "thread", "observation"), true);
+  assert.deepEqual(approvals.getAppApprovals().approvedApps.map(a => a.permission).sort(), ["observation"]);
+  settings.updateSettings({ controlAllowedApps: [] }, 1);
+  assert.equal(approvals.hasAppApproval(app, "thread"), false); assert.equal(approvals.hasAppApproval(app, "thread", "observation"), false);
+  ask(approvals, "stopped", "observation"); approvals.stop("thread"); assert.equal(approvals.response("stopped", accept("session")).action, "cancel");
+  ask(approvals, "stale", "observation"); settings.updateSettings({ windowUseEnabled: false }, 2); assert.equal(approvals.response("stale", accept("session")).action, "cancel");
+  assert.deepEqual(approvals.getPersistentAppApprovals().approvedApps, []);
+});
+
+// Retain these boundaries against later permission-kind or whitelist simplification.
+test("desktop consent is thread-only, nonpersistent and independent of the control whitelist", () => {
+  const { home, approvals } = fixture();
+  assert.equal(approvals.hasDesktopApproval("thread"), false);
+  assert.equal(approvals.hasDesktopAppApproval(app, "thread"), false);
+  assert.deepEqual(ask(approvals, "forged", "desktop", ["always"]).shown.params._meta.persist, ["session"]);
+  assert.equal(approvals.response("forged", accept("always")).action, "cancel");
+  ask(approvals, "decline", "desktop"); approvals.response("decline", { action: "decline" });
+  assert.equal(approvals.hasDesktopApproval("thread"), false);
+  ask(approvals, "grant", "desktop"); assert.equal(approvals.response("grant", accept("session")).action, "accept");
+  assert.equal(approvals.hasDesktopApproval("thread"), true);
+  assert.equal(approvals.hasDesktopAppApproval(app, "thread"), true);
+  assert.equal(approvals.hasAppApproval(app, "thread", "control"), true);
+  assert.equal(approvals.hasDesktopApproval("other"), false);
+  assert.equal(createOwner(home).hasDesktopApproval("thread"), false);
+  assert.deepEqual(approvals.getAppApprovals().approvedApps, []);
+  assert.equal(fs.existsSync(path.join(home, "azrael", "window-use", "app-approvals.json")), false);
+  assert.equal(ask(approvals, "already", "desktop").sent.action, "accept");
+  approvals.notification("turn/completed", { threadId: "thread" }); assert.equal(approvals.hasDesktopApproval("thread"), true);
+  approvals.revokeDesktopApproval("thread"); assert.equal(approvals.hasDesktopApproval("thread"), false);
+});
+
+test("Security App control is blocked before prompting despite persisted, whitelist, and global approval", () => {
+  const {settings,approvals}=fixture();
+  ask(approvals,"saved","control");approvals.response("saved",accept("always"));
+  settings.updateSettings({observationBlockedApps:[app],controlAllowedApps:[app]},0);
+  ask(approvals,"desktop","desktop");approvals.response("desktop",accept("session"));
+  assert.equal(approvals.hasAppApproval(app,"thread","control"),false);assert.equal(approvals.hasDesktopAppApproval(app,"thread"),false);
+  const blocked=ask(approvals,"blocked","control");assert.equal(blocked.sent.content.windowError.code,"security_app_blocked");assert.equal(blocked.shown,undefined);
+  ask(approvals,"observe","observation");approvals.response("observe",accept("session"));assert.equal(approvals.hasAppApproval(app,"thread","observation"),true);assert.equal(approvals.hasAppApproval(app,"thread","control"),false);
+});
+
+test("desktop pending approvals cannot survive stop, lifecycle end, or changed policy", () => {
+  const { settings, approvals } = fixture();
+  for (const [hook, method] of [["outgoing", "turn/interrupt"], ["outgoing", "thread/unsubscribe"], ["outgoing", "thread/archive"], ["outgoing", "thread/delete"], ["notification", "thread/closed"], ["notification", "thread/ended"]]) {
+    ask(approvals, "desktop", "desktop"); approvals.response("desktop", accept("session"));
+    ask(approvals, "late", "desktop", ["session"], "pending");
+    approvals[hook](method, { threadId: "thread" }); approvals[hook](method, { threadId: "pending" });
+    assert.equal(approvals.hasDesktopApproval("thread"), false, method);
+    assert.equal(approvals.response("late", accept("session")).action, "cancel", method);
   }
-  for (const invalid of [0,5,"2",null]) assert.throws(() => owner.assertStageEnabled(invalid), /Invalid/);
-  assert.throws(() => owner.updateSettings({ computerUseEnabled: true }, owner.getSettings().revision), /Invalid/);
-}));
+  ask(approvals, "stale", "desktop"); settings.updateSettings({ observationBlockedApps: [app] }, 0);
+  assert.equal(approvals.response("stale", accept("session")).action, "cancel");
+  ask(approvals, "desktop", "desktop"); approvals.response("desktop", accept("session"));
+  settings.updateSettings({ controlAllowedApps: [app] }, 1); assert.equal(approvals.hasDesktopApproval("thread"), false);
+});
+
+test("persistent exact Window Use control grants survive and remain removable without changing observation", () => {
+  const { home, settings, approvals } = fixture();
+  const file = path.join(home, "azrael", "window-use", "app-approvals.json"); fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify({ schema: 1, revocations: {}, apps: [{ bundleIdentifier: key, displayName: "Example" }] }));
+  settings.updateSettings({ observationBlockedApps: [app] }, 0);
+  assert.equal(approvals.hasAppApproval(app, "thread"), false); assert.equal(approvals.hasAppApproval(app, "thread", "observation"), false);
+  approvals.removeAppApproval(app); assert.equal(approvals.hasAppApproval(app, "thread"), false); assert.deepEqual(settings.getSettings().observationBlockedApps, [key]);
+  settings.updateSettings({observationBlockedApps:[]},settings.getSettings().revision);
+  ask(approvals, "always"); assert.equal(approvals.response("always", accept("always")).action, "accept"); assert.equal(createOwner(home).hasAppApproval(app, "other"), true);
+  settings.updateSettings({observationBlockedApps:[app]},settings.getSettings().revision);
+  assert.equal(approvals.hasAppApproval(app,"thread"),false);
+  assert.equal(approvals.hasAppApproval(app, "thread", "observation"), false);
+  ask(approvals, "observation-always", "observation"); assert.equal(approvals.response("observation-always", accept("always")).action, "cancel");
+  approvals.removeAppApproval(app); assert.equal(createOwner(home).hasAppApproval(app, "thread"), false);
+});

@@ -81,7 +81,6 @@ pub(crate) struct Session {
     pub(super) features: ManagedFeatures,
     pub(super) isolation: codex_extension_api::SessionIsolation,
     pub(crate) tool_policy: Arc<codex_extension_api::ToolPolicy>,
-    pub(crate) claude_file_state: Arc<crate::tools::handlers::claude_files::ClaudeFileState>,
     pub(crate) computer_use_mode: Option<codex_protocol::protocol::ComputerUseMode>,
     pub(crate) windows_sandbox_proxy_settings_mode:
         codex_sandboxing::WindowsSandboxProxySettingsMode,
@@ -89,7 +88,7 @@ pub(crate) struct Session {
     /// Owns invalidation and serializes refreshes without blocking captured calls.
     pub(super) mcp_refresh: McpRefresh,
     /// Non-owning lookup for approval data retained by running MCP invocations.
-    pub(crate) mcp_tool_approval_metadata: std::sync::Mutex<McpToolApprovalMetadataMap>,
+    pub(crate) mcp_tool_approval_metadata: Arc<std::sync::Mutex<McpToolApprovalMetadataMap>>,
     pub(super) mcp_elicitation_reviewer_handle: OnceLock<codex_mcp::ElicitationReviewerHandle>,
     pub(super) mcp_elicitation_lifecycle_handle: OnceLock<codex_mcp::ElicitationLifecycle>,
     pub(super) mcp_prewarm_tx: async_channel::Sender<()>,
@@ -290,6 +289,7 @@ impl SessionConfiguration {
             .map(|config| config.permission_profile.clone())
             .unwrap_or_else(|| self.permission_profile_state.snapshot());
         ThreadConfigSnapshot {
+            role_profile: self.original_config_do_not_use.role_profile.clone(),
             auto_compaction_enabled: self.auto_compaction_enabled,
             computer_use_mode: None,
             model: self.step_settings.collaboration_mode.model().to_string(),
@@ -1153,6 +1153,7 @@ impl Session {
                     InitialHistory::New | InitialHistory::Cleared | InitialHistory::Forked(_) => {
                         let auth = persistence_auth.await;
                         let params = CreateThreadParams {
+                            role_profile: config.role_profile.clone(),
                             computer_use_mode,
                             creator_user_id: auth.as_ref().and_then(CodexAuth::get_chatgpt_user_id),
                             creator_account_id: auth.as_ref().and_then(CodexAuth::get_account_id),
@@ -1952,7 +1953,6 @@ impl Session {
                 features: config.features.clone(),
                 isolation,
                 tool_policy,
-                claude_file_state: Arc::default(),
                 computer_use_mode,
                 windows_sandbox_proxy_settings_mode,
                 multi_agent_version,

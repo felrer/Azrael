@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "kind": "cursor-native-implementation-evidence",
+  "sourceRun": "run:EZ01:mp-mw07n6du",
+  "sourceSha256": "6b832a44dd573456fb66d57207f3cf34460a0b97c8e6d9aab5b277e015772c3f",
+  "startedAt": "2026-11-03T04:51:32.588Z",
+  "endedAt": "2026-11-03T04:51:48.985Z",
+  "steps": [
+    {
+      "name": "mcp-source",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 175
+    },
+    {
+      "name": "configure",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 3012
+    },
+    {
+      "name": "compile",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 9214
+    },
+    {
+      "name": "compile-raw-origin-selftest",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1465
+    },
+    {
+      "name": "raw-origin-selftest",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 47
+    },
+    {
+      "name": "system-cursor-guard-selftest",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 2273
+    },
+    {
+      "name": "cursor-render-selftest",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 91
+    }
+  ],
+  "cursorRendering": {
+    "applicationInputs": 0,
+    "checks": 80,
+    "cursorVisibilityChanged": false,
+    "foregroundUnchanged": true,
+    "frames": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\reports\\cursor-frames.png",
+    "kind": "cursor-render-selftest",
+    "pointerObservedAfter": {
+      "x": 2940,
+      "y": 1912
+    },
+    "pointerObservedBefore": {
+      "x": 2816,
+      "y": 1949
+    },
+    "previewSha256": "cc60b5b2effdf8719ac4e92e99b17994e73617919370c720cd208593fb87732c"
+  },
+  "host": {
+    "initialManagedSession": 36386,
+    "initialExit": 1,
+    "firstFailure": "test-window-use-staging python ENOENT; other3 suites passed",
+    "stagingRetryManagedSession": 5847,
+    "stagingRetryExit": 0,
+    "stagingPass": 4,
+    "stagingFail": 0
+  },
+  "handoffProducer": {
+    "id": "run:EZ01:cursor-check-mw07po24",
+    "managedSession": 29533,
+    "observedExitCode": 1,
+    "observedSignal": null,
+    "children": [],
+    "producerStoppedVerified": true,
+    "reason": "Owned short-lived Node copy process and all stdout/stderr ended; wrapper has no child processes. Runtime/frame copy and verify succeeded; final lifecycle close threw ENOENT for concurrently finalized sp-e785 fixture; no exit0 is inferred."
+  },
+  "runtimeManifestSha256": "1393ec4b4381e05f25248137f278b55f07db9400b33a94de01055bb846d8e486",
+  "nativeRenderingUserAcceptance": "pending",
+  "installedRuntimeChanged": false
+}

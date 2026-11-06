@@ -111,6 +111,10 @@
 
 ### 통합 수용과 남은 실행
 
+- 현재 복구 기능은 `c405bcf4737fbecabc0be11ee91fadb830ff354c`로 커밋했다. [커밋 결과](58e-recovery-commit-result.json)와 [독립 보존 확인](58f-commit-preservation-assessment.json)을 구분한다. 후자는 앞선 수집기의 자기 비교를 정정하고 실제 선택 파일 27개의 SHA와 transaction의 필수 전후 검사를 확인한다.
+- [과거 빈 publication 복구](58-historical-empty-publication-recovery.json)는 승인된 두 파일의 정식 삭제·부재를, [제어 파일 폐기](59-control-retirement-result.json)는 cw02/03의 `.git` 2개·빈 디렉터리 8개 삭제와 workrecord 최종화를 확인했다. [CONTROL 최종 정리](60c-control-outer-cleanup.json)와 VSS 세 묶음의 삭제·부재·최종화도 완료했다. 원래 실패 결과와 외부 예약은 보존했다. 최신 앱 빌드는 남은 NATIVE 정리가 끝난 뒤 재개한다.
+- [마지막 등록 차단](61-native-registration-guard-assessment.json): NATIVE의 `temporary/e-unit11/state/home/AppData/Local/Microsoft/Windows/INetCache/Content.IE5`는 같은 시험 프로필의 `INetCache/IE`를 가리키는 mount-point 정션(tag `0xa0000003`, attributes `0x2416`)이다. System 속성 때문에 기존 PowerShell 소유자도 거절하며 속성·ACL 변경이나 다른 API 삭제로 우회하지 않았다. [정리 결과](61-targets-cleanup-result.json)는 VSS 논리 크기 887,806,330바이트 삭제와 NATIVE register exit1·review/apply 미실행을 구분한다. 외부 cleaner는 failure1로 정식 종료했다. NATIVE와 실패 cleaner는 이 차단의 조사·지원 절차 결정에 필요하여 보호 중이며 전체 작업 완료나 보존 승인으로 취급하지 않는다.
+
 - [관리 루트 폐기 결과](17-root-retirement-result.json)는 3그룹·4구성원 2,884,511,976바이트의 실제 삭제·부재·최종화를 확인했다. 현재 설정을 기준으로 임시 관리 루트만 제거하여 다른 작업의 bundle 변경을 보존했다. 입력 원본 receipt 유실은 복구됐다고 주장하지 않고 독립 승인 근거에 그 한계를 유지했다.
 - [병렬 수용](14-parallel-admission.json)은 기본 슬롯 1의 상한과 설정 2의 동시 점유, 8개 삭제 요청 및 부재를 확인했다. 동작 이후 controller close는 구형 실행기가 새 preferences 필드를 읽지 못해 exit1이었다. 실제 자식 36개의 종료·close와 동작 통과를 보존하고 별도 상태 루트에서 실패 outcome 그대로 producer를 닫았다. [정리 결과](20-parallel-cleanup.json)는 해당 run의 실제 부재와 참조 해제를 확인한다.
 - [32항목 비교](19-performance-comparison.json)는 actual exit0/115.213초, 각 variant 한 표본씩 완료했다. baseline native24.825초, unit6 78.523초였고 group reservation 관측이 큰 비중을 차지했다. 단일 순차 표본과 앞선 cohort의 큰 시간 편차 때문에 인과적 처리량이나 최대 속도를 확정하지 않는다. 80/200으로 자동 확대하지 않았다.
@@ -165,9 +169,19 @@
 
 - [동일 tiny의 명시 continuation](47-tiny-reprepare-continuation.json)은 tool exit0, continuation child47800 exit0/null signal/close·양pipe drain, apply worker50656 exit0/close로 통과했다. exact source7개를 기존 caller reports에 같은 SHA로 복사한 새 stop-attestation만 사용했으며 제품r2·원46·원 controller/plan/stop은 불변이다. 기존 workrecord revision1을 그대로 채택했고 `.git`과 명시된 세 디렉터리를 정식 삭제했다. native catalog8340·maintenance2776의 exit0/close/release, finish true·retained reservation0, finalized·record/workspace 부재를 확인했다. 원 failed-attempt1과 setup worker53608 failure1은 보존하고 inner caller를 실제 continuation 종료 뒤 failure/exit1·revision2·references0으로 닫았다. 모든 API packet은 반환 직후 assert 전에 저장했으며 public API가 PID를 노출하지 않는 최종화 catalog만 source-enforced-return으로 별도 표기했다. immutable 입력47개·unit8·원46은 불변이다. 기존 native whole-run 소유 자료의 C0CF 정리는 root 소비 종료 뒤 수행하며 과거2 pending·원33·cw02/03 실제 적용은 여전히 HOLD다.
 
-- [범위 예약 실패49](49-scoped-reservation-verification.json)와 원 unknown은 보존하고 [정식 시험 복구50](50-task49-fixture-recovery.json)·[r6 tiny51](51-r6-scoped-reservation-tiny.json)의 실제 수용을 구분한다. [빌드 도구 인계57](57-build-tool-handoff.json)는 unit8/독립39 최소 입력을 held build caller에 넘겼으며 앱 빌드는 계속 보류한다.
+- [범위 예약 실패49](49-scoped-reservation-verification.json)와 원 unknown은 보존하고 [정식 시험 복구50](50-task49-fixture-recovery.json)·[r6 tiny51](51-r6-scoped-reservation-tiny.json)의 실제 수용을 구분한다. [최신 빌드 도구 인계61a](61a-unit10-build-tool-handoff.json)는 unit10/독립58a 최소 입력을 held build caller에 넘겼으며 앱 빌드는 최종 정리까지 보류한다.
 - [native58a](58a-native-source-retirement-verification.json)는 isolated unit10 compile·신규2·full210·binary 및 별도 synthetic CLI를 수용했다. [정확한 legacy source 폐기58b](58b-legacy-source-retirement-result.json)는 payload 삭제0·과거 producer exit 미인증을 유지한다. [composite58c](58c-native-source-retirement-integration-verification.json)는 현재 복합 입력의 typecheck와 public2 검사만 수용하며 전체 primary suite나 앱 빌드 수용이 아니다.
-- [과거 두 pending 실제 복구58](58-historical-empty-publication-recovery.json)는 정확한 ordinary unlink2·부재·정상 종료를 수용했고 원 writer unknown과 원래 실패 결과를 보존했다. cw59와 최종60/61은 후속 운영 정리 근거이며 이 기능 커밋의 완료 주장에 포함하지 않는다.
+- [과거 두 pending 실제 복구58](58-historical-empty-publication-recovery.json)는 정확한 ordinary unlink2·부재·정상 종료를 수용했고 원 writer unknown과 원래 실패 결과를 보존했다. [cw59](59-control-retirement-result.json)와 [CONTROL 정리60c](60c-control-outer-cleanup.json)는 실제 삭제·부재·최종화를 확인했다. 원60의 문서 형상 오류는 보존하며 VSS·NATIVE 묶음의 최종 정리는 아직 진행 중이다.
+
+## 최신 Windows 앱 빌드 인계
+
+- 사용자의 후속 지시에 따라 기존 FW-01 복구·정리를 먼저 완료한다. 현재 제품 컴파일·배포는 시작하지 않았다. 승인된 과거 두 pending와 cw02/03의 복구·삭제 및 기능 커밋은 완료했고, 최종 시험 실행물 정리가 남아 있다. [도구 이관61a](61a-unit10-build-tool-handoff.json)에서 검증된 unit10 실행기를 별도 빌드 입력으로 고정하고 held 소비 참조를 연결했다. 기존 unit8 시험 입력은 정식 삭제·최종화했다.
+- 사용자는 최신 Azrael 빌드와 격리 프로필 설치를 승인하고 가능하면 이번 개선 관리 도구를 빌드 과정에서도 사용하도록 요청했다. 대상은 현재 PC의 Windows x64 로컬 빌드·검증·패키지와 `artifacts/p/fw04-18/{u,e,s}`의 독립 설치다. 기본 사용자 프로필 전환·실행 중인 창 재시작·원격 게시·push는 포함하지 않는다. 기존 정리 및 두 빈 제어 파일 복구 목표도 유지한다.
+- 먼저 최신 엔진의 공식 source receipt와 빌드 실행 경로·도구 capability를 확인한다. 검증용 unit8은 queue/삭제 제한을 포함하지만 최신 관리 API 전체를 제공하지 않으므로 현재 빌드의 기본 실행기로 임의 치환하지 않는다. 현재 소스와 호환되는 관리 실행기를 준비·수용한 뒤 빌드 전용 명시 선택으로 사용 가능한지 확인한다. 현재 세션 내장 도구는 새 패키지 생성만으로 바뀌지 않는다.
+- 빌드 입력은 준비 시점의 최신 소스와 필요한 미커밋 변경을 정식 owner로 고정하고 이후 동시 변경을 따라갱신하지 않는다. source provenance·선택 기능 검사·실제 엔진/host IPC·최종 패키지 수용을 유지하며, 같은 물리 Cargo target에 producer를 중복 실행하지 않는다. 빌드 산출물과 준비·실패 자료는 기존 lifecycle owner 절차로 등록·보호·정리한다. 구버전 도구가 Windows 크래시 원인이었다는 결론은 아직 입증되지 않았다.
+- 새 앱 버전은 `2026.0.18`로 선택했다. 초기 공식 `import-engine-source.py --check --snapshot-only`는 actual exit0, 9,365개 파일·96,716,345바이트·inventory SHA `7297016908dbc6f4e1bf03ca51e88988daf9bba81cdfdf41b912a6647fedbdd5`였다. unit8 `capabilities`와 현재 프로젝트 catalog의 `build.preflight` lease 획득·release도 actual exit0이다. 이는 준비 경로 확인이며 제품 컴파일·전체 API 호환성·최종 패키지 수용을 대신하지 않는다. 고정 입력 준비 시 동일성 재검증을 유지한다.
+- [범위 예약 시험49](49-scoped-reservation-verification.json)의 실패·원 unknown은 보존한다. [정식 복구50](50-task49-fixture-recovery.json)는 해당 시험 잔여 예약과 실패 fixture를 정리했고, [후속 tiny51](51-r6-scoped-reservation-tiny.json)은 실제 수용을 통과했다. 이를 기본 queue/native 삭제 검사와 구분한다.
+- 사용자는 두 빌드 세션의 작업을 현재 대화에서 이어서 실행하도록 승인했다. Windows x64·2026.0.18·격리 프로필·단일 Cargo producer/jobs2 범위를 유지한다. 기존 OAuth/lifecycle 경로 보정과 패키징 의존성 누락 보정을 포함한 새 고정 입력 `fw04-05`, 작업본 `artifacts/w/8`을 사용한다. 패키징 focused 검사와 의존성/UI 준비가 exit0으로 끝났고 `deployment-20261107-03` 공식 빌드가 시작됐다. 입력 identity·검증·실행 기록은 [빌드 재개69](69-build-continuation.md)가 소유한다. 기본 환경·자격 증명은 복사하지 않으며 `SkipCodexEnvironmentSnapshot`을 유지한다. 최종 빌드·설치·커밋·정리는 아직 완료되지 않았다. [복사 단독 시험64](64-copy-crash-investigation.json)는 성공했으나 최초 VS Code 종료 원인은 미확정이며, [관찰기 정리65](65-observer-reboot-cleanup-result.json)는 완료됐다.
 
 ## 이번 계획의 제외 범위
 

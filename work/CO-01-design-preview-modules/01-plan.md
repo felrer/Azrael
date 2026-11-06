@@ -30,9 +30,9 @@ GrowKick `docs/work/CA-01-main-hud-html-design/prototype/hud.js:262-281`의 화�
 
 ## 검증·생성물 판단
 
-Windows x64/Node 26.7.0/실제 Chrome에서 확인했다. `boards-design-unit` native `run-45928-1096-1792388012156047600`, actual exit 0·입력 무결성 유효, 신규 계약 6개와 기존 보드 회귀 26개를 합한 32개 통과. [단위 로그](../../artifacts/tasks/CO-01-design-preview-modules/runs/unit-1792388012948-f16db1b1/logs/command.log).
+Windows x64/Node 26.7.0/실제 Chrome에서 확인했다. `boards-design-unit` native `run-45928-1096-1792388012156047600`, actual exit 0·입력 무결성 유효, 신규 계약 6개와 기존 보드 회귀 26개를 합한 32개 통과. [단위 로그](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/CO-01-design-preview-modules/runs/unit-1792388012948-f16db1b1/logs/command.log).
 
-`boards-design-ui` native `run-45928-1096-1792388012156047600`, actual exit 0·입력 무결성 유효, 실제 조작 37개 통과. 05:33:36.950–05:33:41.895 UTC. [결과](../../artifacts/tasks/CO-01-design-preview-modules/runs/ui-1792388015827-e21688e9/reports/render-summary.json), [로그](../../artifacts/tasks/CO-01-design-preview-modules/runs/ui-1792388015827-e21688e9/logs/command.log). 실제 프레임 안에서 CSS viewport와 미디어 쿼리·상태/안전 여백·인라인 SVG를 확인했다. 프리셋 수정·입력 오류/선택 보존·카드 복제/삭제/이력·한글 저장 재열기·편집본을 버리지 않는 백업·복원·고정 전달본·실제 HTML 다운로드·충돌/저장 위치 오류·취소를 확인했다. 밝음/어두움/좁은 화면도 조작하고 대표 화면을 직접 확인했다. Linux/macOS와 물리 기기·게임 엔진은 미검증이다.
+`boards-design-ui` native `run-45928-1096-1792388012156047600`, actual exit 0·입력 무결성 유효, 실제 조작 37개 통과. 05:33:36.950–05:33:41.895 UTC. [결과](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/CO-01-design-preview-modules/runs/ui-1792388015827-e21688e9/reports/render-summary.json), [로그](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/CO-01-design-preview-modules/runs/ui-1792388015827-e21688e9/logs/command.log). 실제 프레임 안에서 CSS viewport와 미디어 쿼리·상태/안전 여백·인라인 SVG를 확인했다. 프리셋 수정·입력 오류/선택 보존·카드 복제/삭제/이력·한글 저장 재열기·편집본을 버리지 않는 백업·복원·고정 전달본·실제 HTML 다운로드·충돌/저장 위치 오류·취소를 확인했다. 밝음/어두움/좁은 화면도 조작하고 대표 화면을 직접 확인했다. Linux/macOS와 물리 기기·게임 엔진은 미검증이다.
 
 최초 UI 검사 두 번은 검증 코드가 opaque srcdoc의 Chrome 별도 target과 문서 교체 중 frame 전환을 처리하지 못해 exit 1이었다. 제품 코드는 바꾸지 않고 CDP에서 실제 소유 iframe ID를 찾아 대기하도록 수정한 뒤 최종 검사를 통과했다. 실패 run `ui-1792387628187-8f8756dc`(Chrome PID 35556 exit 0, 05:27:12.597 UTC 종료)와 `ui-1792387660852-6f41c6de`(PID 22108 exit 0, 05:27:43.523 UTC 종료)는 각각 wrapper actual exit 1과 시험 서버 종료를 확인했다. 최종 Chrome PID 60456 exit 0·시험 서버 종료도 확인했다. 단위/브라우저 로그는 run별로 독립 저장했다.
 
@@ -44,7 +44,7 @@ Windows x64/Node 26.7.0/실제 Chrome에서 확인했다. `boards-design-unit` n
 
 최종 지침과 실행 서버의 rules 일치도 확인했다. 첫 정리 적용에서 일부 검토 토큰이 만료되어 최종 두 temporary만 삭제됐다. 현재 입력을 고정한 뒤 나머지 열두 group을 재검토·적용했고 모두 삭제됐다. 두 작업을 합해 14개 group의 19개 구성원 경로가 실제로 없음을 확인했다. 정상 상태 producer record 10개와 원래 실패 상태를 보존한 record 4개의 finalize를 완료했다. 최종 단위/UI 증거는 각 작업에 2개 group씩 보존하며 실사용 피드백 진단 종료 또는 새 근거로 대체될 때 재검토한다. 목록·카드 묶음의 서버 공통 import 입력에도 design codec/model을 선언해 이후 검사의 범위를 맞췄다.
 
-실패 producer 종료·대체 검증·실제 삭제 경로와 원래 registry 상태는 [독립 정리 근거](../../artifacts/tasks/CO-01-design-preview-modules/runs/cleanup-1792389201814-5b4f7900/reports/cleanup.json)로 보존했다. 이 파일은 별도 cleanup run에 생성 전 소유를 등록했고 immutable retirement evidence로 사용했다. 실사용 피드백·정리 진단 종료 또는 동등한 검증·정리 근거로 대체되고 참조가 해제될 때 재검토한다. API의 physical_bytes_reclaimed는 null이므로 물리 회수량을 주장하지 않는다. 정리는 프로필별 파일 검증과 토큰 갱신으로 구현·검사보다 오래 걸렸으며 삭제 완료 뒤 actual absence와 producer metadata를 별도로 대조했다.
+실패 producer 종료·대체 검증·실제 삭제 경로와 원래 registry 상태는 [독립 정리 근거](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/CO-01-design-preview-modules/runs/cleanup-1792389201814-5b4f7900/reports/cleanup.json)로 보존했다. 이 파일은 별도 cleanup run에 생성 전 소유를 등록했고 immutable retirement evidence로 사용했다. 실사용 피드백·정리 진단 종료 또는 동등한 검증·정리 근거로 대체되고 참조가 해제될 때 재검토한다. API의 physical_bytes_reclaimed는 null이므로 물리 회수량을 주장하지 않는다. 정리는 프로필별 파일 검증과 토큰 갱신으로 구현·검사보다 오래 걸렸으며 삭제 완료 뒤 actual absence와 producer metadata를 별도로 대조했다.
 
 ## 공유 index와 남은 커밋
 

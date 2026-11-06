@@ -1,0 +1,243 @@
+{
+  "at": "2026-11-02T07:38:49.208Z",
+  "successful_probe": {
+    "schema": 1,
+    "status": "passed",
+    "scope": "Windows x64 supplemental current default Node lease native termination via exact opened process handle",
+    "started": "2026-11-02T07:37:32.310Z",
+    "executions": [
+      {
+        "name": "client",
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\native-close.cjs",
+          "client",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\native-close-lock-attempt2"
+        ],
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-attempt2-client.stdout",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-attempt2-client.stderr",
+        "close_observed": true,
+        "exit_code": 0,
+        "pid": 3648,
+        "signal": null,
+        "packets": [
+          {
+            "event": "acquired",
+            "owner": {
+              "acquired_at_ms": 1793605052473,
+              "operation": "default.smoke.nativeclose",
+              "parent_pid": 3648,
+              "pid": 56952,
+              "schema": 2,
+              "token": "56952-1793605052472-8ca449814d8d3b64"
+            }
+          },
+          {
+            "event": "released",
+            "result": {
+              "released": true,
+              "reservations_retained": []
+            }
+          }
+        ]
+      },
+      {
+        "name": "observer",
+        "executable": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-Command",
+          "$NativePid=56952; $ExpectedExecutable='C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe';\n$ErrorActionPreference='Stop'\n$native=Get-Process -Id $NativePid -ErrorAction Stop\n$heldHandle=$native.Handle\nif ($heldHandle -eq [IntPtr]::Zero) { throw 'Exact process handle unavailable' }\n$actualExecutable=$native.MainModule.FileName\nif ($actualExecutable -ne $ExpectedExecutable) { throw 'Native executable mismatch' }\n$created=$native.StartTime.ToUniversalTime().ToString('o')\n@{event='ready';pid=$NativePid;handle_held=$true;executable=$actualExecutable;created_at=$created} | ConvertTo-Json -Compress\n[Console]::Out.Flush()\n$native.WaitForExit()\n$exitCode=$native.ExitCode\nif ($null -eq $exitCode) { throw 'Exact native process exit code unavailable' }\n@{event='terminated';pid=$NativePid;exact_handle_wait_completed=$true;exit_code=$exitCode;created_at=$created} | ConvertTo-Json -Compress\n[Console]::Out.Flush()\n$native.Dispose()\nif ($exitCode -ne 0) { exit 1 }\n"
+        ],
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-attempt2-observer.stdout",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-attempt2-observer.stderr",
+        "close_observed": true,
+        "exit_code": 0,
+        "pid": 58084,
+        "signal": null,
+        "packets": [
+          {
+            "created_at": "2026-11-02T07:37:32.4426562Z",
+            "handle_held": true,
+            "pid": 56952,
+            "event": "ready",
+            "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe"
+          },
+          {
+            "created_at": "2026-11-02T07:37:32.4426562Z",
+            "pid": 56952,
+            "exact_handle_wait_completed": true,
+            "event": "terminated",
+            "exit_code": 0
+          }
+        ]
+      },
+      {
+        "name": "presence",
+        "executable": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-Command",
+          "$ids=@(27352,24412,27984,55460,32976,20004,32488,29244,37832,32156,56952,3648,58084); $active=@(Get-Process -Id $ids -ErrorAction SilentlyContinue | ForEach-Object { @{pid=$_.Id;name=$_.ProcessName;created_at=$_.StartTime.ToUniversalTime().ToString('o')} }); @{event='presence';known_pids=$ids;active=$active;absence_is_not_exit_proof=$true} | ConvertTo-Json -Compress -Depth 4"
+        ],
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-attempt2-presence.stdout",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-attempt2-presence.stderr",
+        "close_observed": true,
+        "exit_code": 0,
+        "pid": 56300,
+        "signal": null,
+        "packets": [
+          {
+            "active": [],
+            "known_pids": [
+              27352,
+              24412,
+              27984,
+              55460,
+              32976,
+              20004,
+              32488,
+              29244,
+              37832,
+              32156,
+              56952,
+              3648,
+              58084
+            ],
+            "event": "presence",
+            "absence_is_not_exit_proof": true
+          }
+        ]
+      }
+    ],
+    "limitations": [
+      "Original native PID32488 close was missed; absence observation below does not retroactively prove its exit code."
+    ],
+    "command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    },
+    "native_pid": 56952,
+    "observer_ready": {
+      "created_at": "2026-11-02T07:37:32.4426562Z",
+      "handle_held": true,
+      "pid": 56952,
+      "event": "ready",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe"
+    },
+    "native_exact_handle_termination": {
+      "created_at": "2026-11-02T07:37:32.4426562Z",
+      "pid": 56952,
+      "exact_handle_wait_completed": true,
+      "event": "terminated",
+      "exit_code": 0
+    },
+    "current_known_pid_presence": {
+      "active": [],
+      "known_pids": [
+        27352,
+        24412,
+        27984,
+        55460,
+        32976,
+        20004,
+        32488,
+        29244,
+        37832,
+        32156,
+        56952,
+        3648,
+        58084
+      ],
+      "event": "presence",
+      "absence_is_not_exit_proof": true
+    },
+    "final_direct_children": [
+      {
+        "name": "client",
+        "pid": 3648,
+        "close_observed": true,
+        "exit_code": 0,
+        "result": "fulfilled"
+      },
+      {
+        "name": "observer",
+        "pid": 58084,
+        "close_observed": true,
+        "exit_code": 0,
+        "result": "fulfilled"
+      },
+      {
+        "name": "presence",
+        "pid": 56300,
+        "close_observed": true,
+        "exit_code": 0,
+        "result": "fulfilled"
+      }
+    ],
+    "prior_attempt": {
+      "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\reports\\default-native-close-attempt1.json",
+      "outer_exit_code": 1,
+      "observer_exit_code": 1,
+      "client_exit_unobserved": true,
+      "native_exit_unobserved": true,
+      "cause": "PowerShell script-file execution policy rejected; corrected authorized inline observation, no policy change"
+    },
+    "finished": "2026-11-02T07:37:33.444Z"
+  },
+  "failed_attempt": {
+    "schema": 1,
+    "status": "failed",
+    "scope": "Windows x64 supplemental current default Node lease native termination via exact opened process handle",
+    "started": "2026-11-02T07:36:11.276Z",
+    "executions": [
+      {
+        "name": "client",
+        "executable": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\native-close.cjs",
+          "client",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\native-close-lock"
+        ],
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-client.stdout",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-client.stderr",
+        "close_observed": false,
+        "exit_code": null,
+        "pid": 29244
+      },
+      {
+        "name": "observer",
+        "executable": "powershell.exe",
+        "args": [
+          "-NoProfile",
+          "-File",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\observe-native.ps1",
+          "-NativePid",
+          "37832",
+          "-ExpectedExecutable",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe"
+        ],
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-observer.stdout",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\logs\\default-native-close-observer.stderr",
+        "close_observed": true,
+        "exit_code": 1,
+        "pid": 32156,
+        "signal": null,
+        "packets": []
+      }
+    ],
+    "limitations": [
+      "Original native PID32488 close was missed; absence observation below does not retroactively prove its exit code."
+    ],
+    "command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    },
+    "native_pid": 37832,
+    "error": "Error: observer exit 1\n    at ChildProcess.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\perf2\\temporary\\default-smoke\\native-close.cjs:19:307)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "finished": "2026-11-02T07:36:11.964Z"
+  },
+  "interpretation": "Corrected exact-handle probe observed native exit0; prior missed native exits remain unknown rather than retroactively assigned. Those prior known PIDs and descendants are absent; their lease-only operation has no payload producer."
+}

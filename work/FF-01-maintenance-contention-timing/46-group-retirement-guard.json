@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-02T11:56:27.848Z",
+  "storage": {
+    "version_id": "version:maintenance-owner:ff01:storage-20261102",
+    "prior_user_approval": "retain until named jobs finish using",
+    "named_parent_pids": [
+      12928,
+      23904,
+      32048,
+      56992
+    ],
+    "currently_present_named_parents": [],
+    "current_storage_executables": [],
+    "consumer_exit_codes": null,
+    "interpretation": "Named approved consumer processes and old executable users absent in current host snapshot; no invented terminal exit. Installation no longer selects storage. Release exact retired installation reference before fresh native review."
+  },
+  "catalog": {
+    "current_consumers": [
+      {
+        "ProcessId": 20120,
+        "ParentProcessId": 29520,
+        "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+        "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\"",
+        "CreationUtc": "2026-11-02T11:53:29.8459280Z"
+      },
+      {
+        "ProcessId": 33460,
+        "ParentProcessId": 20120,
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102\\payload\\maintenance_owner.exe --project-root C:\\Users\\felre\\Desktop\\pi-harness-init --request -",
+        "CreationUtc": "2026-11-02T11:53:29.9434520Z"
+      }
+    ],
+    "retention": "protected; not authorized for deletion while current job uses it"
+  },
+  "runtime_query_exit_code": 0
+}

@@ -83,6 +83,9 @@ pub enum ParentResponseWaitResult {
 #[serde(rename_all = "camelCase")]
 #[ts(rename_all = "camelCase")]
 pub struct ParentResponseWaitSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub agent_profile: Option<crate::agent_profile::AgentProfileRef>,
     pub model: String,
     pub provider_id: String,
     pub reasoning_effort: Option<crate::openai_models::ReasoningEffort>,

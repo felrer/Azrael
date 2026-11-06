@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "action": "recover-cleanup",
+  "source": {
+    "id": "work:engine-check-retirement-r1",
+    "kind": "work",
+    "owner": "root",
+    "version": null,
+    "generation": null,
+    "revision": 2,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": null,
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r1",
+        "protection_known": true,
+        "role": "run"
+      }
+    ]
+  },
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "stop_basis": "Original lifecycle and all recorded files predate independently observed Windows kernel boot; no historical process tree survives reboot, current matching process query zero. Current owner consumer and reservation checks remain binding.",
+  "membership_basis": "Original creator/owning work and producer-plan establish generated scope; complete bounded metadata inventory contains only the declared synthetic fixture directories. Original unknown result preserved.",
+  "producer_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-pending-generation-proof.json",
+      "sha256": "e1210fe7571c8697373fe3b9fc73a95122147f7d2f0190ecb1211e73a76d0ec3"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-pending-current-use.json",
+      "sha256": "ef1f50779b9b754e3f91ae3693608064ad76a36343ca07850fb4ad383988699e"
+    }
+  ]
+}

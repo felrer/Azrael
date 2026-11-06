@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "reconstructed": true,
+  "original_request_was_a_javascript_object_not_a_retained_wire_file": true,
+  "original_native_wire_recorded": false,
+  "reconstructed_request_ref": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/reconstructed-original-release-request.json",
+  "reconstructed_raw_file_sha256": "c338ea910b511f1e818e15af3461134f9c73d9c9e87bf46e5977d34a21293f6a",
+  "reconstructed_raw_file_bytes": 502,
+  "canonical_request_sha256": "63d24a4662e07c3c5a38eaea5209530a458c2b5612a2dcfadd1cc0f84f3dd748",
+  "persisted_release_receipt_sha256": "63d24a4662e07c3c5a38eaea5209530a458c2b5612a2dcfadd1cc0f84f3dd748",
+  "authoritative_reference_id": "8ae0aaa926427a37a49ee1f747df0461bb4438d2efa6a478d14e8dd78c7a97c7",
+  "original_helper": {
+    "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/f/temp-reset-o-controller.cjs",
+    "sha256": "558c77c5d335e8215545c7c23bf037a9f769ff1eae249a9a70cd337fcd20e7e5"
+  },
+  "same_six_fields_as_original_helper": true,
+  "raw_file_sha_is_distinct_from_canonical_binding": true,
+  "native_exit_code": null,
+  "acknowledgement_recorded": false
+}

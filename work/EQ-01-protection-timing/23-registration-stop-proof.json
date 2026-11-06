@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "c15bc10b21e8df910fc850c1eb0609a63c4444ed3e9a36e63fd9907a53634a69",
+  "lease_owner": {
+    "acquired_at_ms": 1793552619722,
+    "operation": "group_reservation",
+    "pid": 37824,
+    "schema": 2,
+    "token": "37824-1793552619722-23cda39634a06a85"
+  },
+  "reason": "Owned synchronous native registration child completed and streams drained with actual exit 1; managed controller terminated exit 1. This registration path does not launch deletion workers or child producers. Exact reservation and failure receipt bind PID and request, rather than inferring termination from PID absence.",
+  "execution": {
+    "work_id": "9dcac8bd-63ac-437b-9b9c-12022ef3784c",
+    "observed_exit_code": 1,
+    "native_pid": 37824,
+    "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EQ-01-protection-timing\\23-latest-owner-run-register-request.json",
+    "request_sha256": "8f98b78c5a4cb6f80e27787daebddef4ac1f8bba3e77c1a90042f0d095404a0a"
+  }
+}

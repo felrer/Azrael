@@ -18,13 +18,14 @@ pub(super) async fn handle(
     session: &Arc<Session>,
     submission_id: String,
 ) -> CodexResult<CompactIfIdleSubmission> {
-    handle_with_authority(session, submission_id, false).await
+    handle_with_authority(session, submission_id, false, None).await
 }
 
 pub(super) async fn handle_with_authority(
     session: &Arc<Session>,
     submission_id: String,
     explicit: bool,
+    agent_profile: Option<codex_protocol::agent_profile::AgentProfileRef>,
 ) -> CodexResult<CompactIfIdleSubmission> {
     let model = session.current_execution_model().await;
     if session.account_is_retired_for_model(&model)
@@ -97,9 +98,24 @@ pub(super) async fn handle_with_authority(
         session.maybe_start_turn_for_pending_work().await;
         return Ok(CompactIfIdleSubmission::Skipped);
     }
-    let context = session
-        .new_turn_with_default_settings(submission_id.clone(), Default::default())
-        .await;
+    let context = match session
+        .new_turn_with_sub_id(
+            submission_id.clone(),
+            Default::default(),
+            super::turn_context::NewTurnContextOptions {
+                agent_profile,
+                ..Default::default()
+            },
+        )
+        .await
+    {
+        Ok((context, _)) => context,
+        Err(error) => {
+            session.clear_reserved_idle_turn(&turn_state).await;
+            session.maybe_start_turn_for_pending_work().await;
+            return Err(error);
+        }
+    };
     session.start_task(context, Vec::new(), CompactTask).await;
     Ok(CompactIfIdleSubmission::Started {
         turn_id: submission_id,

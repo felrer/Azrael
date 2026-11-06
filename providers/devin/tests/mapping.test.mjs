@@ -632,3 +632,14 @@ test('model catalog parser reads supports_images field #5 without changing other
     { modelUid: 'text-model', supportsImages: false, contextWindow: 1000, disabled: false },
   ]);
 });
+// Future message projection edits must not flatten multimodal inter-agent input.
+test('agent messages retain attributed text and native image parts', () => {
+  const image = { type: 'input_image', image_url: 'data:image/png;base64,AAAA' };
+  const input = [{ type: 'agent_message', author: '/root/a', recipient: '/root/b', content: [{ type: 'input_text', text: 'Image attachment ID: img_fixture' }, image] }];
+  assert.deepEqual(compileRequest(request({ input })).messages[0], { role: 'user', content: [
+    { type: 'text', text: 'Agent message from /root/a to /root/b:\n' },
+    { type: 'text', text: 'Image attachment ID: img_fixture' },
+    { type: 'image', mimeType: 'image/png', base64Data: 'AAAA' },
+  ] });
+  assert.throws(() => compileRequest(request({ input: [{ ...input[0], content: [{ type: 'encrypted_content', encrypted_content: 'opaque' }, image] }] })), /unsupported_nontext_content/);
+});

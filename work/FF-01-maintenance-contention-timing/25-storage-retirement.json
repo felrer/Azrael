@@ -1,0 +1,22 @@
+{
+  "at": "2026-11-02T10:02:09.465Z",
+  "retention": {
+    "path": "artifacts/versions/maintenance-owner-ff01-perf-win-x64-20261102",
+    "files": 9,
+    "bytes": 2855228,
+    "user_approved": "FG-01 cleanup process 38316 completion",
+    "condition_ended": true
+  },
+  "runtime": {
+    "parent38316_absent": true,
+    "old_perf_and_queued_executable_consumers": [],
+    "observation": "Exact PID/creation parent previously observed; subsequent CIM returned no parent and no old-version executable matches. No process outcome synthesized."
+  },
+  "cleanup_attempt": {
+    "path": "24-storage-cleanup.json",
+    "exit_code": 1,
+    "error": "project config changed during registration",
+    "deletion_started": false
+  },
+  "reason": "Retired default replaced and accepted; original FG-01 cached-command parent terminated, no old executable consumers observed; release only exact installation reference before fresh native owner review."
+}

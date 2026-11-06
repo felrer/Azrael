@@ -6,9 +6,37 @@ Public repository/release publication is held, and
 live GitHub release acquisition has not been verified against a published Azrael
 release. Existing integrated UI redistribution permission remains a release gate.
 
-Development uses the private `felrer/Azrael` repository. This visibility choice
+Development uses the `felrer/Azrael` repository (verified public on 2026-11-02). Repository visibility
 does not replace third-party license conditions or establish redistribution
 permission. App release versions and authorized local upload automation are owned by [Local app release](app-release.md). Instruction publication follows its independent workflow below.
+
+## Standalone package development tab
+
+The [package workbench](../architecture/instructions.md#package-development-workbench) remains separately usable without building or installing Azrael:
+
+```powershell
+node scripts/serve-instruction-workbench.cjs --port 4318 --repository owner/repository --project C:/absolute/project
+```
+
+Open the printed loopback URL. Repeat `--project`, `--library` (an existing absolute personal library root, read only) and `--repository` to add development inputs. Use `--collaborator-repository owner/repository` for private collaborator sources. Without a project option, the current checkout is the development project. The maintained baseline is listed automatically; an existing sibling `<CODEX_HOME>-instruction-library` is read if available. Omitting repositories permits offline local development. Private repositories need the host-only `AZRAEL_WORKBENCH_GITHUB_TOKEN` environment variable; this development adapter does not read VS Code SecretStorage or send credentials to the browser. The existing Publisher validates actual repository visibility/access.
+
+Card search and local editing remain usable while explicit `업데이트 확인` runs in the background. Remote compound package metadata and image are read at the release's immutable source commit and checked against its manifest; full archive/content validation occurs on download. A new package may contain copied and authored components plus an optional provided model profile. Importing a folder retains its full supported inventory; invalid/oversized content is rejected, not truncated.
+
+The active slot belongs to the selected development project. Projectless context uses defaults. `저장하고 장착` and drag/click equip update only sandbox profile selection; the request preview captures immutable development data and performs no model inference. The standalone form offers existing connected-account metadata and cached model/effort dropdowns. Provider is optional and unchecked applies without an account restriction. Tokens and cache identity stay on the host. The cache does not recheck per-account model entitlement or establish installed-engine activation. Package editing and this sandbox do not mutate the running Azrael installation.
+
+Each launch records an owned run beneath `artifacts/tasks/FA-01-instruction-package-dev-tab/runs/`; the printed path owns all mutable library, profile, cache and log data. UI source changes take effect on browser reload without losing that run's state. A new server launch creates a fresh development run; previous run data is not silently discarded or adopted. The backend's durable state can be reopened by its owner with the same roots. Keep only the necessary user-check bundle while awaiting confirmation, then stop and clean it through the maintenance owner.
+
+Graceful stop uses the exact printed run path:
+
+```powershell
+node scripts/serve-instruction-workbench.cjs --stop-run C:/absolute/printed/run
+```
+
+The session control file remains local; do not publish it. Shutdown drains HTTP and background work before the producer closes. Run `node scripts/check-instruction-workbench.cjs` for the backend and HTTP-boundary checks, with detailed logs and actual exit evidence in its owned run. The registered `instruction-workbench` bundle and `ui.instruction-settings.workbench` preservation check select the same test files. A command timeout is a failed attempt; an observed completed runner is required. Browser light/dark and responsive interaction checks are separate from these tests and from live GitHub or installed-engine acceptance.
+
+### Native adapter
+
+The default `azrael.instructions` command uses the shared workbench inside Azrael; `azrael.instructionsLegacy` keeps the existing library management surface available. Native state uses `CODEX_HOME/azrael/instruction-workbench`, separately from the browser sandbox. Native project identity and the live model catalog come from the host. Existing connected-account metadata is read on the host; credentials never enter the renderer. Native request admission captures an immutable profile reference before direct or queued user input, while legacy fixed-profile conversations and replies to waiting questions retain their original snapshots. Package/native acceptance remains in progress in the work record.
 
 ## Personal resource library
 
@@ -174,3 +202,9 @@ Integrated development packages use their established development runtime paths;
 the [app release installer](app-release.md#package-and-installation-contract) prepares
 installation-specific paths from a portable distribution. Full clean-machine acceptance
 and public UI/runtime redistribution permission remain separate release gates.
+
+### Preserving a development sandbox during a server update
+
+After graceful stop, `--seed-run ABSOLUTE_PREVIOUS_RUN` copies only that verified completed workbench run's library/profile/cache data into the new owned run. It rejects active/failed/unverified producers and linked input files, does not copy control tokens or HTTP logs, and never overwrites the source. Retain the announced minimum recovery copy only until the new surface passes the user's normal-operation check.
+
+For continued development against retained data, use `--data-run ABSOLUTE_PREVIOUS_RUN` instead. The new HTTP adapter owns its logs and temporary installation, references the existing data owner, and holds a single-writer lease while serving. This does not rewrite the previous producer's historical outcome. Stop the adapter with `--stop-run ABSOLUTE_ADAPTER_RUN` before restarting it; `--data-run` and `--seed-run` are mutually exclusive.

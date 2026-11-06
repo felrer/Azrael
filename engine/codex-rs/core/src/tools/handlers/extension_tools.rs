@@ -85,7 +85,7 @@ impl ToolExecutor<ToolInvocation> for ExtensionToolAdapter {
 impl CoreToolRuntime for ExtensionToolAdapter {
     fn is_builtin_control_tool(&self) -> bool {
         let tool_name = self.0.tool_name();
-        if tool_name.is_default_namespace() {
+        if tool_name.namespace.as_deref() == Some(codex_tools::LEGACY_CODEX_TOOLS_NAMESPACE) {
             return matches!(
                 tool_name.name.as_str(),
                 "get_goal" | "create_goal" | "update_goal"

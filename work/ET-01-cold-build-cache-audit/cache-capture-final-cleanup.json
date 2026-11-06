@@ -1,0 +1,182 @@
+{
+  "schema": 1,
+  "status": "deleted-and-source-finalized",
+  "verification": "registered",
+  "originalNativeOutcome": "unknown/null preserved through supported cleanup recovery",
+  "negativeUnusedInference": false,
+  "logicalBytes": 283281,
+  "applyP": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:cold-capture-20261030a",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-50820-4370-1793418852803",
+        "decision": "delete",
+        "decision_id": "51351840cba5a140f2bd54c1dd0f490f74099132b09a190fcd8f97e9b60e601e",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "a3b8c244a1160609f58f5adf2ad86880277d73e7d62d957bf291424f26bb8a25",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:cold-capture-20261030a",
+        "reason": "Exact stopped unsuccessful capture/analysis attempt; fixed native wait and incomplete/unknown results preserved in independent work evidence; no functional ETL or current consumer remains. No unread-cache deletion inference.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "ee428213364f72783ee0d13f29b15f45dfcd60bc62bcb4788ea7413aba56ecee"
+      }
+    ]
+  },
+  "applyB": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:final-cache-fileio-analysis-20261031a",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ET-01-cold-build-cache-audit:final-cache-fileio-analysis-20261031b",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ET-01-cold-build-cache-audit:positive-cache-fileio-analysis-20261031a",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ET-01-cold-build-cache-audit:wpr-stop-observation-20261031a",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-50820-99-1793418900237",
+        "decision": "delete",
+        "decision_id": "9b864d61019bfbb40d5c0736eab84b17f1d381c20246fd9a9d4dd94d21849a01",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "4c308803a876ebc2351b3a0fdb11f49a05a7011f968e023f867343bf5522e8e6",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:wpr-stop-observation-20261031a",
+        "reason": "Exact stopped unsuccessful capture/analysis attempt; fixed native wait and incomplete/unknown results preserved in independent work evidence; no functional ETL or current consumer remains. No unread-cache deletion inference.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "6820c64f46b901f54ae44a6f31d27ee957f87822cd4a8a591ffe9ff344710f22"
+      },
+      {
+        "attempt_id": "attempt-50820-101-1793418912800",
+        "decision": "delete",
+        "decision_id": "591c7957cb9d0e33dffb51faec86002f60e64145e231f14ec8822bd99950b7f9",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "80b258372d00e850ee9a6f94ead808a7174a513ba18f01543ea844e33a9e9447",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:final-cache-fileio-analysis-20261031a",
+        "reason": "Exact stopped unsuccessful capture/analysis attempt; fixed native wait and incomplete/unknown results preserved in independent work evidence; no functional ETL or current consumer remains. No unread-cache deletion inference.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "4ccba3f54d22f039e02fd1e015ab3e6b513f735b1f536d3f45bc2ae8e84b524f"
+      },
+      {
+        "attempt_id": "attempt-50820-103-1793418925038",
+        "decision": "delete",
+        "decision_id": "dbec2126a80a32e5e54dbe6f796ba95acb14e3ce0c7740fc92c32f962faf96a6",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "e0f1624ae0d91995f57eacb2658d730695f4b736712e44e9855669b1c6e221f5",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:final-cache-fileio-analysis-20261031b",
+        "reason": "Exact stopped unsuccessful capture/analysis attempt; fixed native wait and incomplete/unknown results preserved in independent work evidence; no functional ETL or current consumer remains. No unread-cache deletion inference.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "cf47de094376c01b31be89d38fff20920734f1e1c8b7a9b2c4dad72658c28f59"
+      },
+      {
+        "attempt_id": "attempt-50820-105-1793418937061",
+        "decision": "delete",
+        "decision_id": "29bb23ca862e7a356e5999c3eb4347dc56df3a01384cda048f7833f5aa8f780b",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "f220c5599c8ccfb26c926d6c2b8d1f28cddf45e4fd00d5cd2e5362d1f99f5221",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:positive-cache-fileio-analysis-20261031a",
+        "reason": "Exact stopped unsuccessful capture/analysis attempt; fixed native wait and incomplete/unknown results preserved in independent work evidence; no functional ETL or current consumer remains. No unread-cache deletion inference.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "cfccbadd1b7959a651c13d16fb837e3a52aea82a208ce18a0288a3dae023e62d"
+      }
+    ]
+  },
+  "finalization": [
+    {
+      "id": "run:ET-01-cold-build-cache-audit:cold-capture-20261030a",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "rootAbsent": true,
+      "status": "finalized",
+      "remaining": [],
+      "sourceAbsent": true
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:final-cache-fileio-analysis-20261031a",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+      "rootAbsent": true,
+      "status": "finalized",
+      "remaining": [],
+      "sourceAbsent": true
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:final-cache-fileio-analysis-20261031b",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+      "rootAbsent": true,
+      "status": "finalized",
+      "remaining": [],
+      "sourceAbsent": true
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:positive-cache-fileio-analysis-20261031a",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+      "rootAbsent": true,
+      "status": "finalized",
+      "remaining": [],
+      "sourceAbsent": true
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:wpr-stop-observation-20261031a",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+      "rootAbsent": true,
+      "status": "finalized",
+      "remaining": [],
+      "sourceAbsent": true
+    }
+  ],
+  "independentFailureEvidence": "cache-capture-final-failure.json"
+}

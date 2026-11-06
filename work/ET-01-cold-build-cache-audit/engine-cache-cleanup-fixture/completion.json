@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "scope": "Only approved P fixture source correction, Windows checks, exact three temporary managed roots, and eight owned raw test/control groups; frozen W/Y/Z and B compilation/source/cache/installation untouched",
+  "source": {
+    "path": "scripts/test-clean-engine-caches.ps1",
+    "sha256": "dcb9f73bf4e26adc9d771c1496f62739d476aaa1e9a6410bcc033d4e58268d04"
+  },
+  "checks": {
+    "compressedCauseReproduction": 0,
+    "correctedFull": 0,
+    "remainingWindowsCases": [
+      {
+        "case": "verify only",
+        "exitCode": 0
+      },
+      {
+        "case": "account-success",
+        "exitCode": 0
+      },
+      {
+        "case": "build-fail",
+        "exitCode": 0
+      }
+    ],
+    "syntax": 0,
+    "diffCheck": 0
+  },
+  "cleanup": {
+    "groupsDeletedAndFinalized": 8,
+    "itemsDeleted": 11,
+    "logicalBytes": 1905311,
+    "pathsAbsent": true,
+    "temporaryManagedRoots": [
+      "artifacts/t-dffb",
+      "artifacts/t-f279",
+      "artifacts/t-3954"
+    ],
+    "originalConfigBytes": 50128,
+    "originalConfigSha256": "a6dc3cca4dc764fa6c6d7d318f9d3906d87d0c74826a77e548254a3ce8e5a434",
+    "currentConfigSha256": "a6dc3cca4dc764fa6c6d7d318f9d3906d87d0c74826a77e548254a3ce8e5a434",
+    "configExactBytesRestored": true
+  },
+  "retainedIndependentAuthority": {
+    "path": "artifacts\\maintenance\\evidence\\et01-shorttemp-retirement-d8b934b5-3cb9-49b9-9f89-b05b3a83b8fc.json",
+    "sha256": "e7d10c04c4526b3e77393360e0d06f6412738fcaf503e37ba92190c632c8168e",
+    "purpose": "Immutable supported native managed-root retirement authority/control evidence outside deleted groups",
+    "bytes": 2645
+  },
+  "originalZFixture": "Unchanged; parent owns later Z temp cleanup",
+  "evidence": [
+    {
+      "file": "acceptance.json",
+      "bytes": 10150,
+      "sha256": "4bdbd78cf0aff01768ed0e3bbe438bd69cfd46ef65240e6f4fbe6e21a9198e17"
+    },
+    {
+      "file": "chain-acceptance.json",
+      "bytes": 5679,
+      "sha256": "f5ed41856d1335ec44eb64a7d3f21e772d22503077d10afe416f26a5d75d9e1e"
+    },
+    {
+      "file": "cleanup-phase1.json",
+      "bytes": 6417,
+      "sha256": "b1672f7e4f34085d5c16aa243420a235809f4e8d5715b0fde9b587abac1ef28d"
+    },
+    {
+      "file": "control-retention.json",
+      "bytes": 1338,
+      "sha256": "56a562f6ab6c37c673617483fe7ba864b3982e71c9a1d844482fc168176f3560"
+    },
+    {
+      "file": "managed-root-cleanup.json",
+      "bytes": 7870,
+      "sha256": "46e0a8a7d19f4e47930c79cb3a4bf90ca0ce9122ae0ba00dd88d5388b4818dc7"
+    },
+    {
+      "file": "control-cleanup.json",
+      "bytes": 2750,
+      "sha256": "da4ad3a8b2fd661a3a9c5828e0f893f3d94c9bf45f8fb6051b2d793cd19d269f"
+    }
+  ]
+}

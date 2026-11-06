@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "status": "cleaned",
+  "id": "run:DO2:repair-20261102-r1",
+  "verifiedAt": "2026-11-02T05:23:09.554Z",
+  "owner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": []
+  },
+  "ownerSha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+  "acceptance": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\verification-repair-20261102.json",
+    "sha256": "9c2aa85178e8ebef40f5d2715c554c82938c8de1681b39b4b7bb8061b83384ed"
+  },
+  "close": {
+    "revision": 3,
+    "state": "complete",
+    "producer": {
+      "status": "stopped",
+      "outcome": "success",
+      "exit_code": 0,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\verification-repair-20261102.json",
+      "evidence_sha256": "9c2aa85178e8ebef40f5d2715c554c82938c8de1681b39b4b7bb8061b83384ed",
+      "reason": "All selected actual verification completed, including corrected catalog fixture; failed attempts retained separately in immutable acceptance. No task producer remains."
+    },
+    "references": []
+  },
+  "registrationAttempts": [
+    {
+      "started": "2026-11-02T05:09:10.854Z",
+      "ended": "2026-11-02T05:09:47.475Z",
+      "exit": 1,
+      "signal": null,
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (check_available); lock wait exhausted after 5000 ms\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n"
+    },
+    {
+      "started": "2026-11-02T05:11:18.599Z",
+      "ended": "2026-11-02T05:13:42.116Z",
+      "exit": 0,
+      "signal": null,
+      "stderr": ""
+    }
+  ],
+  "review": {
+    "exit": 0,
+    "verification": "registered",
+    "items": [
+      {
+        "id": "524ce39ca681f19d6dafd41c4936472d299eabcdd8a88de65904283fc305c744",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1",
+        "logicalBytes": 326279602,
+        "blockers": [],
+        "token": "29f5ca28e678f44aa2f8ac6c31719ae50adc2e3029606d7a4731a5224e910b4d",
+        "groupToken": "24ccf01f8ce113bc2aa2ab66e8a46ec63f9d9e1b28249f3ba4e78111d9e44ec8"
+      }
+    ]
+  },
+  "apply": {
+    "started": "2026-11-02T05:14:19.757Z",
+    "ended": "2026-11-02T05:22:11.834Z",
+    "exit": 0,
+    "cancelled": false,
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:DO2:repair-20261102-r1",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "id": "524ce39ca681f19d6dafd41c4936472d299eabcdd8a88de65904283fc305c744",
+        "status": "deleted",
+        "remaining": false,
+        "attempt_id": "attempt-36160-4925-1793596518682",
+        "decision_id": "36b133276fa88a9dc83c71e8175d8bab69060766ebcf84902f5804884ad5227f",
+        "deletion": {
+          "status": "deleted",
+          "remaining": false,
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "ownedGeneratedAttributeNormalizations": 32
+        }
+      }
+    ]
+  },
+  "finalization": {
+    "id": "run:DO2:repair-20261102-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\11e5c21cd8638fc13c7c21ff0ae28fc49fb08c71163d7b8dee212a3cf135bf04.json"
+  },
+  "paths": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1",
+      "exists": false
+    }
+  ],
+  "preserved": [
+    "shared Cargo target",
+    "external imported Code Mode host",
+    "current maintenance-owner installation",
+    "independent acceptance and cleanup receipts"
+  ],
+  "controlRemoval": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\DO-01-codex-version-comparison\\.do2-cleanup-repair-20261102.json",
+    "removed": true
+  }
+}

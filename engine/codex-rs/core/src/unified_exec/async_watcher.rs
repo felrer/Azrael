@@ -176,8 +176,15 @@ pub(crate) fn spawn_exit_watcher(
     let output_drained = process.output_drained_notify();
     let interaction_lock = process.interaction_lock();
 
+    let user_wait_activity = context
+        .step_context
+        .turn
+        .turn_timing_state
+        .user_wait()
+        .map(|runtime| runtime.activity(format!("process:{process_id}"), None));
     tokio::spawn(async move {
         exit_token.cancelled().await;
+        drop(user_wait_activity);
         output_drained.notified().await;
         // Deferred network denial deliberately remains observable for a short
         // window after process exit. Do not classify the terminal event until

@@ -1,0 +1,8 @@
+{
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-accepted-5162b93f",
+  "lifecycleId": "run:ET-01-cold-build-cache-audit:cache-invalidation-accepted-5162b93f",
+  "exitCode": 0,
+  "childExitCode": 0,
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-accepted-5162b93f\\logs\\preparation.log",
+  "inputsUnchanged": true
+}

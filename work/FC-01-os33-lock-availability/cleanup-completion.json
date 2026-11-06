@@ -1,0 +1,204 @@
+{
+  "at": "2026-11-02T01:24:25.933Z",
+  "status": "complete",
+  "groups": [
+    {
+      "id": "run:FC01:os33-r1",
+      "items": [
+        {
+          "id": "e77d18f3495db161b50761ad6887678f219a33ec2916efb7fce43eaf448441e1",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc01\\r1",
+          "logical_bytes": 741124804,
+          "blockers": []
+        }
+      ],
+      "apply": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:FC01:os33-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-51256-4823-1793582251993",
+            "decision": "delete",
+            "decision_id": "dad9a3af26fae33a62717789683f8460a4470b81552d839bfa13144d5a902c64",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "e77d18f3495db161b50761ad6887678f219a33ec2916efb7fce43eaf448441e1",
+            "lifecycle_group_id": "run:FC01:os33-r1",
+            "reason": "Corrected installed owner accepted; source inputs, build cache and fixtures have no remaining task use",
+            "remaining": false,
+            "status": "deleted",
+            "token": "474dcbf0ebaacce6be7eac0353ac3b0f2bc13649922389faf7537e94d43851bf"
+          }
+        ]
+      },
+      "finalize": {
+        "id": "run:FC01:os33-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5dc3795d0f6bc124310adc2c5e4583f1a84d9f4e3566935bd4e4010695439c68.json"
+      }
+    },
+    {
+      "id": "run:FC01:os33-build-r2",
+      "items": [
+        {
+          "id": "35e6fed4290c78d738039ad7186846259438f214760cf3236ca0d41ed99fa47c",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc01\\r2",
+          "logical_bytes": 183719485,
+          "blockers": []
+        }
+      ],
+      "apply": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:FC01:os33-build-r2",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-51220-4828-1793582458544",
+            "decision": "delete",
+            "decision_id": "e82ec70644c4deefef72d8af7665c8c59bc09acaf3f602247a7412497fa41a23",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "35e6fed4290c78d738039ad7186846259438f214760cf3236ca0d41ed99fa47c",
+            "lifecycle_group_id": "run:FC01:os33-build-r2",
+            "reason": "Corrected installed owner accepted; source inputs, build cache and fixtures have no remaining task use",
+            "remaining": false,
+            "status": "deleted",
+            "token": "da759cd505f44dedd368e501b441360eaaa4e49d2f54faffd921f06c6b71305f"
+          }
+        ]
+      },
+      "finalize": {
+        "id": "run:FC01:os33-build-r2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\43aaf95f5f6dc8c95ccf8aae602e87fbf98fb49f4be2bc5c0d1537608d03f19b.json"
+      }
+    },
+    {
+      "id": "version:maintenance-owner:eq01:latest-20261102-r1",
+      "items": [
+        {
+          "id": "dd45eb595368125bb48e4812fac1262bfa7aafba41c848420e3a74d9525b5f2b",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102",
+          "logical_bytes": 2601044,
+          "blockers": []
+        }
+      ],
+      "apply": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "version:maintenance-owner:eq01:latest-20261102-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-39144-4833-1793582624354",
+            "decision": "delete",
+            "decision_id": "d1877a9b95e1843edc8c56b257577b615bce3e694d98b3ef04d3813d9314033f",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "dd45eb595368125bb48e4812fac1262bfa7aafba41c848420e3a74d9525b5f2b",
+            "lifecycle_group_id": "version:maintenance-owner:eq01:latest-20261102-r1",
+            "reason": "Corrected installed owner accepted; source inputs, build cache and fixtures have no remaining task use",
+            "remaining": false,
+            "status": "deleted",
+            "token": "eaaa7bcaea2b91bd798e7511a1cd5640001aad1bdb1f77ff1d4b40738b997a58"
+          }
+        ]
+      },
+      "finalize": {
+        "id": "version:maintenance-owner:eq01:latest-20261102-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d754bf358ffe4ad30baf0b9a7d90c8daa2b7bd7b13227ec7b8b70fee895f592f.json"
+      }
+    }
+  ],
+  "logical_bytes_deleted": 927445333,
+  "physical_bytes_reclaimed": null,
+  "actual_executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc01-os33-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "sha256": "480e125e26c1c6955a8ed013935a1b06f542472f71d226614047656ab1e50855",
+  "selector_sha256": "5295f3a45dd8f62196896432e337d5dcd1ecdb1da9323bde77e96beb18845d41",
+  "installation_receipt_sha256": "5295f3a45dd8f62196896432e337d5dcd1ecdb1da9323bde77e96beb18845d41",
+  "installation_revision": 18,
+  "old_installation_reference_released": true,
+  "task_parent_absent": true,
+  "remaining_cleanup_paths": [],
+  "failures_preserved": [
+    {
+      "scope": "build preparation",
+      "exit_codes": [
+        101,
+        101,
+        101
+      ],
+      "final_build_exit_code": 0
+    },
+    {
+      "scope": "candidate lifecycle",
+      "passed": 204,
+      "failed": 1,
+      "cause": "pwsh ENOENT",
+      "retry_passed": 1,
+      "retry_exit_code": 0
+    },
+    {
+      "scope": "version publication",
+      "cause": "maintenance_busy",
+      "resolved": "short maintenance-to-catalog transaction"
+    },
+    {
+      "scope": "build run apply",
+      "exit_code": 1,
+      "cause": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (check_available); lock wait exhausted after 5000 ms\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n",
+      "reservation_present_after_failure": false,
+      "resolved": "fresh review then apply exit0"
+    },
+    {
+      "scope": "retry controller inventory",
+      "exit_code": 1,
+      "cause": "first default inventory page omitted target; no mutation",
+      "resolved": "reused exact successful registration and fresh group review"
+    }
+  ],
+  "commit": "withheld: task source hunks depend on substantial preexisting uncommitted changes; index preserved"
+}

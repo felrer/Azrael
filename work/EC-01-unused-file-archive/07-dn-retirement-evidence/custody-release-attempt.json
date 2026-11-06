@@ -1,0 +1,7 @@
+{
+  "status": "blocked",
+  "error": "Cannot promote protected lifecycle member generated",
+  "beforeRevision": 2,
+  "afterRevision": 2,
+  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\app-release-2026.0.4"
+}

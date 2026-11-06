@@ -1,0 +1,18 @@
+{
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-strict-a000bad7",
+  "lifecycleId": "run:ET-01-cold-build-cache-audit:cache-invalidation-strict-a000bad7",
+  "exitCode": 0,
+  "childExitCode": 0,
+  "exe": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+  "args": [
+    "-NoProfile",
+    "-File",
+    "scripts/test-build-module-cache.ps1",
+    "-MissingRegistryOnly",
+    "-FixtureRoot",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-strict-a000bad7\\outputs\\strict-missing-registry"
+  ],
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cache-invalidation-strict-a000bad7\\logs\\missing-registry.log",
+  "inputsUnchanged": true,
+  "preparationEvidenceReused": true
+}

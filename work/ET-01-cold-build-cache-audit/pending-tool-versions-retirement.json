@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "startedUtc": "2026-10-30T20:42:46.696Z",
+  "control": {
+    "schema": 1,
+    "id": "run:ET-01-cold-build-cache-audit:pending-tool-versions-cleanup-20261031a",
+    "kind": "run",
+    "owner": "pending-tool-versions-cleanup",
+    "version": null,
+    "state": "pending",
+    "membership_complete": false,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\pending-tool-versions-cleanup-20261031a",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [],
+    "ownership_scope": "run-root",
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\pending-tool-versions-cleanup-20261031a",
+    "revision": 1,
+    "created_at": "2026-10-30T20:42:43.444Z",
+    "updated_at": "2026-10-30T20:42:43.446Z"
+  },
+  "versions": [
+    {
+      "record": {
+        "created_at": "2026-10-30T19:00:02.661Z",
+        "id": "version:maintenance-owner-et01-lifecycle-pending-win-x64",
+        "kind": "version",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64",
+            "protection_known": true,
+            "role": "version"
+          }
+        ],
+        "membership_complete": false,
+        "owner": "maintenance-owner-lifecycle-pending",
+        "references": [],
+        "revision": 1,
+        "schema": 1,
+        "state": "pending",
+        "updated_at": "2026-10-30T19:00:02.661Z",
+        "version": "maintenance-owner-et01-lifecycle-pending-win-x64"
+      },
+      "promotionSha256": "1b90e907cc4e99232904d64574c0321b00d5292fd227ec827046225ea185e5c5",
+      "terminalSha256": "90df25be430175a2c4f431ea39f1a9c49b4a7feae93f311694d6595d4d8d8a14",
+      "copyProducer": {
+        "schema": 1,
+        "operation": "fixed-payload-promotion",
+        "executor": "exec_command/write_stdin",
+        "sessionId": 85770,
+        "pid": 39800,
+        "parentPid": 38668,
+        "startedUtc": "2026-10-30T18:59:53.836Z",
+        "finishedUtc": "2026-10-30T19:00:08.136Z",
+        "actualExitCode": 0,
+        "observedUtc": "2026-10-30T19:00:39.0770501Z",
+        "lifecycleId": "version:maintenance-owner-et01-lifecycle-pending-win-x64",
+        "lifecycleRevision": 1,
+        "versionState": "pending",
+        "membershipComplete": false,
+        "actualCliExecuted": false
+      },
+      "actualApiAccepted": false,
+      "meaning": "Promotion actual0 only; actual API never run; superseded real path-spelling coverage gap"
+    },
+    {
+      "record": {
+        "created_at": "2026-10-30T20:24:27.261Z",
+        "id": "version:maintenance-owner-et01-lifecycle-pending-win-x64-r4",
+        "kind": "version",
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-et01-lifecycle-pending-win-x64-r4",
+            "protection_known": true,
+            "role": "version"
+          }
+        ],
+        "membership_complete": false,
+        "owner": "maintenance-owner-lifecycle-pending-r4",
+        "references": [],
+        "revision": 1,
+        "schema": 1,
+        "state": "pending",
+        "updated_at": "2026-10-30T20:24:27.261Z",
+        "version": "maintenance-owner-et01-lifecycle-pending-win-x64-r4"
+      },
+      "promotionSha256": "58be30e3e204f20fdf435cacc3f44abb645b40ea9b499f3835b873621c70a0c2",
+      "terminalSha256": "eeaeefe1901ed8ca8941193aa5891aaaf60246c5a8b1d0f02d6d62bae1be592f",
+      "copyProducer": {
+        "schema": 1,
+        "executor": "exec_command",
+        "chunkId": "d429c8",
+        "sessionId": null,
+        "pid": 23460,
+        "parentPid": 56876,
+        "creationDateUtc": "2026-10-30T20:24:23.9576710Z",
+        "startedUtc": "2026-10-30T20:24:24.046Z",
+        "finishedUtc": "2026-10-30T20:24:30.319Z",
+        "actualExitCode": 0,
+        "lifecycleId": "version:maintenance-owner-et01-lifecycle-pending-win-x64-r4",
+        "revision": 1,
+        "state": "pending",
+        "membershipComplete": false,
+        "actualCliExecuted": false
+      },
+      "actualApiAccepted": true,
+      "meaning": "Promotion actual0; root actualO native0 accepted"
+    }
+  ],
+  "nativeOwner": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+    "sha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76"
+  },
+  "defaultInstallationBeforeSha256": "1623fee0ebd3d43e4090d882c3df96e92a05ad6d3430f4252307cb2779c66a88",
+  "independentAcceptance": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\o-pending-abort-acceptance\\acceptance.json",
+    "sha256": "d0dcd8ab255c64430c2ad94784f827125356dc0275b3d98c460c884ef8c87aa2",
+    "fileCount": 26,
+    "bytes": 2225585,
+    "actualNativeExitCode": 0,
+    "authoritativeUnchanged": true,
+    "referencesUnchanged": true,
+    "pendingAbsent": true
+  },
+  "priorFailures": "Original selected101/kernel OSexitnull and r3 selected101/driver1 preserved in independent work acceptance; no source or raw log copying"
+}

@@ -8,7 +8,8 @@ param(
     [string]$OriginalAudioPath,
     [string]$UiSourcePath,
     [string]$TypeScriptPath,
-    [string]$FixtureRoot
+    [string]$FixtureRoot,
+    [switch]$VerifyStandalone
 )
 
 Set-StrictMode -Version Latest
@@ -64,7 +65,8 @@ try {
         UseFreshState = $true
         CodePath = $CodePath
     }
-    foreach ($name in @('OriginalExtensionPath', 'OriginalAudioPath', 'UiSourcePath', 'TypeScriptPath')) {
+    if ($VerifyStandalone) { $arguments.VerifyStandalone = $true }
+    foreach ($name in @('OriginalExtensionPath', 'OriginalAudioPath')) {
         $value = Get-Variable -Name $name -ValueOnly
         if ($value) { $arguments[$name] = $value }
     }

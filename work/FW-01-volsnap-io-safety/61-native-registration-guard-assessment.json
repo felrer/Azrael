@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "status": "blocked-native-registration-original-preserved",
+  "leaf": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit11\\state\\home\\AppData\\Local\\Microsoft\\Windows\\INetCache\\Content.IE5",
+    "dev": "3057815611",
+    "ino": "5348024558460031",
+    "mode": "41398",
+    "nlink": "1",
+    "bytes": "156",
+    "mtimeNs": "1793944723286331300",
+    "ctimeNs": "1793944723286331300",
+    "isDirectory": false,
+    "isSymbolicLink": true
+  },
+  "directParent": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit11\\state\\home\\AppData\\Local\\Microsoft\\Windows\\INetCache",
+    "dev": "3057815611",
+    "ino": "5066549581749373",
+    "mode": "16822",
+    "nlink": "1",
+    "bytes": "0",
+    "mtimeNs": "1793944723286331300",
+    "ctimeNs": "1793944723286331300",
+    "isDirectory": true,
+    "isSymbolicLink": false
+  },
+  "readlinkTarget": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit11\\state\\home\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE",
+  "windowsAttributes": 9238,
+  "windowsAttributesHex": "0x2416",
+  "systemAttributePresent": true,
+  "reparseTag": "0xa0000003",
+  "reparseQuery": {
+    "actualExit": 0,
+    "stdout": "���Ľ� �±� ��: 0xa0000003\r\n�±� ��: Microsoft\r\n�±� ��: �븮 �̸�\r\n�±� ��: ž�� ����\r\n��ü �̸� ������: 0\r\n��ü �̸� ����: 320\r\n�μ� �̸� ������:     322\r\n�μ� �̸� ����:     312\r\n��ü �̸�:       \\??\\C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit11\\state\\home\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE\r\n�μ� �̸�:            C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit11\\state\\home\\AppData\\Local\\Microsoft\\Windows\\INetCache\\IE\r\n\r\n��м� ������ ����: 0x284     \r\n��м� ������:\r\n0000:  00 00 40 01 42 01 38 01  5c 00 3f 00 3f 00 5c 00  ..@.B.8.\\.?.?.\\.\r\n0010:  43 00 3a 00 5c 00 55 00  73 00 65 00 72 00 73 00  C.:.\\.U.s.e.r.s.\r\n0020:  5c 00 66 00 65 00 6c 00  72 00 65 00 5c 00 44 00  \\.f.e.l.r.e.\\.D.\r\n0030:  65 00 73 00 6b 00 74 00  6f 00 70 00 5c 00 70 00  e.s.k.t.o.p.\\.p.\r\n0040:  69 00 2d 00 68 00 61 00  72 00 6e 00 65 00 73 00  i.-.h.a.r.n.e.s.\r\n0050:  73 00 2d 00 69 00 6e 00  69 00 74 00 5c 00 61 00  s.-.i.n.i.t.\\.a.\r\n0060:  72 00 74 00 69 00 66 00  61 00 63 00 74 00 73 00  r.t.i.f.a.c.t.s.\r\n0070:  5c 00 74 00 61 00 73 00  6b 00 73 00 5c 00 66 00  \\.t.a.s.k.s.\\.f.\r\n0080:  77 00 30 00 33 00 76 00  5c 00 72 00 75 00 6e 00  w.0.3.v.\\.r.u.n.\r\n0090:  73 00 5c 00 6e 00 61 00  74 00 69 00 76 00 65 00  s.\\.n.a.t.i.v.e.\r\n00a0:  2d 00 36 00 31 00 33 00  31 00 36 00 32 00 62 00  -.6.1.3.1.6.2.b.\r\n00b0:  62 00 5c 00 74 00 65 00  6d 00 70 00 6f 00 72 00  b.\\.t.e.m.p.o.r.\r\n00c0:  61 00 72 00 79 00 5c 00  65 00 2d 00 75 00 6e 00  a.r.y.\\.e.-.u.n.\r\n00d0:  69 00 74 00 31 00 31 00  5c 00 73 00 74 00 61 00  i.t.1.1.\\.s.t.a.\r\n00e0:  74 00 65 00 5c 00 68 00  6f 00 6d 00 65 00 5c 00  t.e.\\.h.o.m.e.\\.\r\n00f0:  41 00 70 00 70 00 44 00  61 00 74 00 61 00 5c 00  A.p.p.D.a.t.a.\\.\r\n0100:  4c 00 6f 00 63 00 61 00  6c 00 5c 00 4d 00 69 00  L.o.c.a.l.\\.M.i.\r\n0110:  63 00 72 00 6f 00 73 00  6f 00 66 00 74 00 5c 00  c.r.o.s.o.f.t.\\.\r\n0120:  57 00 69 00 6e 00 64 00  6f 00 77 00 73 00 5c 00  W.i.n.d.o.w.s.\\.\r\n0130:  49 00 4e 00 65 00 74 00  43 00 61 00 63 00 68 00  I.N.e.t.C.a.c.h.\r\n0140:  65 00 5c 00 49 00 45 00  00 00 43 00 3a 00 5c 00  e.\\.I.E...C.:.\\.\r\n0150:  55 00 73 00 65 00 72 00  73 00 5c 00 66 00 65 00  U.s.e.r.s.\\.f.e.\r\n0160:  6c 00 72 00 65 00 5c 00  44 00 65 00 73 00 6b 00  l.r.e.\\.D.e.s.k.\r\n0170:  74 00 6f 00 70 00 5c 00  70 00 69 00 2d 00 68 00  t.o.p.\\.p.i.-.h.\r\n0180:  61 00 72 00 6e 00 65 00  73 00 73 00 2d 00 69 00  a.r.n.e.s.s.-.i.\r\n0190:  6e 00 69 00 74 00 5c 00  61 00 72 00 74 00 69 00  n.i.t.\\.a.r.t.i.\r\n01a0:  66 00 61 00 63 00 74 00  73 00 5c 00 74 00 61 00  f.a.c.t.s.\\.t.a.\r\n01b0:  73 00 6b 00 73 00 5c 00  66 00 77 00 30 00 33 00  s.k.s.\\.f.w.0.3.\r\n01c0:  76 00 5c 00 72 00 75 00  6e 00 73 00 5c 00 6e 00  v.\\.r.u.n.s.\\.n.\r\n01d0:  61 00 74 00 69 00 76 00  65 00 2d 00 36 00 31 00  a.t.i.v.e.-.6.1.\r\n01e0:  33 00 31 00 36 00 32 00  62 00 62 00 5c 00 74 00  3.1.6.2.b.b.\\.t.\r\n01f0:  65 00 6d 00 70 00 6f 00  72 00 61 00 72 00 79 00  e.m.p.o.r.a.r.y.\r\n0200:  5c 00 65 00 2d 00 75 00  6e 00 69 00 74 00 31 00  \\.e.-.u.n.i.t.1.\r\n0210:  31 00 5c 00 73 00 74 00  61 00 74 00 65 00 5c 00  1.\\.s.t.a.t.e.\\.\r\n0220:  68 00 6f 00 6d 00 65 00  5c 00 41 00 70 00 70 00  h.o.m.e.\\.A.p.p.\r\n0230:  44 00 61 00 74 00 61 00  5c 00 4c 00 6f 00 63 00  D.a.t.a.\\.L.o.c.\r\n0240:  61 00 6c 00 5c 00 4d 00  69 00 63 00 72 00 6f 00  a.l.\\.M.i.c.r.o.\r\n0250:  73 00 6f 00 66 00 74 00  5c 00 57 00 69 00 6e 00  s.o.f.t.\\.W.i.n.\r\n0260:  64 00 6f 00 77 00 73 00  5c 00 49 00 4e 00 65 00  d.o.w.s.\\.I.N.e.\r\n0270:  74 00 43 00 61 00 63 00  68 00 65 00 5c 00 49 00  t.C.a.c.h.e.\\.I.\r\n0280:  45 00 00 00                                       E...\r\n",
+    "stderr": ""
+  },
+  "existingOwnerGap": "scripts/artifact-lifecycle.ps1 Get-ArtifactRemovalSnapshot rejects System before VerifiedJunctions; no owner call, attribute change, deletion, registration retry, traversal or recursive scan performed",
+  "nativeReviewCalls": 0,
+  "nativeApplyCalls": 0,
+  "source": "Exact leaf and direct parent metadata only"
+}

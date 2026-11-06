@@ -1,0 +1,79 @@
+{
+  "started": "2026-11-01T12:32:56.215Z",
+  "moduleHash": "1cdb51ff070af76a8f78a0b4df0581025e6ad061b46166432600830d108c45be",
+  "environment": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v26.7.0",
+    "python": "3.12"
+  },
+  "scope": "Preparation and input verification only; isolated fixture artifact catalog; same previously selected project bytes",
+  "timings": {
+    "sourceSnapshotMs": 8603.541700000002,
+    "enginePreflightMs": 13079.897200000007,
+    "immutableSnapshotMs": 0.0008999999845400453,
+    "immutableCaptureMs": 267413.5042,
+    "workingCaptureMs": 259086.3702,
+    "workingCapturePhasesMs": {
+      "inventory": 2245.3148999999976,
+      "copy": 229496.84979999997,
+      "git": 19191.498299999977,
+      "finalHash": 8133.557099999976
+    },
+    "workingGitIo": {
+      "reusedFileCount": 13816,
+      "writtenObjectCount": 12061
+    },
+    "engineFreezeMs": 176276.43050000002,
+    "immutableInventoryMs": 15729.379699999932,
+    "immutableGitPreparationMs": 5628.481899999999,
+    "workingGitPreparationMs": 38309.393500000006,
+    "preparationMs": 785074.6743999999
+  },
+  "projectSha256": "05421d66c5b7cc94e16416e4e2006866d8cd40cc0101be700d0536310780fbec",
+  "fileCount": 26211,
+  "bytes": 579309468,
+  "originalPreparationMs": 872692.1224000001,
+  "verified": {
+    "status": "verified",
+    "moduleCacheProjectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\measure-c\\temporary\\measure",
+    "projectSha256": "05421d66c5b7cc94e16416e4e2006866d8cd40cc0101be700d0536310780fbec",
+    "engine": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9342,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "fa036c675895a9ac564f4eea02e3f935aa083a2af6eeb4bfd21e458e600d432f",
+      "importedReceiptSha256": "e05346a37f3e6b6297b5988539c339fb2188f4508e75046cc8064ade4f9740a5",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "fd6d670d37970763b140b1a7a7ebda297e56b9451796b329ccea8f1ff283f7fe",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "inputLifecycleId": "input:63629a7f7800613bf5a149ef",
+    "workingLifecycleId": "workspace:63629a7f7800613bf5a149ef"
+  },
+  "status": "passed",
+  "completed": "2026-11-01T12:48:10.957Z",
+  "totalMs": 914742.2805,
+  "exitCode": 0
+}

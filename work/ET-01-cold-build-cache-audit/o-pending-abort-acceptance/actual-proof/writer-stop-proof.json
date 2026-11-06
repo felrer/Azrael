@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "record_id": "work:deployment-temporary:5e7ff871c9287775fc291578830f2b82503fd9c01482bfcd8b15997d90519319",
+  "owner": "azrael-deployment-temporary",
+  "writer_pid": 50388,
+  "original_request_sha256": "c338ea910b511f1e818e15af3461134f9c73d9c9e87bf46e5977d34a21293f6a",
+  "release_request_canonical_sha256": "63d24a4662e07c3c5a38eaea5209530a458c2b5612a2dcfadd1cc0f84f3dd748",
+  "expected_record_sha256": "1068e1868fdf63420022221b4161f536be502fff75c87ab043cd2e1e2f944e8f",
+  "expected_pending_sha256": "d649797a2ff95e9eb185401387f807ab9055f3503b94acce5c3025b3e6e1e368",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "native_exit_code": null,
+  "stop_basis": "Parent48160 actualexit1/terminal plus retained exact native synchronous lease writer source with no descendant process producer, worker stdin closure on parent/port exit, and subsequent actual Y catalog OS lease acquisition/release together establish that writer50388 and its mutation boundary stopped. PID absence is supplemental only. No native exit code or wire acknowledgement is asserted.",
+  "producer_evidence": [
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-controller-failure.json",
+      "sha256": "aefcaf7107d0b9474cd536c18f61e3a9e67ff7b761049fa8153a135b66f89bd8"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/existing-blocked-acceptance.json",
+      "sha256": "bf212623ca855de70bc9f61316cda56fc24d264db7f2341873b0d55dc71e2274"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/successful-os-lease-reacquire.json",
+      "sha256": "334b525e1479b7a4bac9b05b3f7ecee04e560c0e11c005761952e88729c1becd"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-native-lease-source.rs",
+      "sha256": "e0f9a822ae1243e9b1695de0ba4e0f068ee3df9c7b288e5bb5eba2fb8c87738c"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-native-cli-source.rs",
+      "sha256": "101328eb4f2d8038a2a5981e9fef2e6037426189c11db343c8f5047e057ea5d3"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/original-native-source-identity.json",
+      "sha256": "4adb6083ccfb9a5bb4ab51f156a4f5b30825494d32e51c9b5fb43f7784cc64ce"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/javascript-lease-worker-source.cjs",
+      "sha256": "67a9029b8a05234736d2e92b18a09a0d9b0dd9aeab7b02f2be45ca4df90edd67"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/parent-terminal-and-stop-basis.json",
+      "sha256": "1afa3daa552c505e17fb27116bd5ed762533c16d5358adf3543b649003835a4d"
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/y/artifacts/maintenance/evidence/o-pending-abort-20261031a/synchronous-native-writer-boundary.json",
+      "sha256": "3abf78af876e5fc498b101a52de0d2ab0b56abfa098c25dd5636561daeadc64a"
+    }
+  ]
+}

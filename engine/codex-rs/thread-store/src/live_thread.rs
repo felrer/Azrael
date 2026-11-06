@@ -385,6 +385,26 @@ impl LiveThread {
         }
     }
 
+    /// Writes local conversation data only while this thread still owns a live writer.
+    /// This shares exclusion with local shutdown, discard, and permanent deletion.
+    pub async fn write_local_thread_data(
+        &self,
+        write: impl FnOnce() -> ThreadStoreResult<()> + Send,
+    ) -> ThreadStoreResult<()> {
+        let Some(local_store) = self
+            .thread_store
+            .as_any()
+            .downcast_ref::<LocalThreadStore>()
+        else {
+            return Err(ThreadStoreError::Unsupported {
+                operation: "write_local_thread_data",
+            });
+        };
+        local_store
+            .write_live_thread_data(self.thread_id, write)
+            .await
+    }
+
     /// Returns the live local rollout path for legacy local-only callers.
     ///
     /// Remote stores do not expose rollout files, so they return `Ok(None)`.

@@ -1,0 +1,16 @@
+{
+  "id": "run:deploy-checks:23df0e1691ee470abd9391735b3daeb8",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "7f9002d5b75848845853ec7b3b0856729d6f04b7274807ae4f5d3f23e6485a25",
+  "lease_owner": {
+    "acquired_at_ms": 1793289172861,
+    "operation": "group_reservation",
+    "pid": 17504,
+    "schema": 2,
+    "token": "17504-1793289172861-508c2e529a65a04f"
+  },
+  "reason": "Exact synchronous native registration child returned actual exit 1. Registration has no subprocess launch in maintenance_owner.rs/lib.rs/registration.rs; no spawned process tree remains after this process returned.",
+  "nativeExitCode": 1,
+  "observedAt": "2026-10-29T15:53:18.209Z"
+}

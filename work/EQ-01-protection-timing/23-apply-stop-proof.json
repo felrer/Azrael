@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "id": "run:EQ-01-protection-timing:latest-owner-20261102-r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "c15fb363f04ff2f81c17969848996069dd5f1957fe8efe5944fa2045e38d58c5",
+  "lease_owner": {
+    "acquired_at_ms": 1793552831530,
+    "operation": "group_reservation",
+    "pid": 31072,
+    "schema": 2,
+    "token": "31072-1793552831530-0fc73a8ba6334d64"
+  },
+  "reason": "Owned synchronous apply child and managed controller terminated exit 1 with drained streams. Error is explicitly from pre-intent path (publication_started=false), before physical deletion and before Windows deletion worker creation. Exact reservation owner/token and raw apply failure bind the execution. No maintenance_owner process was observed after terminal result; PID absence is only supplementary evidence.",
+  "execution": {
+    "work_id": "3a0ea864-0407-4ead-8f8a-21b231f6516e",
+    "observed_exit_code": 1,
+    "native_pid": 31072,
+    "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EQ-01-protection-timing\\23-latest-owner-run-apply-request.json",
+    "request_sha256": "0cc3f8ef95bc41d502f580a28b1b64b0edba6f5f59c51956607aa805d5f38d98"
+  }
+}

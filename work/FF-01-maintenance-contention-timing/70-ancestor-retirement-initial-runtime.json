@@ -1,0 +1,22 @@
+﻿{
+    "query_exit_code":  0,
+    "version_id":  "version:maintenance-owner:ff01:group-20261102",
+    "scope":  "Current host exact retired executable users and their parents; no inferred exit codes",
+    "at_utc":  "2026-11-02T14:13:08.9173498Z",
+    "current_users":  [
+                          {
+                              "ProcessId":  36632,
+                              "ParentProcessId":  30348,
+                              "ExecutablePath":  "C:\\Program Files\\nodejs\\node.exe",
+                              "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" scripts/serve-instruction-workbench.cjs --port 4318 --data-run C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce --project C:/Users/felre/Desktop/pi-harness-init --repository felrer/Azrael ",
+                              "CreationUtc":  "2026-11-02T13:54:03.7421090Z"
+                          },
+                          {
+                              "ProcessId":  33604,
+                              "ParentProcessId":  36632,
+                              "ExecutablePath":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe",
+                              "CommandLine":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102\\payload\\maintenance_owner.exe --lease C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce\\outputs\\library\\.workbench-server.lock --operation workbench.data --wait-ms 0 --parent-pid 36632",
+                              "CreationUtc":  "2026-11-02T13:54:16.0221880Z"
+                          }
+                      ]
+}

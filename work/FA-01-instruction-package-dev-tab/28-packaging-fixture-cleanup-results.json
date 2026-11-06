@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\28-packaging-fixture-cleanup.json",
+  "evidenceSha256": "25362a20deb68e9476cc4baf6b42c2020ad2e7af420ee25c8c27990ecd32c21f",
+  "status": "blocked",
+  "operations": [
+    {
+      "operation": "releaseReferences",
+      "id": "run:FA-01-packaging-fixture-closure:fix03",
+      "request": {
+        "owner": "workbench_backend",
+        "expected_revision": 2,
+        "reference_ids": [
+          "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa",
+          "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1"
+        ],
+        "reason": "End of failed fixture diagnostic use; independent work28 preserves exact failures and platform26pass; fix07 own fixture and four overrides retained",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\28-packaging-fixture-cleanup.json",
+        "evidence_sha256": "25362a20deb68e9476cc4baf6b42c2020ad2e7af420ee25c8c27990ecd32c21f"
+      },
+      "result": {
+        "revision": 3,
+        "remainingReferenceIds": [
+          "workspace:d3778b842cd5afe58a8e9a01",
+          "input:d3778b842cd5afe58a8e9a01",
+          "run:FA-01-cargo-selection-expectations:20261103T071051562Z-1a98060d-b701-4108-ab0c-67efbd20ae54"
+        ]
+      }
+    },
+    {
+      "operation": "releaseReferences",
+      "id": "run:FA-01-packaging-fixture-closure:fix06",
+      "request": {
+        "owner": "workbench_backend",
+        "expected_revision": 2,
+        "reference_ids": [
+          "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa",
+          "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1",
+          "4d2063fe12d995b6f02e6defd0e4fbf6ea3cd4d9d5c4d671903cb94950aa3638",
+          "e2238812652500c8448ec9ef3c9b93269c52c7ce2d7ff6d589d25e88f6091fe5",
+          "201b6eb713e68e62dddc49216f3c9bacbbc9da5f187dfa403fddf4555522747f"
+        ],
+        "reason": "End of failed fixture diagnostic use; independent work28 preserves exact failures and platform26pass; fix07 own fixture and four overrides retained",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\28-packaging-fixture-cleanup.json",
+        "evidence_sha256": "25362a20deb68e9476cc4baf6b42c2020ad2e7af420ee25c8c27990ecd32c21f"
+      },
+      "result": {
+        "revision": 3,
+        "remainingReferenceIds": [
+          "workspace:d3778b842cd5afe58a8e9a01",
+          "input:d3778b842cd5afe58a8e9a01",
+          "run:FA-01-cargo-selection-expectations:20261103T071051562Z-1a98060d-b701-4108-ab0c-67efbd20ae54"
+        ]
+      }
+    },
+    {
+      "operation": "releaseReferences",
+      "id": "run:FA-01-packaging-fixture-closure:fix02",
+      "request": {
+        "owner": "workbench_backend",
+        "expected_revision": 2,
+        "reference_ids": [
+          "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa"
+        ],
+        "reason": "End of failed fixture diagnostic use; independent work28 preserves exact failures and platform26pass; fix07 own fixture and four overrides retained",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\28-packaging-fixture-cleanup.json",
+        "evidence_sha256": "25362a20deb68e9476cc4baf6b42c2020ad2e7af420ee25c8c27990ecd32c21f"
+      },
+      "result": {
+        "revision": 3,
+        "remainingReferenceIds": [
+          "workspace:d3778b842cd5afe58a8e9a01",
+          "input:d3778b842cd5afe58a8e9a01",
+          "run:FA-01-cargo-selection-expectations:20261103T071051562Z-1a98060d-b701-4108-ab0c-67efbd20ae54"
+        ]
+      }
+    },
+    {
+      "operation": "releaseReferences",
+      "id": "run:FA-01-packaging-fixture-closure:fix05",
+      "request": {
+        "owner": "workbench_backend",
+        "expected_revision": 2,
+        "reference_ids": [
+          "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa",
+          "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1",
+          "4d2063fe12d995b6f02e6defd0e4fbf6ea3cd4d9d5c4d671903cb94950aa3638",
+          "e2238812652500c8448ec9ef3c9b93269c52c7ce2d7ff6d589d25e88f6091fe5"
+        ],
+        "reason": "End of failed fixture diagnostic use; independent work28 preserves exact failures and platform26pass; fix07 own fixture and four overrides retained",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\28-packaging-fixture-cleanup.json",
+        "evidence_sha256": "25362a20deb68e9476cc4baf6b42c2020ad2e7af420ee25c8c27990ecd32c21f"
+      },
+      "result": {
+        "revision": 3,
+        "remainingReferenceIds": [
+          "workspace:d3778b842cd5afe58a8e9a01",
+          "input:d3778b842cd5afe58a8e9a01",
+          "run:FA-01-cargo-selection-expectations:20261103T071051562Z-1a98060d-b701-4108-ab0c-67efbd20ae54"
+        ]
+      }
+    },
+    {
+      "operation": "releaseReferences",
+      "id": "run:FA-01-packaging-fixture-closure:fix07",
+      "request": {
+        "owner": "workbench_backend",
+        "expected_revision": 2,
+        "reference_ids": [
+          "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa",
+          "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1",
+          "4d2063fe12d995b6f02e6defd0e4fbf6ea3cd4d9d5c4d671903cb94950aa3638",
+          "e2238812652500c8448ec9ef3c9b93269c52c7ce2d7ff6d589d25e88f6091fe5",
+          "201b6eb713e68e62dddc49216f3c9bacbbc9da5f187dfa403fddf4555522747f",
+          "ec5130bcfa26631030e526035fabba45949bb0d445be15f788b0885a2c196b8f"
+        ],
+        "reason": "End of failed fixture diagnostic use; independent work28 preserves exact failures and platform26pass; fix07 own fixture and four overrides retained",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\28-packaging-fixture-cleanup.json",
+        "evidence_sha256": "25362a20deb68e9476cc4baf6b42c2020ad2e7af420ee25c8c27990ecd32c21f"
+      },
+      "result": {
+        "revision": 3,
+        "remainingReferenceIds": [
+          "workspace:d3778b842cd5afe58a8e9a01",
+          "input:d3778b842cd5afe58a8e9a01",
+          "run:FA-01-cargo-selection-expectations:20261103T071051562Z-1a98060d-b701-4108-ab0c-67efbd20ae54"
+        ]
+      }
+    },
+    {
+      "operation": "releaseReferences",
+      "id": "run:FA-01-packaging-fixture-closure:fix04",
+      "request": {
+        "owner": "workbench_backend",
+        "expected_revision": 2,
+        "reference_ids": [
+          "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa",
+          "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1",
+          "4d2063fe12d995b6f02e6defd0e4fbf6ea3cd4d9d5c4d671903cb94950aa3638"
+        ],
+        "reason": "End of failed fixture diagnostic use; independent work28 preserves exact failures and platform26pass; fix07 own fixture and four overrides retained",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\28-packaging-fixture-cleanup.json",
+        "evidence_sha256": "25362a20deb68e9476cc4baf6b42c2020ad2e7af420ee25c8c27990ecd32c21f"
+      },
+      "result": {
+        "revision": 3,
+        "remainingReferenceIds": [
+          "workspace:d3778b842cd5afe58a8e9a01",
+          "input:d3778b842cd5afe58a8e9a01",
+          "run:FA-01-cargo-selection-expectations:20261103T071051562Z-1a98060d-b701-4108-ab0c-67efbd20ae54"
+        ]
+      }
+    },
+    {
+      "operation": "register",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:FA-01-packaging-fixture-closure:fix01",
+          "kind": "run",
+          "owner": "workbench_backend",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8810e84984f7df032c4fe196e3505adc4c1e5f73eea091b55ae7c56d04b1bdb9.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "3c7dc842e61dc09b62e9196e7bcfe3d09456a4ed78b2251d063d5fd406c4831d",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "workbench_backend",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8810e84984f7df032c4fe196e3505adc4c1e5f73eea091b55ae7c56d04b1bdb9.json"
+            }
+          ]
+        }
+      },
+      "result": {
+        "pid": 42552,
+        "exitCode": 0,
+        "signal": null,
+        "stdout": "{\"group\":{\"cleanup_status\":null,\"id\":\"run:FA-01-packaging-fixture-closure:fix01\",\"kind\":\"run\",\"members\":[\"3c7dc842e61dc09b62e9196e7bcfe3d09456a4ed78b2251d063d5fd406c4831d\"],\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_format\":\"producer_registry_v1\",\"membership_source_identity\":\"207bbb2ba5945b2bb3b59ff8b3ebbe4da38cb984c0825a870bf4a725a4c02dc1\",\"owner\":\"workbench_backend\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\8810e84984f7df032c4fe196e3505adc4c1e5f73eea091b55ae7c56d04b1bdb9.json\",\"registered_at_ms\":1793695651960,\"version\":null},\"items\":[{\"cache_schema\":null,\"created_at_ms\":null,\"generated\":true,\"id\":\"3c7dc842e61dc09b62e9196e7bcfe3d09456a4ed78b2251d063d5fd406c4831d\",\"identity\":\"9d85b2842ffdc69c2b76eb18f95598da24d212d4e2ed2802f9e34c99a606e63b\",\"kind\":\"run\",\"lifecycle_group_id\":\"run:FA-01-packaging-fixture-closure:fix01\",\"lifecycle_role\":\"artifact\",\"logical_bytes\":10632489,\"measured_at_ms\":1793695643698,\"owner\":\"workbench_backend\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-packaging-fixture-closure\\\\runs\\\\fix01\",\"presence\":\"present\",\"protection_known\":true,\"provenance\":null,\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\8810e84984f7df032c4fe196e3505adc4c1e5f73eea091b55ae7c56d04b1bdb9.json\",\"references\":[],\"registered_at_ms\":1793695643698,\"remaining\":true,\"role\":\"run\",\"source_path\":null,\"tool\":null,\"version\":null}]}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "operation": "register",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:FA-01-packaging-fixture-closure:fix02",
+          "kind": "run",
+          "owner": "workbench_backend",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\91dfcd436cb3f66ad1720ce64efd42abbc4e346c63ff5908a0dc946e836ffc6e.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "f9ead760e810e8ace38589439552109829be45cc4d0949174d21dc3ca4ec9057",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "workbench_backend",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\91dfcd436cb3f66ad1720ce64efd42abbc4e346c63ff5908a0dc946e836ffc6e.json"
+            }
+          ]
+        }
+      },
+      "result": {
+        "pid": 18908,
+        "exitCode": 1,
+        "signal": null,
+        "stdout": "",
+        "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog); pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock (catalog)\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n"
+      }
+    }
+  ],
+  "error": "Error: register actualexit 1: {\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog); pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock (catalog)\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n\n    at call (eval at <anonymous> ([eval]:1:1), <anonymous>:1:1236)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async eval (eval at <anonymous> ([eval]:1:1), <anonymous>:1:1373)"
+}

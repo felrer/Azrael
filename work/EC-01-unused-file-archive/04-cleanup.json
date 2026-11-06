@@ -1,0 +1,824 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "started": "2026-10-28T01:06:55.340Z",
+  "groups": [
+    "run:EC-01:archive-lock-retry-r1",
+    "run:EC-01:pending-recovery-r1"
+  ],
+  "proof": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+  "steps": [
+    {
+      "name": "register run:EC-01:archive-lock-retry-r1",
+      "started": "2026-10-28T01:06:57.477Z",
+      "ended": "2026-10-28T01:09:07.972Z",
+      "pid": 90424,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "stderr": "",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EC-01:archive-lock-retry-r1",
+          "kind": "run",
+          "members": [
+            "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "a86f97132a30bd2ecefdd62a7d331a02c33ed843f50d9316e40ef33f85a45f5a",
+          "owner": "/root",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4f565143ebd6e98b4d11fcd46744fd56890cacf96302a99f6f163164cfc809e2.json",
+          "registered_at_ms": 1793149679749,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48",
+            "identity": "127718a3bb93fd060362c43653551487c4ad796b2f9da4eb48185536d04ac7e9",
+            "kind": "verification",
+            "lifecycle_group_id": "run:EC-01:archive-lock-retry-r1",
+            "lifecycle_role": "evidence",
+            "logical_bytes": 1241974,
+            "measured_at_ms": 1793149659371,
+            "owner": "/root",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\archive-lock-retry-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4f565143ebd6e98b4d11fcd46744fd56890cacf96302a99f6f163164cfc809e2.json",
+            "references": [],
+            "registered_at_ms": 1793149659371,
+            "remaining": true,
+            "role": "verification",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "register run:EC-01:pending-recovery-r1",
+      "started": "2026-10-28T01:09:10.501Z",
+      "ended": "2026-10-28T01:19:34.931Z",
+      "pid": 5612,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "stderr": "",
+      "value": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EC-01:pending-recovery-r1",
+          "kind": "run",
+          "members": [
+            "1d2e7f3d9939f293e460787be9b5123b648c4bfe10b9307a5e330ffcc43fe0fe"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "4db5bcfa8028f71e81212e785bdc9989c046c99828c7253ee2702a49f25ce171",
+          "owner": "/root",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3b3d4c7a92c5c6960bd0ef9c06f13f9b2204804b7e58826fdccb55b9d7f1009.json",
+          "registered_at_ms": 1793150317318,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "1d2e7f3d9939f293e460787be9b5123b648c4bfe10b9307a5e330ffcc43fe0fe",
+            "identity": "2bea9a8c20185bac9d3997819f2abaa6ca0c4dfd706929ffbf24f8416ce27985",
+            "kind": "verification",
+            "lifecycle_group_id": "run:EC-01:pending-recovery-r1",
+            "lifecycle_role": "evidence",
+            "logical_bytes": 1362867025,
+            "measured_at_ms": 1793150290320,
+            "owner": "/root",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3b3d4c7a92c5c6960bd0ef9c06f13f9b2204804b7e58826fdccb55b9d7f1009.json",
+            "references": [],
+            "registered_at_ms": 1793150290320,
+            "remaining": true,
+            "role": "verification",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "review disposable runs",
+      "started": "2026-10-28T01:19:34.933Z",
+      "ended": "2026-10-28T01:19:44.982Z",
+      "pid": 80512,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "stderr": "",
+      "value": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EC-01:archive-lock-retry-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "a86f97132a30bd2ecefdd62a7d331a02c33ed843f50d9316e40ef33f85a45f5a",
+            "owner": "/root",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4f565143ebd6e98b4d11fcd46744fd56890cacf96302a99f6f163164cfc809e2.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EC-01:pending-recovery-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "4db5bcfa8028f71e81212e785bdc9989c046c99828c7253ee2702a49f25ce171",
+            "owner": "/root",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3b3d4c7a92c5c6960bd0ef9c06f13f9b2204804b7e58826fdccb55b9d7f1009.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "1d2e7f3d9939f293e460787be9b5123b648c4bfe10b9307a5e330ffcc43fe0fe"
+            ],
+            "group_token": "2c8117ba7f548dc4bf12b4855a896db6742f462d7b144f12e3c246d2f7817c08",
+            "id": "1d2e7f3d9939f293e460787be9b5123b648c4bfe10b9307a5e330ffcc43fe0fe",
+            "identity": "2bea9a8c20185bac9d3997819f2abaa6ca0c4dfd706929ffbf24f8416ce27985",
+            "lifecycle_group_id": "run:EC-01:pending-recovery-r1",
+            "logical_bytes": 1362867025,
+            "measured_at_ms": 1793150290320,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "4db5bcfa8028f71e81212e785bdc9989c046c99828c7253ee2702a49f25ce171",
+              "member_references": {
+                "1d2e7f3d9939f293e460787be9b5123b648c4bfe10b9307a5e330ffcc43fe0fe": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+                  "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+                  "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+                  "request_sha256": "b06b38d6048612fb79220bebf217ae8b56bcc3fc530b6c75d964b8ec7b699289"
+                },
+                "created_at": "2026-10-27T23:19:12.149Z",
+                "id": "run:EC-01:pending-recovery-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1",
+                    "protection_known": true,
+                    "role": "verification"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "/root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+                  "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-28T01:09:08.066Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793150380455,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  79,
+                  18,
+                  11,
+                  0,
+                  0,
+                  0,
+                  23,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "67fb9324f054eccf4de1d2e93b44cb5069853c422c7d7fa4165c3928748b3dd7",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48"
+            ],
+            "group_token": "c0a3ece7d940ee2b504c1da2962faad2aa0bba229e6c57c4edf8f9811657bedf",
+            "id": "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48",
+            "identity": "127718a3bb93fd060362c43653551487c4ad796b2f9da4eb48185536d04ac7e9",
+            "lifecycle_group_id": "run:EC-01:archive-lock-retry-r1",
+            "logical_bytes": 1241974,
+            "measured_at_ms": 1793149659371,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "a86f97132a30bd2ecefdd62a7d331a02c33ed843f50d9316e40ef33f85a45f5a",
+              "member_references": {
+                "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+                  "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+                  "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+                  "request_sha256": "b06b38d6048612fb79220bebf217ae8b56bcc3fc530b6c75d964b8ec7b699289"
+                },
+                "created_at": "2026-10-27T23:06:30.732Z",
+                "id": "run:EC-01:archive-lock-retry-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\archive-lock-retry-r1",
+                    "protection_known": true,
+                    "role": "verification"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "/root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+                  "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-28T01:06:55.456Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793150375667,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\archive-lock-retry-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  139,
+                  237,
+                  10,
+                  0,
+                  0,
+                  0,
+                  134,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "8d069865e2ce1406f1164f36b9e7feb97ba7ae4efa2b2229741cf6b6656ceb7f",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete disposable runs",
+      "started": "2026-10-28T01:19:44.984Z",
+      "ended": "2026-10-28T01:36:06.843Z",
+      "pid": 71928,
+      "exit_code": 1,
+      "signal": null,
+      "error": null,
+      "stderr": "{\"error\":\"다른 프로세스가 파일의 한 부분을 잠갔으므로, 프로세스가 해당 파일을 액세스할 수 없습니다. (os error 33)\"}\n"
+    },
+    {
+      "name": "recover reservation run:EC-01:archive-lock-retry-r1",
+      "pid": 51652,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "stderr": "",
+      "value": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-pending-recovery-r1\\cleanup-reservation-4f565143.json",
+        "evidence_sha256": "23fa2f2d66e66e9cc7a1561a327a5755605f3ce7ca9be09b7808166b208d60df",
+        "execution_outcome_changed": false,
+        "id": "run:EC-01:archive-lock-retry-r1",
+        "lease_owner": {
+          "acquired_at_ms": 1793150498299,
+          "operation": "group_reservation",
+          "pid": 71928,
+          "schema": 2,
+          "token": "71928-1793150498299-3fe2c00777bd7967"
+        },
+        "malformed_publication": false,
+        "pending_intents_changed": false,
+        "prior_bytes": null,
+        "prior_reservation": {
+          "group_scope": {
+            "id": "run:EC-01:archive-lock-retry-r1",
+            "kind": "run",
+            "members": [
+              "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48"
+            ],
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_identity": "a86f97132a30bd2ecefdd62a7d331a02c33ed843f50d9316e40ef33f85a45f5a",
+            "owner": "/root",
+            "version": null
+          },
+          "id": "run:EC-01:archive-lock-retry-r1",
+          "lease_owner": {
+            "acquired_at_ms": 1793150498299,
+            "operation": "group_reservation",
+            "pid": 71928,
+            "schema": 2,
+            "token": "71928-1793150498299-3fe2c00777bd7967"
+          },
+          "manifest_revision": 3683,
+          "members": [
+            {
+              "cache_schema": null,
+              "created_at_ms": null,
+              "generated": true,
+              "id": "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48",
+              "identity": "127718a3bb93fd060362c43653551487c4ad796b2f9da4eb48185536d04ac7e9",
+              "kind": "verification",
+              "lifecycle_group_id": "run:EC-01:archive-lock-retry-r1",
+              "lifecycle_role": "evidence",
+              "logical_bytes": 1241974,
+              "measured_at_ms": 1793149659371,
+              "owner": "/root",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\archive-lock-retry-r1",
+              "presence": "present",
+              "protection_known": true,
+              "provenance": null,
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4f565143ebd6e98b4d11fcd46744fd56890cacf96302a99f6f163164cfc809e2.json",
+              "references": [],
+              "registered_at_ms": 1793149659371,
+              "remaining": true,
+              "role": "verification",
+              "source_path": null,
+              "tool": null,
+              "version": null
+            }
+          ],
+          "schema": 1,
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "source_fence": "a86f97132a30bd2ecefdd62a7d331a02c33ed843f50d9316e40ef33f85a45f5a",
+          "source_owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+              "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+              "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+              "request_sha256": "b06b38d6048612fb79220bebf217ae8b56bcc3fc530b6c75d964b8ec7b699289"
+            },
+            "created_at": "2026-10-27T23:06:30.732Z",
+            "id": "run:EC-01:archive-lock-retry-r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\archive-lock-retry-r1",
+                "protection_known": true,
+                "role": "verification"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+              "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-28T01:06:55.456Z",
+            "version": null
+          },
+          "status": "active",
+          "token": "71928-1793150498299-3fe2c00777bd7967"
+        },
+        "reason": "Exact failed synchronous native apply and controller terminal; preserve recorded deletion; release only unresolved reservations",
+        "reservation_sha256": "b8690eeb4496daed34adda4030241a08c3d547a56508fbdc7cbfb94cfe5aa046",
+        "status": "reservation_recovered"
+      }
+    },
+    {
+      "name": "recover reservation run:EC-01:pending-recovery-r1",
+      "pid": 89208,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "stderr": "",
+      "value": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-pending-recovery-r1\\cleanup-reservation-f3b3d4c7.json",
+        "evidence_sha256": "53666b170f923e5cd1295de4380c901d39fe75ef8e741944f35f3ed73ce914b3",
+        "execution_outcome_changed": false,
+        "id": "run:EC-01:pending-recovery-r1",
+        "lease_owner": {
+          "acquired_at_ms": 1793150504286,
+          "operation": "group_reservation",
+          "pid": 71928,
+          "schema": 2,
+          "token": "71928-1793150504286-9c6c727996d5e6d7"
+        },
+        "malformed_publication": false,
+        "pending_intents_changed": false,
+        "prior_bytes": null,
+        "prior_reservation": {
+          "group_scope": {
+            "id": "run:EC-01:pending-recovery-r1",
+            "kind": "run",
+            "members": [
+              "1d2e7f3d9939f293e460787be9b5123b648c4bfe10b9307a5e330ffcc43fe0fe"
+            ],
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_identity": "4db5bcfa8028f71e81212e785bdc9989c046c99828c7253ee2702a49f25ce171",
+            "owner": "/root",
+            "version": null
+          },
+          "id": "run:EC-01:pending-recovery-r1",
+          "lease_owner": {
+            "acquired_at_ms": 1793150504286,
+            "operation": "group_reservation",
+            "pid": 71928,
+            "schema": 2,
+            "token": "71928-1793150504286-9c6c727996d5e6d7"
+          },
+          "manifest_revision": 3683,
+          "members": [
+            {
+              "cache_schema": null,
+              "created_at_ms": null,
+              "generated": true,
+              "id": "1d2e7f3d9939f293e460787be9b5123b648c4bfe10b9307a5e330ffcc43fe0fe",
+              "identity": "2bea9a8c20185bac9d3997819f2abaa6ca0c4dfd706929ffbf24f8416ce27985",
+              "kind": "verification",
+              "lifecycle_group_id": "run:EC-01:pending-recovery-r1",
+              "lifecycle_role": "evidence",
+              "logical_bytes": 1362867025,
+              "measured_at_ms": 1793150290320,
+              "owner": "/root",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1",
+              "presence": "present",
+              "protection_known": true,
+              "provenance": null,
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3b3d4c7a92c5c6960bd0ef9c06f13f9b2204804b7e58826fdccb55b9d7f1009.json",
+              "references": [],
+              "registered_at_ms": 1793150290320,
+              "remaining": true,
+              "role": "verification",
+              "source_path": null,
+              "tool": null,
+              "version": null
+            }
+          ],
+          "schema": 1,
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "source_fence": "4db5bcfa8028f71e81212e785bdc9989c046c99828c7253ee2702a49f25ce171",
+          "source_owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+              "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+              "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+              "request_sha256": "b06b38d6048612fb79220bebf217ae8b56bcc3fc530b6c75d964b8ec7b699289"
+            },
+            "created_at": "2026-10-27T23:19:12.149Z",
+            "id": "run:EC-01:pending-recovery-r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1",
+                "protection_known": true,
+                "role": "verification"
+              }
+            ],
+            "membership_complete": true,
+            "owner": "/root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+              "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-10-28T01:09:08.066Z",
+            "version": null
+          },
+          "status": "active",
+          "token": "71928-1793150504286-9c6c727996d5e6d7"
+        },
+        "reason": "Exact failed synchronous native apply and controller terminal; preserve recorded deletion; release only unresolved reservations",
+        "reservation_sha256": "036355a5c7b4cf5f8294ffbeaccb1449778e10b1d902c11acc109a21e365841e",
+        "status": "reservation_recovered"
+      }
+    },
+    {
+      "name": "review remaining single group",
+      "started": "2026-10-28T01:38:37.171Z",
+      "ended": "2026-10-28T01:38:44.947Z",
+      "pid": 78932,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "stderr": "",
+      "value": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EC-01:archive-lock-retry-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "a86f97132a30bd2ecefdd62a7d331a02c33ed843f50d9316e40ef33f85a45f5a",
+            "owner": "/root",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4f565143ebd6e98b4d11fcd46744fd56890cacf96302a99f6f163164cfc809e2.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48"
+            ],
+            "group_token": "c0a3ece7d940ee2b504c1da2962faad2aa0bba229e6c57c4edf8f9811657bedf",
+            "id": "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48",
+            "identity": "127718a3bb93fd060362c43653551487c4ad796b2f9da4eb48185536d04ac7e9",
+            "lifecycle_group_id": "run:EC-01:archive-lock-retry-r1",
+            "logical_bytes": 1241974,
+            "measured_at_ms": 1793149659371,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "a86f97132a30bd2ecefdd62a7d331a02c33ed843f50d9316e40ef33f85a45f5a",
+              "member_references": {
+                "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+                  "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+                  "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+                  "request_sha256": "b06b38d6048612fb79220bebf217ae8b56bcc3fc530b6c75d964b8ec7b699289"
+                },
+                "created_at": "2026-10-27T23:06:30.732Z",
+                "id": "run:EC-01:archive-lock-retry-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\archive-lock-retry-r1",
+                    "protection_known": true,
+                    "role": "verification"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "/root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\04-verification.json",
+                  "evidence_sha256": "fafa892a34623468dfc00efcf950aa25a36dede595d9c821c27f5fe6cbf1ebc7",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Actual coordinator controllers terminal exit0; individual failed native attempts remain preserved independently, and all children/leases terminal before cleanup",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-28T01:06:55.456Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793151517448,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\archive-lock-retry-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  139,
+                  237,
+                  10,
+                  0,
+                  0,
+                  0,
+                  134,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "8d069865e2ce1406f1164f36b9e7feb97ba7ae4efa2b2229741cf6b6656ceb7f",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "name": "delete remaining single group",
+      "started": "2026-10-28T01:38:44.949Z",
+      "ended": "2026-10-28T01:39:51.815Z",
+      "pid": 89280,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "stderr": "",
+      "value": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:EC-01:archive-lock-retry-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-89280-3685-1793151560368",
+            "decision": "delete",
+            "decision_id": "96b7a5c8699805d3bd617f738d057fce062b1e6fed8c6ba0d400ade858d5b2e5",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "9581f3cb7bf448008370ea48612db5aa06f5657dac2b6ce3887d7b711da05c48",
+            "lifecycle_group_id": "run:EC-01:archive-lock-retry-r1",
+            "reason": "Only remaining stopped owned retry logs; acceptance and failed attempts independently preserved; previous batch failed before this member attempt",
+            "remaining": false,
+            "status": "deleted",
+            "token": "8d069865e2ce1406f1164f36b9e7feb97ba7ae4efa2b2229741cf6b6656ceb7f"
+          }
+        ]
+      }
+    }
+  ],
+  "temporary_request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-pending-recovery-r1\\cleanup-request.json",
+  "durable_deletions": [
+    {
+      "attempt_id": "attempt-71928-3683-1793150528912",
+      "decision": "delete",
+      "decision_id": "cf4a5d52999ae70c996ffd803f4baf35fc4614014982616387bd0a11783f4c5d",
+      "deletion": {
+        "attributes": [
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\temporary\\binary-success\\artifacts\\maintenance\\evidence\\attempt.json"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\temporary\\binary-r3-success\\artifacts\\maintenance\\evidence\\attempt.json"
+          },
+          {
+            "after": 32,
+            "before": 33,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\temporary\\binary-r3-absent-before\\artifacts\\maintenance\\evidence\\attempt.json"
+          }
+        ],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "group_status": "deleted",
+      "id": "1d2e7f3d9939f293e460787be9b5123b648c4bfe10b9307a5e330ffcc43fe0fe",
+      "lifecycle_group_id": "run:EC-01:pending-recovery-r1",
+      "reason": "Owned terminal verification sources/cache/fixtures/logs no longer needed; immutable installed acceptance and user archive controls independently preserve verification and failed attempts",
+      "remaining": false,
+      "status": "deleted",
+      "token": "67fb9324f054eccf4de1d2e93b44cb5069853c422c7d7fa4165c3928748b3dd7"
+    }
+  ],
+  "actual_partial_paths": [
+    {
+      "id": "run:EC-01:archive-lock-retry-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\archive-lock-retry-r1",
+      "remaining": true
+    },
+    {
+      "id": "run:EC-01:pending-recovery-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1",
+      "remaining": false
+    }
+  ],
+  "finalization": [
+    {
+      "id": "run:EC-01:pending-recovery-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3b3d4c7a92c5c6960bd0ef9c06f13f9b2204804b7e58826fdccb55b9d7f1009.json"
+    },
+    {
+      "id": "run:EC-01:archive-lock-retry-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4f565143ebd6e98b4d11fcd46744fd56890cacf96302a99f6f163164cfc809e2.json"
+    }
+  ],
+  "ended": "2026-10-28T01:39:55.046Z",
+  "actual_paths_absent": true,
+  "temporary_request_absent": true,
+  "native_batch_failure_preserved": true
+}

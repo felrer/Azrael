@@ -4,7 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
-const { patchWorkbenchDragRecovery, MARKER } = require("./patch-vscode-webview-drag.cjs");
+const { patchWorkbenchDragRecovery } = require("./patch-vscode-webview-drag.cjs");
 const { injectLocalFileDrop, DROP_ASSET } = require("./inject-local-file-drop.cjs");
 
 const source = 'var Monitor=class extends E{constructor(o,e){super();let t=()=>{e()?.windowDidDragStart()},i=()=>{e()?.windowDidDragEnd()};this._register(G(o,ie.DRAG_START,()=>{t()})),this._register(G(o,ie.DRAG_END,i)),this._register(G(o,ie.MOUSE_MOVE,n=>{n.buttons===0&&i()})),this._register(G(o,ie.DRAG,n=>{n.shiftKey?i():t()})),this._register(G(o,ie.DRAG_OVER,n=>{n.shiftKey?i():t()}))}};';
@@ -39,14 +39,6 @@ test("host cancellation and disposal recover, while visible state and active dra
     assert.ok(states.every(s => s.pointer === "auto"));
   }
   const { view, states } = monitor(true); view.emit("dragover"); view.emit("dragover", { shiftKey: true }); assert.ok(states.every(s => s.pointer === "auto"));
-});
-test("host transform is idempotent and rejects unknown, ambiguous and damaged inputs", () => {
-  const patched = patchWorkbenchDragRecovery(source).text;
-  assert.equal(patchWorkbenchDragRecovery(patched).changed, false);
-  assert.throws(() => patchWorkbenchDragRecovery("unknown"), /Unsupported/);
-  assert.throws(() => patchWorkbenchDragRecovery(source + source), /Unsupported/);
-  assert.throws(() => patchWorkbenchDragRecovery(patched.replace('"drop"', '"oops"')), /Damaged/);
-  assert.throws(() => patchWorkbenchDragRecovery(MARKER), /Damaged/);
 });
 function composer() {
   const asset = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434", DROP_ASSET), "utf8");

@@ -1,0 +1,169 @@
+{
+  "started": "2026-11-01T15:39:18.570Z",
+  "lifecycleId": "run:EW01-native-trim:verify-a",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a",
+  "steps": [
+    {
+      "name": "node-source",
+      "start": "2026-11-01T15:39:18.572Z",
+      "end": "2026-11-01T15:39:20.374Z",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/test-cargo-preflight-recipes.cjs",
+        "scripts/test-ordinary-runtime-node.cjs",
+        "scripts/test-cargo-owner-audit.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\logs\\node-source.log",
+      "logSha256": "ae24c0709731bc4560d4a00cc04d41d4f091b270bfc77607e66c8a7a016dc1f8"
+    },
+    {
+      "name": "manifest-policy",
+      "start": "2026-11-01T15:39:20.377Z",
+      "end": "2026-11-01T15:39:21.889Z",
+      "command": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+      "args": [
+        "-B",
+        "scripts/tests/test_compile_scope_manifests.py"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\logs\\manifest-policy.log",
+      "logSha256": "9b6082651e2653a1ad1d81919087560380d03d0af36c402974224017da795cd7"
+    },
+    {
+      "name": "package-syntax",
+      "start": "2026-11-01T15:39:21.891Z",
+      "end": "2026-11-01T15:39:21.959Z",
+      "command": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+      "args": [
+        "-B",
+        "-c",
+        "import ast,pathlib; ast.parse(pathlib.Path('scripts/tests/test_app_release.py').read_text(encoding='utf-8')); print('Package test syntax accepted')"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-native-trim\\runs\\verify-a\\logs\\package-syntax.log",
+      "logSha256": "5be6e07dc5b53ebb0bd324b784ff9b4b6d57a333c6d9788c478e277ea2d8b500"
+    }
+  ],
+  "scope": "Existing source tests and static Rust selection checks only; no Rust tests or product compilation",
+  "completed": "2026-11-01T15:39:21.961Z",
+  "exitCode": 0,
+  "testResults": {
+    "node": {
+      "passed": 80,
+      "failed": 0,
+      "actualExitCode": 0
+    },
+    "pythonManifest": {
+      "passed": 9,
+      "failed": 0,
+      "actualExitCode": 0
+    },
+    "packageSyntax": {
+      "actualExitCode": 0,
+      "fullPackageSuiteExecuted": false
+    }
+  },
+  "staticSelection": {
+    "matchedDeclarations": [
+      {
+        "scope": "appserver",
+        "crate": "codex-app-server-daemon",
+        "filter": "backend::pid::tests::update_loop_uses_hidden_app_server_subcommand",
+        "path": "engine/codex-rs/app-server-daemon/src/backend/pid_tests.rs"
+      },
+      {
+        "scope": "appserver",
+        "crate": "codex-app-server-daemon",
+        "filter": "backend::pid::tests::app_server_remote_control_uses_runtime_flag",
+        "path": "engine/codex-rs/app-server-daemon/src/backend/pid_tests.rs"
+      },
+      {
+        "scope": "appserver",
+        "crate": "codex-app-server-daemon",
+        "filter": "backend::pid::tests::app_server_disabled_remote_control_uses_compatible_args_and_runtime_env",
+        "path": "engine/codex-rs/app-server-daemon/src/backend/pid_tests.rs"
+      },
+      {
+        "scope": "appserver",
+        "crate": "codex-install-context",
+        "filter": "azrael_entry_resolves_its_own_code_mode_host",
+        "path": "engine/codex-rs/install-context/src/lib.rs"
+      },
+      {
+        "scope": "appserver",
+        "crate": "codex-app-server",
+        "filter": "entry::tests::azrael_proxy_preserves_global_startup_options_and_rejects_listener_changes",
+        "path": "engine/codex-rs/app-server/src/main_tests.rs"
+      },
+      {
+        "scope": "handoff",
+        "crate": "codex-app-server-daemon",
+        "filter": "session_handoff::tests::real_websocket_sessions_callbacks_busy_release_and_no_turn_replay",
+        "path": "engine/codex-rs/app-server-daemon/src/session_handoff.rs"
+      },
+      {
+        "scope": "handoff",
+        "crate": "codex-app-server-daemon",
+        "filter": "session_handoff::tests::read_only_preview_reads_source_then_reauthenticates_before_resume",
+        "path": "engine/codex-rs/app-server-daemon/src/session_handoff.rs"
+      },
+      {
+        "scope": "handoff",
+        "crate": "codex-app-server",
+        "filter": "azrael_session_handoff::tests::target_resume_preserves_source_computer_use_ceiling_including_absence",
+        "path": "engine/codex-rs/app-server/src/azrael_session_handoff.rs"
+      },
+      {
+        "scope": "handoff",
+        "crate": "codex-app-server",
+        "filter": "azrael_session_handoff::tests::scoped_source_resume_keeps_presentation_and_strips_all_runtime_overrides",
+        "path": "engine/codex-rs/app-server/src/azrael_session_handoff.rs"
+      },
+      {
+        "scope": "handoff",
+        "crate": "codex-app-server",
+        "filter": "azrael_session_handoff::tests::nonapproval_callback_has_exact_thread_ownership_until_canceled",
+        "path": "engine/codex-rs/app-server/src/azrael_session_handoff.rs"
+      },
+      {
+        "scope": "handoff",
+        "crate": "codex-app-server",
+        "filter": "azrael_session_handoff::tests::scope_does_not_grant_account_or_other_session_authority",
+        "path": "engine/codex-rs/app-server/src/azrael_session_handoff.rs"
+      }
+    ],
+    "nativeTestsActuallyExecuted": false
+  },
+  "featureInventory": {
+    "validatedFeature": "engine.shared-engine",
+    "removedCheckId": "engine.shared-engine.package-default",
+    "actualExitCode": 0
+  },
+  "sourceHashes": {
+    "scripts/check-shared-engine-native.cjs": "7ba2284a73db010eaa8a84cb84c6ed44be51aa42a728546b9fb12bdd926bdce7",
+    "scripts/test-cargo-verification.cjs": "789c56d451110ce07a95118dad3d2527a9d7541f264709bf0c383b0e81654f18",
+    "scripts/cargo-preflight-recipes.cjs": "893e58a35b934a4e72e0d45bfc9418163f00abbc1d1d133ff4718b645773eb19",
+    "scripts/test-cargo-preflight-recipes.cjs": "00a26850460d90980d1663eb1b9bde4ce1f28248dc5d52fae32bd26a388d7fd0",
+    "scripts/test-ordinary-runtime-node.cjs": "be9f084a5a8195d918128d41fa903ec2d80abf0b71df59b957e4bcdfed84f1f9",
+    "scripts/tests/test_compile_scope_manifests.py": "3d9a125f0d8d9d040f26ac3d01ee52f2fd5723879a61e0e1ee6678d04926404b",
+    "scripts/tests/test_app_release.py": "23701ec9d0ff677eb3d270a464a80e4d3ea8a0d17918d7da4bff627f8069ae4a",
+    "scripts/test-cargo-owner-audit.cjs": "1327fc92e26afc589b612089562076f8c58911e843d74bf16c4e135f551b95c7",
+    "scripts/azrael-feature-contracts.json": "6ef90da084ebbaf1a157a5e11a30162fb23d3c9bce739e3cd9e27f84ac213580"
+  },
+  "cleanup": {
+    "status": "deleted",
+    "logicalBytes": 46162,
+    "absenceVerified": true,
+    "lifecycleFinalized": true,
+    "receipt": "12-native-test-trim-cleanup.json",
+    "rawLogs": "Deleted after preserving this independently readable verification summary and log hashes"
+  },
+  "sourceHashFormat": "SHA256 of raw file bytes; all nine matched on final recheck"
+}

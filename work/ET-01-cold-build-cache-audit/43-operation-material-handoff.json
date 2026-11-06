@@ -1,0 +1,75 @@
+﻿{
+    "schema":  1,
+    "owner":  "ET-01-cold-build-cache-audit",
+    "disposal_owner":  "user",
+    "purpose":  "Superseded cache cleanup tools and raw plans; user-authorized archive handoff",
+    "moves":  [
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\cleanup-ready-groups.cjs",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\cleanup-ready-groups.cjs",
+                      "bytes":  9446,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\plan-cargo-cache-chunks.cjs",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\plan-cargo-cache-chunks.cjs",
+                      "bytes":  18816,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\adopt-cargo-cache-chunks.cjs",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\adopt-cargo-cache-chunks.cjs",
+                      "bytes":  7113,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\delete-cargo-cache.cjs",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\delete-cargo-cache.cjs",
+                      "bytes":  6991,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\finish-cargo-incremental.cjs",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\finish-cargo-incremental.cjs",
+                      "bytes":  3415,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\recover-pipeline-reservations.cjs",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\recover-pipeline-reservations.cjs",
+                      "bytes":  5219,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\invoke-cargo-chunk-cleanup.ps1",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\invoke-cargo-chunk-cleanup.ps1",
+                      "bytes":  15319,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\test-cargo-chunk-operator.cjs",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\test-cargo-chunk-operator.cjs",
+                      "bytes":  13474,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\36-cargo-cache-chunks.json",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\36-cargo-cache-chunks.json",
+                      "bytes":  42274000,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\37-cargo-chunk-adoption.json",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\37-cargo-chunk-adoption.json",
+                      "bytes":  4778204,
+                      "status":  "moved"
+                  },
+                  {
+                      "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\archive-cache-handoff.cjs",
+                      "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\operation-material\\archive-cache-handoff.cjs",
+                      "bytes":  7175,
+                      "status":  "moved"
+                  }
+              ],
+    "status":  "handed-off-to-user"
+}

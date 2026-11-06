@@ -5,6 +5,8 @@ param(
     [string]$ReleaseDirectory,
     [string]$OutputDirectory,
     [string]$PreparedHostReceipt,
+    [string]$PackagingInputManifest,
+    [string]$PackagingInputSha256,
     [string]$LicenseDirectory,
     [string]$SourceExtensionPath,
     [string]$TypeScriptPath
@@ -13,6 +15,28 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
+$fixedPackaging = [bool]$PackagingInputManifest -or [bool]$PackagingInputSha256
+function Assert-PackagingInputs {
+    $verification = & node (Join-Path $PSScriptRoot 'packaging-workspace.cjs') verify $PackagingInputManifest $PackagingInputSha256
+    if ($LASTEXITCODE -ne 0) { throw 'Fixed packaging input verification failed.' }
+    $verified = $verification | ConvertFrom-Json
+    if ([IO.Path]::GetFullPath([string]$verified.sourceRoot) -cne [IO.Path]::GetFullPath($projectRoot)) {
+        throw 'Fixed packaging source root must match the actual script project root.'
+    }
+    $build = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
+    if ([string]$build.engineProvenance.source.sourceSha256 -cne [string]$verified.engineSourceSha256) {
+        throw 'Existing build engine provenance does not match fixed packaging baseline.'
+    }
+}
+if ($fixedPackaging -and (-not $PackagingInputManifest -or $PackagingInputSha256 -cnotmatch '^[a-f0-9]{64}$' -or -not $ReleaseDirectory -or -not $PreparedHostReceipt)) {
+    throw 'Fixed packaging requires PackagingInputManifest/Sha256, explicit ReleaseDirectory and PreparedHostReceipt.'
+}
+if ($fixedPackaging) {
+    if ((Resolve-Path -LiteralPath $ConfigurationPath).Path -cne (Join-Path $PSScriptRoot 'azrael-app-release.json')) {
+        throw 'Fixed packaging requires the copied azrael-app-release.json configuration.'
+    }
+    if ($SourceExtensionPath -or $TypeScriptPath) { throw 'Fixed packaging consumes PreparedHostReceipt; host preparation source options are not accepted.' }
+}
 $configuration = Get-Content -LiteralPath $ConfigurationPath -Raw | ConvertFrom-Json
 if ($configuration.schemaVersion -ne 1 -or $configuration.version -cnotmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' -or
     $configuration.repository -cnotmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') {
@@ -23,6 +47,7 @@ if (-not $ReleaseDirectory) {
     $ReleaseDirectory = $latest.releaseDirectory
 }
 $release = (Resolve-Path -LiteralPath $ReleaseDirectory).Path
+if ($fixedPackaging) { Assert-PackagingInputs }
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $projectRoot "artifacts/app-releases/$($configuration.version)" }
 if (-not [IO.Path]::IsPathFullyQualified($OutputDirectory)) { throw 'OutputDirectory must be absolute.' }
 $output = [IO.Path]::GetFullPath($OutputDirectory)
@@ -60,6 +85,7 @@ try {
     if ($LicenseDirectory) { $packageArguments += @('--license-directory', (Resolve-Path -LiteralPath $LicenseDirectory).Path) }
     $packageText = & python @packageArguments 2> (Join-Path $output 'packaging.stderr.log')
     if ($LASTEXITCODE -ne 0) { throw 'App release packaging failed. See packaging.stderr.log.' }
+    if ($fixedPackaging) { Assert-PackagingInputs }
     $packageText | Set-Content -LiteralPath (Join-Path $output 'packaging.json') -Encoding utf8NoBOM
     [ordered]@{
         schemaVersion = 1

@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "executor": "exec_command/write_stdin",
+  "sessionId": 61149,
+  "pid": 42352,
+  "identity": {
+    "pid": 42352,
+    "parentPid": 1056,
+    "creationDateUtc": "2026-10-30T20:15:57.7128640Z",
+    "creationDateUnixMs": 1793391357712,
+    "executable": "C:\\Program Files\\nodejs\\node.exe"
+  },
+  "actualExitCode": 0,
+  "signal": null,
+  "startedUtc": "2026-10-30T20:15:58.375Z",
+  "finishedUtc": "2026-10-30T20:23:52.432Z",
+  "sourceOnly": {
+    "sessionId": 77350,
+    "pid": 50732,
+    "actualExitCode": 0
+  },
+  "observedUtc": "2026-10-30T20:24:06.404Z"
+}

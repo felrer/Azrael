@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "id": "run:verify-maintenance-preferences-render:20261102T022239374Z-8cfc1c6c-70aa-4b48-b590-9c71e82ff7a9",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "71d1a476bdba03a518007781d249323a755c60704630a09563754271943dc243",
+  "lease_owner": {
+    "acquired_at_ms": 1793586357132,
+    "operation": "group_reservation",
+    "pid": 27376,
+    "schema": 2,
+    "token": "27376-1793586357132-b828a3772829bb30"
+  },
+  "execution_outcome": "unknown",
+  "basis": [
+    "spawnSync registration with 30000ms timeout returned synchronously with status:null; native dispatch did not return a successful result.",
+    "Exact reservation owner PID 27376; CIM queries after controller completion show no PID 27376 or direct child. This observation is combined with non-spawning registration code, not treated as sole proof.",
+    "The submitted operation was register. engine/codex-rs/project-maintenance/src/lib.rs dispatches directly to registration::register; registration.rs has no subprocess/spawn/delete path. Native production subprocess creation is limited to Windows deletion worker, not reached by register.",
+    "No native group was published in manifest; exact registration reservation remains active. No payload deletion was requested."
+  ]
+}

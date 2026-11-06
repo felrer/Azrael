@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\19-final-handoff-archive.json",
+  "provenance_sha256": "3ce7712c5268b76a6f04df7822a1e88de60cfee6c81c87b6dd7528d063fb6de1",
+  "finalizations": [
+    {
+      "id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+      "result": {
+        "id": "run:EC-01-unused-file-archive:unknown-recovery-native-r2",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\079f5a73ee4a939dd8b42bd6b45aeb39b615dceff85e48c8afcb2694012cc7bf.json",
+        "retirement": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\19-final-handoff-archive.json",
+          "sha256": "3ce7712c5268b76a6f04df7822a1e88de60cfee6c81c87b6dd7528d063fb6de1",
+          "reason": "User-requested archive of completed verification and superseded unreferenced version; independent accepted verification retained in current installed version; same-volume archive root identities and source absence verified",
+          "original_state": "complete",
+          "original_membership_complete": true
+        }
+      },
+      "producer_registry_absent": true
+    },
+    {
+      "id": "version:maintenance-owner:ec01:pending-refresh",
+      "result": {
+        "id": "version:maintenance-owner:ec01:pending-refresh",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\dd650af4954468dad993932d8cf60e743e462ae38d01acb1b7ce56e8de4be213.json",
+        "retirement": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\19-final-handoff-archive.json",
+          "sha256": "3ce7712c5268b76a6f04df7822a1e88de60cfee6c81c87b6dd7528d063fb6de1",
+          "reason": "User-requested archive of completed verification and superseded unreferenced version; independent accepted verification retained in current installed version; same-volume archive root identities and source absence verified",
+          "original_state": "complete",
+          "original_membership_complete": true
+        }
+      },
+      "producer_registry_absent": true
+    }
+  ],
+  "default_resolver": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+  "new_installation_present": true,
+  "remaining_material": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-final-handoff-20261028-r1\\native-r2",
+      "logical_bytes_from_fresh_native_review": 871758468,
+      "disposition": "User archive; no native archive registration under explicit no-rehash exception; future cleanup requires formal registration/review"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EC-01-final-handoff-20261028-r1\\old-version",
+      "logical_bytes_from_fresh_native_review": 2097460,
+      "disposition": "User archive; no native archive registration under explicit no-rehash exception; future cleanup requires formal registration/review"
+    }
+  ],
+  "temporary_request_absent": true,
+  "status": "archived and finalized; quiet-ready",
+  "finished_at": "2026-10-28T05:26:27.250Z"
+}

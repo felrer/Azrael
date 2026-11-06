@@ -1,0 +1,218 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "selection": {
+    "command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    },
+    "sha256": "cf9cbd25713cf0a7688d4609271cfe3ec5619635fb1550b7e02e1b59608d56f1",
+    "normal_parent_environment": true,
+    "pins": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\owner-installation.json",
+        "sha256": "f02a535ce05dc7b03d9ab1749d000be89824cc4b34bb3bbd438b03cb4448a0c2",
+        "after_sha256": "f02a535ce05dc7b03d9ab1749d000be89824cc4b34bb3bbd438b03cb4448a0c2",
+        "bytes_unchanged": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\deployments\\maintenance-owner-dw16\\installation.json",
+        "sha256": "f02a535ce05dc7b03d9ab1749d000be89824cc4b34bb3bbd438b03cb4448a0c2",
+        "after_sha256": "f02a535ce05dc7b03d9ab1749d000be89824cc4b34bb3bbd438b03cb4448a0c2",
+        "bytes_unchanged": true
+      }
+    ],
+    "final_command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-catalog-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": [],
+      "maxLockWaitMs": 600000
+    }
+  },
+  "native_environment": {
+    "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\default-smoke\\state-home",
+    "CODEX_HOME": "C:\\Users\\felre\\.azrael-ex",
+    "AZRAEL_MAINTENANCE_OWNER": null,
+    "AZRAEL_MAINTENANCE_OWNER_MODE": null,
+    "AZRAEL_MAINTENANCE_INSTALLATION": null,
+    "AZRAEL_MAINTENANCE_TIMING": "1",
+    "scope": "Only native child admission state is isolated; parent resolver uses unchanged normal environment."
+  },
+  "native": [
+    {
+      "label": "capabilities",
+      "args": [
+        "capabilities"
+      ],
+      "pid": 42668,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 9.9139,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-capabilities.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-capabilities.stderr.log"
+    },
+    {
+      "label": "lease",
+      "args": [
+        "--lease",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\default-smoke\\catalog.lock",
+        "--operation",
+        "catalog.default.acceptance",
+        "--wait-ms",
+        "0",
+        "--parent-pid",
+        "37256"
+      ],
+      "pid": 3792,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 2557.5273,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-lease.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-lease.stderr.log"
+    },
+    {
+      "label": "register",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "pid": 57480,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 15656.4912,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-register.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-register.stderr.log"
+    },
+    {
+      "label": "review",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "pid": 42912,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 50.7607,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-review.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-review.stderr.log"
+    },
+    {
+      "label": "apply",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "pid": 35632,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 17775.271,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-apply.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-apply.stderr.log"
+    },
+    {
+      "label": "inventory",
+      "args": [
+        "--project-root",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\default-smoke",
+        "--request",
+        "-"
+      ],
+      "pid": 54200,
+      "exit_code": 0,
+      "signal": null,
+      "actual_close": true,
+      "wall_ms": 54.9494,
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-inventory.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\logs\\measurement\\default-inventory.stderr.log"
+    }
+  ],
+  "fixture": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\default-smoke",
+  "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ff1\\runs\\catalog4\\temporary\\measurement\\default-smoke\\generated\\check.bin",
+  "checks": {
+    "defaultResolver": true,
+    "actualCapabilities": true,
+    "directLeaseReleased": true,
+    "stdinRegisterRegisteredReviewApplyInventory": true,
+    "targetAbsent": true,
+    "durableDeletedNoPending": true,
+    "bothPinBytesIdenticalAndUnchanged": true,
+    "finalResolverIdentityUnchanged": true,
+    "sixActualCloseExit0": true
+  },
+  "capabilities": {
+    "max_lock_wait_ms": 600000,
+    "operations": [
+      "inventory",
+      "register",
+      "review",
+      "apply",
+      "recover_lock",
+      "recover_reservation",
+      "recover_refresh_pending",
+      "recover_lifecycle_pending",
+      "partition_storage",
+      "compact_storage",
+      "reconcile_duplicate_groups"
+    ],
+    "platform": {
+      "arch": "x64",
+      "os": "win32"
+    },
+    "preferences": true,
+    "protocol": "maintenance-owner-lease-v1",
+    "request_file_policy": "outside-maintenance-state",
+    "request_transports": [
+      "file",
+      "stdin"
+    ],
+    "schema": 1,
+    "storage_formats": [
+      "legacy",
+      "partitioned-v1"
+    ]
+  },
+  "lease_packets": [
+    {
+      "id": 0,
+      "ok": true,
+      "result": {
+        "acquired_at_ms": 1793616669924,
+        "operation": "catalog.default.acceptance",
+        "parent_pid": 37256,
+        "pid": 3792,
+        "schema": 2,
+        "token": "3792-1793616669924-c24c5c292d0d682b"
+      }
+    },
+    {
+      "id": 1,
+      "ok": true,
+      "result": {
+        "released": true,
+        "reservations_retained": []
+      }
+    }
+  ],
+  "parent_environment": {
+    "AZRAEL_STATE_ROOT": null,
+    "CODEX_HOME": "C:\\Users\\felre\\.azrael-ex",
+    "AZRAEL_MAINTENANCE_OWNER": null,
+    "AZRAEL_MAINTENANCE_OWNER_MODE": null,
+    "AZRAEL_MAINTENANCE_INSTALLATION": null
+  },
+  "cleanup": {
+    "owner": "run:ff1:catalog4",
+    "status": "pending root owner handoff; only target deleted, fixture/control/log material remains"
+  }
+}

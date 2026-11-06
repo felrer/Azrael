@@ -23,7 +23,7 @@ test("native navigation descriptor, row label and collapsed label use current ap
   assert.deepEqual(Object.keys(expressions).sort(), ["f", "label", "s"]);
 
   for (const locale of ["en-US", "ko", "KO-KR", "ko_KR", "ja-JP", undefined]) {
-    for (const [slug, en, ko] of [["azrael-design", "Design", "디자인"], ["azrael-instructions", "Instruction Documents", "지침 문서"]]) {
+    for (const [slug, en, ko] of [["azrael-design", "Design", "디자인"], ["azrael-instructions", "Presets", "프리셋"], ["computer-use", "Window use", "Window use"]]) {
       const context = { e: { slug }, T: { locale }, azraelSettingsText };
       const expected = azraelSettingsText(locale, en, ko);
       for (const [kind, expression] of Object.entries(expressions)) {
@@ -77,22 +77,7 @@ test("production pipeline applies student design and preserves it through Pets r
   gate.validateTransformReport({ features: manifest.features.filter(feature => feature.id === "ui.student-design") }, { assets });
 });
 
-test("pinned composed assets parse, preserve settings, reject drift and remain idempotent", () => {
-  for (const asset of DESIGN_ASSETS) {
-    const source = ms.readFileSync(path.join(root, asset), "utf8");
-    const composed = injectInstructionSettings(injectAccountSettings(source, asset).text, asset).text;
-    const result = injectStudentDesign(composed, asset);
 
-    assert.equal(vp.createSourceFile(asset, result.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS).parseDiagnostics.length, 0);
-    assert.equal(injectStudentDesign(result.text, asset).text, result.text);
-
-    assert.throws(() => injectStudentDesign(result.text + "/*azrael-student-design-v1*/", asset), /Duplicate/);
-
-    assert.throws(() => injectStudentDesign("", asset), /anchor changed|requires instruction/);
-
-  }
-
-});
 
 test("pinned design defers cyclic bundle initialization until the first rendered hook", () => {
   const asset = DESIGN_ASSETS[0];

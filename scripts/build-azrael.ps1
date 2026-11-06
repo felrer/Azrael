@@ -4,6 +4,7 @@ param(
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9_-]*$')]
     [string]$ReleaseName = (Get-Date -Format 'yyyyMMdd-HHmmss-fff'),
     [switch]$SkipEngineBuild,
+    [switch]$ForceEngineCompatibility,
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
     [string]$RetainedSourceRoot,
     [string]$EngineTargetDirectory,
@@ -11,6 +12,7 @@ param(
     [string]$ModuleCacheProjectRoot,
     [string]$WindowControlTargetDirectory,
     [string]$VirtualInputRuntimeDirectory,
+    [string]$MultiPointerRuntimeDirectory,
     [string]$EngineDirectory,
     [string]$CompanionVsixPath,
     [string]$CodeModeHostPath,
@@ -21,6 +23,9 @@ param(
     [ValidateSet('engine','companion','providers','window-control')][string[]]$RebuildModule = @(),
     [ValidateRange(0,10)][int]$KeepModuleCaches = 0,
     [switch]$SkipCacheCleanup,
+    [switch]$Resume,
+    [string]$ReuseDecisionsPath,
+    [string]$PipelineContextPath,
     [string]$SourceStateHandoffPath,
     [string]$SourceStateHandoffToken,
     [switch]$LifecycleParentActive
@@ -28,11 +33,15 @@ param(
 
 $ErrorActionPreference = 'Stop'
 if ([bool]$SourceStateHandoffPath -ne [bool]$SourceStateHandoffToken) { throw 'Source state handoff path and attempt token must be supplied together.' }
+if ($ReuseDecisionsPath) {
+    & node -e 'require(process.argv[1]).loadDecisions(process.argv[2])' (Join-Path $PSScriptRoot 'verification-reuse-policy.cjs') $ReuseDecisionsPath
+    if ($LASTEXITCODE -ne 0) { throw 'Invalid ReuseDecisionsPath; supply an absolute regular schema-1 decision file.' }
+}
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $artifactRoot = Join-Path $projectRoot 'artifacts'
 $release = Join-Path $artifactRoot "releases/$ReleaseName"
 $logDirectory = Join-Path $artifactRoot "logs/$ReleaseName"
-if ((Test-Path -LiteralPath $release) -or (Test-Path -LiteralPath $logDirectory)) {
+if (-not $Resume -and ((Test-Path -LiteralPath $release) -or (Test-Path -LiteralPath $logDirectory))) {
     throw "ReleaseName already exists: $ReleaseName. Use a new name."
 }
 if ($EngineDirectory -and -not $SkipEngineBuild) {
@@ -53,7 +62,7 @@ if ($EngineTargetDirectory -and $SkipEngineBuild) { throw 'EngineTargetDirectory
 if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTargetDirectory)) { throw 'EngineTargetDirectory must be an absolute cache path.' }
 $sharedCargoCache = $null
 if (-not $SkipEngineBuild -and (-not $EngineTargetDirectory -or $CargoCacheProjectRoot)) {
-    $cacheOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } else { $projectRoot }
+    $cacheOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } elseif ($ModuleCacheProjectRoot) { $ModuleCacheProjectRoot } else { $projectRoot }
     $cacheSelection = & node (Join-Path $PSScriptRoot 'cargo-shared-cache.cjs') --project-root $cacheOwner --source-root $sourceRoot --target x86_64-pc-windows-msvc
     if ($LASTEXITCODE -ne 0) { throw 'Shared Cargo cache selection failed.' }
     $sharedCargoCache = $cacheSelection | ConvertFrom-Json
@@ -61,21 +70,68 @@ if (-not $SkipEngineBuild -and (-not $EngineTargetDirectory -or $CargoCacheProje
     $EngineTargetDirectory = $sharedCargoCache.targetDirectory
 }
 $engineTarget = if ($EngineTargetDirectory) { [IO.Path]::GetFullPath($EngineTargetDirectory) } else { Join-Path $rustRoot 'target' }
+if ($PipelineContextPath -and -not $LifecycleParentActive) { throw 'PipelineContextPath requires the active deployment parent.' }
+New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
+$buildLogRoot=$logDirectory
+$buildDeploymentLease=$null
+if (-not $PipelineContextPath) {
+    $pipelineDirectory=Join-Path $projectRoot "artifacts/logs/deploy-$ReleaseName"
+    New-Item -ItemType Directory -Path $pipelineDirectory -Force | Out-Null
+    $buildDeploymentLease=[IO.File]::Open((Join-Path $pipelineDirectory 'pipeline.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+}
+$buildLease=[IO.File]::Open((Join-Path $buildLogRoot 'build.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
 $lifecycleMembers = Get-VersionLifecycleMembers $projectRoot $ReleaseName
 $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $lifecycleMembers
 try {
 if (-not $EngineDirectory) { $EngineDirectory = Join-Path $engineTarget 'x86_64-pc-windows-msvc/release' }
 New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
+if ($Resume) { $logDirectory = Join-Path $buildLogRoot ('attempts/' + [guid]::NewGuid().ToString('N')); New-Item -ItemType Directory -Path $logDirectory | Out-Null }
 . (Join-Path $PSScriptRoot 'build-metrics.ps1')
+$buildPipelineContext = if ($PipelineContextPath) { Get-Content -LiteralPath $PipelineContextPath -Raw | ConvertFrom-Json -AsHashtable } else {
+    $snapshotPath=Join-Path $logDirectory 'build-inputs.json'
+    $snapshot = & node (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') $projectRoot $snapshotPath
+    if ($LASTEXITCODE -ne 0) { throw 'Build input fingerprint failed.' }
+    @{file=(Join-Path $projectRoot "artifacts/logs/deploy-$ReleaseName/pipeline-state.json"); identity=@{project=[IO.Path]::GetFullPath($projectRoot); platform='windows-x64'; releaseName=$ReleaseName; sourceSnapshot=($snapshot|ConvertFrom-Json).sha256}}
+}
+$script:buildPipelineActive = $null
+function Invoke-BuildCheckpoint([string]$Action, [string]$Name, $Options=@{}) {
+    if (-not $buildLease -or $buildLease.SafeFileHandle.IsClosed) { throw 'Build checkpoint requires its exclusive owner lease.' }
+    $requestPath=Join-Path $logDirectory 'pipeline-request.json'
+    @{file=$buildPipelineContext.file; identity=$buildPipelineContext.identity; resume=[bool](Test-Path -LiteralPath $buildPipelineContext.file); lockHeld=$true; reuseDecisionsPath=$ReuseDecisionsPath; action=$Action; name=$Name; options=$Options} | ConvertTo-Json -Depth 35 | Set-Content -LiteralPath $requestPath -Encoding utf8NoBOM
+    $errorPath=Join-Path $logDirectory 'pipeline-review-error.json'
+    $result=& node (Join-Path $PSScriptRoot 'pipeline-state.cjs') $requestPath 2> $errorPath
+    if ($LASTEXITCODE -ne 0) {
+        $failure=[Exception]::new("Build checkpoint $Action failed for $Name. $(Get-Content -LiteralPath $errorPath -Raw)")
+        $failure.Data['exitCode']=$LASTEXITCODE
+        throw $failure
+    }
+    return ($result|ConvertFrom-Json)
+}
+$null=Invoke-BuildCheckpoint 'snapshot' ''
+$engineInputs=@{sourceRoot=$sourceRoot; retainedSourceRoot=$RetainedSourceRoot; engineDirectory=$EngineDirectory; host=$CodeModeHostPath; target=$engineTarget; skip=[bool]$SkipEngineBuild; rebuild=@($RebuildModule)}
+$buildEnvironment=[ordered]@{}
+$ambientEnvironment=[Environment]::GetEnvironmentVariables()
+foreach ($key in @($ambientEnvironment.Keys | Sort-Object)) { $buildEnvironment[$key]=[string]$ambientEnvironment[$key] }
+$engineInputs.environmentSha256=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $buildEnvironment -Compress)))).ToLowerInvariant()
+$engineInputs.tools=@{}
+foreach ($tool in @('node.exe','python.exe','cargo.exe','rustc.exe')) {
+    foreach ($directory in @($env:PATH.Split([IO.Path]::PathSeparator))) {
+        if (-not $directory) { continue }
+        $candidate=Join-Path $directory.Trim('"') $tool
+        if ([IO.File]::Exists($candidate)) { $engineInputs.tools[[IO.Path]::GetFullPath($candidate)]=(Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant(); break }
+    }
+}
+if ($CodeModeHostPath) { $engineInputs.hostSha256=(Get-FileHash -LiteralPath $CodeModeHostPath -Algorithm SHA256).Hash.ToLowerInvariant() }
 $buildMetrics = New-BuildMetrics (Join-Path $logDirectory 'build-metrics.json')
 $sourceStatePath = Join-Path $logDirectory 'engine-source-state.json'
 $sourceGeneration = [guid]::NewGuid().ToString('N')
 $sourceStateArguments = @('--source-state', $sourceStatePath, '--source-generation', $sourceGeneration)
+Set-BuildMetricContext -Metrics $buildMetrics -Name 'cargo' -Value @{ targetDirectory=$engineTarget; profile='release'; target='x86_64-pc-windows-msvc'; selectedSourceRoot=$sourceRoot; sourceMode=$(if ($sharedCargoCache) {'stable-shared-when-compatible'} else {'frozen-explicit-target'}); cacheOwner=$(if ($sharedCargoCache) {$sharedCargoCache.projectRoot} else {$null}) }
 
 function Resolve-CodeModeHost {
-    if (-not $CodeModeHostPath -or -not (Test-Path -LiteralPath $CodeModeHostPath -PathType Leaf)) {
-        throw 'Pass -CodeModeHostPath for the explicitly selected compatible code-mode host. Compatibility must be checked with the selected engine.'
+    if (-not (Test-Path -LiteralPath $CodeModeHostPath -PathType Leaf)) {
+        throw 'CodeModeHostPath must select an existing compatible code-mode host. Compatibility must be checked with the selected engine.'
     }
     return (Resolve-Path -LiteralPath $CodeModeHostPath).Path
 }
@@ -90,16 +146,37 @@ $moduleInputs = @((Join-Path $PSScriptRoot 'build-module-cache.ps1'), (Join-Path
 . (Join-Path $PSScriptRoot 'build-module-providers-recipe.ps1')
 $moduleTypeScriptPath = $null
 try {
+$engineCheckpoint=Invoke-BuildCheckpoint 'lookup' 'build.engine' @{inputs=$engineInputs}
+if ($engineCheckpoint) {
+    $EngineDirectory=$engineCheckpoint.data.engineDirectory
+    $SkipEngineBuild=[bool]$engineCheckpoint.data.engineReused
+    $engine=Join-Path $EngineDirectory 'azrael.exe'
+    $bridge=Join-Path $EngineDirectory 'azrael-bridge.exe'
+} else {
+    $null=Invoke-BuildCheckpoint 'start' 'build.engine' @{inputs=$engineInputs}
+    $script:buildPipelineActive='build.engine'
 # Automatically reuse a complete source-verified engine bundle. Explicit reuse
 # still follows the existing required provenance check below.
 if (-not $SkipEngineBuild -and 'engine' -notin $RebuildModule) {
-    $latestPath = Join-Path $artifactRoot 'latest.json'
+    $reuseOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } elseif ($ModuleCacheProjectRoot) { $ModuleCacheProjectRoot } else { $projectRoot }
+    $latestPath = Join-Path $reuseOwner 'artifacts/latest.json'
     if (Test-Path -LiteralPath $latestPath) {
         $previousRelease = (Get-Content $latestPath -Raw | ConvertFrom-Json).releaseDirectory
         $candidateEngine = Join-Path $previousRelease 'engine'
         if (Test-Path -LiteralPath (Join-Path $candidateEngine 'azrael-engine-build.json')) {
             & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --profile release --root $sourceRoot --engine-dir $candidateEngine @sourceStateArguments *> (Join-Path $logDirectory 'engine-auto-reuse.log')
-            if ($LASTEXITCODE -eq 0 -and $CodeModeHostPath -and (Test-Path -LiteralPath $CodeModeHostPath -PathType Leaf) -and (Get-FileHash $CodeModeHostPath).Hash -ieq (Get-FileHash (Join-Path $candidateEngine 'azrael-code-mode-host.exe')).Hash) {
+            $reuseVerified = $LASTEXITCODE -eq 0
+            $hostSelectionMatches = $false
+            if ($reuseVerified) {
+                $candidateReceipt = Get-Content (Join-Path $candidateEngine 'azrael-engine-build.json') -Raw | ConvertFrom-Json
+                $candidateHost = $candidateReceipt.externalRuntimes.codeModeHost
+                $hostSelectionMatches = if ($CodeModeHostPath) {
+                    (Test-Path -LiteralPath $CodeModeHostPath -PathType Leaf) -and (Get-FileHash -LiteralPath $CodeModeHostPath -Algorithm SHA256).Hash -ieq $candidateHost.sha256
+                } else {
+                    $candidateHost.kind -ceq 'source-built' -and $candidateHost.sourceSha256 -ceq $candidateReceipt.source.sourceSha256
+                }
+            }
+            if ($reuseVerified -and $hostSelectionMatches) {
                 $EngineDirectory=$candidateEngine;$SkipEngineBuild=$true
             }
         }
@@ -108,30 +185,34 @@ if (-not $SkipEngineBuild -and 'engine' -notin $RebuildModule) {
 if (-not $SkipEngineBuild) {
     $phase = Start-BuildStage $buildMetrics 'engine-build'
     $check = Start-BuildStage $buildMetrics 'engine-host-source-check'
-    $externalCodeModeHost = Resolve-CodeModeHost
-    $externalCodeModeHostHash = (Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash
+    $externalCodeModeHost = if ($CodeModeHostPath) { Resolve-CodeModeHost } else { $null }
+    $externalCodeModeHostHash = if ($externalCodeModeHost) { (Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash } else { $null }
     Complete-BuildStage $buildMetrics $check
     Invoke-BuildCommand 'python' (@('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'snapshot', '--root', (Split-Path $rustRoot -Parent), '--file', (Join-Path $logDirectory 'engine-source-before.json')) + $sourceStateArguments) 'source-snapshot.log'
     Push-Location $rustRoot
     $previousTarget = $env:CARGO_TARGET_DIR
     $previousCacheOwner = $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT
+    $previousStableSource = $env:AZRAEL_CARGO_STABLE_SOURCE
     try {
         # The explicit cache may be reused across selected source snapshots.
-        # Cargo must successfully build both binaries before provenance is recorded.
+        # Cargo must successfully build all selected binaries before provenance is recorded.
         $env:CARGO_TARGET_DIR = $engineTarget
         if ($sharedCargoCache) { $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT = $sharedCargoCache.projectRoot }
-        Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') 'engine.log'
+        $env:AZRAEL_CARGO_STABLE_SOURCE = '1'
+        Invoke-BuildCommand 'node' (@((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--release', '--locked', '--no-default-features', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') + $(if (-not $CodeModeHostPath) { @('-p', 'codex-code-mode-host', '--bin', 'codex-code-mode-host') } else { @() })) 'engine.log'
         $check = Start-BuildStage $buildMetrics 'engine-host-hash-check-and-copy'
-        if ((Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash -cne $externalCodeModeHostHash) { throw 'Selected code-mode host changed during compilation; rebuild with a stable runtime.' }
+        if ($externalCodeModeHost -and (Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash -cne $externalCodeModeHostHash) { throw 'Selected code-mode host changed during compilation; rebuild with a stable runtime.' }
+        $selectedCodeModeHost = if ($externalCodeModeHost) { $externalCodeModeHost } else { Join-Path $EngineDirectory 'codex-code-mode-host.exe' }
         $codeModeHostDestination = Join-Path $EngineDirectory 'azrael-code-mode-host.exe'
-        if ($externalCodeModeHost -cne $codeModeHostDestination) {
-            Copy-Item -LiteralPath $externalCodeModeHost -Destination $codeModeHostDestination -Force
+        if ($selectedCodeModeHost -cne $codeModeHostDestination) {
+            Copy-Item -LiteralPath $selectedCodeModeHost -Destination $codeModeHostDestination -Force
         }
         Complete-BuildStage $buildMetrics $check
-        Invoke-BuildCommand 'python' (@('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'record', '--profile', 'release', '--root', (Split-Path $rustRoot -Parent), '--file', (Join-Path $logDirectory 'engine-source-before.json'), '--engine-dir', $EngineDirectory, '--code-mode-host-source', $externalCodeModeHost) + $sourceStateArguments) 'engine-provenance.log'
+        Invoke-BuildCommand 'python' (@('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'record', '--profile', 'release', '--root', (Split-Path $rustRoot -Parent), '--file', (Join-Path $logDirectory 'engine-source-before.json'), '--engine-dir', $EngineDirectory) + $sourceStateArguments + $(if ($CodeModeHostPath) { @('--code-mode-host-source', $externalCodeModeHost) } else { @('--code-mode-host-built') })) 'engine-provenance.log'
     } finally {
         $env:CARGO_TARGET_DIR = $previousTarget
         $env:AZRAEL_CARGO_CACHE_PROJECT_ROOT = $previousCacheOwner
+        $env:AZRAEL_CARGO_STABLE_SOURCE = $previousStableSource
         Pop-Location
     }
     Complete-BuildStage $buildMetrics $phase
@@ -148,13 +229,23 @@ foreach ($file in @($engine, $bridge, $codeModeHost)) {
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Missing engine pair member: $file" }
 }
 Complete-BuildStage $buildMetrics $phase
+    $null=Invoke-BuildCheckpoint 'finish' 'build.engine' @{exitCode=0; outputs=@($engine,$bridge,$codeModeHost,(Join-Path $EngineDirectory 'azrael-engine-build.json')); data=@{engineDirectory=$EngineDirectory;engineReused=[bool]$SkipEngineBuild}}
+    $script:buildPipelineActive=$null
+}
+Invoke-BuildCommand 'node' (@((Join-Path $PSScriptRoot 'check-build-engine-compatibility.mjs'), $EngineDirectory, (Join-Path $logDirectory 'code-mode-host-compatibility'), '--cache-project-root', $moduleCache.Owner) + $(if ($ForceEngineCompatibility -or -not $SkipEngineBuild) { @('--full') } else { @() })) 'code-mode-host-compatibility.log'
+$null=Invoke-BuildCheckpoint 'start' 'build.engine-ready' @{inputs=@{processId=$PID};dependencies=@('build.engine')}
+$null=Invoke-BuildCheckpoint 'finish' 'build.engine-ready' @{exitCode=0;data=@{processId=$PID}}
+$companionCache = $null
 if (-not $CompanionVsixPath) {
     $phase = Start-BuildStage $buildMetrics 'companion-staging'
     $companionSource = Join-Path $projectRoot 'extensions/azrael-ex'
     $nodeVersion = (& node --version).Trim()
     $npmVersion = (& npm.cmd --version).Trim()
-    $companionCache = Get-BuildModuleEntry $moduleCache companion (@($companionSource, (Join-Path $PSScriptRoot 'platform-runtime.cjs'), (Join-Path $PSScriptRoot 'azrael-platforms.json'), (Join-Path $PSScriptRoot 'build-module-companion-recipe.ps1'))+$moduleInputs) @($nodeVersion,$npmVersion) -AdditionalInputs {Get-BuildCompanionToolInputs} -Force:('companion' -in $RebuildModule)
+    $companionPreferenceInputs = @('maintenance-preferences-host.cjs','maintenance-owner-config.cjs','maintenance-lock-owner.cjs','maintenance-lock-worker.cjs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
+    $companionCache = Get-BuildModuleEntry $moduleCache companion (@($companionSource, (Join-Path $PSScriptRoot 'platform-runtime.cjs'), (Join-Path $PSScriptRoot 'azrael-platforms.json'), (Join-Path $PSScriptRoot 'build-module-companion-recipe.ps1'))+$moduleInputs+$companionPreferenceInputs) @($nodeVersion,$npmVersion) -AdditionalInputs {Get-BuildCompanionToolInputs} -Force:('companion' -in $RebuildModule)
     $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $lifecycleMembers -References @{ $companionCache.LifecycleId='companion-tool' } -ReferenceKind dependency
+    & node (Join-Path $PSScriptRoot 'module-cache-consumers.cjs') attach $moduleCache.Owner $projectRoot "version:$ReleaseName" companion $companionCache.Key | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Durable companion cache consumer registration failed.' }
     $CompanionVsixPath = Join-Path $companionCache.Path 'azrael-ex.vsix'
     $moduleTypeScriptPath = Join-Path $companionCache.Path 'companion/node_modules/typescript/lib/typescript.js'
     if (-not $companionCache.Hit) {
@@ -163,15 +254,30 @@ if (-not $CompanionVsixPath) {
     Complete-BuildStage $buildMetrics $phase
 }
 
-# A failed package is never selected by latest.json. Preserve failure output for
-# diagnosis and use a new release name on retry, rather than overwriting files.
+# Package attempts write fresh owned staging paths; a partial package is never
+# selected or overwritten by the next attempt.
+$packageInputs=@{engine=$engine;bridge=$bridge;companion=$CompanionVsixPath;source=$sourceRoot;retained=$RetainedSourceRoot}
+$packageCheckpoint=Invoke-BuildCheckpoint 'lookup' 'build.package' @{inputs=$packageInputs;dependencies=@('build.engine')}
+if (-not $packageCheckpoint) {
+if (Test-Path -LiteralPath $release) { throw 'Release output changed or lacks a successful package checkpoint; reconcile it through its owner before retrying.' }
+$null=Invoke-BuildCheckpoint 'start' 'build.package' @{inputs=$packageInputs;dependencies=@('build.engine')}
+$script:buildPipelineActive='build.package'
+$packageStaging=Join-Path $artifactRoot ("build/$ReleaseName/package-"+[guid]::NewGuid().ToString('N'))
 $phase = Start-BuildStage $buildMetrics 'release-packaging-and-copy'
 Invoke-BuildScript (Join-Path $PSScriptRoot 'package-azrael.ps1') @{
     EnginePath = $engine; BridgePath = $bridge; CompanionVsixPath = $CompanionVsixPath
-    SourceRoot = $sourceRoot; RetainedSourceRoot = $RetainedSourceRoot; OutputDirectory = $release
+    SourceRoot = $sourceRoot; RetainedSourceRoot = $RetainedSourceRoot; OutputDirectory = $packageStaging
     SourceStatePath = $sourceStatePath; SourceGeneration = $sourceGeneration
 } 'package.log'
+Move-Item -LiteralPath $packageStaging -Destination $release
+$null=Invoke-BuildCheckpoint 'finish' 'build.package' @{exitCode=0;outputs=@((Join-Path $release 'engine/azrael.exe'),(Join-Path $release 'engine/azrael-bridge.exe'),(Join-Path $release 'engine/azrael-code-mode-host.exe'),(Join-Path $release 'engine/azrael-engine-build.json'),(Join-Path $release 'azrael-ex.vsix'))}
+$script:buildPipelineActive=$null
 Complete-BuildStage $buildMetrics $phase
+}
+if ($companionCache) {
+    & node (Join-Path $PSScriptRoot 'module-cache-consumers.cjs') seal $moduleCache.Owner $projectRoot "version:$ReleaseName" companion $companionCache.Key | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Packaged companion consumer release identity sealing failed.' }
+}
 $phase = Start-BuildStage $buildMetrics 'computer-use-runtime-staging'
 if (-not $ComputerUseRuntimeDirectory) {
     $configPath = Join-Path $env:USERPROFILE '.azrael-ex/config.toml'
@@ -180,30 +286,36 @@ if (-not $ComputerUseRuntimeDirectory) {
     $commandDirectory = Split-Path $configuredCommand -Parent
     $ComputerUseRuntimeDirectory = if ((Split-Path $commandDirectory -Leaf) -ieq 'bin') { Split-Path $commandDirectory -Parent } else { $commandDirectory }
 }
-if (-not $ComputerUsePluginDirectory) {
-    $pluginRoot = Join-Path $env:USERPROFILE '.azrael-ex/plugins/cache/openai-bundled/computer-use'
-    $candidates = @(Get-ChildItem -LiteralPath $pluginRoot -Directory | Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName '.codex-plugin/plugin.json') -PathType Leaf })
-    if ($candidates.Count -ne 1) { throw 'Pass -ComputerUsePluginDirectory; installed Computer Use plugin selection is missing or ambiguous.' }
-    $ComputerUsePluginDirectory = $candidates[0].FullName
-}
-Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'computer-use-runtime.cjs'), 'stage', '--runtime-directory', $ComputerUseRuntimeDirectory, '--plugin-directory', $ComputerUsePluginDirectory, '--selected-window-guide', (Join-Path $projectRoot 'instructions/computer-use-selected-window.md'), '--destination', (Join-Path $release 'computer-use')) 'computer-use-runtime.log'
+Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'computer-use-runtime.cjs'), 'stage', '--runtime-directory', $ComputerUseRuntimeDirectory, '--destination', (Join-Path $release 'computer-use')) 'computer-use-runtime.log'
 $windowSource = Join-Path $projectRoot 'native/window-control'
-$windowTarget = if ($WindowControlTargetDirectory) { [IO.Path]::GetFullPath($WindowControlTargetDirectory) } else { Join-Path $projectRoot 'artifacts/build/window-control-native/target' }
+$windowSharedCache=$null
+if (-not $WindowControlTargetDirectory) {
+    . (Join-Path $PSScriptRoot 'window-control-cache.ps1')
+    $windowSharedCache=Open-WindowControlSharedCache $projectRoot $moduleCache.Owner
+}
+try {
+$windowTarget = if ($WindowControlTargetDirectory) { [IO.Path]::GetFullPath($WindowControlTargetDirectory) } else { $windowSharedCache.Target }
 $windowBuildArguments=@('-NoProfile', '-File', (Join-Path $PSScriptRoot 'build-window-control.ps1'))
-if ($WindowControlTargetDirectory) { $windowBuildArguments += @('-TargetDirectory', $windowTarget, '-LogDirectory', (Join-Path $logDirectory 'window-control-native')) }
-if ('window-control' -in $RebuildModule) { $windowBuildArguments += '-Rebuild' }
+$windowBuildArguments += @('-TargetDirectory', $windowTarget, '-LogDirectory', (Join-Path $logDirectory 'window-control-native'))
+if ('window-control' -in $RebuildModule -or ($windowSharedCache -and -not $windowSharedCache.CanReuse)) { $windowBuildArguments += '-Rebuild' }
 Invoke-BuildCommand 'pwsh' $windowBuildArguments 'window-control-build.log'
-$childSessionSource = Join-Path $projectRoot 'native/windows-child-session/ChildSession.cs'
-$childSessionExecutable = Join-Path $windowTarget 'release/windows-child-session.exe'
-$childSessionCompiler = Join-Path $env:SystemRoot 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-if (-not (Test-Path -LiteralPath $childSessionCompiler -PathType Leaf)) { throw 'Windows child-session helper requires the Windows .NET Framework C# compiler.' }
-Invoke-BuildCommand $childSessionCompiler @('/nologo', '/target:exe', '/platform:x64', '/optimize+', '/reference:Microsoft.CSharp.dll', '/reference:System.Windows.Forms.dll', '/reference:System.Drawing.dll', '/reference:System.Web.Extensions.dll', '/reference:System.ServiceProcess.dll', ('/out:' + $childSessionExecutable), $childSessionSource) 'window-child-session-build.log'
-$windowStageArguments = @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'stage', '--source-root', $windowSource, '--executable', (Join-Path $windowTarget 'release/azrael-window-control.exe'), '--provenance', (Join-Path $windowTarget 'release/azrael-window-control-build.json'), '--script-directory', $PSScriptRoot, '--guidance', (Join-Path $projectRoot 'instructions/computer-use-selected-window.md'), '--destination', (Join-Path $release 'window-control'), '--child-session-executable', $childSessionExecutable)
+$windowStageArguments = @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'stage', '--source-root', $windowSource, '--executable', (Join-Path $windowTarget 'release/azrael-window-control.exe'), '--provenance', (Join-Path $windowTarget 'release/azrael-window-control-build.json'), '--script-directory', $PSScriptRoot, '--guidance', (Join-Path $projectRoot 'instructions/window-use/common.md'), '--destination', (Join-Path $release 'window-control'))
 if ($VirtualInputRuntimeDirectory) { $windowStageArguments += @('--virtual-input-directory', [IO.Path]::GetFullPath($VirtualInputRuntimeDirectory)) }
+if ($MultiPointerRuntimeDirectory) { $windowStageArguments += @('--multi-pointer-directory', [IO.Path]::GetFullPath($MultiPointerRuntimeDirectory)) }
 Invoke-BuildCommand 'node' $windowStageArguments 'window-control-runtime.log'
+if ($windowSharedCache) { Complete-WindowControlSharedCache $windowSharedCache }
+} catch {
+    if ($script:buildPipelineActive) {
+        $lastCommand=@($buildMetrics.Stages | Where-Object { $_.Status -eq 'failed' -and $null -ne $_.ExitCode } | Select-Object -Last 1)
+        $actualExit=if($lastCommand.Count){$lastCommand[0].ExitCode}else{$null}
+        $null=Invoke-BuildCheckpoint 'finish' $script:buildPipelineActive @{exitCode=$actualExit;outcome='failed';error=$_.Exception.Message}
+    }
+    if ($windowSharedCache) { try { Fail-WindowControlSharedCache $windowSharedCache } catch { Write-Warning "WindowControl cache remains protected: $($_.Exception.Message)" } }
+    throw
+} finally { if ($windowSharedCache -and $windowSharedCache.Lease) { $windowSharedCache.Lease.Dispose() } }
 $releaseBuildInfoPath = Join-Path $release 'build-info.json'
 $releaseBuildInfo = Get-Content -LiteralPath $releaseBuildInfoPath -Raw | ConvertFrom-Json -AsHashtable
-foreach ($module in @('platform-runtime.cjs', 'azrael-platforms.json', 'window-control-host.cjs', 'window-use-async-approvals.cjs', 'window-use-resources.cjs', 'window-use-isolation.cjs', 'window-desktop-authority.cjs', 'window-child-session.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'window-virtual-input.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
+foreach ($module in @('platform-runtime.cjs', 'azrael-platforms.json', 'window-control-host.cjs', 'window-use-async-approvals.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'window-virtual-input.cjs', 'computer-use-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'use-settings-host.cjs') + @(if ($MultiPointerRuntimeDirectory) { 'multi-pointer-mcp.cjs'; 'window-switched-input.cjs' })) {
     $hostDirectory = Join-Path $release 'host'
     New-Item -ItemType Directory -Path $hostDirectory -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $hostDirectory $module)
@@ -213,6 +325,9 @@ $releaseBuildInfo.sha256['window-control/manifest.json'] = (Get-FileHash -Litera
 $releaseBuildInfo.sha256['computer-use/manifest.json'] = (Get-FileHash -LiteralPath (Join-Path $release 'computer-use/manifest.json') -Algorithm SHA256).Hash
 $releaseBuildInfo | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $releaseBuildInfoPath -Encoding utf8NoBOM
 Complete-BuildStage $buildMetrics $phase
+$nodePath = (Get-Command node -ErrorAction Stop).Source
+$nodeVersion = (Invoke-BuildCommand $nodePath @('--version') 'managed-node-version.log' -CaptureOutput).Trim()
+if ([version]($nodeVersion.TrimStart('v')) -lt [version]'22.18.0') { throw 'Managed Azrael helpers require Node 22.18 or newer.' }
 if ($IncludeDevinNative) {
     $phase = Start-BuildStage $buildMetrics 'devin-staging'
     $providerDestination = Join-Path $release 'providers/devin'
@@ -226,9 +341,6 @@ if ($IncludeDevinNative) {
     Copy-Item -LiteralPath (Join-Path $rustRoot 'models-manager/models.json') -Destination (Join-Path $scriptDestination 'devin-catalog.json')
     Complete-BuildStage $buildMetrics $phase
     $phase = Start-BuildStage $buildMetrics 'devin-runtime-and-hash-checks'
-    $nodePath = (Get-Command node -ErrorAction Stop).Source
-    $nodeVersion = (Invoke-BuildCommand $nodePath @('--version') 'devin-node-version.log' -CaptureOutput).Trim()
-    if ([version]($nodeVersion.TrimStart('v')) -lt [version]'22.18.0') { throw 'Native Devin requires Node 22.18 or newer.' }
     $providerFiles = [ordered]@{}
     foreach ($file in @(Get-ChildItem -LiteralPath $providerDestination -File -Recurse) + @(Get-ChildItem -LiteralPath $scriptDestination -File | Where-Object Name -In @('start-devin-native.ps1', 'prepare-devin.ps1', 'devin-catalog.json'))) {
         $providerFiles[[IO.Path]::GetRelativePath($release, $file.FullName).Replace('\', '/')] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
@@ -283,9 +395,9 @@ $selection | ConvertTo-Json | Set-Content -LiteralPath $temporaryPointer -Encodi
 Complete-BuildStage $buildMetrics $phase
 $buildInfoPath=Join-Path $release 'build-info.json'
 $buildInfo=Get-Content $buildInfoPath -Raw | ConvertFrom-Json -AsHashtable
-$buildInfo.moduleBuild=@{typeScriptPath=$moduleTypeScriptPath;modules=$moduleCache.Results;engineReused=[bool]$SkipEngineBuild}
+$buildInfo.moduleBuild=@{typeScriptPath=$moduleTypeScriptPath;modules=$moduleCache.Results;engineReused=[bool]$SkipEngineBuild;cacheOwner=$moduleCache.Owner}
 $buildInfo | ConvertTo-Json -Depth 30 | Set-Content $buildInfoPath -Encoding utf8NoBOM
-$moduleCache.Results | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDirectory 'modules.json') -Encoding utf8NoBOM
+$moduleCache.Results | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $logDirectory 'modules.json') -Encoding utf8NoBOM
 if (-not $SkipCacheCleanup) {
     try {
     $protectedCachePaths = @(Get-ProtectedBuildCachePaths $moduleCache)
@@ -310,5 +422,9 @@ $global:LASTEXITCODE = 0
 finally { $moduleCache.Lease.Dispose() }
 } catch {
     try { $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -Generated -ProtectionKnown -State failed -MembershipComplete $false -Members $lifecycleMembers } catch { Write-Warning "Lifecycle failure receipt could not be updated: $($_.Exception.Message)" }
+    if ($_.Exception.Data['exitCode'] -eq 3) { [Console]::Error.WriteLine($_.Exception.Message); $global:LASTEXITCODE = 3; exit 3 }
     throw
+} finally {
+    if ($buildLease) { $buildLease.Dispose() }
+    if ($buildDeploymentLease) { $buildDeploymentLease.Dispose() }
 }

@@ -67,6 +67,342 @@ fn stable(reviewed: &Value) -> Vec<Value> {
 }
 
 #[test]
+fn lease_record_publication_and_removal_invalidate_held_catalog_snapshot() {
+    use sha2::{Digest, Sha256};
+    use std::io::{BufRead, BufReader, Write};
+    use std::process::Stdio;
+
+    fn exchange(input: &mut impl Write, output: &mut impl BufRead, command: Value) -> Value {
+        writeln!(input, "{command}").unwrap();
+        input.flush().unwrap();
+        let mut line = String::new();
+        assert!(
+            output.read_line(&mut line).unwrap() > 0,
+            "lease ended before replying"
+        );
+        serde_json::from_str(&line).unwrap()
+    }
+
+    let root = fixture();
+    let mut owner = record(&root, "version");
+    owner["revision"] = json!(1);
+    write(&root, "version", &owner);
+    let filename = directory(&root).join(format!("{:x}.json", Sha256::digest(b"version")));
+    std::fs::rename(directory(&root).join("version.json"), &filename).unwrap();
+    let expected = format!("{:x}", Sha256::digest(std::fs::read(&filename).unwrap()));
+    #[cfg(windows)]
+    let mut command =
+        codex_utils_process::background_command(env!("CARGO_BIN_EXE_maintenance_owner"));
+    #[cfg(not(windows))]
+    let mut command = std::process::Command::new(env!("CARGO_BIN_EXE_maintenance_owner"));
+    let mut child = command
+        .env("AZRAEL_STATE_ROOT", root.path().join("fixture-preferences"))
+        .arg("--lease")
+        .arg(directory(&root).join("catalog.lock"))
+        .args([
+            "--operation",
+            "snapshot-test",
+            "--wait-ms",
+            "0",
+            "--parent-pid",
+        ])
+        .arg(std::process::id().to_string())
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::inherit())
+        .spawn()
+        .unwrap();
+    let mut input = child.stdin.take().unwrap();
+    let mut output = BufReader::new(child.stdout.take().unwrap());
+    let mut greeting = String::new();
+    output.read_line(&mut greeting).unwrap();
+    assert_eq!(
+        serde_json::from_str::<Value>(&greeting).unwrap()["ok"],
+        true
+    );
+
+    // Failed selectors populate the successful catalog snapshot without
+    // acquiring a durable producer reservation or restricting subsequent writes.
+    let warm = exchange(
+        &mut input,
+        &mut output,
+        json!({"id":1,"operation":"reserve_producers","records":[{"id":"version","revision":999}]}),
+    );
+    assert_eq!(warm["ok"], false);
+    assert_eq!(warm["error"], "producer record selector revision changed");
+    owner["revision"] = json!(2);
+    let published = exchange(
+        &mut input,
+        &mut output,
+        json!({"id":2,"operation":"write_record","record":owner,"expected_sha256":expected}),
+    );
+    assert_eq!(published["ok"], true, "{published}");
+    let stale = exchange(
+        &mut input,
+        &mut output,
+        json!({"id":3,"operation":"reserve_producers","records":[{"id":"version","revision":1}]}),
+    );
+    assert_eq!(stale["ok"], false);
+    assert_eq!(stale["error"], "producer record selector revision changed");
+    let removed = exchange(
+        &mut input,
+        &mut output,
+        json!({"id":4,"operation":"remove_record","record_id":"version","expected_sha256":published["result"]["sha256"]}),
+    );
+    assert_eq!(removed["ok"], true, "{removed}");
+    let absent = exchange(
+        &mut input,
+        &mut output,
+        json!({"id":5,"operation":"reserve_producers","records":[{"id":"version","revision":2}]}),
+    );
+    assert_eq!(absent["ok"], false);
+    assert_eq!(absent["error"], "producer record missing");
+    let released = exchange(
+        &mut input,
+        &mut output,
+        json!({"id":6,"operation":"release"}),
+    );
+    assert_eq!(released["ok"], true);
+    drop(input);
+    assert!(child.wait().unwrap().success());
+    assert!(!filename.exists());
+
+    // A stopped native writer may leave an unpublished reference release. Abort
+    // recovery must preserve authoritative bytes and require independently bound
+    // high-level request/termination evidence, not a reconstructed wire request.
+    let writer_pid = child.id();
+    let evidence = root.path().join("artifacts/maintenance/evidence");
+    std::fs::create_dir_all(&evidence).unwrap();
+    fn proof(path: &Path, value: &Value) -> String {
+        let bytes = serde_json::to_vec(value).unwrap();
+        std::fs::write(path, &bytes).unwrap();
+        format!("{:x}", Sha256::digest(bytes))
+    }
+    fn writable(path: &Path) {
+        if path.exists() {
+            let mut permissions = std::fs::metadata(path).unwrap().permissions();
+            permissions.set_readonly(false);
+            std::fs::set_permissions(path, permissions).unwrap();
+        }
+    }
+    let mut base = record(&root, "version");
+    base["revision"] = json!(3);
+    base["references"] = json!([{"id":"consumer","reason":"owned input","kind":"execution","reference_id":"exact-reference"}]);
+    let base_bytes = serde_json::to_vec(&base).unwrap();
+    std::fs::write(&filename, &base_bytes).unwrap();
+    let release_evidence = evidence.join("release-evidence.json");
+    let release_evidence_sha = proof(
+        &release_evidence,
+        &json!({"schema":1,"reason":"consumer ended"}),
+    );
+    // The JS helper hashes the original request, then stores path.resolve in
+    // its receipt. On Windows these spellings intentionally differ.
+    let request_evidence = release_evidence.to_str().unwrap().to_owned();
+    #[cfg(windows)]
+    let request_evidence = request_evidence.replace('\\', "/");
+    #[cfg(windows)]
+    assert_ne!(request_evidence, release_evidence.to_str().unwrap());
+    let receipt_evidence = release_evidence.to_str().unwrap().to_owned();
+    #[cfg(windows)]
+    let receipt_evidence = receipt_evidence.replace('/', "\\");
+    #[cfg(windows)]
+    assert!(!receipt_evidence.contains('/') && receipt_evidence.contains('\\'));
+    let release = json!({"owner":"test","expected_revision":3,
+        "reference_ids":["exact-reference"],"reason":"Release only this execution reference",
+        "evidence_ref":request_evidence,"evidence_sha256":release_evidence_sha});
+    let mut keys = release
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(String::as_str)
+        .collect::<Vec<_>>();
+    keys.sort_unstable();
+    let canonical = keys
+        .iter()
+        .map(|key| json!([key, release[*key]]))
+        .collect::<Vec<_>>();
+    let request_sha = format!(
+        "{:x}",
+        Sha256::digest(serde_json::to_vec(&canonical).unwrap())
+    );
+    let request_path = evidence.join("original-release-request.json");
+    let request_file_sha = proof(&request_path, &release);
+    let mut next = base.clone();
+    next["revision"] = json!(4);
+    next["updated_at"] = json!("2026-10-31T00:00:00Z");
+    next["references"] = json!([]);
+    next["release_receipt"] = json!({"request_sha256":request_sha,"evidence_ref":receipt_evidence,
+        "evidence_sha256":release_evidence_sha,"reason":release["reason"]});
+    let pending = filename.with_extension("pending");
+    let pending_bytes = serde_json::to_vec(&next).unwrap();
+    std::fs::write(&pending, &pending_bytes).unwrap();
+    let terminal_path = evidence.join("writer-terminal.json");
+    let terminal_sha = proof(
+        &terminal_path,
+        &json!({"pid":writer_pid,"exit_code":0,
+        "observation":"Owned native child wait returned success"}),
+    );
+    let stop_path = evidence.join("writer-stop.json");
+    let stop = json!({"schema":1,"record_id":"version","owner":"test","writer_pid":writer_pid,
+        "original_request_sha256":request_file_sha,
+        "expected_record_sha256":format!("{:x}",Sha256::digest(&base_bytes)),
+        "expected_pending_sha256":format!("{:x}",Sha256::digest(&pending_bytes)),
+        "producer_stopped_verified":true,"process_tree_stopped_verified":true,
+        "stop_basis":"Owned native writer replied release, stdin closed and wait returned success",
+        "native_exit_code":null,"producer_evidence":[{"path":terminal_path,"sha256":terminal_sha}]});
+    let stop_sha = proof(&stop_path, &stop);
+    let receipt = evidence.join("abort-receipt.json");
+    let recovery = json!({"operation":"recover_lifecycle_pending","decision":"abort",
+        "record_id":"version","owner":"test","writer_pid":writer_pid,
+        "producer_stopped_verified":true,"reason":"Discard exact unpublished release only",
+        "expected_record_sha256":stop["expected_record_sha256"],
+        "expected_pending_sha256":stop["expected_pending_sha256"],
+        "original_request_ref":request_path,"original_request_sha256":request_file_sha,
+        "writer_stop_ref":stop_path,"writer_stop_sha256":stop_sha,"receipt_ref":receipt});
+    for (field, value) in [
+        ("decision", json!("publish")),
+        ("owner", json!("other")),
+        ("expected_record_sha256", json!("0".repeat(64))),
+        ("expected_pending_sha256", json!("0".repeat(64))),
+        ("original_request_sha256", json!("0".repeat(64))),
+        ("writer_stop_sha256", json!("0".repeat(64))),
+    ] {
+        let mut invalid = recovery.clone();
+        invalid[field] = value;
+        assert!(dispatch(root.path(), invalid, &allow).is_err(), "{field}");
+        assert_eq!(std::fs::read(&filename).unwrap(), base_bytes);
+        assert_eq!(std::fs::read(&pending).unwrap(), pending_bytes);
+    }
+    let mut malformed = recovery.clone();
+    std::fs::write(&pending, b"{\"schema\":1").unwrap();
+    malformed["expected_pending_sha256"] = json!(format!("{:x}", Sha256::digest(b"{\"schema\":1")));
+    assert!(dispatch(root.path(), malformed, &allow).is_err());
+    assert_eq!(std::fs::read(&pending).unwrap(), b"{\"schema\":1");
+    std::fs::write(&pending, &pending_bytes).unwrap();
+    let alias = evidence.join("pending-hardlink");
+    std::fs::hard_link(&pending, &alias).unwrap();
+    assert!(dispatch(root.path(), recovery.clone(), &allow).is_err());
+    std::fs::remove_file(alias).unwrap();
+    let denied = |path: &Path, mode| {
+        if path == pending && mode == AccessMode::Write {
+            Err("pending write denied".into())
+        } else {
+            Ok(())
+        }
+    };
+    let denied_error = dispatch(root.path(), recovery.clone(), &denied).unwrap_err();
+    assert!(
+        denied_error.contains("pending write denied"),
+        "{denied_error}"
+    );
+    assert_eq!(std::fs::read(&pending).unwrap(), pending_bytes);
+    // Hold a real OS lease; a stopped historical writer never permits recovery
+    // through a current catalog owner's exclusion.
+    #[cfg(windows)]
+    let mut busy_command =
+        codex_utils_process::background_command(env!("CARGO_BIN_EXE_maintenance_owner"));
+    #[cfg(not(windows))]
+    let mut busy_command = std::process::Command::new(env!("CARGO_BIN_EXE_maintenance_owner"));
+    let mut busy = busy_command
+        .env("AZRAEL_STATE_ROOT", root.path().join("fixture-preferences"))
+        .arg("--lease")
+        .arg(directory(&root).join("catalog.lock"))
+        .args([
+            "--operation",
+            "recovery-busy-test",
+            "--wait-ms",
+            "0",
+            "--parent-pid",
+        ])
+        .arg(std::process::id().to_string())
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::inherit())
+        .spawn()
+        .unwrap();
+    let mut busy_input = busy.stdin.take().unwrap();
+    let mut busy_output = BufReader::new(busy.stdout.take().unwrap());
+    let mut greeting = String::new();
+    busy_output.read_line(&mut greeting).unwrap();
+    assert_eq!(
+        serde_json::from_str::<Value>(&greeting).unwrap()["ok"],
+        true
+    );
+    let busy_error = dispatch(root.path(), recovery.clone(), &allow).unwrap_err();
+    assert_eq!(
+        serde_json::from_str::<Value>(&busy_error).unwrap()["code"],
+        "maintenance_busy"
+    );
+    assert_eq!(std::fs::read(&pending).unwrap(), pending_bytes);
+    assert_eq!(
+        exchange(
+            &mut busy_input,
+            &mut busy_output,
+            json!({"id":1,"operation":"release"})
+        )["ok"],
+        true
+    );
+    drop(busy_input);
+    assert!(busy.wait().unwrap().success());
+    let writes = std::cell::Cell::new(0);
+    let changed = |path: &Path, mode| {
+        if path == pending && mode == AccessMode::Write {
+            writes.set(writes.get() + 1);
+            if writes.get() == 2 {
+                std::fs::write(&filename, b"changed authoritative bytes").unwrap();
+            }
+        }
+        Ok(())
+    };
+    assert!(
+        dispatch(root.path(), recovery.clone(), &changed)
+            .unwrap_err()
+            .contains("changed before abort")
+    );
+    assert_eq!(std::fs::read(&pending).unwrap(), pending_bytes);
+    std::fs::write(&filename, &base_bytes).unwrap();
+    writable(&receipt);
+    std::fs::remove_file(&receipt).unwrap();
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::OpenOptionsExt;
+        use windows_sys::Win32::Storage::FileSystem::{FILE_SHARE_READ, FILE_SHARE_WRITE};
+        // Permit verification reads while an actual OS sharing rule denies deletion.
+        let held = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE)
+            .open(&pending)
+            .unwrap();
+        assert!(
+            dispatch(root.path(), recovery.clone(), &allow)
+                .unwrap_err()
+                .contains("ordinary pending abort failed")
+        );
+        assert_eq!(std::fs::read(&pending).unwrap(), pending_bytes);
+        drop(held);
+        writable(&receipt);
+        std::fs::remove_file(&receipt).unwrap();
+    }
+    let aborted = dispatch(root.path(), recovery, &allow).unwrap();
+    assert_eq!(aborted["status"], "aborted");
+    assert_eq!(aborted["pending_absent"], true);
+    assert_eq!(std::fs::read(&filename).unwrap(), base_bytes);
+    assert_eq!(aborted["record_sha256"], stop["expected_record_sha256"]);
+    assert!(!pending.exists());
+    let recovered_receipt: Value =
+        serde_json::from_slice(&std::fs::read(&receipt).unwrap()).unwrap();
+    assert_eq!(recovered_receipt["release_request_sha256"], request_sha);
+    assert_eq!(recovered_receipt["status"], "authorized_abort_attempt");
+    assert!(
+        std::fs::metadata(&receipt)
+            .unwrap()
+            .permissions()
+            .readonly()
+    );
+    writable(&receipt);
+}
+
+#[test]
 fn protected_components_inside_selected_project_remain_rejected() {
     for protected in [".git", ".azrael-ex", ".codex", ".ssh"] {
         let root = fixture();
@@ -531,6 +867,150 @@ fn refresh_releases_consumers_without_payload_measurement() {
 }
 
 #[test]
+fn refresh_waits_for_os_locks_without_holding_partial_transactions() {
+    use std::fs::OpenOptions;
+    use std::time::{Duration, Instant};
+
+    for name in ["maintenance.lock", "lifecycles/catalog.lock"] {
+        let root = fixture();
+        let registered = call(&root, registration(&root));
+        let maintenance = root.path().join("artifacts/maintenance");
+        let held = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(maintenance.join(name))
+            .unwrap();
+        held.lock().unwrap();
+        let (started, waiting) = std::sync::mpsc::channel();
+        let notified = std::cell::Cell::new(false);
+        let manifest = maintenance.join("manifest.json");
+        let result = std::thread::scope(|scope| {
+            let root = &root;
+            let maintenance = &maintenance;
+            let manifest = &manifest;
+            let releaser = scope.spawn(move || {
+                waiting.recv_timeout(Duration::from_secs(2)).unwrap();
+                std::thread::sleep(Duration::from_millis(100));
+                // While catalog is occupied, refresh must release maintenance
+                // before waiting. Another legitimate writer can then commit.
+                let transaction = if name == "lifecycles/catalog.lock" {
+                    let file = OpenOptions::new()
+                        .read(true)
+                        .write(true)
+                        .open(maintenance.join("maintenance.lock"))
+                        .unwrap();
+                    let deadline = Instant::now() + Duration::from_secs(2);
+                    loop {
+                        match file.try_lock() {
+                            Ok(()) => break,
+                            Err(std::fs::TryLockError::WouldBlock) if Instant::now() < deadline => {
+                                std::thread::sleep(Duration::from_millis(1));
+                            }
+                            Err(error) => panic!("maintenance held during catalog wait: {error}"),
+                        }
+                    }
+                    Some(file)
+                } else {
+                    None
+                };
+                let mut state: Value =
+                    serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+                state["items"]["artifact"]["retain_reason"] = json!("new writer retention");
+                std::fs::write(&manifest, serde_json::to_vec(&state).unwrap()).unwrap();
+                let mut owner = record(&root, "version");
+                owner["members"][0]["protection_known"] = json!(true);
+                write(&root, "version", &owner);
+                drop(transaction);
+                drop(held);
+            });
+            let result = dispatch(
+                root.path(),
+                json!({"operation":"register","lock_wait_ms":2000,"refresh_group":{"id":"version"}}),
+                &|path, mode| {
+                    if path == maintenance.join(name) && !notified.replace(true) {
+                        started.send(()).unwrap();
+                    }
+                    allow(path, mode)
+                },
+            );
+            releaser.join().unwrap();
+            result.unwrap()
+        });
+        let artifact = result["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|item| item["id"] == "artifact")
+            .unwrap();
+        let original = registered["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|item| item["id"] == "artifact")
+            .unwrap();
+        assert_eq!(artifact["retain_reason"], "new writer retention", "{name}");
+        assert_eq!(artifact["protection_known"], true, "{name}");
+        for key in ["identity", "logical_bytes", "measured_at_ms"] {
+            assert_eq!(artifact[key], original[key], "{name}: {key}");
+        }
+    }
+}
+
+#[test]
+fn refresh_os_lock_timeout_preserves_manifest_and_identifies_lock() {
+    use std::fs::OpenOptions;
+    use std::time::{Duration, Instant};
+
+    for name in ["maintenance.lock", "lifecycles/catalog.lock"] {
+        let root = fixture();
+        call(&root, registration(&root));
+        let maintenance = root.path().join("artifacts/maintenance");
+        let lock = maintenance.join(name);
+        let held = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&lock)
+            .unwrap();
+        held.lock().unwrap();
+        let before = std::fs::read(maintenance.join("manifest.json")).unwrap();
+        let start = Instant::now();
+        let error = dispatch(
+            root.path(),
+            json!({"operation":"register","lock_wait_ms":40,"refresh_group":{"id":"version"}}),
+            &allow,
+        )
+        .unwrap_err();
+        assert!(start.elapsed() >= Duration::from_millis(40), "{error}");
+        assert!(start.elapsed() < Duration::from_secs(10), "{error}");
+        let response = azrael_project_maintenance::error_response(&error);
+        assert_eq!(response["code"], "maintenance_busy", "{error}");
+        assert_eq!(
+            Path::new(response["lock_path"].as_str().unwrap()),
+            lock.as_path(),
+            "{error}"
+        );
+        assert!(
+            response["error"]
+                .as_str()
+                .unwrap()
+                .replace('\\', "/")
+                .contains(&lock.display().to_string().replace('\\', "/")),
+            "{error}"
+        );
+        assert!(error.contains("40 ms"), "{error}");
+        assert_eq!(
+            std::fs::read(maintenance.join("manifest.json")).unwrap(),
+            before
+        );
+        drop(held);
+        call(
+            &root,
+            json!({"operation":"register","refresh_group":{"id":"version"}}),
+        );
+    }
+}
+
+#[test]
 fn refresh_rejects_changed_identity_membership_and_roles() {
     for mutation in ["owner", "kind", "version", "path", "role", "extra"] {
         let root = fixture();
@@ -956,68 +1436,66 @@ fn reserved_apply_merges_unrelated_registration_and_deferred_receipt() {
 }
 
 #[test]
-fn producer_fence_change_after_intent_preserves_payload_and_reservation() {
+fn producer_fence_change_before_intent_preserves_payload_and_reservation() {
     use std::cell::Cell;
-    let root = fixture();
-    call(&root, registration(&root));
-    let initial = review(&root);
-    let changed = Cell::new(false);
-    let owner_path = directory(&root).join("version.json");
-    let manifest = root.path().join("artifacts/maintenance/manifest.json");
-    let authorize = |path: &Path, mode| {
-        if path == owner_path && mode == AccessMode::Read && !changed.get() {
-            let state: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
-            if state["decisions"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .any(|decision| decision["status"] == "pending")
-            {
-                changed.set(true);
-                let mut owner = record(&root, "version");
-                owner["revision"] = json!(9);
-                write(&root, "version", &owner);
+    // A reservation authorization can change the catalog before the paired
+    // catalog passes. Their mutual agreement must still match the stored fence.
+    for reservation_callback in [false, true] {
+        let root = fixture();
+        call(&root, registration(&root));
+        let initial = review(&root);
+        let changed = Cell::new(false);
+        let owner_path = directory(&root).join("version.json");
+        let reservations_path = directory(&root).join("reservations");
+        let manifest = root.path().join("artifacts/maintenance/manifest.json");
+        let authorize = |path: &Path, mode| {
+            let selected_callback = if reservation_callback {
+                path.parent() == Some(reservations_path.as_path())
+                    && path
+                        .extension()
+                        .is_some_and(|extension| extension == "json")
+            } else {
+                path == owner_path
+            };
+            if selected_callback && mode == AccessMode::Read && !changed.get() {
+                let state: Value =
+                    serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+                if !active_reservations(&root).is_empty()
+                    && state["decisions"].as_array().unwrap().is_empty()
+                {
+                    changed.set(true);
+                    let mut owner = record(&root, "version");
+                    owner["revision"] = json!(9);
+                    write(&root, "version", &owner);
+                }
             }
-        }
-        Ok(())
-    };
-    assert!(dispatch(root.path(), deletion(&initial), &authorize).is_err());
-    assert!(
-        changed.get(),
-        "fault must occur after a durable deletion intent"
-    );
-    for name in ["artifact", "log"] {
+            Ok(())
+        };
+        assert!(dispatch(root.path(), deletion(&initial), &authorize).is_err());
         assert!(
-            root.path()
-                .join("artifacts/registry-fixtures")
-                .join(name)
-                .exists()
+            changed.get(),
+            "fault must occur after reservation publication and before deletion intent"
+        );
+        for name in ["artifact", "log"] {
+            assert!(
+                root.path()
+                    .join("artifacts/registry-fixtures")
+                    .join(name)
+                    .exists()
+            );
+        }
+        assert_eq!(active_reservations(&root).len(), 1);
+        let durable: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+        assert_eq!(durable["decisions"], json!([]));
+        assert!(
+            dispatch(
+                root.path(),
+                json!({"operation":"review","group_ids":["version"]}),
+                &allow
+            )
+            .is_err()
         );
     }
-    assert_eq!(active_reservations(&root).len(), 1);
-    let durable: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
-    assert!(
-        durable["decisions"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .any(|decision| matches!(decision["status"].as_str(), Some("pending" | "blocked")))
-    );
-    assert!(
-        durable["decisions"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .all(|decision| decision["status"] != "deleted")
-    );
-    assert!(
-        dispatch(
-            root.path(),
-            json!({"operation":"review","group_ids":["version"]}),
-            &allow
-        )
-        .is_err()
-    );
 }
 
 #[test]

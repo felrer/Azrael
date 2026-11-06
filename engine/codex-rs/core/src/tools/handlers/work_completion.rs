@@ -53,7 +53,7 @@ impl ToolExecutor<ToolInvocation> for WorkCompletionHandler {
         ]);
         ToolSpec::Function(ResponsesApiTool {
             name: "work_completion".to_string(),
-            description: "Register and inspect durable completion signals for non-subagent work. Before launching a producer, use create and arrange for that producer to atomically publish {workId,state,summary,exitCode} at the returned signalPath when it ends; state must be succeeded, failed or cancelled. Use a fresh workId for every execution. Do not publish completion merely because an estimated duration elapsed. For early resume, pass the returned workId in defer_root.wake_on.work_ids with condition all_terminal and a fallback deadline. A completed signal is sticky and recognized even if it arrives before parking. Running means no terminal signal has been recorded; it is not proof that the producer is still alive. On a fallback deadline, inspect the actual producer outcome and any missing signal before choosing another wait. Use finish only after observing the actual outcome; identical retries are accepted and conflicting terminal results are rejected. Signals belong to this root thread and the local engine state filesystem; a remote producer needs an explicit delivery route to that signalPath. Prefer an existing completion-aware tool wait when it already covers the work.".to_string(),
+            description: "Register and inspect durable completion signals for non-subagent work. For managed exec_command work, create first and pass its workId as exec_command.work_id; the executor records completion without a producer wrapper. Bound unknown means observation was lost, never confirmed process-tree termination. For unbound external producers, use create and arrange for that producer to atomically publish {workId,state,summary,exitCode} at the returned signalPath when it ends; state must be succeeded, failed or cancelled. Use a fresh workId for every execution. Do not publish completion merely because an estimated duration elapsed. For early resume, pass the returned workId in defer_root.wake_on.work_ids with condition all_terminal and a fallback deadline. A completed signal is sticky and recognized even if it arrives before parking. Running means no terminal signal has been recorded; it is not proof that the producer is still alive. On a fallback deadline, inspect the actual producer outcome and any missing signal before choosing another wait. Use finish only after observing the actual outcome; identical retries are accepted and conflicting terminal results are rejected. Signals belong to this root thread and the local engine state filesystem; a remote producer needs an explicit delivery route to that signalPath. Prefer an existing completion-aware tool wait when it already covers the work.".to_string(),
             strict: false,
             defer_loading: None,
             parameters: JsonSchema::object(properties, Some(vec!["action".to_string()]), Some(false.into())),
@@ -72,7 +72,9 @@ impl ToolExecutor<ToolInvocation> for WorkCompletionHandler {
                 payload,
                 ..
             } = invocation;
-            if turn.session_source.is_non_root_agent() || !turn.provider.info().is_openai() {
+            if !crate::agent::role_profile::has_root_authority(&turn.config, &turn.session_source)
+                || !turn.provider.info().is_openai()
+            {
                 return Err(FunctionCallError::RespondToModel(
                     "work_completion requires the native OpenAI root execution path".to_string(),
                 ));

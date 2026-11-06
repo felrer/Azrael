@@ -38,6 +38,7 @@ function azraelCreateTaskTimeHistory(manager, threadId, options = {}) {
                 turnStartedAtMs: Number.isFinite(turn.startedAt) ? turn.startedAt * 1000 : null,
                 turnStartedAtPrecisionMs: 1000,
                 durationMs: turn.durationMs ?? null, status: turn.status,
+                userWaitTiming: turn.userWaitTiming ?? null,
                 rootResumeWait: turn.rootResumeWait ?? null });
             }
           }
@@ -83,6 +84,7 @@ function azraelMergeTaskTimeTurns(history, live) {
       turnStartedAtMs: turn.turnStartedAtMs ?? null,
       turnStartedAtPrecisionMs: turn.turnStartedAtPrecisionMs,
       durationMs: turn.durationMs ?? null, status: turn.status,
+      userWaitTiming: turn.userWaitTiming ?? null,
       rootResumeWait: turn.rootResumeWait ?? null };
     if (index == null) { indices.set(turn.turnId, result.length); result.push(normalized); continue; }
     const saved = result[index];
@@ -104,6 +106,23 @@ function azraelMergeTaskTimeTurns(history, live) {
       merged[field] = saved[field] ?? normalized[field] ?? null;
       if (saved[field] != null && normalized[field] != null && saved[field] !== normalized[field]) merged.metadataPartial = true;
     }
+    const oldTiming = saved.userWaitTiming, newTiming = normalized.userWaitTiming;
+    const validTiming = value => value != null && Number.isSafeInteger(value.revision) && value.revision >= 0 &&
+      Array.isArray(value.requests) && Array.isArray(value.blockedIntervals);
+    // Snapshots are atomic and revisions are turn-wide. A stale active record
+    // cannot reopen ended requests or erase a durable snapshot.
+    const reopens = validTiming(oldTiming) && validTiming(newTiming) && (
+      oldTiming.requests.some(old => old?.endedAtMs != null && newTiming.requests.some(next =>
+        next?.requestId === old.requestId && next.endedAtMs == null)) ||
+      oldTiming.blockedIntervals.some(old => old?.endedAtMs != null && newTiming.blockedIntervals.some(next =>
+        next?.startedAtMs === old.startedAtMs && next.endedAtMs == null)));
+    // A retained code-mode cell may create a new raw approval after its turn
+    // completes. Its request timer can advance, but work stays sealed forever.
+    // The reopens guard above still prevents any ended request from reopening.
+    const terminalPending = terminal(saved.status) && validTiming(newTiming) &&
+      newTiming.blockedIntervals.some(entry => entry && entry.endedAtMs == null);
+    merged.userWaitTiming = validTiming(newTiming) &&
+      (!validTiming(oldTiming) || newTiming.revision > oldTiming.revision) && !reopens && !terminalPending ? newTiming : oldTiming ?? null;
     const oldWait = saved.rootResumeWait, newWait = normalized.rootResumeWait;
     if (newWait == null) merged.rootResumeWait = oldWait;
     else if (oldWait == null) merged.rootResumeWait = newWait;

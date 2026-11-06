@@ -1,0 +1,205 @@
+{
+  "schema": 1,
+  "id": "run:FE01:cli-r1",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "748d4d287527d2fdddf2be340cb490faf32e15d3319f982b692fda37f4136ff5",
+  "lease_owner": {
+    "acquired_at_ms": 1793589070912,
+    "operation": "group_reservation",
+    "pid": 11256,
+    "schema": 2,
+    "token": "11256-1793589070912-dd7d3e85b01f3d45"
+  },
+  "exactFence": {
+    "group_scope": {
+      "id": "run:FE01:cli-r1",
+      "kind": "run",
+      "members": [
+        "467d1930aca452c280d5525e94ab2f5288f6efc7ae68d83f03ddd251edf102af"
+      ],
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_identity": "ca64d077e9668d88430bdeb877ae3f9154679e18e492d89ce16c526ed3e76305",
+      "owner": "maintenance-preferences",
+      "version": null
+    },
+    "id": "run:FE01:cli-r1",
+    "lease_owner": {
+      "acquired_at_ms": 1793589070912,
+      "operation": "group_reservation",
+      "pid": 11256,
+      "schema": 2,
+      "token": "11256-1793589070912-dd7d3e85b01f3d45"
+    },
+    "manifest_revision": 4876,
+    "members": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "467d1930aca452c280d5525e94ab2f5288f6efc7ae68d83f03ddd251edf102af",
+        "identity": "ec52df702c04d6efd43e54400902178c4cde6b8ec0be26ef2d03936969d48cf3",
+        "kind": "run",
+        "lifecycle_group_id": "run:FE01:cli-r1",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 8311,
+        "measured_at_ms": 1793588867731,
+        "owner": "maintenance-preferences",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\526f96d53747870de7d025218558e63f34df71b368f53ec560ab378d151bc521.json",
+        "references": [],
+        "registered_at_ms": 1793588867731,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ],
+    "schema": 1,
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "source_fence": "ca64d077e9668d88430bdeb877ae3f9154679e18e492d89ce16c526ed3e76305",
+    "source_owner": {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\reports\\producer-0773796c01b15c318c6a3cd3f68fc552f5bbf084e637b85e2e37e109434c71ca.json",
+        "evidence_sha256": "0773796c01b15c318c6a3cd3f68fc552f5bbf084e637b85e2e37e109434c71ca",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "b3528572faa89735e2893dbf8b0db212646bff4324a769d7a56d428bc682c8c8"
+      },
+      "created_at": "2026-11-02T02:51:55.216Z",
+      "id": "run:FE01:cli-r1",
+      "kind": "run",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ],
+      "membership_complete": true,
+      "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1",
+      "owner": "maintenance-preferences",
+      "ownership_scope": "run-root",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1\\reports\\producer-0773796c01b15c318c6a3cd3f68fc552f5bbf084e637b85e2e37e109434c71ca.json",
+        "evidence_sha256": "0773796c01b15c318c6a3cd3f68fc552f5bbf084e637b85e2e37e109434c71ca",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "references": [],
+      "release_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\native-cleanup-authorization.json",
+        "evidence_sha256": "f2f2e8d810e44faef01e71a688cb409a92d41a8b4171a7e58e0e2fbbb7366e1b",
+        "reason": "Accepted self-contained native/CLI evidence preserved; exact candidate and cache consumers ended",
+        "request_sha256": "386d49f8643d659a6dca259f78c4ff0230d48fc9b95f06e363d2ed255451498c"
+      },
+      "revision": 3,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-11-02T03:01:42.758Z",
+      "version": null
+    },
+    "status": "active",
+    "token": "11256-1793589070912-dd7d3e85b01f3d45"
+  },
+  "command": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [
+      "--project-root",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "--request",
+      "-"
+    ],
+    "sha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+    "operation": "apply",
+    "scope": [
+      "run:FE01:native-r1",
+      "run:FE01:native-r2",
+      "run:FE01:native-r3",
+      "run:FE01:cli-r1",
+      "run:FE01:core-r1"
+    ]
+  },
+  "terminal": {
+    "label": "apply",
+    "operation": "apply",
+    "exitCode": 1,
+    "signal": null,
+    "error": null,
+    "durationMs": 101723,
+    "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (check_available); lock wait exhausted after 5000 ms\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n"
+  },
+  "workerLifetime": {
+    "source": "engine/codex-rs/project-maintenance/src/windows_delete.rs",
+    "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60",
+    "retainedInput": {
+      "path": "inputs\\codex-rs\\project-maintenance\\src\\windows_delete.rs",
+      "sha256": "e780bd85d1211c1af87dd4294386fddc475f2612863ffdf209edc4e4e5638c60"
+    },
+    "contract": "Request owns non-inherited Windows Job with JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE and no breakaway. Normal observed native return unwinds Context Worker; Drop closes stdin, waits child, closes Job, joins stderr. Abort closes Job, waits child, joins stderr. Exact native exit1 with no timeout/signal confirms synchronous lifecycle termination beyond PID absence."
+  },
+  "remainingPaths": [
+    {
+      "name": "native-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r1",
+      "remaining": true
+    },
+    {
+      "name": "native-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r2",
+      "remaining": true
+    },
+    {
+      "name": "native-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\native-r3",
+      "remaining": false
+    },
+    {
+      "name": "cli-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\cli-r1",
+      "remaining": true
+    },
+    {
+      "name": "core-r1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r1",
+      "remaining": true
+    }
+  ],
+  "authority": "Root resolved request01a19a42-0383-7f61-bd22-6cd18510661d approves only exact own caller fences; original failed outcomes/intents unchanged"
+}

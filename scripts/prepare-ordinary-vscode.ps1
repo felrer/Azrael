@@ -69,11 +69,14 @@ $prepared = & (Join-Path $PSScriptRoot 'prepare-official-ui.ps1') -SourceExtensi
 Copy-Item -LiteralPath $computerUseDirectory -Destination (Join-Path $prepared.Extension 'computer-use') -Recurse
 & node (Join-Path $PSScriptRoot 'computer-use-runtime.cjs') verify --directory (Join-Path $prepared.Extension 'computer-use') | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Copied Computer Use bundle validation failed.' }
+foreach ($module in @('window-use-approvals.cjs', 'use-control-settings.cjs')) {
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $prepared.Extension "out/$module")
+}
 if ($windowControl) {
     Copy-Item -LiteralPath $windowControl.directory -Destination (Join-Path $prepared.Extension 'window-control') -Recurse
     & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify --directory (Join-Path $prepared.Extension 'window-control') | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Copied Window Control bundle validation failed.' }
-    foreach ($module in (@('window-control-host.cjs', 'window-use-async-approvals.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-desktop-authority.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs') + @(if ($windowControl.virtualInput) { 'window-virtual-input.cjs' }))) {
+    foreach ($module in (@('window-control-host.cjs', 'window-use-async-approvals.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'use-settings-host.cjs') + @(if ($windowControl.virtualInput) { 'window-virtual-input.cjs' }) + @(if ($windowControl.multiPointer) { 'multi-pointer-mcp.cjs'; 'window-switched-input.cjs' }))) {
         Copy-Item -LiteralPath (Join-Path $release "host/$module") -Destination (Join-Path $prepared.Extension "out/$module")
     }
 }

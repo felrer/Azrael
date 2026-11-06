@@ -22,7 +22,7 @@ use core_test_support::responses::ResponsesRequest;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
@@ -116,7 +116,12 @@ async fn request_user_input_round_trip_for_mode(mode: ModeKind) -> anyhow::Resul
 
     let first_response = sse(vec![
         ev_response_created("resp-1"),
-        ev_function_call(call_id, "request_user_input", &request_args),
+        ev_function_call_with_namespace(
+            call_id,
+            "legacy_codex_tools",
+            "request_user_input",
+            &request_args,
+        ),
         ev_rate_limits(),
         ev_completed("resp-1"),
     ]);
@@ -266,7 +271,12 @@ async fn request_user_input_interrupt_emits_deferred_token_count() -> anyhow::Re
 
     let response = sse(vec![
         ev_response_created("resp-interrupt"),
-        ev_function_call(call_id, "request_user_input", &request_args),
+        ev_function_call_with_namespace(
+            call_id,
+            "legacy_codex_tools",
+            "request_user_input",
+            &request_args,
+        ),
         ev_completed_with_tokens("resp-interrupt", /*total_tokens*/ 77),
     ]);
     responses::mount_sse_once(&server, response).await;
@@ -358,7 +368,12 @@ where
 
     let first_response = sse(vec![
         ev_response_created("resp-1"),
-        ev_function_call(&call_id, "request_user_input", &request_args),
+        ev_function_call_with_namespace(
+            &call_id,
+            "legacy_codex_tools",
+            "request_user_input",
+            &request_args,
+        ),
         ev_completed("resp-1"),
     ]);
     responses::mount_sse_once(&server, first_response).await;

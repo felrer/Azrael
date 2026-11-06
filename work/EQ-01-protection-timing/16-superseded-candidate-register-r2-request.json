@@ -1,0 +1,28 @@
+{
+  "operation": "register",
+  "group": {
+    "id": "version:maintenance-owner:eq01:delete-apply-r1",
+    "kind": "version",
+    "owner": "EQ-01",
+    "version": "6a39e9c6c6002f3eee110a1822403108b803869e586498ae15ce8dda02b39b92-windows-x64-delete-apply-v1",
+    "membership_complete": true,
+    "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7a88d7c6a0d1735bb90890b7a4acac4fcd4188626acf00619844c57320427009.json",
+    "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "membership_source_format": "producer_registry_v1",
+    "members": [
+      {
+        "id": "abe610c1ad0edfffdbea51140cc7d2c7271f8ed574803e7eb728f37148d340c0",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6a39e9c6-win-x64-eq01-delete-apply",
+        "role": "release",
+        "lifecycle_role": "artifact",
+        "kind": "release",
+        "owner": "EQ-01",
+        "generated": true,
+        "protection_known": true,
+        "references": [],
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7a88d7c6a0d1735bb90890b7a4acac4fcd4188626acf00619844c57320427009.json"
+      }
+    ]
+  },
+  "lock_wait_ms": 5000
+}

@@ -1,0 +1,14 @@
+{
+  "lifecycleId": "run:EZ01:desktop-source-r2-mw0hngg8",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\desktop-source-r2-mw0hngg8",
+  "tests": [
+    "test-window-use-host.cjs",
+    "test-window-virtual-policy.cjs",
+    "tests/sync-codex-environment.test.cjs"
+  ],
+  "startedAt": "2026-11-03T09:31:43.561Z",
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\desktop-source-r2-mw0hngg8\\logs\\tests.log",
+  "exitCode": 1,
+  "signal": null,
+  "endedAt": "2026-11-03T09:32:14.638Z"
+}

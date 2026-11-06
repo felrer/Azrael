@@ -1,0 +1,101 @@
+{
+  "at": "2026-11-02T07:48:14.667Z",
+  "source_matches_accepted": true,
+  "source_files_verified": 39,
+  "actual_default": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "args": [],
+    "maxLockWaitMs": 600000
+  },
+  "binary_sha256": "de9a46aac7441f3e4bbbf3e5ae29659687cb4334dde22915bcc53d95172798ee",
+  "selector_and_installation_equal": true,
+  "run_parent_absent": true,
+  "producer_record_absent": true,
+  "cleanup": "passed",
+  "proof_inputs": [
+    {
+      "path": "09-native-acceptance.json",
+      "sha256": "5ddcb809f33662c7bf9af20f8add2c7e208e94518da7a1860bdc6f9b9442e63a",
+      "unchanged": true
+    },
+    {
+      "path": "10-version-preparation.json",
+      "sha256": "68d85bf1f496b1ae94b09fc8bd0e8d39563a21dc675ea686805cc90dc42fca26",
+      "unchanged": true
+    },
+    {
+      "path": "11-performance.json",
+      "sha256": "d166e8504712590a28fc9bd4a7e63f265a7b8edecb4fc941a6f76c7cf6bb1978",
+      "unchanged": true
+    },
+    {
+      "path": "12-installation.json",
+      "sha256": "8924a1be8a883cbb5fc1ce4ac603a77a3240c79eaf0c8c9248e6f09a86dd486a",
+      "unchanged": true
+    },
+    {
+      "path": "13-default-acceptance.json",
+      "sha256": "960f915da1865e3e1ab7f1c199287777b4242b5e8d96d4801126ae439d8c575c",
+      "unchanged": true
+    },
+    {
+      "path": "14-native-close.json",
+      "sha256": "b040aa299d868ff29d1d1ba5170379b440f1d3d5b1295e99b83135e2fe94093e",
+      "unchanged": true
+    }
+  ],
+  "cleanup_evidence_sha256": "15f2b3d1ed02bcfb468de4dfd1aa288232c95968165b24ee85cafcbff2dd0699",
+  "installation_references": [
+    {
+      "id": "version:maintenance-owner:ff01:queued-20261102",
+      "kind": "installation",
+      "member_paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102"
+      ],
+      "reason": "User approved queued maintenance default after exact acceptance",
+      "reference_id": "3ffe0e2bb9c11df4ef00ffa936cdf91d393934c5f4810d9ea67a1d32b8a9af63",
+      "target_version": "queued-20261102"
+    },
+    {
+      "id": "version:maintenance-owner:ff01:perf-20261102",
+      "kind": "installation",
+      "member_paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-perf-win-x64-20261102"
+      ],
+      "reason": "User approved measured maintenance performance optimization after exact native acceptance",
+      "reference_id": "4fb53b422cce76eedfdda8670ffe8a599f888460c7fc7b7a7c111a227d12d71d",
+      "target_version": "perf-20261102"
+    }
+  ],
+  "original_workspace_lock_sha256": "28ba826e9155d63dbea9723e75281fe7566f52decd93339a34f05bb2f139711e",
+  "original_workspace_manifest_sha256": "bb964889aee08665a28a187800effec52935800909dcdcb9e914af0d99e95ce1",
+  "commit": {
+    "created": false,
+    "reason": "Preexisting staged/unstaged feature foundations overlap current source changes; standalone task commit cannot safely include only this task. Existing index preserved."
+  },
+  "platform_limits": "Windows x64 local tested. Linux/macOS actual execution and full Azrael app rebuild/installation excluded.",
+  "approved_retention": {
+    "path": "artifacts/versions/maintenance-owner-ff01-queued-win-x64-20261102",
+    "files": 9,
+    "bytes": 2704492,
+    "approval": "서버 종료까지 보관 승인",
+    "purpose": "현재 instruction workbench의 workbench.data lease 유지",
+    "condition": "서버 종료 후 실제 process 사용·소비 참조를 재확인하고 기존 exact installation reference 반환 및 owner 정리",
+    "runtime_observed": [
+      {
+        "ProcessId": 51840,
+        "ParentProcessId": 29680,
+        "ExecutablePath": "C:\\Program Files\\nodejs\\node.exe",
+        "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" scripts/serve-instruction-workbench.cjs --port 4318 --data-run C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce --project C:/Users/felre/Desktop/pi-harness-init --repository felrer/Azrael",
+        "CreationUtc": "2026-11-02T07:26:17.1536850Z"
+      },
+      {
+        "ProcessId": 40600,
+        "ParentProcessId": 51840,
+        "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-queued-win-x64-20261102\\payload\\maintenance_owner.exe --lease C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce\\outputs\\library\\.workbench-server.lock --operation workbench.data --wait-ms 0 --parent-pid 51840",
+        "CreationUtc": "2026-11-02T07:26:39.7202210Z"
+      }
+    ]
+  }
+}

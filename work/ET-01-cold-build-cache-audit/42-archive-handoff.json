@@ -1,0 +1,1221 @@
+{
+  "schema": 1,
+  "owner": "ET-01-cold-build-cache-audit",
+  "disposal_owner": "user",
+  "authority": "User explicitly requested same-volume archive movement and will delete archive personally",
+  "startedUtc": "2026-10-30T05:44:22.011Z",
+  "archiveRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548",
+  "status": "handed-off-to-user",
+  "moves": [
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\cargo-target",
+      "sourceIds": [
+        "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+        "work:ET-01:cargo-cache-remainder"
+      ],
+      "priorLogicalBytes": 548812056021,
+      "before": {
+        "dev": "3057815611",
+        "ino": "9288674232793547"
+      },
+      "startedUtc": "2026-10-30T05:44:40.409Z",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "finishedUtc": "2026-10-30T05:44:41.219Z",
+      "after": {
+        "dev": "3057815611",
+        "ino": "9288674232793547"
+      },
+      "status": "moved",
+      "sourceAbsent": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\retired\\run_ET-01-cold-build-cache-audit_duplicate-claims-b9b85fa2",
+      "sourceIds": [
+        "run:ET-01-cold-build-cache-audit:duplicate-claims-b9b85fa2"
+      ],
+      "before": {
+        "dev": "3057815611",
+        "ino": "10977524101383931"
+      },
+      "startedUtc": "2026-10-30T05:44:41.221Z",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "finishedUtc": "2026-10-30T05:44:41.946Z",
+      "after": {
+        "dev": "3057815611",
+        "ino": "10977524101383931"
+      },
+      "status": "moved",
+      "sourceAbsent": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\retired\\run_ET-01-cold-build-cache-audit_duplicate-claims-final-8878d536",
+      "sourceIds": [
+        "run:ET-01-cold-build-cache-audit:duplicate-claims-final-8878d536"
+      ],
+      "before": {
+        "dev": "3057815611",
+        "ino": "14918173779876840"
+      },
+      "startedUtc": "2026-10-30T05:44:41.949Z",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "finishedUtc": "2026-10-30T05:44:42.684Z",
+      "after": {
+        "dev": "3057815611",
+        "ino": "14918173779876840"
+      },
+      "status": "moved",
+      "sourceAbsent": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\retired\\run_ET-01-cold-build-cache-audit_verification-cache-invalidation-1793331521703",
+      "sourceIds": [
+        "run:ET-01-cold-build-cache-audit:verification-cache-invalidation-1793331521703"
+      ],
+      "before": {
+        "dev": "3057815611",
+        "ino": "2533274802247549"
+      },
+      "startedUtc": "2026-10-30T05:44:42.686Z",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "finishedUtc": "2026-10-30T05:44:43.422Z",
+      "after": {
+        "dev": "3057815611",
+        "ino": "2533274802247549"
+      },
+      "status": "moved",
+      "sourceAbsent": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\shared\\cache-monitor-probe-et01",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\retired\\work_ET-01_cache-monitor-probe-fixture",
+      "sourceIds": [
+        "work:ET-01:cache-monitor-probe-fixture"
+      ],
+      "before": {
+        "dev": "3057815611",
+        "ino": "2251799827862044"
+      },
+      "startedUtc": "2026-10-30T05:44:43.424Z",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "finishedUtc": "2026-10-30T05:44:44.137Z",
+      "after": {
+        "dev": "3057815611",
+        "ino": "2251799827862044"
+      },
+      "status": "moved",
+      "sourceAbsent": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\retired\\run_ET-01-cold-build-cache-audit_duplicate-claims-05312811",
+      "sourceIds": [
+        "run:ET-01-cold-build-cache-audit:duplicate-claims-05312811"
+      ],
+      "before": {
+        "dev": "3057815611",
+        "ino": "562949967620830"
+      },
+      "startedUtc": "2026-10-30T05:44:44.139Z",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "finishedUtc": "2026-10-30T05:44:44.825Z",
+      "after": {
+        "dev": "3057815611",
+        "ino": "562949967620830"
+      },
+      "status": "moved",
+      "sourceAbsent": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\namespace",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\retired\\work_ET-01_asset-cache-invalidation_namespace",
+      "sourceIds": [
+        "work:ET-01:asset-cache-invalidation:namespace"
+      ],
+      "before": {
+        "dev": "3057815611",
+        "ino": "1688849870766011"
+      },
+      "startedUtc": "2026-10-30T05:44:44.828Z",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "finishedUtc": "2026-10-30T05:44:45.579Z",
+      "after": {
+        "dev": "3057815611",
+        "ino": "1688849870766011"
+      },
+      "status": "moved",
+      "sourceAbsent": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\retired\\run_ET-01-cold-build-cache-audit_verification-cache-invalidation-1793330569677",
+      "sourceIds": [
+        "run:ET-01-cold-build-cache-audit:verification-cache-invalidation-1793330569677"
+      ],
+      "before": {
+        "dev": "3057815611",
+        "ino": "9288674245676154"
+      },
+      "startedUtc": "2026-10-30T05:44:45.581Z",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "finishedUtc": "2026-10-30T05:44:46.477Z",
+      "after": {
+        "dev": "3057815611",
+        "ino": "9288674245676154"
+      },
+      "status": "moved",
+      "sourceAbsent": true
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\cache-monitor-decoder-et01-win-x64",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\ET-01-cache-handoff-20261030-0548\\retired\\version_cache-monitor-decoder_ET-01_r1",
+      "sourceIds": [
+        "version:cache-monitor-decoder:ET-01:r1"
+      ],
+      "before": {
+        "dev": "3057815611",
+        "ino": "3096224757993983"
+      },
+      "startedUtc": "2026-10-30T05:44:46.479Z",
+      "exitCode": 0,
+      "signal": null,
+      "stderr": "",
+      "finishedUtc": "2026-10-30T05:44:47.207Z",
+      "after": {
+        "dev": "3057815611",
+        "ino": "3096224757993983"
+      },
+      "status": "moved",
+      "sourceAbsent": true
+    }
+  ],
+  "sourceFinalizations": [
+    {
+      "id": "run:ET-01-cold-build-cache-audit:duplicate-claims-b9b85fa2",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9c0610c2c4dc58e9d2b9135cfb22d244c12c89ff9239b383e2d54175f65b0ad5.json"
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:duplicate-claims-final-8878d536",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b2cf38ad0ba0c89fd253cb7809e567894dde3361c3ba10f65eae0bf10c557840.json"
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:verification-cache-invalidation-1793331521703",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\bedcbbdebcd913b442ec62adfaae4822358dd9d448f102d456518c167e23f829.json"
+    },
+    {
+      "id": "work:ET-01:cache-monitor-probe-fixture",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d2c0ccfdea04203f1615ad25c9d993a962be09b1d06c722d47d70a26dce421ee.json"
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:duplicate-claims-05312811",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d58347e0b7890d377c3337c3e6cc70cd102483804efd0dcabad189a7b920b919.json"
+    },
+    {
+      "id": "work:ET-01:asset-cache-invalidation:namespace",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f3556f122e75b2a2fee358617fbd2b6d6675e9799f1dfbdc567665e39ac3f162.json"
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:verification-cache-invalidation-1793330569677",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f72e8f635cb252c1b9fd77a8afbf5f57f0c171682f167b0e4109e6c2a4ff6fcc.json"
+    },
+    {
+      "id": "version:cache-monitor-decoder:ET-01:r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fcd0893ae8d1c6efcd9b8d633595ef47714c4436856f1aa4f8404c9e5ddf4c5d.json"
+    },
+    {
+      "id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\225529e4ecc371025f482ab1418da3fe5abf26b46319ba23cafd58c207619743.json"
+    },
+    {
+      "id": "work:ET-01:cargo-cache-remainder",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f64cc159d225fae0ea43f720eeb52bc840a0928e90829d5dff8cf34752640a04.json"
+    }
+  ],
+  "sizeMeaning": "Prior logical cache measurements only; current remaining size and physical reclaimed space are not asserted",
+  "deletionPerformedByThisHandoff": false,
+  "originalOwners": [
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2\\reports\\producer-7149fc6917508f656c4c59bdbb53e2737b9c556de050f881b350c30eeb098379.json",
+        "evidence_sha256": "7149fc6917508f656c4c59bdbb53e2737b9c556de050f881b350c30eeb098379",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "b510b4e9c2af21acc9530cb45e2d1430f95a2e638b1decb86d44f3905b646e8a"
+      },
+      "created_at": "2026-10-30T03:09:34.153Z",
+      "id": "run:ET-01-cold-build-cache-audit:duplicate-claims-b9b85fa2",
+      "kind": "run",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ],
+      "membership_complete": true,
+      "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2",
+      "owner": "cold-build-cache-audit",
+      "ownership_scope": "run-root",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-b9b85fa2\\reports\\producer-7149fc6917508f656c4c59bdbb53e2737b9c556de050f881b350c30eeb098379.json",
+        "evidence_sha256": "7149fc6917508f656c4c59bdbb53e2737b9c556de050f881b350c30eeb098379",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "failed",
+      "updated_at": "2026-10-30T03:10:58.493Z",
+      "version": null
+    },
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536\\reports\\producer-e791935edecc340dbb3003dea8a44834b36282716b2f1aa109f38e28673a8307.json",
+        "evidence_sha256": "e791935edecc340dbb3003dea8a44834b36282716b2f1aa109f38e28673a8307",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "d58c8611c5c8c60b2268eff11d14d03eca41fa020d5d138d7152fb462b7054d5"
+      },
+      "created_at": "2026-10-30T03:19:08.965Z",
+      "id": "run:ET-01-cold-build-cache-audit:duplicate-claims-final-8878d536",
+      "kind": "run",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ],
+      "membership_complete": true,
+      "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536",
+      "owner": "cold-build-cache-audit",
+      "ownership_scope": "run-root",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-final-8878d536\\reports\\producer-e791935edecc340dbb3003dea8a44834b36282716b2f1aa109f38e28673a8307.json",
+        "evidence_sha256": "e791935edecc340dbb3003dea8a44834b36282716b2f1aa109f38e28673a8307",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-10-30T03:26:45.841Z",
+      "version": null
+    },
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703\\reports\\producer-2af6d62036d9f9d5875c357df320328bbcedb03514a40ceb413a68c057076203.json",
+        "evidence_sha256": "2af6d62036d9f9d5875c357df320328bbcedb03514a40ceb413a68c057076203",
+        "reason": "Existing verification cache owner completed; no child process; protected leases preserved",
+        "request_sha256": "b757a5ebd260675245348451b2076fdbdf5d9dea7f481b3e02755d0ab7322596"
+      },
+      "created_at": "2026-10-30T03:38:45.610Z",
+      "id": "run:ET-01-cold-build-cache-audit:verification-cache-invalidation-1793331521703",
+      "kind": "run",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ],
+      "membership_complete": true,
+      "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703",
+      "owner": "cold-build-cache-audit",
+      "ownership_scope": "run-root",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793331521703\\reports\\producer-2af6d62036d9f9d5875c357df320328bbcedb03514a40ceb413a68c057076203.json",
+        "evidence_sha256": "2af6d62036d9f9d5875c357df320328bbcedb03514a40ceb413a68c057076203",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Existing verification cache owner completed; no child process; protected leases preserved",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-10-30T03:38:49.597Z",
+      "version": null
+    },
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+        "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+        "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+        "request_sha256": "132703214e327ed9645cb970aa3306bdb699199e5ce805db1e51793746bee05f"
+      },
+      "created_at": "2026-10-30T01:26:35.072Z",
+      "id": "work:ET-01:cache-monitor-probe-fixture",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\shared\\cache-monitor-probe-et01",
+          "protection_known": true,
+          "role": "trace-fixture"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "cold-build-cache-audit",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+        "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-10-30T01:26:51.103Z",
+      "version": null
+    },
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811\\reports\\producer-59a9d5c9d19050c27729d19360950366c5f3bb39471b0505ec3d9c5ef0ce25b8.json",
+        "evidence_sha256": "59a9d5c9d19050c27729d19360950366c5f3bb39471b0505ec3d9c5ef0ce25b8",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "d81137e415b00c733dccaea0b511b2a94190af5cf0a8a89199bf9ae2ce9e8bbd"
+      },
+      "created_at": "2026-10-30T03:11:37.551Z",
+      "id": "run:ET-01-cold-build-cache-audit:duplicate-claims-05312811",
+      "kind": "run",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ],
+      "membership_complete": true,
+      "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811",
+      "owner": "cold-build-cache-audit",
+      "ownership_scope": "run-root",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\duplicate-claims-05312811\\reports\\producer-59a9d5c9d19050c27729d19360950366c5f3bb39471b0505ec3d9c5ef0ce25b8.json",
+        "evidence_sha256": "59a9d5c9d19050c27729d19360950366c5f3bb39471b0505ec3d9c5ef0ce25b8",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "failed",
+      "updated_at": "2026-10-30T03:18:21.604Z",
+      "version": null
+    },
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-namespace-adoption.json",
+        "evidence_sha256": "ae7da20fa2cbf5c78d38ddcd75f4b699201ba1422859292cd820b62d281db507",
+        "reason": "Synchronous read-only generation classification completed exit0 without child processes; original generator history remains unknown",
+        "request_sha256": "6c6241ba94b9de8acd38ee313878a41e4400046279ea7e809f69534bd16bf37f"
+      },
+      "created_at": "2026-10-30T03:15:59.321Z",
+      "id": "work:ET-01:asset-cache-invalidation:namespace",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\namespace",
+          "protection_known": true,
+          "role": "cache-entry"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "asset-transform-cache",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-namespace-adoption.json",
+        "evidence_sha256": "ae7da20fa2cbf5c78d38ddcd75f4b699201ba1422859292cd820b62d281db507",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Synchronous read-only generation classification completed exit0 without child processes; original generator history remains unknown",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-10-30T03:16:09.060Z",
+      "version": null
+    },
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677\\reports\\producer-6a881f0be9e1a280132baeaec18d82dfb947f0f6292c8ec088e3b3e8a42126ef.json",
+        "evidence_sha256": "6a881f0be9e1a280132baeaec18d82dfb947f0f6292c8ec088e3b3e8a42126ef",
+        "reason": "Existing verification cache owner completed; no child process; protected leases preserved",
+        "request_sha256": "98a10590da963b2f560068c139c37d3a177bb606c1bb2fafbb0d11969826c22c"
+      },
+      "created_at": "2026-10-30T03:22:54.041Z",
+      "id": "run:ET-01-cold-build-cache-audit:verification-cache-invalidation-1793330569677",
+      "kind": "run",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677",
+          "protection_known": true,
+          "role": "run"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677\\inputs",
+          "protection_known": true,
+          "role": "inputs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677\\temporary",
+          "protection_known": true,
+          "role": "temporary"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677\\logs",
+          "protection_known": true,
+          "role": "logs"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677\\reports",
+          "protection_known": true,
+          "role": "reports"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677\\outputs",
+          "protection_known": true,
+          "role": "outputs"
+        }
+      ],
+      "membership_complete": true,
+      "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677",
+      "owner": "cold-build-cache-audit",
+      "ownership_scope": "run-root",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\verification-cache-invalidation-1793330569677\\reports\\producer-6a881f0be9e1a280132baeaec18d82dfb947f0f6292c8ec088e3b3e8a42126ef.json",
+        "evidence_sha256": "6a881f0be9e1a280132baeaec18d82dfb947f0f6292c8ec088e3b3e8a42126ef",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Existing verification cache owner completed; no child process; protected leases preserved",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-10-30T03:22:59.335Z",
+      "version": null
+    },
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+        "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+        "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+        "request_sha256": "132703214e327ed9645cb970aa3306bdb699199e5ce805db1e51793746bee05f"
+      },
+      "created_at": "2026-10-30T01:26:27.149Z",
+      "id": "version:cache-monitor-decoder:ET-01:r1",
+      "kind": "version",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\cache-monitor-decoder-et01-win-x64",
+          "protection_known": true,
+          "role": "analyzer"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "cold-build-cache-audit",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\06-monitor-acceptance.json",
+        "evidence_sha256": "900a3328a4b6cf0193528268762850ba57817a61f8f5d9f25ce3533d303c1988",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Synchronous capture children and decoder operations completed; original export failure retained; independent acceptance copied",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-10-30T01:26:48.655Z",
+      "version": "traceevent-4.0.0-windows-x64-r1"
+    },
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-cargo-incremental-current-inspection.json",
+        "evidence_sha256": "70451db1b52c0cafacd9f9aced269c8b26b55b11c3e44db11fb40632e4fae86e",
+        "reason": "Current synchronous cache ownership and process inspection completed; no child producer launched. Historical failed generation preserved in immutable evidence.",
+        "request_sha256": "0d2b879a1222f353ded9d5eaa5d6b0e9cea184ae9158c526588e6085f0ad8057"
+      },
+      "created_at": "2026-10-20T15:08:45.932Z",
+      "generation": "ET-01-cache-invalidation-inspection-1793331737043",
+      "id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\incremental",
+          "protection_known": true,
+          "role": "compiler-incremental-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\incremental",
+          "protection_known": true,
+          "role": "compiler-incremental-cache"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "CR-01-build-legacy-cleanup",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-cargo-incremental-current-inspection.json",
+        "evidence_sha256": "70451db1b52c0cafacd9f9aced269c8b26b55b11c3e44db11fb40632e4fae86e",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Current synchronous cache ownership and process inspection completed; no child producer launched. Historical failed generation preserved in immutable evidence.",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 4,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-10-30T03:42:21.255Z",
+      "version": null
+    },
+    {
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-f64cc159d225fae0ea43f720-cargo-chunk.json",
+        "evidence_sha256": "48e253595e73cb88e500a265c55ea9dca08c19b2d51a7963ea110dd6c1f1188d",
+        "reason": "Current synchronous generated-cache classification completed from successful metadata planner; no build producer launched and no historical build success inferred",
+        "request_sha256": "d7a64acd27a1003e5a2e8ba7cfb407385cef16a0b6b4b66611873d0db5a09f33"
+      },
+      "created_at": "2026-10-30T05:06:52.320Z",
+      "id": "work:ET-01:cargo-cache-remainder",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\deps",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\deps",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\.azrael-test-preparation",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\.rustc_info.json",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\.cargo-artifact-lock",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\.cargo-build-lock",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\.cargo-lock",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\.fingerprint",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\azrael-bridge.d",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\azrael-bridge.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\azrael-pty-probe.d",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\azrael-pty-probe.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\azrael.d",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\azrael.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\azrael.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\azrael_bridge.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\azrael_pty_probe.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\build",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\codex-app-server-test-notify-capture.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\codex-app-server.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\codex_app_server.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\codex_app_server_test_notify_capture.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\examples",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\exec-server.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\exec_server.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\gn_out",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\maintenance_owner.d",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\maintenance_owner.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\maintenance_owner.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\test_notify_capture.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\test_notify_capture.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\test_stdio_server.d",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\test_stdio_server.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\debug\\test_stdio_server.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\release",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\tmp",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\CACHEDIR.TAG",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\.cargo-lock",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\.fingerprint",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael-bridge.d",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael-bridge.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael-code-mode-host.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael-engine-build.json",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael.d",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\azrael_bridge.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\build",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\codex-app-server-test-notify-capture.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\codex-app-server.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\codex_app_server.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\codex_app_server_test_notify_capture.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\examples",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\exec-server.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\exec_server.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\libcodex_utils_cargo_bin.d",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\libcodex_utils_cargo_bin.rlib",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\test_notify_capture.exe",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\debug\\test_notify_capture.pdb",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\release",
+          "protection_known": true,
+          "role": "compiler-cache"
+        },
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target\\x86_64-pc-windows-msvc\\tmp",
+          "protection_known": true,
+          "role": "compiler-cache"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "cargo-target-owner",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\et01-f64cc159d225fae0ea43f720-cargo-chunk.json",
+        "evidence_sha256": "48e253595e73cb88e500a265c55ea9dca08c19b2d51a7963ea110dd6c1f1188d",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Current synchronous generated-cache classification completed from successful metadata planner; no build producer launched and no historical build success inferred",
+        "status": "stopped"
+      },
+      "references": [],
+      "revision": 2,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-10-30T05:09:38.286Z",
+      "version": null
+    }
+  ],
+  "sourcePlan": [
+    {
+      "id": "work:CR-01-build-legacy-cleanup:current-cargo-incremental",
+      "blockers": []
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:duplicate-claims-b9b85fa2",
+      "blockers": []
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:duplicate-claims-final-8878d536",
+      "blockers": []
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:verification-cache-invalidation-1793331521703",
+      "blockers": []
+    },
+    {
+      "id": "work:ET-01:cache-monitor-probe-fixture",
+      "blockers": []
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:duplicate-claims-05312811",
+      "blockers": []
+    },
+    {
+      "id": "work:ET-01:asset-cache-invalidation:namespace",
+      "blockers": []
+    },
+    {
+      "id": "work:ET-01:cargo-cache-remainder",
+      "blockers": []
+    },
+    {
+      "id": "run:ET-01-cold-build-cache-audit:verification-cache-invalidation-1793330569677",
+      "blockers": []
+    },
+    {
+      "id": "version:cache-monitor-decoder:ET-01:r1",
+      "blockers": []
+    }
+  ],
+  "archiveIdentity": {
+    "dev": "3057815611",
+    "ino": "4785074605863837"
+  },
+  "finishedUtc": "2026-10-30T05:45:04.406Z"
+}

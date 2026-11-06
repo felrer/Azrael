@@ -2343,14 +2343,14 @@ async fn spawn_agent_without_fork_from_paginated_parent_stays_fresh_and_paginate
 
 #[tokio::test]
 async fn spawn_agent_fork_sanitizes_inherited_compaction_metadata() {
-    let mut harness = AgentControlHarness::new().await;
-    let _ = harness.config.features.disable(Feature::MultiAgentV2);
+    let harness = AgentControlHarness::new().await;
 
     let (parent_thread_id, parent_thread) = harness.start_paginated_thread().await;
     let parent_resume_metadata = codex_history::CompactionResumeMetadata {
         multi_agent_version: Some(MultiAgentVersion::V2),
         last_started_turn_id: Some("parent-turn".to_string()),
         turn_attribution: Some(codex_history::TurnAttribution {
+            agent_profile: None,
             turn_id: "parent-turn".to_string(),
             turn_trigger: Some("automation".to_string()),
             parent_turn_id: Some("initiating-turn".to_string()),
@@ -2422,13 +2422,13 @@ async fn spawn_agent_fork_sanitizes_inherited_compaction_metadata() {
         ..TokenUsage::default()
     };
     assert!(
-        !child_thread
+        child_thread
             .session
             .clone_history()
             .await
             .retained_context()
             .user_messages_complete(),
-        "V1 forks lack complete retained authorization in both context modes"
+        "V2 forks start with complete local retained authorization and fetch root authorization live"
     );
     let turn_context = child_thread.session.new_default_turn().await;
     child_thread
@@ -2483,7 +2483,7 @@ async fn spawn_agent_fork_sanitizes_inherited_compaction_metadata() {
     assert_eq!(
         inherited_resume_metadata,
         &codex_history::CompactionResumeMetadata {
-            multi_agent_version: Some(MultiAgentVersion::V1),
+            multi_agent_version: Some(MultiAgentVersion::V2),
             turn_attribution: None,
             ..parent_resume_metadata
         }
@@ -2951,7 +2951,6 @@ async fn spawn_agent_fork_strips_parent_usage_hints_from_compacted_history(marke
         max_concurrency: 2,
         wait_agent_enabled: false,
         expose_model_overrides: false,
-        claude_tools: false,
     };
     let parent_task = InterAgentCommunication::new(
         AgentPath::root(),

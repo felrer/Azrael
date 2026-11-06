@@ -1,0 +1,59 @@
+{
+  "request": {
+    "operation": "apply",
+    "verification": "registered",
+    "decisions": [
+      {
+        "id": "f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99",
+        "token": "d6b075a8b0a027aed19212f7d6438acf5b373e93055662284ae046723a66483b",
+        "decision": "delete",
+        "reason": "Exact verification caller ended; independent63 and Git projection objects retain acceptance; all disposable run inputs/raw/state consumers ended"
+      }
+    ],
+    "lock_wait_ms": 600000
+  },
+  "observed": {
+    "pid": 21292,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "error": null,
+    "close_observed": true,
+    "stdout_drained": true,
+    "stderr_drained": true
+  },
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:fw03v:internal-junction63-01",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-21292-7543-1793950312092",
+        "decision": "delete",
+        "decision_id": "d05bd87e7436f7e6006b8f31f91639899121a2b5f4c46625068199db22cb8d3d",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99",
+        "lifecycle_group_id": "run:fw03v:internal-junction63-01",
+        "reason": "Exact verification caller ended; independent63 and Git projection objects retain acceptance; all disposable run inputs/raw/state consumers ended",
+        "remaining": false,
+        "status": "deleted",
+        "token": "d6b075a8b0a027aed19212f7d6438acf5b373e93055662284ae046723a66483b"
+      }
+    ]
+  },
+  "stdout": "{\"aborted\":false,\"cancelled\":false,\"groups\":[{\"id\":\"run:fw03v:internal-junction63-01\",\"status\":\"deleted\"}],\"results\":[{\"attempt_id\":\"attempt-21292-7543-1793950312092\",\"decision\":\"delete\",\"decision_id\":\"d05bd87e7436f7e6006b8f31f91639899121a2b5f4c46625068199db22cb8d3d\",\"deletion\":{\"attributes\":[],\"error\":null,\"physical_bytes_reclaimed\":null,\"remaining\":false,\"status\":\"deleted\"},\"group_status\":\"deleted\",\"id\":\"f7e2c0d34847eecac0e614e1e3f5a06d2284288090cad79ccade990955c3ef99\",\"lifecycle_group_id\":\"run:fw03v:internal-junction63-01\",\"reason\":\"Exact verification caller ended; independent63 and Git projection objects retain acceptance; all disposable run inputs/raw/state consumers ended\",\"remaining\":false,\"status\":\"deleted\",\"token\":\"d6b075a8b0a027aed19212f7d6438acf5b373e93055662284ae046723a66483b\"}]}\n",
+  "stderr": ""
+}

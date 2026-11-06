@@ -44,7 +44,7 @@ and common test decisions belong to `testing`.
 Common agent behavior is maintained in [agent-behavior.md](instructions/agent-behavior.md).
 The engine embeds an identical copy at `engine/codex-rs/prompts/templates/agent_behavior.md`;
 `scripts/test-common-agent-instructions.cjs` verifies that the copies agree. This behavior
-is delivered by ordinary engine profiles independently of optional instruction components and remote model catalogs. Provider/model profiles compose the maintained `harness-runtime-core.md`, `claude-tool-environment.md` and `claude-lean-behavior.md` with behavior overrides; their embedded copies are checked by the same test. Runtime authority and user/project provenance remain independent of custom templates. See [model harness profiles](../docs/architecture/model-harness-profiles.md). Capability-scoped parent communication is maintained in [parent-request-guidance.md](instructions/parent-request-guidance.md) and embedded identically in `engine/codex-rs/prompts/templates/parent-request-guidance.md`. Its typed developer fragment is rebuilt from actual parent identity and enabled tools independently of optional AGENTS and configurable role hints; the same equality test protects the copy. Capability-scoped project maintenance is maintained in [project-maintenance-guidance.md](instructions/project-maintenance-guidance.md) and embedded identically in `engine/codex-rs/prompts/templates/project-maintenance-guidance.md`. Actual native tool exposure controls this fragment, including withdrawal. Generic skill principles remain independent of this feature. Technical tool schemas and provider protocol
+is delivered by ordinary engine profiles independently of optional instruction components and remote model catalogs. Provider/model profiles compose the maintained `harness-runtime-core.md` and optional `claude-lean-behavior.md` with behavior overrides; their embedded copies are checked by the same test. Runtime authority and user/project provenance remain independent of custom templates. See [model harness profiles](../docs/architecture/model-harness-profiles.md). Capability-scoped parent communication is maintained in [parent-request-guidance.md](instructions/parent-request-guidance.md) and embedded identically in `engine/codex-rs/prompts/templates/parent-request-guidance.md`. Its typed developer fragment is rebuilt from actual parent identity and enabled tools independently of optional AGENTS and configurable role hints; the same equality test protects the copy. Capability-scoped project maintenance is maintained in [project-maintenance-guidance.md](instructions/project-maintenance-guidance.md) and embedded identically in `engine/codex-rs/prompts/templates/project-maintenance-guidance.md`. Actual native tool exposure controls this fragment, including withdrawal. Generic skill principles remain independent of this feature. Technical tool schemas and provider protocol
 reminders remain with their owning adapters.
 
 Maintain shared instructions in this Azrael repository’s `instructions/` directory. `felrer/Azrael` is the active owner; the archived `felrer/codex-efficient-subagents` checkout is historical import evidence and is not an update destination. Preserve source provenance and original notices. Keep `instructions/AGENTS.snippet.md` and `examples/delegation.md` consistent. When changing installed skills, update their maintained copies, `SKILLS-SOURCE.json` and component mappings; preserve unrelated installed configuration.
@@ -72,6 +72,15 @@ points to upstream; its app installer command examples are historical guidance.
 No personal Vault files or personal absolute paths are required. Generic sample
 paths in the source documentation remain examples. Original notices are preserved;
 the user's instruction library is distributed under [MIT](LICENSE).
+
+## Optional task-memory instructions
+
+`task-memory/shared.md` owns work-memory writing and reading rules. Optional
+`task-memory-root` and `task-memory-subagent` components compose that file with
+their role fragment through the existing profile resource selection. They do not
+change existing profiles, activate tools or grant permissions. Select the fragment
+matching the effective native role; usage and storage are owned by
+[task memory](../docs/architecture/task-memory.md).
 
 ## Local-only skills and operational records
 

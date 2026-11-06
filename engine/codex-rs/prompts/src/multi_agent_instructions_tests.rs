@@ -14,7 +14,6 @@ fn api_projection_preserves_role_markers_and_runtime_restrictions() {
         max_concurrency: 7,
         wait_agent_enabled: true,
         expose_model_overrides: true,
-        claude_tools: false,
     };
     let (start, end) = role.markers();
     let original = format!("{start}{}{end}", role.body());
@@ -104,8 +103,7 @@ fn role_segment_filters_base_and_appends_bundled_guidance() {
             max_concurrency: 2,
             wait_agent_enabled: true,
             expose_model_overrides: true,
-            claude_tools: false,
-        };
+            };
         let expected_text = if marked {
             format!("<multi_agent_role>{expected_body}</multi_agent_role>")
         } else {

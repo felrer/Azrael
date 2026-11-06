@@ -43,6 +43,7 @@ impl Session {
         Some((
             context.sub_id.clone(),
             crate::TurnStartOptions {
+                agent_profile: context.agent_profile.clone(),
                 final_output_json_schema: context.final_output_json_schema.clone(),
                 service_tier: Some(settings.service_tier.clone().unwrap_or_else(|| {
                     codex_protocol::config_types::SERVICE_TIER_DEFAULT_REQUEST_VALUE.to_string()

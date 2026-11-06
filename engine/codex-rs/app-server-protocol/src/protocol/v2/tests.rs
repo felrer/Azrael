@@ -5111,6 +5111,7 @@ fn turn_start_params_preserve_explicit_null_service_tier() {
     );
 
     let without_override = TurnStartParams {
+        agent_profile: None,
         disabled_plugin_ids: None,
         thread_id: "thread_123".to_string(),
         client_user_message_id: None,

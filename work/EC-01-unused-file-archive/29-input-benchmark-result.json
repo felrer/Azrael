@@ -1,0 +1,788 @@
+{
+  "schema": 1,
+  "createdUtc": "2026-10-28T15:08:34.261Z",
+  "scope": "Windows x64 real Git-selected baseline serial preparation benchmark; agreed retained result",
+  "environment": {
+    "node": "v26.7.0",
+    "python": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+    "maintenanceOwner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+    "maintenanceOwnerSha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26",
+    "platform": "win32",
+    "arch": "x64",
+    "osRelease": "10.0.26200",
+    "cpu": "Intel(R) Core(TM) i7-10700K CPU @ 3.80GHz",
+    "logicalCpus": 16,
+    "totalRam": 34271817728,
+    "freeRam": 5850099712,
+    "loadAverage": [
+      0,
+      0,
+      0
+    ],
+    "cacheGuarantee": "none"
+  },
+  "baseline": {
+    "projectSha256": "020e5dd8ce040f76898f0eeef9ee4490fb446d5459a70e4a9b4072d6a892dc5b",
+    "engine": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9332,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "9d0775057c55ed0ea013b83d800f00709ea0a85851e1d4d1bb219bc63673f0ef",
+      "importedReceiptSha256": "87531eca9161ade6b1a77ab167a38194d6e2b23c292be4e021ed153480f109fb",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "83a85eca07dc81c58835a5548f8db762ac796d83508f540ed970aeff61b9d8b3",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "fileCount": 25776,
+    "bytes": 568429030,
+    "immutableFiles": 25836,
+    "immutableBytes": 868722992,
+    "immutableInventorySha256": "a989077f3c96ec4f1e0b1c07eea12ae16d7765340a5298dfb4f9d72f4c794090",
+    "originalManifestSha256": "59862fffda6e3a7a9155d481e6d14e51851a309cc9e9320b6d203435811b1371",
+    "rootIdentities": {
+      "input": {
+        "realpath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\ec01-bench-full-r2",
+        "dev": 3057815611,
+        "ino": 3096224755618559
+      },
+      "working": {
+        "realpath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\ec01-bench-full-r2",
+        "dev": 3057815611,
+        "ino": 4785074615883993
+      }
+    }
+  },
+  "measurements": {
+    "A": {
+      "preparationMs": 1076867.0578,
+      "timings": {
+        "sourceSnapshotMs": 10059.185899999997,
+        "enginePreflightMs": 11548.113100000002,
+        "immutableSnapshotMs": 0.0009999999892897904,
+        "immutableCaptureMs": 251613.8579,
+        "workingCaptureMs": 275750.8180999999,
+        "workingCapturePhasesMs": {
+          "inventory": 2269.648599999957,
+          "copy": 237970.0209,
+          "git": 22964.221699999995,
+          "finalHash": 12526.681899999967
+        },
+        "workingGitIo": {
+          "reusedFileCount": 13997,
+          "writtenObjectCount": 11450
+        },
+        "engineFreezeMs": 306707.7903000001,
+        "immutableInventoryMs": 35391.867499999935,
+        "immutableGitPreparationMs": 75003.69209999999,
+        "workingGitPreparationMs": 60290.54089999996,
+        "preparationMs": 1076392.6715000002
+      },
+      "capturePhasesMs": {
+        "inventory": 2692.013500000001,
+        "copy": 220703.09870000003,
+        "git": 19019.193299999984,
+        "finalHash": 9181.19630000001
+      },
+      "copyIo": {
+        "smallFileMaxBytes": 131072,
+        "bufferedFileCount": 25287,
+        "streamedFileCount": 489
+      },
+      "gitIo": {
+        "reusedFileCount": 13997,
+        "writtenObjectCount": 11450
+      }
+    },
+    "B": {
+      "reuseMs": 161048.54870000016,
+      "compactMs": 137187.96889999998,
+      "preparationMs": 298236.51760000014,
+      "extraProductVerifyMs": 57535.90009999997,
+      "fullRatio": 3.6107820278545244,
+      "copiedFileCount": 18,
+      "copiedBytes": 249295
+    },
+    "C": {
+      "reuseMs": 69377.6681,
+      "compactMs": 134242.20620000002,
+      "preparationMs": 203619.87430000002,
+      "fullRatio": 5.28861468705857,
+      "copiedFileCount": 18,
+      "copiedBytes": 249341,
+      "extraProductVerifier": "interrupted on user pause, not completed"
+    }
+  },
+  "compactFiles": {
+    "B": [
+      {
+        "path": "engine/LICENSE",
+        "bytes": 11127,
+        "sha256": "aa5e89edcbbd01fc3fb188a527d8bdc0da5812305cab220c84348c14ea427288"
+      },
+      {
+        "path": "engine/NOTICE",
+        "bytes": 248,
+        "sha256": "3c505dc54be731583470ef3584e5cb96d60df7add3e7e36294cf4dea8316a5cb"
+      },
+      {
+        "path": "LICENSE",
+        "bytes": 1063,
+        "sha256": "cba52e5d8f0ce6298cb07e7a41d902dc9005948a927b0807510578f3bf1aa2f0"
+      },
+      {
+        "path": "scripts/artifact-lifecycle.cjs",
+        "bytes": 78754,
+        "sha256": "3225708259c81cb51dd6cc409c30f7f4d451c689ece3dcf341d6dd17094c2823"
+      },
+      {
+        "path": "scripts/artifact-observations.cjs",
+        "bytes": 16185,
+        "sha256": "080de3ed0bc00f5c6dc31f79e7cd735fc68afe57b6f0bb213559810235ddb222"
+      },
+      {
+        "path": "scripts/artifact-run.cjs",
+        "bytes": 14298,
+        "sha256": "2d607d29f75bf3b647129769660f9dcb10c49dbe33f4bbd233c438ad7e6ab1f6"
+      },
+      {
+        "path": "scripts/azrael-app-release.json",
+        "bytes": 84,
+        "sha256": "32d4829d4b00d2e2439b6dba78ddf0f6a34c84efebe0e3c5edc444109ab577dc"
+      },
+      {
+        "path": "scripts/capture-project-inputs.cjs",
+        "bytes": 18543,
+        "sha256": "01b3d16f6856f718fbe06b98360979b0826ade538c4c6962b508a8b49968f386"
+      },
+      {
+        "path": "scripts/deployment-input-snapshot.cjs",
+        "bytes": 9155,
+        "sha256": "039074400fa5e0e667396a9e54d024f48b08f784deff1c8db181b4a012255f37"
+      },
+      {
+        "path": "scripts/deployment-workspace.cjs",
+        "bytes": 31485,
+        "sha256": "bc860a93009fe1cbe2df75b02dd1db63d8a9f808fe52e9418fca387d9e56aec5"
+      },
+      {
+        "path": "scripts/freeze-platform-inputs.cjs",
+        "bytes": 6645,
+        "sha256": "b9a14c49966ca72ae6a22aae412e55204061ad1f5d7c75fa2d697cb58df8c0cb"
+      },
+      {
+        "path": "scripts/install-app-release.ps1",
+        "bytes": 14037,
+        "sha256": "b4c4a45cd12c47858a74c42844a2dd504ccffeced15b84b94625510b9eeb376e"
+      },
+      {
+        "path": "scripts/maintenance-lock-owner.cjs",
+        "bytes": 4054,
+        "sha256": "ec306c93e8741ae600bf21aa273c04a7901f8a8c4c0f5ac64ab1cc0560095c37"
+      },
+      {
+        "path": "scripts/maintenance-lock-worker.cjs",
+        "bytes": 2410,
+        "sha256": "2015587d40b40e6db225d781e15e4634daee323abfcdaf35f935dec17b47a6c5"
+      },
+      {
+        "path": "scripts/maintenance-owner-config.cjs",
+        "bytes": 2216,
+        "sha256": "cc6edecde3505d550f9cdb354c004d19af7b346e47882506741af5f12eb3d7a1"
+      },
+      {
+        "path": "scripts/package-app-release.py",
+        "bytes": 16514,
+        "sha256": "e54d0d2627b6b6edc0117028f53d96a11fcd1fa641432b3c60db5beaf8cdecd0"
+      },
+      {
+        "path": "scripts/packaging-workspace.cjs",
+        "bytes": 16420,
+        "sha256": "709634e3aff876fa4be1de16373993e5fc31c3457bcd9c4b22b01875b7658b7a"
+      },
+      {
+        "path": "scripts/prepare-app-release.ps1",
+        "bytes": 6057,
+        "sha256": "b4b7ad32e79a6ed5eedcc21cdd798bc94782d9a4f707662e0b71ae211904f48c"
+      }
+    ],
+    "C": [
+      {
+        "path": "engine/LICENSE",
+        "bytes": 11127,
+        "sha256": "aa5e89edcbbd01fc3fb188a527d8bdc0da5812305cab220c84348c14ea427288"
+      },
+      {
+        "path": "engine/NOTICE",
+        "bytes": 248,
+        "sha256": "3c505dc54be731583470ef3584e5cb96d60df7add3e7e36294cf4dea8316a5cb"
+      },
+      {
+        "path": "LICENSE",
+        "bytes": 1109,
+        "sha256": "517eb1803fd29b8f99af291d514db26a3a7344aa1932f4c9c8d31699d86076f3"
+      },
+      {
+        "path": "scripts/artifact-lifecycle.cjs",
+        "bytes": 78754,
+        "sha256": "3225708259c81cb51dd6cc409c30f7f4d451c689ece3dcf341d6dd17094c2823"
+      },
+      {
+        "path": "scripts/artifact-observations.cjs",
+        "bytes": 16185,
+        "sha256": "080de3ed0bc00f5c6dc31f79e7cd735fc68afe57b6f0bb213559810235ddb222"
+      },
+      {
+        "path": "scripts/artifact-run.cjs",
+        "bytes": 14298,
+        "sha256": "2d607d29f75bf3b647129769660f9dcb10c49dbe33f4bbd233c438ad7e6ab1f6"
+      },
+      {
+        "path": "scripts/azrael-app-release.json",
+        "bytes": 84,
+        "sha256": "32d4829d4b00d2e2439b6dba78ddf0f6a34c84efebe0e3c5edc444109ab577dc"
+      },
+      {
+        "path": "scripts/capture-project-inputs.cjs",
+        "bytes": 18543,
+        "sha256": "01b3d16f6856f718fbe06b98360979b0826ade538c4c6962b508a8b49968f386"
+      },
+      {
+        "path": "scripts/deployment-input-snapshot.cjs",
+        "bytes": 9155,
+        "sha256": "039074400fa5e0e667396a9e54d024f48b08f784deff1c8db181b4a012255f37"
+      },
+      {
+        "path": "scripts/deployment-workspace.cjs",
+        "bytes": 31485,
+        "sha256": "bc860a93009fe1cbe2df75b02dd1db63d8a9f808fe52e9418fca387d9e56aec5"
+      },
+      {
+        "path": "scripts/freeze-platform-inputs.cjs",
+        "bytes": 6645,
+        "sha256": "b9a14c49966ca72ae6a22aae412e55204061ad1f5d7c75fa2d697cb58df8c0cb"
+      },
+      {
+        "path": "scripts/install-app-release.ps1",
+        "bytes": 14037,
+        "sha256": "b4c4a45cd12c47858a74c42844a2dd504ccffeced15b84b94625510b9eeb376e"
+      },
+      {
+        "path": "scripts/maintenance-lock-owner.cjs",
+        "bytes": 4054,
+        "sha256": "ec306c93e8741ae600bf21aa273c04a7901f8a8c4c0f5ac64ab1cc0560095c37"
+      },
+      {
+        "path": "scripts/maintenance-lock-worker.cjs",
+        "bytes": 2410,
+        "sha256": "2015587d40b40e6db225d781e15e4634daee323abfcdaf35f935dec17b47a6c5"
+      },
+      {
+        "path": "scripts/maintenance-owner-config.cjs",
+        "bytes": 2216,
+        "sha256": "cc6edecde3505d550f9cdb354c004d19af7b346e47882506741af5f12eb3d7a1"
+      },
+      {
+        "path": "scripts/package-app-release.py",
+        "bytes": 16514,
+        "sha256": "e54d0d2627b6b6edc0117028f53d96a11fcd1fa641432b3c60db5beaf8cdecd0"
+      },
+      {
+        "path": "scripts/packaging-workspace.cjs",
+        "bytes": 16420,
+        "sha256": "709634e3aff876fa4be1de16373993e5fc31c3457bcd9c4b22b01875b7658b7a"
+      },
+      {
+        "path": "scripts/prepare-app-release.ps1",
+        "bytes": 6057,
+        "sha256": "b4b7ad32e79a6ed5eedcc21cdd798bc94782d9a4f707662e0b71ae211904f48c"
+      }
+    ]
+  },
+  "validation": {
+    "phases": [
+      {
+        "name": "preserve-stop-and-transfer-protection",
+        "status": "passed",
+        "startedUtc": "2026-10-28T14:53:33.483Z",
+        "elapsedMs": 20991.033799999997,
+        "completedUtc": "2026-10-28T14:53:54.476Z"
+      },
+      {
+        "name": "existing-reuse-receipt-verification",
+        "status": "passed",
+        "startedUtc": "2026-10-28T14:53:54.476Z",
+        "elapsedMs": 53483.58960000001,
+        "completedUtc": "2026-10-28T14:54:47.961Z"
+      },
+      {
+        "name": "historical-compact-evidence-check",
+        "status": "passed",
+        "startedUtc": "2026-10-28T14:54:47.962Z",
+        "elapsedMs": 1388.3480000000127,
+        "completedUtc": "2026-10-28T14:54:49.351Z"
+      },
+      {
+        "name": "final-live-frozen-engine-integrity",
+        "status": "failed",
+        "startedUtc": "2026-10-28T14:54:49.352Z",
+        "elapsedMs": 114533.40980000001,
+        "error": "Error: Integrity mismatch; see preserved independent live/frozen checks\n    at [stdin]:19:1503\n    at async phase ([stdin]:13:201)\n    at async main ([stdin]:19:18)"
+      }
+    ],
+    "checks": {
+      "liveMatchesBaseline": false,
+      "frozenMatchesBaseline": true,
+      "engineMatchesPreflight": true,
+      "manifestMatchesBaseline": true
+    },
+    "liveProjectSha256": "60509c55ca828301e05257a5def6d50322c4325b53f3854f6267eb2a7ae05637",
+    "liveFileCount": 25780,
+    "liveBytes": 568449487,
+    "selectedAdditions": [
+      "work/EG-01-thread-resume-ownership/03-acceptance.json",
+      "work/EG-01-thread-resume-ownership/04-cleanup.json",
+      "work/EG-01-thread-resume-ownership/05-registration-recovery.json",
+      "work/EH-01-sol-medium-latency/02-plan.md"
+    ]
+  },
+  "actualCommands": [
+    {
+      "session": 83075,
+      "exit": 1,
+      "reason": "r1 source disappeared during capture"
+    },
+    {
+      "session": 56164,
+      "exit": 1,
+      "reason": "r2 C catalog lock contention after A/B success"
+    },
+    {
+      "session": 50249,
+      "exit": 1,
+      "reason": "user pause; exact controller tree stopped"
+    },
+    {
+      "session": 34215,
+      "exit": 1,
+      "reason": "live source SHA changed; frozen/engine/original manifest checks passed"
+    }
+  ],
+  "limits": [
+    "One warm-sequence sample per path, later C retry; no cache purge or warm/cold guarantee.",
+    "Preparation includes internal validation; extra verification reported separately.",
+    "Nested capture phase timings must not be added to their enclosing capture total.",
+    "C product explicit verifier interrupted; resumed independent historical check is separate.",
+    "Final live equality failed; frozen baseline/engine/original manifest remained identical."
+  ],
+  "retainedEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final",
+  "cleanup": {
+    "status": "complete",
+    "archivePerformed": false,
+    "payloadDeleted": true,
+    "groupsDeleted": 14,
+    "primaryFinalized": 14,
+    "nativeRegisteredItems": 59,
+    "nativeLogicalBytesDeleted": 2593486601,
+    "physicalBytesReclaimed": null,
+    "sourceAbsence": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-input-benchmark",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\ec01-bench-full-r1",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\ec01-bench-full-r2",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\ec01-bench-compact-b-r2",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\ec01-bench-compact-c-retry-r2",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\ec01-bench-full-r1",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\ec01-bench-full-r2",
+        "absent": true
+      }
+    ],
+    "ordinaryTeardown": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\ec01-bench-full-r2\\.git",
+        "operation": "ordinary unlinkSync",
+        "bytes": 99,
+        "sha256": "b75a5d3a3184d7dde981d038778b756b04786c43eb1dca2d505b09bfc5b2474f",
+        "reason": "Exact task-created structural file; original working identity and content verified; payload lifecycle finalized and all consumers stopped",
+        "sourceAbsenceVerified": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\ec01-bench-full-r2",
+        "operation": "ordinary rmdirSync",
+        "sourceAbsenceVerified": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-input-benchmark\\runs",
+        "operation": "ordinary rmdirSync",
+        "sourceAbsenceVerified": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-input-benchmark",
+        "operation": "ordinary rmdirSync",
+        "sourceAbsenceVerified": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\27-real-input-benchmark.cjs",
+        "operation": "ordinary unlinkSync",
+        "bytes": 13156,
+        "sha256": "9daf59f9ed132f61511fad09f6ca91dd2af66aa87a386b02ae28863473af7067",
+        "independentCopy": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\27-real-input-benchmark.cjs",
+        "sourceAbsenceVerified": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-input-benchmark-cleanup\\runs",
+        "operation": "ordinary rmdirSync",
+        "sourceAbsenceVerified": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-input-benchmark-cleanup",
+        "operation": "ordinary rmdirSync",
+        "sourceAbsenceVerified": true
+      }
+    ],
+    "nativeCommands": [
+      {
+        "label": "register-b",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-b-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-b-result.json",
+        "exitCode": 0,
+        "elapsedMs": 82628.7441
+      },
+      {
+        "label": "review-b",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\review-b-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\review-b-result.json",
+        "exitCode": 0,
+        "elapsedMs": null,
+        "wrapperWallTimeMs": 4967.0186
+      },
+      {
+        "label": "apply-b",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\apply-b-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\apply-b-result.json",
+        "exitCode": 0,
+        "elapsedMs": 45867.8507
+      },
+      {
+        "label": "register-188d29cc8007",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-188d29cc8007-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-188d29cc8007-result.json",
+        "exitCode": 0,
+        "elapsedMs": 382554.16980000003,
+        "error": null
+      },
+      {
+        "label": "register-37ef81d52f7f",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-37ef81d52f7f-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-37ef81d52f7f-result.json",
+        "exitCode": 0,
+        "elapsedMs": 83733.1483,
+        "error": null
+      },
+      {
+        "label": "register-678310f1e306",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-678310f1e306-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-678310f1e306-result.json",
+        "exitCode": 0,
+        "elapsedMs": 121946.40499999997,
+        "error": null
+      },
+      {
+        "label": "register-928c6b114d77",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-928c6b114d77-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-928c6b114d77-result.json",
+        "exitCode": 0,
+        "elapsedMs": 83140.59109999996,
+        "error": null
+      },
+      {
+        "label": "register-a9c55507f1bc",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-a9c55507f1bc-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-a9c55507f1bc-result.json",
+        "exitCode": 0,
+        "elapsedMs": 83123.09660000005,
+        "error": null
+      },
+      {
+        "label": "register-b311742666dc",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-b311742666dc-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-b311742666dc-result.json",
+        "exitCode": 0,
+        "elapsedMs": 92971.96140000003,
+        "error": null
+      },
+      {
+        "label": "register-b9bb21226a85",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-b9bb21226a85-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-b9bb21226a85-result.json",
+        "exitCode": 0,
+        "elapsedMs": 82550.9656,
+        "error": null
+      },
+      {
+        "label": "register-cf5a3cc0f340",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-cf5a3cc0f340-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-cf5a3cc0f340-result.json",
+        "exitCode": 0,
+        "elapsedMs": 83425.37230000005,
+        "error": null
+      },
+      {
+        "label": "register-d07fe5ae5733",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-d07fe5ae5733-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-d07fe5ae5733-result.json",
+        "exitCode": 0,
+        "elapsedMs": 83200.3151,
+        "error": null
+      },
+      {
+        "label": "register-e797fed88bc4",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-e797fed88bc4-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-e797fed88bc4-result.json",
+        "exitCode": 0,
+        "elapsedMs": 93438.57489999989,
+        "error": null
+      },
+      {
+        "label": "register-e85fab5d7b82",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-e85fab5d7b82-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-e85fab5d7b82-result.json",
+        "exitCode": 0,
+        "elapsedMs": 944563.3548000003,
+        "error": null
+      },
+      {
+        "label": "register-ee80988d8945",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-ee80988d8945-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-ee80988d8945-result.json",
+        "exitCode": 0,
+        "elapsedMs": 395351.9212000002,
+        "error": null
+      },
+      {
+        "label": "register-f87e17ddbbb8",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-f87e17ddbbb8-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-f87e17ddbbb8-result.json",
+        "exitCode": 0,
+        "elapsedMs": 84531.30949999997,
+        "error": null
+      },
+      {
+        "label": "review-payload",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\review-payload-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\review-payload-result.json",
+        "exitCode": 0,
+        "elapsedMs": 23731.806799999904,
+        "error": null
+      },
+      {
+        "label": "apply-payload",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\apply-payload-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\apply-payload-result.json",
+        "exitCode": 0,
+        "elapsedMs": 5025670.6845,
+        "error": null
+      },
+      {
+        "label": "review-runs",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\review-runs-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\review-runs-result.json",
+        "exitCode": 0,
+        "elapsedMs": 36789.03479999956,
+        "error": null
+      },
+      {
+        "label": "apply-runs",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\apply-runs-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\apply-runs-result.json",
+        "exitCode": 0,
+        "elapsedMs": 591522.1607999997,
+        "error": null
+      },
+      {
+        "label": "register-cleanup-run",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-cleanup-run-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\register-cleanup-run-result.json",
+        "exitCode": 0,
+        "elapsedMs": 81562.6624,
+        "error": null
+      },
+      {
+        "label": "review-cleanup-run",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\review-cleanup-run-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\review-cleanup-run-result.json",
+        "exitCode": 0,
+        "elapsedMs": 4665.789399999994,
+        "error": null
+      },
+      {
+        "label": "apply-cleanup-run",
+        "request": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\apply-cleanup-run-request.json",
+        "result": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts\\apply-cleanup-run-result.json",
+        "exitCode": 0,
+        "elapsedMs": 42445.775299999994,
+        "error": null
+      }
+    ],
+    "receiptDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\ec01-input-benchmark-final\\receipts",
+    "selfCleanupRunPendingDeletion": null,
+    "completedUtc": "2026-10-28T17:39:09.279Z",
+    "primaryGroupsDeleted": 14,
+    "cleanupRunGroupsDeleted": 1,
+    "cleanupRunFinalized": true,
+    "allTaskRootsAbsent": true,
+    "sourceControllerAbsent": true,
+    "remainingLifecycleIds": [],
+    "remainingInboundReferences": [],
+    "nativePhaseTotals": {
+      "registerMs": 2778722.5921,
+      "reviewMeasuredMs": 65186.630999999456,
+      "reviewBWrapperWallTimeMs": 4967.0186,
+      "applyMs": 5705506.4713,
+      "meaning": "CLI wrapper wall times including guards and receipt handling. No unsupported split into physical I/O versus fixed guard cost. B review has outer wrapper wall time only."
+    },
+    "nativeGroupOutcomes": [
+      {
+        "id": "input:23e8693f469cdda32973ad95",
+        "status": "deleted"
+      },
+      {
+        "id": "input:3494108043aabf4d4351cedf",
+        "status": "deleted"
+      },
+      {
+        "id": "packaging-input:359097d87c0e727b6bb75deb",
+        "status": "deleted"
+      },
+      {
+        "id": "packaging-input:3bdc526e9a595dddd05412b9",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-input-benchmark-cleanup:r1",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-input-benchmark:b-r2",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-input-benchmark:c-r2",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-input-benchmark:c-retry-r2",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-input-benchmark:controller-r1",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-input-benchmark:controller-r2",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-input-benchmark:full-r1",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-input-benchmark:full-r2",
+        "status": "deleted"
+      },
+      {
+        "id": "run:ec01-input-benchmark:validation-resume-r2",
+        "status": "deleted"
+      },
+      {
+        "id": "workspace:23e8693f469cdda32973ad95",
+        "status": "deleted"
+      },
+      {
+        "id": "workspace:3494108043aabf4d4351cedf",
+        "status": "deleted"
+      }
+    ],
+    "finalRootAbsence": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-input-benchmark",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\ec01-bench-full-r1",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\ec01-bench-full-r2",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\ec01-bench-compact-b-r2",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\inputs\\ec01-bench-compact-c-retry-r2",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\ec01-bench-full-r1",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\ec01-bench-full-r2",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-input-benchmark-cleanup\\runs\\r1",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-input-benchmark-cleanup",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\27-real-input-benchmark.cjs",
+        "absent": true
+      }
+    ],
+    "finalVerificationUtc": "2026-10-28T17:40:44.418Z"
+  }
+}

@@ -39,6 +39,7 @@ class AppReleaseTests(unittest.TestCase):
             data = ('fixture ' + name).encode()
             self.write(self.release / 'engine' / name, data)
             hashes[name] = sha(data)
+        self.engine_sha256 = hashes['azrael.exe']
         self.write_json(self.release / 'build-info.json', {'sha256': {}, 'engineProvenance': {'source': {'sourceSha256': 'b' * 64}, 'binaries': hashes}})
         closure = {}
         for name in ('scripts/devin-catalog.json', 'scripts/prepare-devin.ps1', 'scripts/start-devin-native.ps1'):
@@ -117,6 +118,11 @@ class AppReleaseTests(unittest.TestCase):
         self.assertEqual(config, json.loads((destination / 'runtime-config.json').read_bytes()))
         return receipt, config
 
+    def assert_shared_engine(self, config):
+        self.assertIs(config['sharedEngine'], True)
+        self.assertEqual(config['sharedEngineProtocol'], 2)
+        self.assertEqual(config['engineSha256'], self.engine_sha256)
+
     def fake_code(self, name, exit_code=0):
         cli = self.root / 'fake-code' / name
         self.write(cli, ("ConvertTo-Json -InputObject @($args) -Compress | "
@@ -175,10 +181,18 @@ class AppReleaseTests(unittest.TestCase):
             self.assertIn(expected, self.package(1).stderr)
             self.assertFalse(self.output.exists())
             file.write_bytes(old)
-
-    def test_missing_provider_script_rejected(self):
-        (self.release / 'scripts/start-devin-native.ps1').unlink()
-        self.assertIn('Missing file', self.package(1).stderr)
+        original = self.host_entries['extension/out/azrael-runtime.json']
+        for field, value in (('sharedEngineProtocol', 1), ('sharedEngineProtocol', True),
+                             ('engineSha256', '0' * 64), ('sharedEngine', 'true')):
+            with self.subTest(field=field, value=value):
+                config = json.loads(original)
+                config[field] = value
+                self.host_entries['extension/out/azrael-runtime.json'] = json.dumps(config).encode()
+                self.write_host()
+                self.assertIn('shared engine', self.package(1).stderr)
+                self.assertFalse(self.output.exists())
+        self.host_entries['extension/out/azrael-runtime.json'] = original
+        self.write_host()
 
     def test_numeric_release_version_boundaries(self):
         for version in ('02026.0.0', '2026.00.0', '2026.0.00', '9007199254740992.0.0', '0.9007199254740992.0', '0.0.9007199254740992', '2026.0.0-rc1', '2026.0.0+build'):
@@ -211,9 +225,10 @@ class AppReleaseTests(unittest.TestCase):
         extracted = self.extract()
         destination = self.root / 'installed'
         self.install(extracted, destination)
-        receipt = json.loads((destination / 'installer-receipt.json').read_bytes())
+        receipt, config = self.installed_config(destination)
         self.assertTrue(receipt['preparedOnly'])
         self.assertFalse(receipt['installed'])
+        self.assert_shared_engine(config)
         self.assertEqual(receipt['runtimeConfig']['codexHome'], str(self.root / 'isolated-state'))
         self.assertEqual(receipt['runtimeConfig']['engine'], str(destination / 'runtime/engine/azrael.exe'))
         before = (destination / 'installer-receipt.json').read_bytes()
@@ -222,6 +237,23 @@ class AppReleaseTests(unittest.TestCase):
 
     def test_prepare_failure_rolls_back_new_destination(self):
         extracted = self.extract()
+        template = extracted / 'host-template.vsix'
+        original = builder.read_zip(template)
+        # One real installer rejection preserves preflight/state isolation;
+        # the remaining metadata variants exercise its validator directly below.
+        entries = dict(original)
+        config = json.loads(entries['extension/out/azrael-runtime.json'])
+        config['sharedEngine'] = False
+        entries['extension/out/azrael-runtime.json'] = json.dumps(config).encode()
+        template.write_bytes(builder.zip_bytes(entries))
+        inventory = json.loads((extracted / 'package-manifest.json').read_bytes())
+        entry = next(e for e in inventory['files'] if e['path'] == 'host-template.vsix')
+        entry.update(size=template.stat().st_size, sha256=sha(template.read_bytes()))
+        self.write_json(extracted / 'package-manifest.json', inventory)
+        destination = self.root / 'metadata-rejected-destination'
+        self.assertIn('shared engine template metadata', self.install(extracted, destination, 1).stderr)
+        self.assertFalse(destination.exists())
+        template.write_bytes(builder.zip_bytes(original))
         # Re-sign the inventory after changing template configuration, so failure
         # occurs after runtime creation and exercises rollback rather than preflight.
         template = extracted / 'host-template.vsix'
@@ -238,23 +270,54 @@ class AppReleaseTests(unittest.TestCase):
         self.assertIn('template version/configuration mismatch', self.install(extracted, destination, 1).stderr)
         self.assertFalse(destination.exists())
 
+    def test_shared_engine_template_validator_rejects_metadata_variants(self):
+        valid = {'sharedEngine': True, 'sharedEngineProtocol': 2,
+                 'engineSha256': self.engine_sha256, 'engine': 'engine/azrael.exe'}
+        variants = []
+        for field, value in (('sharedEngineProtocol', 1), ('sharedEngineProtocol', '2'),
+                             ('engineSha256', '0' * 64), ('sharedEngine', None)):
+            config = dict(valid)
+            if value is None:
+                del config[field]
+            else:
+                config[field] = value
+            variants.append(config)
+        # Parse only the existing production function; do not run installer setup.
+        command = r'''
+$ErrorActionPreference = 'Stop'
+$tokens = $null; $parseErrors = $null
+$ast = [Management.Automation.Language.Parser]::ParseFile($env:TEST_INSTALLER, [ref]$tokens, [ref]$parseErrors)
+if ($parseErrors.Count) { throw 'Installer parse failed' }
+$definition = @($ast.FindAll({ param($node)
+    $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Assert-SharedEngineTemplate'
+}, $true))
+if ($definition.Count -ne 1) { throw 'Expected one template validator' }
+Invoke-Expression $definition[0].Extent.Text
+$cases = $env:TEST_CONFIGS | ConvertFrom-Json
+Assert-SharedEngineTemplate $cases.valid $cases.valid.engineSha256
+foreach ($config in $cases.invalid) {
+    $rejected = $false
+    try { Assert-SharedEngineTemplate $config $cases.valid.engineSha256 }
+    catch {
+        if ($_.Exception.Message -notlike '*shared engine template metadata*') { throw }
+        $rejected = $true
+    }
+    if (-not $rejected) { throw 'Invalid template accepted' }
+}
+'''
+        result = self.run_process(['pwsh', '-NoProfile', '-Command', command], {
+            'TEST_INSTALLER': str(SCRIPTS / 'install-app-release.ps1'),
+            'TEST_CONFIGS': json.dumps({'valid': valid, 'invalid': variants}),
+        })
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_recipient_environment_paths_are_frozen_and_portable(self):
         extracted = self.extract()
-        # Remove the synthetic publisher's source and external Node using native
-        # PowerShell, with containment checked before each recursive deletion.
-        cleanup = self.root / 'remove-packaging-inputs.ps1'
-        self.write(cleanup, b'''param([string]$FixtureRoot, [string]$Source, [string]$NodeRoot)
-$ErrorActionPreference = 'Stop'
-foreach ($path in @($Source, $NodeRoot)) {
-    $full = [IO.Path]::GetFullPath($path)
-    if (-not $full.StartsWith([IO.Path]::GetFullPath($FixtureRoot).TrimEnd('\\') + '\\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Outside fixture' }
-    Remove-Item -LiteralPath $full -Recurse -Force
-}
-''')
-        result = self.run_process(['pwsh', '-NoProfile', '-File', str(cleanup),
-                                   '-FixtureRoot', str(self.root), '-Source', str(self.release),
-                                   '-NodeRoot', str(self.node.parent)])
-        self.assertEqual(result.returncode, 0, result.stderr)
+        # Relocate the publisher inputs so recipient installs cannot use them.
+        retired = self.root / 'retired-packaging-inputs'
+        retired.mkdir()
+        self.release.rename(retired / 'source')
+        self.node.parent.rename(retired / 'external-node')
         self.assertFalse(self.release.exists())
         self.assertFalse(self.node.parent.exists())
         snapshots = []
@@ -378,6 +441,25 @@ foreach ($path in @($Source, $NodeRoot)) {
         self.assertFalse(destination.exists())
         self.assertEqual((real / 'devin.exe').read_bytes(), b'fake CLI')
 
+    def test_next_release_requires_management_acceptance_before_pointer_change(self):
+        package = json.loads(self.host_entries['extension/package.json'])
+        package['version'] = '2026.0.15'
+        self.host_entries['extension/package.json'] = json.dumps(package).encode()
+        self.write_host()
+        self.package(version='2026.0.15')
+        extracted = self.root / 'next-package'
+        with zipfile.ZipFile(self.output / 'Azrael-2026.0.15-windows-x64.zip') as archive:
+            archive.extractall(extracted)
+        state = self.root / 'state'
+        pointer = state / 'maintenance-installation.json'
+        self.write(pointer, b'previous verified selection sentinel')
+        destination = self.root / 'next-install'
+        self.run_installer(extracted, ['-InstallRoot', destination, '-StateRoot', state,
+                                      '-CodePath', self.fake_code('next-code.ps1')],
+                           expected=1, prepare=False)
+        self.assertEqual(pointer.read_bytes(), b'previous verified selection sentinel')
+        self.assertTrue(self.installed_config(destination)[0]['installed'])
+
     def test_codepath_selection_uses_only_local_mock_cli(self):
         extracted = self.extract()
         env_cli = self.fake_code('env-code.ps1')
@@ -394,6 +476,7 @@ foreach ($path in @($Source, $NodeRoot)) {
                 receipt, _ = self.installed_config(destination)
                 self.assertTrue(receipt['installed'])
                 self.assertFalse(receipt['preparedOnly'])
+                self.assertFalse((Path(receipt['runtimeConfig']['codexHome']) / 'maintenance-installation.json').exists())
                 calls = json.loads((selected.parent / (selected.name + '.calls.json')).read_text(encoding='utf-8-sig'))
                 self.assertEqual(calls, ['--install-extension', receipt['customizedVsix']])
         missing = self.root / 'missing-code-destination'

@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "status": "prepared-awaiting-administrative-helper",
+  "id": "run:ET-01-cold-build-cache-audit:cold-capture-20261030a",
+  "revision": 1,
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a",
+  "manifestPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\inputs\\control.json",
+  "manifestSha256": "0b6b484449544d04312b020db0b85f2bf2ed047ff25d177e51b75fefcf555d04",
+  "launcher": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\cold-capture-20261030a\\inputs\\launch-capture.ps1",
+  "launcherSha256": "dba9198f3755df48530e0b1d71d82aea78587492a185539d217a4cc20efb0d60",
+  "helper": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\cache-monitor-et01-win-x64-fixed-86eb5f0a\\payload\\Invoke-CacheCapture.ps1",
+  "helperSha256": "78b79bae2bd2950c60bafb1a7e39b85d373ada5a5dfe193dc1756201a96c2a84",
+  "monitorVersion": "version:ET-01:cache-monitor-tool:cache-monitor-et01-win-x64-fixed-86eb5f0a",
+  "validation": {
+    "exitCode": 0,
+    "stdout": "{\r\n  \"schema\": 1,\r\n  \"valid\": true,\r\n  \"runRoot\": \"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\ET-01-cold-build-cache-audit\\\\runs\\\\cold-capture-20261030a\",\r\n  \"instanceName\": \"ET01-0835848d39ceb999\"\r\n}\r\n",
+    "stderr": ""
+  },
+  "generationStarted": false,
+  "archiveAbsent": true,
+  "cargoTargetAbsent": true
+}

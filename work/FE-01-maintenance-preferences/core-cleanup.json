@@ -1,0 +1,1398 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\core-verification.json",
+  "evidenceSha256": "c79f9061d003586c4bf06f97656fee99949f86a89530790020dd408e91cddbab",
+  "owner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+    "capabilities": {
+      "operations": [
+        "inventory",
+        "register",
+        "review",
+        "apply",
+        "recover_lock",
+        "recover_reservation",
+        "recover_refresh_pending",
+        "recover_lifecycle_pending",
+        "partition_storage",
+        "compact_storage",
+        "reconcile_duplicate_groups"
+      ],
+      "platform": {
+        "arch": "x64",
+        "os": "win32"
+      },
+      "protocol": "maintenance-owner-lease-v1",
+      "request_file_policy": "outside-maintenance-state",
+      "request_transports": [
+        "file",
+        "stdin"
+      ],
+      "schema": 1,
+      "storage_formats": [
+        "legacy",
+        "partitioned-v1"
+      ]
+    }
+  },
+  "runs": [
+    {
+      "id": "run:FE01:core-r6",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r6",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r6\\reports\\no-spawn-terminal-evidence.json",
+        "evidence_sha256": "98b4e8894805916deefcc79ac109ff77da0af4cb912a739b889e8e125168cff4",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Observed own controller terminal failure; synchronous preflight ended and no clean/test process launched",
+        "status": "stopped"
+      },
+      "state": "failed",
+      "revision": 2,
+      "existingReferences": [
+        {
+          "id": "run:FE01:core-r4",
+          "kind": "dependency",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r4"
+          ],
+          "reason": "Core retry consumes unchanged complete immutable engine input",
+          "reference_id": "100a5ffa60313e8850ea8c0c8c639e939c322c81a10de1c6c99428ef5cc54900"
+        }
+      ]
+    },
+    {
+      "id": "run:FE01:core-r2",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2\\reports\\producer-35edd2c76a3717a295223f16214321e4fa725a42a3bff6c5d738f195e92fe3b3.json",
+        "evidence_sha256": "35edd2c76a3717a295223f16214321e4fa725a42a3bff6c5d738f195e92fe3b3",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "state": "complete",
+      "revision": 2,
+      "existingReferences": []
+    },
+    {
+      "id": "run:FE01:core-r5",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r5",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r5\\reports\\producer-c098b8d6e9a8678b6363e803116407397061443649dbf97d8a69a32731247663.json",
+        "evidence_sha256": "c098b8d6e9a8678b6363e803116407397061443649dbf97d8a69a32731247663",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Mandatory core wrapper observed close; frozen source validation completed",
+        "status": "stopped"
+      },
+      "state": "failed",
+      "revision": 2,
+      "existingReferences": [
+        {
+          "id": "run:FE01:core-r4",
+          "kind": "dependency",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r4"
+          ],
+          "reason": "Core verification consumes complete immutable engine input",
+          "reference_id": "f473dbeb9205ed49cb19e78f294c0f2c5784914fdd2cf910d24abc40b99305ea"
+        }
+      ]
+    },
+    {
+      "id": "run:FE01:core-r7",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r7",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r7\\reports\\terminal-close-evidence.json",
+        "evidence_sha256": "e9d2980037c0b9b25f27089f863af84041ef4bc6808e77517092fd290d1386b3",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Bounded clean/admission failed without acceptance",
+        "status": "stopped"
+      },
+      "state": "failed",
+      "revision": 2,
+      "existingReferences": [
+        {
+          "id": "run:FE01:core-r4",
+          "kind": "dependency",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r4"
+          ],
+          "reason": "Core retry consumes unchanged complete immutable engine input",
+          "reference_id": "100a5ffa60313e8850ea8c0c8c639e939c322c81a10de1c6c99428ef5cc54900"
+        }
+      ]
+    },
+    {
+      "id": "run:FE01:core-r8",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8\\reports\\terminal-close-evidence.json",
+        "evidence_sha256": "8b0497a62b448fded9447d8e14f841c6be15ca3af6e9fd72f93c0b0edf97c60e",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Managed clean and core terminal outcomes observed; provenance and actual changed-package compilation reviewed",
+        "status": "stopped"
+      },
+      "state": "failed",
+      "revision": 2,
+      "existingReferences": [
+        {
+          "id": "run:FE01:core-r4",
+          "kind": "dependency",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r4"
+          ],
+          "reason": "Core retry consumes unchanged complete immutable engine input",
+          "reference_id": "100a5ffa60313e8850ea8c0c8c639e939c322c81a10de1c6c99428ef5cc54900"
+        }
+      ]
+    },
+    {
+      "id": "run:FE01:core-r4",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r4",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r4\\reports\\producer-33f705668a879f8b7686a4abb6e4f5356c84a82f658eea220775de434bb36403.json",
+        "evidence_sha256": "33f705668a879f8b7686a4abb6e4f5356c84a82f658eea220775de434bb36403",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "state": "complete",
+      "revision": 2,
+      "existingReferences": []
+    },
+    {
+      "id": "run:FE01:core-r3",
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3\\reports\\producer-a8f277410d8be0ae81f472773af7b7efaa7be8b56ba0fb57a136d9ca05910f0b.json",
+        "evidence_sha256": "a8f277410d8be0ae81f472773af7b7efaa7be8b56ba0fb57a136d9ca05910f0b",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "state": "failed",
+      "revision": 2,
+      "existingReferences": []
+    }
+  ],
+  "operations": [
+    {
+      "operation": "releaseReferences",
+      "id": "run:FE01:core-r6",
+      "revision": 3,
+      "released": [
+        "100a5ffa60313e8850ea8c0c8c639e939c322c81a10de1c6c99428ef5cc54900"
+      ]
+    },
+    {
+      "operation": "releaseReferences",
+      "id": "run:FE01:core-r5",
+      "revision": 3,
+      "released": [
+        "f473dbeb9205ed49cb19e78f294c0f2c5784914fdd2cf910d24abc40b99305ea"
+      ]
+    },
+    {
+      "operation": "releaseReferences",
+      "id": "run:FE01:core-r7",
+      "revision": 3,
+      "released": [
+        "100a5ffa60313e8850ea8c0c8c639e939c322c81a10de1c6c99428ef5cc54900"
+      ]
+    },
+    {
+      "operation": "releaseReferences",
+      "id": "run:FE01:core-r8",
+      "revision": 3,
+      "released": [
+        "100a5ffa60313e8850ea8c0c8c639e939c322c81a10de1c6c99428ef5cc54900"
+      ]
+    },
+    {
+      "operation": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 832
+    },
+    {
+      "operation": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 878
+    },
+    {
+      "operation": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 924
+    },
+    {
+      "operation": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 942
+    },
+    {
+      "operation": "inventory",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 847
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r6",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog); lock wait exhausted after 5000 ms\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n",
+      "durationMs": 46245,
+      "response": null
+    },
+    {
+      "operation": "post-failed-register-review",
+      "id": "run:FE01:core-r6",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "response": null
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r6",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 66408,
+      "group": "run:FE01:core-r6"
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r2",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (check_available); lock wait exhausted after 5000 ms\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n",
+      "durationMs": 75097
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r2",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 304
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r2",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog); lock wait exhausted after 5000 ms\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n",
+      "durationMs": 41836
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r2",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 342
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r5",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 330
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r5",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 58401,
+      "group": "run:FE01:core-r5"
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r7",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 387
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r7",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 72031,
+      "group": "run:FE01:core-r7"
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r8",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 332
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r8",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance); lock wait exhausted after 5000 ms\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock\",\"owner\":null,\"retryable\":true}\n",
+      "durationMs": 5095
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r8",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 323
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r4",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 318
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r4",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 185291,
+      "group": "run:FE01:core-r4"
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r3",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 454
+    },
+    {
+      "operation": "registerRequest-read",
+      "id": "run:FE01:core-r3",
+      "exitCode": 1,
+      "error": "Lifecycle catalog source changed during catalog observation",
+      "producerStarted": false,
+      "correction": "Prepare remaining requests under supported bounded catalog lease"
+    },
+    {
+      "operation": "review-ready-batch",
+      "ids": [
+        "run:FE01:core-r6",
+        "run:FE01:core-r5",
+        "run:FE01:core-r7",
+        "run:FE01:core-r4"
+      ],
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "operation": "apply-ready-batch",
+      "ids": [
+        "run:FE01:core-r5",
+        "run:FE01:core-r4",
+        "run:FE01:core-r6",
+        "run:FE01:core-r7"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 250483
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r2",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 387
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r2",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 50787
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r3",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 331
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r3",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 53377
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r8",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "{\"error\":\"unknown lifecycle group\"}\n",
+      "durationMs": 305
+    },
+    {
+      "operation": "register",
+      "id": "run:FE01:core-r8",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 53431
+    },
+    {
+      "operation": "review",
+      "id": "run:FE01:core-r2",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 19227
+    },
+    {
+      "operation": "apply-remaining",
+      "ids": [
+        "run:FE01:core-r3",
+        "run:FE01:core-r2",
+        "run:FE01:core-r8"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 74914
+    }
+  ],
+  "existingNativeGroups": [],
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:FE01:core-r2",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "7e10cc1722d66547fbeedb3aadeafd1a66de7849368cd92c4072359a6c197202",
+        "owner": "maintenance-preferences",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\20393b9565fd0de132842204761c5eb3b9b8fc46c0634933700a52a8846b44b8.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:FE01:core-r3",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "b348be90454e6e3bfeaad571b00fdb34ded08ddd4ddb7e430f5bd1fecba30a05",
+        "owner": "maintenance-preferences",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c51a5b8bd02b57776125ae2377594fc8c0b28654385e77663d57ff52e27df4c9.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:FE01:core-r8",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "b54deb8081f06a21d753a38d113abe2891fa093c733dd8ce27503aebf88cc141",
+        "owner": "maintenance-preferences",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8b77db73e0d76e03fdb627117b060f4aa0850ad5c7513a50e32c396a47172050.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "478fcc4d7d9b7ced73d2dcd8cd45a60db19968f804b5911cf0201818e93b7b7b"
+        ],
+        "group_token": "94d7bdc2a2b784ae10327b127cf06b72ab13ce0935a502e848d07a5ac95c341e",
+        "id": "478fcc4d7d9b7ced73d2dcd8cd45a60db19968f804b5911cf0201818e93b7b7b",
+        "identity": "f2ee5cf96686e760fe328fd6745f0341bd84727fa0d8773a9fff450c650338b1",
+        "lifecycle_group_id": "run:FE01:core-r3",
+        "logical_bytes": 11453,
+        "measured_at_ms": 1793595854696,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "b348be90454e6e3bfeaad571b00fdb34ded08ddd4ddb7e430f5bd1fecba30a05",
+          "member_references": {
+            "478fcc4d7d9b7ced73d2dcd8cd45a60db19968f804b5911cf0201818e93b7b7b": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3\\reports\\producer-a8f277410d8be0ae81f472773af7b7efaa7be8b56ba0fb57a136d9ca05910f0b.json",
+              "evidence_sha256": "a8f277410d8be0ae81f472773af7b7efaa7be8b56ba0fb57a136d9ca05910f0b",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "4576e5d2e79259fdf7832751514a53d9c87fe1ede7f30d4b25190d99949a8bb0"
+            },
+            "created_at": "2026-11-02T03:43:53.624Z",
+            "id": "run:FE01:core-r3",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3",
+            "owner": "maintenance-preferences",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3\\reports\\producer-a8f277410d8be0ae81f472773af7b7efaa7be8b56ba0fb57a136d9ca05910f0b.json",
+              "evidence_sha256": "a8f277410d8be0ae81f472773af7b7efaa7be8b56ba0fb57a136d9ca05910f0b",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-11-02T03:43:59.829Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793595940977,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              0,
+              174,
+              222,
+              0,
+              0,
+              0,
+              9,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "d04dd55f1bf14b1483c53abdac31d40fcbf8b88db0917e02a2b4d2492524583a",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "c66543aaf62fee745c4243a6987dbca52ab46e39d5f8fed4f06b6a9de9b88d64"
+        ],
+        "group_token": "74c5b15c9409ae9c71b777c7a783e6fe61b379a6b3d9f6c2ebf40ce96668dcdf",
+        "id": "c66543aaf62fee745c4243a6987dbca52ab46e39d5f8fed4f06b6a9de9b88d64",
+        "identity": "b681b5f540293b62d8068916a194b8762dee94c101adac946e1dd603dca6698c",
+        "lifecycle_group_id": "run:FE01:core-r2",
+        "logical_bytes": 14592,
+        "measured_at_ms": 1793595800692,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "7e10cc1722d66547fbeedb3aadeafd1a66de7849368cd92c4072359a6c197202",
+          "member_references": {
+            "c66543aaf62fee745c4243a6987dbca52ab46e39d5f8fed4f06b6a9de9b88d64": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2\\reports\\producer-35edd2c76a3717a295223f16214321e4fa725a42a3bff6c5d738f195e92fe3b3.json",
+              "evidence_sha256": "35edd2c76a3717a295223f16214321e4fa725a42a3bff6c5d738f195e92fe3b3",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "b9b7fde5910ec601e862766c0b11c1cb190731900ca68588e783b5c089ca50b3"
+            },
+            "created_at": "2026-11-02T03:39:54.112Z",
+            "id": "run:FE01:core-r2",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2",
+            "owner": "maintenance-preferences",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2\\reports\\producer-35edd2c76a3717a295223f16214321e4fa725a42a3bff6c5d738f195e92fe3b3.json",
+              "evidence_sha256": "35edd2c76a3717a295223f16214321e4fa725a42a3bff6c5d738f195e92fe3b3",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-11-02T03:43:16.151Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793595934589,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              240,
+              170,
+              222,
+              0,
+              0,
+              0,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "a8ad1de22a748a7d72c76edb31b5936dca228a961c1bea2d9809a958a3f14fcd",
+        "verification": "registered"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "fbb61a0a3aa8708f51a88f58d851b793d8f1d2fe1722a3e1c385c60a0413a5a8"
+        ],
+        "group_token": "c2e6f3986c9ed1b23be458a7f98ed1d3e11e21fef3e34b7d63331324ef7bf948",
+        "id": "fbb61a0a3aa8708f51a88f58d851b793d8f1d2fe1722a3e1c385c60a0413a5a8",
+        "identity": "b895a8eab99c62386396bd455844182b1a6996770aca0014345dc6f015fbf2c6",
+        "lifecycle_group_id": "run:FE01:core-r8",
+        "logical_bytes": 47416,
+        "measured_at_ms": 1793595908964,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "b54deb8081f06a21d753a38d113abe2891fa093c733dd8ce27503aebf88cc141",
+          "member_references": {
+            "fbb61a0a3aa8708f51a88f58d851b793d8f1d2fe1722a3e1c385c60a0413a5a8": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8\\reports\\terminal-close-evidence.json",
+              "evidence_sha256": "8b0497a62b448fded9447d8e14f841c6be15ca3af6e9fd72f93c0b0edf97c60e",
+              "reason": "Managed clean and core terminal outcomes observed; provenance and actual changed-package compilation reviewed",
+              "request_sha256": "2e7c04fa6725af067ee4f793ab5c4309ad5a1eff6f632fb79c62f3894e3b51a3"
+            },
+            "created_at": "2026-11-02T04:21:26.456Z",
+            "id": "run:FE01:core-r8",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8",
+            "owner": "maintenance-preferences",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8\\reports\\terminal-close-evidence.json",
+              "evidence_sha256": "8b0497a62b448fded9447d8e14f841c6be15ca3af6e9fd72f93c0b0edf97c60e",
+              "exit_code": 1,
+              "outcome": "failure",
+              "reason": "Managed clean and core terminal outcomes observed; provenance and actual changed-package compilation reviewed",
+              "status": "stopped"
+            },
+            "references": [],
+            "release_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\core-verification.json",
+              "evidence_sha256": "c79f9061d003586c4bf06f97656fee99949f86a89530790020dd408e91cddbab",
+              "reason": "Diagnosis complete; independent immutable source and failure evidence retained; corrected code requires new freeze",
+              "request_sha256": "67cbd051349258f12a6d1f2dbdc73f41f8dc1f5ad06268c33eebad5fd27bc8f6"
+            },
+            "revision": 3,
+            "schema": 1,
+            "state": "failed",
+            "updated_at": "2026-11-02T04:45:15.590Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793595946887,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              108,
+              36,
+              224,
+              0,
+              0,
+              0,
+              4,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "2aa9741005afc8606e3582fb200e4da18feaf59e53b01df452c1d32f9b667799",
+        "verification": "registered"
+      }
+    ]
+  },
+  "applyBatches": [
+    {
+      "groups": [
+        "run:FE01:core-r5",
+        "run:FE01:core-r4",
+        "run:FE01:core-r6",
+        "run:FE01:core-r7"
+      ],
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:FE01:core-r4",
+            "status": "deleted"
+          },
+          {
+            "id": "run:FE01:core-r5",
+            "status": "deleted"
+          },
+          {
+            "id": "run:FE01:core-r6",
+            "status": "deleted"
+          },
+          {
+            "id": "run:FE01:core-r7",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-57712-4907-1793595532316",
+            "decision": "delete",
+            "decision_id": "909b9a9440f8a993ab970749b49bbaad04910c4ca34b0831817c4464e83dc4eb",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "988ce6cdf367d46311dcf39a900d6e55dad36ae53cdf83f781f737d0bb478e62",
+            "lifecycle_group_id": "run:FE01:core-r5",
+            "reason": "Completed diagnosis and independent immutable evidence retained; old run payload and frozen source no longer needed",
+            "remaining": false,
+            "status": "deleted",
+            "token": "97a92bf78997bb1e68b530d7d150a7da32b30c9a16381c999e059443c6e996e0"
+          },
+          {
+            "attempt_id": "attempt-57712-4909-1793595551905",
+            "decision": "delete",
+            "decision_id": "830686ff82f36563440985321e47f49c78839de6b2e984d3f0a9ccfa25068151",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "c898e5188e103f93c818a6ceae3b044fa6b19a7d9f87d979a77e775ba62a1ac6",
+            "lifecycle_group_id": "run:FE01:core-r4",
+            "reason": "Completed diagnosis and independent immutable evidence retained; old run payload and frozen source no longer needed",
+            "remaining": false,
+            "status": "deleted",
+            "token": "fdc44eb8823d3390206a724d21c9da5546a2b2c8590d5cb5b0ea0499d8f2e425"
+          },
+          {
+            "attempt_id": "attempt-57712-4911-1793595716032",
+            "decision": "delete",
+            "decision_id": "9d969272d5bc69c5a88f5181b83ac080a3df1cd3329d437aeb40b6a2f88bf662",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "c90af2941fbebc70569a5cbf90198219763a8104e9d6b4ebd393e79e4ad95462",
+            "lifecycle_group_id": "run:FE01:core-r6",
+            "reason": "Completed diagnosis and independent immutable evidence retained; old run payload and frozen source no longer needed",
+            "remaining": false,
+            "status": "deleted",
+            "token": "e850b2d0a1f2b5e241d22152836e651a1317ffd6dabb5c52060b29d01f298145"
+          },
+          {
+            "attempt_id": "attempt-57712-4913-1793595735492",
+            "decision": "delete",
+            "decision_id": "386952741d329f230cfe48a2665b029ffaa04fbb48c0a3b8fbd82ad675dba94e",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "dedb3a321ea7949e7052779b55862a7654b65e0c06b742e3f27da99f554fa9da",
+            "lifecycle_group_id": "run:FE01:core-r7",
+            "reason": "Completed diagnosis and independent immutable evidence retained; old run payload and frozen source no longer needed",
+            "remaining": false,
+            "status": "deleted",
+            "token": "e036365fe6e172c4b4b6d6956db48aeee830bd0064645bd49c3b3387510048b0"
+          }
+        ]
+      }
+    },
+    {
+      "groups": [
+        "run:FE01:core-r3",
+        "run:FE01:core-r2",
+        "run:FE01:core-r8"
+      ],
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:FE01:core-r2",
+            "status": "deleted"
+          },
+          {
+            "id": "run:FE01:core-r3",
+            "status": "deleted"
+          },
+          {
+            "id": "run:FE01:core-r8",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-37880-4918-1793596000391",
+            "decision": "delete",
+            "decision_id": "fd3f96a5262306c39eb6e7443a066703f505951f6b73a88943f8f2c098263c90",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "478fcc4d7d9b7ced73d2dcd8cd45a60db19968f804b5911cf0201818e93b7b7b",
+            "lifecycle_group_id": "run:FE01:core-r3",
+            "reason": "Completed diagnosis independently preserved; task-owned temporary helpers and failed run payload no longer needed",
+            "remaining": false,
+            "status": "deleted",
+            "token": "d04dd55f1bf14b1483c53abdac31d40fcbf8b88db0917e02a2b4d2492524583a"
+          },
+          {
+            "attempt_id": "attempt-37880-4920-1793596020123",
+            "decision": "delete",
+            "decision_id": "4ba94d37cc9062a5cdc87b8d966716cbed4ffdbd3c498f958f0852268d3bc4f2",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "c66543aaf62fee745c4243a6987dbca52ab46e39d5f8fed4f06b6a9de9b88d64",
+            "lifecycle_group_id": "run:FE01:core-r2",
+            "reason": "Completed diagnosis independently preserved; task-owned temporary helpers and failed run payload no longer needed",
+            "remaining": false,
+            "status": "deleted",
+            "token": "a8ad1de22a748a7d72c76edb31b5936dca228a961c1bea2d9809a958a3f14fcd"
+          },
+          {
+            "attempt_id": "attempt-37880-4922-1793596041014",
+            "decision": "delete",
+            "decision_id": "6f47c2e7d53a3f601efca1ea43948da7bd549c89d23e1c48807a743606ee29d9",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "fbb61a0a3aa8708f51a88f58d851b793d8f1d2fe1722a3e1c385c60a0413a5a8",
+            "lifecycle_group_id": "run:FE01:core-r8",
+            "reason": "Completed diagnosis independently preserved; task-owned temporary helpers and failed run payload no longer needed",
+            "remaining": false,
+            "status": "deleted",
+            "token": "2aa9741005afc8606e3582fb200e4da18feaf59e53b01df452c1d32f9b667799"
+          }
+        ]
+      }
+    }
+  ],
+  "finalization": [
+    {
+      "id": "run:FE01:core-r4",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\be34af0efcdfa197d22ea05e25c0fff8efdf704a2e8f09306d7fce938bd75903.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\core-verification.json",
+        "sha256": "c79f9061d003586c4bf06f97656fee99949f86a89530790020dd408e91cddbab",
+        "reason": "Known-stopped diagnosis complete; native per-item deletion and actual absence verified; independent immutable evidence survives",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "run:FE01:core-r5",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\22b21d7dacdc2e27a510a77a4745701757719794a531916c2951aa35bc7ca4d3.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\core-verification.json",
+        "sha256": "c79f9061d003586c4bf06f97656fee99949f86a89530790020dd408e91cddbab",
+        "reason": "Known-stopped diagnosis complete; native per-item deletion and actual absence verified; independent immutable evidence survives",
+        "original_state": "failed",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "run:FE01:core-r6",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\19eb4aaf8f0ca57effc924e1149b0bc4b2bdff279385fec186d5e65fd6369cca.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\core-verification.json",
+        "sha256": "c79f9061d003586c4bf06f97656fee99949f86a89530790020dd408e91cddbab",
+        "reason": "Known-stopped diagnosis complete; native per-item deletion and actual absence verified; independent immutable evidence survives",
+        "original_state": "failed",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "run:FE01:core-r7",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\32fbc0752297b5b6b7dd6eb418dcc6e5869c3c8e96cede0da8e8f88fe2a58af2.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\core-verification.json",
+        "sha256": "c79f9061d003586c4bf06f97656fee99949f86a89530790020dd408e91cddbab",
+        "reason": "Known-stopped diagnosis complete; native per-item deletion and actual absence verified; independent immutable evidence survives",
+        "original_state": "failed",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "run:FE01:core-r3",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c51a5b8bd02b57776125ae2377594fc8c0b28654385e77663d57ff52e27df4c9.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\core-verification.json",
+        "sha256": "c79f9061d003586c4bf06f97656fee99949f86a89530790020dd408e91cddbab",
+        "reason": "Known stopped controller and completed native deletion/absence; immutable evidence survives outside group",
+        "original_state": "failed",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "run:FE01:core-r2",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\20393b9565fd0de132842204761c5eb3b9b8fc46c0634933700a52a8846b44b8.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\core-verification.json",
+        "sha256": "c79f9061d003586c4bf06f97656fee99949f86a89530790020dd408e91cddbab",
+        "reason": "Known stopped controller and completed native deletion/absence; immutable evidence survives outside group",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "run:FE01:core-r8",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8b77db73e0d76e03fdb627117b060f4aa0850ad5c7513a50e32c396a47172050.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FE-01-maintenance-preferences\\core-verification.json",
+        "sha256": "c79f9061d003586c4bf06f97656fee99949f86a89530790020dd408e91cddbab",
+        "reason": "Known stopped controller and completed native deletion/absence; immutable evidence survives outside group",
+        "original_state": "failed",
+        "original_membership_complete": true
+      }
+    }
+  ],
+  "actualAbsence": [
+    {
+      "id": "run:FE01:core-r6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r6",
+      "present": false,
+      "catalogPresent": false
+    },
+    {
+      "id": "run:FE01:core-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2",
+      "present": false,
+      "catalogPresent": false
+    },
+    {
+      "id": "run:FE01:core-r5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r5",
+      "present": false,
+      "catalogPresent": false
+    },
+    {
+      "id": "run:FE01:core-r7",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r7",
+      "present": false,
+      "catalogPresent": false
+    },
+    {
+      "id": "run:FE01:core-r8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8",
+      "present": false,
+      "catalogPresent": false
+    },
+    {
+      "id": "run:FE01:core-r4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r4",
+      "present": false,
+      "catalogPresent": false
+    },
+    {
+      "id": "run:FE01:core-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3",
+      "present": false,
+      "catalogPresent": false
+    }
+  ],
+  "emptyContainers": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01",
+      "removed": true
+    }
+  ],
+  "rootCoreHelpers": [],
+  "catalogReleased": true,
+  "deletedGroups": [
+    "run:FE01:core-r4",
+    "run:FE01:core-r5",
+    "run:FE01:core-r6",
+    "run:FE01:core-r7",
+    "run:FE01:core-r2",
+    "run:FE01:core-r3",
+    "run:FE01:core-r8"
+  ],
+  "deletedLogicalBytes": 201241046,
+  "physicalBytesReclaimed": null,
+  "sharedCachePreserved": true,
+  "originalBaselinePreserved": true,
+  "immutableEvidenceStillMatches": true,
+  "perItemOutcomes": [
+    {
+      "id": "988ce6cdf367d46311dcf39a900d6e55dad36ae53cdf83f781f737d0bb478e62",
+      "group": "run:FE01:core-r5",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r5",
+      "logicalBytesMeasuredAtRegistration": 8243481,
+      "status": "deleted",
+      "groupStatus": "deleted",
+      "remaining": false,
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "producerFinalized": true
+    },
+    {
+      "id": "c898e5188e103f93c818a6ceae3b044fa6b19a7d9f87d979a77e775ba62a1ac6",
+      "group": "run:FE01:core-r4",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r4",
+      "logicalBytesMeasuredAtRegistration": 192913371,
+      "status": "deleted",
+      "groupStatus": "deleted",
+      "remaining": false,
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "producerFinalized": true
+    },
+    {
+      "id": "c90af2941fbebc70569a5cbf90198219763a8104e9d6b4ebd393e79e4ad95462",
+      "group": "run:FE01:core-r6",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r6",
+      "logicalBytesMeasuredAtRegistration": 5534,
+      "status": "deleted",
+      "groupStatus": "deleted",
+      "remaining": false,
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "producerFinalized": true
+    },
+    {
+      "id": "dedb3a321ea7949e7052779b55862a7654b65e0c06b742e3f27da99f554fa9da",
+      "group": "run:FE01:core-r7",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r7",
+      "logicalBytesMeasuredAtRegistration": 5199,
+      "status": "deleted",
+      "groupStatus": "deleted",
+      "remaining": false,
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "producerFinalized": true
+    },
+    {
+      "id": "478fcc4d7d9b7ced73d2dcd8cd45a60db19968f804b5911cf0201818e93b7b7b",
+      "group": "run:FE01:core-r3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3",
+      "logicalBytesMeasuredAtRegistration": 11453,
+      "status": "deleted",
+      "groupStatus": "deleted",
+      "remaining": false,
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "producerFinalized": true
+    },
+    {
+      "id": "c66543aaf62fee745c4243a6987dbca52ab46e39d5f8fed4f06b6a9de9b88d64",
+      "group": "run:FE01:core-r2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2",
+      "logicalBytesMeasuredAtRegistration": 14592,
+      "status": "deleted",
+      "groupStatus": "deleted",
+      "remaining": false,
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "producerFinalized": true
+    },
+    {
+      "id": "fbb61a0a3aa8708f51a88f58d851b793d8f1d2fe1722a3e1c385c60a0413a5a8",
+      "group": "run:FE01:core-r8",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8",
+      "logicalBytesMeasuredAtRegistration": 47416,
+      "status": "deleted",
+      "groupStatus": "deleted",
+      "remaining": false,
+      "deletion": {
+        "attributes": [],
+        "error": null,
+        "physical_bytes_reclaimed": null,
+        "remaining": false,
+        "status": "deleted"
+      },
+      "producerFinalized": true
+    }
+  ]
+}

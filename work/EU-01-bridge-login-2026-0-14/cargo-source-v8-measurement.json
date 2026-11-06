@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "scope": "one Windows x64 release engine/bridge/same-source code-mode host compilation with source-built V8 sandbox",
+  "startedUtc": "2026-10-31T13:35:40.875Z",
+  "steps": [
+    {
+      "label": "source-before",
+      "durationMs": 93679.67760000001,
+      "exitCode": 0
+    }
+  ],
+  "v8CargoDurationMs": 3325243.0531,
+  "v8Version": {
+    "id": "version:v8-source:150.4.0-win64-sandbox:EU01",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\v8-1504-win64-sandbox-eu01",
+    "staticLibrarySha256": "e1d60d78b640bdfe671fdba4be391aae56cf4781037fa756f1fba8f065b76616",
+    "bindingsSha256": "1478984c04abb02d7e873f03160ccd8379d3e7c0ff0f66b113ab3105e2565c29"
+  },
+  "cache": {
+    "key": "96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+    "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target"
+  },
+  "sourceIdentity": {
+    "schema": 2,
+    "sourceKind": "imported-snapshot",
+    "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+    "importedInventorySha256": "4bdb40255d2997dbbbf72f17df66f941902554c0e6838bbf01fe8d5cf85d561a",
+    "importedReceiptSha256": "0b2d999c9e2293b6f1def4bd200d827ba88008889399253fb06d8176305c6719",
+    "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+    "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sourceSha256": "7b9e772871c318bb9d4847ee44d2694fcbcf7015fda54191839e57a8ca4e9eb3",
+    "fileCount": 9342,
+    "target": "x86_64-pc-windows-msvc",
+    "buildEnvironment": {
+      "RUSTFLAGS": "",
+      "CARGO_ENCODED_RUSTFLAGS": "",
+      "RUSTC_WRAPPER": "",
+      "RUSTUP_TOOLCHAIN": "",
+      "V8_FROM_SOURCE": "",
+      "V8_FORCE_DEBUG": "",
+      "RUSTY_V8_ARCHIVE": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\v8-1504-win64-sandbox-eu01\\payload\\rusty_v8.lib",
+      "RUSTY_V8_MIRROR": "",
+      "RUSTY_V8_SRC_BINDING_PATH": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\v8-1504-win64-sandbox-eu01\\payload\\src_binding.rs",
+      "GN": "",
+      "GN_ARGS": "",
+      "EXTRA_GN_ARGS": "",
+      "NINJA": "",
+      "CLANG_BASE_PATH": "",
+      "PYTHON": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+      "LIBCLANG_PATH": ""
+    }
+  },
+  "args": [
+    "build",
+    "--release",
+    "--locked",
+    "--no-default-features",
+    "--target",
+    "x86_64-pc-windows-msvc",
+    "-p",
+    "codex-app-server",
+    "--bin",
+    "azrael",
+    "-p",
+    "codex-app-server-client",
+    "--bin",
+    "azrael-bridge",
+    "-p",
+    "codex-code-mode-host",
+    "--bin",
+    "codex-code-mode-host",
+    "--timings"
+  ],
+  "cargoStartedUtc": "2026-10-31T13:37:38.485Z",
+  "binaries": [
+    {
+      "name": "azrael.exe",
+      "sha256": "a88552fa700dce84730afb0d3a9494f3d245d75f4418fc6323f33cc0e4a55de0",
+      "bytes": 281871360
+    },
+    {
+      "name": "azrael-bridge.exe",
+      "sha256": "c2c2a2432e8ca43399e162bceb9d731b5ae99dad878d964558331153f735e6c2",
+      "bytes": 21302784
+    },
+    {
+      "name": "codex-code-mode-host.exe",
+      "sha256": "f6574f97b200c637c5203805acef94801b842befb7d24aac10ca37aa98d15fc5",
+      "bytes": 75948544
+    }
+  ],
+  "cargoDurationMs": 3549041.4714,
+  "cargoCompletedUtc": "2026-10-31T14:36:47.528Z",
+  "cargoExitCode": 0,
+  "owner": {
+    "schema": 1,
+    "token": "55241dfc-d93c-45fc-8e88-3e33d160d95b",
+    "run": "run:EU01-cargo-time:engine-source-v8",
+    "coordinatorPid": 36656,
+    "producerPid": 34644,
+    "startedUtc": "2026-10-31T13:37:43.621Z",
+    "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+    "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+    "command": "C:/Users/felre/.cargo/bin/cargo.exe",
+    "args": [
+      "build",
+      "--release",
+      "--locked",
+      "--no-default-features",
+      "--target",
+      "x86_64-pc-windows-msvc",
+      "-p",
+      "codex-app-server",
+      "--bin",
+      "azrael",
+      "-p",
+      "codex-app-server-client",
+      "--bin",
+      "azrael-bridge",
+      "-p",
+      "codex-code-mode-host",
+      "--bin",
+      "codex-code-mode-host",
+      "--timings"
+    ],
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\inputs\\engine\\codex-rs",
+    "compilationSignature": "b8a062cbd62b18a2fccd80808ae813afd49b9049ecafecb839ebb79b4213b155",
+    "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\engine-source-v8\\temporary\\pending",
+    "status": "success",
+    "phase": "observed-terminal",
+    "lastProgressUtc": "2026-10-31T14:36:45.448Z",
+    "preparingUtc": "2026-10-31T13:37:43.621Z",
+    "sourcePreparation": {
+      "mode": "stable",
+      "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\source-v8\\inputs\\engine",
+      "compilationSourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\source\\engine",
+      "sourceSha256": "7b9e772871c318bb9d4847ee44d2694fcbcf7015fda54191839e57a8ca4e9eb3",
+      "target": "x86_64-pc-windows-msvc",
+      "unchanged": 9344,
+      "added": 0,
+      "changed": 0,
+      "removed": 0,
+      "durationMs": 148976.97440000004,
+      "cacheKey": "96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+      "profile": "release",
+      "verificationDurationMs": 196452.9907
+    },
+    "spawnAttemptedUtc": "2026-10-31T13:40:12.606Z",
+    "resultObservedUtc": "2026-10-31T14:36:45.448Z",
+    "exitCode": 0,
+    "signal": null,
+    "producerStarted": true,
+    "durationMs": 3548378.3
+  },
+  "finishedLines": [
+    "    Finished `release` profile [optimized + debuginfo] target(s) in 53m 15s"
+  ],
+  "compileCount": 970,
+  "status": "measured",
+  "completedUtc": "2026-10-31T14:36:47.530Z"
+}

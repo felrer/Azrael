@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "scope": "Exact completed consumer-planned-release run cleanup",
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e",
+  "sourceId": "run:ET-01-cold-build-cache-audit:consumer-planned-release-20261030a",
+  "nativeIds": [
+    "7b6011b2cefe0d2ff181e2801228c612b9f287fdf6d14fe30b50323f4572b097"
+  ],
+  "verification": "registered",
+  "priorAcceptance": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\consumer-planned-release-acceptance.json",
+    "sha256": "ebf1927610a3cb859c4cf32349d294e3de64404bcc0acc1efd9509eb9d3030fb"
+  },
+  "review": [
+    {
+      "id": "7b6011b2cefe0d2ff181e2801228c612b9f287fdf6d14fe30b50323f4572b097",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\consumer-planned-release-20261030a",
+      "blockers": [],
+      "token": "ca691ace58a413e4048b791c65232f1719a80ebefbc5966d5d5c25a79d8f2bde",
+      "groupToken": "4b9db8e351ea5b7c274da09ea5473683c35c11c4e0bff46eba5d32afae625a7e",
+      "logicalBytes": 4190,
+      "producerStatus": "stopped",
+      "producerOutcome": "success",
+      "producerExit": 0,
+      "references": []
+    }
+  ],
+  "executions": [
+    {
+      "stage": "register",
+      "pid": 49560,
+      "start": "2026-10-30T15:05:25.311Z",
+      "end": "2026-10-30T15:05:39.557Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "review",
+      "pid": 42664,
+      "start": "2026-10-30T15:05:39.558Z",
+      "end": "2026-10-30T15:05:40.511Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "stage": "apply",
+      "pid": 44480,
+      "start": "2026-10-30T15:05:42.883Z",
+      "end": "2026-10-30T15:05:46.634Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ],
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:consumer-planned-release-20261030a",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-44480-14-1793372744927",
+        "decision": "delete",
+        "decision_id": "fe2bc568ef1755fd5e63c4ce3834426d337f89e00967734b2e1f5b73a21f6a8c",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "7b6011b2cefe0d2ff181e2801228c612b9f287fdf6d14fe30b50323f4572b097",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:consumer-planned-release-20261030a",
+        "reason": "Authorized exact completed verification run; independent acceptance preserved in root work record",
+        "remaining": false,
+        "status": "deleted",
+        "token": "ca691ace58a413e4048b791c65232f1719a80ebefbc5966d5d5c25a79d8f2bde"
+      }
+    ]
+  },
+  "sourceFinalization": {
+    "exitCode": 0,
+    "id": "run:ET-01-cold-build-cache-audit:consumer-planned-release-20261030a",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\b32e81279460e20884625be1a88c5abb04769458395df1f8e5088d6743b35be5.json",
+    "registryAbsent": true
+  },
+  "actualRemaining": [],
+  "preparationFailure": {
+    "exitCode": 1,
+    "nativeExecuted": false,
+    "cause": "Default Windows PowerShell rejects utf8NoBOM; corrected helper creation with apply_patch before native execution"
+  },
+  "rawHandoff": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\f\\consumer-unit-cleanup-548f70ed6613487686d8b8ce49ed4e8b",
+    "files": [
+      {
+        "name": "apply-execution.json",
+        "bytes": 1074
+      },
+      {
+        "name": "apply-request.json",
+        "bytes": 399
+      },
+      {
+        "name": "apply-result.json",
+        "bytes": 1027
+      },
+      {
+        "name": "owner-cleanup.cjs",
+        "bytes": 3204
+      },
+      {
+        "name": "register-execution.json",
+        "bytes": 2092
+      },
+      {
+        "name": "register-request.json",
+        "bytes": 1299
+      },
+      {
+        "name": "register-result.json",
+        "bytes": 2009
+      },
+      {
+        "name": "review-execution.json",
+        "bytes": 5676
+      },
+      {
+        "name": "review-request.json",
+        "bytes": 155
+      },
+      {
+        "name": "review-result.json",
+        "bytes": 6528
+      },
+      {
+        "name": "source-finalize.json",
+        "bytes": 348
+      }
+    ],
+    "cleanupOwner": "parent exact raw-helper follow-up per delegated contract"
+  }
+}

@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "scope": "User-wait native protocol, persistence and source-derived schema verification",
+  "platform": {
+    "os": "Windows",
+    "arch": "x64",
+    "abi": "MSVC",
+    "rustToolchain": "1.95.0",
+    "cargoBuildJobs": 2
+  },
+  "source": {
+    "sha256": "246c9429313df85c89026bb2b5123bccb8395ce6892e2a35a4ec087b796c55e1",
+    "fileCount": 10866,
+    "bytes": 192255125,
+    "platform": "win32",
+    "arch": "x64",
+    "capturedUtc": "2026-10-29T02:57:32.512Z",
+    "sourceReceipt": "Copied current SOURCE.json bytes unchanged; no product provenance assertion",
+    "postTestSha256": "246c9429313df85c89026bb2b5123bccb8395ce6892e2a35a4ec087b796c55e1",
+    "immutableAcrossChecks": true,
+    "productProvenanceAsserted": false,
+    "limitations": "Metadata verification snapshot predates final core runtime changes; it does not establish final runtime or installed-product acceptance."
+  },
+  "tests": [
+    {
+      "crate": "codex-app-server-protocol",
+      "filter": "user_wait",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "codex-app-server-protocol",
+        "--lib",
+        "user_wait",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1"
+      ],
+      "exitCode": 0,
+      "error": null,
+      "signal": null,
+      "selectedTests": 3,
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "codex-app-server-protocol",
+            "--lib",
+            "--locked",
+            "--offline",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-29T02:57:32.523Z",
+          "durationMs": 650338,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "codex-app-server-protocol",
+            "--lib",
+            "user_wait",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-29T03:08:22.861Z",
+          "durationMs": 865332,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 3
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "codex-app-server-protocol",
+            "--lib",
+            "user_wait",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-29T03:22:48.193Z",
+          "durationMs": 35016,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    {
+      "crate": "codex-thread-store",
+      "filter": "user_wait",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "codex-thread-store",
+        "--lib",
+        "user_wait",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1"
+      ],
+      "exitCode": 0,
+      "error": null,
+      "signal": null,
+      "selectedTests": 1,
+      "phases": [
+        {
+          "phase": "typeCheck",
+          "args": [
+            "check",
+            "-p",
+            "codex-thread-store",
+            "--lib",
+            "--locked",
+            "--offline",
+            "--tests",
+            "--profile",
+            "test"
+          ],
+          "startedUtc": "2026-10-29T03:23:23.212Z",
+          "durationMs": 66848,
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "phase": "selection",
+          "args": [
+            "test",
+            "-p",
+            "codex-thread-store",
+            "--lib",
+            "user_wait",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1",
+            "--list",
+            "--format=terse"
+          ],
+          "startedUtc": "2026-10-29T03:24:30.060Z",
+          "durationMs": 90048,
+          "exitCode": 0,
+          "signal": null,
+          "selectedTests": 1
+        },
+        {
+          "phase": "execution",
+          "args": [
+            "test",
+            "-p",
+            "codex-thread-store",
+            "--lib",
+            "user_wait",
+            "--locked",
+            "--offline",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-10-29T03:26:00.109Z",
+          "durationMs": 55108,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    }
+  ],
+  "testNames": [
+    "protocol::thread_history::tests::user_wait_snapshots_preserve_measured_terminal_timing_and_ignore_stale_revisions",
+    "protocol::thread_history_projection::tests::user_wait_updates_project_independently_without_lifecycle_changes",
+    "protocol::v2::mcp::user_wait_identity_tests::user_wait_mcp_identity_is_optional_and_round_trips_unchanged",
+    "local::thread_history_materialization::tests::user_wait_snapshots_survive_paginated_metadata_summary_and_timeline_reads"
+  ],
+  "elapsedMs": 1826475,
+  "schemaGeneration": {
+    "test": "schema_fixtures_tests::write_schema_fixtures_from_env",
+    "executableSha256": "9a9688e32383600739e4dbcb049ff9b0bfd0b49ea481d5ca85faa7161b33d7c5",
+    "records": [
+      {
+        "experimental": "0",
+        "args": [
+          "schema_fixtures_tests::write_schema_fixtures_from_env",
+          "--exact",
+          "--ignored",
+          "--test-threads=1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 72533
+      },
+      {
+        "experimental": "1",
+        "args": [
+          "schema_fixtures_tests::write_schema_fixtures_from_env",
+          "--exact",
+          "--ignored",
+          "--test-threads=1"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 23264
+      }
+    ],
+    "elapsedMs": 96038,
+    "archives": [
+      {
+        "kind": "stable",
+        "path": "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst",
+        "bytes": 170178,
+        "sha256": "41ee57f44f00d4cde2f58b52dc69be1ec39cf44539e2a22513e2d68a8b5b89b2"
+      },
+      {
+        "kind": "experimental",
+        "path": "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst",
+        "bytes": 174761,
+        "sha256": "cfddfdfe16c4f2a08051d5b694fd8ba7671feb7f2dc2812285e56d6f001c478b"
+      }
+    ],
+    "integration": {
+      "reviewedAndCopiedBy": "root",
+      "changedFiles": 33,
+      "byteMatchedGeneratedFiles": 1143,
+      "verificationExitCode": 0,
+      "archiveDecodeAndJsonParseExitCode": 0,
+      "contractsPresentInBothArchives": [
+        "userWaitTiming",
+        "turn/userWaitTiming/updated",
+        "userWaitRequestId"
+      ]
+    }
+  },
+  "producerClose": {
+    "protocol01": {
+      "lifecycleId": "run:EK01-user-wait-native:protocol01",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\protocol01",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Synchronous Cargo calls returned; owned controller finished; target retained for root integration handoff",
+      "children": [],
+      "state": "complete",
+      "membership_complete": true
+    },
+    "schema01": {
+      "lifecycleId": "run:EK01-user-wait-native:schema01",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EK01-user-wait-native\\runs\\schema01",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.exe"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "producerStopped": true,
+      "reason": "Verified protocol fixture export subprocesses returned; outputs retained for root review and source integration",
+      "children": [],
+      "state": "complete",
+      "membership_complete": true
+    }
+  },
+  "retention": {
+    "rawLogsRequired": false,
+    "sourceSnapshotsAndColdCacheRequired": false,
+    "reason": "Reviewed schemas and minimal independently readable verification evidence survive in maintained source/work deliverables; disposable run groups are eligible for owner-based cleanup after references release."
+  }
+}

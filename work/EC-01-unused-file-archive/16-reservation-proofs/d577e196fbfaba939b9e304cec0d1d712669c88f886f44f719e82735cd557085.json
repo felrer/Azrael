@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "id": "run:EC-01-unused-file-archive:unknown-recovery-node-r1-external-fixtures",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "reservation_sha256": "bacbf3b15790520106019b39e7c83c4e6b82d0de1e625de0d4dcd5bda557e018",
+  "lease_owner": {
+    "acquired_at_ms": 1793162689019,
+    "operation": "group_reservation",
+    "pid": 83104,
+    "schema": 2,
+    "token": "83104-1793162689019-b6827109e6c50058"
+  },
+  "independent_stop_proof": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\15-cleanup-interruption.json",
+    "sha256": "0ae8c432e9ab6bc073958c3cef790cfe2d05280e0c2509ede1bf3721ef337bb9"
+  },
+  "exact_tree": [
+    {
+      "pid": 83104,
+      "parent_pid": 58708,
+      "started_at": "2026-10-28T04:43:20.5755032Z",
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh\\payload\\maintenance_owner.exe",
+      "handle_signaled": true,
+      "exit_code": -1
+    },
+    {
+      "pid": 86008,
+      "parent_pid": 83104,
+      "started_at": "2026-10-28T04:50:03.5364997Z",
+      "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "handle_signaled": true,
+      "exit_code": null
+    },
+    {
+      "pid": 91568,
+      "parent_pid": 86008,
+      "started_at": "2026-10-28T04:50:03.5523657Z",
+      "executable": "C:\\WINDOWS\\system32\\conhost.exe",
+      "handle_signaled": true,
+      "exit_code": null
+    }
+  ],
+  "wrapper_session": 82218,
+  "wrapper_exit_code": 1,
+  "native_exit_unsigned": 4294967295,
+  "outcome": "User interrupted; no successful apply receipt and historical outcomes unchanged"
+}

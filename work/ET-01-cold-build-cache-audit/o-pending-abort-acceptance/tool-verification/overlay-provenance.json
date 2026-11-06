@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "frozenSourceSha256": "85d4e9984fc4d54d9c083c2cfc0353b9972b666e55415ff6351c97d3ad7c15ce",
+  "sourceIdentitySha256": "f3156996005c34bd3c561a1db463481f665485ec65413c2ffd19ecb7fc41853c",
+  "retainedBaseline": {
+    "file": "retained-baseline-source-identity.json",
+    "sha256": "4adb6083ccfb9a5bb4ab51f156a4f5b30825494d32e51c9b5fb43f7784cc64ce"
+  },
+  "overlays": [
+    {
+      "path": "src/registry.rs",
+      "sha256": "b2753118ecf7df694b19710f6ed0e6c4580fb351f4435da7d8baeefe29b1d104"
+    },
+    {
+      "path": "src/lease.rs",
+      "sha256": "7f75716ae534c0e5757002260db39e58369b0c54b298a1e13bd17f98e1c88301"
+    },
+    {
+      "path": "src/lib.rs",
+      "sha256": "2e1cf199f036f7bd5ac151f9cdc4eea2bca4565a13e737c27208bdd7242d70fe"
+    },
+    {
+      "path": "src/bin/maintenance_owner.rs",
+      "sha256": "19c5216aba3cb053ef1a2682680c53087b91ba30df4836063eed0c866a25a51f"
+    },
+    {
+      "path": "tests/registry.rs",
+      "sha256": "f2c9d230721ef11cd71645c391d956b04569ce16cf53184bd4e33318d3b3129c"
+    }
+  ],
+  "ancestry": {
+    "originalSourceSha256": "19d7b026d079dfbe265f68bae393e8e086d90108e64bc47f199f142b612ffb57",
+    "r2SourceSha256": "c092bb9977dd20c638add6a4ae5958e5810cdc4ded4f84076354eea8808e4039",
+    "r3SourceSha256": "9baf7c13bdc1a3c479b6708824bf2c388b0a8bf090c79437304e9266d2967cd3"
+  },
+  "correction": "Canonical original request retained; validated receipt path rebuilt with native separators. Windows fixture has slash-spelled request and native no-slash receipt.",
+  "priorFailures": {
+    "originalSelected101": true,
+    "originalKernelExitCode": null,
+    "r3SelectedExitCode": 101,
+    "r3NativeDriverExitCode": 1,
+    "r3Cause": "Fixture used mixed separators instead of Node path.resolve receipt"
+  },
+  "priorD0Version": "unchanged; automated0 lacked real O path-spelling coverage; not accepted for actual use",
+  "scope": "No source/target/raw logs copied"
+}

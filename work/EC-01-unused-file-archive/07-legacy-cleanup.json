@@ -1,0 +1,381 @@
+[
+  {
+    "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+    "started_at": "2026-11-01T13:05:02.652Z",
+    "original_outcome": "failure",
+    "original_exit_code": 1,
+    "registration_exit_code": 0,
+    "review_exit_code": 0,
+    "items": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BB-01-btw-panel-route\\runs\\20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+        "logical_bytes": 53196,
+        "blockers": []
+      }
+    ],
+    "apply_exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-50076-4586-1793538343274",
+          "decision": "delete",
+          "decision_id": "2e7ecf4fa2e078874d9bc8c3a111dd9a7aff889c0850854742b0327cafdf0ab2",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "3933b39447b18380faf9cebf5761aaaf361772739bc1b1d3816caa6fdde54e07",
+          "lifecycle_group_id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+          "reason": "Explicit abandoned cleanup request; verified old creator declared fresh generated run roots, stopped failure1 preserved, legacy success-only completeness repaired, required BB acceptance handed off before deletion.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "822b509bec11759d9fa11545f3630b76562bf4e178ac659eecccc341ef4a73a6"
+        }
+      ]
+    },
+    "finalize": {
+      "id": "run:BB-01-btw-panel-route:20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ab100d6691a0111a5436eeda33737319f6724ab6e508d341ba97f1cc62c37f75.json"
+    },
+    "status": "finalized",
+    "ended_at": "2026-11-01T13:06:04.790Z"
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+    "started_at": "2026-11-01T13:06:04.792Z",
+    "original_outcome": "failure",
+    "original_exit_code": 1,
+    "apply_exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-43448-4589-1793538407124",
+          "decision": "delete",
+          "decision_id": "e7e0afedc373e3a02c79ad480d87e190260b07dbbb5e7130c4088a1f2949def5",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "ebc2feba3931098491119a56116ca3ed0d59a6a9cf2f1ccaa96b730b5be7e00a",
+          "lifecycle_group_id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+          "reason": "Explicit abandoned cleanup request; verified old creator declared fresh generated run roots, stopped failure1 preserved, legacy success-only completeness repaired, required BB acceptance handed off before deletion.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "65ff1abcc20dab60fa3c7f04ae0694f66f406e1835fd8a1894b5fa11fb1f8503"
+        }
+      ]
+    },
+    "finalize": {
+      "id": "run:CM-01-instruction-library-experience:20261019T002135264Z-256d3ef6-2274-4b75-80f0-c52363f7543e",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\8f8dcdc6d815a189af379556af3a2bf8c96d8e278ed932858c057c7656f9a15a.json"
+    },
+    "status": "finalized"
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+    "original_outcome": "failure",
+    "original_exit_code": 1,
+    "registration_exit_code": 0,
+    "review_exit_code": 0,
+    "items": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+        "logical_bytes": 54334,
+        "blockers": []
+      }
+    ],
+    "apply_exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-8616-4605-1793542806773",
+          "decision": "delete",
+          "decision_id": "4c3f22c0febb94bd8b8596d5f9e828bf3ab4aaf420b4a5bc10930491b5f87ef8",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "df3b6b56bccff8a51ff90f276b81aaef3d11317b53e21b6b9ed6eb682bebd90b",
+          "lifecycle_group_id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+          "reason": "Explicit user cleanup; verified original fresh generated run scope, stopped failure1 preserved and required acceptance handed off.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "5ec504058f0c1d0c5a22771ac4aa97e70bb4895dc8ded58cdb5bf257913e5402"
+        }
+      ]
+    },
+    "finalize": {
+      "id": "run:CM-01-instruction-library-experience:20261019T002301486Z-1e09a893-d542-4647-abbb-9384d80b5325",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f098c3518078f248f34ce443e92f38840031256f07615fc1882a2bb62e533c01.json"
+    },
+    "status": "finalized"
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+    "original_outcome": "failure",
+    "original_exit_code": 1,
+    "registration_exit_code": 0,
+    "review_exit_code": 0,
+    "items": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+        "logical_bytes": 42294,
+        "blockers": []
+      }
+    ],
+    "apply_exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-50272-4608-1793542870167",
+          "decision": "delete",
+          "decision_id": "a363e7c88a1de00fe38cd43a494fce5a1560f498c1f4052672a0af1afed0fc63",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "f95e20ea9a00756ea01539bf89184f3a35b8697d57a5c6f9d0ed4e03c5fe92e5",
+          "lifecycle_group_id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+          "reason": "Explicit user cleanup; verified original fresh generated run scope, stopped failure1 preserved and required acceptance handed off.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "cc16eee5720e536b6cf490fd74097a6086349f92265edfd3ee541856d4d045e3"
+        }
+      ]
+    },
+    "finalize": {
+      "id": "run:CM-01-instruction-library-experience:20261019T002704369Z-6cebbb75-31ed-4e45-82aa-6221d4a9a626",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d78b3f3357c17706324712b858a45b6e1b76789f916bb4f00632c0770e247cb2.json"
+    },
+    "status": "finalized"
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+    "original_outcome": "failure",
+    "original_exit_code": 1,
+    "registration_exit_code": 0,
+    "review_exit_code": 0,
+    "items": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+        "logical_bytes": 224266,
+        "blockers": []
+      }
+    ],
+    "apply_exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-19836-4611-1793542930693",
+          "decision": "delete",
+          "decision_id": "9f5f5465df84a15ae45a4ed543c5ccd1834fbecab8e190c7109145f37e8ad862",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "52d4173bb6affcc8b16dd81ea005be62fd91fb20cbb5155896f0f98e358ab03d",
+          "lifecycle_group_id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+          "reason": "Explicit user cleanup; verified original fresh generated run scope, stopped failure1 preserved and required acceptance handed off.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "2008ca78a689e071a29c4c0c5aff709f19cb3e9e2ba4189cd8ddeeec60126a18"
+        }
+      ]
+    },
+    "finalize": {
+      "id": "run:CM-01-instruction-library-experience:20261019T002748307Z-36c30c5a-351b-44d2-a07e-4b346d1093c1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\121cb6b0650a76da38005401f78bb3dfe6662dc10d06dd75b825e3db62353129.json"
+    },
+    "status": "finalized"
+  },
+  {
+    "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+    "original_outcome": "failure",
+    "original_exit_code": 1,
+    "registration_exit_code": 0,
+    "review_exit_code": 0,
+    "items": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+        "logical_bytes": 83066,
+        "blockers": []
+      }
+    ],
+    "apply_exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-19560-4614-1793542992233",
+          "decision": "delete",
+          "decision_id": "ed307cd6585764261857fb25f056c770c7ced7d7039faee782fbb0cbf49e9a8e",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "26f7a269f3b3d08104c67ecfda52468961b6a83752d3281826e5d24e8e35b104",
+          "lifecycle_group_id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+          "reason": "Explicit user cleanup; verified original fresh generated run scope, stopped failure1 preserved and required acceptance handed off.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "c669d8b8f9bd78f523751d0e3034105530f31c9fee7d97869a7aed180f33aa88"
+        }
+      ]
+    },
+    "finalize": {
+      "id": "run:CM-01-instruction-library-experience:20261019T003342084Z-af5caaa3-ec55-44de-ac4e-0f25e3f05814",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b5859daac36230c023d9769bc8089edf4a0d4244af37913aeffd53446796e720.json"
+    },
+    "status": "finalized"
+  },
+  {
+    "id": "run:CM-01:host-35dac893",
+    "original_outcome": "failure",
+    "original_exit_code": 1,
+    "registration_exit_code": 0,
+    "review_exit_code": 0,
+    "items": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01\\runs\\host-35dac893",
+        "logical_bytes": 38460,
+        "blockers": []
+      }
+    ],
+    "apply_exit_code": 0,
+    "apply": {
+      "aborted": false,
+      "cancelled": false,
+      "groups": [
+        {
+          "id": "run:CM-01:host-35dac893",
+          "status": "deleted"
+        }
+      ],
+      "results": [
+        {
+          "attempt_id": "attempt-22592-4617-1793543052908",
+          "decision": "delete",
+          "decision_id": "417cd20f4d9f8884b1472fd3adef59b230de87d0381e83f692e6f3f1875f8532",
+          "deletion": {
+            "attributes": [],
+            "error": null,
+            "physical_bytes_reclaimed": null,
+            "remaining": false,
+            "status": "deleted"
+          },
+          "group_status": "deleted",
+          "id": "a88a452f3f8b123dd3a93b69aba6f73e04a813fea402d1a60494b1c96e5e4896",
+          "lifecycle_group_id": "run:CM-01:host-35dac893",
+          "reason": "Explicit user cleanup; verified original fresh generated run scope, stopped failure1 preserved and required acceptance handed off.",
+          "remaining": false,
+          "status": "deleted",
+          "token": "f48adf1d43821915c87482b197d4dd14034a029057c83cfb94a53b92a86f3aa2"
+        }
+      ]
+    },
+    "finalize": {
+      "id": "run:CM-01:host-35dac893",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\3111d7ce1649028e36028afe928aa75928800b1b6c8e64e59a2bb5bf80d7d83b.json"
+    },
+    "status": "finalized"
+  }
+]

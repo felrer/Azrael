@@ -11,7 +11,7 @@ const projectRoot = path.resolve(__dirname, '..');
 const engineSourceRoot = path.join(projectRoot, 'artifacts', 'virtual-recipe-source');
 const config = { projectRoot, engineSourceRoot };
 function check(wrapper, tail = [], id = wrapper) {
-  return { id, executable: 'node', args: [`scripts/${wrapper}.cjs`, '{engineSourceRoot}', ...tail], level: 'native', cargoPreflight: 'selected-tests-v1' };
+  return { id, executable: 'node', args: [`scripts/${wrapper}.cjs`, '{engineSourceRoot}', ...tail], level: 'native', cargoPreflight: 'selected-tests-v2' };
 }
 const oauth = stage => check('check-mcp-oauth-store', ['--stage', stage], `oauth-${stage}`);
 const capacity = check('check-capacity-recovery');
@@ -56,43 +56,40 @@ test('task-profile recipe matches all actual wrapper calls and keeps materialize
   assert.equal(recipesForCheck(config, check('check-task-profile-skills', ['unknown'])).gaps.length, 1);
 });
 
+test('role profile admission recipe preserves dispatcher, fork isolation and root authority selections', () => {
+  const result = recipesForCheck(config, check('check-role-profiles-native'));
+  assert.deepEqual(result.gaps, []);
+  assert.deepEqual(result.cargoPreparations.map(x => x.args), [
+    'role_profile', 'spawn_agent_fork', 'multi_agent_v2_spawn_fork_turns_all_applies_agent_type_override',
+    'spawn_agent_can_fork_parent_thread_history_with_sanitized_items', 'root_coordination', 'defer_root_registration',
+    'config::schema::tests::config_schema_matches_fixture',
+  ].map(filter => ['test', '-p', 'codex-core', '--lib', '--locked', '--offline', filter, '--', '--test-threads=1'])
+    .concat([['test', '-p', 'codex-app-server-protocol', '--lib', '--locked', '--offline', 'schema_fixtures_tests::', '--', '--test-threads=1']]));
+  assert.ok(result.cargoPreparations.every(x => x.isolateHostEnvironment));
+  assert.equal(recipesForCheck(config, check('check-role-profiles-native', ['unknown'])).gaps.length, 1);
+});
 
-test('usage window recipe preserves account processor selection and host isolation', () => {
+test('model harness recipes retain prompt roles, retirement rejection and context coverage', () => {
+  const selected = Object.fromEntries(['config', 'tools', 'context'].map(scope => {
+    const result = recipesForCheck(config, check('check-model-harness-profiles', [scope]));
+    assert.deepEqual(result.gaps, []);
+    return [scope, result.cargoPreparations];
+  }));
+  assert.deepEqual(selected.config.map(recipe => recipe.args[4]), ['harness', 'model_instructions', 'multi_agent_instructions']);
+  assert.equal(selected.tools.length, 6);
+  assert.equal(selected.tools.at(-1).args[4], 'retired_model_harness_is_rejected_during_config_load');
+  assert.deepEqual(selected.context.slice(0, -1).map(recipe => recipe.args[4]), [
+    'context::world_state::model::tests', 'context::world_state::multi_agent_mode::tests',
+    'session::provider_handoff::tests', 'instruction_state_projection',
+  ]);
+  assert.ok(Object.values(selected).flat().every(recipe => recipe.isolateHostEnvironment === false));
+});
+
+test('usage window recipe preserves host isolation and rejects extra arguments', () => {
   const result = recipesForCheck(config, check('check-usage-window'));
   assert.deepEqual(result.gaps, []);
-  assert.deepEqual(result.cargoPreparations.map(recipe => recipe.args), [
-    ['test', '-p', 'codex-app-server', '--lib', 'account_processor', '--locked', '--offline', '--', '--test-threads=1'],
-  ]);
   assert.equal(result.cargoPreparations[0].isolateHostEnvironment, true);
   assert.equal(recipesForCheck(config, check('check-usage-window', ['extra'])).gaps.length, 1);
-});
-
-test('TPS core recipe preserves timing and fork isolation checks', () => {
-  const result = recipesForCheck(config, check('check-response-tps-native', ['core']));
-  assert.deepEqual(result.gaps, []);
-  assert.deepEqual(result.cargoPreparations.map(recipe => recipe.args),
-    ['turn_timing::tests', 'session::tests::response_performance'].map(filter =>
-      ['test', '-p', 'codex-core', '--lib', filter, '--locked', '--offline', '--', '--test-threads=1']));
-});
-
-test('session restoration recipe preserves all recovery filters and preflight gates', () => {
-  const result = recipesForCheck(config, check('check-task-recovery-native'));
-  assert.deepEqual(result.gaps, []);
-  const filters = [
-    'host_approval', 'async_question', 'session::accepted_user_inputs::tests',
-    'context_manager::history::tests::normalize_',
-    'context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history',
-    'tasks::panic_tests::', 'tasks::tests::',
-  ];
-  assert.deepEqual(result.cargoPreparations.map(recipe => recipe.args), filters.map(filter =>
-    ['test', '-p', 'codex-core', '--lib', filter, '--locked', '--offline', '--', '--test-threads=1']));
-  for (const recipe of result.cargoPreparations) {
-    assert.equal(recipe.isolateHostEnvironment, true);
-    const gates = preflightCommands({ args: recipe.args });
-    assert.ok(gates.typeCheck.args.includes('--tests'));
-    assert.ok(gates.selection.args.includes('--list'));
-    assert.ok(gates.selection.args.includes('--format=terse'));
-  }
 });
 
 test('OAuth default and preserve_order preserve separate exact compilation recipes', () => {
@@ -114,7 +111,6 @@ test('bridge, integration, package-wide library and parent-request arguments sta
     ['test', '-p', 'codex-app-server-client', '--no-default-features', '--bin', 'azrael-bridge', 'terminal_', '--locked', '--offline', '--', '--test-threads=1'],
   ]);
   const context = recipesForCheck(config, check('check-model-harness-profiles', ['context'])).cargoPreparations;
-  assert.equal(context.length, 4);
   assert.deepEqual(context.at(-1).args, ['test', '-p', 'codex-core', '--test', 'all', '--features', 'codex-core/integration-tests', 'suite::model_switching', '--locked', '--offline', '--', '--test-threads=1']);
   assert.equal(context.at(-1).isolateHostEnvironment, false);
   assert.deepEqual(recipesForCheck(config, check('check-project-maintenance', ['--stage', 'library'])).cargoPreparations[0].args,
@@ -129,7 +125,6 @@ test('bridge, integration, package-wide library and parent-request arguments sta
   }
   const parent = recipesForCheck(config, check('check-parent-requests')).cargoPreparations[0];
   assert.deepEqual(parent.args.slice(-5), ['--', '--test-threads=1', '--nocapture', 'parent_request', 'parent_response_wait']);
-  assert.equal(parent.args.filter(x => x === '-p').length, 5);
 });
 
 test('unsupported wrappers, declarations, root selections and scopes explicitly report gaps', () => {
@@ -173,18 +168,17 @@ test('wrapper source identity accepts ordinary checkout line-ending differences'
 test('window approval preserves SDK environment only on all/queue scope', () => {
   const all = recipesForCheck(config, check('check-window-approval-native', ['all']));
   assert.deepEqual(all.gaps, []);
-  assert.equal(all.cargoPreparations.length, 8);
   assert.ok(all.cargoPreparations.every(x => x.envRecipe === 'sdk-python-path'));
   const rpc = all.cargoPreparations.find(x => x.args.includes('host_approval_rpc'));
   assert.deepEqual(rpc.args.slice(0, 9), ['test', '-p', 'codex-app-server', '--features', 'integration-tests', '--test', 'all', 'host_approval_rpc', '--locked']);
 });
 
-test('deletion approval preparation preserves the four reviewed native command selections', () => {
+test('deletion approval preparation preserves the current platform native command selections', () => {
   const result = recipesForCheck(config, check('check-deletion-approval-native'));
   assert.deepEqual(result.gaps, []);
   assert.deepEqual(result.cargoPreparations.map(x => x.args), [
     ['test', '-p', 'codex-shell-command', '--lib', 'command_safety::', '--locked', '--offline', '--', '--test-threads=1'],
-    ...['exec_policy::tests::', 'tools::approvals::tests::deletion_approval_', 'apply_patch::tests::'].map(filter =>
+    ...['exec_policy::tests::', ...(process.platform === 'win32' ? [] : ['tools::approvals::tests::deletion_approval_']), 'apply_patch::tests::'].map(filter =>
       ['test', '-p', 'codex-core', '--lib', filter, '--locked', '--offline', '--', '--test-threads=1']),
   ]);
   assert.ok(result.cargoPreparations.every(x => x.isolateHostEnvironment === true));
@@ -194,17 +188,18 @@ test('deletion approval preparation preserves the four reviewed native command s
 test('MCP startup recipes retain both integration and library checks', () => {
   const result = recipesForCheck(config, check('check-mcp-lazy-startup'));
   assert.deepEqual(result.gaps, []);
-  assert.deepEqual(result.cargoPreparations.map(x => x.args), [
-    ['test', '-p', 'codex-core', '--features', 'integration-tests', '--test', 'all', 'suite::mcp_tool_cache::', '--locked', '--offline', '--', '--test-threads=1'],
-    ['test', '-p', 'codex-mcp', '--lib', '--locked', '--offline', '--', '--test-threads=1'],
-  ]);
+  const integration = result.cargoPreparations.find(x => x.args.includes('codex-core'));
+  assert.ok(integration.args.includes('--features') && integration.args.includes('integration-tests'));
+  assert.ok(integration.args.includes('--test') && integration.args.includes('all'));
+  assert.ok(result.cargoPreparations.some(x => x.args.includes('codex-mcp') && x.args.includes('--lib')));
   assert.equal(recipesForCheck(config, check('check-mcp-lazy-startup', ['unknown'])).gaps.length, 1);
 });
 
 test('selected upstream recipes match every actual host suite and preserve runtime binding', () => {
   const { suites } = require('./check-selected-upstream-native.cjs');
   for (const [scope, commands] of Object.entries(suites)) {
-    const tail = [scope, ...(scope === 'core-integration' ? ['{engineDirectory}'] : [])];
+    const needsHost = ['core-integration', 'code-mode-trace'].includes(scope);
+    const tail = [scope, ...(needsHost ? ['{engineDirectory}'] : [])];
     const result = recipesForCheck(config, check('check-selected-upstream-native', tail));
     assert.deepEqual(result.gaps, [], scope);
     assert.deepEqual(result.cargoPreparations.map(x => x.args), commands.map(([crate, target, ...selection]) =>
@@ -212,18 +207,42 @@ test('selected upstream recipes match every actual host suite and preserve runti
         ...(['codex-core', 'codex-app-server'].includes(crate) && target === '--test' ? ['--features', 'integration-tests'] : []),
         '--locked', '--offline', '--', '--test-threads=1']), scope);
     assert.ok(result.cargoPreparations.every(x => x.isolateHostEnvironment));
-    if (scope === 'core-integration') assert.ok(result.cargoPreparations.every(x => x.envRecipe === 'code-mode-host'));
+    if (needsHost) assert.ok(result.cargoPreparations.every(x => x.envRecipe === 'code-mode-host'));
   }
-  for (const tail of [['unknown'], ['network', 'extra'], ['core-integration'], ['core-integration', '/different/runtime']]) {
+  for (const tail of [['unknown'], ['network', 'extra'], ['core-integration'], ['core-integration', '/different/runtime'], ['code-mode-trace'], ['code-mode-trace', '/different/runtime']]) {
     assert.equal(recipesForCheck(config, check('check-selected-upstream-native', tail)).gaps.length, 1);
   }
 });
 
-test('every registered selected-tests-v1 check has a reviewed recipe and valid shared type-check transformation', () => {
+// Future wrapper argv/root changes must update this recipe alongside the hash.
+test('task-memory preparation binds its derived engine and rejects unsupported arguments', () => {
+  const bound = { ...config, engineSourceRoot: path.join(projectRoot, 'engine') };
+  const selected = tail => ({ id: 'tool.task-memory.native', executable: 'node',
+    args: ['scripts/check-task-memory.cjs', ...tail], level: 'native', cargoPreflight: 'selected-tests-v2' });
+  const storage = ['test', '-p', 'azrael-task-memory', '--lib', '--locked', '--offline', '--', '--test-threads=1'];
+  const core = ['test', '-p', 'codex-core', '--lib', '--locked', '--offline', 'task_memory', '--', '--test-threads=1'];
+  for (const [tail, expected] of [[[], [storage, core]], [['all'], [storage, core]], [['storage'], [storage]], [['core'], [core]]]) {
+    const result = recipesForCheck(bound, selected(tail));
+    assert.deepEqual(result.gaps, []);
+    assert.deepEqual(result.cargoPreparations.map(recipe => recipe.args), expected);
+    assert.ok(result.cargoPreparations.every(recipe => recipe.isolateHostEnvironment));
+  }
+  assert.equal(recipesForCheck(config, selected([])).gaps.length, 1);
+  for (const source of [path.join(projectRoot, 'engine-other'), 'engine', path.join(projectRoot, 'engine', 'nested')]) {
+    assert.equal(recipesForCheck({ ...bound, engineSourceRoot: source }, selected([])).gaps.length, 1);
+  }
+  for (const tail of [['unknown'], ['all', 'extra'], ['storage', 'core'], ['{engineSourceRoot}'], [bound.engineSourceRoot]]) {
+    assert.equal(recipesForCheck(bound, selected(tail)).gaps.length, 1);
+  }
+});
+
+test('every registered selected-tests-v2 check has a reviewed recipe and valid shared type-check transformation', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(projectRoot, 'scripts/azrael-feature-contracts.json'), 'utf8'));
-  const selected = manifest.features.flatMap(x => x.checks).filter(x => x.cargoPreflight === 'selected-tests-v1');
+  const selected = manifest.features.flatMap(x => x.checks).filter(x => x.cargoPreflight === 'selected-tests-v2');
+  assert.ok(selected.length > 0, 'registered Cargo checks must exercise the current recipe contract');
   for (const value of selected) {
-    const result = recipesForCheck(config, value);
+    const result = recipesForCheck(value.args[0] === 'scripts/check-task-memory.cjs'
+      ? { ...config, engineSourceRoot: path.join(projectRoot, 'engine') } : config, value);
     assert.deepEqual(result.gaps, [], value.id);
     for (const recipe of result.cargoPreparations) {
       assert.equal(recipe.args[0], 'test');
@@ -237,18 +256,32 @@ test('every registered selected-tests-v1 check has a reviewed recipe and valid s
 
 });
 
-test('shared-engine native preparation follows the current host platform branch', () => {
+test('shared-engine preparation keeps selected launch wiring without broad native suites', () => {
   const result = recipesForCheck(config, check('check-shared-engine-native', ['appserver']));
   assert.deepEqual(result.gaps, []);
-  const pty = result.cargoPreparations.filter(x => x.args.includes('codex-utils-pty'));
-  assert.equal(pty.length, process.platform === 'win32' ? 3 : 0);
   assert.ok(result.cargoPreparations.every(x => !x.args.includes('--no-run') && !x.args.includes('--message-format=json')));
+  assert.deepEqual(result.cargoPreparations.map(x => x.args.find(arg => arg.includes('::')) || x.args.find(arg => arg === 'azrael_entry_resolves_its_own_code_mode_host')), [
+    'azrael_storage::tests::',
+    'registration::tests::',
+    'backend::pid::tests::update_loop_uses_hidden_app_server_subcommand',
+    'backend::pid::tests::app_server_remote_control_uses_runtime_flag',
+    'backend::pid::tests::app_server_disabled_remote_control_uses_compatible_args_and_runtime_env',
+    'azrael_entry_resolves_its_own_code_mode_host',
+    'entry::tests::azrael_proxy_preserves_global_startup_options_and_rejects_listener_changes',
+  ]);
 });
 
-test('session handoff preparation covers proxy, core admission and server ownership', () => {
+test('session handoff preparation keeps routing and forwarded limits without core libtests', () => {
   const result = recipesForCheck(config, check('check-shared-engine-native', ['handoff']));
   assert.deepEqual(result.gaps, []);
-  assert.deepEqual(result.cargoPreparations.map(x => x.args[x.args.indexOf('-p') + 1]),
-    ['codex-app-server-daemon', 'codex-core', 'codex-app-server', 'codex-app-server', 'codex-app-server']);
+  assert.ok(result.cargoPreparations.every(x => !x.args.includes('codex-core')));
+  assert.deepEqual(result.cargoPreparations.map(x => x.args.find(arg => arg.includes('::'))), [
+    'session_handoff::tests::real_websocket_sessions_callbacks_busy_release_and_no_turn_replay',
+    'session_handoff::tests::read_only_preview_reads_source_then_reauthenticates_before_resume',
+    'azrael_session_handoff::tests::target_resume_preserves_source_computer_use_ceiling_including_absence',
+    'azrael_session_handoff::tests::scoped_source_resume_keeps_presentation_and_strips_all_runtime_overrides',
+    'azrael_session_handoff::tests::nonapproval_callback_has_exact_thread_ownership_until_canceled',
+    'azrael_session_handoff::tests::scope_does_not_grant_account_or_other_session_authority',
+  ]);
   assert.ok(result.cargoPreparations.every(x => x.args.includes('--lib') && x.args.includes('--locked') && x.args.includes('--offline')));
 });

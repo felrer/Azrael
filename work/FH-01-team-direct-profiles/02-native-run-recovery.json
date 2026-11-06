@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "run_id": "run-42784-5024-1793612610236148400",
+  "additional_run_id": "run-42784-5033-1793613041133510700",
+  "repeat_attempt_observation": "The second attempt also has no recorded execution session or producer lifecycle. A fresh Windows query found no exact wrapper, Cargo or rustc created since the first attempt. It did find maintenance_owner PID 39256, whose actual parent PID 50204 executes work/FG-01-standalone-app-ui-research/cleanup-early.cjs; this is an unrelated concurrent cleanup and was preserved. Node PID 44476 was identified as the installed window-control-mcp.cjs service. Neither process belongs to the native test step.",
+  "scope": "Exact role-profiles-native step producer and descendant execution",
+  "observed_at_utc": "2026-11-02T09:50:15.007Z",
+  "observations": [
+    "Native run status is unknown with exit_code null and no native execution session or execution_output recorded; do not treat as passed.",
+    "Current producer lifecycle catalog has no record owned by scripts/check-role-profiles-native.cjs.",
+    "The exact wrapper calls beginArtifactRun before source preparation or invoking any Cargo subprocess. No Cargo can start without that owned lifecycle.",
+    "Windows Win32_Process inspected all node/cargo/rustc/maintenance_owner created since run start. No exact wrapper command, Cargo, rustc or maintenance_owner process is present. One unrelated node process (44476, parent 42784, created 2026-11-02T09:49:30.2710670Z) did not match the wrapper command.",
+    "No test or compilation outcome is asserted. Recovery releases only unresolved producer protection; the original unknown outcome must remain."
+  ],
+  "producer_stopped_verified": true
+}

@@ -1,0 +1,51 @@
+{
+  "completedUtc": "2026-10-22T02:24:26.481Z",
+  "outcome": "success",
+  "nativeExitCode": 0,
+  "nativeChecks": 114,
+  "fixtureExitCode": 0,
+  "fixtureChecks": 24,
+  "producerStopEvidence": "Unified native session 6689 and fixture session 52107 terminated with exit0; fixture validates native daemon, proxy, exec-child and code-host lifetimes before removing its owned profile.",
+  "inputs": {
+    "completedUtc": "2026-10-22T02:22:28.938Z",
+    "sha256": "a3fb9d46b6a952e609eae940718c4ed2fb68341131ebf82dda500f571ced1722",
+    "frozenInputsUnchanged": true,
+    "ownedEngineSourceMatchesFrozen": [
+      "engine/codex-rs/app-server-daemon/src/azrael.rs",
+      "engine/codex-rs/app-server-daemon/src/azrael_lifecycle.rs",
+      "engine/codex-rs/app-server-daemon/src/backend/pid.rs",
+      "engine/codex-rs/app-server-daemon/src/backend/pid_tests.rs",
+      "engine/codex-rs/app-server-daemon/src/lib.rs",
+      "engine/codex-rs/app-server/src/azrael_shared_server.rs",
+      "engine/codex-rs/app-server/src/azrael_shared_server/tests.rs",
+      "engine/codex-rs/app-server/src/azrael_shutdown.rs",
+      "engine/codex-rs/app-server/src/lib.rs",
+      "engine/codex-rs/app-server/src/main.rs"
+    ],
+    "concurrentSharedFiles": [
+      {
+        "path": "scripts/azrael-feature-contracts.json",
+        "frozenSha256": "fecb75d695018acf58e82c5538773cbfd4e8a41977b609eab46d47092e809d6b",
+        "currentSha256": "1753380f738138551168e56b7f591ad497a6fa4ac60350a68125c78926c33ec7"
+      },
+      {
+        "path": "scripts/cargo-preflight-recipes.cjs",
+        "frozenSha256": "1d008f41a3212a29d9b20bf14ef3d539010271d2bc2466aa7e2f3f17203ec075",
+        "currentSha256": "ac87ca303a677ed3c9f3e8e74660ee0818ec9c2f9b65950b5f6931c8a3586a32"
+      },
+      {
+        "path": "scripts/check-shared-engine-native.cjs",
+        "frozenSha256": "3f043e2b6d2f1c6feca0abd1cf3ddd1f94eac6ba803fb41cf8c9d6969e1980d0",
+        "currentSha256": "4253a0f992d147cd24c611eb3e4a1e6010401d7b7b0eb7f5b6058b13b50818e7"
+      },
+      {
+        "path": "scripts/test-cargo-verification.cjs",
+        "frozenSha256": "415a97db2ac002c524ffd52f725554cb8f0e13bde5e04417740295f26aa07a32",
+        "currentSha256": "ad3ea044ae9cc75863dd2d17cc8e421f645abc275ecd7cbf3ceb0d4bd72e75f9"
+      }
+    ],
+    "scope": "Native and process fixture receipts bind the unchanged frozen source. Concurrent extension owner and bridge verification changes remain outside this task commit.",
+    "fixtureRemoved": true
+  },
+  "retention": "Retain exact inputs and verification evidence until imported inventory is reconciled and independent version verification replaces this run."
+}

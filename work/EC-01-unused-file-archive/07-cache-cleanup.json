@@ -1,0 +1,262 @@
+{
+  "started": "2026-10-29T23:41:31.508Z",
+  "platform": "Windows x64",
+  "owner": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-9bc66314-win-x64-ec01-unknown-recovery\\payload\\maintenance_owner.exe",
+  "existingInventory": {
+    "groups": [
+      {
+        "cached_live_members": 0,
+        "cleanup_status": "deleted",
+        "id": "run:DW-01:module-cache-two-20261026T041333698Z",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "5420ee213af244bf358db463ae77890a59348c9a60b49c23cea58ec1e53a8fce",
+        "owner": "module-cache-preflight-timing",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\261e3a2cb4d58ba14ece363748ea7615ed145a3183a18cf2e926e416d1838eac.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": "deferred",
+        "id": "run:module-cache-management-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "dda9b0e09aadf062efe8fd27505106229b2241e446de3b0df016118a26a0790b",
+        "owner": "module-cache-tests",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9374e09d733ebb80809f28bcaa037b7d4d59de25b341d12902bb18c30bbdb475.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "cache_schema": null,
+        "cleanup_status": "deleted",
+        "created_at_ms": null,
+        "due_for_review": false,
+        "generated": true,
+        "id": "64ca36af8abeeb4137b9723b5a22de129b0d47ca60960cf3561ea63e9b936834",
+        "identity": "2287efb87aa73a833a9ce8da6ec4cb0582bc65f1894c726a6812592a9916b471",
+        "kind": "task-cargo-cache",
+        "lifecycle_group_id": "work:DW14:pty-unmanaged-cache-r3",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 0,
+        "measured_at_ms": 1793044797460,
+        "owner": "DW14-pty-preflight",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f28dee3e78ca6c5ba24bdcce43d7604b481585913649949606192a81fe9aec47.json",
+        "references": [],
+        "registered_at_ms": 1793044797460,
+        "remaining": false,
+        "review_reasons": [],
+        "role": "task-cargo-cache",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      },
+      {
+        "cache_schema": null,
+        "cleanup_status": "deleted",
+        "created_at_ms": null,
+        "due_for_review": false,
+        "generated": true,
+        "id": "b098230d896e14e36b5f9ea639460b2baa6de913f13bb2610b77dc3a166af057",
+        "identity": "f347d5c20533936a029f115cdfb25dae1a27ea45141e13d3dd3992e9f9d9f299",
+        "kind": "cargo-cache",
+        "lifecycle_group_id": "shared:cargo-target:767a0bd40eb21b533766daef7d1417fd865a52fdc30c559598002b3956549884",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 0,
+        "measured_at_ms": 1792912312730,
+        "owner": "cargo-shared-cache",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\767a0bd40eb21b533766daef7d1417fd865a52fdc30c559598002b3956549884",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\73e6e85fc7c711754b961d3d03235e9a9daa13b824ef44cca59cf1bb82ce372a.json",
+        "references": [],
+        "registered_at_ms": 1792912312730,
+        "remaining": false,
+        "review_reasons": [],
+        "role": "cargo-cache",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  },
+  "providerResult": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-provider-cleanup.json",
+    "status": "deleted",
+    "elapsedSeconds": 26.095,
+    "executionObservation": {
+      "exitCode": 0,
+      "sessionId": 65714,
+      "terminalObserved": true,
+      "supportClients": "Existing Invoke-ArtifactLifecycleCleanup waits for support client exit zero before finalize; both finalized",
+      "observedUtc": "2026-10-29T23:50:33.670Z"
+    },
+    "finalAbsence": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+        "exists": false
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17\\artifacts\\cache\\modules\\providers\\96f3e1ea9d75ece8708f2d9f38098344bbb8833b2692e6daa22e763e01e8655b",
+        "exists": false
+      }
+    ],
+    "logicalBytes": null,
+    "physicalBytesReclaimed": null,
+    "evidence_sha256": "5a4fd63a803ae48aa430524f92cfd6cb1c5761ba90a73c49449ad4a0b258f529"
+  },
+  "missingWorkspaceInvestigation": {
+    "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\u",
+    "projectAbsent": true,
+    "knownRegisteredProjects": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\o",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\p",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\q",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\u"
+    ],
+    "originalConsumerEvidence": "not found within root catalog 667 records and specified EC-01/DW-01 work records; absence outside those scopes not claimed",
+    "basis": [
+      "work/EC-01-unused-file-archive/05-plan.md:73",
+      "scripts/build-module-cache.ps1:327-334"
+    ],
+    "status": "blocked; original unknown not changed"
+  },
+  "remainingModuleCaches": [
+    {
+      "project": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "id": "run:module-cache:providers:3937acf385a2dc75b8a55e8a00caa337e05288f697888efde6139372bd696ecb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\providers\\3937acf385a2dc75b8a55e8a00caa337e05288f697888efde6139372bd696ecb",
+      "state": "complete",
+      "membership_complete": true,
+      "consumers": []
+    },
+    {
+      "project": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "id": "run:module-cache:companion:295ef0a4815c53d1d96aea502526dc5fdece42e5a283df5e1eb9e35af0b779ec",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\295ef0a4815c53d1d96aea502526dc5fdece42e5a283df5e1eb9e35af0b779ec",
+      "state": "complete",
+      "membership_complete": true,
+      "consumers": []
+    },
+    {
+      "project": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "id": "run:module-cache:providers:e910475a9c18e9880560d937dad0860d010ec64844225d2d8e8654e6a794fecc",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\providers\\e910475a9c18e9880560d937dad0860d010ec64844225d2d8e8654e6a794fecc",
+      "state": "complete",
+      "membership_complete": true,
+      "consumers": []
+    },
+    {
+      "project": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "id": "run:module-cache:companion:89cb2600dc4d48882cda7f4729f52887a6a1af266d24e25a92d0d1b078ef6ffb",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\89cb2600dc4d48882cda7f4729f52887a6a1af266d24e25a92d0d1b078ef6ffb",
+      "state": "complete",
+      "membership_complete": true,
+      "consumers": []
+    },
+    {
+      "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15",
+      "id": "run:module-cache:companion:c27a9937f48506b1d0c294dbcd52525151d3ce48c2f4028ed08e823f67f01e82",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15\\artifacts\\cache\\modules\\companion\\c27a9937f48506b1d0c294dbcd52525151d3ce48c2f4028ed08e823f67f01e82",
+      "state": "complete",
+      "membership_complete": true,
+      "consumers": [
+        {
+          "id": "version:ec01-014-r7",
+          "state": "failed",
+          "references": [
+            {
+              "kind": "dependency",
+              "reason": "companion-tool"
+            }
+          ]
+        },
+        {
+          "id": "version:ec01-014-r5",
+          "state": "failed",
+          "references": [
+            {
+              "kind": "dependency",
+              "reason": "companion-tool"
+            }
+          ]
+        },
+        {
+          "id": "version:ec01-014-r4",
+          "state": "failed",
+          "references": [
+            {
+              "kind": "dependency",
+              "reason": "companion-tool"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17",
+      "id": "run:module-cache:companion:c27a9937f48506b1d0c294dbcd52525151d3ce48c2f4028ed08e823f67f01e82",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w17\\artifacts\\cache\\modules\\companion\\c27a9937f48506b1d0c294dbcd52525151d3ce48c2f4028ed08e823f67f01e82",
+      "state": "complete",
+      "membership_complete": true,
+      "consumers": [
+        {
+          "id": "version:ec01-014-r11",
+          "state": "pending",
+          "references": [
+            {
+              "kind": "dependency",
+              "reason": "companion-tool"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "remainingModuleCachesCount": 6,
+  "recordedAt": "2026-10-29T23:51:59.042Z",
+  "primaryOwnerCheck": {
+    "exitCode": 0,
+    "result": {
+      "reason": "Missing registered cache project: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\u",
+      "status": "blocked"
+    }
+  },
+  "originalSessionInspection": {
+    "thread": "01a182f8-ea9f-7991-86d1-543ab6bd1a78",
+    "rolloutsInspected": 3,
+    "evidence": "2026/10/28 rollout line149 records move of workspaces/u into archive/ec01-executor-013-archive-r1/workspaces/u; neither original nor archived project exists now. No complete original consumer index recovered from the scoped rollout inspection.",
+    "archiveProjectAbsent": true
+  },
+  "failedCompanionConsumers": {
+    "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w15",
+    "versions": [
+      "ec01-014-r4",
+      "ec01-014-r5",
+      "ec01-014-r7"
+    ],
+    "status": "protected; companion-tool references not released",
+    "reason": "Terminal failure/cancellation metrics exist, but scoped retained evidence does not independently establish complete process-tree termination. No failed or unknown state was promoted.",
+    "evidence": [
+      "artifacts/w15/artifacts/logs/deploy-ec01-014-r4/deployment-metrics.json",
+      "artifacts/w15/artifacts/logs/deploy-ec01-014-r5/deployment-metrics.json",
+      "artifacts/w15/artifacts/logs/deploy-ec01-014-r7/deployment-metrics.json"
+    ]
+  },
+  "status": "partial; two exact caches deleted, six protected module caches remain",
+  "taskOwnedTemporaryRequestsRemaining": [],
+  "productCodeChanged": false,
+  "closedAt": "2026-10-29T23:55:13.108Z"
+}

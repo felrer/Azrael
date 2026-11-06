@@ -1,0 +1,82 @@
+{
+  "proof": {
+    "schema": 1,
+    "id": "work:archive-delete-20261101-r1",
+    "source": {
+      "created_at": "2026-11-01T12:26:41.164Z",
+      "id": "work:archive-delete-20261101-r1",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1",
+          "protection_known": true,
+          "role": "reports"
+        }
+      ],
+      "membership_complete": false,
+      "owner": "cleanup-resumption-20261101",
+      "references": [],
+      "revision": 1,
+      "schema": 1,
+      "state": "pending",
+      "updated_at": "2026-11-01T12:26:41.165Z",
+      "version": null
+    },
+    "observed_at": "2026-11-01T15:30:07.972Z",
+    "producer_stopped_verified": true,
+    "membership_complete_verified": true,
+    "observed_final_controller": {
+      "work_id": "f590585f-ccd4-4e35-95c7-e39937f8f679",
+      "session_id": 11710,
+      "exit_code": 1,
+      "ended_at": "2026-11-01T15:28:23.464Z"
+    },
+    "other_owned_controllers": "All current task primary controllers ended with observed terminal results; no detached producer was launched. Interim failures and retries remain in the independent work record.",
+    "outcome": "failure",
+    "reason": "This control work stage has ended with actual controller exit1 because four protected junction groups remain; completed groups keep their observed native exit0. Closing this stage does not complete the user task or make blocked groups deletable.",
+    "handoff": {
+      "archive_summary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-archive-final-summary.json",
+      "primary_summary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-primary-final-summary.json",
+      "junction_evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-junction-evidence"
+    },
+    "purpose": "Minimal durable owner control evidence for cleanup of disposable scripts/duplicate command logs; original archive operation proofs remain outside this group for the four protected archive consumers."
+  },
+  "proof_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\stage-closeout.json",
+  "proof_sha256": "2f046c7cb9d80f768a2f61434a311d576157323d262a496d88b388c84b36cd24",
+  "closed": {
+    "created_at": "2026-11-01T12:26:41.164Z",
+    "id": "work:archive-delete-20261101-r1",
+    "kind": "work",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\control\\delete-20261101-r1",
+        "protection_known": true,
+        "role": "reports"
+      }
+    ],
+    "membership_complete": true,
+    "owner": "cleanup-resumption-20261101",
+    "references": [],
+    "revision": 2,
+    "schema": 1,
+    "state": "failed",
+    "updated_at": "2026-11-01T15:30:08.065Z",
+    "version": null,
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\stage-closeout.json",
+      "evidence_sha256": "2f046c7cb9d80f768a2f61434a311d576157323d262a496d88b388c84b36cd24",
+      "reason": "This control work stage has ended with actual controller exit1 because four protected junction groups remain; completed groups keep their observed native exit0. Closing this stage does not complete the user task or make blocked groups deletable."
+    },
+    "close_receipt": {
+      "request_sha256": "d584eec2657b878d6ff97a2119766de4f84ba422c4a0ce42ddba75379418817f",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\archive\\EU01-install-014-20261101\\artifacts\\maintenance\\evidence\\EC-01-control-cleanup\\stage-closeout.json",
+      "evidence_sha256": "2f046c7cb9d80f768a2f61434a311d576157323d262a496d88b388c84b36cd24",
+      "reason": "This control work stage has ended with actual controller exit1 because four protected junction groups remain; completed groups keep their observed native exit0. Closing this stage does not complete the user task or make blocked groups deletable."
+    }
+  }
+}

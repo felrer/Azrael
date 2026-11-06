@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "status": "raw-native-final-b-deleted",
+  "createdUtc": "2026-10-31T04:03:23.433Z",
+  "projectRoot": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e",
+  "sourceId": "run:ET-01-cold-build-cache-audit:q-native-final-20261031b",
+  "independentInstalledEvidence": {
+    "directory": "C:/Users/felre/Desktop/pi-harness-init/artifacts/e/artifacts/q/artifacts/deployments/independent-20261031-120052-838/verification",
+    "verifiedNativeCopies": 10,
+    "nativeReceiptSha256": "aa2617bce5d191b413e94ba2c4a18cd3c99ed0bbd6544f7c26c53a8f4a11cbf2"
+  },
+  "referenceRelease": {
+    "id": "ae26730c2f5cb833a920cb29750a74be3f1ceb97a7de67d283bd7b4e5ac5fc64",
+    "revision": 16,
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\acceptance-index.json",
+    "evidence_sha256": "d948de6e3b8de67d8c86406f40e8c505f27d67d8d57bfc084035f0f6825a3d37"
+  },
+  "review": [
+    {
+      "id": "8a111fd93e243cf18100abbd014250df8c0be49b5df793809449bea689caad17",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b",
+      "token": "765010ea6184b6fd75bb27e84d4a633f2156e87b2b302fce8816fb2bfb29f6b8",
+      "blockers": [],
+      "logicalBytes": 189243,
+      "verification": "registered"
+    }
+  ],
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:ET-01-cold-build-cache-audit:q-native-final-20261031b",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-50820-108-1793419386447",
+        "decision": "delete",
+        "decision_id": "191ae4a7dedf3d272525c9c2b4f1c170118f911833e233fd9a719551a1aefb55",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "8a111fd93e243cf18100abbd014250df8c0be49b5df793809449bea689caad17",
+        "lifecycle_group_id": "run:ET-01-cold-build-cache-audit:q-native-final-20261031b",
+        "reason": "Installed profile holds independently verified native receipt and required logs; raw run has no remaining consumer",
+        "remaining": false,
+        "status": "deleted",
+        "token": "765010ea6184b6fd75bb27e84d4a633f2156e87b2b302fce8816fb2bfb29f6b8"
+      }
+    ]
+  },
+  "sourceFinalizationPending": false,
+  "finalization": {
+    "id": "run:ET-01-cold-build-cache-audit:q-native-final-20261031b",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\maintenance\\lifecycles\\e9b46115c00d79a35ae4e6e9be5a7a85591e0ed7eedcb3ef6b5d972cec23f8e9.json"
+  },
+  "sourceAbsent": true,
+  "rootAbsent": true
+}

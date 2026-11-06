@@ -1,0 +1,47 @@
+{
+  "started": "2026-11-02T10:03:02.455Z",
+  "status": "failed",
+  "prior_attempt": "24-storage-cleanup.json",
+  "ids": [
+    "run:ff1:storage3",
+    "version:maintenance-owner:ff01:queued-20261102",
+    "version:maintenance-owner:ff01:perf-20261102"
+  ],
+  "stages": [
+    {
+      "name": "refresh-storage-run",
+      "request": {
+        "operation": "register",
+        "refresh_group": {
+          "id": "run:ff1:storage3"
+        }
+      },
+      "started": "2026-11-02T10:03:02.457Z",
+      "exit_code": 1,
+      "signal": null,
+      "pid": 48844,
+      "close_observed": true,
+      "wall_ms": 63.1927,
+      "finished": "2026-11-02T10:03:02.523Z",
+      "stdout": "",
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock (maintenance)\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts/maintenance\\\\maintenance.lock\",\"owner\":null,\"retryable\":true}",
+      "spans_aggregate": [
+        {
+          "event": "maintenance.lock_wait",
+          "operation": "wait_for_lock",
+          "outcome": "busy",
+          "count": 1,
+          "elapsed_us_sum": 7892
+        },
+        {
+          "count": 1,
+          "elapsed_us_sum": 0
+        }
+      ]
+    }
+  ],
+  "finalizations": [],
+  "error": "Error: refresh-storage-run exit 1\n    at req ([stdin]:2:1065)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async [stdin]:3:19",
+  "finished": "2026-11-02T10:03:02.524Z",
+  "evidence_compaction": "Raw timing events aggregated by event/operation/outcome; actual close exits, complete native apply results, first causal errors and review identities/tokens preserved. No overlapping span sums treated as wall decomposition."
+}

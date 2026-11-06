@@ -1,0 +1,81 @@
+{
+  "at": "2026-11-02T13:34:34.192Z",
+  "status": "complete",
+  "scope": "Detailed latest-member measurement; Windows x64 standalone fixture; no optimization or installation",
+  "authoritative_analysis": "60-member-detail-analysis.json",
+  "native_tests": {
+    "focused": 97,
+    "full": 253,
+    "actual_exit_code": 0,
+    "release_exit_code": 0
+  },
+  "accepted_measurement_sha256": "656aec26f1096ee6b62be6bf17dfd5d1a469267e56dd3cd5a1f2943b016a1956",
+  "source_files": 44,
+  "current_source_changes_since_accepted": [],
+  "measurement": {
+    "actual_native_closes": 9,
+    "all_exit0": true,
+    "member_count": 80,
+    "current_review_count": 80,
+    "state_commits": 160,
+    "durable_deleted_absent_noPending": true,
+    "detailed_member_seconds": 54.152173,
+    "metadata_seconds": 49.404183,
+    "ancestor_seconds": 45.1442,
+    "ancestor_calls": 329280,
+    "token_seconds": 0.035175
+  },
+  "limitations": [
+    "Host/order confounds prevent estimating detail overhead or comparing absolute times with prior optimization round.",
+    "Nested times overlap.",
+    "Ancestor path preparation and OS query/fallback not separately timed.",
+    "Fixture permission callback timings do not establish embedded app permission latency."
+  ],
+  "default_installation": {
+    "unchanged": true,
+    "version_id": "version:maintenance-owner:ff01:group-20261102",
+    "sha256": "31cbf0c24ae42b3d783b7fe299d5168cd0f2f29323842c144d0761222edfdc89",
+    "pins_identical": true
+  },
+  "cleanup": {
+    "run": "run:ff1:member6",
+    "status": "deleted and finalized",
+    "logical_bytes": 1179447188,
+    "actual_remaining": false,
+    "pending_retention": []
+  },
+  "commit": {
+    "created": false,
+    "reason": "Affected files include prior/shared changes and timing.rs already has another task staged addition. Preserve current index; task-only complete commit cannot be safely separated."
+  },
+  "evidence": [
+    {
+      "path": "53-member-detail-native-acceptance.json",
+      "sha256": "e3bad8c41ea2b6a92a51488aecc1145ebeded8632a24c3f0bd6f2f27e74a4003"
+    },
+    {
+      "path": "54-member-detail-measurement.json",
+      "sha256": "5a1d8991ef17f982cf15660771844d4c73ae1d9f99e72175cd9b9c5884d81584"
+    },
+    {
+      "path": "55-member-detail-run-close-proof.json",
+      "sha256": "55755ecfb28fa706978beb595a92a0465ac71321e28cda845287f40d181d3d51"
+    },
+    {
+      "path": "56-member-detail-cleanup.json",
+      "sha256": "93b425bca3ba9c9dcac07fdcbc48055d3f25ede7ae6595714f938f2416448622"
+    },
+    {
+      "path": "58-member-detail-retirement-evidence.json",
+      "sha256": "b812006a219426a9f012b2efc9704a986902c84573586c85c21b501e960e9d48"
+    },
+    {
+      "path": "59-member-detail-host-observation.json",
+      "sha256": "f89dee69301b5ed181b0c83d20a6db0a25961c77cd9b6cec79ad457bf961e705"
+    },
+    {
+      "path": "60-member-detail-analysis.json",
+      "sha256": "59f382cc18410a69a396200aea3d03fba419e53915b3e909828dc37c7c0e3f59"
+    }
+  ]
+}

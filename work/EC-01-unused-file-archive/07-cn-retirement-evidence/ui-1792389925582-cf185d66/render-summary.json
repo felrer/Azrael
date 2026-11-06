@@ -1,0 +1,24 @@
+{
+  "scope": "Windows x64, actual local browser UI + HTTP/files, synthetic data",
+  "startedAt": "2026-10-19T06:05:26.683Z",
+  "checks": [
+    "initial dummy cards and separate list/card modules load",
+    "folder/list rows contain one full-width button and no ellipsis or arrow controls",
+    "actual pointer selects a card for inspector",
+    "clicking selected card again clears outline, pressed state, count and inspector",
+    "ordinary card clicks add multiple selections with outlines and no checkboxes",
+    "clicking a selected card removes only that card from multi-selection",
+    "bulk selection button adds visible cards while keeping hidden selections",
+    "bulk deselection button preserves hidden selections"
+  ],
+  "firstReadyMs": 148,
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: last selected card can be cleared by ordinary click\n    at check (file:///C:/Users/felre/Desktop/pi-harness-init/docs/boards/tests/catalog-render.mjs:12:40)\n    at file:///C:/Users/felre/Desktop/pi-harness-init/docs/boards/tests/catalog-render.mjs:69:3",
+  "browserErrors": [],
+  "browserExit": {
+    "pid": 8928,
+    "exitCode": 0,
+    "signalCode": null
+  },
+  "endedAt": "2026-10-19T06:05:27.912Z"
+}

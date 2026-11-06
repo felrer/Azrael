@@ -1,0 +1,197 @@
+{
+  "start": "2026-11-02T01:42:20.661Z",
+  "request_transport": "stdin; no request or raw result files created under management",
+  "calls": [
+    {
+      "operation": "inventory",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "inventory",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "inventory",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "inventory",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "inventory",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "register",
+      "group": "run:FC02:request-transport-r1",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "review",
+      "group": [
+        "run:FC02:request-transport-r1"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "apply",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "register",
+      "group": "version:maintenance-owner:fc01:os33-20261102",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "review",
+      "group": [
+        "version:maintenance-owner:fc01:os33-20261102"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    },
+    {
+      "operation": "apply",
+      "exit_code": 0,
+      "signal": null,
+      "error": null
+    }
+  ],
+  "groups": [
+    {
+      "id": "run:FC02:request-transport-r1",
+      "items": [
+        {
+          "id": "5c5ecfde926c7d2e474ccd549f7eee16542263ad552b721f830629195face11d",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fc02\\r1",
+          "logical_bytes": 924461834,
+          "blockers": []
+        }
+      ],
+      "apply": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:FC02:request-transport-r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-57268-4840-1793583842954",
+            "decision": "delete",
+            "decision_id": "723a1b76c5c569526529f87fcb39b38ef1a50d41c8be3b5ad417f7c19a8da09d",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "5c5ecfde926c7d2e474ccd549f7eee16542263ad552b721f830629195face11d",
+            "lifecycle_group_id": "run:FC02:request-transport-r1",
+            "reason": "Corrected request-storage default accepted; previous standalone and temporary build inputs have no remaining consumers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "cf42b94a12f4561c5413c890c16fac60a3ab827b0c0eb758f09999fb3261a5d0"
+          }
+        ]
+      },
+      "finalize": {
+        "id": "run:FC02:request-transport-r1",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\04c04ea2135a5f1d104f9738e7662c31400aafd0b1973f74539fbc1f6bfe23e2.json"
+      }
+    },
+    {
+      "id": "version:maintenance-owner:fc01:os33-20261102",
+      "items": [
+        {
+          "id": "147864a185cb91f4c2f0aaef40acb4cd1be3270b24cca3299a224ad08f7db554",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc01-os33-win-x64-20261102",
+          "logical_bytes": 2601847,
+          "blockers": []
+        }
+      ],
+      "apply": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "version:maintenance-owner:fc01:os33-20261102",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-37936-4843-1793583960012",
+            "decision": "delete",
+            "decision_id": "2eccbe93331e7a4db7bc20024266d91e1d48904612ea556d3bb2fc77ce192f18",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "147864a185cb91f4c2f0aaef40acb4cd1be3270b24cca3299a224ad08f7db554",
+            "lifecycle_group_id": "version:maintenance-owner:fc01:os33-20261102",
+            "reason": "Corrected request-storage default accepted; previous standalone and temporary build inputs have no remaining consumers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "068dbf0820503e6142e999af8a3e597e2de1ae3ea9ba8d90f77666fec1eaef37"
+          }
+        ]
+      },
+      "finalize": {
+        "id": "version:maintenance-owner:fc01:os33-20261102",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\529663506d45999eafc7fd4c44ac4b660e96e81f247abf9bc13c3f66e1fefedc.json"
+      }
+    }
+  ],
+  "status": "complete",
+  "end": "2026-11-02T01:46:07.510Z",
+  "logical_bytes": 927063681,
+  "final": {
+    "at": "2026-11-02T01:47:36.896Z",
+    "sha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+    "selector_sha256": "b9efa8429b00a77d5bf678708a1124fe953837dbbe2a9dc5d931f84f0c9c2754",
+    "installation_receipt_sha256": "b9efa8429b00a77d5bf678708a1124fe953837dbbe2a9dc5d931f84f0c9c2754",
+    "installation_revision": 20,
+    "stdin_capability": true,
+    "task_parent_absent": true,
+    "physical_bytes_reclaimed": null,
+    "remaining_cleanup_paths": [],
+    "disposable_request_files_created_under_management": 0
+  }
+}

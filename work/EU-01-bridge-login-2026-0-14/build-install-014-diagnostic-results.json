@@ -1,0 +1,182 @@
+{
+  "scope": "Superseded diagnostic outcomes; q compiler and u blocker evidence retained separately",
+  "diagnostics": [
+    {
+      "id": "run:EU01-install-014:native-validator-l",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\native-validator-l\\reports\\producer-997eacec98935ae5530081ccf9655c78c89e6e4648ee9083911482e99d0bdcf8.json",
+        "evidence_sha256": "997eacec98935ae5530081ccf9655c78c89e6e4648ee9083911482e99d0bdcf8",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "members": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\native-validator-l"
+      ],
+      "result": null
+    },
+    {
+      "id": "run:EU01-install-014:instruction-service-m",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\instruction-service-m\\reports\\producer-c5d22ed1b9378805e95aac5dd422e1a7f4a11dfb762cb6006730220507a10613.json",
+        "evidence_sha256": "c5d22ed1b9378805e95aac5dd422e1a7f4a11dfb762cb6006730220507a10613",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "members": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\instruction-service-m"
+      ],
+      "result": {
+        "code": 1,
+        "signal": null
+      }
+    },
+    {
+      "id": "run:EU01-install-014:instruction-service-n",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\instruction-service-n\\reports\\producer-82b6f7dadcaae26a0b8eb2df5d5ef378b4bd34b8be824f88419632fe05ea9004.json",
+        "evidence_sha256": "82b6f7dadcaae26a0b8eb2df5d5ef378b4bd34b8be824f88419632fe05ea9004",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "members": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\instruction-service-n",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\sn"
+      ],
+      "result": {
+        "code": 1,
+        "signal": null
+      }
+    },
+    {
+      "id": "run:EU01-install-014:extension-regression-o",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\extension-regression-o\\reports\\producer-b7f5fa46d031319ac2567cd8a91ff0282f976f349dd5d25a5a78093f54b90e57.json",
+        "evidence_sha256": "b7f5fa46d031319ac2567cd8a91ff0282f976f349dd5d25a5a78093f54b90e57",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "members": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\extension-regression-o",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wu14h\\artifacts\\so"
+      ],
+      "result": {
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 32406
+      }
+    },
+    {
+      "id": "run:EU01-install-014:checker-release-r",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-r\\reports\\producer-3ca433583206ea8d29a9e419ecc80e01aca86cf133efcf2ab0819bdb2d82997e.json",
+        "evidence_sha256": "3ca433583206ea8d29a9e419ecc80e01aca86cf133efcf2ab0819bdb2d82997e",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "members": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-r"
+      ],
+      "result": [
+        {
+          "label": "unit",
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1957,
+          "args": [
+            "--test",
+            "scripts/test-check-shared-engine.mjs",
+            "scripts/test-shared-engine-host.cjs"
+          ]
+        },
+        {
+          "label": "native",
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 3241,
+          "args": [
+            "scripts/check-shared-engine.mjs",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target\\x86_64-pc-windows-msvc\\release\\azrael.exe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-r\\outputs\\compatibility",
+            "--extended",
+            "--code-mode-child"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run:EU01-install-014:checker-release-s",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-s\\reports\\producer-a849dcd0095675fa4534922f88306774f0ae3f265ab08478ad60a6a88c8121ab.json",
+        "evidence_sha256": "a849dcd0095675fa4534922f88306774f0ae3f265ab08478ad60a6a88c8121ab",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "members": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-s",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14s"
+      ],
+      "result": {
+        "code": 1,
+        "signal": null,
+        "args": [
+          "scripts/check-shared-engine.mjs",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target\\x86_64-pc-windows-msvc\\release\\azrael.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-s\\outputs\\compatibility",
+          "--extended",
+          "--code-mode-child"
+        ]
+      }
+    },
+    {
+      "id": "run:EU01-install-014:checker-release-t",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-t\\reports\\producer-59522d18945efda8ed5a4fdccc614aa05c2491eb479bd31817dc63d366111378.json",
+        "evidence_sha256": "59522d18945efda8ed5a4fdccc614aa05c2491eb479bd31817dc63d366111378",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "members": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-t",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t"
+      ],
+      "result": [
+        {
+          "label": "unit",
+          "code": 0,
+          "signal": null,
+          "args": [
+            "--test",
+            "scripts/test-check-shared-engine.mjs",
+            "scripts/test-shared-engine-host.cjs"
+          ]
+        },
+        {
+          "label": "native",
+          "code": 1,
+          "signal": null,
+          "args": [
+            "scripts/check-shared-engine.mjs",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target\\x86_64-pc-windows-msvc\\release\\azrael.exe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-install-014\\runs\\checker-release-t\\outputs\\compatibility",
+            "--extended",
+            "--code-mode-child"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -6749,6 +6749,7 @@ session_picker_view = "dense"
             name: None,
             turns: vec![codex_app_server_protocol::Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: String::from("turn-1"),
                 root_turn_id: None,
@@ -6842,6 +6843,7 @@ session_picker_view = "dense"
             name: None,
             turns: vec![codex_app_server_protocol::Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: String::from("turn-1"),
                 root_turn_id: None,
@@ -6926,6 +6928,7 @@ session_picker_view = "dense"
             name: None,
             turns: vec![codex_app_server_protocol::Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: String::from("turn-1"),
                 root_turn_id: None,

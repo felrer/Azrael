@@ -1,0 +1,121 @@
+{
+  "recordedAt": "2026-11-02T06:48:12.784Z",
+  "platform": "Windows x64 / Chrome / Node; native product build and execution not verified",
+  "scope": "Development profile composer",
+  "tests": [
+    {
+      "id": "20261102T062326603Z-4298aee8-d678-4c36-95b4-97fde573bb14",
+      "startedAt": "2026-11-02T06:23:34.009Z",
+      "endedAt": "2026-11-02T06:23:54.046Z",
+      "exitCode": 1,
+      "signal": null,
+      "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T062326603Z-4298aee8-d678-4c36-95b4-97fde573bb14\\logs\\tests.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T062326603Z-4298aee8-d678-4c36-95b4-97fde573bb14",
+      "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T062326603Z-4298aee8-d678-4c36-95b4-97fde573bb14"
+    },
+    {
+      "id": "20261102T062559014Z-dc9abfbe-4604-4b1b-9768-4df29ea2b927",
+      "startedAt": "2026-11-02T06:26:07.528Z",
+      "endedAt": "2026-11-02T06:26:26.732Z",
+      "exitCode": 0,
+      "signal": null,
+      "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T062559014Z-dc9abfbe-4604-4b1b-9768-4df29ea2b927\\logs\\tests.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T062559014Z-dc9abfbe-4604-4b1b-9768-4df29ea2b927",
+      "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T062559014Z-dc9abfbe-4604-4b1b-9768-4df29ea2b927"
+    },
+    {
+      "id": "20261102T063145656Z-97b7746e-924b-404e-8f61-765738e9462d",
+      "startedAt": "2026-11-02T06:31:54.310Z",
+      "endedAt": "2026-11-02T06:32:17.696Z",
+      "exitCode": 0,
+      "signal": null,
+      "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T063145656Z-97b7746e-924b-404e-8f61-765738e9462d\\logs\\tests.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T063145656Z-97b7746e-924b-404e-8f61-765738e9462d",
+      "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T063145656Z-97b7746e-924b-404e-8f61-765738e9462d"
+    },
+    {
+      "id": "20261102T063339878Z-290906f9-d964-43ce-968d-a211eef2330d",
+      "startedAt": "2026-11-02T06:33:51.894Z",
+      "endedAt": "2026-11-02T06:34:13.703Z",
+      "exitCode": 0,
+      "signal": null,
+      "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T063339878Z-290906f9-d964-43ce-968d-a211eef2330d\\logs\\tests.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T063339878Z-290906f9-d964-43ce-968d-a211eef2330d",
+      "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T063339878Z-290906f9-d964-43ce-968d-a211eef2330d"
+    },
+    {
+      "id": "20261102T064027218Z-8578b3ef-a7ce-40e4-bc86-f5580c064702",
+      "startedAt": "2026-11-02T06:40:40.297Z",
+      "endedAt": "2026-11-02T06:41:02.446Z",
+      "exitCode": 0,
+      "signal": null,
+      "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T064027218Z-8578b3ef-a7ce-40e4-bc86-f5580c064702\\logs\\tests.log",
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T064027218Z-8578b3ef-a7ce-40e4-bc86-f5580c064702",
+      "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T064027218Z-8578b3ef-a7ce-40e4-bc86-f5580c064702"
+    }
+  ],
+  "finalTests": {
+    "pass": 49,
+    "fail": 0,
+    "exitCode": 0,
+    "run": "20261102T064027218Z-8578b3ef-a7ce-40e4-bc86-f5580c064702",
+    "postTestChange": "CLI help text only; node --check exit0"
+  },
+  "types": {
+    "scope": "types",
+    "startedAt": "2026-11-02T06:27:49.749Z",
+    "endedAt": "2026-11-02T06:27:52.319Z",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "extensions/azrael-ex/node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "--project",
+      "extensions/azrael-ex/tsconfig.json"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-898d0442\\logs\\types.log",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-898d0442",
+    "reusedValidator": null
+  },
+  "browser": {
+    "isolatedRun": "20261102T063532044Z-c768b27c-55be-42f2-b8ee-fdfceff07659",
+    "checks": [
+      "click-add instructions/skill/MCP",
+      "instruction reorder B before A",
+      "save does not activate",
+      "duplicate opens personal copy",
+      "invalid active save preserves last valid capture",
+      "default profile read-only/no save",
+      "native pointer drag skill to slot, selected count1",
+      "narrow viewport: one column and no document horizontal overflow",
+      "light and dark theme inspected"
+    ],
+    "realUserDataModified": false,
+    "isolatedStopExit": 0,
+    "mainAdapterStopExit": 0
+  },
+  "live": {
+    "run": "20261102T064601174Z-835f0d11-542a-44fc-ad43-fccfeea4e3b2",
+    "dataRun": "20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce",
+    "pid": 37880,
+    "url": "http://127.0.0.1:4318/",
+    "resources": 28,
+    "resourceErrors": [],
+    "userRetained": true
+  },
+  "sources": {
+    "scripts/instruction-workbench.cjs": "2ba029109e98bb2e28b41e5fc03a22954f5d4ad7700995705e0f564b302587bd",
+    "scripts/instruction-workbench-view.cjs": "3c43aa41bafa869f5088e4bba62cc8f719bf500d6f73f128ce2cac9cfb8e8f53",
+    "scripts/instruction-workbench-resources.cjs": "dacce68ad2546cc1039e28b35d1963a1ac07e71dfe037c1b4b108309269bbae0",
+    "scripts/serve-instruction-workbench.cjs": "f47bde660836f5dd6b2fa15cd2bc25eae7b086bd6737b62814d1464c142752c6",
+    "scripts/task-profile-runtime.cjs": "168b57f8a314e54c3e7cee4fdbbdf6ac3c063b36c6ecd14592c1e730a1184bd9",
+    "extensions/azrael-ex/src/instructionWorkbenchService.ts": "db1892b416d245a8ae96a0208fe4ccf86a635da976abd238340e6c6829d7e67d"
+  },
+  "remaining": [
+    "Native selected-only enforcement not implemented; explicit admission guard prevents unsupported execution",
+    "Native build/install remains pending original provenance decision",
+    "Older stopped adapter051451 lifecycle close failed catalog.lock; exact native helper termination unconfirmed; preserve protected material",
+    "Disposable test/adapter cleanup pending supported owner"
+  ]
+}

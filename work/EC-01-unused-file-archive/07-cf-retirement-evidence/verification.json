@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "platform": "win32",
+  "arch": "x64",
+  "node": "v26.7.0",
+  "scope": "Focused verification result cache storage suite only",
+  "tests": 18,
+  "command": "node scripts/test-verification-result-cache.cjs",
+  "exitCode": 0,
+  "logs": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1\\logs\\storage-r1.log",
+      "sha256": "5e7c9336a2d8cbc10372990b49593198fd5bfa027d724e421363d9e0925d6aff",
+      "exitCode": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1\\logs\\storage-r2.log",
+      "sha256": "04c6915e5eb519ad907114c4db11f671d6d6317be85cbe1438d0b10cb05f7325",
+      "exitCode": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CF-01-window-use-admin-setup\\runs\\20261019-cache-lease-r1\\logs\\storage-r3.log",
+      "sha256": "04c6915e5eb519ad907114c4db11f671d6d6317be85cbe1438d0b10cb05f7325",
+      "exitCode": 0
+    }
+  ],
+  "sources": [
+    {
+      "path": "scripts/verification-result-cache.cjs",
+      "sha256": "e5d56f2b13822682ff45099696d9f00fe0ffcb789747ec086626a2f5c2e7cfd8"
+    },
+    {
+      "path": "scripts/test-verification-result-cache.cjs",
+      "sha256": "9fd0b3941e0bffd8bbd65e20f0fb74da11fa742e1a3353c12d4b05d57d951e80"
+    }
+  ],
+  "fixtureCleanup": "removed all fixtures",
+  "nativeMaintenanceRegistration": "blocked by pre-existing exclusive maintenance lock (os error 80); not bypassed",
+  "decision": "defer",
+  "reason": "Parent integration and recovery API review need focused evidence",
+  "revisit_condition": "After parent integration acceptance and native maintenance lock recovery, review and register exact run group before cleanup",
+  "unverified": [
+    "Unix native execution",
+    "Full build, install and live tests intentionally not run",
+    "No actual shared cache lease recovered"
+  ]
+}

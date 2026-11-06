@@ -1,0 +1,17 @@
+{
+  "owner": "scripts/test-capture-project-inputs.cjs",
+  "procedure": "Existing fixture/Cargo owner pattern: exact deliberate junctions only, nonrecursive rmdir on Windows",
+  "beforeTargetSha256": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060",
+  "links": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\verify-a\\temporary\\capture\\source-link\\dir",
+      "absent": true,
+      "targetUnchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EW01-fixed-input\\runs\\verify-a\\temporary\\capture\\destination-link-frozen\\dir",
+      "absent": true,
+      "targetUnchanged": true
+    }
+  ]
+}

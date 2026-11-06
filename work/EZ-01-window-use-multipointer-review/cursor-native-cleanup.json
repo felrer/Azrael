@@ -1,0 +1,3768 @@
+{
+  "schema": 1,
+  "scope": "Windows x64 failed cursor-render native compilation run cleanup",
+  "id": "run:EZ01:mp-mw07bwij",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij",
+  "managedSession": {
+    "id": 80221,
+    "terminalExitCode": 1,
+    "source": "parent observed managed terminal result"
+  },
+  "nativeResult": {
+    "status": "failed",
+    "sourceSha256": "71c1b96d50f03e4267c095eb722ea563592b323274f4148b93076505df76af26",
+    "steps": [
+      {
+        "name": "mcp-source",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 163,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij\\logs\\mcp-source.log"
+      },
+      {
+        "name": "configure",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 4590,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij\\logs\\configure.log"
+      },
+      {
+        "name": "compile",
+        "exitCode": 1,
+        "signal": null,
+        "elapsedMs": 4227,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij\\logs\\compile.log"
+      }
+    ],
+    "error": "Error: compile failed\n    at step (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-multi-pointer-native.cjs:23:322)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async main (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-multi-pointer-native.cjs:31:143)"
+  },
+  "producer": {
+    "lifecycleId": "run:EZ01:mp-mw07bwij",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-multi-pointer-native.cjs",
+      "--render-only"
+    ],
+    "exitCode": 1,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Owned producer and tracked children stopped",
+    "children": [
+      {
+        "pid": 60284,
+        "closed": true
+      },
+      {
+        "pid": 46732,
+        "closed": true
+      },
+      {
+        "pid": 61488,
+        "closed": true
+      }
+    ],
+    "state": "failed",
+    "membership_complete": true
+  },
+  "producerRecord": {
+    "id": "run:EZ01:mp-mw07bwij",
+    "kind": "run",
+    "owner": "EZ-01-window-use-multipointer-review",
+    "version": null,
+    "state": "failed",
+    "revision": 2,
+    "membership_complete": true,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij",
+    "ownership_scope": "run-root",
+    "producer": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij\\reports\\producer-c37930355de41b5320d3113c940defe5af0b1982bc8070f7394ac13238665b07.json",
+      "evidence_sha256": "c37930355de41b5320d3113c940defe5af0b1982bc8070f7394ac13238665b07",
+      "exit_code": 1,
+      "outcome": "failure",
+      "reason": "Owned producer and tracked children stopped",
+      "status": "stopped"
+    },
+    "close_receipt": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij\\reports\\producer-c37930355de41b5320d3113c940defe5af0b1982bc8070f7394ac13238665b07.json",
+      "evidence_sha256": "c37930355de41b5320d3113c940defe5af0b1982bc8070f7394ac13238665b07",
+      "reason": "Owned producer and tracked children stopped",
+      "request_sha256": "35af27bebe175acb64d13d073ec1ecca530bc775a9bfaebfcb744ef7dfb7944f"
+    },
+    "references": [],
+    "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij",
+    "declaredMemberCount": 6
+  },
+  "inboundReferences": [],
+  "causalFailure": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij\\inputs\\native\\multi-pointer\\cursor-renderer.hpp(133,16): error C2664: 'BOOL UpdateLayeredWindow(HWND,HDC,POINT *,SIZE *,HDC,POINT *,COLORREF,BLENDFUNCTION *,DWORD)': 인수 3을(를) 'const POINT *'에서 'POINT *'(으)로 변환할 수 없습니다. [C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij\\temporary\\build\\azrael-multi-pointer.vcxproj]",
+  "owner": {
+    "path": "artifacts/versions/maintenance-owner-ff01-reservation-win-x64-20261102/payload/maintenance_owner.exe",
+    "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680"
+  },
+  "cleanup": {
+    "status": "complete",
+    "register": {
+      "exit": 0,
+      "stderr": "",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EZ01:mp-mw07bwij",
+          "kind": "run",
+          "members": [
+            "cb787ee41a168612faa896947a23c22aa834c00206ea11c38b338244fd55a9c0"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "e5e4047e1f563be72d2e8f6270845ef86fbe88098de842e795424038ddde321e",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9594e0b95a13725be7418f0d5c0adb78aeb9a6f0bb8a2d0a7e39dfa3f41bbeb4.json",
+          "registered_at_ms": 1793681198132,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "cb787ee41a168612faa896947a23c22aa834c00206ea11c38b338244fd55a9c0",
+            "identity": "eb131cafee26aed53cce0039e283d45c758817e69a3dadd9696b155269b237bf",
+            "kind": "run",
+            "lifecycle_group_id": "run:EZ01:mp-mw07bwij",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1751186,
+            "measured_at_ms": 1793681191611,
+            "owner": "EZ-01-window-use-multipointer-review",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9594e0b95a13725be7418f0d5c0adb78aeb9a6f0bb8a2d0a7e39dfa3f41bbeb4.json",
+            "references": [],
+            "registered_at_ms": 1793681191611,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    "review": {
+      "exit": 0,
+      "stderr": "",
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:mp-mw07bwij",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "e5e4047e1f563be72d2e8f6270845ef86fbe88098de842e795424038ddde321e",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9594e0b95a13725be7418f0d5c0adb78aeb9a6f0bb8a2d0a7e39dfa3f41bbeb4.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "cb787ee41a168612faa896947a23c22aa834c00206ea11c38b338244fd55a9c0"
+            ],
+            "group_token": "6920bd7548c7b0d1bf28d71c7ff60d7f7b4eafa1ef8ec994e6ebf31d25965b13",
+            "id": "cb787ee41a168612faa896947a23c22aa834c00206ea11c38b338244fd55a9c0",
+            "identity": "eb131cafee26aed53cce0039e283d45c758817e69a3dadd9696b155269b237bf",
+            "lifecycle_group_id": "run:EZ01:mp-mw07bwij",
+            "logical_bytes": 1751186,
+            "measured_at_ms": 1793681191611,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "e5e4047e1f563be72d2e8f6270845ef86fbe88098de842e795424038ddde321e",
+              "member_references": {
+                "cb787ee41a168612faa896947a23c22aa834c00206ea11c38b338244fd55a9c0": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "id": "run:EZ01:mp-mw07bwij",
+                "kind": "run",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "version": null,
+                "state": "failed",
+                "revision": 2,
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij\\reports\\producer-c37930355de41b5320d3113c940defe5af0b1982bc8070f7394ac13238665b07.json",
+                  "evidence_sha256": "c37930355de41b5320d3113c940defe5af0b1982bc8070f7394ac13238665b07",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij\\reports\\producer-c37930355de41b5320d3113c940defe5af0b1982bc8070f7394ac13238665b07.json",
+                  "evidence_sha256": "c37930355de41b5320d3113c940defe5af0b1982bc8070f7394ac13238665b07",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "35af27bebe175acb64d13d073ec1ecca530bc775a9bfaebfcb744ef7dfb7944f"
+                },
+                "references": [],
+                "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij",
+                "declaredMemberCount": 6
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793681206568,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  152,
+                  53,
+                  216,
+                  0,
+                  0,
+                  0,
+                  19,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "aa9bcc60664d9a9d9f9c908b0d451cace23e9029058bb465471e646a7ea67752",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    "apply": {
+      "exit": 0,
+      "stderr": "",
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:EZ01:mp-mw07bwij",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-50420-5553-1793681234454",
+            "decision": "delete",
+            "decision_id": "761d61714cc40d53c361ecae575178159d46e9abe769ba6c42094996de009558",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "cb787ee41a168612faa896947a23c22aa834c00206ea11c38b338244fd55a9c0",
+            "lifecycle_group_id": "run:EZ01:mp-mw07bwij",
+            "reason": "Failed native compilation diagnosis preserved independently; stopped producer and tracked children, complete owned membership, no remaining consumers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "aa9bcc60664d9a9d9f9c908b0d451cace23e9029058bb465471e646a7ea67752"
+          }
+        ]
+      }
+    },
+    "runRootAbsent": true,
+    "finalize": {
+      "id": "run:EZ01:mp-mw07bwij",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9594e0b95a13725be7418f0d5c0adb78aeb9a6f0bb8a2d0a7e39dfa3f41bbeb4.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\cursor-native-cleanup.json",
+        "sha256": "36d7d8e3581eba0b3119f237ba5e4fa633c03c75c71cc2f9740f88edbf4fd9e4",
+        "reason": "Original stopped failed producer exit1 preserved in independent cleanup evidence; exact owned run-root absent after maintenance deletion",
+        "original_state": "failed",
+        "original_membership_complete": true
+      }
+    },
+    "finalVerification": {
+      "runRootAbsent": true,
+      "producerRecordAbsent": true
+    }
+  },
+  "fixtures": {
+    "parentSession": {
+      "id": 36386,
+      "exit": 1,
+      "reason": "Overall failure solely staging Python PATH ENOENT per parent; fixture-owning suites succeeded"
+    },
+    "groups": [
+      {
+        "id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+        "record": {
+          "id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+          "kind": "run",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "version": null,
+          "state": "complete",
+          "revision": 2,
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53\\reports\\producer-bf1837146636537d2f1f9681053066aa94780948b9ae48c33b055039553402c3.json",
+            "evidence_sha256": "bf1837146636537d2f1f9681053066aa94780948b9ae48c33b055039553402c3",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53\\reports\\producer-bf1837146636537d2f1f9681053066aa94780948b9ae48c33b055039553402c3.json",
+            "evidence_sha256": "bf1837146636537d2f1f9681053066aa94780948b9ae48c33b055039553402c3",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "dbfe57cce3fde83abf2bfc2ab744a92d543cb4ce100913405b45afbdcbac6c80"
+          },
+          "references": [],
+          "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+          "declaredMemberCount": 6
+        },
+        "inbound": [],
+        "closure": {
+          "lifecycleId": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-window-virtual-policy.cjs"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Owned producer and tracked children stopped",
+          "children": [],
+          "state": "complete",
+          "membership_complete": true
+        },
+        "register": {
+          "exit": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+              "kind": "run",
+              "members": [
+                "c0db81e80624d436dfbf0a3931aa3f97fcc31231e49dd5aa4a0375d08e6431d3"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "76615a834fb82f00e00e799db75d5eeb72e61b7e5ac43caa7011d973eb2640b0",
+              "owner": "EZ-01-window-use-multipointer-review",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0344ddda1c6524c7c4ab3f26381ac27b1233475fc457b2ef17fba7d5be0da62d.json",
+              "registered_at_ms": 1793681311598,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "c0db81e80624d436dfbf0a3931aa3f97fcc31231e49dd5aa4a0375d08e6431d3",
+                "identity": "9de108c7faec14e83c09cf9a8ec87b1a9d89d063df62458f2934bc8d67a0773e",
+                "kind": "run",
+                "lifecycle_group_id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 1126,
+                "measured_at_ms": 1793681305669,
+                "owner": "EZ-01-window-use-multipointer-review",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0344ddda1c6524c7c4ab3f26381ac27b1233475fc457b2ef17fba7d5be0da62d.json",
+                "references": [],
+                "registered_at_ms": 1793681305669,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0344ddda1c6524c7c4ab3f26381ac27b1233475fc457b2ef17fba7d5be0da62d.json"
+        },
+        "registryAbsent": true
+      },
+      {
+        "id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+        "record": {
+          "id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+          "kind": "run",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "version": null,
+          "state": "complete",
+          "revision": 2,
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed\\reports\\producer-5b8037cc34ab3a3f2837c75e1fdd13052c8728970f5c9dd7f071901874d4207b.json",
+            "evidence_sha256": "5b8037cc34ab3a3f2837c75e1fdd13052c8728970f5c9dd7f071901874d4207b",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed\\reports\\producer-5b8037cc34ab3a3f2837c75e1fdd13052c8728970f5c9dd7f071901874d4207b.json",
+            "evidence_sha256": "5b8037cc34ab3a3f2837c75e1fdd13052c8728970f5c9dd7f071901874d4207b",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "be477964acf784fd3bfc5606532b5dfb17e444b32822ed265b5967cb84579652"
+          },
+          "references": [],
+          "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+          "declaredMemberCount": 6
+        },
+        "inbound": [],
+        "closure": {
+          "lifecycleId": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-window-switched-input.cjs"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Owned producer and tracked children stopped",
+          "children": [],
+          "state": "complete",
+          "membership_complete": true
+        },
+        "register": {
+          "exit": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+              "kind": "run",
+              "members": [
+                "a96b6920f36f7480dc277c7cdb59731f4b0f1b6afb2bf68f80e4ff86d231d213"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "e9dbc7a0d894f908706dfea95389e9ed34e78c537c23c50a3cec9b49783356ec",
+              "owner": "EZ-01-window-use-multipointer-review",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\325cefa25fe03de648d086ad2ed9f5ef3980974282593c4d0d6e7d3a87ae0409.json",
+              "registered_at_ms": 1793681337523,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "a96b6920f36f7480dc277c7cdb59731f4b0f1b6afb2bf68f80e4ff86d231d213",
+                "identity": "ba0d8fc50129f93b6c9f7deede9857647237caaf9da534437f9c7aa87fe22903",
+                "kind": "run",
+                "lifecycle_group_id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 1586,
+                "measured_at_ms": 1793681331980,
+                "owner": "EZ-01-window-use-multipointer-review",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\325cefa25fe03de648d086ad2ed9f5ef3980974282593c4d0d6e7d3a87ae0409.json",
+                "references": [],
+                "registered_at_ms": 1793681331980,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\325cefa25fe03de648d086ad2ed9f5ef3980974282593c4d0d6e7d3a87ae0409.json"
+        },
+        "registryAbsent": true
+      },
+      {
+        "id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+        "record": {
+          "id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+          "kind": "run",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "version": null,
+          "state": "complete",
+          "revision": 2,
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b\\reports\\producer-93ea0da5341caaf24aa7176d95b17037529114268d782d048f8db231587144d5.json",
+            "evidence_sha256": "93ea0da5341caaf24aa7176d95b17037529114268d782d048f8db231587144d5",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b\\reports\\producer-93ea0da5341caaf24aa7176d95b17037529114268d782d048f8db231587144d5.json",
+            "evidence_sha256": "93ea0da5341caaf24aa7176d95b17037529114268d782d048f8db231587144d5",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "96912c20dc58d78258ee24753fce0aed8cc14b85597fd00c96cf325b30d6d100"
+          },
+          "references": [],
+          "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b",
+          "declaredMemberCount": 6
+        },
+        "inbound": [],
+        "closure": {
+          "lifecycleId": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-window-switched-input.cjs"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Owned producer and tracked children stopped",
+          "children": [],
+          "state": "complete",
+          "membership_complete": true
+        },
+        "register": {
+          "exit": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+              "kind": "run",
+              "members": [
+                "6dca71ca9dc2bfc4c7e8164750198d72a42e7e42b381dfc3c7e651fd05f6d66d"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "e3c08232d0d85969596676b1790b9b8b88e047644dc6f2a35887ea4be81aca4e",
+              "owner": "EZ-01-window-use-multipointer-review",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\36b7940334257abc149dcee8b5187f27da8be95c7c0b3dd00fcd0f7313a2fe17.json",
+              "registered_at_ms": 1793681381348,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "6dca71ca9dc2bfc4c7e8164750198d72a42e7e42b381dfc3c7e651fd05f6d66d",
+                "identity": "788c737f156ffa105dfb5c608ef5f1a3bf7336c712d2362646c253f185bca520",
+                "kind": "run",
+                "lifecycle_group_id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 1586,
+                "measured_at_ms": 1793681369195,
+                "owner": "EZ-01-window-use-multipointer-review",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\36b7940334257abc149dcee8b5187f27da8be95c7c0b3dd00fcd0f7313a2fe17.json",
+                "references": [],
+                "registered_at_ms": 1793681369195,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\36b7940334257abc149dcee8b5187f27da8be95c7c0b3dd00fcd0f7313a2fe17.json"
+        },
+        "registryAbsent": true
+      },
+      {
+        "id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+        "record": {
+          "id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+          "kind": "run",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "version": null,
+          "state": "complete",
+          "revision": 2,
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca\\reports\\producer-695119c97b7c704ee34eb0cda1020ca73b6549cc47159198504b9c64e6f7610e.json",
+            "evidence_sha256": "695119c97b7c704ee34eb0cda1020ca73b6549cc47159198504b9c64e6f7610e",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca\\reports\\producer-695119c97b7c704ee34eb0cda1020ca73b6549cc47159198504b9c64e6f7610e.json",
+            "evidence_sha256": "695119c97b7c704ee34eb0cda1020ca73b6549cc47159198504b9c64e6f7610e",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "81a8ae94abf19f6135b1d39a4ef16c2859285f595ea9ea09ca80b87ab428c82f"
+          },
+          "references": [],
+          "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca",
+          "declaredMemberCount": 6
+        },
+        "inbound": [],
+        "closure": {
+          "lifecycleId": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-window-switched-input.cjs"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Owned producer and tracked children stopped",
+          "children": [],
+          "state": "complete",
+          "membership_complete": true
+        },
+        "register": {
+          "exit": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+              "kind": "run",
+              "members": [
+                "e2e0edf61ef8ff2fc1adda481f9a53acacb74eb56c1bfb836b86b6f1397144af"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "d76b0bff479fde6cf79dafc114f29e450aebc289c73bb84600a91b3bc925afd7",
+              "owner": "EZ-01-window-use-multipointer-review",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\45e6464d978a1e89ad467acfab0e1b9c0fd30a7fd6f1ce17c122f6fd46045810.json",
+              "registered_at_ms": 1793681417357,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "e2e0edf61ef8ff2fc1adda481f9a53acacb74eb56c1bfb836b86b6f1397144af",
+                "identity": "97db6ef1929435900a88db48242541a468bb3067dcf0c2bd4f13ff0e5fc78375",
+                "kind": "run",
+                "lifecycle_group_id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 1586,
+                "measured_at_ms": 1793681410165,
+                "owner": "EZ-01-window-use-multipointer-review",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\45e6464d978a1e89ad467acfab0e1b9c0fd30a7fd6f1ce17c122f6fd46045810.json",
+                "references": [],
+                "registered_at_ms": 1793681410165,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\45e6464d978a1e89ad467acfab0e1b9c0fd30a7fd6f1ce17c122f6fd46045810.json"
+        },
+        "registryAbsent": true
+      }
+    ],
+    "review": {
+      "exit": 0,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "76615a834fb82f00e00e799db75d5eeb72e61b7e5ac43caa7011d973eb2640b0",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0344ddda1c6524c7c4ab3f26381ac27b1233475fc457b2ef17fba7d5be0da62d.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "e9dbc7a0d894f908706dfea95389e9ed34e78c537c23c50a3cec9b49783356ec",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\325cefa25fe03de648d086ad2ed9f5ef3980974282593c4d0d6e7d3a87ae0409.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "d76b0bff479fde6cf79dafc114f29e450aebc289c73bb84600a91b3bc925afd7",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\45e6464d978a1e89ad467acfab0e1b9c0fd30a7fd6f1ce17c122f6fd46045810.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "e3c08232d0d85969596676b1790b9b8b88e047644dc6f2a35887ea4be81aca4e",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\36b7940334257abc149dcee8b5187f27da8be95c7c0b3dd00fcd0f7313a2fe17.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "6dca71ca9dc2bfc4c7e8164750198d72a42e7e42b381dfc3c7e651fd05f6d66d"
+            ],
+            "group_token": "7aa3c66a690a61941bd5d52a68b1535de06008ad5cac26bc019eb1456802826d",
+            "id": "6dca71ca9dc2bfc4c7e8164750198d72a42e7e42b381dfc3c7e651fd05f6d66d",
+            "identity": "788c737f156ffa105dfb5c608ef5f1a3bf7336c712d2362646c253f185bca520",
+            "lifecycle_group_id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+            "logical_bytes": 1586,
+            "measured_at_ms": 1793681369195,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "e3c08232d0d85969596676b1790b9b8b88e047644dc6f2a35887ea4be81aca4e",
+              "member_references": {
+                "6dca71ca9dc2bfc4c7e8164750198d72a42e7e42b381dfc3c7e651fd05f6d66d": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+                "kind": "run",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "version": null,
+                "state": "complete",
+                "revision": 2,
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b\\reports\\producer-93ea0da5341caaf24aa7176d95b17037529114268d782d048f8db231587144d5.json",
+                  "evidence_sha256": "93ea0da5341caaf24aa7176d95b17037529114268d782d048f8db231587144d5",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b\\reports\\producer-93ea0da5341caaf24aa7176d95b17037529114268d782d048f8db231587144d5.json",
+                  "evidence_sha256": "93ea0da5341caaf24aa7176d95b17037529114268d782d048f8db231587144d5",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "96912c20dc58d78258ee24753fce0aed8cc14b85597fd00c96cf325b30d6d100"
+                },
+                "references": [],
+                "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b",
+                "declaredMemberCount": 6
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793681473484,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  56,
+                  158,
+                  215,
+                  0,
+                  0,
+                  0,
+                  26,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "00eb1eaa110e8a2721ed4f84b6a4618f67fa2a60ba2c5fe8664bd63f063245ef",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "a96b6920f36f7480dc277c7cdb59731f4b0f1b6afb2bf68f80e4ff86d231d213"
+            ],
+            "group_token": "06694ebb7e9a469eb1995fda33362603edde65ccdef7d80841b05a0a8ec27954",
+            "id": "a96b6920f36f7480dc277c7cdb59731f4b0f1b6afb2bf68f80e4ff86d231d213",
+            "identity": "ba0d8fc50129f93b6c9f7deede9857647237caaf9da534437f9c7aa87fe22903",
+            "lifecycle_group_id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+            "logical_bytes": 1586,
+            "measured_at_ms": 1793681331980,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "e9dbc7a0d894f908706dfea95389e9ed34e78c537c23c50a3cec9b49783356ec",
+              "member_references": {
+                "a96b6920f36f7480dc277c7cdb59731f4b0f1b6afb2bf68f80e4ff86d231d213": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+                "kind": "run",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "version": null,
+                "state": "complete",
+                "revision": 2,
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed\\reports\\producer-5b8037cc34ab3a3f2837c75e1fdd13052c8728970f5c9dd7f071901874d4207b.json",
+                  "evidence_sha256": "5b8037cc34ab3a3f2837c75e1fdd13052c8728970f5c9dd7f071901874d4207b",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed\\reports\\producer-5b8037cc34ab3a3f2837c75e1fdd13052c8728970f5c9dd7f071901874d4207b.json",
+                  "evidence_sha256": "5b8037cc34ab3a3f2837c75e1fdd13052c8728970f5c9dd7f071901874d4207b",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "be477964acf784fd3bfc5606532b5dfb17e444b32822ed265b5967cb84579652"
+                },
+                "references": [],
+                "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+                "declaredMemberCount": 6
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793681429632,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  30,
+                  97,
+                  216,
+                  0,
+                  0,
+                  0,
+                  54,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "bb8e31010c672e08c5c1cfc1a573551d15b85f6881fe0982ff04f1908892240c",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "c0db81e80624d436dfbf0a3931aa3f97fcc31231e49dd5aa4a0375d08e6431d3"
+            ],
+            "group_token": "615efab5c216dd4f79190b08daf39bac8cbada6b4a4463c5c3ce07950ef3fd5a",
+            "id": "c0db81e80624d436dfbf0a3931aa3f97fcc31231e49dd5aa4a0375d08e6431d3",
+            "identity": "9de108c7faec14e83c09cf9a8ec87b1a9d89d063df62458f2934bc8d67a0773e",
+            "lifecycle_group_id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+            "logical_bytes": 1126,
+            "measured_at_ms": 1793681305669,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "76615a834fb82f00e00e799db75d5eeb72e61b7e5ac43caa7011d973eb2640b0",
+              "member_references": {
+                "c0db81e80624d436dfbf0a3931aa3f97fcc31231e49dd5aa4a0375d08e6431d3": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+                "kind": "run",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "version": null,
+                "state": "complete",
+                "revision": 2,
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53\\reports\\producer-bf1837146636537d2f1f9681053066aa94780948b9ae48c33b055039553402c3.json",
+                  "evidence_sha256": "bf1837146636537d2f1f9681053066aa94780948b9ae48c33b055039553402c3",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53\\reports\\producer-bf1837146636537d2f1f9681053066aa94780948b9ae48c33b055039553402c3.json",
+                  "evidence_sha256": "bf1837146636537d2f1f9681053066aa94780948b9ae48c33b055039553402c3",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "dbfe57cce3fde83abf2bfc2ab744a92d543cb4ce100913405b45afbdcbac6c80"
+                },
+                "references": [],
+                "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+                "declaredMemberCount": 6
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793681423058,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  8,
+                  96,
+                  216,
+                  0,
+                  0,
+                  0,
+                  71,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "d3f7517b9d6922f2af4cdc6ba1586411f4a248c15cc647c63828319f212fc3b2",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "e2e0edf61ef8ff2fc1adda481f9a53acacb74eb56c1bfb836b86b6f1397144af"
+            ],
+            "group_token": "4df3a111f8f6a2cb6fd61c36ce5a3f47a3bc771b344154d3efc0043f2f721263",
+            "id": "e2e0edf61ef8ff2fc1adda481f9a53acacb74eb56c1bfb836b86b6f1397144af",
+            "identity": "97db6ef1929435900a88db48242541a468bb3067dcf0c2bd4f13ff0e5fc78375",
+            "lifecycle_group_id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+            "logical_bytes": 1586,
+            "measured_at_ms": 1793681410165,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "d76b0bff479fde6cf79dafc114f29e450aebc289c73bb84600a91b3bc925afd7",
+              "member_references": {
+                "e2e0edf61ef8ff2fc1adda481f9a53acacb74eb56c1bfb836b86b6f1397144af": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+                "kind": "run",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "version": null,
+                "state": "complete",
+                "revision": 2,
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca\\reports\\producer-695119c97b7c704ee34eb0cda1020ca73b6549cc47159198504b9c64e6f7610e.json",
+                  "evidence_sha256": "695119c97b7c704ee34eb0cda1020ca73b6549cc47159198504b9c64e6f7610e",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca\\reports\\producer-695119c97b7c704ee34eb0cda1020ca73b6549cc47159198504b9c64e6f7610e.json",
+                  "evidence_sha256": "695119c97b7c704ee34eb0cda1020ca73b6549cc47159198504b9c64e6f7610e",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "81a8ae94abf19f6135b1d39a4ef16c2859285f595ea9ea09ca80b87ab428c82f"
+                },
+                "references": [],
+                "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca",
+                "declaredMemberCount": 6
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793681438237,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  69,
+                  97,
+                  216,
+                  0,
+                  0,
+                  0,
+                  25,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "e624ac810b3ab152ac51b5d2ebeb1555443db829cb26345f1658917af5c43bb5",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    "apply": {
+      "exit": 0,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+            "status": "deleted"
+          },
+          {
+            "id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+            "status": "deleted"
+          },
+          {
+            "id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+            "status": "deleted"
+          },
+          {
+            "id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-10548-5560-1793681521990",
+            "decision": "delete",
+            "decision_id": "ab67d083033280969cb44009dc2db0cf67009601f49cb0dfe30edc8a46311bb7",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "6dca71ca9dc2bfc4c7e8164750198d72a42e7e42b381dfc3c7e651fd05f6d66d",
+            "lifecycle_group_id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+            "reason": "Closed successful disposable host-test fixture; independent closure evidence preserved, no consumers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "00eb1eaa110e8a2721ed4f84b6a4618f67fa2a60ba2c5fe8664bd63f063245ef"
+          },
+          {
+            "attempt_id": "attempt-10548-5562-1793681547030",
+            "decision": "delete",
+            "decision_id": "90bde815cfaa9469f68f0cd11cf0ae536c8b359a17229f588cf6fe9b9e5d863b",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "a96b6920f36f7480dc277c7cdb59731f4b0f1b6afb2bf68f80e4ff86d231d213",
+            "lifecycle_group_id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+            "reason": "Closed successful disposable host-test fixture; independent closure evidence preserved, no consumers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "bb8e31010c672e08c5c1cfc1a573551d15b85f6881fe0982ff04f1908892240c"
+          },
+          {
+            "attempt_id": "attempt-10548-5564-1793681575093",
+            "decision": "delete",
+            "decision_id": "d117d5bdc41b23a8bb24edb3f3644786d81e57ff81f6bf986c15e0771402350f",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "c0db81e80624d436dfbf0a3931aa3f97fcc31231e49dd5aa4a0375d08e6431d3",
+            "lifecycle_group_id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+            "reason": "Closed successful disposable host-test fixture; independent closure evidence preserved, no consumers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "d3f7517b9d6922f2af4cdc6ba1586411f4a248c15cc647c63828319f212fc3b2"
+          },
+          {
+            "attempt_id": "attempt-10548-5567-1793681611443",
+            "decision": "delete",
+            "decision_id": "8f7348a2855499a91db92210e53b8bb4c7079f8de8fe44eca6b5f5eadfac81a2",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "e2e0edf61ef8ff2fc1adda481f9a53acacb74eb56c1bfb836b86b6f1397144af",
+            "lifecycle_group_id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+            "reason": "Closed successful disposable host-test fixture; independent closure evidence preserved, no consumers",
+            "remaining": false,
+            "status": "deleted",
+            "token": "e624ac810b3ab152ac51b5d2ebeb1555443db829cb26345f1658917af5c43bb5"
+          }
+        ]
+      },
+      "stderr": ""
+    }
+  },
+  "superseded": {
+    "groups": [
+      {
+        "id": "run:EZ01:mp-mw07di4u",
+        "record": {
+          "id": "run:EZ01:mp-mw07di4u",
+          "kind": "run",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "version": null,
+          "state": "complete",
+          "revision": 2,
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\reports\\producer-03b3d20b76c3304e37ff29922b918a2edee3f81092c511dc10f75cb40831b4e3.json",
+            "evidence_sha256": "03b3d20b76c3304e37ff29922b918a2edee3f81092c511dc10f75cb40831b4e3",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\reports\\producer-03b3d20b76c3304e37ff29922b918a2edee3f81092c511dc10f75cb40831b4e3.json",
+            "evidence_sha256": "03b3d20b76c3304e37ff29922b918a2edee3f81092c511dc10f75cb40831b4e3",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "81e73199a94b1cf5d08fd5b1fc349f80e7a9a7470924f9577e960cc050a3a49e"
+          },
+          "references": [],
+          "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u",
+          "declaredMemberCount": 6
+        },
+        "inbound": [],
+        "closure": {
+          "lifecycleId": "run:EZ01:mp-mw07di4u",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-multi-pointer-native.cjs",
+            "--render-only"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Owned producer and tracked children stopped",
+          "children": [
+            {
+              "pid": 30800,
+              "closed": true
+            },
+            {
+              "pid": 58400,
+              "closed": true
+            },
+            {
+              "pid": 42328,
+              "closed": true
+            },
+            {
+              "pid": 42148,
+              "closed": true
+            },
+            {
+              "pid": 27924,
+              "closed": true
+            },
+            {
+              "pid": 42512,
+              "closed": true
+            },
+            {
+              "pid": 33784,
+              "closed": true
+            }
+          ],
+          "state": "complete",
+          "membership_complete": true
+        },
+        "report": {
+          "schema": 1,
+          "kind": "multi-pointer-native-preparation",
+          "scope": "native-render-no-app-input",
+          "startedAt": "2026-11-03T04:44:00.305Z",
+          "runId": "run:EZ01:mp-mw07di4u",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u",
+          "status": "prepared",
+          "sourceSha256": "3fe47c24ac541dd9307ae86a2494d1a943495029879de60e39077d8178682e15",
+          "steps": [
+            {
+              "name": "mcp-source",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 166,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\logs\\mcp-source.log"
+            },
+            {
+              "name": "configure",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 3019,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\logs\\configure.log"
+            },
+            {
+              "name": "compile",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 10018,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\logs\\compile.log"
+            },
+            {
+              "name": "compile-raw-origin-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 1466,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\logs\\compile-raw-origin-selftest.log"
+            },
+            {
+              "name": "raw-origin-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 55,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\logs\\raw-origin-selftest.log"
+            },
+            {
+              "name": "system-cursor-guard-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 2276,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\logs\\system-cursor-guard-selftest.log"
+            },
+            {
+              "name": "cursor-render-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 106,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\logs\\cursor-render-selftest.log"
+            }
+          ],
+          "applicationEffectVerified": false,
+          "cursorRendering": {
+            "applicationInputs": 0,
+            "checks": 64,
+            "cursorVisibilityChanged": false,
+            "foregroundUnchanged": true,
+            "frames": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\reports\\cursor-frames.png",
+            "kind": "cursor-render-selftest",
+            "pointerObservedAfter": {
+              "x": 1077,
+              "y": 1283
+            },
+            "pointerObservedBefore": {
+              "x": 1077,
+              "y": 1283
+            },
+            "previewSha256": "cc60b5b2effdf8719ac4e92e99b17994e73617919370c720cd208593fb87732c"
+          },
+          "runtime": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\outputs\\runtime",
+          "endedAt": "2026-11-03T04:44:17.523Z"
+        },
+        "register": {
+          "exit": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EZ01:mp-mw07di4u",
+              "kind": "run",
+              "members": [
+                "50018133c74c032652f2608269ba700b0e21375d4cfd51744d15c97008e853fb"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "88845d9af4edb3cae39ec2c75107a99f372078bca8198b4eb2f6efa2baf046c6",
+              "owner": "EZ-01-window-use-multipointer-review",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\574e8bcd434292d891daeb808717bf2487783f8072fdb97adcdfe227f069c14c.json",
+              "registered_at_ms": 1793681678671,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "50018133c74c032652f2608269ba700b0e21375d4cfd51744d15c97008e853fb",
+                "identity": "b1d84eb5298e8e411984df0d35dd8ef9433b78ed55e7dc14c377a05210b64541",
+                "kind": "run",
+                "lifecycle_group_id": "run:EZ01:mp-mw07di4u",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 10814202,
+                "measured_at_ms": 1793681672238,
+                "owner": "EZ-01-window-use-multipointer-review",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\574e8bcd434292d891daeb808717bf2487783f8072fdb97adcdfe227f069c14c.json",
+                "references": [],
+                "registered_at_ms": 1793681672238,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:mp-mw07di4u",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\574e8bcd434292d891daeb808717bf2487783f8072fdb97adcdfe227f069c14c.json"
+        },
+        "registryAbsent": true
+      },
+      {
+        "id": "run:EZ01:cursor-host-mw07irr4",
+        "record": {
+          "id": "run:EZ01:cursor-host-mw07irr4",
+          "kind": "run",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "version": null,
+          "state": "complete",
+          "revision": 2,
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4\\reports\\producer-9b24f827227aac52f9b347c7e025126fed7de3061c85b875662dbacc42138910.json",
+            "evidence_sha256": "9b24f827227aac52f9b347c7e025126fed7de3061c85b875662dbacc42138910",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4\\reports\\producer-9b24f827227aac52f9b347c7e025126fed7de3061c85b875662dbacc42138910.json",
+            "evidence_sha256": "9b24f827227aac52f9b347c7e025126fed7de3061c85b875662dbacc42138910",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "8ea2ea9d3ab1adcb8f9b0afd0bb5e00d920ebdeaa28d8247c4e89fbea6992fd3"
+          },
+          "references": [],
+          "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4",
+          "declaredMemberCount": 6
+        },
+        "inbound": [],
+        "closure": {
+          "lifecycleId": "run:EZ01:cursor-host-mw07irr4",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Owned producer and tracked children stopped",
+          "children": [
+            {
+              "pid": 12240,
+              "closed": true
+            }
+          ],
+          "state": "complete",
+          "membership_complete": true
+        },
+        "report": {
+          "runId": "run:EZ01:cursor-host-mw07irr4",
+          "exitCode": 0,
+          "signal": null,
+          "summary": [],
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4\\logs\\host-staging.log"
+        },
+        "testSummary": [
+          "ℹ tests 4",
+          "ℹ suites 0",
+          "ℹ pass 4",
+          "ℹ fail 0",
+          "ℹ duration_ms 1634.811"
+        ],
+        "environment": "Corrected Python312 PATH per parent",
+        "register": {
+          "exit": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EZ01:cursor-host-mw07irr4",
+              "kind": "run",
+              "members": [
+                "75ec2f9c212966f2add8caea0a8416a11632a46ebe4c13735577eb86d3ba1e27"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "1209d97a53be410588b43497620b0cf59b77d83bcba3500c2c0602dbd008336a",
+              "owner": "EZ-01-window-use-multipointer-review",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\db7c88f6b6a02ece61dab27ce53ca29097a77b63c727b784e76e810c2463d05d.json",
+              "registered_at_ms": 1793681709084,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "75ec2f9c212966f2add8caea0a8416a11632a46ebe4c13735577eb86d3ba1e27",
+                "identity": "220ed56f52b89a748a3d4b7b0e326702449e608cb72a99e1303bcc432167499f",
+                "kind": "run",
+                "lifecycle_group_id": "run:EZ01:cursor-host-mw07irr4",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 2383,
+                "measured_at_ms": 1793681702518,
+                "owner": "EZ-01-window-use-multipointer-review",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\db7c88f6b6a02ece61dab27ce53ca29097a77b63c727b784e76e810c2463d05d.json",
+                "references": [],
+                "registered_at_ms": 1793681702518,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:cursor-host-mw07irr4",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\db7c88f6b6a02ece61dab27ce53ca29097a77b63c727b784e76e810c2463d05d.json"
+        },
+        "registryAbsent": true
+      },
+      {
+        "id": "run:EZ01:mp-mw07ks01",
+        "record": {
+          "id": "run:EZ01:mp-mw07ks01",
+          "kind": "run",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "version": null,
+          "state": "complete",
+          "revision": 2,
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\reports\\producer-0768a488ebf796b5d2869e77507eb06a7c8b8daeb693f73660f4f8729f7c5523.json",
+            "evidence_sha256": "0768a488ebf796b5d2869e77507eb06a7c8b8daeb693f73660f4f8729f7c5523",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\reports\\producer-0768a488ebf796b5d2869e77507eb06a7c8b8daeb693f73660f4f8729f7c5523.json",
+            "evidence_sha256": "0768a488ebf796b5d2869e77507eb06a7c8b8daeb693f73660f4f8729f7c5523",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "b66ae7356babe62a2ddd435614dc1d11d02325788154f7da76b77d4c4822898b"
+          },
+          "references": [],
+          "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01",
+          "declaredMemberCount": 6
+        },
+        "inbound": [],
+        "closure": {
+          "lifecycleId": "run:EZ01:mp-mw07ks01",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-multi-pointer-native.cjs",
+            "--render-only"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Owned producer and tracked children stopped",
+          "children": [
+            {
+              "pid": 49140,
+              "closed": true
+            },
+            {
+              "pid": 13252,
+              "closed": true
+            },
+            {
+              "pid": 45908,
+              "closed": true
+            },
+            {
+              "pid": 28576,
+              "closed": true
+            },
+            {
+              "pid": 15664,
+              "closed": true
+            },
+            {
+              "pid": 51964,
+              "closed": true
+            },
+            {
+              "pid": 50304,
+              "closed": true
+            }
+          ],
+          "state": "complete",
+          "membership_complete": true
+        },
+        "report": {
+          "schema": 1,
+          "kind": "multi-pointer-native-preparation",
+          "scope": "native-render-no-app-input",
+          "startedAt": "2026-11-03T04:49:41.351Z",
+          "runId": "run:EZ01:mp-mw07ks01",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01",
+          "status": "prepared",
+          "sourceSha256": "6ae981d1a896fe38e9a63b1500c844a24a39a252717435269f30950fd0fcc7d1",
+          "steps": [
+            {
+              "name": "mcp-source",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 199,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\logs\\mcp-source.log"
+            },
+            {
+              "name": "configure",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 3135,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\logs\\configure.log"
+            },
+            {
+              "name": "compile",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 10798,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\logs\\compile.log"
+            },
+            {
+              "name": "compile-raw-origin-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 1498,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\logs\\compile-raw-origin-selftest.log"
+            },
+            {
+              "name": "raw-origin-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 54,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\logs\\raw-origin-selftest.log"
+            },
+            {
+              "name": "system-cursor-guard-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 2275,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\logs\\system-cursor-guard-selftest.log"
+            },
+            {
+              "name": "cursor-render-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 93,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\logs\\cursor-render-selftest.log"
+            }
+          ],
+          "applicationEffectVerified": false,
+          "cursorRendering": {
+            "applicationInputs": 0,
+            "checks": 80,
+            "cursorVisibilityChanged": false,
+            "foregroundUnchanged": true,
+            "frames": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\reports\\cursor-frames.png",
+            "kind": "cursor-render-selftest",
+            "pointerObservedAfter": {
+              "x": 3209,
+              "y": 1855
+            },
+            "pointerObservedBefore": {
+              "x": 3209,
+              "y": 1855
+            },
+            "previewSha256": "cc60b5b2effdf8719ac4e92e99b17994e73617919370c720cd208593fb87732c"
+          },
+          "runtime": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\outputs\\runtime",
+          "endedAt": "2026-11-03T04:49:59.529Z"
+        },
+        "register": {
+          "exit": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EZ01:mp-mw07ks01",
+              "kind": "run",
+              "members": [
+                "d024d9e8a033175fba3e0fc051ed5a0e6423e03209ef0d8a4fd732b4607df90c"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "33e2df5219364e6deca88d1a9965bfac9b3b0b3e184aea5e4e7bac3fbb5585ba",
+              "owner": "EZ-01-window-use-multipointer-review",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\93230cbddad75907e070441aca3e44ecec26405a076e8933ca860bb809fbb181.json",
+              "registered_at_ms": 1793681743801,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "d024d9e8a033175fba3e0fc051ed5a0e6423e03209ef0d8a4fd732b4607df90c",
+                "identity": "be05ec6e0255f8f46c1b49804be1f734d22ed0ce9f8f1eaceec6cf2f37c8ec55",
+                "kind": "run",
+                "lifecycle_group_id": "run:EZ01:mp-mw07ks01",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 10831841,
+                "measured_at_ms": 1793681737408,
+                "owner": "EZ-01-window-use-multipointer-review",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\93230cbddad75907e070441aca3e44ecec26405a076e8933ca860bb809fbb181.json",
+                "references": [],
+                "registered_at_ms": 1793681737408,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:mp-mw07ks01",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\93230cbddad75907e070441aca3e44ecec26405a076e8933ca860bb809fbb181.json"
+        },
+        "registryAbsent": true
+      },
+      {
+        "id": "run:EZ01:mp-mw07n6du",
+        "record": {
+          "id": "run:EZ01:mp-mw07n6du",
+          "kind": "run",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "version": null,
+          "state": "complete",
+          "revision": 2,
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\reports\\producer-91140e997ffd441928a5ddc5217de3d3b7c1bc2fba394dc0a8a0f0ddb8c3232c.json",
+            "evidence_sha256": "91140e997ffd441928a5ddc5217de3d3b7c1bc2fba394dc0a8a0f0ddb8c3232c",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\reports\\producer-91140e997ffd441928a5ddc5217de3d3b7c1bc2fba394dc0a8a0f0ddb8c3232c.json",
+            "evidence_sha256": "91140e997ffd441928a5ddc5217de3d3b7c1bc2fba394dc0a8a0f0ddb8c3232c",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "48d6e7722b01b2850bd91edb62150993c6ec0ce887a3004d853c83cfd723c552"
+          },
+          "references": [],
+          "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du",
+          "declaredMemberCount": 6
+        },
+        "inbound": [],
+        "closure": {
+          "lifecycleId": "run:EZ01:mp-mw07n6du",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-multi-pointer-native.cjs",
+            "--render-only"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Owned producer and tracked children stopped",
+          "children": [
+            {
+              "pid": 23816,
+              "closed": true
+            },
+            {
+              "pid": 21220,
+              "closed": true
+            },
+            {
+              "pid": 16972,
+              "closed": true
+            },
+            {
+              "pid": 20828,
+              "closed": true
+            },
+            {
+              "pid": 52576,
+              "closed": true
+            },
+            {
+              "pid": 46212,
+              "closed": true
+            },
+            {
+              "pid": 30824,
+              "closed": true
+            }
+          ],
+          "state": "complete",
+          "membership_complete": true
+        },
+        "report": {
+          "schema": 1,
+          "kind": "multi-pointer-native-preparation",
+          "scope": "native-render-no-app-input",
+          "startedAt": "2026-11-03T04:51:32.588Z",
+          "runId": "run:EZ01:mp-mw07n6du",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du",
+          "status": "prepared",
+          "sourceSha256": "6b832a44dd573456fb66d57207f3cf34460a0b97c8e6d9aab5b277e015772c3f",
+          "steps": [
+            {
+              "name": "mcp-source",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 175,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\logs\\mcp-source.log"
+            },
+            {
+              "name": "configure",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 3012,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\logs\\configure.log"
+            },
+            {
+              "name": "compile",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 9214,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\logs\\compile.log"
+            },
+            {
+              "name": "compile-raw-origin-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 1465,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\logs\\compile-raw-origin-selftest.log"
+            },
+            {
+              "name": "raw-origin-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 47,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\logs\\raw-origin-selftest.log"
+            },
+            {
+              "name": "system-cursor-guard-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 2273,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\logs\\system-cursor-guard-selftest.log"
+            },
+            {
+              "name": "cursor-render-selftest",
+              "exitCode": 0,
+              "signal": null,
+              "elapsedMs": 91,
+              "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\logs\\cursor-render-selftest.log"
+            }
+          ],
+          "applicationEffectVerified": false,
+          "cursorRendering": {
+            "applicationInputs": 0,
+            "checks": 80,
+            "cursorVisibilityChanged": false,
+            "foregroundUnchanged": true,
+            "frames": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\reports\\cursor-frames.png",
+            "kind": "cursor-render-selftest",
+            "pointerObservedAfter": {
+              "x": 2940,
+              "y": 1912
+            },
+            "pointerObservedBefore": {
+              "x": 2816,
+              "y": 1949
+            },
+            "previewSha256": "cc60b5b2effdf8719ac4e92e99b17994e73617919370c720cd208593fb87732c"
+          },
+          "runtime": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\outputs\\runtime",
+          "endedAt": "2026-11-03T04:51:48.985Z"
+        },
+        "handoff": {
+          "id": "run:EZ01:cursor-check-mw07po24",
+          "independentEvidence": "work/EZ-01-window-use-multipointer-review/cursor-native-implementation.json",
+          "independentEvidenceSha256": "1fb06c65d3e708fb1bb1f23b94f73366a871adeb4828635c390b15512799cde4",
+          "verification": {
+            "schema": 1,
+            "kind": "adopted-cursor-native-verification",
+            "sourceRun": "run:EZ01:mp-mw07n6du",
+            "sourceSha256": "6b832a44dd573456fb66d57207f3cf34460a0b97c8e6d9aab5b277e015772c3f",
+            "startedAt": "2026-11-03T04:51:32.588Z",
+            "endedAt": "2026-11-03T04:51:48.985Z",
+            "steps": [
+              {
+                "name": "mcp-source",
+                "exitCode": 0,
+                "signal": null,
+                "elapsedMs": 175
+              },
+              {
+                "name": "configure",
+                "exitCode": 0,
+                "signal": null,
+                "elapsedMs": 3012
+              },
+              {
+                "name": "compile",
+                "exitCode": 0,
+                "signal": null,
+                "elapsedMs": 9214
+              },
+              {
+                "name": "compile-raw-origin-selftest",
+                "exitCode": 0,
+                "signal": null,
+                "elapsedMs": 1465
+              },
+              {
+                "name": "raw-origin-selftest",
+                "exitCode": 0,
+                "signal": null,
+                "elapsedMs": 47
+              },
+              {
+                "name": "system-cursor-guard-selftest",
+                "exitCode": 0,
+                "signal": null,
+                "elapsedMs": 2273
+              },
+              {
+                "name": "cursor-render-selftest",
+                "exitCode": 0,
+                "signal": null,
+                "elapsedMs": 91
+              }
+            ],
+            "rendering": {
+              "applicationInputs": 0,
+              "checks": 80,
+              "cursorVisibilityChanged": false,
+              "foregroundUnchanged": true,
+              "frames": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports\\cursor-frames.png",
+              "kind": "cursor-render-selftest",
+              "pointerObservedAfter": {
+                "x": 2940,
+                "y": 1912
+              },
+              "pointerObservedBefore": {
+                "x": 2816,
+                "y": 1949
+              },
+              "previewSha256": "cc60b5b2effdf8719ac4e92e99b17994e73617919370c720cd208593fb87732c"
+            },
+            "framesSha256": "1f180c9bc98f1770d9eeb3ffb1c3e2527b0a4e4e35f6ec5b39515920ad028c35",
+            "runtime": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\outputs\\runtime",
+            "hostRegression": {
+              "initialOverallExit": 1,
+              "initialFailure": "test-window-use-staging: python PATH ENOENT; other selected suites passed",
+              "retryRun": "run:EZ01:cursor-host-mw07irr4",
+              "retryExit": 0,
+              "stagingTests": 4,
+              "stagingPass": 4,
+              "stagingFail": 0
+            },
+            "limits": [
+              "No application input in render selftest",
+              "Live collaboration presentation not yet accepted",
+              "No installed runtime replacement"
+            ],
+            "retention": {
+              "purpose": "Minimum runtime and rendered frames for user visual/real-use check",
+              "release": "After user confirms normal operation, recheck references and delete through existing owner"
+            }
+          },
+          "parentVerifiedRuntime": true
+        },
+        "register": {
+          "exit": 0,
+          "result": {
+            "group": {
+              "cleanup_status": null,
+              "id": "run:EZ01:mp-mw07n6du",
+              "kind": "run",
+              "members": [
+                "b0f6c1f39fbeea106423aadbc4210985bcbdd3e86a07b562d4b0cce73782d1a8"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_format": "producer_registry_v1",
+              "membership_source_identity": "0e1310e6b0e7b728bcd377d69bc150ad3cff612d08428bb92d5e03f9793960e9",
+              "owner": "EZ-01-window-use-multipointer-review",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ce1b3534e97722b2eedc5f260237f561719fac90b9ce7c8ab47b195457d58b35.json",
+              "registered_at_ms": 1793681981469,
+              "version": null
+            },
+            "items": [
+              {
+                "cache_schema": null,
+                "created_at_ms": null,
+                "generated": true,
+                "id": "b0f6c1f39fbeea106423aadbc4210985bcbdd3e86a07b562d4b0cce73782d1a8",
+                "identity": "428a72e388377aa88cdee3609cf3227648b60dc168281bfd6e8c97d6579dd8de",
+                "kind": "run",
+                "lifecycle_group_id": "run:EZ01:mp-mw07n6du",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 10832236,
+                "measured_at_ms": 1793681974605,
+                "owner": "EZ-01-window-use-multipointer-review",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du",
+                "presence": "present",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ce1b3534e97722b2eedc5f260237f561719fac90b9ce7c8ab47b195457d58b35.json",
+                "references": [],
+                "registered_at_ms": 1793681974605,
+                "remaining": true,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            ]
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:mp-mw07n6du",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ce1b3534e97722b2eedc5f260237f561719fac90b9ce7c8ab47b195457d58b35.json"
+        },
+        "registryAbsent": true
+      }
+    ],
+    "review": {
+      "exit": 0,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:cursor-host-mw07irr4",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "1209d97a53be410588b43497620b0cf59b77d83bcba3500c2c0602dbd008336a",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\db7c88f6b6a02ece61dab27ce53ca29097a77b63c727b784e76e810c2463d05d.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:mp-mw07di4u",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "88845d9af4edb3cae39ec2c75107a99f372078bca8198b4eb2f6efa2baf046c6",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\574e8bcd434292d891daeb808717bf2487783f8072fdb97adcdfe227f069c14c.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:mp-mw07ks01",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "33e2df5219364e6deca88d1a9965bfac9b3b0b3e184aea5e4e7bac3fbb5585ba",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\93230cbddad75907e070441aca3e44ecec26405a076e8933ca860bb809fbb181.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:mp-mw07n6du",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "0e1310e6b0e7b728bcd377d69bc150ad3cff612d08428bb92d5e03f9793960e9",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ce1b3534e97722b2eedc5f260237f561719fac90b9ce7c8ab47b195457d58b35.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "50018133c74c032652f2608269ba700b0e21375d4cfd51744d15c97008e853fb"
+            ],
+            "group_token": "e60331e6cdd23346188b58d40b69b17abe5c9da7efe3be315c0f0b9db96fa706",
+            "id": "50018133c74c032652f2608269ba700b0e21375d4cfd51744d15c97008e853fb",
+            "identity": "b1d84eb5298e8e411984df0d35dd8ef9433b78ed55e7dc14c377a05210b64541",
+            "lifecycle_group_id": "run:EZ01:mp-mw07di4u",
+            "logical_bytes": 10814202,
+            "measured_at_ms": 1793681672238,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "88845d9af4edb3cae39ec2c75107a99f372078bca8198b4eb2f6efa2baf046c6",
+              "member_references": {
+                "50018133c74c032652f2608269ba700b0e21375d4cfd51744d15c97008e853fb": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "id": "run:EZ01:mp-mw07di4u",
+                "kind": "run",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "version": null,
+                "state": "complete",
+                "revision": 2,
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\reports\\producer-03b3d20b76c3304e37ff29922b918a2edee3f81092c511dc10f75cb40831b4e3.json",
+                  "evidence_sha256": "03b3d20b76c3304e37ff29922b918a2edee3f81092c511dc10f75cb40831b4e3",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u\\reports\\producer-03b3d20b76c3304e37ff29922b918a2edee3f81092c511dc10f75cb40831b4e3.json",
+                  "evidence_sha256": "03b3d20b76c3304e37ff29922b918a2edee3f81092c511dc10f75cb40831b4e3",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "81e73199a94b1cf5d08fd5b1fc349f80e7a9a7470924f9577e960cc050a3a49e"
+                },
+                "references": [],
+                "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u",
+                "declaredMemberCount": 6
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793681993458,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  10,
+                  96,
+                  216,
+                  0,
+                  0,
+                  0,
+                  17,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "d5ef238cc61452fb4a7f55120ab925a74b77878b30825595cf027e822c187993",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "75ec2f9c212966f2add8caea0a8416a11632a46ebe4c13735577eb86d3ba1e27"
+            ],
+            "group_token": "38ec6f78988381eb92698cdb8b81400937fefebb04e37ab22cabecb14ae452cd",
+            "id": "75ec2f9c212966f2add8caea0a8416a11632a46ebe4c13735577eb86d3ba1e27",
+            "identity": "220ed56f52b89a748a3d4b7b0e326702449e608cb72a99e1303bcc432167499f",
+            "lifecycle_group_id": "run:EZ01:cursor-host-mw07irr4",
+            "logical_bytes": 2383,
+            "measured_at_ms": 1793681702518,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "1209d97a53be410588b43497620b0cf59b77d83bcba3500c2c0602dbd008336a",
+              "member_references": {
+                "75ec2f9c212966f2add8caea0a8416a11632a46ebe4c13735577eb86d3ba1e27": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "id": "run:EZ01:cursor-host-mw07irr4",
+                "kind": "run",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "version": null,
+                "state": "complete",
+                "revision": 2,
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4\\reports\\producer-9b24f827227aac52f9b347c7e025126fed7de3061c85b875662dbacc42138910.json",
+                  "evidence_sha256": "9b24f827227aac52f9b347c7e025126fed7de3061c85b875662dbacc42138910",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4\\reports\\producer-9b24f827227aac52f9b347c7e025126fed7de3061c85b875662dbacc42138910.json",
+                  "evidence_sha256": "9b24f827227aac52f9b347c7e025126fed7de3061c85b875662dbacc42138910",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "8ea2ea9d3ab1adcb8f9b0afd0bb5e00d920ebdeaa28d8247c4e89fbea6992fd3"
+                },
+                "references": [],
+                "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4",
+                "declaredMemberCount": 6
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793681986129,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  217,
+                  51,
+                  208,
+                  0,
+                  0,
+                  0,
+                  9,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "9e4bf7c569d3cce5485cd7fe85e84fe6a06560fdc339338b54b17df82fa77ff2",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "b0f6c1f39fbeea106423aadbc4210985bcbdd3e86a07b562d4b0cce73782d1a8"
+            ],
+            "group_token": "4181234e001fbacb8dfb02d6cf509a9e95def4dff91226664c562a324bc34f07",
+            "id": "b0f6c1f39fbeea106423aadbc4210985bcbdd3e86a07b562d4b0cce73782d1a8",
+            "identity": "428a72e388377aa88cdee3609cf3227648b60dc168281bfd6e8c97d6579dd8de",
+            "lifecycle_group_id": "run:EZ01:mp-mw07n6du",
+            "logical_bytes": 10832236,
+            "measured_at_ms": 1793681974605,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "0e1310e6b0e7b728bcd377d69bc150ad3cff612d08428bb92d5e03f9793960e9",
+              "member_references": {
+                "b0f6c1f39fbeea106423aadbc4210985bcbdd3e86a07b562d4b0cce73782d1a8": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "id": "run:EZ01:mp-mw07n6du",
+                "kind": "run",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "version": null,
+                "state": "complete",
+                "revision": 2,
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\reports\\producer-91140e997ffd441928a5ddc5217de3d3b7c1bc2fba394dc0a8a0f0ddb8c3232c.json",
+                  "evidence_sha256": "91140e997ffd441928a5ddc5217de3d3b7c1bc2fba394dc0a8a0f0ddb8c3232c",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du\\reports\\producer-91140e997ffd441928a5ddc5217de3d3b7c1bc2fba394dc0a8a0f0ddb8c3232c.json",
+                  "evidence_sha256": "91140e997ffd441928a5ddc5217de3d3b7c1bc2fba394dc0a8a0f0ddb8c3232c",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "48d6e7722b01b2850bd91edb62150993c6ec0ce887a3004d853c83cfd723c552"
+                },
+                "references": [],
+                "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du",
+                "declaredMemberCount": 6
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793682007796,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  184,
+                  182,
+                  218,
+                  0,
+                  0,
+                  0,
+                  16,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "0665b6405be06d37bff8279a2bc1271b89ae1bca1268200892a33f885a91c79c",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "d024d9e8a033175fba3e0fc051ed5a0e6423e03209ef0d8a4fd732b4607df90c"
+            ],
+            "group_token": "600915ef0e84f81845f58148d3996eb8009e4a56f0ad23fdaefb4289fd6edd40",
+            "id": "d024d9e8a033175fba3e0fc051ed5a0e6423e03209ef0d8a4fd732b4607df90c",
+            "identity": "be05ec6e0255f8f46c1b49804be1f734d22ed0ce9f8f1eaceec6cf2f37c8ec55",
+            "lifecycle_group_id": "run:EZ01:mp-mw07ks01",
+            "logical_bytes": 10831841,
+            "measured_at_ms": 1793681737408,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "33e2df5219364e6deca88d1a9965bfac9b3b0b3e184aea5e4e7bac3fbb5585ba",
+              "member_references": {
+                "d024d9e8a033175fba3e0fc051ed5a0e6423e03209ef0d8a4fd732b4607df90c": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "id": "run:EZ01:mp-mw07ks01",
+                "kind": "run",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "version": null,
+                "state": "complete",
+                "revision": 2,
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\reports\\producer-0768a488ebf796b5d2869e77507eb06a7c8b8daeb693f73660f4f8729f7c5523.json",
+                  "evidence_sha256": "0768a488ebf796b5d2869e77507eb06a7c8b8daeb693f73660f4f8729f7c5523",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01\\reports\\producer-0768a488ebf796b5d2869e77507eb06a7c8b8daeb693f73660f4f8729f7c5523.json",
+                  "evidence_sha256": "0768a488ebf796b5d2869e77507eb06a7c8b8daeb693f73660f4f8729f7c5523",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "b66ae7356babe62a2ddd435614dc1d11d02325788154f7da76b77d4c4822898b"
+                },
+                "references": [],
+                "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01",
+                "declaredMemberCount": 6
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793682000466,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  18,
+                  98,
+                  216,
+                  0,
+                  0,
+                  0,
+                  35,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "4c5bd9c173de645fe3019a23c35018606180f95ddb3b8981bf8a9a93c75efcfc",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    "apply": {
+      "exit": 0,
+      "stderr": "",
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:EZ01:cursor-host-mw07irr4",
+            "status": "deleted"
+          },
+          {
+            "id": "run:EZ01:mp-mw07di4u",
+            "status": "deleted"
+          },
+          {
+            "id": "run:EZ01:mp-mw07ks01",
+            "status": "deleted"
+          },
+          {
+            "id": "run:EZ01:mp-mw07n6du",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-31816-5574-1793682052782",
+            "decision": "delete",
+            "decision_id": "596a3158abbbf170b137435858d71942f8fe81b1dca74ddd654bbf0eac69a31b",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "50018133c74c032652f2608269ba700b0e21375d4cfd51744d15c97008e853fb",
+            "lifecycle_group_id": "run:EZ01:mp-mw07di4u",
+            "reason": "Closed successful source/fixture run no longer consumed; separate result and verified minimal runtime handoff preserved",
+            "remaining": false,
+            "status": "deleted",
+            "token": "d5ef238cc61452fb4a7f55120ab925a74b77878b30825595cf027e822c187993"
+          },
+          {
+            "attempt_id": "attempt-31816-5576-1793682083644",
+            "decision": "delete",
+            "decision_id": "9116a8778dc8ab1b7aa1b64ff8ca778cad2b26fd13ef092225c9aa5462200e92",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "75ec2f9c212966f2add8caea0a8416a11632a46ebe4c13735577eb86d3ba1e27",
+            "lifecycle_group_id": "run:EZ01:cursor-host-mw07irr4",
+            "reason": "Closed successful source/fixture run no longer consumed; separate result and verified minimal runtime handoff preserved",
+            "remaining": false,
+            "status": "deleted",
+            "token": "9e4bf7c569d3cce5485cd7fe85e84fe6a06560fdc339338b54b17df82fa77ff2"
+          },
+          {
+            "attempt_id": "attempt-31816-5578-1793682109639",
+            "decision": "delete",
+            "decision_id": "aeaab5517ca2022ee15860eb2f5d083b5c3a00c610547bbbaafd399feeebb2fa",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "b0f6c1f39fbeea106423aadbc4210985bcbdd3e86a07b562d4b0cce73782d1a8",
+            "lifecycle_group_id": "run:EZ01:mp-mw07n6du",
+            "reason": "Closed successful source/fixture run no longer consumed; separate result and verified minimal runtime handoff preserved",
+            "remaining": false,
+            "status": "deleted",
+            "token": "0665b6405be06d37bff8279a2bc1271b89ae1bca1268200892a33f885a91c79c"
+          },
+          {
+            "attempt_id": "attempt-31816-5580-1793682133908",
+            "decision": "delete",
+            "decision_id": "b7d74cf38190274603dc3786598deffbee17ed757180856ae599b1a19fb18821",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "d024d9e8a033175fba3e0fc051ed5a0e6423e03209ef0d8a4fd732b4607df90c",
+            "lifecycle_group_id": "run:EZ01:mp-mw07ks01",
+            "reason": "Closed successful source/fixture run no longer consumed; separate result and verified minimal runtime handoff preserved",
+            "remaining": false,
+            "status": "deleted",
+            "token": "4c5bd9c173de645fe3019a23c35018606180f95ddb3b8981bf8a9a93c75efcfc"
+          }
+        ]
+      }
+    }
+  },
+  "userCheck": {
+    "record": {
+      "id": "run:EZ01:cursor-check-mw07po24",
+      "kind": "run",
+      "owner": "EZ-01-window-use-multipointer-review",
+      "version": null,
+      "state": "failed",
+      "revision": 3,
+      "membership_complete": true,
+      "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+      "ownership_scope": "run-root",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports\\producer-5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017.json",
+        "evidence_sha256": "5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports\\producer-5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017.json",
+        "evidence_sha256": "5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "0e8a7b5dabb724dd090f700615a2206c2a6b9aa49654e78bc66f67bc923ea679"
+      },
+      "references": [
+        {
+          "id": "user-check:EZ01:adopted-cursors",
+          "kind": "recovery",
+          "reason": "Minimum verified native runtime and frames await user normal-operation/visual check; release and owner-delete after confirmation",
+          "reference_id": "user-check-adopted-cursors"
+        }
+      ],
+      "projectedOwnedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+      "declaredMemberCount": 6
+    },
+    "register": {
+      "exit": 0,
+      "stderr": "",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EZ01:cursor-check-mw07po24",
+          "kind": "run",
+          "members": [
+            "3d5a094fdd0953d1a4671c9510f07f89804b6329ec7a0bfee0f143b0279e2bff"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "5a3db4c4160be11a0814a0fad1c904135459b5795b07d739624e285f083670df",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b8abe4b27bf9cb8f46121100ce5b7fa0f9993c6ffbe0e4f68e21a4abdb1e639e.json",
+          "registered_at_ms": 1793682173856,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "3d5a094fdd0953d1a4671c9510f07f89804b6329ec7a0bfee0f143b0279e2bff",
+            "identity": "0e3f1b0e5fb0429e66319a8b9e76f2ccd717c2e314b97a2dc8add7fb941f4f83",
+            "kind": "run",
+            "lifecycle_group_id": "run:EZ01:cursor-check-mw07po24",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 512326,
+            "measured_at_ms": 1793682167559,
+            "owner": "EZ-01-window-use-multipointer-review",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b8abe4b27bf9cb8f46121100ce5b7fa0f9993c6ffbe0e4f68e21a4abdb1e639e.json",
+            "references": [],
+            "registered_at_ms": 1793682167559,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    "retention": "Await user normal-operation/visual check; release recovery reference then owner-delete after confirmation"
+  },
+  "summary": {
+    "status": "All authorized test groups cleaned after user live acceptance",
+    "deletedGroups": [
+      {
+        "id": "run:EZ01:mp-mw07bwij",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07bwij",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\coop-policy-1fa82782-0275-4e57-b17b-1abd21a39a53",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-6bffeeaa0ddd4ed0ac5937dd4d7e65ed",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:sp-f67f561ed7e2440b90b4cd329010ff3b",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-f67f561ed7e2440b90b4cd329010ff3b",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:sp-e785df3eeb9d483a82d7f584d3b39cca",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\sp-e785df3eeb9d483a82d7f584d3b39cca",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:mp-mw07di4u",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07di4u",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:cursor-host-mw07irr4",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-host-mw07irr4",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:mp-mw07ks01",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07ks01",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:mp-mw07n6du",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\mp-mw07n6du",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:cursor-live-mw08oz9h",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+        "finalized": true,
+        "absent": true
+      },
+      {
+        "id": "run:EZ01:cursor-check-mw07po24",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+        "finalized": true,
+        "absent": true
+      }
+    ],
+    "logicalBytesSelected": 36061790,
+    "physicalBytesReclaimed": null,
+    "retained": {
+      "id": "run:EZ01:cursor-check-mw07po24",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+      "logicalBytes": 512326,
+      "exists": false,
+      "producerExit": 1,
+      "producerOutcome": "failure",
+      "revision": 3,
+      "recoveryReferences": [
+        {
+          "id": "user-check:EZ01:adopted-cursors",
+          "kind": "recovery",
+          "reason": "Minimum verified native runtime and frames await user normal-operation/visual check; release and owner-delete after confirmation",
+          "reference_id": "user-check-adopted-cursors"
+        }
+      ],
+      "nativeItemReferences": [],
+      "operations": "register only; not reviewed or deleted",
+      "releaseCondition": "Await user normal-operation/visual check; release recovery reference then owner-delete after confirmation",
+      "status": "deleted and finalized after user acceptance; historical retention condition satisfied"
+    },
+    "openWorkerSessions": []
+  },
+  "liveCleanup": {
+    "acceptance": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\cursor-native-live-acceptance.json",
+      "sha256": "40315d63fb91890e024d2ab0e3cd521cb53b3933a6622f354c28a45e75c01c3b",
+      "result": {
+        "schema": 1,
+        "kind": "native-cursor-live-acceptance",
+        "runtimeManifestSha256": "1393ec4b4381e05f25248137f278b55f07db9400b33a94de01055bb846d8e486",
+        "sourceSha256": "6b832a44dd573456fb66d57207f3cf34460a0b97c8e6d9aab5b277e015772c3f",
+        "runId": "run:EZ01:cursor-live-mw08oz9h",
+        "environment": {
+          "platform": "Windows x64",
+          "desktop": "local Default",
+          "paintVersion": "11.2605.81.0",
+          "dpi": 144,
+          "targetHwnd": "0xc03d4"
+        },
+        "method": "Direct MCP tool calls, one native input operation at a time; no automated app scenario, UIA input or clipboard",
+        "accepted": {
+          "userCursorGeneralAppearance": true,
+          "twoModelCursorsDotDuringDrag": true,
+          "twoModelCursorsTranslucentArrowAfterDrag": true,
+          "waitingSaveIcon": true,
+          "queuedHumanClickAtIntendedPosition": true
+        },
+        "userResponses": [
+          "Initial drag not seen; otherwise no problem",
+          "Both model cursors confirmed normal",
+          "Save icon and click location both normal"
+        ],
+        "queueTrial": {
+          "beforeCompleted": 1,
+          "afterCompleted": 8,
+          "beforeSkipped": 6,
+          "afterSkipped": 6,
+          "queuedAtVioletEnd": 5,
+          "finalQueued": 0,
+          "lastFailure": "none",
+          "offHidden": false,
+          "offSuppression": false
+        },
+        "limits": [
+          "Earlier trial had6 intent_changed skips while user was doing other work; broad input reliability not established",
+          "Two preparation timeouts had no actuation; bounded same-call motion wait then succeeded",
+          "Installed product runtime unchanged",
+          "Teleport ghost was covered by native render checks, not separately live-confirmed"
+        ],
+        "termination": {
+          "native": {
+            "exitCode": 0,
+            "signal": null,
+            "terminationVerified": true
+          },
+          "witness": {
+            "exitCode": 0,
+            "signal": null
+          },
+          "observedProcessHandles": {
+            "allTerminated": true,
+            "exitCodes": [
+              0,
+              0
+            ],
+            "identities": [
+              {
+                "pid": 30768,
+                "bornMs": 1793683265909,
+                "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\outputs\\runtime\\azrael-multi-pointer.exe"
+              },
+              {
+                "pid": 22164,
+                "bornMs": 1793683329657,
+                "exe": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\outputs\\runtime\\azrael-multi-pointer.exe"
+              }
+            ]
+          },
+          "producerStoppedVerified": true,
+          "reason": "Exact native broker and its guard handles were opened after PID/creation-time/executable checks; both handles signaled and both observed exits0; witness child closed0."
+        },
+        "cleanup": {
+          "action": "Release live-run dependency and satisfied user-check recovery refs, then owner-delete both exact test groups",
+          "groups": [
+            "run:EZ01:cursor-live-mw08oz9h",
+            "run:EZ01:cursor-check-mw07po24"
+          ]
+        }
+      }
+    },
+    "groups": [
+      {
+        "id": "run:EZ01:cursor-live-mw08oz9h",
+        "before": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\reports\\producer-1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e.json",
+            "evidence_sha256": "1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e",
+            "reason": "Direct MCP trial completed with verified broker/guard termination",
+            "request_sha256": "139b94d1aa2f05741e72009138285f25f116a38f89b88fab28bcb18163ff1a6e"
+          },
+          "created_at": "2026-11-03T05:21:01.436Z",
+          "id": "run:EZ01:cursor-live-mw08oz9h",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\reports\\producer-1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e.json",
+            "evidence_sha256": "1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Direct MCP trial completed with verified broker/guard termination",
+            "status": "stopped"
+          },
+          "references": [
+            {
+              "id": "run:EZ01:cursor-check-mw07po24",
+              "kind": "dependency",
+              "reason": "Current direct MCP cursor collaboration trial uses this exact verified native runtime",
+              "reference_id": "bef210b3a76a98bebd3de00d336f852e6548d61fa16bb3ddab79d92bb49cb02c"
+            }
+          ],
+          "revision": 2,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-11-03T05:37:04.252Z",
+          "version": null
+        },
+        "closure": {
+          "lifecycleId": "run:EZ01:cursor-live-mw08oz9h",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+          "argv": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\releases\\et1-cold-20261030q\\computer-use\\node.exe",
+            "C:\\Users\\felre\\.azrael-ex\\tmp\\devin-native\\.tmpd9vfNa\\kernel.js",
+            "--session-id",
+            "d766c20ffd4d4eccbcb78f0db509a4d7",
+            "--working-dir",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Direct MCP trial completed with verified broker/guard termination",
+          "stopEvidence": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\cursor-native-live-acceptance.json",
+            "evidence_sha256": "40315d63fb91890e024d2ab0e3cd521cb53b3933a6622f354c28a45e75c01c3b",
+            "reason": "Exact owned broker and guard process handles signaled exit0; witness child closed0"
+          },
+          "children": [
+            {
+              "pid": 62336,
+              "closed": true
+            }
+          ],
+          "state": "complete",
+          "membership_complete": true
+        },
+        "releaseRequest": {
+          "owner": "EZ-01-window-use-multipointer-review",
+          "expected_revision": 2,
+          "reference_ids": [
+            "bef210b3a76a98bebd3de00d336f852e6548d61fa16bb3ddab79d92bb49cb02c"
+          ],
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\cursor-native-live-acceptance.json",
+          "evidence_sha256": "40315d63fb91890e024d2ab0e3cd521cb53b3933a6622f354c28a45e75c01c3b",
+          "reason": "User live cursor acceptance complete; exact broker and guard handles signaled with observed exits0, witness closed0; test runtime no longer consumed"
+        },
+        "after": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\reports\\producer-1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e.json",
+            "evidence_sha256": "1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e",
+            "reason": "Direct MCP trial completed with verified broker/guard termination",
+            "request_sha256": "139b94d1aa2f05741e72009138285f25f116a38f89b88fab28bcb18163ff1a6e"
+          },
+          "created_at": "2026-11-03T05:21:01.436Z",
+          "id": "run:EZ01:cursor-live-mw08oz9h",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\reports\\producer-1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e.json",
+            "evidence_sha256": "1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e",
+            "exit_code": 0,
+            "outcome": "success",
+            "reason": "Direct MCP trial completed with verified broker/guard termination",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 3,
+          "schema": 1,
+          "state": "complete",
+          "updated_at": "2026-11-03T05:38:08.217Z",
+          "version": null,
+          "release_receipt": {
+            "request_sha256": "eb3a48b5f587a435fd3e86da23f733acea6d6e37d9fac39c08d5b3ca749c0929",
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\cursor-native-live-acceptance.json",
+            "evidence_sha256": "40315d63fb91890e024d2ab0e3cd521cb53b3933a6622f354c28a45e75c01c3b",
+            "reason": "User live cursor acceptance complete; exact broker and guard handles signaled with observed exits0, witness closed0; test runtime no longer consumed"
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:cursor-live-mw08oz9h",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0fe2f13fb2858ae84cc3249523edfc02d37d114a3a4369bce8f7d559d17bc1e5.json"
+        },
+        "registryAbsent": true
+      },
+      {
+        "id": "run:EZ01:cursor-check-mw07po24",
+        "before": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports\\producer-5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017.json",
+            "evidence_sha256": "5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "0e8a7b5dabb724dd090f700615a2206c2a6b9aa49654e78bc66f67bc923ea679"
+          },
+          "created_at": "2026-11-03T04:53:27.051Z",
+          "id": "run:EZ01:cursor-check-mw07po24",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports\\producer-5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017.json",
+            "evidence_sha256": "5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "references": [
+            {
+              "id": "user-check:EZ01:adopted-cursors",
+              "kind": "recovery",
+              "reason": "Minimum verified native runtime and frames await user normal-operation/visual check; release and owner-delete after confirmation",
+              "reference_id": "user-check-adopted-cursors"
+            }
+          ],
+          "revision": 3,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-11-03T04:57:26.198Z",
+          "version": null
+        },
+        "closure": {
+          "lifecycleId": "run:EZ01:cursor-check-mw07po24",
+          "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe"
+          ],
+          "exitCode": 1,
+          "signal": null,
+          "producerStopped": true,
+          "reason": "Owned producer and tracked children stopped",
+          "children": [],
+          "state": "failed",
+          "membership_complete": true
+        },
+        "releaseRequest": {
+          "owner": "EZ-01-window-use-multipointer-review",
+          "expected_revision": 3,
+          "reference_ids": [
+            "user-check-adopted-cursors"
+          ],
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\cursor-native-live-acceptance.json",
+          "evidence_sha256": "40315d63fb91890e024d2ab0e3cd521cb53b3933a6622f354c28a45e75c01c3b",
+          "reason": "User live cursor acceptance complete; exact broker and guard handles signaled with observed exits0, witness closed0; test runtime no longer consumed"
+        },
+        "after": {
+          "close_receipt": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports\\producer-5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017.json",
+            "evidence_sha256": "5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017",
+            "reason": "Owned producer and tracked children stopped",
+            "request_sha256": "0e8a7b5dabb724dd090f700615a2206c2a6b9aa49654e78bc66f67bc923ea679"
+          },
+          "created_at": "2026-11-03T04:53:27.051Z",
+          "id": "run:EZ01:cursor-check-mw07po24",
+          "kind": "run",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+              "protection_known": true,
+              "role": "run"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\inputs",
+              "protection_known": true,
+              "role": "inputs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\temporary",
+              "protection_known": true,
+              "role": "temporary"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\logs",
+              "protection_known": true,
+              "role": "logs"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports",
+              "protection_known": true,
+              "role": "reports"
+            },
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\outputs",
+              "protection_known": true,
+              "role": "outputs"
+            }
+          ],
+          "membership_complete": true,
+          "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "ownership_scope": "run-root",
+          "producer": {
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports\\producer-5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017.json",
+            "evidence_sha256": "5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017",
+            "exit_code": 1,
+            "outcome": "failure",
+            "reason": "Owned producer and tracked children stopped",
+            "status": "stopped"
+          },
+          "references": [],
+          "revision": 4,
+          "schema": 1,
+          "state": "failed",
+          "updated_at": "2026-11-03T05:38:08.606Z",
+          "version": null,
+          "release_receipt": {
+            "request_sha256": "f5cf9a13a2651c157fb3be9b8a5436e7e117c06897826baccf1f8034abe2e98c",
+            "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\cursor-native-live-acceptance.json",
+            "evidence_sha256": "40315d63fb91890e024d2ab0e3cd521cb53b3933a6622f354c28a45e75c01c3b",
+            "reason": "User live cursor acceptance complete; exact broker and guard handles signaled with observed exits0, witness closed0; test runtime no longer consumed"
+          }
+        },
+        "absent": true,
+        "finalize": {
+          "id": "run:EZ01:cursor-check-mw07po24",
+          "status": "finalized",
+          "remaining": [],
+          "references": [],
+          "blockers": [],
+          "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b8abe4b27bf9cb8f46121100ce5b7fa0f9993c6ffbe0e4f68e21a4abdb1e639e.json"
+        },
+        "registryAbsent": true
+      }
+    ],
+    "preparationFailure": {
+      "exit": 1,
+      "cause": "One-off caller attempted unexported referenceIdentity helper; failed before any release mutation",
+      "correction": "Use exact stored reference_id supplied by current producer records"
+    },
+    "register": {
+      "exit": 0,
+      "stderr": "",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EZ01:cursor-live-mw08oz9h",
+          "kind": "run",
+          "members": [
+            "4cd44177f860a4383a252b3cf5da5d5693987fb60ecf06ee1e99b682e8094fdc"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "343ff2eefdd445d17feee81e6fd2e9e13b9cc059d38a87cd6e70ebbe2d670c8e",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0fe2f13fb2858ae84cc3249523edfc02d37d114a3a4369bce8f7d559d17bc1e5.json",
+          "registered_at_ms": 1793684319669,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "4cd44177f860a4383a252b3cf5da5d5693987fb60ecf06ee1e99b682e8094fdc",
+            "identity": "b0ea5627980cedd75c64cb6755f474728d19f719ce248412e1b70c271e361411",
+            "kind": "run",
+            "lifecycle_group_id": "run:EZ01:cursor-live-mw08oz9h",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1311732,
+            "measured_at_ms": 1793684313472,
+            "owner": "EZ-01-window-use-multipointer-review",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0fe2f13fb2858ae84cc3249523edfc02d37d114a3a4369bce8f7d559d17bc1e5.json",
+            "references": [],
+            "registered_at_ms": 1793684313472,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    "refresh": {
+      "exit": 0,
+      "stderr": "",
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EZ01:cursor-check-mw07po24",
+          "kind": "run",
+          "members": [
+            "3d5a094fdd0953d1a4671c9510f07f89804b6329ec7a0bfee0f143b0279e2bff"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "aad157dfea37e9409df9f9ceabfe1e1ce25f9b20db49e3dde51222c5135111f5",
+          "owner": "EZ-01-window-use-multipointer-review",
+          "protection_revision": "aad157dfea37e9409df9f9ceabfe1e1ce25f9b20db49e3dde51222c5135111f5",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b8abe4b27bf9cb8f46121100ce5b7fa0f9993c6ffbe0e4f68e21a4abdb1e639e.json",
+          "registered_at_ms": 1793682173856,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "3d5a094fdd0953d1a4671c9510f07f89804b6329ec7a0bfee0f143b0279e2bff",
+            "identity": "0e3f1b0e5fb0429e66319a8b9e76f2ccd717c2e314b97a2dc8add7fb941f4f83",
+            "kind": "run",
+            "lifecycle_group_id": "run:EZ01:cursor-check-mw07po24",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 512326,
+            "measured_at_ms": 1793682167559,
+            "owner": "EZ-01-window-use-multipointer-review",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+            "presence": "present",
+            "protection_known": true,
+            "protection_revision": "aad157dfea37e9409df9f9ceabfe1e1ce25f9b20db49e3dde51222c5135111f5",
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b8abe4b27bf9cb8f46121100ce5b7fa0f9993c6ffbe0e4f68e21a4abdb1e639e.json",
+            "references": [],
+            "registered_at_ms": 1793682167559,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    "review": {
+      "exit": 0,
+      "stderr": "",
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:cursor-check-mw07po24",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "aad157dfea37e9409df9f9ceabfe1e1ce25f9b20db49e3dde51222c5135111f5",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b8abe4b27bf9cb8f46121100ce5b7fa0f9993c6ffbe0e4f68e21a4abdb1e639e.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EZ01:cursor-live-mw08oz9h",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "343ff2eefdd445d17feee81e6fd2e9e13b9cc059d38a87cd6e70ebbe2d670c8e",
+            "owner": "EZ-01-window-use-multipointer-review",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0fe2f13fb2858ae84cc3249523edfc02d37d114a3a4369bce8f7d559d17bc1e5.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "3d5a094fdd0953d1a4671c9510f07f89804b6329ec7a0bfee0f143b0279e2bff"
+            ],
+            "group_token": "b794953cc21ce2f3b8fcaccbe343d545abc0c1b212dc8a856c2b0d7a9ea23c24",
+            "id": "3d5a094fdd0953d1a4671c9510f07f89804b6329ec7a0bfee0f143b0279e2bff",
+            "identity": "0e3f1b0e5fb0429e66319a8b9e76f2ccd717c2e314b97a2dc8add7fb941f4f83",
+            "lifecycle_group_id": "run:EZ01:cursor-check-mw07po24",
+            "logical_bytes": 512326,
+            "measured_at_ms": 1793682167559,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "aad157dfea37e9409df9f9ceabfe1e1ce25f9b20db49e3dde51222c5135111f5",
+              "member_references": {
+                "3d5a094fdd0953d1a4671c9510f07f89804b6329ec7a0bfee0f143b0279e2bff": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports\\producer-5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017.json",
+                  "evidence_sha256": "5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "0e8a7b5dabb724dd090f700615a2206c2a6b9aa49654e78bc66f67bc923ea679"
+                },
+                "created_at": "2026-11-03T04:53:27.051Z",
+                "id": "run:EZ01:cursor-check-mw07po24",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24\\reports\\producer-5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017.json",
+                  "evidence_sha256": "5ae668ffbb88d6ec65a91f6298df7fd9cbb35da833fca2775e49393a97ce0017",
+                  "exit_code": 1,
+                  "outcome": "failure",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "references": [],
+                "release_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\cursor-native-live-acceptance.json",
+                  "evidence_sha256": "40315d63fb91890e024d2ab0e3cd521cb53b3933a6622f354c28a45e75c01c3b",
+                  "reason": "User live cursor acceptance complete; exact broker and guard handles signaled with observed exits0, witness closed0; test runtime no longer consumed",
+                  "request_sha256": "f5cf9a13a2651c157fb3be9b8a5436e7e117c06897826baccf1f8034abe2e98c"
+                },
+                "revision": 4,
+                "schema": 1,
+                "state": "failed",
+                "updated_at": "2026-11-03T05:38:08.606Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793684327444,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  60,
+                  1,
+                  231,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "997e3fddcafbea334e75aedaef1bfe7d2ebb57b9819fa1e03f84ee2b4f04989f",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "4cd44177f860a4383a252b3cf5da5d5693987fb60ecf06ee1e99b682e8094fdc"
+            ],
+            "group_token": "7ddd87096e4364563fb0b65233f3cbcdf53f316ebd41729353b54757a46dcfdd",
+            "id": "4cd44177f860a4383a252b3cf5da5d5693987fb60ecf06ee1e99b682e8094fdc",
+            "identity": "b0ea5627980cedd75c64cb6755f474728d19f719ce248412e1b70c271e361411",
+            "lifecycle_group_id": "run:EZ01:cursor-live-mw08oz9h",
+            "logical_bytes": 1311732,
+            "measured_at_ms": 1793684313472,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "343ff2eefdd445d17feee81e6fd2e9e13b9cc059d38a87cd6e70ebbe2d670c8e",
+              "member_references": {
+                "4cd44177f860a4383a252b3cf5da5d5693987fb60ecf06ee1e99b682e8094fdc": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\reports\\producer-1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e.json",
+                  "evidence_sha256": "1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e",
+                  "reason": "Direct MCP trial completed with verified broker/guard termination",
+                  "request_sha256": "139b94d1aa2f05741e72009138285f25f116a38f89b88fab28bcb18163ff1a6e"
+                },
+                "created_at": "2026-11-03T05:21:01.436Z",
+                "id": "run:EZ01:cursor-live-mw08oz9h",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+                "owner": "EZ-01-window-use-multipointer-review",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h\\reports\\producer-1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e.json",
+                  "evidence_sha256": "1d56042c45188ea83df22c7f8e1e5cda9127277e199f6d67dc23187b5b5aa02e",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Direct MCP trial completed with verified broker/guard termination",
+                  "status": "stopped"
+                },
+                "references": [],
+                "release_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EZ-01-window-use-multipointer-review\\cursor-native-live-acceptance.json",
+                  "evidence_sha256": "40315d63fb91890e024d2ab0e3cd521cb53b3933a6622f354c28a45e75c01c3b",
+                  "reason": "User live cursor acceptance complete; exact broker and guard handles signaled with observed exits0, witness closed0; test runtime no longer consumed",
+                  "request_sha256": "eb3a48b5f587a435fd3e86da23f733acea6d6e37d9fac39c08d5b3ca749c0929"
+                },
+                "revision": 3,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-03T05:38:08.217Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793684332890,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  98,
+                  23,
+                  235,
+                  0,
+                  0,
+                  0,
+                  3,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "1a703e12e69d28fe45334bdc83694af671eade901a92fc80760aaaa901f8fd76",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    "apply": {
+      "exit": 0,
+      "stderr": "",
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:EZ01:cursor-check-mw07po24",
+            "status": "deleted"
+          },
+          {
+            "id": "run:EZ01:cursor-live-mw08oz9h",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-35888-5588-1793684368325",
+            "decision": "delete",
+            "decision_id": "0d4b61ddaa95ce29b5e834d1ede0aafbc04fa2b1c793961446c69e688b603a58",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "3d5a094fdd0953d1a4671c9510f07f89804b6329ec7a0bfee0f143b0279e2bff",
+            "lifecycle_group_id": "run:EZ01:cursor-check-mw07po24",
+            "reason": "User live acceptance complete and immutable termination evidence preserved; exact dependency/recovery references released, no consumers remain",
+            "remaining": false,
+            "status": "deleted",
+            "token": "997e3fddcafbea334e75aedaef1bfe7d2ebb57b9819fa1e03f84ee2b4f04989f"
+          },
+          {
+            "attempt_id": "attempt-35888-5590-1793684382442",
+            "decision": "delete",
+            "decision_id": "8153cfe1976e8d25c38630a6adb5e95b5dc8113fbb312a1838200515db8d304c",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "4cd44177f860a4383a252b3cf5da5d5693987fb60ecf06ee1e99b682e8094fdc",
+            "lifecycle_group_id": "run:EZ01:cursor-live-mw08oz9h",
+            "reason": "User live acceptance complete and immutable termination evidence preserved; exact dependency/recovery references released, no consumers remain",
+            "remaining": false,
+            "status": "deleted",
+            "token": "1a703e12e69d28fe45334bdc83694af671eade901a92fc80760aaaa901f8fd76"
+          }
+        ]
+      }
+    },
+    "summary": {
+      "status": "complete",
+      "logicalBytesSelected": 1824058,
+      "physicalBytesReclaimed": null,
+      "remainingPaths": [],
+      "groups": [
+        {
+          "id": "run:EZ01:cursor-live-mw08oz9h",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-live-mw08oz9h",
+          "producerExit": 0,
+          "producerOutcome": "success",
+          "absent": true,
+          "finalized": "finalized",
+          "registryAbsent": true
+        },
+        {
+          "id": "run:EZ01:cursor-check-mw07po24",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\cursor-check-mw07po24",
+          "producerExit": 1,
+          "producerOutcome": "failure",
+          "absent": true,
+          "finalized": "finalized",
+          "registryAbsent": true
+        }
+      ]
+    }
+  }
+}

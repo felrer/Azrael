@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "result": "default-adopted",
+  "binary_sha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+  "run_id": "run:EQ-01-protection-timing:default-deploy-r1",
+  "run_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-deploy-r1",
+  "verification": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\verification\\default-installation-verification.json",
+    "evidence_sha256": "8dbfa281665c75b2f0a902c93d511747773a56f56720d0ab4d847a3087b984e3"
+  },
+  "reference_release": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\verification\\default-installation-reference-release.json",
+    "evidence_sha256": "7b45068fe45966e4cf94485c3552a57ec21898fb9a769f11d4d0462d1828a103"
+  },
+  "steps": [
+    {
+      "name": "candidate-full",
+      "started_at": "2026-10-30T00:41:06.181Z",
+      "ended_at": "2026-10-30T00:44:49.323Z",
+      "elapsed_ms": 223140.8493,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "stdout_sha256": "ba89db2d246cd793d2403b81405d0524695f9ebda9d3187ceb921d0036607bee",
+      "stderr_sha256": "09b6675a10645eb3625207f924ccd8dea27cc1ef32d88786dac47069b5c9435a",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-deploy-r1\\logs\\candidate-full.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-deploy-r1\\logs\\candidate-full.stderr.log",
+      "candidate_override": true
+    },
+    {
+      "name": "default-recovery",
+      "started_at": "2026-10-30T00:45:01.128Z",
+      "ended_at": "2026-10-30T00:45:29.018Z",
+      "elapsed_ms": 27889.660600000003,
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "stdout_sha256": "b404d2d07f96bb8e6eb962387ea84a601da428653cc6e0c6233e77030b8ad373",
+      "stderr_sha256": "09b6675a10645eb3625207f924ccd8dea27cc1ef32d88786dac47069b5c9435a",
+      "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-deploy-r1\\logs\\default-recovery.stdout.log",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-deploy-r1\\logs\\default-recovery.stderr.log",
+      "candidate_override": false
+    }
+  ],
+  "cleanup": {
+    "status": "deleted-and-finalized",
+    "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\verification\\default-cleanup-final.json",
+    "logical_bytes": 2194283,
+    "physical_reclaimed_bytes": null
+  },
+  "test_results": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\verification\\default-installation-test-results.json",
+  "completed_at": "2026-10-30T00:50:22.554Z"
+}

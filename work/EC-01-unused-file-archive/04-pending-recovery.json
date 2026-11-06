@@ -1,0 +1,159 @@
+{
+  "status": "Approved recovery/retry/archive tranche complete; overall unused-file sweep remains partial due protected/uncertain items",
+  "authorized_scope": "Pending refresh recovery implementation, Windows x64 standalone build/default replacement, then remaining unused-file archive; full app/embedded engine excluded",
+  "contract": "Discard only exact uncommitted protection_revision-only pending snapshot; authoritative manifest and historical failures/unknowns/pending intents preserved",
+  "platform": {
+    "common_contract": "Native Rust library",
+    "actual_acceptance": "Windows x64 local standalone",
+    "unverified": [
+      "Linux native",
+      "macOS native",
+      "embedded engine"
+    ]
+  },
+  "source_owners": [
+    "src/lock_recovery.rs",
+    "src/lib.rs",
+    "src/bin/maintenance_owner.rs",
+    "src/storage.rs",
+    "tests/lock_recovery.rs"
+  ],
+  "retained_regressions": "Critical persistence and authorization boundary: scoped discard, exact hashes, absent prior field, stale/corrupt/broader state refusal, OS locks, held Windows handles, permissions, sibling races, ordinary deletion failure receipt",
+  "attempts": [
+    {
+      "id": "r1",
+      "result": "release build 0, actual binary success case 1/error33, library not started; diagnosed own locked file read via second handle",
+      "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\first-attempt-failure.json"
+    },
+    {
+      "id": "r2",
+      "result": "Focused typecheck 0, selected 9, execution 101 (8 passed/1 failed): Windows read-only deletion assumption corrected to held handle denying delete sharing; production unchanged",
+      "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EC-01-unused-file-archive\\runs\\pending-recovery-r1\\build-stages-r2.json"
+    },
+    {
+      "id": "r3",
+      "started": "2026-10-28T00:36:22.167Z",
+      "ended": "2026-10-28T00:50:09.993Z",
+      "result": "All seven stages exit 0; focused 9, full native 172, actual standalone five success/refusal cases; source before/after unchanged"
+    }
+  ],
+  "cleanup": {
+    "status": "complete",
+    "logical_bytes_deleted": 1364108999,
+    "physical_bytes_reclaimed": null,
+    "groups": [
+      "run:EC-01:archive-lock-retry-r1",
+      "run:EC-01:pending-recovery-r1"
+    ],
+    "verification": {
+      "pending_absent": true,
+      "temporary_request_absent": true,
+      "paths_absent": true,
+      "producer_records_absent": true
+    },
+    "native_batch_exit_code": 1,
+    "native_batch_error": "Windows error33 after first durable deletion; second group not attempted",
+    "official_reservation_recoveries": 2,
+    "remaining_single_apply_exit_code": 0,
+    "finalized_groups": [
+      "run:EC-01:pending-recovery-r1",
+      "run:EC-01:archive-lock-retry-r1"
+    ],
+    "audit": "work/EC-01-unused-file-archive/04-cleanup.json"
+  },
+  "archive_holds": [
+    "h20 reappeared after historical deletion and conflicts with unresolved custody; do not move",
+    "CF logoff temporary is canonical empty scratch parent, no payload",
+    "CF/CG/CT/DC active evidence/acceptance refs remain protected"
+  ],
+  "timing": "Actual UTC start/end and native exit per stage in owned JSON logs; attempt r2 reuses target only after prior producer terminal",
+  "installation": {
+    "version_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh",
+    "version_id": "version:maintenance-owner:ec01:pending-refresh",
+    "sha256": "72ac9cd748f76461276a6daf055230ba3f6232cacebfee4c3212d558be409529",
+    "tests_passed": 172,
+    "recovery": {
+      "group_id": "run:instruction-yazl-a",
+      "manifest_sha256": "a15e926fe1b3ad4ed06d51bf92187d3fe36088c2b00d43408bf75d03d4124228",
+      "operation": "recover_refresh_pending",
+      "receipt_ref": "artifacts/maintenance/evidence/ec01-pending-recovery-r1/discard-attempt.json",
+      "receipt_sha256": "cee3b8a3fbc1fb553ed6a1311c303d717e52b6d3ebc6e6a3e5cb7cdbc7bdf901",
+      "status": "discarded"
+    },
+    "old_version_preserved": true
+  },
+  "acceptance": "artifacts/versions/maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh/verification/acceptance.json",
+  "recovery_control": {
+    "evidence": "artifacts/maintenance/evidence/ec01-pending-recovery-r1/producer-stopped.json",
+    "receipt": "artifacts/maintenance/evidence/ec01-pending-recovery-r1/discard-attempt.json",
+    "purpose": "Protected minimum independent recovery authorization and attempted-discard audit; not payload or raw run logs",
+    "retained_files": [
+      {
+        "path": "artifacts/maintenance/evidence/ec01-pending-recovery-r1/producer-stopped.json",
+        "bytes": 1714
+      },
+      {
+        "path": "artifacts/maintenance/evidence/ec01-pending-recovery-r1/discard-attempt.json",
+        "bytes": 3254
+      },
+      {
+        "path": "artifacts/maintenance/evidence/ec01-pending-recovery-r1/cleanup-reservation-4f565143.json",
+        "bytes": 3230
+      },
+      {
+        "path": "artifacts/maintenance/evidence/ec01-pending-recovery-r1/cleanup-reservation-f3b3d4c7.json",
+        "bytes": 3069
+      }
+    ]
+  },
+  "metadata_retry": {
+    "attempted": 25,
+    "success": 25,
+    "failure": 0,
+    "reviewed_groups": 125,
+    "reviewed_items": 192,
+    "present_at_review": 185,
+    "absent_at_review": 7
+  },
+  "archive": {
+    "root": "archive/EC-01-lock-retry-20261028-r1",
+    "groups": 1,
+    "roots": 1,
+    "files": 919,
+    "logical_bytes": 4322283,
+    "identity_preserved": true,
+    "source_absent": true,
+    "native_archive_deferred_remaining": true,
+    "source_deferred_remaining": false,
+    "source_producer_finalized": true,
+    "readers_updated": [
+      "work/CR-01-build-legacy-cleanup/01-plan.md"
+    ],
+    "first_preflight_failed_without_moves": true,
+    "official_reservation_recovery_exit_code": 0,
+    "final_controller_exit_code": 0
+  },
+  "review_report": "work/EC-01-unused-file-archive/04-review-summary.json",
+  "verification": "work/EC-01-unused-file-archive/04-verification.json",
+  "cleanup_report": "work/EC-01-unused-file-archive/04-cleanup.json",
+  "remaining_uncertainty": [
+    "Two non-lock refresh refusals remain: CX membership mismatch and missing DW14 owner record",
+    "Persistent producer dependencies/evidence and installation/execution references retained",
+    "Legacy raw protection flags/manual custody uncertain; h20 conflicts with historical deletion",
+    "Original physical-absent cleanup pending intent unchanged; narrow pending-refresh recovery cannot alter it",
+    "Every plugin/provider/engine/upstream file has not been individually proved unused"
+  ],
+  "commit": "Not created: engine/SOURCE.json includes pre-existing aggregate changes from other work; do not stage wholesale or lose them",
+  "final_primary_native_files_match_accepted_receipt": {
+    "checked_files": 26,
+    "mismatches": []
+  },
+  "final_installed_binary_and_source_receipt_match": true,
+  "known_operational_uncertainty": "Original multi-group apply error33 cause remains unconfirmed; actual persisted deletion, exact stopped-producer reservation recovery and fresh single-group completion are recorded separately. No broader generic pending/result repair was introduced.",
+  "old_standalone_current_consumers": [
+    "work:eb01:cleanup-a",
+    "run:eb01-latest-install:deploy-j"
+  ],
+  "final_binary_resolved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-72ac9cd7-win-x64-ec01-pending-refresh\\payload\\maintenance_owner.exe",
+  "completed_at": "2026-10-28T01:40:55.587Z"
+}

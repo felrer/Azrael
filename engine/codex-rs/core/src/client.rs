@@ -2553,6 +2553,7 @@ where
                     }
                 }
                 Ok(ResponseEvent::Completed {
+                    service_tier,
                     response_id,
                     token_usage,
                     usage_metadata,
@@ -2579,6 +2580,7 @@ where
                             response_id,
                             token_usage,
                             usage_metadata,
+                            service_tier,
                             end_turn,
                         }))
                         .await

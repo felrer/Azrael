@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "status": "installed-awaiting-user-check",
+  "createdUtc": "2026-10-31T03:10:15.297Z",
+  "controllerPid": 34284,
+  "installation": {
+    "status": "installed-reload-required",
+    "receiptPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\deployment.json",
+    "receiptSha256": "64041b59bb828b03f095182d3f36d4e6c1faf1590c371e0338401958a359ee81",
+    "version": "2026.0.14",
+    "hostRoot": "C:\\Users\\felre\\.vscode\\extensions\\azrael-ex-local.azrael-2026.0.14",
+    "runtimePath": "C:\\Users\\felre\\.vscode\\extensions\\azrael-ex-local.azrael-2026.0.14\\out\\azrael-runtime.json",
+    "runtimeSha256": "6efdf33e44b09a52f9b4d08096bc63e8a7e4edb9baeb597892f3a2c261248e82",
+    "release": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\releases\\et1-cold-20261030q",
+    "vsix": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\deploy-et1-cold-20261030q\\package\\azrael-host.vsix",
+    "vsixSha256": "c990e9ec1cb251ea93ca6462538b61d7677d49da7b7f4bcdbb67b8c4567d369c",
+    "noLaunch": true,
+    "officialExtensionPreserved": {
+      "path": "C:\\Users\\felre\\.vscode\\extensions\\openai.chatgpt-26.1021.22027-win32-x64",
+      "sha256": "1e3166cff48466e7cf2e5970c5098aeeb871ac4841444988bd0ee835da2cfab3",
+      "fileCount": 22652,
+      "bytes": 1656786255
+    },
+    "settingsUnchanged": true,
+    "unrelatedExtensionsUnchanged": true
+  },
+  "native": {
+    "receiptSha256": "aa2617bce5d191b413e94ba2c4a18cd3c99ed0bbd6544f7c26c53a8f4a11cbf2",
+    "profile": "cache-lifetime",
+    "checks": [
+      {
+        "id": "engine.shared-engine.stable-source",
+        "exitCode": 0,
+        "durationMs": 22252.204599999997
+      },
+      {
+        "id": "tool.project-maintenance.library",
+        "exitCode": 0,
+        "durationMs": 264482.4285999999
+      },
+      {
+        "id": "tool.project-maintenance.core",
+        "exitCode": 0,
+        "durationMs": 16938.24800000002
+      },
+      {
+        "id": "tool.project-maintenance.windows-cleanup",
+        "exitCode": 0,
+        "durationMs": 394921.5768
+      }
+    ],
+    "actualExitCode": 0
+  },
+  "hostAndInstaller": {
+    "acceptanceExitCode": 0,
+    "nativeReceiptRecheckExitCode": 0,
+    "installerExitCode": 0,
+    "originalWrapperExitCode": 1,
+    "originalWrapperFailure": "Post-install helper expected non-null sourceExtensionPath for prepared-package installation; actual installer and all required gates0; no reinstall"
+  },
+  "copies": [
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-installed-profile-acceptance-20261031a\\reports\\installed-profile-acceptance.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\installed-profile-acceptance.json",
+      "sha256": "5f9f31059486d8bf83bad00b3133e7029a4e9b75f9e2a429170bc775ced72aae",
+      "bytes": 8673
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\reports\\native-continuation.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native-controller.json",
+      "sha256": "83c528a8dbef4f0548161fc3423e4f2d9b641de85c87853fa4e1b2f0f0773479",
+      "bytes": 8024
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\logs\\preservation\\preservation-ugIH0m\\receipt.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native-receipt.json",
+      "sha256": "aa2617bce5d191b413e94ba2c4a18cd3c99ed0bbd6544f7c26c53a8f4a11cbf2",
+      "bytes": 54091
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\logs\\preservation\\preservation-ugIH0m\\engine.shared-engine.stable-source.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native\\engine.shared-engine.stable-source.log",
+      "sha256": "06f1250dd96e3692d4e7e87220d5bc799eaf1f4178f11b714898e4ec0b09f5f1",
+      "bytes": 11822
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\logs\\preservation\\preservation-ugIH0m\\engine.shared-engine.stable-source.stderr.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native\\engine.shared-engine.stable-source.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\logs\\preservation\\preservation-ugIH0m\\tool.project-maintenance.library.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native\\tool.project-maintenance.library.log",
+      "sha256": "1b0a5ba82b519c09eb9864dca26f1f044927e345a0835acc32985651bc1c775a",
+      "bytes": 20641
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\logs\\preservation\\preservation-ugIH0m\\tool.project-maintenance.library.stderr.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native\\tool.project-maintenance.library.stderr.log",
+      "sha256": "0076bf1bbb6816d08703b3083417e73ba07baed08a0a348ba613e8e1c2734431",
+      "bytes": 5805
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\logs\\preservation\\preservation-ugIH0m\\tool.project-maintenance.core.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native\\tool.project-maintenance.core.log",
+      "sha256": "29ac858e165d97e8fe752db612f4a0537472e0a946b3a81780a43533fa58ace5",
+      "bytes": 1074
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\logs\\preservation\\preservation-ugIH0m\\tool.project-maintenance.core.stderr.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native\\tool.project-maintenance.core.stderr.log",
+      "sha256": "c1c2f2eaefb77024a3180aead70e2bb4fdcfcf2e41597ae352f420d0e2306ee4",
+      "bytes": 11059
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\logs\\preservation\\preservation-ugIH0m\\tool.project-maintenance.windows-cleanup.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native\\tool.project-maintenance.windows-cleanup.log",
+      "sha256": "9a76a07c3c5208d5948320d3d628f581b6ec223fc09297428fd127c860f44943",
+      "bytes": 1987
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-native-final-20261031b\\logs\\preservation\\preservation-ugIH0m\\tool.project-maintenance.windows-cleanup.stderr.log",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\native\\tool.project-maintenance.windows-cleanup.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-installed-profile-acceptance-20261031a\\reports\\check-result.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\check-result.json",
+      "sha256": "fe1a8f98cde38ddda630591bd075043e00a7b65b144a1333e4d23dc91d021e1d",
+      "bytes": 3598
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-installed-profile-acceptance-20261031a\\reports\\host-result.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\host-result.json",
+      "sha256": "b7e4b11dced16738f9238c8520e769a03ec034e03a76141cfebd300057c5a758",
+      "bytes": 5260
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-installed-profile-acceptance-20261031a\\reports\\standalone-host-result.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\standalone-host-result.json",
+      "sha256": "ba6b5f92f02b4e0f9ea874a7d70ad1ae1b0821859e711446f4c5cca072f61790",
+      "bytes": 5225
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-installed-profile-acceptance-20261031a\\reports\\host-fixture-cleanup.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\host-fixture-cleanup.json",
+      "sha256": "7f57cd24627afd39cfeb9f5b7f53dfd9927b7c8dd31895c82d8aba136d64dd51",
+      "bytes": 10680
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-source-continuation-20261031c\\reports\\continuation.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\source-continuation.json",
+      "sha256": "2c75aec9c4a8bdae0b6478ab2c8aca1780a5863db84cb8ca2ef917d40df96dd8",
+      "bytes": 24950
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-host-install-continuation-20261031a\\reports\\final-host-install.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\host-wrapper-failure.json",
+      "sha256": "0237a4c40f7dc713f57789a39956b53d00ed11bdc95b6ee2f5e19c3e5035e740",
+      "bytes": 8916
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\q-host-install-continuation-20261031a\\logs\\install-result.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\installer-result.json",
+      "sha256": "1f32289fe58ebc03dbbb77c1d9db73d581667a04f3a56f704cb0eef3d4bb22a7",
+      "bytes": 894
+    },
+    {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\q-package-engine-identity.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\package-engine-identity.json",
+      "sha256": "11a1afd3ba746bebe2b8288f6333687087419e454400d403dd86d36f7fb69c83",
+      "bytes": 12048
+    }
+  ],
+  "recoveryFiles": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\extensions-before.json",
+      "bytes": 3940,
+      "sha256": "d1c08f9d7873b2b3c1e750f4de499d012b758835c8dc5287accfd4fe4a5a1858"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\previous-azrael-shortcut.lnk",
+      "bytes": 1367,
+      "sha256": "567bcbe2b6c50b809bfc05fdbad2f752cd070cb4cf8afdf83214087c93a6d654"
+    }
+  ],
+  "recoveryBytes": 5307,
+  "releaseCondition": "User confirms normal operation after reload; release only user-check recovery reference then ordinary owner cleanup of exact backups; current installed receipt/verification/release remain protected",
+  "versionLifecycle": {
+    "id": "version:installed-host-profile:2026.0.14:20261031",
+    "revision": 2,
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838"
+  },
+  "indexPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\q\\artifacts\\deployments\\independent-20261031-120052-838\\verification\\acceptance-index.json",
+  "indexSha256": "d948de6e3b8de67d8c86406f40e8c505f27d67d8d57bfc084035f0f6825a3d37",
+  "verificationBytes": 208207,
+  "currentStatus": {
+    "installation": "installed-awaiting-user-check",
+    "productRebuilds": 0,
+    "repackages": 0,
+    "reinstalls": 0,
+    "monitoring": "failed-etl-absent-no-cache-usage-conclusion",
+    "monitoringEvidence": "cache-capture-final-failure.json",
+    "hostRawCleanup": "final-installation-raw-cleanup.json",
+    "captureCleanup": "cache-capture-final-cleanup.json",
+    "nativeRawCleanup": "final-native-raw-cleanup.json",
+    "remainingControlFiles": 18,
+    "remainingControlBytes": 99982,
+    "remainingControlOwner": "work:ET-01:cold-cache:fixtures",
+    "controlCleanupStatus": "pending-supported-ownership-split-or-original-evidence-consumer-cleanup",
+    "wholeCacheAuditComplete": false
+  }
+}

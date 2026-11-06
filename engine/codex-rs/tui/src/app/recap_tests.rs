@@ -45,6 +45,7 @@ use uuid::Uuid;
 fn turn(status: TurnStatus) -> Turn {
     Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: "turn".to_string(),
         root_turn_id: None,

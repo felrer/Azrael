@@ -37,15 +37,9 @@ remain distinct. Failed and empty results, call IDs and ordering are preserved.
 History never adds a callable tool or bypasses native permissions; nested calls
 follow current Code Mode instructions. Stored conversations remain unchanged.
 
-The resolved Claude-compatible profile projects typed search results to current
-catalog references, with no repeated schemas or namespace descriptions. Reference
-names match the adapter's final OAuth tool names; ordinary tool-result text is
-preserved. Its discovered catalog follows the [profile discovery contract](model-harness-profiles.md#mcp-discovery).
-User API requests retain their stricter current-catalog-only projection and bounded
-discovered catalog. OpenAI retains native `tool_search_output` semantics. See the
-[Devin tool contract](devin.md#tool-contract).
+Anthropic uses the same native tool identities and search-history projection as other managed providers. Prompt profile selection controls instruction representation and does not select a separate discovery or tool-name policy. User API requests retain their stricter current-catalog-only projection and bounded discovered catalog. OpenAI retains native `tool_search_output` semantics. See the [Devin tool contract](devin.md#tool-contract).
 
-Managed and user API mapper responses accept exact current wire aliases, original names and `namespace.name`. All candidate forms resolve through a request-local index; multiple identities fail with `ambiguous_tool_name`, including collisions between different name forms. No case, whitespace, prefix or partial-match repair occurs. Historical definitions and other providers' catalogs cannot grant a callable tool. Model-facing external aliases remain SHA-256-based names; the Anthropic compatible profile keeps Claude-style built-in wire names. Native executable items retain the original name and namespace. The [profile contract](model-harness-profiles.md) owns this exception. Private replay records store the resolved wire name and the digest of the actual validated arguments.
+Managed and user API mapper responses accept exact current wire aliases, original names and `namespace.name`. All candidate forms resolve through a request-local index; multiple identities fail with `ambiguous_tool_name`. No case, whitespace, prefix or partial-match repair occurs. Historical definitions and other providers' catalogs cannot grant a callable tool. Model-facing aliases remain namespace-aware SHA-256 names for every native tool. Native executable items retain original identity. Private replay records store the resolved wire name and validated argument digest. The [profile contract](model-harness-profiles.md) owns instruction selection independently of this mapping.
 
 Private `reasoning_details` replay is verified only for nonempty arrays. Empty arrays carry no replay payload and do not require unrelated recorded calls to exist in public history. Nonempty records retain per-envelope call metadata and validate call presence, resolved tool identity and argument digest; failures distinguish `reasoning_scope_mismatch_call_missing`, `reasoning_scope_mismatch_tool_name` and `reasoning_scope_mismatch_arguments`. Direct envelope origin mismatches use `reasoning_scope_mismatch_origin`; ordinary request projection continues to exclude foreign private state. Existing public history is never rewritten and argument mismatches are never repaired by changing saved digests.
 
@@ -117,12 +111,9 @@ each accompanying text part is labeled separately in its existing order. Assista
 and private thinking replay keep their existing representation. XML never promotes user or
 tool content to system authority, and does not itself establish a security boundary.
 
-Section contents use CDATA, splitting embedded `]]>` terminators to preserve the original
-text. Formatting happens on the request copy before the existing size validation. The actual
-configured adapter selects this format; model names do not select it. Other adapters retain
-their existing format, including Claude models served through a different provider protocol.
-The adapter-owned OAuth system prefix remains outside these sections. Compatible profile conversion preserves that existing prefix and appends Azrael native system/developer blocks in their original order, without the vendor's escaped-tool catalog reminders or application-identity rewrites. It retains the adapter's final explicit system cache boundary on the final native block, together with automatic, tool and message caching. Exact compatible built-in names and escaped external names remain owned by the profile projection; headers and authentication are unchanged. Live OAuth acceptance remains separate from installed-host acceptance. Conversation files
-and the maintained common behavior source are unchanged by request formatting.
+Section contents use CDATA, splitting embedded `]]>` terminators to preserve the original text. The captured prompt profile's `instruction_format` selects native or XML representation before existing size validation, independently of provider-name and tool-profile branches. Actual Anthropic routes default to the dedicated Anthropic prompt profile; explicit overrides remain authoritative.
+
+OAuth requests add no Claude Code or Claude Agent SDK identity system block, including web-search and vision sidecars. Native system/developer instructions remain ordered within the top-level system prompt. The adapter retains its shared tool-catalog guidance, cache controls, API tool names/escaping and authentication behavior; prompt profiles do not rewrite its final wire payload to emulate Claude Code. Conversation files and the maintained common behavior source are unchanged by request formatting. Installed-host and live OAuth acceptance are separate gates.
 
 ### Harness identity
 

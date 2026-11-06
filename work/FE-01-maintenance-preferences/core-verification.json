@@ -1,0 +1,528 @@
+{
+  "schema": 1,
+  "status": "blocked-compilation",
+  "platform": {
+    "os": "Windows",
+    "arch": "x64",
+    "target": "x86_64-pc-windows-msvc"
+  },
+  "sourceRecording": {
+    "method": "scripts/record-engine-local-changes.py",
+    "baselineValidated": true,
+    "baselineReceiptSha256": "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+    "receiptBefore": "50527b723b4aa0fdf2ed082326f6460d0abb0e8c4286d2745123cf1c16ea92ff",
+    "receiptAfter": "609b326c1f2e67fee9f4e998ac2e9bc693c6dd9ae28fc5954eb48f14c3d15076",
+    "reviewedModifiedPaths": [
+      "codex-rs/Cargo.lock",
+      "codex-rs/analytics/Cargo.toml",
+      "codex-rs/analytics/src/tests/suite/threads_tests.rs",
+      "codex-rs/app-server-protocol/src/protocol/thread_history.rs",
+      "codex-rs/app-server-protocol/src/protocol/thread_history_projection_tests.rs",
+      "codex-rs/app-server-protocol/src/protocol/v2/tests.rs",
+      "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+      "codex-rs/app-server-protocol/src/protocol/v2/turn.rs",
+      "codex-rs/app-server/src/bespoke_event_handling.rs",
+      "codex-rs/app-server/src/message_processor_tracing_tests.rs",
+      "codex-rs/app-server/src/request_processors/feedback_processor.rs",
+      "codex-rs/app-server/src/request_processors/persisted_resume_settings_tests.rs",
+      "codex-rs/app-server/src/request_processors/thread_queue_processor.rs",
+      "codex-rs/app-server/src/request_processors/turn_processor.rs",
+      "codex-rs/app-server/tests/suite/v2/model_provider_enforcement_tests.rs",
+      "codex-rs/app-server/tests/suite/v2/thread_queue.rs",
+      "codex-rs/app-server/tests/suite/v2/turn_start.rs",
+      "codex-rs/config/src/harness_profiles.rs",
+      "codex-rs/config/src/state.rs",
+      "codex-rs/core/Cargo.toml",
+      "codex-rs/core/src/agent/control_tests.rs",
+      "codex-rs/core/src/codex_thread.rs",
+      "codex-rs/core/src/compact_remote_v2_attempt.rs",
+      "codex-rs/core/src/context/instruction_state_projection.rs",
+      "codex-rs/core/src/context_manager/history.rs",
+      "codex-rs/core/src/context_manager/history_tests.rs",
+      "codex-rs/core/src/devin/native_runtime.rs",
+      "codex-rs/core/src/devin/native_runtime_accounts.rs",
+      "codex-rs/core/src/managed_runtime.rs",
+      "codex-rs/core/src/session/account_recovery.rs",
+      "codex-rs/core/src/session/compact_input.rs",
+      "codex-rs/core/src/session/daemon_recovery.rs",
+      "codex-rs/core/src/session/guardian_checkpoint_tests.rs",
+      "codex-rs/core/src/session/handlers.rs",
+      "codex-rs/core/src/session/mod.rs",
+      "codex-rs/core/src/session/parent_response_wait.rs",
+      "codex-rs/core/src/session/rollout_reconstruction_tests.rs",
+      "codex-rs/core/src/session/root_resume.rs",
+      "codex-rs/core/src/session/step_settings_tests.rs",
+      "codex-rs/core/src/session/tests.rs",
+      "codex-rs/core/src/session/turn.rs",
+      "codex-rs/core/src/session/turn_context.rs",
+      "codex-rs/core/src/session/turn_input.rs",
+      "codex-rs/core/src/session/turn_input_tests.rs",
+      "codex-rs/core/src/session/user_questions.rs",
+      "codex-rs/core/src/state/session.rs",
+      "codex-rs/core/src/tasks/mod.rs",
+      "codex-rs/core/src/tasks/mod_tests.rs",
+      "codex-rs/core/src/tools/handlers/dynamic.rs",
+      "codex-rs/core/src/tools/handlers/project_maintenance.rs",
+      "codex-rs/core/src/tools/handlers/root_resume.rs",
+      "codex-rs/core/src/tools/spec_plan.rs",
+      "codex-rs/core/src/tools/spec_plan_tests.rs",
+      "codex-rs/core/tests/suite/code_mode.rs",
+      "codex-rs/core/tests/suite/compact.rs",
+      "codex-rs/core/tests/suite/models_cache_auth.rs",
+      "codex-rs/core/tests/suite/personality.rs",
+      "codex-rs/core/tests/suite/remote_models.rs",
+      "codex-rs/core/tests/suite/resume_warning.rs",
+      "codex-rs/core/tests/suite/turn_input_submission.rs",
+      "codex-rs/exec/src/lib.rs",
+      "codex-rs/ext/mcp/src/cloud_plugin_tests.rs",
+      "codex-rs/ext/queue/src/service.rs",
+      "codex-rs/ext/queue/tests/queue_service.rs",
+      "codex-rs/login/src/auth/manager.rs",
+      "codex-rs/login/src/auth/profiles.rs",
+      "codex-rs/login/src/auth/profiles_tests.rs",
+      "codex-rs/models-manager/src/manager_tests.rs",
+      "codex-rs/models-manager/src/model_info_tests.rs",
+      "codex-rs/project-maintenance/src/cli.rs",
+      "codex-rs/project-maintenance/src/lease.rs",
+      "codex-rs/project-maintenance/src/lib.rs",
+      "codex-rs/project-maintenance/src/lock_recovery.rs",
+      "codex-rs/project-maintenance/tests/duplicate_claims.rs",
+      "codex-rs/project-maintenance/tests/registry.rs",
+      "codex-rs/project-maintenance/tests/root_retirement.rs",
+      "codex-rs/prompts/templates/claude-lean-behavior.md",
+      "codex-rs/prompts/templates/project-maintenance-guidance.md",
+      "codex-rs/protocol/src/lib.rs",
+      "codex-rs/protocol/src/parent_request.rs",
+      "codex-rs/protocol/src/protocol.rs",
+      "codex-rs/protocol/src/root_resume.rs",
+      "codex-rs/protocol/src/turn_input.rs",
+      "codex-rs/rollout/src/recorder_tests.rs",
+      "codex-rs/state/src/extract.rs",
+      "codex-rs/state/src/runtime/parent_requests_tests.rs",
+      "codex-rs/state/src/runtime/root_resume.rs",
+      "codex-rs/thread-store/src/local/mod.rs",
+      "codex-rs/thread-store/src/local/model_context_tests.rs",
+      "codex-rs/thread-store/src/local/rollout_migration_tests.rs",
+      "codex-rs/thread-store/src/local/thread_history_materialization_tests.rs",
+      "codex-rs/tui/src/app_server_session.rs",
+      "codex-rs/tui/src/session_queue_commands.rs"
+    ],
+    "reviewedAddedPaths": [
+      "codex-rs/core/src/session/agent_profile.rs",
+      "codex-rs/core/tests/suite/code_mode_dynamic_tools_tests.rs",
+      "codex-rs/project-maintenance/src/preferences.rs",
+      "codex-rs/protocol/src/agent_profile.rs"
+    ],
+    "removedPaths": [],
+    "onlyStagedPath": "engine/codex-rs/project-maintenance/src/preferences.rs",
+    "unrelatedIndexPreserved": true,
+    "productSourceEdited": false
+  },
+  "frozenSource": {
+    "schema": 2,
+    "sourceKind": "imported-snapshot",
+    "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+    "importedInventorySha256": "9c61e136c958cb0822d0a1daeaa487f8521055b500a5ed68fdacb8c577329b62",
+    "importedReceiptSha256": "609b326c1f2e67fee9f4e998ac2e9bc693c6dd9ae28fc5954eb48f14c3d15076",
+    "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+    "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sourceSha256": "f001a9a4af4fa5742a6486e86a99cd66bbd75a2e45903909f72ce598c95e14aa",
+    "fileCount": 9347,
+    "target": "x86_64-pc-windows-msvc",
+    "buildEnvironment": {
+      "RUSTFLAGS": "",
+      "CARGO_ENCODED_RUSTFLAGS": "",
+      "RUSTC_WRAPPER": "",
+      "RUSTUP_TOOLCHAIN": "",
+      "V8_FROM_SOURCE": "",
+      "V8_FORCE_DEBUG": "",
+      "RUSTY_V8_ARCHIVE": "",
+      "RUSTY_V8_MIRROR": "",
+      "RUSTY_V8_SRC_BINDING_PATH": "",
+      "GN": "",
+      "GN_ARGS": "",
+      "EXTRA_GN_ARGS": "",
+      "NINJA": "",
+      "CLANG_BASE_PATH": "",
+      "PYTHON": "",
+      "LIBCLANG_PATH": ""
+    }
+  },
+  "completeFrozenSource": true,
+  "freezeExclusions": [
+    "target",
+    "node_modules",
+    ".git"
+  ],
+  "toolchain": {
+    "rustc": "1.95.0",
+    "cargo": "1.95.0",
+    "cacheKey": "96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24"
+  },
+  "command": [
+    "node",
+    "scripts/check-project-maintenance.cjs",
+    "<complete frozen engine root>",
+    "--stage",
+    "core"
+  ],
+  "attempts": [
+    {
+      "run": "core-r5",
+      "wrapperExit": 101,
+      "preflight": {
+        "schema": 2,
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "contract": "selected-tests-v2",
+        "cargoInvocations": 1,
+        "accepted": false,
+        "actualCounts": {
+          "summaries": [],
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0,
+          "executed": 0
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "project_maintenance",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-02T03:58:10.677Z",
+            "durationMs": 117021,
+            "exitCode": 101,
+            "signal": null
+          }
+        ]
+      },
+      "frozenPostVerified": true,
+      "cause": "Stale protocol cache artifact: unresolved codex_protocol::agent_profile despite frozen pub mod declaration; protocol did not compile."
+    },
+    {
+      "run": "core-r8",
+      "wrapperExit": 101,
+      "preflight": {
+        "schema": 2,
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "contract": "selected-tests-v2",
+        "cargoInvocations": 1,
+        "accepted": false,
+        "actualCounts": {
+          "summaries": [],
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0,
+          "executed": 0
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "codex-core",
+              "--lib",
+              "project_maintenance",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-02T04:29:32.855Z",
+            "durationMs": 421815,
+            "exitCode": 101,
+            "signal": null
+          }
+        ]
+      },
+      "frozenPostVerified": true,
+      "actualWorkspaceCompilation": [
+        {
+          "package": "codex-protocol",
+          "frozenRelativeSource": "codex-rs/protocol"
+        },
+        {
+          "package": "codex-state",
+          "frozenRelativeSource": "codex-rs/state"
+        },
+        {
+          "package": "azrael-project-maintenance",
+          "frozenRelativeSource": "codex-rs/project-maintenance"
+        },
+        {
+          "package": "codex-rollout",
+          "frozenRelativeSource": "codex-rs/rollout"
+        },
+        {
+          "package": "codex-prompts",
+          "frozenRelativeSource": "codex-rs/prompts"
+        },
+        {
+          "package": "codex-config",
+          "frozenRelativeSource": "codex-rs/config"
+        },
+        {
+          "package": "codex-app-server-protocol",
+          "frozenRelativeSource": "codex-rs/app-server-protocol"
+        },
+        {
+          "package": "codex-login",
+          "frozenRelativeSource": "codex-rs/login"
+        },
+        {
+          "package": "codex-models-manager",
+          "frozenRelativeSource": "codex-rs/models-manager"
+        },
+        {
+          "package": "codex-analytics",
+          "frozenRelativeSource": "codex-rs/analytics"
+        },
+        {
+          "package": "codex-thread-store",
+          "frozenRelativeSource": "codex-rs/thread-store"
+        },
+        {
+          "package": "codex-core",
+          "frozenRelativeSource": "codex-rs/core"
+        }
+      ],
+      "notReached": [
+        "codex-mcp-extension"
+      ],
+      "causes": [
+        {
+          "path": "codex-rs/core/src/session/agent_profile.rs",
+          "lines": [
+            138,
+            139
+          ],
+          "error": "E0433 unresolved windows_sys Windows dependency"
+        },
+        {
+          "path": "codex-rs/core/src/session/agent_profile.rs",
+          "lines": [
+            76
+          ],
+          "error": "E0308 expected Cow<str> from managed provider branch, found String from devin/openai branches"
+        }
+      ]
+    }
+  ],
+  "boundedInvalidation": {
+    "command": [
+      "cargo",
+      "clean",
+      "--profile",
+      "dev",
+      "-p",
+      "azrael-project-maintenance",
+      "-p",
+      "codex-analytics",
+      "-p",
+      "codex-app-server",
+      "-p",
+      "codex-app-server-protocol",
+      "-p",
+      "codex-config",
+      "-p",
+      "codex-core",
+      "-p",
+      "codex-exec",
+      "-p",
+      "codex-login",
+      "-p",
+      "codex-mcp-extension",
+      "-p",
+      "codex-models-manager",
+      "-p",
+      "codex-prompts",
+      "-p",
+      "codex-protocol",
+      "-p",
+      "codex-queue-extension",
+      "-p",
+      "codex-rollout",
+      "-p",
+      "codex-state",
+      "-p",
+      "codex-thread-store",
+      "-p",
+      "codex-tui",
+      "--locked",
+      "--offline"
+    ],
+    "exitCode": 0,
+    "removedFiles": 19710,
+    "removedSizeReported": "28.0GiB",
+    "releaseAndRegistryScope": "Not selected for deletion",
+    "packages": [
+      "azrael-project-maintenance",
+      "codex-analytics",
+      "codex-app-server",
+      "codex-app-server-protocol",
+      "codex-config",
+      "codex-core",
+      "codex-exec",
+      "codex-login",
+      "codex-mcp-extension",
+      "codex-models-manager",
+      "codex-prompts",
+      "codex-protocol",
+      "codex-queue-extension",
+      "codex-rollout",
+      "codex-state",
+      "codex-thread-store",
+      "codex-tui"
+    ]
+  },
+  "admissionFailures": {
+    "core-r3": "Index reader default buffer ENOBUFS before mutation; fixed harness64MiB",
+    "core-r6": "Pre-spawn shared producer transition; failed/stopped closure reconciled",
+    "core-r7": "Pre-callback catalog acquisition Busy; failed/stopped, no clean/test child"
+  },
+  "testAcceptance": false,
+  "executedTests": 0,
+  "remaining": "Owning task must correct unrelated agent_profile compile errors before current complete-input core verification; no behavior checks waived.",
+  "artifactRunIds": [
+    "run:FE01:core-r2",
+    "run:FE01:core-r3",
+    "run:FE01:core-r4",
+    "run:FE01:core-r5",
+    "run:FE01:core-r6",
+    "run:FE01:core-r7",
+    "run:FE01:core-r8"
+  ],
+  "cleanup": "Raw runs and old complete frozen input no longer required; any corrected source requires new provenance and freeze. Cleanup outcomes kept separately in core-cleanup.json.",
+  "errorSource": {
+    "path": "codex-rs/core/src/session/agent_profile.rs",
+    "sha256": "586b8a338fb873a3c4ccd615996b43fa6ae13530c17cdb4bef0cc1cfb3791b3a",
+    "snippets": [
+      {
+        "startLine": 70,
+        "text": "        .validate()\n        .map_err(|e| CodexErr::InvalidRequest(e.into()))?;\n    let provider = if crate::managed_catalog::is_managed(model) {\n        crate::managed_catalog::selection(model)\n            .map_err(|e| CodexErr::InvalidRequest(e.to_string()))?\n            .0\n    } else if crate::devin::catalog::is_devin(model) {\n        \"devin\".to_owned()\n    } else if config.model_provider_id == \"openai\" {\n        \"openai\".to_owned()\n    } else {\n        return Err(CodexErr::InvalidRequest(\n            \"task profile account scope cannot be verified for this provider\".into(),\n        ));\n    };\n    if provider != scope.provider_id {"
+      },
+      {
+        "startLine": 134,
+        "text": "    }\n    #[cfg(windows)]\n    {\n        use std::os::windows::io::AsRawHandle;\n        use windows_sys::Win32::Storage::FileSystem::BY_HANDLE_FILE_INFORMATION;\n        use windows_sys::Win32::Storage::FileSystem::GetFileInformationByHandle;\n        let mut information: BY_HANDLE_FILE_INFORMATION = unsafe { std::mem::zeroed() };\n        if unsafe { GetFileInformationByHandle(file.as_raw_handle().cast(), &mut information) } == 0\n        {\n            return Err(io::Error::last_os_error());"
+      }
+    ]
+  },
+  "closedProducerOutcomes": [
+    {
+      "id": "run:FE01:core-r6",
+      "revision": 2,
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r6\\reports\\no-spawn-terminal-evidence.json",
+        "evidence_sha256": "98b4e8894805916deefcc79ac109ff77da0af4cb912a739b889e8e125168cff4",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Observed own controller terminal failure; synchronous preflight ended and no clean/test process launched",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:FE01:core-r2",
+      "revision": 2,
+      "state": "complete",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r2\\reports\\producer-35edd2c76a3717a295223f16214321e4fa725a42a3bff6c5d738f195e92fe3b3.json",
+        "evidence_sha256": "35edd2c76a3717a295223f16214321e4fa725a42a3bff6c5d738f195e92fe3b3",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:FE01:core-r5",
+      "revision": 2,
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r5\\reports\\producer-c098b8d6e9a8678b6363e803116407397061443649dbf97d8a69a32731247663.json",
+        "evidence_sha256": "c098b8d6e9a8678b6363e803116407397061443649dbf97d8a69a32731247663",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Mandatory core wrapper observed close; frozen source validation completed",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:FE01:core-r7",
+      "revision": 2,
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r7\\reports\\terminal-close-evidence.json",
+        "evidence_sha256": "e9d2980037c0b9b25f27089f863af84041ef4bc6808e77517092fd290d1386b3",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Bounded clean/admission failed without acceptance",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:FE01:core-r8",
+      "revision": 2,
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r8\\reports\\terminal-close-evidence.json",
+        "evidence_sha256": "8b0497a62b448fded9447d8e14f841c6be15ca3af6e9fd72f93c0b0edf97c60e",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Managed clean and core terminal outcomes observed; provenance and actual changed-package compilation reviewed",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:FE01:core-r4",
+      "revision": 2,
+      "state": "complete",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r4\\reports\\producer-33f705668a879f8b7686a4abb6e4f5356c84a82f658eea220775de434bb36403.json",
+        "evidence_sha256": "33f705668a879f8b7686a4abb6e4f5356c84a82f658eea220775de434bb36403",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    },
+    {
+      "id": "run:FE01:core-r3",
+      "revision": 2,
+      "state": "failed",
+      "membershipComplete": true,
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FE01\\runs\\core-r3\\reports\\producer-a8f277410d8be0ae81f472773af7b7efaa7be8b56ba0fb57a136d9ca05910f0b.json",
+        "evidence_sha256": "a8f277410d8be0ae81f472773af7b7efaa7be8b56ba0fb57a136d9ca05910f0b",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      }
+    }
+  ],
+  "frozenBeforeAfterIdentical": true,
+  "diagnosisComplete": true
+}

@@ -1,0 +1,17 @@
+﻿{
+    "at_utc":  "2026-11-02T14:44:33.7666204Z",
+    "question_id":  "[\"request_user_input_async\",\"01a19ca0-0224-7110-bd75-484c12b48855\",0]",
+    "user_answer":  "해당 작업 사용 종료까지 보관 승인",
+    "version_id":  "version:maintenance-owner:ff01:group-20261102",
+    "path":  "C:/Users/felre/Desktop/pi-harness-init/artifacts/versions/maintenance-owner-ff01-group-win-x64-20261102",
+    "logical_bytes":  3223528,
+    "approved_parent_pid":  36632,
+    "approved_parent_creation_utc":  "2026-11-02T13:54:03.7421090Z",
+    "approved_native_pid":  33604,
+    "approved_native_creation_utc":  "2026-11-02T13:54:16.0221880Z",
+    "purpose":  "Preserve the older executable used by this exact existing job",
+    "release_condition":  "When that job stops using this version, recheck current runtime and references, release only exact retired installation reference, refresh/review and delete through existing native owner",
+    "scope_excludes":  "No authority to retain for new consumers, force deletion, stop the other job, or bypass protection",
+    "current_runtime_evidence":  "77-ancestor-approved-retention-runtime.json",
+    "current_state":  "Still in use by same observed job; retain active installation reference"
+}

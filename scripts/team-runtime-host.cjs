@@ -58,6 +58,30 @@ function createTeamRuntimeHost({ readRegistry, readThread, logger, createService
   let pendingObservations = 0, droppedObservations = 0;
   const MAX_CONTEXTS = 256, MAX_PENDING = 128;
   const safeWarning = code => logger?.warning?.("Team observation is incomplete", { safe: { code }, sensitive: {} });
+  async function resolveApprovalOwner(threadId, hostId = "local") {
+    if (hostId !== "local" || typeof threadId !== "string" || !threadId) return null;
+    try {
+      const registry = await readRegistry();
+      if (registry?.version !== 1 || !Array.isArray(registry.teams)) return null;
+      const teams = registry.teams.filter(team => team.hostId === hostId);
+      let id = threadId; const visited = new Set();
+      while (id && visited.size < 128) {
+        if (visited.has(id)) return null;
+        visited.add(id);
+        const response = await readThread(id), thread = response?.thread;
+        if (thread?.id !== id) return null;
+        const team = teams.find(t => t.leadId === id || t.memberIds?.includes(id));
+        if (team) {
+          const lead = team.leadId === id ? thread : (await readThread(team.leadId))?.thread;
+          return lead?.id === team.leadId ? team.leadId : null;
+        }
+        const parent = parentId(thread);
+        if (!parent) return id;
+        id = parent;
+      }
+    } catch { safeWarning("APPROVAL_OWNER_UNAVAILABLE"); }
+    return null;
+  }
   async function resolveContext(threadId) {
     if (typeof threadId !== "string" || !threadId) throw problem("INVALID_THREAD", "A native caller thread is required");
     const registry = await readRegistry();
@@ -191,7 +215,7 @@ function createTeamRuntimeHost({ readRegistry, readThread, logger, createService
       return { success: false, contentItems: [{ type: "inputText", text: JSON.stringify({ error: code }) }] };
     }
   }
-  return { call, respond, observeNotification, resolveContext };
+  return { call, respond, observeNotification, resolveContext, resolveApprovalOwner };
 }
 
 module.exports = { TOOL, GUIDE, TOOL_NAMESPACE, TOOL_NAME, SCHEMA, addTeamTools, isTeamRequest, createTeamRuntimeHost };

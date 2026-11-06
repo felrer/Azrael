@@ -1,0 +1,1 @@
+{"operation":"apply","verification":"registered","decisions":[{"id":"837796e6a1495f500af20535876147827040d48a630799f5bb0407d316757274","token":"20d5efd36da2fa5e331da045a207541f1f7f27c7cfa80918330c6d319b2a0123","decision":"delete","reason":"Disposable stopped regression run; independent compact evidence retained; prior timed-out apply remains failed"}]}

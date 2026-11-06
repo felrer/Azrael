@@ -290,6 +290,19 @@ impl LocalThreadStore {
         self.state_db.clone()
     }
 
+    /// Writes local conversation data under the same live-writer exclusion as rollouts.
+    /// Shutdown, discard, and deletion remove the recorder, so late writes fail before
+    /// the closure can create or modify any files.
+    pub async fn write_live_thread_data(
+        &self,
+        thread_id: ThreadId,
+        write: impl FnOnce() -> ThreadStoreResult<()> + Send,
+    ) -> ThreadStoreResult<()> {
+        let _writer_guard = self.live_writer_locks.lock(thread_id).await;
+        live_writer::live_writer_parts(self, thread_id).await?;
+        write()
+    }
+
     async fn thread_history_db(&self) -> ThreadStoreResult<&sqlx::SqlitePool> {
         if self.state_db.is_none() {
             return Err(ThreadStoreError::Unsupported {
@@ -864,6 +877,51 @@ mod tests {
     use crate::local::test_support::write_session_file_with_history_mode;
 
     #[tokio::test]
+    async fn image_snapshot_writes_require_a_live_writer_after_shutdown_or_discard() {
+        let home = TempDir::new().expect("temporary home");
+        {
+            let store = LocalThreadStore::new(test_config(home.path()), None);
+            for discard in [false, true] {
+                let thread_id = ThreadId::new();
+                store
+                    .create_thread(create_thread_params(thread_id))
+                    .await
+                    .expect("create writer");
+                let written = std::sync::atomic::AtomicBool::new(false);
+                store
+                    .write_live_thread_data(thread_id, || {
+                        written.store(true, std::sync::atomic::Ordering::SeqCst);
+                        Ok(())
+                    })
+                    .await
+                    .expect("live snapshot write");
+                assert!(written.load(std::sync::atomic::Ordering::SeqCst));
+                if discard {
+                    store
+                        .discard_thread(thread_id)
+                        .await
+                        .expect("discard writer");
+                } else {
+                    store
+                        .shutdown_thread(thread_id)
+                        .await
+                        .expect("shutdown writer");
+                }
+                let late_write = store
+                    .write_live_thread_data(thread_id, || {
+                        panic!("snapshot closure must not execute after writer teardown");
+                    })
+                    .await
+                    .expect_err("late write must fail");
+                assert!(
+                    matches!(late_write, ThreadStoreError::ThreadNotFound { thread_id: missing } if missing == thread_id)
+                );
+            }
+        }
+        home.close().expect("remove snapshot writer fixture");
+    }
+
+    #[tokio::test]
     async fn live_writer_lifecycle_writes_and_closes() {
         let home = TempDir::new().expect("temp dir");
         let store = LocalThreadStore::new(test_config(home.path()), /*state_db*/ None);
@@ -1087,6 +1145,7 @@ mod tests {
         let cwd = std::env::current_dir().expect("current directory");
         let turn_context = |model: &str, approval_policy| {
             RolloutItem::TurnContext(TurnContextItem {
+                agent_profile: None,
                 harness_profile: None,
                 turn_id: Some("turn-1".to_string()),
                 root_turn_id: None,
@@ -2205,6 +2264,7 @@ mod tests {
 
     fn create_thread_params(thread_id: ThreadId) -> CreateThreadParams {
         CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,

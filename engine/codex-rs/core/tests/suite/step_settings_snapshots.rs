@@ -31,8 +31,9 @@ async fn ordinary_settings_updates_keep_the_running_turn_snapshot() -> Result<()
         vec![
             responses::sse(vec![
                 responses::ev_response_created("response-1"),
-                responses::ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "pause",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({ "questions": [{
                         "id": "continue",

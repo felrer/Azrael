@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "lifecycleId": "run:ET-01-cold-build-cache-audit:contained-registry-tool-20261031a",
+  "priorRevision": 2,
+  "author": "cold-build-cache-audit root",
+  "reason": "Exact external planned inputs and temporary target were created solely by the registered a producer. Original freeze and Cargo terminal evidence establish generated exclusive ownership and no remaining consumers; state/outcome/paths/roles stay unchanged.",
+  "evidence": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\ET-01-cold-build-cache-audit\\contained-registry-tool-a-failure.json",
+    "sha256": "9eb8238586f72af0a9109a6663e7b9a9a5f8aa80ad01e05b0dab7393004e7ed3"
+  },
+  "members": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\ms",
+      "generated": true,
+      "protection_known": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\e\\artifacts\\mt",
+      "generated": true,
+      "protection_known": true
+    }
+  ]
+}

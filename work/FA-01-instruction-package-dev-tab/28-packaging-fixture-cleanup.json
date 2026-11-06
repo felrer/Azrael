@@ -1,0 +1,1306 @@
+{
+  "schema": 1,
+  "owner": "workbench_backend",
+  "recordedAtUtc": "2026-11-03T08:46:21.500Z",
+  "authority": "Parent approved exact fix01-fix06 disposal after independent evidence transfer; preserve fix07 and all overrides/frozen sources",
+  "targetIds": [
+    "run:FA-01-packaging-fixture-closure:fix01",
+    "run:FA-01-packaging-fixture-closure:fix02",
+    "run:FA-01-packaging-fixture-closure:fix03",
+    "run:FA-01-packaging-fixture-closure:fix04",
+    "run:FA-01-packaging-fixture-closure:fix05",
+    "run:FA-01-packaging-fixture-closure:fix06"
+  ],
+  "preserved": "run:FA-01-packaging-fixture-closure:fix07",
+  "records": [
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix01",
+      "report": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\reports\\verification.json",
+        "sha256": "425dc8df6c1484225185cc016c10522ef96bb696c6de2d52fc12dd792f231fdb"
+      },
+      "producer": {
+        "lifecycleId": "run:FA-01-packaging-fixture-closure:fix01",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "Y29uc3QgZnM9cmVxdWlyZSgnZnMnKSxwPXJlcXVpcmUoJ3BhdGgnKSxjcD1yZXF1aXJlKCdjaGlsZF9wcm9jZXNzJyksY3J5cHRvPXJlcXVpcmUoJ2NyeXB0bycpLGE9cmVxdWlyZSgnLi9zY3JpcHRzL2FydGlmYWN0LXJ1bi5janMnKSxsPXJlcXVpcmUoJy4vc2NyaXB0cy9hcnRpZmFjdC1saWZlY3ljbGUuY2pzJykscm9vdD1wcm9jZXNzLmN3ZCgpLGZyb3plbj1wLnJlc29sdmUoJ2FydGlmYWN0cy93MTdjJyksaGFzaD1mPT5jcnlwdG8uY3JlYXRlSGFzaCgnc2hhMjU2JykudXBkYXRlKGZzLnJlYWRGaWxlU3luYyhmKSkuZGlnZXN0KCdoZXgnKTsKY29uc3QgbmFtZXM9WydwYWNrYWdpbmctd29ya3NwYWNlLmNqcycsJ3Rlc3QtcGxhdGZvcm0tcGFja2FnaW5nLmNqcycsJ3Rlc3QtcHJvamVjdC1mYWlsLWZhc3QuY2pzJywndGVzdC1wYWNrYWdpbmctd29ya3NwYWNlLmNqcyddLGJhc2VsaW5lPW5hbWVzLm1hcChuYW1lPT4oe25hbWUsZnJvemVuU2hhMjU2Omhhc2gocC5qb2luKGZyb3plbiwnc2NyaXB0cycsbmFtZSkpLHByaW1hcnlTaGEyNTY6aGFzaChwLmpvaW4ocm9vdCwnc2NyaXB0cycsbmFtZSkpfSkpO2lmKGJhc2VsaW5lLnNvbWUoeD0+eC5mcm96ZW5TaGEyNTYhPT14LnByaW1hcnlTaGEyNTYpKXRocm93IEVycm9yKCdQcmltYXJ5IENBUyBiYXNlbGluZSBkaWZmZXJzJyk7Y29uc3QgY2F0PWwud2l0aENhdGFsb2dMb2NrKHJvb3QsKCk9PmwuY2F0YWxvZyhyb290KSksaWRzPVsnd29ya3NwYWNlOmQzNzc4Yjg0MmNkNWFmZTU4YThlOWEwMScsJ2lucHV0OmQzNzc4Yjg0MmNkNWFmZTU4YThlOWEwMScsJ3J1bjpGQS0wMS1jYXJnby1zZWxlY3Rpb24tZXhwZWN0YXRpb25zOjIwMjYxMTAzVDA3MTA1MTU2MlotMWE5ODA2MGQtYjcwMS00MTA4LWFiMGMtNjdlZmJkMjBhZTU0J107Y29uc3QgcmVmcz1pZHMubWFwKGlkPT57Y29uc3Qgcj1jYXQuZmluZCh4PT54LmlkPT09aWQpO2lmKCFyKXRocm93IEVycm9yKCdtaXNzaW5nIG93bmVyICcraWQpO3JldHVybntpZCxraW5kOidkZXBlbmRlbmN5JyxtZW1iZXJfcGF0aHM6W2wucHJvamVjdE1lbWJlcnMoci5tZW1iZXJzKVswXS5wYXRoXSxyZWFzb246J1Jvb3QgYXBwcm92ZWQgZm91ciBleGFjdCBzY3JpcHRzLW9ubHkgcGFja2FnaW5nIGZpeHR1cmUgY29ycmVjdGlvbnMgZnJvbSBmcm96ZW4gdzE3Yyd9O30pO2NvbnN0IHJ1bj1hLmJlZ2luQXJ0aWZhY3RSdW4ocm9vdCx7d29ya0lkOidGQS0wMS1wYWNrYWdpbmctZml4dHVyZS1jbG9zdXJlJyxvd25lcjond29ya2JlbmNoX2JhY2tlbmQnLHJ1bklkOidmaXgwMScscmVmZXJlbmNlczpyZWZzfSk7Y29uc3QgcmVwb3J0PXtzY2hlbWE6MSxsaWZlY3ljbGVJZDpydW4ubGlmZWN5Y2xlSWQscnVuUm9vdDpydW4ucnVuUm9vdCxmcm96ZW5Sb290OmZyb3plbixiYXNlbGluZSxzb3VyY2VSZWNlaXB0QmVmb3JlOmhhc2gocC5qb2luKGZyb3plbiwnZW5naW5lL1NPVVJDRS5qc29uJykpLHByaW1hcnlTb3VyY2VSZWNlaXB0QmVmb3JlOmhhc2gocC5qb2luKHJvb3QsJ2VuZ2luZS9TT1VSQ0UuanNvbicpKSxwbGFubmVkV3JpdGVzOlt7cGF0aDpwLmpvaW4ocnVuLmlucHV0cywncHJvamVjdC9zY3JpcHRzJykscm9sZTonRnJvemVuIHNjcmlwdHMtb25seSB0ZXN0IGZpeHR1cmUnfSx7cGF0aDpwLmpvaW4ocnVuLm91dHB1dHMsJ292ZXJyaWRlcy9zY3JpcHRzJykscm9sZTonRm91ciBleGFjdCBkZXJpdmVkIGlucHV0IG92ZXJyaWRlcyd9LHtwYXRoOnJ1bi50ZW1wb3Jhcnkscm9sZTonT3duZWQgc21hbGwgdGVzdCBwcm9qZWN0cy9sb2cvdGVtcC9zdGF0ZSd9XSxjYWxsczpbXSxvdmVycmlkZXM6W10scmVhZHk6ZmFsc2V9O2NvbnN0IHJmPXAuam9pbihydW4ucmVwb3J0cywndmVyaWZpY2F0aW9uLmpzb24nKSxzYXZlPSgpPT5mcy53cml0ZUZpbGVTeW5jKHJmLEpTT04uc3RyaW5naWZ5KHJlcG9ydCxudWxsLDIpKydcbicpO3NhdmUoKTsKYXN5bmMgZnVuY3Rpb24gY2FsbChuYW1lLGFyZ3Mpe2NvbnN0IHJlcz1hd2FpdCBuZXcgUHJvbWlzZSgocmVzb2x2ZSxyZWplY3QpPT57Y29uc3QgYz1hLnRyYWNrQXJ0aWZhY3RDaGlsZChydW4sY3Auc3Bhd24ocHJvY2Vzcy5leGVjUGF0aCxhcmdzLHtjd2Q6Zml4dHVyZSxlbnYsd2luZG93c0hpZGU6dHJ1ZSxzdGRpbzpbJ2lnbm9yZScsJ3BpcGUnLCdwaXBlJ119KSk7bGV0IG91dD1bXSxlcnI9W107Yy5zdGRvdXQub24oJ2RhdGEnLGI9Pm91dC5wdXNoKGIpKTtjLnN0ZGVyci5vbignZGF0YScsYj0+ZXJyLnB1c2goYikpO2Mub24oJ2Vycm9yJyxyZWplY3QpO2Mub24oJ2Nsb3NlJywoZXhpdENvZGUsc2lnbmFsKT0+cmVzb2x2ZSh7cGlkOmMucGlkLGV4aXRDb2RlLHNpZ25hbCxzdGRvdXQ6QnVmZmVyLmNvbmNhdChvdXQpLHN0ZGVycjpCdWZmZXIuY29uY2F0KGVycil9KSk7fSk7Y29uc3Qgc289cC5qb2luKHJ1bi5sb2dzLG5hbWUrJy5zdGRvdXQubG9nJyksc2U9cC5qb2luKHJ1bi5sb2dzLG5hbWUrJy5zdGRlcnIubG9nJyk7ZnMud3JpdGVGaWxlU3luYyhzbyxyZXMuc3Rkb3V0KTtmcy53cml0ZUZpbGVTeW5jKHNlLHJlcy5zdGRlcnIpO3JlcG9ydC5jYWxscy5wdXNoKHtuYW1lLGV4ZWN1dGFibGU6cHJvY2Vzcy5leGVjUGF0aCxhcmdzLGN3ZDpmaXh0dXJlLHBpZDpyZXMucGlkLGV4aXRDb2RlOnJlcy5leGl0Q29kZSxzaWduYWw6cmVzLnNpZ25hbCxzdGRvdXQ6c28sc3RkZXJyOnNlLHN0ZG91dFNoYTI1NjpoYXNoKHNvKSxzdGRlcnJTaGEyNTY6aGFzaChzZSl9KTtzYXZlKCk7aWYocmVzLmV4aXRDb2RlIT09MHx8cmVzLnNpZ25hbCl0aHJvdyBFcnJvcihuYW1lKycgYWN0dWFsZXhpdCAnK3Jlcy5leGl0Q29kZSsnOiAnK3Jlcy5zdGRlcnIudG9TdHJpbmcoKS5zbGljZSgwLDEzMDApKTt9CmNvbnN0IGZpeHR1cmU9cC5qb2luKHJ1bi5pbnB1dHMsJ3Byb2plY3QnKSxlbnY9ey4uLnByb2Nlc3MuZW52LFRFTVA6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3RlbXAnKSxUTVA6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3RlbXAnKSxUTVBESVI6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3RlbXAnKSxBWlJBRUxfU1RBVEVfUk9PVDpwLmpvaW4ocnVuLnRlbXBvcmFyeSwnc3RhdGUnKSxBWlJBRUxfUEFDS0FHSU5HX1RFU1RfUk9PVDpwLmpvaW4ocnVuLnRlbXBvcmFyeSwncGxhdGZvcm0nKSxBWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09UOnAuam9pbihydW4udGVtcG9yYXJ5LCdydW5uZXInKSxBWlJBRUxfVEVTVF9QWVRIT046J0M6L1VzZXJzL2ZlbHJlL0FwcERhdGEvTG9jYWwvUHJvZ3JhbXMvUHl0aG9uL1B5dGhvbjMxMy9weXRob24uZXhlJyxQWVRIT05ET05UV1JJVEVCWVRFQ09ERTonMSd9O2RlbGV0ZSBlbnYuQVpSQUVMX0NBUkdPX09XTkVSX1RFU1RfUk9PVDtkZWxldGUgZW52LlNUQVRFX1JPT1Q7Cihhc3luYygpPT57bGV0IGV4aXRDb2RlPTE7dHJ5ewpjb25zdCBjb3B5PXJlcXVpcmUoJy4vc2NyaXB0cy9mcmVlemUtcGxhdGZvcm0taW5wdXRzLmNqcycpLmNvcHlUcmVlO2NvcHkocC5qb2luKGZyb3plbiwnc2NyaXB0cycpLHAuam9pbihmaXh0dXJlLCdzY3JpcHRzJykpO2ZzLm1rZGlyU3luYyhwLmpvaW4oZml4dHVyZSwnYXJ0aWZhY3RzL3ZlcmlmaWNhdGlvbicpLHtyZWN1cnNpdmU6dHJ1ZX0pO2ZzLm1rZGlyU3luYyhwLmpvaW4ocnVuLm91dHB1dHMsJ292ZXJyaWRlcy9zY3JpcHRzJykse3JlY3Vyc2l2ZTp0cnVlfSk7Zm9yKGNvbnN0IHEgb2YgW2Vudi5URU1QLGVudi5BWlJBRUxfU1RBVEVfUk9PVCxlbnYuQVpSQUVMX1BBQ0tBR0lOR19URVNUX1JPT1QsZW52LkFaUkFFTF9QUk9KRUNUX1JVTk5FUl9URVNUX1JPT1RdKWZzLm1rZGlyU3luYyhxLHtyZWN1cnNpdmU6dHJ1ZX0pOwpmb3IoY29uc3QgaXRlbSBvZiBiYXNlbGluZSl7bGV0IHRleHQ9ZnMucmVhZEZpbGVTeW5jKHAuam9pbihmcm96ZW4sJ3NjcmlwdHMnLGl0ZW0ubmFtZSksJ3V0ZjgnKTtpZihbJ3BhY2thZ2luZy13b3Jrc3BhY2UuY2pzJywndGVzdC1wYWNrYWdpbmctd29ya3NwYWNlLmNqcyddLmluY2x1ZGVzKGl0ZW0ubmFtZSkpe2NvbnN0IGZyb209JyJtYWludGVuYW5jZS1sb2NrLW93bmVyIiwgIm1haW50ZW5hbmNlLW93bmVyLWNvbmZpZyInO2lmKHRleHQuc3BsaXQoZnJvbSkubGVuZ3RoIT09Mil0aHJvdyBFcnJvcignVW5leHBlY3RlZCBtb2R1bGUgYW5jaG9yICcraXRlbS5uYW1lKTt0ZXh0PXRleHQucmVwbGFjZShmcm9tLCcibWFpbnRlbmFuY2UtbG9jay1vd25lciIsICJtYWludGVuYW5jZS1wcmVmZXJlbmNlcyIsICJtYWludGVuYW5jZS1vd25lci1jb25maWciJyk7fWVsc2UgaWYoaXRlbS5uYW1lPT09J3Rlc3QtcGxhdGZvcm0tcGFja2FnaW5nLmNqcycpe2NvbnN0IGZyb209JyJtYWludGVuYW5jZS1sb2NrLW93bmVyLmNqcyIsIm1haW50ZW5hbmNlLWxvY2std29ya2VyLmNqcyInO2lmKHRleHQuc3BsaXQoZnJvbSkubGVuZ3RoIT09Mil0aHJvdyBFcnJvcignVW5leHBlY3RlZCBmaXh0dXJlIGFuY2hvcicpO3RleHQ9dGV4dC5yZXBsYWNlKGZyb20sJyJtYWludGVuYW5jZS1sb2NrLW93bmVyLmNqcyIsIm1haW50ZW5hbmNlLXByZWZlcmVuY2VzLmNqcyIsIm1haW50ZW5hbmNlLWxvY2std29ya2VyLmNqcyInKTt9ZWxzZXtjb25zdCBmcm9tPSdydW5TZWxlY3Rpb24oeyAuLi5zZWxlY3Rpb24oWyJzb3VyY2UiXSksIGZpbGVzOiBbXSwgZXh0ZW5zaW9uRmlsZXM6IFsiZXh0ZW5zaW9ucy9henJhZWwtZXgvdGVzdC9pbnN0cnVjdGlvblNlcnZpY2UudGVzdC50cyJdIH0sIHsnO2lmKHRleHQuc3BsaXQoZnJvbSkubGVuZ3RoIT09Mil0aHJvdyBFcnJvcignVW5leHBlY3RlZCBmYWlsZmFzdCBhbmNob3InKTt0ZXh0PXRleHQucmVwbGFjZShmcm9tLCdydW5TZWxlY3Rpb24oeyAuLi5zZWxlY3Rpb24oWyJzb3VyY2UiXSksIGZpbGVzOiBbInNjcmlwdHMvdGVzdHMvaW5zdHJ1Y3Rpb24tY2F0YWxvZy50ZXN0LmNqcyJdLCBleHRlbnNpb25GaWxlczogW10gfSwgeycpO31jb25zdCB0YXJnZXQ9cC5qb2luKHJ1bi5vdXRwdXRzLCdvdmVycmlkZXMvc2NyaXB0cycsaXRlbS5uYW1lKTtmcy53cml0ZUZpbGVTeW5jKHRhcmdldCx0ZXh0KTtmcy53cml0ZUZpbGVTeW5jKHAuam9pbihmaXh0dXJlLCdzY3JpcHRzJyxpdGVtLm5hbWUpLHRleHQpO3JlcG9ydC5vdmVycmlkZXMucHVzaCh7c291cmNlOnRhcmdldCxkZXN0aW5hdGlvblJlbGF0aXZlOidzY3JpcHRzLycraXRlbS5uYW1lLHNoYTI1NjpoYXNoKHRhcmdldCksYnl0ZXM6ZnMuc3RhdFN5bmModGFyZ2V0KS5zaXplLGJhc2VTaGEyNTY6aXRlbS5mcm96ZW5TaGEyNTZ9KTt9c2F2ZSgpOwpjb25zdCBwaW49SlNPTi5wYXJzZShmcy5yZWFkRmlsZVN5bmMoJ2FydGlmYWN0cy9tYWludGVuYW5jZS9vd25lci1pbnN0YWxsYXRpb24uanNvbicpKTtpZihoYXNoKHAucmVzb2x2ZShwaW4uZXhlY3V0YWJsZSkpIT09cGluLnNoYTI1Nil0aHJvdyBFcnJvcignT3duZXIgcGluIGhhc2ggbWlzbWF0Y2gnKTtlbnYuQVpSQUVMX01BSU5URU5BTkNFX09XTkVSPXAucmVzb2x2ZShwaW4uZXhlY3V0YWJsZSk7cmVwb3J0Lm1haW50ZW5hbmNlT3duZXI9e3BhdGg6ZW52LkFaUkFFTF9NQUlOVEVOQU5DRV9PV05FUixzaGEyNTY6cGluLnNoYTI1Nn07cmVwb3J0LmVudmlyb25tZW50PXtURU1QOmVudi5URU1QLEFaUkFFTF9TVEFURV9ST09UOmVudi5BWlJBRUxfU1RBVEVfUk9PVCxBWlJBRUxfUEFDS0FHSU5HX1RFU1RfUk9PVDplbnYuQVpSQUVMX1BBQ0tBR0lOR19URVNUX1JPT1QsQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVDplbnYuQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVCxBWlJBRUxfVEVTVF9QWVRIT046ZW52LkFaUkFFTF9URVNUX1BZVEhPTixBWlJBRUxfTUFJTlRFTkFOQ0VfT1dORVI6ZW52LkFaUkFFTF9NQUlOVEVOQU5DRV9PV05FUn07c2F2ZSgpOwphd2FpdCBjYWxsKCdwbGF0Zm9ybS1wYWNrYWdpbmcnLFsnc2NyaXB0cy90ZXN0LXBsYXRmb3JtLXBhY2thZ2luZy5janMnXSk7YXdhaXQgY2FsbCgncGFja2FnaW5nLXdvcmtzcGFjZScsWydzY3JpcHRzL3Rlc3QtcGFja2FnaW5nLXdvcmtzcGFjZS5janMnLHAuam9pbihydW4udGVtcG9yYXJ5LCdwYWNrYWdpbmctd29ya3NwYWNlJyldKTthd2FpdCBjYWxsKCdwcm9qZWN0LWZhaWwtZmFzdCcsWyctLXRlc3QnLCdzY3JpcHRzL3Rlc3QtcHJvamVjdC1mYWlsLWZhc3QuY2pzJ10pOwpmb3IoY29uc3QgaXRlbSBvZiByZXBvcnQuYmFzZWxpbmUpaWYoaGFzaChwLmpvaW4ocm9vdCwnc2NyaXB0cycsaXRlbS5uYW1lKSkhPT1pdGVtLnByaW1hcnlTaGEyNTYpdGhyb3cgRXJyb3IoJ1ByaW1hcnkgQ0FTIGNoYW5nZWQgJytpdGVtLm5hbWUpO2Zvcihjb25zdCBpdGVtIG9mIHJlcG9ydC5vdmVycmlkZXMpe2NvbnN0IHRhcmdldD1wLmpvaW4ocm9vdCxpdGVtLmRlc3RpbmF0aW9uUmVsYXRpdmUpO2ZzLndyaXRlRmlsZVN5bmModGFyZ2V0LGZzLnJlYWRGaWxlU3luYyhpdGVtLnNvdXJjZSkpO2lmKGhhc2godGFyZ2V0KSE9PWl0ZW0uc2hhMjU2KXRocm93IEVycm9yKCdQcmltYXJ5IG91dHB1dCBtaXNtYXRjaCcpO31yZXBvcnQucHJpbWFyeUNhc01lcmdlZD10cnVlO3JlcG9ydC5zb3VyY2VVbmNoYW5nZWQ9aGFzaChwLmpvaW4oZnJvemVuLCdlbmdpbmUvU09VUkNFLmpzb24nKSk9PT1yZXBvcnQuc291cmNlUmVjZWlwdEJlZm9yZSYmaGFzaChwLmpvaW4ocm9vdCwnZW5naW5lL1NPVVJDRS5qc29uJykpPT09cmVwb3J0LnByaW1hcnlTb3VyY2VSZWNlaXB0QmVmb3JlO3JlcG9ydC5mcm96ZW5TY3JpcHRzVW5jaGFuZ2VkPWJhc2VsaW5lLmV2ZXJ5KHg9Pmhhc2gocC5qb2luKGZyb3plbiwnc2NyaXB0cycseC5uYW1lKSk9PT14LmZyb3plblNoYTI1Nik7aWYoIXJlcG9ydC5zb3VyY2VVbmNoYW5nZWR8fCFyZXBvcnQuZnJvemVuU2NyaXB0c1VuY2hhbmdlZCl0aHJvdyBFcnJvcignRnJvemVuL3NvdXJjZSBpZGVudGl0eSBjaGFuZ2VkJyk7cmVwb3J0LnJlYWR5PXRydWU7ZXhpdENvZGU9MDsKfWNhdGNoKGUpe3JlcG9ydC5lcnJvcj1lLnN0YWNrO2NvbnNvbGUuZXJyb3IoZS5zdGFjayk7fWZpbmFsbHl7cmVwb3J0LmZpbmlzaGVkQXRVdGM9bmV3IERhdGUoKS50b0lTT1N0cmluZygpO3NhdmUoKTt0cnl7YS5maW5pc2hBcnRpZmFjdFJ1bihydW4se2V4aXRDb2RlLHByb2R1Y2VyU3RvcHBlZDp0cnVlLHJlYXNvbjonU2NvcGVkIGZvdXIgc2NyaXB0IG92ZXJyaWRlcyBhbmQgZXhpc3RpbmcgcmVsZXZhbnQgcGFja2FnaW5nL2ZhaWxmYXN0IHRlc3RzOyBhbGwgY2hpbGQgY2xvc2UgcmVzdWx0cyBvYnNlcnZlZCd9KTt9Y2F0Y2goZSl7Y29uc29sZS5lcnJvcihlLnN0YWNrKTtleGl0Q29kZT0xO31jb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7cmVhZHk6cmVwb3J0LnJlYWR5LHJlcG9ydDpyZixzaGEyNTY6aGFzaChyZiksbGlmZWN5Y2xlSWQ6cnVuLmxpZmVjeWNsZUlkfSkpO3Byb2Nlc3MuZXhpdENvZGU9ZXhpdENvZGU7fX0pKCk7"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Scoped four script overrides and existing relevant packaging/failfast tests; all child close results observed",
+        "children": [
+          {
+            "pid": 23288,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true,
+        "evidencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\reports\\producer.json",
+        "evidenceSha256": "f2249155b09d81ee9465b675a35d2c06c49c8aaca391b99e2052758561388cd3"
+      },
+      "cause": "Error: platform-packaging actualexit 1: node:fs:697\r\n  return binding.open(\r\n                 ^\r\n\r\nError: ENOENT: no such file or directory, open 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\inputs\\project\\artifacts\\upstream-ui\\26.1007.21434\\package.json'\r\n    at Object.openSync (node:fs:697:18)\r\n    at Object.readFileSync (node:fs:543:35)\r\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\inputs\\project\\scripts\\test-platform-packaging.cjs:168:271\r\n    at check (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\inputs\\project\\scripts\\test-platform-packaging.cjs:10:40)\r\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\inputs\\project\\scripts\\test-platform-packaging.cjs:168:1)\r\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\r\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19) {\r\n  errno: -4058,\r\n  code: 'ENOENT',\r\n  syscall: 'open',\r\n  path: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harne\n    at call (eval at <anonymous> ([eval]:1:1), <anonymous>:3:825)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async eval (eval at <anonymous> ([eval]:1:1), <anonymous>:9:1)",
+      "commands": [
+        {
+          "name": "platform-packaging",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "scripts/test-platform-packaging.cjs"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\inputs\\project",
+          "pid": 23288,
+          "exitCode": 1,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\logs\\platform-packaging.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\logs\\platform-packaging.stderr.log",
+          "stdoutSha256": "42d565ec76cd0c9601eccba22dd8f43d5de3bcb0c6ad3a2fe1dbb32531cce37f",
+          "stderrSha256": "2c434a8d537f0834ac92350904fbccde1eda06ea936388a39de834a75dc32ace",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "PASS package frozen runtime and schema2 inventory\nPASS standalone package references a protected real imported input owner\nPASS imported input owner is reused without promoting its retained state\nPASS failed packaging records pending before output and preserves the failed outcome\nPASS explicit lifecycle must be a version that owns the selected release\nPASS source paths cannot be adopted as generated packaging inputs\nPASS existing release version owner is reused and explicit ownership remains supported\nPASS imported identity changes, path changes and overlapping ownership stay distinct\nPASS imported ID collisions cannot replace an existing owner's identity\nPASS explicit version state is preserved and concurrent changes are never overwritten\nPASS producer-shaped bundled Node bootstrap matches inventoried path\nPASS minimal package explicitly requires external Node without advertising a bundle\nPASS ZIP mode roundtrip\nPASS path traversal refused before mutation\nPASS wrong platform refused\nPASS tampered runtime refused before destination creation\nPASS invalid executable inventory mode refused\nPASS unlisted state files refused\nPASS relocated prepare-only install preserves state and binds runtime\nPASS side-by-side destination cannot be overwritten\nPASS ordinary Codex state refused\nPASS state/runtime overlap refused\nPASS ZIP archive traversal rejected\nPASS ZIP compressed entry tamper rejected\n",
+          "stderrExcerpt": "node:fs:697\r\n  return binding.open(\r\n                 ^\r\n\r\nError: ENOENT: no such file or directory, open 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\inputs\\project\\artifacts\\upstream-ui\\26.1007.21434\\package.json'\r\n    at Object.openSync (node:fs:697:18)\r\n    at Object.readFileSync (node:fs:543:35)\r\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\inputs\\project\\scripts\\test-platform-packaging.cjs:168:271\r\n    at check (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\inputs\\project\\scripts\\test-platform-packaging.cjs:10:40)\r\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\inputs\\project\\scripts\\test-platform-packaging.cjs:168:1)\r\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\r\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19) {\r\n  errno: -4058,\r\n  code: 'ENOENT',\r\n  syscall: 'open',\r\n  path: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-packaging-fixture-closure\\\\runs\\\\fix01\\\\inputs\\\\project\\\\artifacts\\\\upstream-ui\\\\26.1007.21434\\\\package.json'\r\n}\r\n\r\nNode.js v26.7.0\r\n"
+        }
+      ],
+      "overrides": [
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\outputs\\overrides\\scripts\\packaging-workspace.cjs",
+          "destinationRelative": "scripts/packaging-workspace.cjs",
+          "sha256": "18c214533250a028fe5740117f8e3e7191380117a21111a855d8e0261df51fe6",
+          "bytes": 16606,
+          "baseSha256": "199875905dbab591562250fe96e898d832a18556c204a23f3dd7213a2ae5aeab"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\outputs\\overrides\\scripts\\test-platform-packaging.cjs",
+          "destinationRelative": "scripts/test-platform-packaging.cjs",
+          "sha256": "20c1db7ab016bb2bc6b1961efba1f7a350e715c3031adecd4465eab3bcf92b91",
+          "bytes": 27842,
+          "baseSha256": "0e98df3371e5122b24da47df75434600319087141d5ff1329adda040d100e804"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\outputs\\overrides\\scripts\\test-project-fail-fast.cjs",
+          "destinationRelative": "scripts/test-project-fail-fast.cjs",
+          "sha256": "6b5b7ed543c4f1e6967320d8e3214c648f4498472da476e15bdd08e124cb7437",
+          "bytes": 18308,
+          "baseSha256": "9c053dd8a9265ea77ca66c4b2e7e74d3ada5c7d9483c5650011d6070ef1bc9e7"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\outputs\\overrides\\scripts\\test-packaging-workspace.cjs",
+          "destinationRelative": "scripts/test-packaging-workspace.cjs",
+          "sha256": "7cecc935e4a97c0d5e210d7a17eaf34ac9069441c683738629d912122191b1f8",
+          "bytes": 15694,
+          "baseSha256": "ee796f3c13c7999fb628e8577786689ebbb2b7741b200683788fb9491b73dee1"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix02",
+      "report": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\reports\\verification.json",
+        "sha256": "7b9b68d454a22648c109f31e4fea24a1c9161d5c64a13ca42c8485894456e200"
+      },
+      "producer": {
+        "lifecycleId": "run:FA-01-packaging-fixture-closure:fix02",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "Y29uc3QgZnM9cmVxdWlyZSgnZnMnKSxwPXJlcXVpcmUoJ3BhdGgnKSxjcD1yZXF1aXJlKCdjaGlsZF9wcm9jZXNzJyksY3J5cHRvPXJlcXVpcmUoJ2NyeXB0bycpLGE9cmVxdWlyZSgnLi9zY3JpcHRzL2FydGlmYWN0LXJ1bi5janMnKSxsPXJlcXVpcmUoJy4vc2NyaXB0cy9hcnRpZmFjdC1saWZlY3ljbGUuY2pzJykscm9vdD1wcm9jZXNzLmN3ZCgpLGhhc2g9Zj0+Y3J5cHRvLmNyZWF0ZUhhc2goJ3NoYTI1NicpLnVwZGF0ZShmcy5yZWFkRmlsZVN5bmMoZikpLmRpZ2VzdCgnaGV4Jyksb2xkUGF0aD1wLnJlc29sdmUoJ2FydGlmYWN0cy90YXNrcy9GQS0wMS1wYWNrYWdpbmctZml4dHVyZS1jbG9zdXJlL3J1bnMvZml4MDEvcmVwb3J0cy92ZXJpZmljYXRpb24uanNvbicpLG9sZD1KU09OLnBhcnNlKGZzLnJlYWRGaWxlU3luYyhvbGRQYXRoKSksY2F0PWwud2l0aENhdGFsb2dMb2NrKHJvb3QsKCk9PmwuY2F0YWxvZyhyb290KSkscHI9Y2F0LmZpbmQoeD0+eC5pZD09PW9sZC5saWZlY3ljbGVJZCk7aWYocHIucHJvZHVjZXI/LmV4aXRfY29kZSE9PTEpdGhyb3cgRXJyb3IoJ1ByaW9yIGZhaWx1cmUgbm90IHRlcm1pbmFsJyk7Y29uc3QgcnVuPWEuYmVnaW5BcnRpZmFjdFJ1bihyb290LHt3b3JrSWQ6J0ZBLTAxLXBhY2thZ2luZy1maXh0dXJlLWNsb3N1cmUnLG93bmVyOid3b3JrYmVuY2hfYmFja2VuZCcscnVuSWQ6J2ZpeDAyJyxyZWZlcmVuY2VzOlsuLi5wci5yZWZlcmVuY2VzLHtpZDpwci5pZCxraW5kOidldmlkZW5jZScsbWVtYmVyX3BhdGhzOltsLnByb2plY3RNZW1iZXJzKHByLm1lbWJlcnMpWzBdLnBhdGhdLHJlYXNvbjonUHJlc2VydmUgZmlyc3QgZm9jdXNlZCBmaXh0dXJlIG1pc3NpbmcgYnJhbmRpbmcgcGluIHByZXJlcXVpc2l0ZTsgcmV1c2UgZXhhY3QgZm91ciBzY3JpcHQgY2hhbmdlcyd9XX0pO2NvbnN0IGZyb3plbj1vbGQuZnJvemVuUm9vdCxmaXh0dXJlPXAuam9pbihydW4uaW5wdXRzLCdwcm9qZWN0JykscmY9cC5qb2luKHJ1bi5yZXBvcnRzLCd2ZXJpZmljYXRpb24uanNvbicpLHI9e3NjaGVtYToxLGxpZmVjeWNsZUlkOnJ1bi5saWZlY3ljbGVJZCxydW5Sb290OnJ1bi5ydW5Sb290LGZyb3plblJvb3Q6ZnJvemVuLGJhc2VsaW5lOm9sZC5iYXNlbGluZSxzb3VyY2VSZWNlaXB0QmVmb3JlOm9sZC5zb3VyY2VSZWNlaXB0QmVmb3JlLHByaW1hcnlTb3VyY2VSZWNlaXB0QmVmb3JlOm9sZC5wcmltYXJ5U291cmNlUmVjZWlwdEJlZm9yZSxwcmlvckF0dGVtcHQ6e2xpZmVjeWNsZUlkOnByLmlkLHJlcG9ydDpvbGRQYXRoLHNoYTI1NjpoYXNoKG9sZFBhdGgpLGFjdHVhbEV4aXQ6MSxjYXVzZTpvbGQuZXJyb3J9LHBsYW5uZWRXcml0ZXM6W3twYXRoOmZpeHR1cmUscm9sZTonU2NyaXB0cy1vbmx5IHNlbGVjdGVkIHNvdXJjZSBmaXh0dXJlIGFuZCBmb3VyIGV4YWN0IHBpbm5lZCBicmFuZGluZyBmaWxlcyd9LHtwYXRoOnAuam9pbihydW4ub3V0cHV0cywnb3ZlcnJpZGVzL3NjcmlwdHMnKSxyb2xlOidGb3VyIGV4YWN0IG92ZXJyaWRlcyd9LHtwYXRoOnJ1bi50ZW1wb3Jhcnkscm9sZTonT3duZWQgc3ludGhldGljIHBhY2thZ2UvdGVzdCBwcm9qZWN0cyd9XSxjYWxsczpbXSxvdmVycmlkZXM6W10scmVhZHk6ZmFsc2V9O2NvbnN0IHNhdmU9KCk9PmZzLndyaXRlRmlsZVN5bmMocmYsSlNPTi5zdHJpbmdpZnkocixudWxsLDIpKydcbicpO3NhdmUoKTsKY29uc3QgZW52PXsuLi5wcm9jZXNzLmVudixURU1QOnAuam9pbihydW4udGVtcG9yYXJ5LCd0ZW1wJyksVE1QOnAuam9pbihydW4udGVtcG9yYXJ5LCd0ZW1wJyksVE1QRElSOnAuam9pbihydW4udGVtcG9yYXJ5LCd0ZW1wJyksQVpSQUVMX1NUQVRFX1JPT1Q6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3N0YXRlJyksQVpSQUVMX1BBQ0tBR0lOR19URVNUX1JPT1Q6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3BsYXRmb3JtJyksQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVDpwLmpvaW4ocnVuLnRlbXBvcmFyeSwncnVubmVyJyksQVpSQUVMX1RFU1RfUFlUSE9OOidDOi9Vc2Vycy9mZWxyZS9BcHBEYXRhL0xvY2FsL1Byb2dyYW1zL1B5dGhvbi9QeXRob24zMTMvcHl0aG9uLmV4ZScsUFlUSE9ORE9OVFdSSVRFQllURUNPREU6JzEnfTtkZWxldGUgZW52LkFaUkFFTF9DQVJHT19PV05FUl9URVNUX1JPT1Q7ZGVsZXRlIGVudi5TVEFURV9ST09UOwphc3luYyBmdW5jdGlvbiBjYWxsKG5hbWUsYXJncyl7Y29uc3Qgej1hd2FpdCBuZXcgUHJvbWlzZSgocmVzb2x2ZSxyZWplY3QpPT57Y29uc3QgYz1hLnRyYWNrQXJ0aWZhY3RDaGlsZChydW4sY3Auc3Bhd24ocHJvY2Vzcy5leGVjUGF0aCxhcmdzLHtjd2Q6Zml4dHVyZSxlbnYsd2luZG93c0hpZGU6dHJ1ZSxzdGRpbzpbJ2lnbm9yZScsJ3BpcGUnLCdwaXBlJ119KSk7bGV0IHNvPVtdLHNlPVtdO2Muc3Rkb3V0Lm9uKCdkYXRhJyxiPT5zby5wdXNoKGIpKTtjLnN0ZGVyci5vbignZGF0YScsYj0+c2UucHVzaChiKSk7Yy5vbignZXJyb3InLHJlamVjdCk7Yy5vbignY2xvc2UnLChleGl0Q29kZSxzaWduYWwpPT5yZXNvbHZlKHtwaWQ6Yy5waWQsZXhpdENvZGUsc2lnbmFsLHN0ZG91dDpCdWZmZXIuY29uY2F0KHNvKSxzdGRlcnI6QnVmZmVyLmNvbmNhdChzZSl9KSk7fSk7Y29uc3Qgc289cC5qb2luKHJ1bi5sb2dzLG5hbWUrJy5zdGRvdXQubG9nJyksc2U9cC5qb2luKHJ1bi5sb2dzLG5hbWUrJy5zdGRlcnIubG9nJyk7ZnMud3JpdGVGaWxlU3luYyhzbyx6LnN0ZG91dCk7ZnMud3JpdGVGaWxlU3luYyhzZSx6LnN0ZGVycik7ci5jYWxscy5wdXNoKHtuYW1lLGV4ZWN1dGFibGU6cHJvY2Vzcy5leGVjUGF0aCxhcmdzLGN3ZDpmaXh0dXJlLHBpZDp6LnBpZCxleGl0Q29kZTp6LmV4aXRDb2RlLHNpZ25hbDp6LnNpZ25hbCxzdGRvdXQ6c28sc3RkZXJyOnNlLHN0ZG91dFNoYTI1NjpoYXNoKHNvKSxzdGRlcnJTaGEyNTY6aGFzaChzZSl9KTtzYXZlKCk7aWYoei5leGl0Q29kZSE9PTB8fHouc2lnbmFsKXRocm93IEVycm9yKG5hbWUrJyBhY3R1YWxleGl0ICcrei5leGl0Q29kZSsnOiAnK3ouc3RkZXJyLnRvU3RyaW5nKCkuc2xpY2UoMCwxNjAwKSk7fQooYXN5bmMoKT0+e2xldCBleGl0Q29kZT0xO3RyeXsKY29uc3QgY29weT1yZXF1aXJlKCcuL3NjcmlwdHMvZnJlZXplLXBsYXRmb3JtLWlucHV0cy5janMnKS5jb3B5VHJlZTtjb3B5KHAuam9pbihmcm96ZW4sJ3NjcmlwdHMnKSxwLmpvaW4oZml4dHVyZSwnc2NyaXB0cycpKTtmcy5ta2RpclN5bmMocC5qb2luKGZpeHR1cmUsJ2FydGlmYWN0cy92ZXJpZmljYXRpb24nKSx7cmVjdXJzaXZlOnRydWV9KTtmcy5ta2RpclN5bmMocC5qb2luKHJ1bi5vdXRwdXRzLCdvdmVycmlkZXMvc2NyaXB0cycpLHtyZWN1cnNpdmU6dHJ1ZX0pO2Zvcihjb25zdCBxIG9mIFtlbnYuVEVNUCxlbnYuQVpSQUVMX1NUQVRFX1JPT1QsZW52LkFaUkFFTF9QQUNLQUdJTkdfVEVTVF9ST09ULGVudi5BWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09UXSlmcy5ta2RpclN5bmMocSx7cmVjdXJzaXZlOnRydWV9KTtmb3IoY29uc3QgaXRlbSBvZiBvbGQub3ZlcnJpZGVzKXtpZihoYXNoKGl0ZW0uc291cmNlKSE9PWl0ZW0uc2hhMjU2KXRocm93IEVycm9yKCdPdmVycmlkZSBzb3VyY2UgY2hhbmdlZCcpO2NvbnN0IGRlc3Q9cC5qb2luKHJ1bi5vdXRwdXRzLGl0ZW0uZGVzdGluYXRpb25SZWxhdGl2ZS5yZXBsYWNlKCdzY3JpcHRzLycsJ292ZXJyaWRlcy9zY3JpcHRzLycpKTtjb3B5KGl0ZW0uc291cmNlLGRlc3QpO2ZzLndyaXRlRmlsZVN5bmMocC5qb2luKGZpeHR1cmUsaXRlbS5kZXN0aW5hdGlvblJlbGF0aXZlKSxmcy5yZWFkRmlsZVN5bmMoZGVzdCkpO3Iub3ZlcnJpZGVzLnB1c2goey4uLml0ZW0sc291cmNlOmRlc3R9KTt9ci5icmFuZGluZ0ZpeHR1cmU9W107Zm9yKGNvbnN0IG4gb2YgWydwYWNrYWdlLmpzb24nLCdvdXQvZXh0ZW5zaW9uLmpzJywnd2Vidmlldy9hc3NldHMvYXBwLWluaXRpYWwtN2ExOTljNjZlNjcwLmpzJywnd2Vidmlldy9hc3NldHMvcHJvZmlsZS1kcm9wZG93bi1pdGVtcy05M2QyYTJlNWI4ZDYuanMnXSl7Y29uc3QgcmVsYXRpdmU9cC5qb2luKCdhcnRpZmFjdHMvdXBzdHJlYW0tdWkvMjYuMTAwNy4yMTQzNCcsbiksc3JjPXAuam9pbihmcm96ZW4scmVsYXRpdmUpLGRlc3Q9cC5qb2luKGZpeHR1cmUscmVsYXRpdmUpO2NvcHkoc3JjLGRlc3QpO3IuYnJhbmRpbmdGaXh0dXJlLnB1c2goe3BhdGg6cmVsYXRpdmUsc2hhMjU2Omhhc2goZGVzdCl9KTt9Y29uc3QgcGluPUpTT04ucGFyc2UoZnMucmVhZEZpbGVTeW5jKCdhcnRpZmFjdHMvbWFpbnRlbmFuY2Uvb3duZXItaW5zdGFsbGF0aW9uLmpzb24nKSk7aWYoaGFzaChwLnJlc29sdmUocGluLmV4ZWN1dGFibGUpKSE9PXBpbi5zaGEyNTYpdGhyb3cgRXJyb3IoJ093bmVyIHBpbiBtaXNtYXRjaCcpO2Vudi5BWlJBRUxfTUFJTlRFTkFOQ0VfT1dORVI9cC5yZXNvbHZlKHBpbi5leGVjdXRhYmxlKTtyLmVudmlyb25tZW50PXtURU1QOmVudi5URU1QLEFaUkFFTF9TVEFURV9ST09UOmVudi5BWlJBRUxfU1RBVEVfUk9PVCxBWlJBRUxfUEFDS0FHSU5HX1RFU1RfUk9PVDplbnYuQVpSQUVMX1BBQ0tBR0lOR19URVNUX1JPT1QsQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVDplbnYuQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVCxBWlJBRUxfVEVTVF9QWVRIT046ZW52LkFaUkFFTF9URVNUX1BZVEhPTixBWlJBRUxfTUFJTlRFTkFOQ0VfT1dORVI6ZW52LkFaUkFFTF9NQUlOVEVOQU5DRV9PV05FUn07c2F2ZSgpOwphd2FpdCBjYWxsKCdwbGF0Zm9ybS1wYWNrYWdpbmcnLFsnc2NyaXB0cy90ZXN0LXBsYXRmb3JtLXBhY2thZ2luZy5janMnXSk7YXdhaXQgY2FsbCgncGFja2FnaW5nLXdvcmtzcGFjZScsWydzY3JpcHRzL3Rlc3QtcGFja2FnaW5nLXdvcmtzcGFjZS5janMnLHAuam9pbihydW4udGVtcG9yYXJ5LCdwYWNrYWdpbmctd29ya3NwYWNlJyldKTthd2FpdCBjYWxsKCdwcm9qZWN0LWZhaWwtZmFzdCcsWyctLXRlc3QnLCdzY3JpcHRzL3Rlc3QtcHJvamVjdC1mYWlsLWZhc3QuY2pzJ10pO2Zvcihjb25zdCB4IG9mIHIuYmFzZWxpbmUpaWYoaGFzaChwLmpvaW4ocm9vdCwnc2NyaXB0cycseC5uYW1lKSkhPT14LnByaW1hcnlTaGEyNTYpdGhyb3cgRXJyb3IoJ1ByaW1hcnkgQ0FTIGNvbmZsaWN0ICcreC5uYW1lKTtmb3IoY29uc3QgeCBvZiByLm92ZXJyaWRlcyl7ZnMud3JpdGVGaWxlU3luYyhwLmpvaW4ocm9vdCx4LmRlc3RpbmF0aW9uUmVsYXRpdmUpLGZzLnJlYWRGaWxlU3luYyh4LnNvdXJjZSkpO2lmKGhhc2gocC5qb2luKHJvb3QseC5kZXN0aW5hdGlvblJlbGF0aXZlKSkhPT14LnNoYTI1Nil0aHJvdyBFcnJvcignUHJpbWFyeSBtZXJnZSBtaXNtYXRjaCcpO31yLnByaW1hcnlDYXNNZXJnZWQ9dHJ1ZTtyLnNvdXJjZVVuY2hhbmdlZD1oYXNoKHAuam9pbihmcm96ZW4sJ2VuZ2luZS9TT1VSQ0UuanNvbicpKT09PXIuc291cmNlUmVjZWlwdEJlZm9yZSYmaGFzaChwLmpvaW4ocm9vdCwnZW5naW5lL1NPVVJDRS5qc29uJykpPT09ci5wcmltYXJ5U291cmNlUmVjZWlwdEJlZm9yZTtyLmZyb3plblNjcmlwdHNVbmNoYW5nZWQ9ci5iYXNlbGluZS5ldmVyeSh4PT5oYXNoKHAuam9pbihmcm96ZW4sJ3NjcmlwdHMnLHgubmFtZSkpPT09eC5mcm96ZW5TaGEyNTYpO2lmKCFyLnNvdXJjZVVuY2hhbmdlZHx8IXIuZnJvemVuU2NyaXB0c1VuY2hhbmdlZCl0aHJvdyBFcnJvcignRnJvemVuL3NvdXJjZSBpZGVudGl0eSBjaGFuZ2VkJyk7ci5yZWFkeT10cnVlO2V4aXRDb2RlPTA7Cn1jYXRjaChlKXtyLmVycm9yPWUuc3RhY2s7Y29uc29sZS5lcnJvcihlLnN0YWNrKTt9ZmluYWxseXtyLmZpbmlzaGVkQXRVdGM9bmV3IERhdGUoKS50b0lTT1N0cmluZygpO3NhdmUoKTt0cnl7YS5maW5pc2hBcnRpZmFjdFJ1bihydW4se2V4aXRDb2RlLHByb2R1Y2VyU3RvcHBlZDp0cnVlLHJlYXNvbjonRm91ciBzY3JpcHRzLW9ubHkgb3ZlcnJpZGUgZm9jdXNlZCB2ZXJpZmljYXRpb247IGFsbCB0cmFja2VkIGNoaWxkcmVuIHJldHVybmVkIHRlcm1pbmFsIGNsb3NlOyBubyBwcm9kdWN0IGNvbXBpbGF0aW9uL2luc3RhbGwvY2xlYW51cCd9KTt9Y2F0Y2goZSl7Y29uc29sZS5lcnJvcihlLnN0YWNrKTtleGl0Q29kZT0xO31jb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7cmVhZHk6ci5yZWFkeSxyZXBvcnQ6cmYsc2hhMjU2Omhhc2gocmYpLGxpZmVjeWNsZUlkOnJ1bi5saWZlY3ljbGVJZH0pKTtwcm9jZXNzLmV4aXRDb2RlPWV4aXRDb2RlO319KSgpOw=="
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Four scripts-only override focused verification; all tracked children returned terminal close; no product compilation/install/cleanup",
+        "children": [
+          {
+            "pid": 17140,
+            "closed": true
+          },
+          {
+            "pid": 19028,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true,
+        "evidencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\reports\\producer.json",
+        "evidenceSha256": "015e8cb7dbb2ffa33cd79a7668f3212026dfd952fb93073f61cb3e1945c7a5d0"
+      },
+      "cause": "Error: packaging-workspace actualexit 1: Error: ENOENT: no such file or directory, copyfile 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\inputs\\project\\LICENSE' -> 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\temporary\\packaging-workspace\\project\\LICENSE'\n    at Object.copyFileSync (node:fs:3674:11)\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\inputs\\project\\scripts\\test-packaging-workspace.cjs:31:6)\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\inputs\\project\\scripts\\test-packaging-workspace.cjs:131:1)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\n    at call (eval at <anonymous> ([eval]:1:1), <anonymous>:3:798)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async eval (eval at <anonymous> ([eval]:1:1), <anonymous>:6:74)",
+      "commands": [
+        {
+          "name": "platform-packaging",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "scripts/test-platform-packaging.cjs"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\inputs\\project",
+          "pid": 17140,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\logs\\platform-packaging.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\logs\\platform-packaging.stderr.log",
+          "stdoutSha256": "9178d88c4cd01d55c23b9f9c22c8c8e2b601a826d8d228af757215fbfee14e7b",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "PASS package frozen runtime and schema2 inventory\nPASS standalone package references a protected real imported input owner\nPASS imported input owner is reused without promoting its retained state\nPASS failed packaging records pending before output and preserves the failed outcome\nPASS explicit lifecycle must be a version that owns the selected release\nPASS source paths cannot be adopted as generated packaging inputs\nPASS existing release version owner is reused and explicit ownership remains supported\nPASS imported identity changes, path changes and overlapping ownership stay distinct\nPASS imported ID collisions cannot replace an existing owner's identity\nPASS explicit version state is preserved and concurrent changes are never overwritten\nPASS producer-shaped bundled Node bootstrap matches inventoried path\nPASS minimal package explicitly requires external Node without advertising a bundle\nPASS ZIP mode roundtrip\nPASS path traversal refused before mutation\nPASS wrong platform refused\nPASS tampered runtime refused before destination creation\nPASS invalid executable inventory mode refused\nPASS unlisted state files refused\nPASS relocated prepare-only install preserves state and binds runtime\nPASS side-by-side destination cannot be overwritten\nPASS ordinary Codex state refused\nPASS state/runtime overlap refused\nPASS ZIP archive traversal rejected\nPASS ZIP compressed entry tamper rejected\nPASS pinned branding owner operands and anchors\nPASS Mac public signing receipts bind all native bytes and metadata\n{\"checks\":26,\"platform\":{\"os\":\"win32\",\"arch\":\"x64\",\"target\":\"x86_64-pc-windows-msvc\"},\"nativeUnixExecution\":false,\"fixtureProject\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-packaging-fixture-closure\\\\runs\\\\fix02\\\\temporary\\\\platform\\\\portable-packaging-ae5651c8-0194-4d0e-8d00-6d2f7da0aa03\",\"retained\":true}\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "packaging-workspace",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "scripts/test-packaging-workspace.cjs",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\temporary\\packaging-workspace"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\inputs\\project",
+          "pid": 19028,
+          "exitCode": 1,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\logs\\packaging-workspace.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\logs\\packaging-workspace.stderr.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrSha256": "e8dda0b3e2e1bc036cb4513c56c9119e9c3a70228d687b33877d978052a3d9b1",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "",
+          "stderrExcerpt": "Error: ENOENT: no such file or directory, copyfile 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\inputs\\project\\LICENSE' -> 'C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\temporary\\packaging-workspace\\project\\LICENSE'\n    at Object.copyFileSync (node:fs:3674:11)\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\inputs\\project\\scripts\\test-packaging-workspace.cjs:31:6)\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\inputs\\project\\scripts\\test-packaging-workspace.cjs:131:1)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n"
+        }
+      ],
+      "overrides": [
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\outputs\\overrides\\scripts\\packaging-workspace.cjs",
+          "destinationRelative": "scripts/packaging-workspace.cjs",
+          "sha256": "18c214533250a028fe5740117f8e3e7191380117a21111a855d8e0261df51fe6",
+          "bytes": 16606,
+          "baseSha256": "199875905dbab591562250fe96e898d832a18556c204a23f3dd7213a2ae5aeab"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\outputs\\overrides\\scripts\\test-platform-packaging.cjs",
+          "destinationRelative": "scripts/test-platform-packaging.cjs",
+          "sha256": "20c1db7ab016bb2bc6b1961efba1f7a350e715c3031adecd4465eab3bcf92b91",
+          "bytes": 27842,
+          "baseSha256": "0e98df3371e5122b24da47df75434600319087141d5ff1329adda040d100e804"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\outputs\\overrides\\scripts\\test-project-fail-fast.cjs",
+          "destinationRelative": "scripts/test-project-fail-fast.cjs",
+          "sha256": "6b5b7ed543c4f1e6967320d8e3214c648f4498472da476e15bdd08e124cb7437",
+          "bytes": 18308,
+          "baseSha256": "9c053dd8a9265ea77ca66c4b2e7e74d3ada5c7d9483c5650011d6070ef1bc9e7"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\outputs\\overrides\\scripts\\test-packaging-workspace.cjs",
+          "destinationRelative": "scripts/test-packaging-workspace.cjs",
+          "sha256": "7cecc935e4a97c0d5e210d7a17eaf34ac9069441c683738629d912122191b1f8",
+          "bytes": 15694,
+          "baseSha256": "ee796f3c13c7999fb628e8577786689ebbb2b7741b200683788fb9491b73dee1"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix03",
+      "report": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\reports\\verification.json",
+        "sha256": "72f0c9558d64d666cbb218c730387aabd68b0e11a2a5d0c371df6a372d333fc7"
+      },
+      "producer": {
+        "lifecycleId": "run:FA-01-packaging-fixture-closure:fix03",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "Y29uc3QgZnM9cmVxdWlyZSgnZnMnKSxwPXJlcXVpcmUoJ3BhdGgnKSxjcD1yZXF1aXJlKCdjaGlsZF9wcm9jZXNzJyksY3J5cHRvPXJlcXVpcmUoJ2NyeXB0bycpLGE9cmVxdWlyZSgnLi9zY3JpcHRzL2FydGlmYWN0LXJ1bi5janMnKSxsPXJlcXVpcmUoJy4vc2NyaXB0cy9hcnRpZmFjdC1saWZlY3ljbGUuY2pzJykscm9vdD1wcm9jZXNzLmN3ZCgpLGhhc2g9Zj0+Y3J5cHRvLmNyZWF0ZUhhc2goJ3NoYTI1NicpLnVwZGF0ZShmcy5yZWFkRmlsZVN5bmMoZikpLmRpZ2VzdCgnaGV4Jyksb2xkUGF0aD1wLnJlc29sdmUoJ2FydGlmYWN0cy90YXNrcy9GQS0wMS1wYWNrYWdpbmctZml4dHVyZS1jbG9zdXJlL3J1bnMvZml4MDIvcmVwb3J0cy92ZXJpZmljYXRpb24uanNvbicpLG9sZD1KU09OLnBhcnNlKGZzLnJlYWRGaWxlU3luYyhvbGRQYXRoKSkscHI9bC53aXRoQ2F0YWxvZ0xvY2socm9vdCwoKT0+bC5jYXRhbG9nKHJvb3QpLmZpbmQoeD0+eC5pZD09PW9sZC5saWZlY3ljbGVJZCkpO2lmKHByLnByb2R1Y2VyPy5leGl0X2NvZGUhPT0xKXRocm93IEVycm9yKCdQcmlvciB0ZXJtaW5hbCBtaXNzaW5nJyk7Y29uc3QgcnVuPWEuYmVnaW5BcnRpZmFjdFJ1bihyb290LHt3b3JrSWQ6J0ZBLTAxLXBhY2thZ2luZy1maXh0dXJlLWNsb3N1cmUnLG93bmVyOid3b3JrYmVuY2hfYmFja2VuZCcscnVuSWQ6J2ZpeDAzJyxyZWZlcmVuY2VzOlsuLi5wci5yZWZlcmVuY2VzLHtpZDpwci5pZCxraW5kOidldmlkZW5jZScsbWVtYmVyX3BhdGhzOltsLnByb2plY3RNZW1iZXJzKHByLm1lbWJlcnMpWzBdLnBhdGhdLHJlYXNvbjonUHJlc2VydmUgc2Vjb25kIGZvY3VzZWQgZml4dHVyZSBtaXNzaW5nIHNvdXJjZSBMSUNFTlNFOyBzYW1lIGZvdXIgc2NyaXB0IGNoYW5nZXMgYWZ0ZXIgY29tcGxldGUgZml4dHVyZSBwcmVyZXF1aXNpdGUgcmV2aWV3J31dfSksZml4dHVyZT1wLmpvaW4ocnVuLmlucHV0cywncHJvamVjdCcpLHJmPXAuam9pbihydW4ucmVwb3J0cywndmVyaWZpY2F0aW9uLmpzb24nKSxyPXtzY2hlbWE6MSxsaWZlY3ljbGVJZDpydW4ubGlmZWN5Y2xlSWQscnVuUm9vdDpydW4ucnVuUm9vdCxmcm96ZW5Sb290Om9sZC5mcm96ZW5Sb290LGJhc2VsaW5lOm9sZC5iYXNlbGluZSxzb3VyY2VSZWNlaXB0QmVmb3JlOm9sZC5zb3VyY2VSZWNlaXB0QmVmb3JlLHByaW1hcnlTb3VyY2VSZWNlaXB0QmVmb3JlOm9sZC5wcmltYXJ5U291cmNlUmVjZWlwdEJlZm9yZSxwcmlvckF0dGVtcHQ6e2xpZmVjeWNsZUlkOnByLmlkLHJlcG9ydDpvbGRQYXRoLHNoYTI1NjpoYXNoKG9sZFBhdGgpLGV4aXQ6MSxjYXVzZTpvbGQuZXJyb3J9LHBsYW5uZWRXcml0ZXM6W2ZpeHR1cmUscC5qb2luKHJ1bi5vdXRwdXRzLCdvdmVycmlkZXMvc2NyaXB0cycpLHJ1bi50ZW1wb3JhcnldLGNhbGxzOltdLG92ZXJyaWRlczpbXSxyZWFkeTpmYWxzZX07Y29uc3Qgc2F2ZT0oKT0+ZnMud3JpdGVGaWxlU3luYyhyZixKU09OLnN0cmluZ2lmeShyLG51bGwsMikrJ1xuJyk7c2F2ZSgpO2NvbnN0IGVudj17Li4ucHJvY2Vzcy5lbnYsVEVNUDpwLmpvaW4ocnVuLnRlbXBvcmFyeSwndGVtcCcpLFRNUDpwLmpvaW4ocnVuLnRlbXBvcmFyeSwndGVtcCcpLFRNUERJUjpwLmpvaW4ocnVuLnRlbXBvcmFyeSwndGVtcCcpLEFaUkFFTF9TVEFURV9ST09UOnAuam9pbihydW4udGVtcG9yYXJ5LCdzdGF0ZScpLEFaUkFFTF9QQUNLQUdJTkdfVEVTVF9ST09UOnAuam9pbihydW4udGVtcG9yYXJ5LCdwbGF0Zm9ybScpLEFaUkFFTF9QUk9KRUNUX1JVTk5FUl9URVNUX1JPT1Q6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3J1bm5lcicpLEFaUkFFTF9URVNUX1BZVEhPTjonQzovVXNlcnMvZmVscmUvQXBwRGF0YS9Mb2NhbC9Qcm9ncmFtcy9QeXRob24vUHl0aG9uMzEzL3B5dGhvbi5leGUnLFBZVEhPTkRPTlRXUklURUJZVEVDT0RFOicxJ307ZGVsZXRlIGVudi5BWlJBRUxfQ0FSR09fT1dORVJfVEVTVF9ST09UO2RlbGV0ZSBlbnYuU1RBVEVfUk9PVDsKYXN5bmMgZnVuY3Rpb24gY2FsbChuYW1lLGFyZ3Mpe2NvbnN0IHo9YXdhaXQgbmV3IFByb21pc2UoKHJlc29sdmUscmVqZWN0KT0+e2NvbnN0IGM9YS50cmFja0FydGlmYWN0Q2hpbGQocnVuLGNwLnNwYXduKHByb2Nlc3MuZXhlY1BhdGgsYXJncyx7Y3dkOmZpeHR1cmUsZW52LHdpbmRvd3NIaWRlOnRydWUsc3RkaW86WydpZ25vcmUnLCdwaXBlJywncGlwZSddfSkpO2xldCBzbz1bXSxzZT1bXTtjLnN0ZG91dC5vbignZGF0YScsYj0+c28ucHVzaChiKSk7Yy5zdGRlcnIub24oJ2RhdGEnLGI9PnNlLnB1c2goYikpO2Mub24oJ2Vycm9yJyxyZWplY3QpO2Mub24oJ2Nsb3NlJywoZXhpdENvZGUsc2lnbmFsKT0+cmVzb2x2ZSh7cGlkOmMucGlkLGV4aXRDb2RlLHNpZ25hbCxzdGRvdXQ6QnVmZmVyLmNvbmNhdChzbyksc3RkZXJyOkJ1ZmZlci5jb25jYXQoc2UpfSkpO30pO2NvbnN0IHNvPXAuam9pbihydW4ubG9ncyxuYW1lKycuc3Rkb3V0LmxvZycpLHNlPXAuam9pbihydW4ubG9ncyxuYW1lKycuc3RkZXJyLmxvZycpO2ZzLndyaXRlRmlsZVN5bmMoc28sei5zdGRvdXQpO2ZzLndyaXRlRmlsZVN5bmMoc2Usei5zdGRlcnIpO3IuY2FsbHMucHVzaCh7bmFtZSxleGVjdXRhYmxlOnByb2Nlc3MuZXhlY1BhdGgsYXJncyxjd2Q6Zml4dHVyZSxwaWQ6ei5waWQsZXhpdENvZGU6ei5leGl0Q29kZSxzaWduYWw6ei5zaWduYWwsc3Rkb3V0OnNvLHN0ZGVycjpzZSxzdGRvdXRTaGEyNTY6aGFzaChzbyksc3RkZXJyU2hhMjU2Omhhc2goc2UpfSk7c2F2ZSgpO2lmKHouZXhpdENvZGUhPT0wfHx6LnNpZ25hbCl0aHJvdyBFcnJvcihuYW1lKycgYWN0dWFsZXhpdCAnK3ouZXhpdENvZGUrJzogJyt6LnN0ZGVyci50b1N0cmluZygpLnNsaWNlKDAsMTgwMCkpO30KKGFzeW5jKCk9PntsZXQgZXhpdENvZGU9MTt0cnl7Y29uc3QgY29weT1yZXF1aXJlKCcuL3NjcmlwdHMvZnJlZXplLXBsYXRmb3JtLWlucHV0cy5janMnKS5jb3B5VHJlZTtjb3B5KHAuam9pbihvbGQuZnJvemVuUm9vdCwnc2NyaXB0cycpLHAuam9pbihmaXh0dXJlLCdzY3JpcHRzJykpO2NvcHkocC5qb2luKG9sZC5mcm96ZW5Sb290LCdMSUNFTlNFJykscC5qb2luKGZpeHR1cmUsJ0xJQ0VOU0UnKSk7ZnMubWtkaXJTeW5jKHAuam9pbihmaXh0dXJlLCdhcnRpZmFjdHMvdmVyaWZpY2F0aW9uJykse3JlY3Vyc2l2ZTp0cnVlfSk7ZnMubWtkaXJTeW5jKHAuam9pbihydW4ub3V0cHV0cywnb3ZlcnJpZGVzL3NjcmlwdHMnKSx7cmVjdXJzaXZlOnRydWV9KTtmb3IoY29uc3QgcSBvZiBbZW52LlRFTVAsZW52LkFaUkFFTF9TVEFURV9ST09ULGVudi5BWlJBRUxfUEFDS0FHSU5HX1RFU1RfUk9PVCxlbnYuQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVF0pZnMubWtkaXJTeW5jKHEse3JlY3Vyc2l2ZTp0cnVlfSk7Zm9yKGNvbnN0IGl0ZW0gb2Ygb2xkLm92ZXJyaWRlcyl7aWYoaGFzaChpdGVtLnNvdXJjZSkhPT1pdGVtLnNoYTI1Nil0aHJvdyBFcnJvcignT3ZlcnJpZGUgY2hhbmdlZCcpO2NvbnN0IHNvdXJjZT1wLmpvaW4ocnVuLm91dHB1dHMsJ292ZXJyaWRlcycsaXRlbS5kZXN0aW5hdGlvblJlbGF0aXZlKTtjb3B5KGl0ZW0uc291cmNlLHNvdXJjZSk7ZnMud3JpdGVGaWxlU3luYyhwLmpvaW4oZml4dHVyZSxpdGVtLmRlc3RpbmF0aW9uUmVsYXRpdmUpLGZzLnJlYWRGaWxlU3luYyhzb3VyY2UpKTtyLm92ZXJyaWRlcy5wdXNoKHsuLi5pdGVtLHNvdXJjZX0pO31yLmZpeHR1cmVQcmVyZXF1aXNpdGVzPVt7cGF0aDonTElDRU5TRScsc2hhMjU2Omhhc2gocC5qb2luKGZpeHR1cmUsJ0xJQ0VOU0UnKSl9XTtmb3IoY29uc3QgbiBvZiBbJ3BhY2thZ2UuanNvbicsJ291dC9leHRlbnNpb24uanMnLCd3ZWJ2aWV3L2Fzc2V0cy9hcHAtaW5pdGlhbC03YTE5OWM2NmU2NzAuanMnLCd3ZWJ2aWV3L2Fzc2V0cy9wcm9maWxlLWRyb3Bkb3duLWl0ZW1zLTkzZDJhMmU1YjhkNi5qcyddKXtjb25zdCByZWxhdGl2ZT1wLmpvaW4oJ2FydGlmYWN0cy91cHN0cmVhbS11aS8yNi4xMDA3LjIxNDM0JyxuKTtjb3B5KHAuam9pbihvbGQuZnJvemVuUm9vdCxyZWxhdGl2ZSkscC5qb2luKGZpeHR1cmUscmVsYXRpdmUpKTtyLmZpeHR1cmVQcmVyZXF1aXNpdGVzLnB1c2goe3BhdGg6cmVsYXRpdmUsc2hhMjU2Omhhc2gocC5qb2luKGZpeHR1cmUscmVsYXRpdmUpKX0pO31jb25zdCBwaW49SlNPTi5wYXJzZShmcy5yZWFkRmlsZVN5bmMoJ2FydGlmYWN0cy9tYWludGVuYW5jZS9vd25lci1pbnN0YWxsYXRpb24uanNvbicpKTtpZihoYXNoKHAucmVzb2x2ZShwaW4uZXhlY3V0YWJsZSkpIT09cGluLnNoYTI1Nil0aHJvdyBFcnJvcignUGluIG1pc21hdGNoJyk7ZW52LkFaUkFFTF9NQUlOVEVOQU5DRV9PV05FUj1wLnJlc29sdmUocGluLmV4ZWN1dGFibGUpO3IuZW52aXJvbm1lbnQ9e1RFTVA6ZW52LlRFTVAsQVpSQUVMX1NUQVRFX1JPT1Q6ZW52LkFaUkFFTF9TVEFURV9ST09ULEFaUkFFTF9QQUNLQUdJTkdfVEVTVF9ST09UOmVudi5BWlJBRUxfUEFDS0FHSU5HX1RFU1RfUk9PVCxBWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09UOmVudi5BWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09ULEFaUkFFTF9URVNUX1BZVEhPTjplbnYuQVpSQUVMX1RFU1RfUFlUSE9OLEFaUkFFTF9NQUlOVEVOQU5DRV9PV05FUjplbnYuQVpSQUVMX01BSU5URU5BTkNFX09XTkVSfTtzYXZlKCk7CmF3YWl0IGNhbGwoJ3BsYXRmb3JtLXBhY2thZ2luZycsWydzY3JpcHRzL3Rlc3QtcGxhdGZvcm0tcGFja2FnaW5nLmNqcyddKTthd2FpdCBjYWxsKCdwYWNrYWdpbmctd29ya3NwYWNlJyxbJ3NjcmlwdHMvdGVzdC1wYWNrYWdpbmctd29ya3NwYWNlLmNqcycscC5qb2luKHJ1bi50ZW1wb3JhcnksJ3BhY2thZ2luZy13b3Jrc3BhY2UnKV0pO2F3YWl0IGNhbGwoJ3Byb2plY3QtZmFpbC1mYXN0JyxbJy0tdGVzdCcsJ3NjcmlwdHMvdGVzdC1wcm9qZWN0LWZhaWwtZmFzdC5janMnXSk7Zm9yKGNvbnN0IHggb2Ygci5iYXNlbGluZSlpZihoYXNoKHAuam9pbihyb290LCdzY3JpcHRzJyx4Lm5hbWUpKSE9PXgucHJpbWFyeVNoYTI1Nil0aHJvdyBFcnJvcignUHJpbWFyeSBDQVMgY29uZmxpY3QgJyt4Lm5hbWUpO2Zvcihjb25zdCB4IG9mIHIub3ZlcnJpZGVzKXtmcy53cml0ZUZpbGVTeW5jKHAuam9pbihyb290LHguZGVzdGluYXRpb25SZWxhdGl2ZSksZnMucmVhZEZpbGVTeW5jKHguc291cmNlKSk7aWYoaGFzaChwLmpvaW4ocm9vdCx4LmRlc3RpbmF0aW9uUmVsYXRpdmUpKSE9PXguc2hhMjU2KXRocm93IEVycm9yKCdQcmltYXJ5IG1lcmdlIG1pc21hdGNoJyk7fXIucHJpbWFyeUNhc01lcmdlZD10cnVlO3Iuc291cmNlVW5jaGFuZ2VkPWhhc2gocC5qb2luKG9sZC5mcm96ZW5Sb290LCdlbmdpbmUvU09VUkNFLmpzb24nKSk9PT1yLnNvdXJjZVJlY2VpcHRCZWZvcmUmJmhhc2gocC5qb2luKHJvb3QsJ2VuZ2luZS9TT1VSQ0UuanNvbicpKT09PXIucHJpbWFyeVNvdXJjZVJlY2VpcHRCZWZvcmU7ci5mcm96ZW5TY3JpcHRzVW5jaGFuZ2VkPXIuYmFzZWxpbmUuZXZlcnkoeD0+aGFzaChwLmpvaW4ob2xkLmZyb3plblJvb3QsJ3NjcmlwdHMnLHgubmFtZSkpPT09eC5mcm96ZW5TaGEyNTYpO2lmKCFyLnNvdXJjZVVuY2hhbmdlZHx8IXIuZnJvemVuU2NyaXB0c1VuY2hhbmdlZCl0aHJvdyBFcnJvcignU291cmNlIGNoYW5nZWQnKTtyLnJlYWR5PXRydWU7ZXhpdENvZGU9MDsKfWNhdGNoKGUpe3IuZXJyb3I9ZS5zdGFjaztjb25zb2xlLmVycm9yKGUuc3RhY2spO31maW5hbGx5e3IuZmluaXNoZWRBdFV0Yz1uZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCk7c2F2ZSgpO3RyeXthLmZpbmlzaEFydGlmYWN0UnVuKHJ1bix7ZXhpdENvZGUscHJvZHVjZXJTdG9wcGVkOnRydWUscmVhc29uOidFeGFjdCBmb3VyIHNjcmlwdCBvdmVycmlkZXMgd2l0aCBmdWxsIGV4aXN0aW5nIGZvY3VzZWQgdGVzdHM7IGFsbCBjaGlsZHJlbiBjbG9zZSBvYnNlcnZlZDsgbm8gcHJvZHVjdC9DYXJnby9pbnN0YWxsYXRpb24vY2xlYW51cCd9KTt9Y2F0Y2goZSl7Y29uc29sZS5lcnJvcihlLnN0YWNrKTtleGl0Q29kZT0xO31jb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7cmVhZHk6ci5yZWFkeSxyZXBvcnQ6cmYsc2hhMjU2Omhhc2gocmYpLGxpZmVjeWNsZUlkOnJ1bi5saWZlY3ljbGVJZH0pKTtwcm9jZXNzLmV4aXRDb2RlPWV4aXRDb2RlO319KSgpOw=="
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Exact four script overrides with full existing focused tests; all children close observed; no product/Cargo/installation/cleanup",
+        "children": [
+          {
+            "pid": 43720,
+            "closed": true
+          },
+          {
+            "pid": 54872,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true,
+        "evidencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\reports\\producer.json",
+        "evidenceSha256": "9d04f4967b7fa41b02ad4d12bc7928317194fc5ac37a6c9160f0c388478c5fbe"
+      },
+      "cause": "Error: packaging-workspace actualexit 1: AssertionError [ERR_ASSERTION]: spawnSync pwsh ENOENT\n\nnull !== 0\n\n    at execute (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project\\scripts\\test-packaging-workspace.cjs:17:10)\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project\\scripts\\test-packaging-workspace.cjs:96:3)\n\n    at call (eval at <anonymous> ([eval]:1:1), <anonymous>:2:798)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async eval (eval at <anonymous> ([eval]:1:1), <anonymous>:4:74)",
+      "commands": [
+        {
+          "name": "platform-packaging",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "scripts/test-platform-packaging.cjs"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project",
+          "pid": 43720,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\logs\\platform-packaging.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\logs\\platform-packaging.stderr.log",
+          "stdoutSha256": "640972027db2bd082098f2e75b2ffe35a4bd3d1c66562e7b8ab5da82111464b8",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "PASS package frozen runtime and schema2 inventory\nPASS standalone package references a protected real imported input owner\nPASS imported input owner is reused without promoting its retained state\nPASS failed packaging records pending before output and preserves the failed outcome\nPASS explicit lifecycle must be a version that owns the selected release\nPASS source paths cannot be adopted as generated packaging inputs\nPASS existing release version owner is reused and explicit ownership remains supported\nPASS imported identity changes, path changes and overlapping ownership stay distinct\nPASS imported ID collisions cannot replace an existing owner's identity\nPASS explicit version state is preserved and concurrent changes are never overwritten\nPASS producer-shaped bundled Node bootstrap matches inventoried path\nPASS minimal package explicitly requires external Node without advertising a bundle\nPASS ZIP mode roundtrip\nPASS path traversal refused before mutation\nPASS wrong platform refused\nPASS tampered runtime refused before destination creation\nPASS invalid executable inventory mode refused\nPASS unlisted state files refused\nPASS relocated prepare-only install preserves state and binds runtime\nPASS side-by-side destination cannot be overwritten\nPASS ordinary Codex state refused\nPASS state/runtime overlap refused\nPASS ZIP archive traversal rejected\nPASS ZIP compressed entry tamper rejected\nPASS pinned branding owner operands and anchors\nPASS Mac public signing receipts bind all native bytes and metadata\n{\"checks\":26,\"platform\":{\"os\":\"win32\",\"arch\":\"x64\",\"target\":\"x86_64-pc-windows-msvc\"},\"nativeUnixExecution\":false,\"fixtureProject\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-packaging-fixture-closure\\\\runs\\\\fix03\\\\temporary\\\\platform\\\\portable-packaging-42b506d6-bd70-45be-8692-2478373d40f3\",\"retained\":true}\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "packaging-workspace",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "scripts/test-packaging-workspace.cjs",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\temporary\\packaging-workspace"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project",
+          "pid": 54872,
+          "exitCode": 1,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\logs\\packaging-workspace.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\logs\\packaging-workspace.stderr.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrSha256": "cad367f84fa8b4b1ddfdf5d34e9dc13077d17555622adca91d4c2da3787ffb34",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "",
+          "stderrExcerpt": "AssertionError [ERR_ASSERTION]: spawnSync pwsh ENOENT\n\nnull !== 0\n\n    at execute (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project\\scripts\\test-packaging-workspace.cjs:17:10)\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project\\scripts\\test-packaging-workspace.cjs:96:3)\n"
+        }
+      ],
+      "overrides": [
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\outputs\\overrides\\scripts\\packaging-workspace.cjs",
+          "destinationRelative": "scripts/packaging-workspace.cjs",
+          "sha256": "18c214533250a028fe5740117f8e3e7191380117a21111a855d8e0261df51fe6",
+          "bytes": 16606,
+          "baseSha256": "199875905dbab591562250fe96e898d832a18556c204a23f3dd7213a2ae5aeab"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\outputs\\overrides\\scripts\\test-platform-packaging.cjs",
+          "destinationRelative": "scripts/test-platform-packaging.cjs",
+          "sha256": "20c1db7ab016bb2bc6b1961efba1f7a350e715c3031adecd4465eab3bcf92b91",
+          "bytes": 27842,
+          "baseSha256": "0e98df3371e5122b24da47df75434600319087141d5ff1329adda040d100e804"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\outputs\\overrides\\scripts\\test-project-fail-fast.cjs",
+          "destinationRelative": "scripts/test-project-fail-fast.cjs",
+          "sha256": "6b5b7ed543c4f1e6967320d8e3214c648f4498472da476e15bdd08e124cb7437",
+          "bytes": 18308,
+          "baseSha256": "9c053dd8a9265ea77ca66c4b2e7e74d3ada5c7d9483c5650011d6070ef1bc9e7"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\outputs\\overrides\\scripts\\test-packaging-workspace.cjs",
+          "destinationRelative": "scripts/test-packaging-workspace.cjs",
+          "sha256": "7cecc935e4a97c0d5e210d7a17eaf34ac9069441c683738629d912122191b1f8",
+          "bytes": 15694,
+          "baseSha256": "ee796f3c13c7999fb628e8577786689ebbb2b7741b200683788fb9491b73dee1"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix04",
+      "report": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\reports\\verification.json",
+        "sha256": "d1429843d6a552c079b4cb75cd3b30f52fa1a948b146b3b3299ddb777d155bd2"
+      },
+      "producer": {
+        "lifecycleId": "run:FA-01-packaging-fixture-closure:fix04",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "Y29uc3QgZnM9cmVxdWlyZSgnZnMnKSxwPXJlcXVpcmUoJ3BhdGgnKSxjcD1yZXF1aXJlKCdjaGlsZF9wcm9jZXNzJyksY3J5cHRvPXJlcXVpcmUoJ2NyeXB0bycpLGE9cmVxdWlyZSgnLi9zY3JpcHRzL2FydGlmYWN0LXJ1bi5janMnKSxsPXJlcXVpcmUoJy4vc2NyaXB0cy9hcnRpZmFjdC1saWZlY3ljbGUuY2pzJykscm9vdD1wcm9jZXNzLmN3ZCgpLGhhc2g9Zj0+Y3J5cHRvLmNyZWF0ZUhhc2goJ3NoYTI1NicpLnVwZGF0ZShmcy5yZWFkRmlsZVN5bmMoZikpLmRpZ2VzdCgnaGV4Jyksb2xkUGF0aD1wLnJlc29sdmUoJ2FydGlmYWN0cy90YXNrcy9GQS0wMS1wYWNrYWdpbmctZml4dHVyZS1jbG9zdXJlL3J1bnMvZml4MDMvcmVwb3J0cy92ZXJpZmljYXRpb24uanNvbicpLG9sZD1KU09OLnBhcnNlKGZzLnJlYWRGaWxlU3luYyhvbGRQYXRoKSkscHI9bC53aXRoQ2F0YWxvZ0xvY2socm9vdCwoKT0+bC5jYXRhbG9nKHJvb3QpLmZpbmQoeD0+eC5pZD09PW9sZC5saWZlY3ljbGVJZCkpO2lmKHByLnByb2R1Y2VyPy5leGl0X2NvZGUhPT0xfHxvbGQuY2FsbHMuZmluZCh4PT54Lm5hbWU9PT0ncGxhdGZvcm0tcGFja2FnaW5nJyk/LmV4aXRDb2RlIT09MCl0aHJvdyBFcnJvcignUHJpb3Igb3V0Y29tZXMgbm90IHByZXNlcnZlZCcpO2NvbnN0IHJ1bj1hLmJlZ2luQXJ0aWZhY3RSdW4ocm9vdCx7d29ya0lkOidGQS0wMS1wYWNrYWdpbmctZml4dHVyZS1jbG9zdXJlJyxvd25lcjond29ya2JlbmNoX2JhY2tlbmQnLHJ1bklkOidmaXgwNCcscmVmZXJlbmNlczpbLi4ucHIucmVmZXJlbmNlcyx7aWQ6cHIuaWQsa2luZDonZGVwZW5kZW5jeScsbWVtYmVyX3BhdGhzOltsLnByb2plY3RNZW1iZXJzKHByLm1lbWJlcnMpWzBdLnBhdGhdLHJlYXNvbjonUmV1c2UgaWRlbnRpY2FsIHNjcmlwdHMgZml4dHVyZSBhbmQgcGxhdGZvcm0yNnBhc3M7IHJvb3Qgc3VwcGxpZXMgZXhpc3RpbmcgcHdzaCBQQVRIIHByZXJlcXVpc2l0ZSd9XX0pLGZpeHR1cmU9cC5qb2luKG9sZC5ydW5Sb290LCdpbnB1dHMvcHJvamVjdCcpLHJmPXAuam9pbihydW4ucmVwb3J0cywndmVyaWZpY2F0aW9uLmpzb24nKSxyPXtzY2hlbWE6MSxsaWZlY3ljbGVJZDpydW4ubGlmZWN5Y2xlSWQscnVuUm9vdDpydW4ucnVuUm9vdCxmcm96ZW5Sb290Om9sZC5mcm96ZW5Sb290LGJhc2VsaW5lOm9sZC5iYXNlbGluZSxzb3VyY2VSZWNlaXB0QmVmb3JlOm9sZC5zb3VyY2VSZWNlaXB0QmVmb3JlLHByaW1hcnlTb3VyY2VSZWNlaXB0QmVmb3JlOm9sZC5wcmltYXJ5U291cmNlUmVjZWlwdEJlZm9yZSxwcmlvckF0dGVtcHQ6e2xpZmVjeWNsZUlkOnByLmlkLHJlcG9ydDpvbGRQYXRoLHNoYTI1NjpoYXNoKG9sZFBhdGgpLGFjdHVhbEV4aXQ6MSxjYXVzZTpvbGQuZXJyb3J9LHJldXNlZFBsYXRmb3JtQ2hlY2s6b2xkLmNhbGxzLmZpbmQoeD0+eC5uYW1lPT09J3BsYXRmb3JtLXBhY2thZ2luZycpLHJldXNlZFBsYXRmb3JtQ291bnQ6MjYsZml4dHVyZVNvdXJjZTpmaXh0dXJlLHBsYW5uZWRXcml0ZXM6W3Auam9pbihydW4ub3V0cHV0cywnb3ZlcnJpZGVzL3NjcmlwdHMnKSxydW4udGVtcG9yYXJ5XSxjYWxsczpbXSxvdmVycmlkZXM6W10scmVhZHk6ZmFsc2V9O2NvbnN0IHNhdmU9KCk9PmZzLndyaXRlRmlsZVN5bmMocmYsSlNPTi5zdHJpbmdpZnkocixudWxsLDIpKydcbicpO3NhdmUoKTtjb25zdCBlbnY9ey4uLnByb2Nlc3MuZW52LFRFTVA6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3RlbXAnKSxUTVA6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3RlbXAnKSxUTVBESVI6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3RlbXAnKSxBWlJBRUxfU1RBVEVfUk9PVDpwLmpvaW4ocnVuLnRlbXBvcmFyeSwnc3RhdGUnKSxBWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09UOnAuam9pbihydW4udGVtcG9yYXJ5LCdydW5uZXInKSxBWlJBRUxfVEVTVF9QWVRIT046J0M6L1VzZXJzL2ZlbHJlL0FwcERhdGEvTG9jYWwvUHJvZ3JhbXMvUHl0aG9uL1B5dGhvbjMxMy9weXRob24uZXhlJyxQWVRIT05ET05UV1JJVEVCWVRFQ09ERTonMSd9LHBzRGlyZWN0b3J5PSdDOi9Vc2Vycy9mZWxyZS9BcHBEYXRhL0xvY2FsL01pY3Jvc29mdC9XaW5kb3dzQXBwcycscHM9cC5qb2luKHBzRGlyZWN0b3J5LCdwd3NoLmV4ZScpO2NvbnN0IHBhdGhLZXk9T2JqZWN0LmtleXMoZW52KS5maW5kKHg9PngudG9Mb3dlckNhc2UoKT09PSdwYXRoJyl8fCdQYXRoJztlbnZbcGF0aEtleV09cHNEaXJlY3RvcnkrJzsnKyhlbnZbcGF0aEtleV18fCcnKTtkZWxldGUgZW52LkFaUkFFTF9DQVJHT19PV05FUl9URVNUX1JPT1Q7ZGVsZXRlIGVudi5TVEFURV9ST09UOwphc3luYyBmdW5jdGlvbiBjYWxsKG5hbWUsYXJncyxleGU9cHJvY2Vzcy5leGVjUGF0aCl7Y29uc3Qgej1hd2FpdCBuZXcgUHJvbWlzZSgocmVzb2x2ZSxyZWplY3QpPT57Y29uc3QgYz1hLnRyYWNrQXJ0aWZhY3RDaGlsZChydW4sY3Auc3Bhd24oZXhlLGFyZ3Mse2N3ZDpmaXh0dXJlLGVudix3aW5kb3dzSGlkZTp0cnVlLHN0ZGlvOlsnaWdub3JlJywncGlwZScsJ3BpcGUnXX0pKTtsZXQgc289W10sc2U9W107Yy5zdGRvdXQub24oJ2RhdGEnLGI9PnNvLnB1c2goYikpO2Muc3RkZXJyLm9uKCdkYXRhJyxiPT5zZS5wdXNoKGIpKTtjLm9uKCdlcnJvcicscmVqZWN0KTtjLm9uKCdjbG9zZScsKGV4aXRDb2RlLHNpZ25hbCk9PnJlc29sdmUoe3BpZDpjLnBpZCxleGl0Q29kZSxzaWduYWwsc3Rkb3V0OkJ1ZmZlci5jb25jYXQoc28pLHN0ZGVycjpCdWZmZXIuY29uY2F0KHNlKX0pKTt9KTtjb25zdCBzbz1wLmpvaW4ocnVuLmxvZ3MsbmFtZSsnLnN0ZG91dC5sb2cnKSxzZT1wLmpvaW4ocnVuLmxvZ3MsbmFtZSsnLnN0ZGVyci5sb2cnKTtmcy53cml0ZUZpbGVTeW5jKHNvLHouc3Rkb3V0KTtmcy53cml0ZUZpbGVTeW5jKHNlLHouc3RkZXJyKTtyLmNhbGxzLnB1c2goe25hbWUsZXhlY3V0YWJsZTpleGUsYXJncyxjd2Q6Zml4dHVyZSxwaWQ6ei5waWQsZXhpdENvZGU6ei5leGl0Q29kZSxzaWduYWw6ei5zaWduYWwsc3Rkb3V0OnNvLHN0ZGVycjpzZSxzdGRvdXRTaGEyNTY6aGFzaChzbyksc3RkZXJyU2hhMjU2Omhhc2goc2UpfSk7c2F2ZSgpO2lmKHouZXhpdENvZGUhPT0wfHx6LnNpZ25hbCl0aHJvdyBFcnJvcihuYW1lKycgYWN0dWFsZXhpdCAnK3ouZXhpdENvZGUrJzogJyt6LnN0ZGVyci50b1N0cmluZygpLnNsaWNlKDAsMjAwMCkpO3JldHVybiB6LnN0ZG91dC50b1N0cmluZygpO30KKGFzeW5jKCk9PntsZXQgZXhpdENvZGU9MTt0cnl7ZnMubWtkaXJTeW5jKHAuam9pbihydW4ub3V0cHV0cywnb3ZlcnJpZGVzL3NjcmlwdHMnKSx7cmVjdXJzaXZlOnRydWV9KTtmb3IoY29uc3QgcSBvZiBbZW52LlRFTVAsZW52LkFaUkFFTF9TVEFURV9ST09ULGVudi5BWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09UXSlmcy5ta2RpclN5bmMocSx7cmVjdXJzaXZlOnRydWV9KTtmb3IoY29uc3QgeCBvZiBvbGQub3ZlcnJpZGVzKXtpZihoYXNoKHguc291cmNlKSE9PXguc2hhMjU2fHxoYXNoKHAuam9pbihmaXh0dXJlLHguZGVzdGluYXRpb25SZWxhdGl2ZSkpIT09eC5zaGEyNTYpdGhyb3cgRXJyb3IoJ0Zyb3plbiBvdmVycmlkZSBieXRlcyBjaGFuZ2VkJyk7Y29uc3Qgc291cmNlPXAuam9pbihydW4ub3V0cHV0cywnb3ZlcnJpZGVzJyx4LmRlc3RpbmF0aW9uUmVsYXRpdmUpO2ZzLmNvcHlGaWxlU3luYyh4LnNvdXJjZSxzb3VyY2UpO3Iub3ZlcnJpZGVzLnB1c2goey4uLngsc291cmNlfSk7fWNvbnN0IHBpbj1KU09OLnBhcnNlKGZzLnJlYWRGaWxlU3luYygnYXJ0aWZhY3RzL21haW50ZW5hbmNlL293bmVyLWluc3RhbGxhdGlvbi5qc29uJykpO2lmKGhhc2gocC5yZXNvbHZlKHBpbi5leGVjdXRhYmxlKSkhPT1waW4uc2hhMjU2KXRocm93IEVycm9yKCdPd25lciBwaW4gbWlzbWF0Y2gnKTtlbnYuQVpSQUVMX01BSU5URU5BTkNFX09XTkVSPXAucmVzb2x2ZShwaW4uZXhlY3V0YWJsZSk7ci5lbnZpcm9ubWVudD17VEVNUDplbnYuVEVNUCxBWlJBRUxfU1RBVEVfUk9PVDplbnYuQVpSQUVMX1NUQVRFX1JPT1QsQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVDplbnYuQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVCxBWlJBRUxfVEVTVF9QWVRIT046ZW52LkFaUkFFTF9URVNUX1BZVEhPTixBWlJBRUxfTUFJTlRFTkFOQ0VfT1dORVI6ZW52LkFaUkFFTF9NQUlOVEVOQU5DRV9PV05FUixhZGRlZFBhdGhEaXJlY3Rvcnk6cHNEaXJlY3Rvcnl9O3IucG93ZXJTaGVsbFZlcnNpb249KGF3YWl0IGNhbGwoJ3Bvd2Vyc2hlbGwtdmVyc2lvbicsWyctTm9Qcm9maWxlJywnLUNvbW1hbmQnLCckUFNWZXJzaW9uVGFibGUuUFNWZXJzaW9uLlRvU3RyaW5nKCknXSxwcykpLnRyaW0oKTthd2FpdCBjYWxsKCdwYWNrYWdpbmctd29ya3NwYWNlJyxbJ3NjcmlwdHMvdGVzdC1wYWNrYWdpbmctd29ya3NwYWNlLmNqcycscC5qb2luKHJ1bi50ZW1wb3JhcnksJ3BhY2thZ2luZy13b3Jrc3BhY2UnKV0pO2F3YWl0IGNhbGwoJ3Byb2plY3QtZmFpbC1mYXN0JyxbJy0tdGVzdCcsJ3NjcmlwdHMvdGVzdC1wcm9qZWN0LWZhaWwtZmFzdC5janMnXSk7Zm9yKGNvbnN0IHggb2Ygci5iYXNlbGluZSlpZihoYXNoKHAuam9pbihyb290LCdzY3JpcHRzJyx4Lm5hbWUpKSE9PXgucHJpbWFyeVNoYTI1Nil0aHJvdyBFcnJvcignUHJpbWFyeSBDQVMgY29uZmxpY3QgJyt4Lm5hbWUpO2Zvcihjb25zdCB4IG9mIHIub3ZlcnJpZGVzKXtmcy53cml0ZUZpbGVTeW5jKHAuam9pbihyb290LHguZGVzdGluYXRpb25SZWxhdGl2ZSksZnMucmVhZEZpbGVTeW5jKHguc291cmNlKSk7aWYoaGFzaChwLmpvaW4ocm9vdCx4LmRlc3RpbmF0aW9uUmVsYXRpdmUpKSE9PXguc2hhMjU2KXRocm93IEVycm9yKCdQcmltYXJ5IG1lcmdlIG1pc21hdGNoJyk7fXIucHJpbWFyeUNhc01lcmdlZD10cnVlO3Iuc291cmNlVW5jaGFuZ2VkPWhhc2gocC5qb2luKG9sZC5mcm96ZW5Sb290LCdlbmdpbmUvU09VUkNFLmpzb24nKSk9PT1yLnNvdXJjZVJlY2VpcHRCZWZvcmUmJmhhc2gocC5qb2luKHJvb3QsJ2VuZ2luZS9TT1VSQ0UuanNvbicpKT09PXIucHJpbWFyeVNvdXJjZVJlY2VpcHRCZWZvcmU7ci5mcm96ZW5TY3JpcHRzVW5jaGFuZ2VkPXIuYmFzZWxpbmUuZXZlcnkoeD0+aGFzaChwLmpvaW4ob2xkLmZyb3plblJvb3QsJ3NjcmlwdHMnLHgubmFtZSkpPT09eC5mcm96ZW5TaGEyNTYpO2lmKCFyLnNvdXJjZVVuY2hhbmdlZHx8IXIuZnJvemVuU2NyaXB0c1VuY2hhbmdlZCl0aHJvdyBFcnJvcignU291cmNlIGNoYW5nZWQnKTtyLnJlYWR5PXRydWU7ZXhpdENvZGU9MDsKfWNhdGNoKGUpe3IuZXJyb3I9ZS5zdGFjaztjb25zb2xlLmVycm9yKGUuc3RhY2spO31maW5hbGx5e3IuZmluaXNoZWRBdFV0Yz1uZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCk7c2F2ZSgpO3RyeXthLmZpbmlzaEFydGlmYWN0UnVuKHJ1bix7ZXhpdENvZGUscHJvZHVjZXJTdG9wcGVkOnRydWUscmVhc29uOidFeGlzdGluZyBwd3NoIFBBVEggY29ycmVjdGVkIGZvY3VzZWQgdmVyaWZpY2F0aW9uOyBpZGVudGljYWwgcGxhdGZvcm0yNnBhc3MgcmV1c2VkOyBhbGwgY2hpbGQgY2xvc2Ugb2JzZXJ2ZWQnfSk7fWNhdGNoKGUpe2NvbnNvbGUuZXJyb3IoZS5zdGFjayk7ZXhpdENvZGU9MTt9Y29uc29sZS5sb2coSlNPTi5zdHJpbmdpZnkoe3JlYWR5OnIucmVhZHkscmVwb3J0OnJmLHNoYTI1NjpoYXNoKHJmKSxsaWZlY3ljbGVJZDpydW4ubGlmZWN5Y2xlSWR9KSk7cHJvY2Vzcy5leGl0Q29kZT1leGl0Q29kZTt9fSkoKTs="
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Existing pwsh PATH corrected focused verification; identical platform26pass reused; all child close observed",
+        "children": [
+          {
+            "pid": 30996,
+            "closed": true
+          },
+          {
+            "pid": 50776,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true,
+        "evidencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\reports\\producer.json",
+        "evidenceSha256": "a11842d67ab87cedd067e0bdcbd61e4c2253c41d74d583a07f7c690063618a1d"
+      },
+      "cause": "Error: packaging-workspace actualexit 1: AssertionError [ERR_ASSERTION]: Exception: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\temporary\\packaging-workspace\\project\\artifacts\\inputs\\compact\\project\\scripts\\prepare-app-release.ps1:87\r\nLine |\r\n  87 |  �� DE -ne 0) { throw 'App release packaging failed. See packaging.stderr ��\r\n     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~����\r\n     | App release packaging failed. See packaging.stderr.log.\r\n\n\n1 !== 0\n\n    at execute (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project\\scripts\\test-packaging-workspace.cjs:17:10)\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project\\scripts\\test-packaging-workspace.cjs:96:3)\n\n    at call (eval at <anonymous> ([eval]:1:1), <anonymous>:2:793)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async eval (eval at <anonymous> ([eval]:1:1), <anonymous>:3:1131)",
+      "commands": [
+        {
+          "name": "powershell-version",
+          "executable": "C:\\Users\\felre\\AppData\\Local\\Microsoft\\WindowsApps\\pwsh.exe",
+          "args": [
+            "-NoProfile",
+            "-Command",
+            "$PSVersionTable.PSVersion.ToString()"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project",
+          "pid": 30996,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\logs\\powershell-version.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\logs\\powershell-version.stderr.log",
+          "stdoutSha256": "530a48ced0354f0b46cb126ce533132cd5625ba3323f20fe39df85e58e441792",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "7.6.9\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "packaging-workspace",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "scripts/test-packaging-workspace.cjs",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\temporary\\packaging-workspace"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project",
+          "pid": 50776,
+          "exitCode": 1,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\logs\\packaging-workspace.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\logs\\packaging-workspace.stderr.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrSha256": "eea8dc7e7892f5db65939e5e5e815736530706c56a1c5cc8b575d07816666d92",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "",
+          "stderrExcerpt": "AssertionError [ERR_ASSERTION]: Exception: C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\temporary\\packaging-workspace\\project\\artifacts\\inputs\\compact\\project\\scripts\\prepare-app-release.ps1:87\r\nLine |\r\n  87 |  �� DE -ne 0) { throw 'App release packaging failed. See packaging.stderr ��\r\n     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~����\r\n     | App release packaging failed. See packaging.stderr.log.\r\n\n\n1 !== 0\n\n    at execute (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project\\scripts\\test-packaging-workspace.cjs:17:10)\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project\\scripts\\test-packaging-workspace.cjs:96:3)\n"
+        }
+      ],
+      "overrides": [
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\outputs\\overrides\\scripts\\packaging-workspace.cjs",
+          "destinationRelative": "scripts/packaging-workspace.cjs",
+          "sha256": "18c214533250a028fe5740117f8e3e7191380117a21111a855d8e0261df51fe6",
+          "bytes": 16606,
+          "baseSha256": "199875905dbab591562250fe96e898d832a18556c204a23f3dd7213a2ae5aeab"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\outputs\\overrides\\scripts\\test-platform-packaging.cjs",
+          "destinationRelative": "scripts/test-platform-packaging.cjs",
+          "sha256": "20c1db7ab016bb2bc6b1961efba1f7a350e715c3031adecd4465eab3bcf92b91",
+          "bytes": 27842,
+          "baseSha256": "0e98df3371e5122b24da47df75434600319087141d5ff1329adda040d100e804"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\outputs\\overrides\\scripts\\test-project-fail-fast.cjs",
+          "destinationRelative": "scripts/test-project-fail-fast.cjs",
+          "sha256": "6b5b7ed543c4f1e6967320d8e3214c648f4498472da476e15bdd08e124cb7437",
+          "bytes": 18308,
+          "baseSha256": "9c053dd8a9265ea77ca66c4b2e7e74d3ada5c7d9483c5650011d6070ef1bc9e7"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\outputs\\overrides\\scripts\\test-packaging-workspace.cjs",
+          "destinationRelative": "scripts/test-packaging-workspace.cjs",
+          "sha256": "7cecc935e4a97c0d5e210d7a17eaf34ac9069441c683738629d912122191b1f8",
+          "bytes": 15694,
+          "baseSha256": "ee796f3c13c7999fb628e8577786689ebbb2b7741b200683788fb9491b73dee1"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix05",
+      "report": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\reports\\verification.json",
+        "sha256": "416a636100304d0efe456c0044c61bf007b990b693ac96b7732f796282eafe04"
+      },
+      "producer": {
+        "lifecycleId": "run:FA-01-packaging-fixture-closure:fix05",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "Y29uc3QgZnM9cmVxdWlyZSgnZnMnKSxwPXJlcXVpcmUoJ3BhdGgnKSxjcD1yZXF1aXJlKCdjaGlsZF9wcm9jZXNzJyksY3J5cHRvPXJlcXVpcmUoJ2NyeXB0bycpLGE9cmVxdWlyZSgnLi9zY3JpcHRzL2FydGlmYWN0LXJ1bi5janMnKSxsPXJlcXVpcmUoJy4vc2NyaXB0cy9hcnRpZmFjdC1saWZlY3ljbGUuY2pzJykscm9vdD1wcm9jZXNzLmN3ZCgpLGhhc2g9Zj0+Y3J5cHRvLmNyZWF0ZUhhc2goJ3NoYTI1NicpLnVwZGF0ZShmcy5yZWFkRmlsZVN5bmMoZikpLmRpZ2VzdCgnaGV4Jyksb2xkUGF0aD1wLnJlc29sdmUoJ2FydGlmYWN0cy90YXNrcy9GQS0wMS1wYWNrYWdpbmctZml4dHVyZS1jbG9zdXJlL3J1bnMvZml4MDQvcmVwb3J0cy92ZXJpZmljYXRpb24uanNvbicpLG9sZD1KU09OLnBhcnNlKGZzLnJlYWRGaWxlU3luYyhvbGRQYXRoKSkscHI9bC53aXRoQ2F0YWxvZ0xvY2socm9vdCwoKT0+bC5jYXRhbG9nKHJvb3QpLmZpbmQoeD0+eC5pZD09PW9sZC5saWZlY3ljbGVJZCkpO2lmKHByLnByb2R1Y2VyPy5leGl0X2NvZGUhPT0xKXRocm93IEVycm9yKCdQcmlvciB0ZXJtaW5hbCBtaXNzaW5nJyk7Y29uc3QgcnVuPWEuYmVnaW5BcnRpZmFjdFJ1bihyb290LHt3b3JrSWQ6J0ZBLTAxLXBhY2thZ2luZy1maXh0dXJlLWNsb3N1cmUnLG93bmVyOid3b3JrYmVuY2hfYmFja2VuZCcscnVuSWQ6J2ZpeDA1JyxyZWZlcmVuY2VzOlsuLi5wci5yZWZlcmVuY2VzLHtpZDpwci5pZCxraW5kOidldmlkZW5jZScsbWVtYmVyX3BhdGhzOltsLnByb2plY3RNZW1iZXJzKHByLm1lbWJlcnMpWzBdLnBhdGhdLHJlYXNvbjonUmV0YWluIFBvd2VyU2hlbGwgd3JhcHBlciBiYXJlIFB5dGhvbiBhbGlhcyBmYWlsdXJlOyBjb3JyZWN0IGV4aXN0aW5nIFB5dGhvbi9Qb3dlcnNoZWxsIFBBVEggb25seSd9XX0pLGZpeHR1cmU9b2xkLmZpeHR1cmVTb3VyY2UscmY9cC5qb2luKHJ1bi5yZXBvcnRzLCd2ZXJpZmljYXRpb24uanNvbicpLHI9e3NjaGVtYToxLGxpZmVjeWNsZUlkOnJ1bi5saWZlY3ljbGVJZCxydW5Sb290OnJ1bi5ydW5Sb290LGZyb3plblJvb3Q6b2xkLmZyb3plblJvb3QsYmFzZWxpbmU6b2xkLmJhc2VsaW5lLHNvdXJjZVJlY2VpcHRCZWZvcmU6b2xkLnNvdXJjZVJlY2VpcHRCZWZvcmUscHJpbWFyeVNvdXJjZVJlY2VpcHRCZWZvcmU6b2xkLnByaW1hcnlTb3VyY2VSZWNlaXB0QmVmb3JlLHByaW9yQXR0ZW1wdDp7bGlmZWN5Y2xlSWQ6cHIuaWQscmVwb3J0Om9sZFBhdGgsc2hhMjU2Omhhc2gob2xkUGF0aCksYWN0dWFsRXhpdDoxLGNhdXNlOm9sZC5lcnJvcn0scmV1c2VkUGxhdGZvcm1DaGVjazpvbGQucmV1c2VkUGxhdGZvcm1DaGVjayxyZXVzZWRQbGF0Zm9ybUNvdW50OjI2LGZpeHR1cmVTb3VyY2U6Zml4dHVyZSxwbGFubmVkV3JpdGVzOltwLmpvaW4ocnVuLm91dHB1dHMsJ292ZXJyaWRlcy9zY3JpcHRzJykscnVuLnRlbXBvcmFyeV0sY2FsbHM6W10sb3ZlcnJpZGVzOltdLHJlYWR5OmZhbHNlfTtjb25zdCBzYXZlPSgpPT5mcy53cml0ZUZpbGVTeW5jKHJmLEpTT04uc3RyaW5naWZ5KHIsbnVsbCwyKSsnXG4nKTtzYXZlKCk7Y29uc3QgcHl0aG9uRGlyZWN0b3J5PSdDOi9Vc2Vycy9mZWxyZS9BcHBEYXRhL0xvY2FsL1Byb2dyYW1zL1B5dGhvbi9QeXRob24zMTMnLHBzRGlyZWN0b3J5PSdDOi9Vc2Vycy9mZWxyZS9BcHBEYXRhL0xvY2FsL01pY3Jvc29mdC9XaW5kb3dzQXBwcycsZW52PXsuLi5wcm9jZXNzLmVudixURU1QOnAuam9pbihydW4udGVtcG9yYXJ5LCd0ZW1wJyksVE1QOnAuam9pbihydW4udGVtcG9yYXJ5LCd0ZW1wJyksVE1QRElSOnAuam9pbihydW4udGVtcG9yYXJ5LCd0ZW1wJyksQVpSQUVMX1NUQVRFX1JPT1Q6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3N0YXRlJyksQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVDpwLmpvaW4ocnVuLnRlbXBvcmFyeSwncnVubmVyJyksQVpSQUVMX1RFU1RfUFlUSE9OOnAuam9pbihweXRob25EaXJlY3RvcnksJ3B5dGhvbi5leGUnKSxQWVRIT05ET05UV1JJVEVCWVRFQ09ERTonMSd9O2NvbnN0IHBhdGhLZXk9T2JqZWN0LmtleXMoZW52KS5maW5kKHg9PngudG9Mb3dlckNhc2UoKT09PSdwYXRoJyl8fCdQYXRoJztlbnZbcGF0aEtleV09cHl0aG9uRGlyZWN0b3J5Kyc7Jytwc0RpcmVjdG9yeSsnOycrKGVudltwYXRoS2V5XXx8JycpO2RlbGV0ZSBlbnYuQVpSQUVMX0NBUkdPX09XTkVSX1RFU1RfUk9PVDtkZWxldGUgZW52LlNUQVRFX1JPT1Q7CmFzeW5jIGZ1bmN0aW9uIGNhbGwobmFtZSxhcmdzLGV4ZT1wcm9jZXNzLmV4ZWNQYXRoKXtjb25zdCB6PWF3YWl0IG5ldyBQcm9taXNlKChyZXNvbHZlLHJlamVjdCk9Pntjb25zdCBjPWEudHJhY2tBcnRpZmFjdENoaWxkKHJ1bixjcC5zcGF3bihleGUsYXJncyx7Y3dkOmZpeHR1cmUsZW52LHdpbmRvd3NIaWRlOnRydWUsc3RkaW86WydpZ25vcmUnLCdwaXBlJywncGlwZSddfSkpO2xldCBzbz1bXSxzZT1bXTtjLnN0ZG91dC5vbignZGF0YScsYj0+c28ucHVzaChiKSk7Yy5zdGRlcnIub24oJ2RhdGEnLGI9PnNlLnB1c2goYikpO2Mub24oJ2Vycm9yJyxyZWplY3QpO2Mub24oJ2Nsb3NlJywoZXhpdENvZGUsc2lnbmFsKT0+cmVzb2x2ZSh7cGlkOmMucGlkLGV4aXRDb2RlLHNpZ25hbCxzdGRvdXQ6QnVmZmVyLmNvbmNhdChzbyksc3RkZXJyOkJ1ZmZlci5jb25jYXQoc2UpfSkpO30pO2NvbnN0IHNvPXAuam9pbihydW4ubG9ncyxuYW1lKycuc3Rkb3V0LmxvZycpLHNlPXAuam9pbihydW4ubG9ncyxuYW1lKycuc3RkZXJyLmxvZycpO2ZzLndyaXRlRmlsZVN5bmMoc28sei5zdGRvdXQpO2ZzLndyaXRlRmlsZVN5bmMoc2Usei5zdGRlcnIpO3IuY2FsbHMucHVzaCh7bmFtZSxleGVjdXRhYmxlOmV4ZSxhcmdzLGN3ZDpmaXh0dXJlLHBpZDp6LnBpZCxleGl0Q29kZTp6LmV4aXRDb2RlLHNpZ25hbDp6LnNpZ25hbCxzdGRvdXQ6c28sc3RkZXJyOnNlLHN0ZG91dFNoYTI1NjpoYXNoKHNvKSxzdGRlcnJTaGEyNTY6aGFzaChzZSl9KTtzYXZlKCk7aWYoei5leGl0Q29kZSE9PTB8fHouc2lnbmFsKXRocm93IEVycm9yKG5hbWUrJyBhY3R1YWxleGl0ICcrei5leGl0Q29kZSsnOiAnK3ouc3RkZXJyLnRvU3RyaW5nKCkuc2xpY2UoMCwxODAwKSk7cmV0dXJuIHouc3Rkb3V0LnRvU3RyaW5nKCk7fQooYXN5bmMoKT0+e2xldCBleGl0Q29kZT0xO3RyeXtmcy5ta2RpclN5bmMocC5qb2luKHJ1bi5vdXRwdXRzLCdvdmVycmlkZXMvc2NyaXB0cycpLHtyZWN1cnNpdmU6dHJ1ZX0pO2Zvcihjb25zdCBxIG9mIFtlbnYuVEVNUCxlbnYuQVpSQUVMX1NUQVRFX1JPT1QsZW52LkFaUkFFTF9QUk9KRUNUX1JVTk5FUl9URVNUX1JPT1RdKWZzLm1rZGlyU3luYyhxLHtyZWN1cnNpdmU6dHJ1ZX0pO2Zvcihjb25zdCB4IG9mIG9sZC5vdmVycmlkZXMpe2lmKGhhc2goeC5zb3VyY2UpIT09eC5zaGEyNTZ8fGhhc2gocC5qb2luKGZpeHR1cmUseC5kZXN0aW5hdGlvblJlbGF0aXZlKSkhPT14LnNoYTI1Nil0aHJvdyBFcnJvcignU291cmNlIGJ5dGVzIGNoYW5nZWQnKTtjb25zdCBzb3VyY2U9cC5qb2luKHJ1bi5vdXRwdXRzLCdvdmVycmlkZXMnLHguZGVzdGluYXRpb25SZWxhdGl2ZSk7ZnMuY29weUZpbGVTeW5jKHguc291cmNlLHNvdXJjZSk7ci5vdmVycmlkZXMucHVzaCh7Li4ueCxzb3VyY2V9KTt9Y29uc3QgcGluPUpTT04ucGFyc2UoZnMucmVhZEZpbGVTeW5jKCdhcnRpZmFjdHMvbWFpbnRlbmFuY2Uvb3duZXItaW5zdGFsbGF0aW9uLmpzb24nKSk7aWYoaGFzaChwLnJlc29sdmUocGluLmV4ZWN1dGFibGUpKSE9PXBpbi5zaGEyNTYpdGhyb3cgRXJyb3IoJ1BpbiBtaXNtYXRjaCcpO2Vudi5BWlJBRUxfTUFJTlRFTkFOQ0VfT1dORVI9cC5yZXNvbHZlKHBpbi5leGVjdXRhYmxlKTtyLmVudmlyb25tZW50PXtURU1QOmVudi5URU1QLEFaUkFFTF9TVEFURV9ST09UOmVudi5BWlJBRUxfU1RBVEVfUk9PVCxBWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09UOmVudi5BWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09ULEFaUkFFTF9URVNUX1BZVEhPTjplbnYuQVpSQUVMX1RFU1RfUFlUSE9OLEFaUkFFTF9NQUlOVEVOQU5DRV9PV05FUjplbnYuQVpSQUVMX01BSU5URU5BTkNFX09XTkVSLGFkZGVkUGF0aERpcmVjdG9yaWVzOltweXRob25EaXJlY3RvcnkscHNEaXJlY3RvcnldfTtyLnBvd2VyU2hlbGxWZXJzaW9uPShhd2FpdCBjYWxsKCdwb3dlcnNoZWxsLXZlcnNpb24nLFsnLU5vUHJvZmlsZScsJy1Db21tYW5kJywnJFBTVmVyc2lvblRhYmxlLlBTVmVyc2lvbi5Ub1N0cmluZygpJ10sJ3B3c2gnKSkudHJpbSgpO3IucHl0aG9uVmVyc2lvbj0oYXdhaXQgY2FsbCgncHl0aG9uLXZlcnNpb24nLFsnLS12ZXJzaW9uJ10sJ3B5dGhvbicpKS50cmltKCk7YXdhaXQgY2FsbCgncHJvamVjdC1mYWlsLWZhc3QnLFsnLS10ZXN0Jywnc2NyaXB0cy90ZXN0LXByb2plY3QtZmFpbC1mYXN0LmNqcyddKTthd2FpdCBjYWxsKCdwYWNrYWdpbmctd29ya3NwYWNlJyxbJ3NjcmlwdHMvdGVzdC1wYWNrYWdpbmctd29ya3NwYWNlLmNqcycscC5qb2luKHJ1bi50ZW1wb3JhcnksJ3BhY2thZ2luZy13b3Jrc3BhY2UnKV0pO2Zvcihjb25zdCB4IG9mIHIuYmFzZWxpbmUpaWYoaGFzaChwLmpvaW4ocm9vdCwnc2NyaXB0cycseC5uYW1lKSkhPT14LnByaW1hcnlTaGEyNTYpdGhyb3cgRXJyb3IoJ1ByaW1hcnkgQ0FTIGNvbmZsaWN0ICcreC5uYW1lKTtmb3IoY29uc3QgeCBvZiByLm92ZXJyaWRlcyl7ZnMud3JpdGVGaWxlU3luYyhwLmpvaW4ocm9vdCx4LmRlc3RpbmF0aW9uUmVsYXRpdmUpLGZzLnJlYWRGaWxlU3luYyh4LnNvdXJjZSkpO2lmKGhhc2gocC5qb2luKHJvb3QseC5kZXN0aW5hdGlvblJlbGF0aXZlKSkhPT14LnNoYTI1Nil0aHJvdyBFcnJvcignUHJpbWFyeSBtZXJnZSBtaXNtYXRjaCcpO31yLnByaW1hcnlDYXNNZXJnZWQ9dHJ1ZTtyLnNvdXJjZVVuY2hhbmdlZD1oYXNoKHAuam9pbihvbGQuZnJvemVuUm9vdCwnZW5naW5lL1NPVVJDRS5qc29uJykpPT09ci5zb3VyY2VSZWNlaXB0QmVmb3JlJiZoYXNoKHAuam9pbihyb290LCdlbmdpbmUvU09VUkNFLmpzb24nKSk9PT1yLnByaW1hcnlTb3VyY2VSZWNlaXB0QmVmb3JlO3IuZnJvemVuU2NyaXB0c1VuY2hhbmdlZD1yLmJhc2VsaW5lLmV2ZXJ5KHg9Pmhhc2gocC5qb2luKG9sZC5mcm96ZW5Sb290LCdzY3JpcHRzJyx4Lm5hbWUpKT09PXguZnJvemVuU2hhMjU2KTtpZighci5zb3VyY2VVbmNoYW5nZWR8fCFyLmZyb3plblNjcmlwdHNVbmNoYW5nZWQpdGhyb3cgRXJyb3IoJ1NvdXJjZSBjaGFuZ2VkJyk7ci5yZWFkeT10cnVlO2V4aXRDb2RlPTA7Cn1jYXRjaChlKXtyLmVycm9yPWUuc3RhY2s7Y29uc29sZS5lcnJvcihlLnN0YWNrKTt9ZmluYWxseXtyLmZpbmlzaGVkQXRVdGM9bmV3IERhdGUoKS50b0lTT1N0cmluZygpO3NhdmUoKTt0cnl7YS5maW5pc2hBcnRpZmFjdFJ1bihydW4se2V4aXRDb2RlLHByb2R1Y2VyU3RvcHBlZDp0cnVlLHJlYXNvbjonRm9jdXNlZCBzY3JpcHRzIHRlc3RzIHdpdGggZXhpc3RpbmcgYWN0dWFsIFB5dGhvbjMxMyBhbmQgUG93ZXJTaGVsbDcgb24gY2hpbGQgUEFUSDsgYWxsIGNoaWxkcmVuIGNsb3NlIG9ic2VydmVkJ30pO31jYXRjaChlKXtjb25zb2xlLmVycm9yKGUuc3RhY2spO2V4aXRDb2RlPTE7fWNvbnNvbGUubG9nKEpTT04uc3RyaW5naWZ5KHtyZWFkeTpyLnJlYWR5LHJlcG9ydDpyZixzaGEyNTY6aGFzaChyZiksbGlmZWN5Y2xlSWQ6cnVuLmxpZmVjeWNsZUlkfSkpO3Byb2Nlc3MuZXhpdENvZGU9ZXhpdENvZGU7fX0pKCk7"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Focused scripts tests with existing actual Python313 and PowerShell7 on child PATH; all children close observed",
+        "children": [
+          {
+            "pid": 52572,
+            "closed": true
+          },
+          {
+            "pid": 59364,
+            "closed": true
+          },
+          {
+            "pid": 44264,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true,
+        "evidencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\reports\\producer.json",
+        "evidenceSha256": "dc93fa377a2644c02a21342612a3fc68402ac8dd11ae4d88eb1c373965caf38f"
+      },
+      "cause": "Error: project-fail-fast actualexit 1: \n    at call (eval at <anonymous> ([eval]:1:1), <anonymous>:2:793)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async eval (eval at <anonymous> ([eval]:1:1), <anonymous>:3:1217)",
+      "commands": [
+        {
+          "name": "powershell-version",
+          "executable": "pwsh",
+          "args": [
+            "-NoProfile",
+            "-Command",
+            "$PSVersionTable.PSVersion.ToString()"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project",
+          "pid": 52572,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\logs\\powershell-version.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\logs\\powershell-version.stderr.log",
+          "stdoutSha256": "530a48ced0354f0b46cb126ce533132cd5625ba3323f20fe39df85e58e441792",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "7.6.9\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "python-version",
+          "executable": "python",
+          "args": [
+            "--version"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project",
+          "pid": 59364,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\logs\\python-version.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\logs\\python-version.stderr.log",
+          "stdoutSha256": "e01010a8a9c1cd68a0b1f72761644d8604090bec2d68ff9c3cad0d2535726849",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "Python 3.13.15\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "project-fail-fast",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "--test",
+            "scripts/test-project-fail-fast.cjs"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project",
+          "pid": 44264,
+          "exitCode": 1,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\logs\\project-fail-fast.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\logs\\project-fail-fast.stderr.log",
+          "stdoutSha256": "923978b2cd9d214773b5f7b9da5646db7669f4fb8338dab7fb3959ac52658093",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "✔ producer registration failure prevents run creation and test execution (4.2676ms)\n✔ interrupted managed runs retain pending metadata and the active checkpoint (283.5912ms)\n✔ explicit log base and exact directory preserve legacy layout without lifecycle records (12.027ms)\nℹ tests 22\nℹ suites 0\nℹ pass 21\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3004.4895\n\n✖ failing tests:\n\ntest at scripts\\test-project-fail-fast.cjs:33:1\n✖ fixture readiness is explicit and blocks before output creation or command launch (13.2973ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  'blocked' !== 'ready'\n  \n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\inputs\\project\\scripts\\test-project-fail-fast.cjs:44:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1397:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)\n      at Test.postRun (node:internal/test_runner/test:1537:19)\n      at Test.run (node:internal/test_runner/test:1462:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'blocked',\n    expected: 'ready',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+          "stderrExcerpt": ""
+        }
+      ],
+      "overrides": [
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\outputs\\overrides\\scripts\\packaging-workspace.cjs",
+          "destinationRelative": "scripts/packaging-workspace.cjs",
+          "sha256": "18c214533250a028fe5740117f8e3e7191380117a21111a855d8e0261df51fe6",
+          "bytes": 16606,
+          "baseSha256": "199875905dbab591562250fe96e898d832a18556c204a23f3dd7213a2ae5aeab"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\outputs\\overrides\\scripts\\test-platform-packaging.cjs",
+          "destinationRelative": "scripts/test-platform-packaging.cjs",
+          "sha256": "20c1db7ab016bb2bc6b1961efba1f7a350e715c3031adecd4465eab3bcf92b91",
+          "bytes": 27842,
+          "baseSha256": "0e98df3371e5122b24da47df75434600319087141d5ff1329adda040d100e804"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\outputs\\overrides\\scripts\\test-project-fail-fast.cjs",
+          "destinationRelative": "scripts/test-project-fail-fast.cjs",
+          "sha256": "6b5b7ed543c4f1e6967320d8e3214c648f4498472da476e15bdd08e124cb7437",
+          "bytes": 18308,
+          "baseSha256": "9c053dd8a9265ea77ca66c4b2e7e74d3ada5c7d9483c5650011d6070ef1bc9e7"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\outputs\\overrides\\scripts\\test-packaging-workspace.cjs",
+          "destinationRelative": "scripts/test-packaging-workspace.cjs",
+          "sha256": "7cecc935e4a97c0d5e210d7a17eaf34ac9069441c683738629d912122191b1f8",
+          "bytes": 15694,
+          "baseSha256": "ee796f3c13c7999fb628e8577786689ebbb2b7741b200683788fb9491b73dee1"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix06",
+      "report": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\reports\\verification.json",
+        "sha256": "1601bc8a69f1ab686f61512f2ffd2e311ec1c489b06e4dd28d35a4973dda07b1"
+      },
+      "producer": {
+        "lifecycleId": "run:FA-01-packaging-fixture-closure:fix06",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "Y29uc3QgZnM9cmVxdWlyZSgnZnMnKSxwPXJlcXVpcmUoJ3BhdGgnKSxjcD1yZXF1aXJlKCdjaGlsZF9wcm9jZXNzJyksY3J5cHRvPXJlcXVpcmUoJ2NyeXB0bycpLGE9cmVxdWlyZSgnLi9zY3JpcHRzL2FydGlmYWN0LXJ1bi5janMnKSxsPXJlcXVpcmUoJy4vc2NyaXB0cy9hcnRpZmFjdC1saWZlY3ljbGUuY2pzJykscm9vdD1wcm9jZXNzLmN3ZCgpLGhhc2g9Zj0+Y3J5cHRvLmNyZWF0ZUhhc2goJ3NoYTI1NicpLnVwZGF0ZShmcy5yZWFkRmlsZVN5bmMoZikpLmRpZ2VzdCgnaGV4Jyksb2xkUGF0aD1wLnJlc29sdmUoJ2FydGlmYWN0cy90YXNrcy9GQS0wMS1wYWNrYWdpbmctZml4dHVyZS1jbG9zdXJlL3J1bnMvZml4MDUvcmVwb3J0cy92ZXJpZmljYXRpb24uanNvbicpLG9sZD1KU09OLnBhcnNlKGZzLnJlYWRGaWxlU3luYyhvbGRQYXRoKSkscHI9bC53aXRoQ2F0YWxvZ0xvY2socm9vdCwoKT0+bC5jYXRhbG9nKHJvb3QpLmZpbmQoeD0+eC5pZD09PW9sZC5saWZlY3ljbGVJZCkpO2lmKHByLnByb2R1Y2VyPy5leGl0X2NvZGUhPT0xKXRocm93IEVycm9yKCdQcmlvciB0ZXJtaW5hbCBtaXNzaW5nJyk7Y29uc3QgcnVuPWEuYmVnaW5BcnRpZmFjdFJ1bihyb290LHt3b3JrSWQ6J0ZBLTAxLXBhY2thZ2luZy1maXh0dXJlLWNsb3N1cmUnLG93bmVyOid3b3JrYmVuY2hfYmFja2VuZCcscnVuSWQ6J2ZpeDA2JyxyZWZlcmVuY2VzOlsuLi5wci5yZWZlcmVuY2VzLHtpZDpwci5pZCxraW5kOidldmlkZW5jZScsbWVtYmVyX3BhdGhzOltsLnByb2plY3RNZW1iZXJzKHByLm1lbWJlcnMpWzBdLnBhdGhdLHJlYXNvbjonUHJlc2VydmUgbWlzc2luZyBHaXQvaW5zdHJ1Y3Rpb24gbWFuaWZlc3QgaG9zdCBmaXh0dXJlOyBzYW1lIGZvdXIgcmV2aWV3ZWQgc2NyaXB0IGJ5dGVzJ31dfSksZml4dHVyZT1wLmpvaW4ocnVuLmlucHV0cywncHJvamVjdCcpLHJmPXAuam9pbihydW4ucmVwb3J0cywndmVyaWZpY2F0aW9uLmpzb24nKSxyPXtzY2hlbWE6MSxsaWZlY3ljbGVJZDpydW4ubGlmZWN5Y2xlSWQscnVuUm9vdDpydW4ucnVuUm9vdCxmcm96ZW5Sb290Om9sZC5mcm96ZW5Sb290LGJhc2VsaW5lOm9sZC5iYXNlbGluZSxzb3VyY2VSZWNlaXB0QmVmb3JlOm9sZC5zb3VyY2VSZWNlaXB0QmVmb3JlLHByaW1hcnlTb3VyY2VSZWNlaXB0QmVmb3JlOm9sZC5wcmltYXJ5U291cmNlUmVjZWlwdEJlZm9yZSxwcmlvckF0dGVtcHQ6e2xpZmVjeWNsZUlkOnByLmlkLHJlcG9ydDpvbGRQYXRoLHNoYTI1NjpoYXNoKG9sZFBhdGgpLGFjdHVhbEV4aXQ6MSxjYXVzZTpvbGQuZXJyb3J9LHJldXNlZFBsYXRmb3JtQ2hlY2s6b2xkLnJldXNlZFBsYXRmb3JtQ2hlY2sscmV1c2VkUGxhdGZvcm1Db3VudDoyNixmaXh0dXJlU291cmNlOmZpeHR1cmUscGxhbm5lZFdyaXRlczpbZml4dHVyZSxwLmpvaW4ocnVuLm91dHB1dHMsJ292ZXJyaWRlcy9zY3JpcHRzJykscnVuLnRlbXBvcmFyeV0sY2FsbHM6W10sb3ZlcnJpZGVzOltdLHJlYWR5OmZhbHNlfTtjb25zdCBzYXZlPSgpPT5mcy53cml0ZUZpbGVTeW5jKHJmLEpTT04uc3RyaW5naWZ5KHIsbnVsbCwyKSsnXG4nKTtzYXZlKCk7Y29uc3QgcHl0aG9uRGlyZWN0b3J5PSdDOi9Vc2Vycy9mZWxyZS9BcHBEYXRhL0xvY2FsL1Byb2dyYW1zL1B5dGhvbi9QeXRob24zMTMnLHBzRGlyZWN0b3J5PSdDOi9Vc2Vycy9mZWxyZS9BcHBEYXRhL0xvY2FsL01pY3Jvc29mdC9XaW5kb3dzQXBwcycsZW52PXsuLi5wcm9jZXNzLmVudixURU1QOnAuam9pbihydW4udGVtcG9yYXJ5LCd0ZW1wJyksVE1QOnAuam9pbihydW4udGVtcG9yYXJ5LCd0ZW1wJyksVE1QRElSOnAuam9pbihydW4udGVtcG9yYXJ5LCd0ZW1wJyksQVpSQUVMX1NUQVRFX1JPT1Q6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3N0YXRlJyksQVpSQUVMX1BST0pFQ1RfUlVOTkVSX1RFU1RfUk9PVDpwLmpvaW4ocnVuLnRlbXBvcmFyeSwncnVubmVyJyksQVpSQUVMX1RFU1RfUFlUSE9OOnAuam9pbihweXRob25EaXJlY3RvcnksJ3B5dGhvbi5leGUnKSxQWVRIT05ET05UV1JJVEVCWVRFQ09ERTonMSd9O2NvbnN0IHBhdGhLZXk9T2JqZWN0LmtleXMoZW52KS5maW5kKHg9PngudG9Mb3dlckNhc2UoKT09PSdwYXRoJyl8fCdQYXRoJztlbnZbcGF0aEtleV09cHl0aG9uRGlyZWN0b3J5Kyc7Jytwc0RpcmVjdG9yeSsnOycrKGVudltwYXRoS2V5XXx8JycpO2RlbGV0ZSBlbnYuQVpSQUVMX0NBUkdPX09XTkVSX1RFU1RfUk9PVDtkZWxldGUgZW52LlNUQVRFX1JPT1Q7CmFzeW5jIGZ1bmN0aW9uIGNhbGwobmFtZSxhcmdzLGV4ZT1wcm9jZXNzLmV4ZWNQYXRoKXtjb25zdCB6PWF3YWl0IG5ldyBQcm9taXNlKChyZXNvbHZlLHJlamVjdCk9Pntjb25zdCBjPWEudHJhY2tBcnRpZmFjdENoaWxkKHJ1bixjcC5zcGF3bihleGUsYXJncyx7Y3dkOmZpeHR1cmUsZW52LHdpbmRvd3NIaWRlOnRydWUsc3RkaW86WydpZ25vcmUnLCdwaXBlJywncGlwZSddfSkpO2xldCBzbz1bXSxzZT1bXTtjLnN0ZG91dC5vbignZGF0YScsYj0+c28ucHVzaChiKSk7Yy5zdGRlcnIub24oJ2RhdGEnLGI9PnNlLnB1c2goYikpO2Mub24oJ2Vycm9yJyxyZWplY3QpO2Mub24oJ2Nsb3NlJywoZXhpdENvZGUsc2lnbmFsKT0+cmVzb2x2ZSh7cGlkOmMucGlkLGV4aXRDb2RlLHNpZ25hbCxzdGRvdXQ6QnVmZmVyLmNvbmNhdChzbyksc3RkZXJyOkJ1ZmZlci5jb25jYXQoc2UpfSkpO30pO2NvbnN0IHNvPXAuam9pbihydW4ubG9ncyxuYW1lKycuc3Rkb3V0LmxvZycpLHNlPXAuam9pbihydW4ubG9ncyxuYW1lKycuc3RkZXJyLmxvZycpO2ZzLndyaXRlRmlsZVN5bmMoc28sei5zdGRvdXQpO2ZzLndyaXRlRmlsZVN5bmMoc2Usei5zdGRlcnIpO3IuY2FsbHMucHVzaCh7bmFtZSxleGVjdXRhYmxlOmV4ZSxhcmdzLGN3ZDpmaXh0dXJlLHBpZDp6LnBpZCxleGl0Q29kZTp6LmV4aXRDb2RlLHNpZ25hbDp6LnNpZ25hbCxzdGRvdXQ6c28sc3RkZXJyOnNlLHN0ZG91dFNoYTI1NjpoYXNoKHNvKSxzdGRlcnJTaGEyNTY6aGFzaChzZSl9KTtzYXZlKCk7aWYoei5leGl0Q29kZSE9PTB8fHouc2lnbmFsKXRocm93IEVycm9yKG5hbWUrJyBhY3R1YWxleGl0ICcrei5leGl0Q29kZSsnOiAnK3ouc3RkZXJyLnRvU3RyaW5nKCkuc2xpY2UoMCwxODAwKSk7cmV0dXJuIHouc3Rkb3V0LnRvU3RyaW5nKCk7fQooYXN5bmMoKT0+e2xldCBleGl0Q29kZT0xO3RyeXtjb25zdCBjb3B5PXJlcXVpcmUoJy4vc2NyaXB0cy9mcmVlemUtcGxhdGZvcm0taW5wdXRzLmNqcycpLmNvcHlUcmVlO2NvcHkocC5qb2luKG9sZC5mcm96ZW5Sb290LCdzY3JpcHRzJykscC5qb2luKGZpeHR1cmUsJ3NjcmlwdHMnKSk7Y29weShwLmpvaW4ob2xkLmZyb3plblJvb3QsJ0xJQ0VOU0UnKSxwLmpvaW4oZml4dHVyZSwnTElDRU5TRScpKTtjb3B5KHAuam9pbihvbGQuZnJvemVuUm9vdCwnaW5zdHJ1Y3Rpb25zL2F6cmFlbC1lbnZpcm9ubWVudC5qc29uJykscC5qb2luKGZpeHR1cmUsJ2luc3RydWN0aW9ucy9henJhZWwtZW52aXJvbm1lbnQuanNvbicpKTtmcy5ta2RpclN5bmMocC5qb2luKGZpeHR1cmUsJ2FydGlmYWN0cy92ZXJpZmljYXRpb24vcHJvYmUnKSx7cmVjdXJzaXZlOnRydWV9KTtmcy5ta2RpclN5bmMocC5qb2luKHJ1bi5vdXRwdXRzLCdvdmVycmlkZXMvc2NyaXB0cycpLHtyZWN1cnNpdmU6dHJ1ZX0pO2Zvcihjb25zdCBxIG9mIFtlbnYuVEVNUCxlbnYuQVpSQUVMX1NUQVRFX1JPT1QsZW52LkFaUkFFTF9QUk9KRUNUX1JVTk5FUl9URVNUX1JPT1RdKWZzLm1rZGlyU3luYyhxLHtyZWN1cnNpdmU6dHJ1ZX0pO2Zvcihjb25zdCB4IG9mIG9sZC5vdmVycmlkZXMpe2lmKGhhc2goeC5zb3VyY2UpIT09eC5zaGEyNTYpdGhyb3cgRXJyb3IoJ092ZXJyaWRlIGNoYW5nZWQnKTtjb25zdCBzb3VyY2U9cC5qb2luKHJ1bi5vdXRwdXRzLCdvdmVycmlkZXMnLHguZGVzdGluYXRpb25SZWxhdGl2ZSk7Y29weSh4LnNvdXJjZSxzb3VyY2UpO2ZzLndyaXRlRmlsZVN5bmMocC5qb2luKGZpeHR1cmUseC5kZXN0aW5hdGlvblJlbGF0aXZlKSxmcy5yZWFkRmlsZVN5bmMoc291cmNlKSk7ci5vdmVycmlkZXMucHVzaCh7Li4ueCxzb3VyY2V9KTt9Y29uc3QgcGluPUpTT04ucGFyc2UoZnMucmVhZEZpbGVTeW5jKCdhcnRpZmFjdHMvbWFpbnRlbmFuY2Uvb3duZXItaW5zdGFsbGF0aW9uLmpzb24nKSk7aWYoaGFzaChwLnJlc29sdmUocGluLmV4ZWN1dGFibGUpKSE9PXBpbi5zaGEyNTYpdGhyb3cgRXJyb3IoJ1BpbiBtaXNtYXRjaCcpO2Vudi5BWlJBRUxfTUFJTlRFTkFOQ0VfT1dORVI9cC5yZXNvbHZlKHBpbi5leGVjdXRhYmxlKTtyLmVudmlyb25tZW50PXtURU1QOmVudi5URU1QLEFaUkFFTF9TVEFURV9ST09UOmVudi5BWlJBRUxfU1RBVEVfUk9PVCxBWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09UOmVudi5BWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09ULEFaUkFFTF9URVNUX1BZVEhPTjplbnYuQVpSQUVMX1RFU1RfUFlUSE9OLEFaUkFFTF9NQUlOVEVOQU5DRV9PV05FUjplbnYuQVpSQUVMX01BSU5URU5BTkNFX09XTkVSLGFkZGVkUGF0aERpcmVjdG9yaWVzOltweXRob25EaXJlY3RvcnkscHNEaXJlY3RvcnldfTthd2FpdCBjYWxsKCdmaXh0dXJlLWdpdC1pbml0JyxbJ2luaXQnLCctLXF1aWV0J10sJ2dpdCcpO2F3YWl0IGNhbGwoJ2hvc3QtZml4dHVyZS1pbnNwZWN0aW9uJyxbJy1lJywnY29uc3QgcD1yZXF1aXJlKCJwYXRoIikseD1yZXF1aXJlKCIuL3NjcmlwdHMvc291cmNlLXRlc3QtZml4dHVyZXMuY2pzIikuaW5zcGVjdFNvdXJjZUZpeHR1cmVzKHtyb290OnByb2Nlc3MuY3dkKCksZmlsZXM6WyJzY3JpcHRzL3Rlc3QtaW5zdHJ1Y3Rpb24tbGlicmFyeS1ob3N0LmNqcyJdLGVudjp7QVpSQUVMX0lOU1RSVUNUSU9OX1RFU1RfUk9PVDpwLnJlc29sdmUoImFydGlmYWN0cy92ZXJpZmljYXRpb24vcHJvYmUiKSxBWlJBRUxfSU5TVFJVQ1RJT05fVEVTVF9FTkdJTkU6cHJvY2Vzcy5leGVjUGF0aH19KTtjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh4KSk7aWYoeC5zdGF0dXMhPT0icmVhZHkiKXByb2Nlc3MuZXhpdENvZGU9MTsnXSk7ci5wb3dlclNoZWxsVmVyc2lvbj0oYXdhaXQgY2FsbCgncG93ZXJzaGVsbC12ZXJzaW9uJyxbJy1Ob1Byb2ZpbGUnLCctQ29tbWFuZCcsJyRQU1ZlcnNpb25UYWJsZS5QU1ZlcnNpb24uVG9TdHJpbmcoKSddLCdwd3NoJykpLnRyaW0oKTtyLnB5dGhvblZlcnNpb249KGF3YWl0IGNhbGwoJ3B5dGhvbi12ZXJzaW9uJyxbJy0tdmVyc2lvbiddLCdweXRob24nKSkudHJpbSgpO2F3YWl0IGNhbGwoJ3Byb2plY3QtZmFpbC1mYXN0JyxbJy0tdGVzdCcsJ3NjcmlwdHMvdGVzdC1wcm9qZWN0LWZhaWwtZmFzdC5janMnXSk7YXdhaXQgY2FsbCgncGFja2FnaW5nLXdvcmtzcGFjZScsWydzY3JpcHRzL3Rlc3QtcGFja2FnaW5nLXdvcmtzcGFjZS5janMnLHAuam9pbihydW4udGVtcG9yYXJ5LCdwYWNrYWdpbmctd29ya3NwYWNlJyldKTtmb3IoY29uc3QgeCBvZiByLmJhc2VsaW5lKWlmKGhhc2gocC5qb2luKHJvb3QsJ3NjcmlwdHMnLHgubmFtZSkpIT09eC5wcmltYXJ5U2hhMjU2KXRocm93IEVycm9yKCdQcmltYXJ5IENBUyBjb25mbGljdCAnK3gubmFtZSk7Zm9yKGNvbnN0IHggb2Ygci5vdmVycmlkZXMpe2ZzLndyaXRlRmlsZVN5bmMocC5qb2luKHJvb3QseC5kZXN0aW5hdGlvblJlbGF0aXZlKSxmcy5yZWFkRmlsZVN5bmMoeC5zb3VyY2UpKTtpZihoYXNoKHAuam9pbihyb290LHguZGVzdGluYXRpb25SZWxhdGl2ZSkpIT09eC5zaGEyNTYpdGhyb3cgRXJyb3IoJ1ByaW1hcnkgbWVyZ2UgbWlzbWF0Y2gnKTt9ci5wcmltYXJ5Q2FzTWVyZ2VkPXRydWU7ci5zb3VyY2VVbmNoYW5nZWQ9aGFzaChwLmpvaW4ob2xkLmZyb3plblJvb3QsJ2VuZ2luZS9TT1VSQ0UuanNvbicpKT09PXIuc291cmNlUmVjZWlwdEJlZm9yZSYmaGFzaChwLmpvaW4ocm9vdCwnZW5naW5lL1NPVVJDRS5qc29uJykpPT09ci5wcmltYXJ5U291cmNlUmVjZWlwdEJlZm9yZTtyLmZyb3plblNjcmlwdHNVbmNoYW5nZWQ9ci5iYXNlbGluZS5ldmVyeSh4PT5oYXNoKHAuam9pbihvbGQuZnJvemVuUm9vdCwnc2NyaXB0cycseC5uYW1lKSk9PT14LmZyb3plblNoYTI1Nik7aWYoIXIuc291cmNlVW5jaGFuZ2VkfHwhci5mcm96ZW5TY3JpcHRzVW5jaGFuZ2VkKXRocm93IEVycm9yKCdTb3VyY2UgY2hhbmdlZCcpO3IucmVhZHk9dHJ1ZTtleGl0Q29kZT0wOwp9Y2F0Y2goZSl7ci5lcnJvcj1lLnN0YWNrO2NvbnNvbGUuZXJyb3IoZS5zdGFjayk7fWZpbmFsbHl7ci5maW5pc2hlZEF0VXRjPW5ldyBEYXRlKCkudG9JU09TdHJpbmcoKTtzYXZlKCk7dHJ5e2EuZmluaXNoQXJ0aWZhY3RSdW4ocnVuLHtleGl0Q29kZSxwcm9kdWNlclN0b3BwZWQ6dHJ1ZSxyZWFzb246J0ZvdXIgZXhhY3Qgc2NyaXB0IGNoYW5nZXMgd2l0aCByZWFsIEdpdC9pbnN0cnVjdGlvbiBmaXh0dXJlIGFuZCBpbnN0YWxsZWQgUHl0aG9uL1Bvd2VyU2hlbGwgcHJlcmVxdWlzaXRlczsgYWxsIGNoaWxkcmVuIGNsb3NlIG9ic2VydmVkJ30pO31jYXRjaChlKXtjb25zb2xlLmVycm9yKGUuc3RhY2spO2V4aXRDb2RlPTE7fWNvbnNvbGUubG9nKEpTT04uc3RyaW5naWZ5KHtyZWFkeTpyLnJlYWR5LHJlcG9ydDpyZixzaGEyNTY6aGFzaChyZiksbGlmZWN5Y2xlSWQ6cnVuLmxpZmVjeWNsZUlkfSkpO3Byb2Nlc3MuZXhpdENvZGU9ZXhpdENvZGU7fX0pKCk7"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Four exact script changes with real Git/instruction fixture and installed Python/PowerShell prerequisites; all children close observed",
+        "children": [
+          {
+            "pid": 42868,
+            "closed": true
+          },
+          {
+            "pid": 57084,
+            "closed": true
+          },
+          {
+            "pid": 58740,
+            "closed": true
+          },
+          {
+            "pid": 48672,
+            "closed": true
+          },
+          {
+            "pid": 22928,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true,
+        "evidencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\reports\\producer.json",
+        "evidenceSha256": "13f9babd71e4e99337def5c1a94746805fe87911bc9a0a32751f529f4a3277fa"
+      },
+      "cause": "Error: project-fail-fast actualexit 1: \n    at call (eval at <anonymous> ([eval]:1:1), <anonymous>:2:793)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async eval (eval at <anonymous> ([eval]:1:1), <anonymous>:3:2094)",
+      "commands": [
+        {
+          "name": "fixture-git-init",
+          "executable": "git",
+          "args": [
+            "init",
+            "--quiet"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\inputs\\project",
+          "pid": 42868,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\fixture-git-init.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\fixture-git-init.stderr.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "host-fixture-inspection",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "-e",
+            "const p=require(\"path\"),x=require(\"./scripts/source-test-fixtures.cjs\").inspectSourceFixtures({root:process.cwd(),files:[\"scripts/test-instruction-library-host.cjs\"],env:{AZRAEL_INSTRUCTION_TEST_ROOT:p.resolve(\"artifacts/verification/probe\"),AZRAEL_INSTRUCTION_TEST_ENGINE:process.execPath}});console.log(JSON.stringify(x));if(x.status!==\"ready\")process.exitCode=1;"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\inputs\\project",
+          "pid": 57084,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\host-fixture-inspection.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\host-fixture-inspection.stderr.log",
+          "stdoutSha256": "d235cf16f2afcadb52ce9aed393033dbacee87ab5e253f65667a6716733aff0c",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "{\"status\":\"ready\",\"requirements\":[{\"id\":\"instruction.test-root\",\"status\":\"ready\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-packaging-fixture-closure\\\\runs\\\\fix06\\\\inputs\\\\project\\\\artifacts\\\\verification\\\\probe\",\"reason\":\"Selected test prerequisite is available\"},{\"id\":\"instruction.release-metadata\",\"status\":\"ready\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-packaging-fixture-closure\\\\runs\\\\fix06\\\\inputs\\\\project\\\\instructions\\\\azrael-environment.json\",\"reason\":\"Selected test prerequisite is available\"},{\"id\":\"instruction.engine\",\"status\":\"ready\",\"path\":\"C:\\\\Program Files\\\\nodejs\\\\node.exe\",\"reason\":\"Selected test prerequisite is available\"}]}\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "powershell-version",
+          "executable": "pwsh",
+          "args": [
+            "-NoProfile",
+            "-Command",
+            "$PSVersionTable.PSVersion.ToString()"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\inputs\\project",
+          "pid": 58740,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\powershell-version.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\powershell-version.stderr.log",
+          "stdoutSha256": "530a48ced0354f0b46cb126ce533132cd5625ba3323f20fe39df85e58e441792",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "7.6.9\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "python-version",
+          "executable": "python",
+          "args": [
+            "--version"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\inputs\\project",
+          "pid": 48672,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\python-version.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\python-version.stderr.log",
+          "stdoutSha256": "e01010a8a9c1cd68a0b1f72761644d8604090bec2d68ff9c3cad0d2535726849",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "Python 3.13.15\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "project-fail-fast",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "--test",
+            "scripts/test-project-fail-fast.cjs"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\inputs\\project",
+          "pid": 22928,
+          "exitCode": 1,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\project-fail-fast.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\logs\\project-fail-fast.stderr.log",
+          "stdoutSha256": "eb6ad579cbf70354bb2925f473810f890e53563e011fb6810a87392b94bba12a",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "✔ producer registration failure prevents run creation and test execution (4.4848ms)\n✔ interrupted managed runs retain pending metadata and the active checkpoint (252.8731ms)\n✔ explicit log base and exact directory preserve legacy layout without lifecycle records (10.6377ms)\nℹ tests 22\nℹ suites 0\nℹ pass 21\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2983.4691\n\n✖ failing tests:\n\ntest at scripts\\test-project-fail-fast.cjs:33:1\n✖ fixture readiness is explicit and blocks before output creation or command launch (10.6327ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  'blocked' !== 'ready'\n  \n      at TestContext.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\inputs\\project\\scripts\\test-project-fail-fast.cjs:44:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1397:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)\n      at Test.postRun (node:internal/test_runner/test:1537:19)\n      at Test.run (node:internal/test_runner/test:1462:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'blocked',\n    expected: 'ready',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+          "stderrExcerpt": ""
+        }
+      ],
+      "overrides": [
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\outputs\\overrides\\scripts\\packaging-workspace.cjs",
+          "destinationRelative": "scripts/packaging-workspace.cjs",
+          "sha256": "18c214533250a028fe5740117f8e3e7191380117a21111a855d8e0261df51fe6",
+          "bytes": 16606,
+          "baseSha256": "199875905dbab591562250fe96e898d832a18556c204a23f3dd7213a2ae5aeab"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\outputs\\overrides\\scripts\\test-platform-packaging.cjs",
+          "destinationRelative": "scripts/test-platform-packaging.cjs",
+          "sha256": "20c1db7ab016bb2bc6b1961efba1f7a350e715c3031adecd4465eab3bcf92b91",
+          "bytes": 27842,
+          "baseSha256": "0e98df3371e5122b24da47df75434600319087141d5ff1329adda040d100e804"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\outputs\\overrides\\scripts\\test-project-fail-fast.cjs",
+          "destinationRelative": "scripts/test-project-fail-fast.cjs",
+          "sha256": "6b5b7ed543c4f1e6967320d8e3214c648f4498472da476e15bdd08e124cb7437",
+          "bytes": 18308,
+          "baseSha256": "9c053dd8a9265ea77ca66c4b2e7e74d3ada5c7d9483c5650011d6070ef1bc9e7"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\outputs\\overrides\\scripts\\test-packaging-workspace.cjs",
+          "destinationRelative": "scripts/test-packaging-workspace.cjs",
+          "sha256": "7cecc935e4a97c0d5e210d7a17eaf34ac9069441c683738629d912122191b1f8",
+          "bytes": 15694,
+          "baseSha256": "ee796f3c13c7999fb628e8577786689ebbb2b7741b200683788fb9491b73dee1"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix07",
+      "report": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\reports\\verification.json",
+        "sha256": "7c5586035040a3913b8bc22b83d6e44afd010bf58440c5b2d9d51561ab07dc3f"
+      },
+      "producer": {
+        "lifecycleId": "run:FA-01-packaging-fixture-closure:fix07",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "Y29uc3QgZnM9cmVxdWlyZSgnZnMnKSxwPXJlcXVpcmUoJ3BhdGgnKSxjcD1yZXF1aXJlKCdjaGlsZF9wcm9jZXNzJyksY3J5cHRvPXJlcXVpcmUoJ2NyeXB0bycpLGE9cmVxdWlyZSgnLi9zY3JpcHRzL2FydGlmYWN0LXJ1bi5janMnKSxsPXJlcXVpcmUoJy4vc2NyaXB0cy9hcnRpZmFjdC1saWZlY3ljbGUuY2pzJykscm9vdD1wcm9jZXNzLmN3ZCgpLGhhc2g9Zj0+Y3J5cHRvLmNyZWF0ZUhhc2goJ3NoYTI1NicpLnVwZGF0ZShmcy5yZWFkRmlsZVN5bmMoZikpLmRpZ2VzdCgnaGV4Jyksb2xkUGF0aD1wLnJlc29sdmUoJ2FydGlmYWN0cy90YXNrcy9GQS0wMS1wYWNrYWdpbmctZml4dHVyZS1jbG9zdXJlL3J1bnMvZml4MDYvcmVwb3J0cy92ZXJpZmljYXRpb24uanNvbicpLG9sZD1KU09OLnBhcnNlKGZzLnJlYWRGaWxlU3luYyhvbGRQYXRoKSkscHI9bC53aXRoQ2F0YWxvZ0xvY2socm9vdCwoKT0+bC5jYXRhbG9nKHJvb3QpLmZpbmQoeD0+eC5pZD09PW9sZC5saWZlY3ljbGVJZCkpO2lmKHByLnByb2R1Y2VyPy5leGl0X2NvZGUhPT0xKXRocm93IEVycm9yKCdQcmlvciB0ZXJtaW5hbCBtaXNzaW5nJyk7Y29uc3QgcnVuPWEuYmVnaW5BcnRpZmFjdFJ1bihyb290LHt3b3JrSWQ6J0ZBLTAxLXBhY2thZ2luZy1maXh0dXJlLWNsb3N1cmUnLG93bmVyOid3b3JrYmVuY2hfYmFja2VuZCcscnVuSWQ6J2ZpeDA3JyxyZWZlcmVuY2VzOlsuLi5wci5yZWZlcmVuY2VzLHtpZDpwci5pZCxraW5kOidldmlkZW5jZScsbWVtYmVyX3BhdGhzOltsLnByb2plY3RNZW1iZXJzKHByLm1lbWJlcnMpWzBdLnBhdGhdLHJlYXNvbjonUHJlc2VydmUgZXh0ZXJuYWwgaG9zdCBmaXh0dXJlIHBhcmVudCByZWplY3Rpb247IHBsYWNlIGV4YWN0IGNhbGxlciBmaXh0dXJlIHVuZGVyIG93bmVkIHByb2plY3QgYXJ0aWZhY3RzIHBlciBpbnNwZWN0b3IgY29udHJhY3QnfV19KSxmaXh0dXJlPXAuam9pbihydW4uaW5wdXRzLCdwcm9qZWN0JykscmY9cC5qb2luKHJ1bi5yZXBvcnRzLCd2ZXJpZmljYXRpb24uanNvbicpLHI9e3NjaGVtYToxLGxpZmVjeWNsZUlkOnJ1bi5saWZlY3ljbGVJZCxydW5Sb290OnJ1bi5ydW5Sb290LGZyb3plblJvb3Q6b2xkLmZyb3plblJvb3QsYmFzZWxpbmU6b2xkLmJhc2VsaW5lLHNvdXJjZVJlY2VpcHRCZWZvcmU6b2xkLnNvdXJjZVJlY2VpcHRCZWZvcmUscHJpbWFyeVNvdXJjZVJlY2VpcHRCZWZvcmU6b2xkLnByaW1hcnlTb3VyY2VSZWNlaXB0QmVmb3JlLHByaW9yQXR0ZW1wdDp7bGlmZWN5Y2xlSWQ6cHIuaWQscmVwb3J0Om9sZFBhdGgsc2hhMjU2Omhhc2gob2xkUGF0aCksYWN0dWFsRXhpdDoxLGNhdXNlOm9sZC5lcnJvcn0scmV1c2VkUGxhdGZvcm1DaGVjazpvbGQucmV1c2VkUGxhdGZvcm1DaGVjayxyZXVzZWRQbGF0Zm9ybUNvdW50OjI2LGZpeHR1cmVTb3VyY2U6Zml4dHVyZSxwbGFubmVkV3JpdGVzOltmaXh0dXJlLHAuam9pbihydW4ub3V0cHV0cywnb3ZlcnJpZGVzL3NjcmlwdHMnKSxydW4udGVtcG9yYXJ5XSxjYWxsczpbXSxvdmVycmlkZXM6W10scmVhZHk6ZmFsc2V9O2NvbnN0IHNhdmU9KCk9PmZzLndyaXRlRmlsZVN5bmMocmYsSlNPTi5zdHJpbmdpZnkocixudWxsLDIpKydcbicpO3NhdmUoKTtjb25zdCBweXRob25EaXJlY3Rvcnk9J0M6L1VzZXJzL2ZlbHJlL0FwcERhdGEvTG9jYWwvUHJvZ3JhbXMvUHl0aG9uL1B5dGhvbjMxMycscHNEaXJlY3Rvcnk9J0M6L1VzZXJzL2ZlbHJlL0FwcERhdGEvTG9jYWwvTWljcm9zb2Z0L1dpbmRvd3NBcHBzJyxlbnY9ey4uLnByb2Nlc3MuZW52LFRFTVA6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3RlbXAnKSxUTVA6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3RlbXAnKSxUTVBESVI6cC5qb2luKHJ1bi50ZW1wb3JhcnksJ3RlbXAnKSxBWlJBRUxfU1RBVEVfUk9PVDpwLmpvaW4ocnVuLnRlbXBvcmFyeSwnc3RhdGUnKSxBWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09UOnAuam9pbihmaXh0dXJlLCdhcnRpZmFjdHMvdmVyaWZpY2F0aW9uJyksQVpSQUVMX1RFU1RfUFlUSE9OOnAuam9pbihweXRob25EaXJlY3RvcnksJ3B5dGhvbi5leGUnKSxQWVRIT05ET05UV1JJVEVCWVRFQ09ERTonMSd9O2NvbnN0IHBhdGhLZXk9T2JqZWN0LmtleXMoZW52KS5maW5kKHg9PngudG9Mb3dlckNhc2UoKT09PSdwYXRoJyl8fCdQYXRoJztlbnZbcGF0aEtleV09cHl0aG9uRGlyZWN0b3J5Kyc7Jytwc0RpcmVjdG9yeSsnOycrKGVudltwYXRoS2V5XXx8JycpO2RlbGV0ZSBlbnYuQVpSQUVMX0NBUkdPX09XTkVSX1RFU1RfUk9PVDtkZWxldGUgZW52LlNUQVRFX1JPT1Q7CmFzeW5jIGZ1bmN0aW9uIGNhbGwobmFtZSxhcmdzLGV4ZT1wcm9jZXNzLmV4ZWNQYXRoKXtjb25zdCB6PWF3YWl0IG5ldyBQcm9taXNlKChyZXNvbHZlLHJlamVjdCk9Pntjb25zdCBjPWEudHJhY2tBcnRpZmFjdENoaWxkKHJ1bixjcC5zcGF3bihleGUsYXJncyx7Y3dkOmZpeHR1cmUsZW52LHdpbmRvd3NIaWRlOnRydWUsc3RkaW86WydpZ25vcmUnLCdwaXBlJywncGlwZSddfSkpO2xldCBzbz1bXSxzZT1bXTtjLnN0ZG91dC5vbignZGF0YScsYj0+c28ucHVzaChiKSk7Yy5zdGRlcnIub24oJ2RhdGEnLGI9PnNlLnB1c2goYikpO2Mub24oJ2Vycm9yJyxyZWplY3QpO2Mub24oJ2Nsb3NlJywoZXhpdENvZGUsc2lnbmFsKT0+cmVzb2x2ZSh7cGlkOmMucGlkLGV4aXRDb2RlLHNpZ25hbCxzdGRvdXQ6QnVmZmVyLmNvbmNhdChzbyksc3RkZXJyOkJ1ZmZlci5jb25jYXQoc2UpfSkpO30pO2NvbnN0IHNvPXAuam9pbihydW4ubG9ncyxuYW1lKycuc3Rkb3V0LmxvZycpLHNlPXAuam9pbihydW4ubG9ncyxuYW1lKycuc3RkZXJyLmxvZycpO2ZzLndyaXRlRmlsZVN5bmMoc28sei5zdGRvdXQpO2ZzLndyaXRlRmlsZVN5bmMoc2Usei5zdGRlcnIpO3IuY2FsbHMucHVzaCh7bmFtZSxleGVjdXRhYmxlOmV4ZSxhcmdzLGN3ZDpmaXh0dXJlLHBpZDp6LnBpZCxleGl0Q29kZTp6LmV4aXRDb2RlLHNpZ25hbDp6LnNpZ25hbCxzdGRvdXQ6c28sc3RkZXJyOnNlLHN0ZG91dFNoYTI1NjpoYXNoKHNvKSxzdGRlcnJTaGEyNTY6aGFzaChzZSl9KTtzYXZlKCk7aWYoei5leGl0Q29kZSE9PTB8fHouc2lnbmFsKXRocm93IEVycm9yKG5hbWUrJyBhY3R1YWxleGl0ICcrei5leGl0Q29kZSsnOiAnK3ouc3RkZXJyLnRvU3RyaW5nKCkuc2xpY2UoMCwxODAwKSk7cmV0dXJuIHouc3Rkb3V0LnRvU3RyaW5nKCk7fQooYXN5bmMoKT0+e2xldCBleGl0Q29kZT0xO3RyeXtjb25zdCBjb3B5PXJlcXVpcmUoJy4vc2NyaXB0cy9mcmVlemUtcGxhdGZvcm0taW5wdXRzLmNqcycpLmNvcHlUcmVlO2NvcHkocC5qb2luKG9sZC5mcm96ZW5Sb290LCdzY3JpcHRzJykscC5qb2luKGZpeHR1cmUsJ3NjcmlwdHMnKSk7Y29weShwLmpvaW4ob2xkLmZyb3plblJvb3QsJ0xJQ0VOU0UnKSxwLmpvaW4oZml4dHVyZSwnTElDRU5TRScpKTtjb3B5KHAuam9pbihvbGQuZnJvemVuUm9vdCwnaW5zdHJ1Y3Rpb25zL2F6cmFlbC1lbnZpcm9ubWVudC5qc29uJykscC5qb2luKGZpeHR1cmUsJ2luc3RydWN0aW9ucy9henJhZWwtZW52aXJvbm1lbnQuanNvbicpKTtmcy5ta2RpclN5bmMocC5qb2luKGZpeHR1cmUsJ2FydGlmYWN0cy92ZXJpZmljYXRpb24vcHJvYmUnKSx7cmVjdXJzaXZlOnRydWV9KTtmcy5ta2RpclN5bmMocC5qb2luKHJ1bi5vdXRwdXRzLCdvdmVycmlkZXMvc2NyaXB0cycpLHtyZWN1cnNpdmU6dHJ1ZX0pO2Zvcihjb25zdCBxIG9mIFtlbnYuVEVNUCxlbnYuQVpSQUVMX1NUQVRFX1JPT1RdKWZzLm1rZGlyU3luYyhxLHtyZWN1cnNpdmU6dHJ1ZX0pO2Zvcihjb25zdCB4IG9mIG9sZC5vdmVycmlkZXMpe2lmKGhhc2goeC5zb3VyY2UpIT09eC5zaGEyNTYpdGhyb3cgRXJyb3IoJ092ZXJyaWRlIGNoYW5nZWQnKTtjb25zdCBzb3VyY2U9cC5qb2luKHJ1bi5vdXRwdXRzLCdvdmVycmlkZXMnLHguZGVzdGluYXRpb25SZWxhdGl2ZSk7Y29weSh4LnNvdXJjZSxzb3VyY2UpO2ZzLndyaXRlRmlsZVN5bmMocC5qb2luKGZpeHR1cmUseC5kZXN0aW5hdGlvblJlbGF0aXZlKSxmcy5yZWFkRmlsZVN5bmMoc291cmNlKSk7ci5vdmVycmlkZXMucHVzaCh7Li4ueCxzb3VyY2V9KTt9Y29uc3QgcGluPUpTT04ucGFyc2UoZnMucmVhZEZpbGVTeW5jKCdhcnRpZmFjdHMvbWFpbnRlbmFuY2Uvb3duZXItaW5zdGFsbGF0aW9uLmpzb24nKSk7aWYoaGFzaChwLnJlc29sdmUocGluLmV4ZWN1dGFibGUpKSE9PXBpbi5zaGEyNTYpdGhyb3cgRXJyb3IoJ1BpbiBtaXNtYXRjaCcpO2Vudi5BWlJBRUxfTUFJTlRFTkFOQ0VfT1dORVI9cC5yZXNvbHZlKHBpbi5leGVjdXRhYmxlKTtyLmVudmlyb25tZW50PXtURU1QOmVudi5URU1QLEFaUkFFTF9TVEFURV9ST09UOmVudi5BWlJBRUxfU1RBVEVfUk9PVCxBWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09UOmVudi5BWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09ULEFaUkFFTF9URVNUX1BZVEhPTjplbnYuQVpSQUVMX1RFU1RfUFlUSE9OLEFaUkFFTF9NQUlOVEVOQU5DRV9PV05FUjplbnYuQVpSQUVMX01BSU5URU5BTkNFX09XTkVSLGFkZGVkUGF0aERpcmVjdG9yaWVzOltweXRob25EaXJlY3RvcnkscHNEaXJlY3RvcnldfTthd2FpdCBjYWxsKCdmaXh0dXJlLWdpdC1pbml0JyxbJ2luaXQnLCctLXF1aWV0J10sJ2dpdCcpO2F3YWl0IGNhbGwoJ2hvc3QtZml4dHVyZS1pbnNwZWN0aW9uJyxbJy1lJywnY29uc3QgZnM9cmVxdWlyZSgiZnMiKSxwPXJlcXVpcmUoInBhdGgiKSxmPWZzLm1rZHRlbXBTeW5jKHAuam9pbihwcm9jZXNzLmVudi5BWlJBRUxfUFJPSkVDVF9SVU5ORVJfVEVTVF9ST09ULCJob3N0LXByb2JlLSIpKSx4PXJlcXVpcmUoIi4vc2NyaXB0cy9zb3VyY2UtdGVzdC1maXh0dXJlcy5janMiKS5pbnNwZWN0U291cmNlRml4dHVyZXMoe3Jvb3Q6cHJvY2Vzcy5jd2QoKSxmaWxlczpbInNjcmlwdHMvdGVzdC1pbnN0cnVjdGlvbi1saWJyYXJ5LWhvc3QuY2pzIl0sZW52OntBWlJBRUxfSU5TVFJVQ1RJT05fVEVTVF9ST09UOmYsQVpSQUVMX0lOU1RSVUNUSU9OX1RFU1RfRU5HSU5FOnByb2Nlc3MuZXhlY1BhdGh9fSk7Y29uc29sZS5sb2coSlNPTi5zdHJpbmdpZnkoeCkpO2lmKHguc3RhdHVzIT09InJlYWR5Iilwcm9jZXNzLmV4aXRDb2RlPTE7J10pO3IucG93ZXJTaGVsbFZlcnNpb249KGF3YWl0IGNhbGwoJ3Bvd2Vyc2hlbGwtdmVyc2lvbicsWyctTm9Qcm9maWxlJywnLUNvbW1hbmQnLCckUFNWZXJzaW9uVGFibGUuUFNWZXJzaW9uLlRvU3RyaW5nKCknXSwncHdzaCcpKS50cmltKCk7ci5weXRob25WZXJzaW9uPShhd2FpdCBjYWxsKCdweXRob24tdmVyc2lvbicsWyctLXZlcnNpb24nXSwncHl0aG9uJykpLnRyaW0oKTthd2FpdCBjYWxsKCdwcm9qZWN0LWZhaWwtZmFzdCcsWyctLXRlc3QnLCdzY3JpcHRzL3Rlc3QtcHJvamVjdC1mYWlsLWZhc3QuY2pzJ10pO2F3YWl0IGNhbGwoJ3BhY2thZ2luZy13b3Jrc3BhY2UnLFsnc2NyaXB0cy90ZXN0LXBhY2thZ2luZy13b3Jrc3BhY2UuY2pzJyxwLmpvaW4ocnVuLnRlbXBvcmFyeSwncGFja2FnaW5nLXdvcmtzcGFjZScpXSk7Zm9yKGNvbnN0IHggb2Ygci5iYXNlbGluZSlpZihoYXNoKHAuam9pbihyb290LCdzY3JpcHRzJyx4Lm5hbWUpKSE9PXgucHJpbWFyeVNoYTI1Nil0aHJvdyBFcnJvcignUHJpbWFyeSBDQVMgY29uZmxpY3QgJyt4Lm5hbWUpO2Zvcihjb25zdCB4IG9mIHIub3ZlcnJpZGVzKXtmcy53cml0ZUZpbGVTeW5jKHAuam9pbihyb290LHguZGVzdGluYXRpb25SZWxhdGl2ZSksZnMucmVhZEZpbGVTeW5jKHguc291cmNlKSk7aWYoaGFzaChwLmpvaW4ocm9vdCx4LmRlc3RpbmF0aW9uUmVsYXRpdmUpKSE9PXguc2hhMjU2KXRocm93IEVycm9yKCdQcmltYXJ5IG1lcmdlIG1pc21hdGNoJyk7fXIucHJpbWFyeUNhc01lcmdlZD10cnVlO3Iuc291cmNlVW5jaGFuZ2VkPWhhc2gocC5qb2luKG9sZC5mcm96ZW5Sb290LCdlbmdpbmUvU09VUkNFLmpzb24nKSk9PT1yLnNvdXJjZVJlY2VpcHRCZWZvcmUmJmhhc2gocC5qb2luKHJvb3QsJ2VuZ2luZS9TT1VSQ0UuanNvbicpKT09PXIucHJpbWFyeVNvdXJjZVJlY2VpcHRCZWZvcmU7ci5mcm96ZW5TY3JpcHRzVW5jaGFuZ2VkPXIuYmFzZWxpbmUuZXZlcnkoeD0+aGFzaChwLmpvaW4ob2xkLmZyb3plblJvb3QsJ3NjcmlwdHMnLHgubmFtZSkpPT09eC5mcm96ZW5TaGEyNTYpO2lmKCFyLnNvdXJjZVVuY2hhbmdlZHx8IXIuZnJvemVuU2NyaXB0c1VuY2hhbmdlZCl0aHJvdyBFcnJvcignU291cmNlIGNoYW5nZWQnKTtyLnJlYWR5PXRydWU7ZXhpdENvZGU9MDsKfWNhdGNoKGUpe3IuZXJyb3I9ZS5zdGFjaztjb25zb2xlLmVycm9yKGUuc3RhY2spO31maW5hbGx5e3IuZmluaXNoZWRBdFV0Yz1uZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCk7c2F2ZSgpO3RyeXthLmZpbmlzaEFydGlmYWN0UnVuKHJ1bix7ZXhpdENvZGUscHJvZHVjZXJTdG9wcGVkOnRydWUscmVhc29uOidGb3VyIHJldmlld2VkIHNjcmlwdCBjaGFuZ2VzIHVuZGVyIGV4YWN0IEdpdC1jb250YWluZWQgaG9zdCBmaXh0dXJlIGFuZCBleGlzdGluZyBQeXRob24vUG93ZXJTaGVsbDsgYWxsIGNoaWxkcmVuIGNsb3NlIG9ic2VydmVkJ30pO31jYXRjaChlKXtjb25zb2xlLmVycm9yKGUuc3RhY2spO2V4aXRDb2RlPTE7fWNvbnNvbGUubG9nKEpTT04uc3RyaW5naWZ5KHtyZWFkeTpyLnJlYWR5LHJlcG9ydDpyZixzaGEyNTY6aGFzaChyZiksbGlmZWN5Y2xlSWQ6cnVuLmxpZmVjeWNsZUlkfSkpO3Byb2Nlc3MuZXhpdENvZGU9ZXhpdENvZGU7fX0pKCk7"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Four reviewed script changes under exact Git-contained host fixture and existing Python/PowerShell; all children close observed",
+        "children": [
+          {
+            "pid": 20208,
+            "closed": true
+          },
+          {
+            "pid": 5772,
+            "closed": true
+          },
+          {
+            "pid": 43392,
+            "closed": true
+          },
+          {
+            "pid": 9348,
+            "closed": true
+          },
+          {
+            "pid": 26428,
+            "closed": true
+          },
+          {
+            "pid": 53552,
+            "closed": true
+          }
+        ],
+        "state": "complete",
+        "membership_complete": true,
+        "evidencePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\reports\\producer.json",
+        "evidenceSha256": "44f72d325f200632b4cab3f69e8d175c5824048f484f6362560d30233b03c1aa"
+      },
+      "cause": null,
+      "commands": [
+        {
+          "name": "fixture-git-init",
+          "executable": "git",
+          "args": [
+            "init",
+            "--quiet"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\inputs\\project",
+          "pid": 20208,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\fixture-git-init.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\fixture-git-init.stderr.log",
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "host-fixture-inspection",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "-e",
+            "const fs=require(\"fs\"),p=require(\"path\"),f=fs.mkdtempSync(p.join(process.env.AZRAEL_PROJECT_RUNNER_TEST_ROOT,\"host-probe-\")),x=require(\"./scripts/source-test-fixtures.cjs\").inspectSourceFixtures({root:process.cwd(),files:[\"scripts/test-instruction-library-host.cjs\"],env:{AZRAEL_INSTRUCTION_TEST_ROOT:f,AZRAEL_INSTRUCTION_TEST_ENGINE:process.execPath}});console.log(JSON.stringify(x));if(x.status!==\"ready\")process.exitCode=1;"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\inputs\\project",
+          "pid": 5772,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\host-fixture-inspection.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\host-fixture-inspection.stderr.log",
+          "stdoutSha256": "61f5558cec63ffea2137c976fd8b71f5bc83e6c92da95b8af8e8b2f4403a9700",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "{\"status\":\"ready\",\"requirements\":[{\"id\":\"instruction.test-root\",\"status\":\"ready\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-packaging-fixture-closure\\\\runs\\\\fix07\\\\inputs\\\\project\\\\artifacts\\\\verification\\\\host-probe-Zd9cpa\",\"reason\":\"Selected test prerequisite is available\"},{\"id\":\"instruction.release-metadata\",\"status\":\"ready\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-packaging-fixture-closure\\\\runs\\\\fix07\\\\inputs\\\\project\\\\instructions\\\\azrael-environment.json\",\"reason\":\"Selected test prerequisite is available\"},{\"id\":\"instruction.engine\",\"status\":\"ready\",\"path\":\"C:\\\\Program Files\\\\nodejs\\\\node.exe\",\"reason\":\"Selected test prerequisite is available\"}]}\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "powershell-version",
+          "executable": "pwsh",
+          "args": [
+            "-NoProfile",
+            "-Command",
+            "$PSVersionTable.PSVersion.ToString()"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\inputs\\project",
+          "pid": 43392,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\powershell-version.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\powershell-version.stderr.log",
+          "stdoutSha256": "530a48ced0354f0b46cb126ce533132cd5625ba3323f20fe39df85e58e441792",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "7.6.9\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "python-version",
+          "executable": "python",
+          "args": [
+            "--version"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\inputs\\project",
+          "pid": 9348,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\python-version.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\python-version.stderr.log",
+          "stdoutSha256": "e01010a8a9c1cd68a0b1f72761644d8604090bec2d68ff9c3cad0d2535726849",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "Python 3.13.15\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "project-fail-fast",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "--test",
+            "scripts/test-project-fail-fast.cjs"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\inputs\\project",
+          "pid": 26428,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\project-fail-fast.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\project-fail-fast.stderr.log",
+          "stdoutSha256": "d9803b13e94711f4dd147078ac39b569384dd8aca509bed59aeb419de9023a76",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "✔ failure collection requires an explicit CLI flag (1.076ms)\n✔ fixture readiness is explicit and blocks before output creation or command launch (127.2781ms)\n✔ source failure stops every later command group and retains planned scope (18.3095ms)\n✔ diagnostic collection continues independent groups and preserves first failure exit (25.6729ms)\n✔ failed extension compilation blocks dependent tests even in collection mode (20.2107ms)\n✔ failed or incomplete outcome cannot pass: {\"status\":\"passed\",\"exitCode\":null} (12.0779ms)\n✔ failed or incomplete outcome cannot pass: {\"status\":\"passed\",\"exitCode\":4} (11.4626ms)\n✔ failed or incomplete outcome cannot pass: {\"status\":\"running\",\"exitCode\":0} (11.7194ms)\n✔ failed or incomplete outcome cannot pass: {\"status\":\"spawn-error\",\"exitCode\":null} (15.0627ms)\n✔ failed or incomplete outcome cannot pass: undefined (12.4858ms)\n✔ runner exceptions retain failure checkpoints (12.4125ms)\n✔ checkpoints retain partial running state and UTC/wall metrics for completed groups (18.8481ms)\n✔ Windows checkpoint retries transient replacement errors without exposing partial state (106.9672ms)\n✔ Windows checkpoint retry exhaustion preserves the previous checkpoint and original failure (818.6292ms)\n✔ real lightweight Node commands record failure logs without scheduling successors (84.503ms)\n✔ interrupted runner leaves completed groups and active incomplete group readable (96.7876ms)\n✔ default runs register before execution and separate logs from successful reports (375.4669ms)\n✔ managed stopped failures close truthfully while checkpoint errors remain protected (641.8025ms)\n✔ managed unknown command completion keeps producer protection (363.8862ms)\n✔ producer registration failure prevents run creation and test execution (4.9374ms)\n✔ interrupted managed runs retain pending metadata and the active checkpoint (282.3044ms)\n✔ explicit log base and exact directory preserve legacy layout without lifecycle records (14.3635ms)\nℹ tests 22\nℹ suites 0\nℹ pass 22\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3175.0538\n",
+          "stderrExcerpt": ""
+        },
+        {
+          "name": "packaging-workspace",
+          "executable": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "scripts/test-packaging-workspace.cjs",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\temporary\\packaging-workspace"
+          ],
+          "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\inputs\\project",
+          "pid": 53552,
+          "exitCode": 0,
+          "signal": null,
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\packaging-workspace.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\logs\\packaging-workspace.stderr.log",
+          "stdoutSha256": "587f87c6fadbe99d7a58c9eb3ac7c9ca135421fc1127c9d9df22fe42fa92c29b",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdoutHashVerified": true,
+          "stderrHashVerified": true,
+          "diagnosticTail": "{\"status\":\"passed\",\"copiedFiles\":19,\"copiedBytes\":282028,\"baselineFiles\":77,\"baselineTimings\":{\"sourceSnapshotMs\":79.529,\"enginePreflightMs\":193.40020000000004,\"immutableSnapshotMs\":0.000600000000304135,\"immutableCaptureMs\":776.7617000000005,\"workingCaptureMs\":938.6773999999996,\"workingCapturePhasesMs\":{\"inventory\":188.8072000000002,\"copy\":100.70879999999943,\"git\":587.9165000000003,\"finalHash\":61.15050000000065},\"workingGitIo\":{\"reusedFileCount\":18,\"writtenObjectCount\":3},\"engineFreezeMs\":502.8874000000005,\"immutableInventoryMs\":76.63159999999971,\"immutableGitPreparationMs\":713.5400999999997,\"workingGitPreparationMs\":745.0691999999999,\"preparationMs\":4767.4076000000005},\"reuseTimings\":{\"verificationMs\":386.21910000000025,\"reuseMs\":713.7575999999999},\"timings\":{\"copyMs\":517.172700000001,\"preparationMs\":1552.0119000000013},\"nextReuseTimings\":{\"verificationMs\":386.1176000000014,\"reuseMs\":744.4444999999978},\"overrideCaptureTimings\":{\"copyMs\":503.97509999999966,\"preparationMs\":1348.6209000000017},\"checks\":\"full capture/reuse/compact + real PS wrapper/Python package/installer PrepareOnly; successful license override through ZIP, confinement, provenance, closure, hashes, tampering and baseline dependencies\"}\n",
+          "stderrExcerpt": ""
+        }
+      ],
+      "overrides": [
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\outputs\\overrides\\scripts\\packaging-workspace.cjs",
+          "destinationRelative": "scripts/packaging-workspace.cjs",
+          "sha256": "18c214533250a028fe5740117f8e3e7191380117a21111a855d8e0261df51fe6",
+          "bytes": 16606,
+          "baseSha256": "199875905dbab591562250fe96e898d832a18556c204a23f3dd7213a2ae5aeab"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\outputs\\overrides\\scripts\\test-platform-packaging.cjs",
+          "destinationRelative": "scripts/test-platform-packaging.cjs",
+          "sha256": "20c1db7ab016bb2bc6b1961efba1f7a350e715c3031adecd4465eab3bcf92b91",
+          "bytes": 27842,
+          "baseSha256": "0e98df3371e5122b24da47df75434600319087141d5ff1329adda040d100e804"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\outputs\\overrides\\scripts\\test-project-fail-fast.cjs",
+          "destinationRelative": "scripts/test-project-fail-fast.cjs",
+          "sha256": "6b5b7ed543c4f1e6967320d8e3214c648f4498472da476e15bdd08e124cb7437",
+          "bytes": 18308,
+          "baseSha256": "9c053dd8a9265ea77ca66c4b2e7e74d3ada5c7d9483c5650011d6070ef1bc9e7"
+        },
+        {
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\outputs\\overrides\\scripts\\test-packaging-workspace.cjs",
+          "destinationRelative": "scripts/test-packaging-workspace.cjs",
+          "sha256": "7cecc935e4a97c0d5e210d7a17eaf34ac9069441c683738629d912122191b1f8",
+          "bytes": 15694,
+          "baseSha256": "ee796f3c13c7999fb628e8577786689ebbb2b7741b200683788fb9491b73dee1"
+        }
+      ],
+      "sourceUnchanged": true,
+      "frozenScriptsUnchanged": true,
+      "primaryCasMerged": true
+    }
+  ],
+  "reusedPlatformVerification": {
+    "sourceRun": "fix03",
+    "actualExit": 0,
+    "checks": 26,
+    "stdout": "PASS package frozen runtime and schema2 inventory\nPASS standalone package references a protected real imported input owner\nPASS imported input owner is reused without promoting its retained state\nPASS failed packaging records pending before output and preserves the failed outcome\nPASS explicit lifecycle must be a version that owns the selected release\nPASS source paths cannot be adopted as generated packaging inputs\nPASS existing release version owner is reused and explicit ownership remains supported\nPASS imported identity changes, path changes and overlapping ownership stay distinct\nPASS imported ID collisions cannot replace an existing owner's identity\nPASS explicit version state is preserved and concurrent changes are never overwritten\nPASS producer-shaped bundled Node bootstrap matches inventoried path\nPASS minimal package explicitly requires external Node without advertising a bundle\nPASS ZIP mode roundtrip\nPASS path traversal refused before mutation\nPASS wrong platform refused\nPASS tampered runtime refused before destination creation\nPASS invalid executable inventory mode refused\nPASS unlisted state files refused\nPASS relocated prepare-only install preserves state and binds runtime\nPASS side-by-side destination cannot be overwritten\nPASS ordinary Codex state refused\nPASS state/runtime overlap refused\nPASS ZIP archive traversal rejected\nPASS ZIP compressed entry tamper rejected\nPASS pinned branding owner operands and anchors\nPASS Mac public signing receipts bind all native bytes and metadata\n{\"checks\":26,\"platform\":{\"os\":\"win32\",\"arch\":\"x64\",\"target\":\"x86_64-pc-windows-msvc\"},\"nativeUnixExecution\":false,\"fixtureProject\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\FA-01-packaging-fixture-closure\\\\runs\\\\fix03\\\\temporary\\\\platform\\\\portable-packaging-42b506d6-bd70-45be-8692-2478373d40f3\",\"retained\":true}\n",
+    "sourceSha256": "640972027db2bd082098f2e75b2ffe35a4bd3d1c66562e7b8ab5da82111464b8"
+  },
+  "ownerIdentity": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+    "version_id": "version:maintenance-owner:ff01:reservation-20261102",
+    "version": "reservation-20261102",
+    "acceptance_sha256": "e10bd3e1a418a5e9add0ca88b1a6d656b77d125211abce5ef87b240edac42056",
+    "max_lock_wait_ms": 600000,
+    "pinSha256": "940697d93d911c46fd632deb7f9f99d39c42262f3f5037b063a1eb28dc4c8d94",
+    "nativeSha256": "b4b8158f246500002879f2fef978f6cbd64a666dd38f1f84a86a46958a83b8b1"
+  },
+  "initialReferences": [
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix03",
+      "owner": "workbench_backend",
+      "revision": 2,
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03\\reports\\producer-9d04f4967b7fa41b02ad4d12bc7928317194fc5ac37a6c9160f0c388478c5fbe.json",
+        "evidence_sha256": "9d04f4967b7fa41b02ad4d12bc7928317194fc5ac37a6c9160f0c388478c5fbe",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Exact four script overrides with full existing focused tests; all children close observed; no product/Cargo/installation/cleanup",
+        "status": "stopped"
+      },
+      "membership_complete": true,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "references": [
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix01",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01"
+          ],
+          "reason": "Preserve first focused fixture missing branding pin prerequisite; reuse exact four script changes",
+          "reference_id": "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix02",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02"
+          ],
+          "reason": "Preserve second focused fixture missing source LICENSE; same four script changes after complete fixture prerequisite review",
+          "reference_id": "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix06",
+      "owner": "workbench_backend",
+      "revision": 2,
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06\\reports\\producer-13f9babd71e4e99337def5c1a94746805fe87911bc9a0a32751f529f4a3277fa.json",
+        "evidence_sha256": "13f9babd71e4e99337def5c1a94746805fe87911bc9a0a32751f529f4a3277fa",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Four exact script changes with real Git/instruction fixture and installed Python/PowerShell prerequisites; all children close observed",
+        "status": "stopped"
+      },
+      "membership_complete": true,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "references": [
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix01",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01"
+          ],
+          "reason": "Preserve first focused fixture missing branding pin prerequisite; reuse exact four script changes",
+          "reference_id": "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix02",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02"
+          ],
+          "reason": "Preserve second focused fixture missing source LICENSE; same four script changes after complete fixture prerequisite review",
+          "reference_id": "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix03",
+          "kind": "dependency",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03"
+          ],
+          "reason": "Reuse identical scripts fixture and platform26pass; root supplies existing pwsh PATH prerequisite",
+          "reference_id": "4d2063fe12d995b6f02e6defd0e4fbf6ea3cd4d9d5c4d671903cb94950aa3638"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix04",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04"
+          ],
+          "reason": "Retain PowerShell wrapper bare Python alias failure; correct existing Python/Powershell PATH only",
+          "reference_id": "e2238812652500c8448ec9ef3c9b93269c52c7ce2d7ff6d589d25e88f6091fe5"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix05",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05"
+          ],
+          "reason": "Preserve missing Git/instruction manifest host fixture; same four reviewed script bytes",
+          "reference_id": "201b6eb713e68e62dddc49216f3c9bacbbc9da5f187dfa403fddf4555522747f"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix01",
+      "owner": "workbench_backend",
+      "revision": 2,
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01\\reports\\producer-f2249155b09d81ee9465b675a35d2c06c49c8aaca391b99e2052758561388cd3.json",
+        "evidence_sha256": "f2249155b09d81ee9465b675a35d2c06c49c8aaca391b99e2052758561388cd3",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Scoped four script overrides and existing relevant packaging/failfast tests; all child close results observed",
+        "status": "stopped"
+      },
+      "membership_complete": true,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "references": []
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix02",
+      "owner": "workbench_backend",
+      "revision": 2,
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02\\reports\\producer-015e8cb7dbb2ffa33cd79a7668f3212026dfd952fb93073f61cb3e1945c7a5d0.json",
+        "evidence_sha256": "015e8cb7dbb2ffa33cd79a7668f3212026dfd952fb93073f61cb3e1945c7a5d0",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Four scripts-only override focused verification; all tracked children returned terminal close; no product compilation/install/cleanup",
+        "status": "stopped"
+      },
+      "membership_complete": true,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "references": [
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix01",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01"
+          ],
+          "reason": "Preserve first focused fixture missing branding pin prerequisite; reuse exact four script changes",
+          "reference_id": "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix05",
+      "owner": "workbench_backend",
+      "revision": 2,
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05\\reports\\producer-dc93fa377a2644c02a21342612a3fc68402ac8dd11ae4d88eb1c373965caf38f.json",
+        "evidence_sha256": "dc93fa377a2644c02a21342612a3fc68402ac8dd11ae4d88eb1c373965caf38f",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Focused scripts tests with existing actual Python313 and PowerShell7 on child PATH; all children close observed",
+        "status": "stopped"
+      },
+      "membership_complete": true,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "references": [
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix01",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01"
+          ],
+          "reason": "Preserve first focused fixture missing branding pin prerequisite; reuse exact four script changes",
+          "reference_id": "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix02",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02"
+          ],
+          "reason": "Preserve second focused fixture missing source LICENSE; same four script changes after complete fixture prerequisite review",
+          "reference_id": "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix03",
+          "kind": "dependency",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03"
+          ],
+          "reason": "Reuse identical scripts fixture and platform26pass; root supplies existing pwsh PATH prerequisite",
+          "reference_id": "4d2063fe12d995b6f02e6defd0e4fbf6ea3cd4d9d5c4d671903cb94950aa3638"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix04",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04"
+          ],
+          "reason": "Retain PowerShell wrapper bare Python alias failure; correct existing Python/Powershell PATH only",
+          "reference_id": "e2238812652500c8448ec9ef3c9b93269c52c7ce2d7ff6d589d25e88f6091fe5"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix07",
+      "owner": "workbench_backend",
+      "revision": 2,
+      "state": "complete",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix07\\reports\\producer-44f72d325f200632b4cab3f69e8d175c5824048f484f6362560d30233b03c1aa.json",
+        "evidence_sha256": "44f72d325f200632b4cab3f69e8d175c5824048f484f6362560d30233b03c1aa",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Four reviewed script changes under exact Git-contained host fixture and existing Python/PowerShell; all children close observed",
+        "status": "stopped"
+      },
+      "membership_complete": true,
+      "members": [],
+      "references": [
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix01",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01"
+          ],
+          "reason": "Preserve first focused fixture missing branding pin prerequisite; reuse exact four script changes",
+          "reference_id": "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix02",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02"
+          ],
+          "reason": "Preserve second focused fixture missing source LICENSE; same four script changes after complete fixture prerequisite review",
+          "reference_id": "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix03",
+          "kind": "dependency",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03"
+          ],
+          "reason": "Reuse identical scripts fixture and platform26pass; root supplies existing pwsh PATH prerequisite",
+          "reference_id": "4d2063fe12d995b6f02e6defd0e4fbf6ea3cd4d9d5c4d671903cb94950aa3638"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix04",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04"
+          ],
+          "reason": "Retain PowerShell wrapper bare Python alias failure; correct existing Python/Powershell PATH only",
+          "reference_id": "e2238812652500c8448ec9ef3c9b93269c52c7ce2d7ff6d589d25e88f6091fe5"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix05",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix05"
+          ],
+          "reason": "Preserve missing Git/instruction manifest host fixture; same four reviewed script bytes",
+          "reference_id": "201b6eb713e68e62dddc49216f3c9bacbbc9da5f187dfa403fddf4555522747f"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix06",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix06"
+          ],
+          "reason": "Preserve external host fixture parent rejection; place exact caller fixture under owned project artifacts per inspector contract",
+          "reference_id": "ec5130bcfa26631030e526035fabba45949bb0d445be15f788b0885a2c196b8f"
+        }
+      ]
+    },
+    {
+      "id": "run:FA-01-packaging-fixture-closure:fix04",
+      "owner": "workbench_backend",
+      "revision": 2,
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04\\reports\\producer-a11842d67ab87cedd067e0bdcbd61e4c2253c41d74d583a07f7c690063618a1d.json",
+        "evidence_sha256": "a11842d67ab87cedd067e0bdcbd61e4c2253c41d74d583a07f7c690063618a1d",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Existing pwsh PATH corrected focused verification; identical platform26pass reused; all child close observed",
+        "status": "stopped"
+      },
+      "membership_complete": true,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix04",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "references": [
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix01",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix01"
+          ],
+          "reason": "Preserve first focused fixture missing branding pin prerequisite; reuse exact four script changes",
+          "reference_id": "4f3529dd5a25c84c1281c11f855cb1429bc7fa60d3bb4b0d0320b25cc1a1a2aa"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix02",
+          "kind": "evidence",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix02"
+          ],
+          "reason": "Preserve second focused fixture missing source LICENSE; same four script changes after complete fixture prerequisite review",
+          "reference_id": "edb4cca29a5852b3a2ae65ae0a735ed4005fcbcd9aa67762df26c9e956551bc1"
+        },
+        {
+          "id": "run:FA-01-packaging-fixture-closure:fix03",
+          "kind": "dependency",
+          "member_paths": [
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-packaging-fixture-closure\\runs\\fix03"
+          ],
+          "reason": "Reuse identical scripts fixture and platform26pass; root supplies existing pwsh PATH prerequisite",
+          "reference_id": "4d2063fe12d995b6f02e6defd0e4fbf6ea3cd4d9d5c4d671903cb94950aa3638"
+        }
+      ]
+    }
+  ],
+  "resultsPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\28-packaging-fixture-cleanup-results.json"
+}

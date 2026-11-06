@@ -1,0 +1,162 @@
+{
+  "at": "2026-11-02T14:23:35.322Z",
+  "status": "complete_with_approved_retention",
+  "implementation": "accepted and installed",
+  "scope": "Common reservation initial observation fusion; actual Windows x64 standalone verified. Full Azrael embedded engine not rebuilt.",
+  "version_id": "version:maintenance-owner:ff01:reservation-20261102",
+  "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+  "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+  "source_files": 44,
+  "source_matches_accepted": true,
+  "native_tests": {
+    "focused": 98,
+    "full": 254,
+    "actual_exit_code": 0,
+    "release_exit_code": 0
+  },
+  "acceptance": {
+    "performance_trial1_native_closes": 18,
+    "performance_final_fresh_native_closes": 12,
+    "default_native_closes": 6,
+    "all_exit0": true,
+    "normal_resolver": true,
+    "pins_identical": true
+  },
+  "performance": {
+    "members": 80,
+    "candidate_samples": 2,
+    "baseline_samples": 3,
+    "candidate_apply_mean_seconds": 48.416341,
+    "candidate_apply_range_seconds": [
+      46.549701,
+      50.282981
+    ],
+    "fresh_baseline_apply_seconds": 54.605704,
+    "observed_apply_reduction_percent": 11.3346,
+    "candidate_current_review_mean_seconds": 35.368881,
+    "fresh_baseline_current_review_seconds": 41.221743,
+    "observed_current_review_reduction_percent": 14.1985,
+    "metadata_walks": {
+      "before": 19360,
+      "after": 16120
+    },
+    "ancestor_observations": {
+      "before": 309920,
+      "after": 254840
+    },
+    "metadata_authorizations": {
+      "before": 329280,
+      "after": 270960
+    },
+    "payload_reads": 6480,
+    "current_review_count": 80,
+    "commits": 160,
+    "scope": "Observed shared-host samples, not a guaranteed or cross-platform improvement"
+  },
+  "discarded_trial": {
+    "pure_path_plan_cache": "no demonstrated improvement; reverted; not installed",
+    "evidence": "63-ancestor-preparation-only-performance.json"
+  },
+  "cleanup": {
+    "run": "run:ff1:ancestor7",
+    "status": "deleted and finalized",
+    "logical_bytes_deleted": 1413971099,
+    "actual_remaining": false,
+    "exact_retirement_evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FF-01-maintenance-contention-timing\\71-ancestor-retirement-0160b6d0.json",
+    "approved_retention": [
+      {
+        "id": "version:maintenance-owner:ff01:group-20261102",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-group-win-x64-20261102",
+        "logical_bytes": 3223528,
+        "parent_pid": 36632,
+        "parent_creation_utc": "2026-11-02T13:54:03.7421090Z",
+        "native_pid": 33604,
+        "native_creation_utc": "2026-11-02T13:54:16.0221880Z",
+        "purpose": "Keep exact in-use older standalone for current job; installation reference preserved",
+        "approval": "approved by user until exact current job stops using version",
+        "question_id": "[\"request_user_input_async\",\"01a19ca0-0224-7110-bd75-484c12b48855\",0]",
+        "revisit_condition": "After this job stops using the version, recheck actual runtime and all references; release exact retired installation reference; refresh/review and native ordinary deletion.",
+        "native_decision": "76-ancestor-retention-decision.json",
+        "approval_evidence": "78-ancestor-retention-approval.json",
+        "current_runtime_evidence": "77-ancestor-approved-retention-runtime.json"
+      }
+    ],
+    "unresolved_retention": []
+  },
+  "installation_consumer_revision": 31,
+  "commit": {
+    "created": false,
+    "reason": "Existing shared changes in reservations and prior staged files prevent a complete task-only commit without mixing others; index preserved."
+  },
+  "unverified": [
+    "Linux/macOS native execution",
+    "Full Azrael embedded engine build/install"
+  ],
+  "retention_requirement": {
+    "skill": "C:/Users/felre/.azrael-ex/skills/implementation/SKILL.md",
+    "instruction": "If any cleanup-scope item will remain outside the bounded user-confirmation wait, obtain the user's explicit retention approval before closing the task."
+  },
+  "evidence": [
+    {
+      "path": "61-ancestor-baseline-native.json",
+      "sha256": "fe64ee3d2396181e738ce12bb588ae05fdacfed01ed71fa21e7e0495a38b5bb0"
+    },
+    {
+      "path": "62-ancestor-candidate-native.json",
+      "sha256": "a6884a0975a57be34032afc52d1f8f19dced873a7a07603ab3b2d0037357aeed"
+    },
+    {
+      "path": "63-ancestor-preparation-only-performance.json",
+      "sha256": "9da3ce47c06fb997905f88224cce0c7c3acd21f11879a0e349be9a941ab6cae2"
+    },
+    {
+      "path": "72-ancestor-reservation-native.json",
+      "sha256": "b4b8158f246500002879f2fef978f6cbd64a666dd38f1f84a86a46958a83b8b1"
+    },
+    {
+      "path": "73-ancestor-reservation-performance.json",
+      "sha256": "e10bd3e1a418a5e9add0ca88b1a6d656b77d125211abce5ef87b240edac42056"
+    },
+    {
+      "path": "64-ancestor-version-preparation.json",
+      "sha256": "fef36d26b1bbe954ba9e3065f93ae140c41a3787aa81d4a747cec081e98f5e81"
+    },
+    {
+      "path": "65-ancestor-installation.json",
+      "sha256": "cbd435d1425501e2f796573e8f0e879566becb67523698eebf307bbb0fe47cfb"
+    },
+    {
+      "path": "66-ancestor-default-acceptance.json",
+      "sha256": "f4aaa353d138d4f6b4d6189075962d22cc1b2c49936d13e97cfd44a54946cc16"
+    },
+    {
+      "path": "67-ancestor-run-close-proof.json",
+      "sha256": "61d78604d2b97e648d8c75334b7570f826b96db33f51fa007c6e878479bbd007"
+    },
+    {
+      "path": "68-ancestor-cleanup.json",
+      "sha256": "ff88a08b01006ecf7fe9eb60c276e8c5f41020e7b5f44c190d9ca974eb6c4cfc"
+    },
+    {
+      "path": "74-ancestor-retirement-runtime.json",
+      "sha256": "eeb6ccb3762e0833ffb44f011254c5bd153ee26b2a8cd702cd261df757fbebc3"
+    },
+    {
+      "path": "75-ancestor-retirement-final-runtime.json",
+      "sha256": "ede7cffe0f1e6c355b7d2cc76b70a7a7e1a6bfed2036967931e13b029d8aaca7"
+    },
+    {
+      "path": "76-ancestor-retention-decision.json",
+      "sha256": "05e7872b7a89ceabecaf1b96962504d4710350bc7972e4fc14dc8dfef4df6f59"
+    },
+    {
+      "path": "77-ancestor-approved-retention-runtime.json",
+      "sha256": "7465aaa867d8c0a6a7b430d370a5ccce0bedbc3f4213095c495086efbe999f29"
+    },
+    {
+      "path": "78-ancestor-retention-approval.json",
+      "sha256": "60fcdf5848f1c9f806bb33aef760c0733bb63000c7a47e0066deb623af978833"
+    }
+  ],
+  "retention_approved_at": "2026-11-02T14:44:33.7666204Z"
+}

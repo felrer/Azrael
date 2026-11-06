@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "runId": "run:EL-01:lock-improvement-r1",
+  "producerStoppedVerified": true,
+  "reason": "All task execution producers and tracked children observed terminal; finalization helper is a separate maintenance control action.",
+  "native": {
+    "workId": "99ef2425-50e9-473b-9c1c-3393a0da4c43",
+    "exitCode": 0,
+    "tests": 200
+  },
+  "adapters": {
+    "firstExit": 1,
+    "correctedRerunWorkId": "3d302dc5-f2f0-44e4-acf2-39f1dd6146eb",
+    "correctedExit": 0,
+    "tests": 208
+  },
+  "profiles": {
+    "sessions": [
+      50395,
+      69373
+    ],
+    "exitCodes": [
+      0,
+      0
+    ],
+    "fixturesRemoved": true,
+    "finalSixWayExit": 0
+  },
+  "auxiliaryRun": {
+    "id": "run:account-catalog-checks:20261029T042725234Z-a619cb1e-b707-43af-afc2-0041df204582",
+    "producerStatus": "stopped",
+    "producerOutcome": "success"
+  },
+  "registrationSession": {
+    "sessionId": 15001,
+    "exitCode": 0
+  },
+  "completedUtc": "2026-10-29T04:38:22.738Z"
+}

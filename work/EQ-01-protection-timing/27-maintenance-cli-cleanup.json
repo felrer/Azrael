@@ -1,0 +1,1960 @@
+{
+  "schema": 1,
+  "id": "run:eq-cli:r1",
+  "started": "2026-11-01T19:19:38.728Z",
+  "command": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\payload\\maintenance_owner.exe",
+    "args": []
+  },
+  "calls": [
+    {
+      "name": "register",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:eq-cli:r1",
+          "kind": "run",
+          "owner": "azrael-maintenance-cli-integration",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "azrael-maintenance-cli-integration",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json"
+            }
+          ]
+        }
+      },
+      "exit_code": 1,
+      "signal": null,
+      "result": null,
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n"
+    },
+    {
+      "name": "register-retry",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:eq-cli:r1",
+          "kind": "run",
+          "owner": "azrael-maintenance-cli-integration",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "azrael-maintenance-cli-integration",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json"
+            }
+          ]
+        }
+      },
+      "exit_code": 1,
+      "signal": null,
+      "result": null,
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog); pre-intent reservation retained: {\\\"code\\\":\\\"maintenance_busy\\\",\\\"error\\\":\\\"OS lock busy: C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock (catalog)\\\",\\\"lock_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\felre\\\\\\\\Desktop\\\\\\\\pi-harness-init\\\\\\\\artifacts\\\\\\\\maintenance\\\\\\\\lifecycles\\\\\\\\catalog.lock\\\",\\\"owner\\\":null,\\\"retryable\\\":true}\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n"
+    },
+    {
+      "name": "recover-registration",
+      "request": {
+        "operation": "recover_reservation",
+        "id": "run:eq-cli:r1",
+        "producer_stopped_verified": true,
+        "expected_sha256": "110438a2b865aacaf8888ddf8c250e5ea63edc4b605bd59a8a4fc3968033102b",
+        "fence": {
+          "group_scope": {
+            "id": "run:eq-cli:r1",
+            "kind": "run",
+            "members": [
+              "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d"
+            ],
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_identity": null,
+            "owner": "azrael-maintenance-cli-integration",
+            "version": null
+          },
+          "id": "run:eq-cli:r1",
+          "lease_owner": {
+            "acquired_at_ms": 1793560836207,
+            "operation": "group_reservation",
+            "pid": 32448,
+            "schema": 2,
+            "token": "32448-1793560836207-f20106de983d34f4"
+          },
+          "manifest_revision": 4705,
+          "members": [
+            {
+              "generated": true,
+              "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+              "kind": "run",
+              "lifecycle_role": "artifact",
+              "owner": "azrael-maintenance-cli-integration",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+              "protection_known": true,
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+              "references": [],
+              "role": "run"
+            }
+          ],
+          "purpose": "registration",
+          "registration_sources": [
+            {
+              "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "source_fence": "479c0bf73e799b440b5385a66bf8206c2e450e86971eeb13cdb6ba708bee99ae",
+              "source_owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+                  "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+                  "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+                  "request_sha256": "528afb411166ce6fbe8c117d892401a3c78476c5bb4837407447b902971dcda9"
+                },
+                "created_at": "2026-11-01T18:55:54.691Z",
+                "id": "run:eq-cli:r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+                "owner": "azrael-maintenance-cli-integration",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+                  "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-01T19:19:05.312Z",
+                "version": null
+              }
+            }
+          ],
+          "schema": 1,
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "source_fence": "479c0bf73e799b440b5385a66bf8206c2e450e86971eeb13cdb6ba708bee99ae",
+          "source_owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+              "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+              "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+              "request_sha256": "528afb411166ce6fbe8c117d892401a3c78476c5bb4837407447b902971dcda9"
+            },
+            "created_at": "2026-11-01T18:55:54.691Z",
+            "id": "run:eq-cli:r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+            "owner": "azrael-maintenance-cli-integration",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+              "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-11-01T19:19:05.312Z",
+            "version": null
+          },
+          "status": "active",
+          "token": "32448-1793560836207-f20106de983d34f4"
+        },
+        "token": "32448-1793560836207-f20106de983d34f4",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EQ-01-protection-timing\\27-registration-stop-proof.json",
+        "evidence_sha256": "c295ae9e4e8410d9d8080a8a5317d49f986821743b8744a3ebf9990706b742ff",
+        "reason": "Release exact stopped synchronous registration failure reservation; retain original exit1",
+        "lock_wait_ms": 5000
+      },
+      "exit_code": 0,
+      "signal": null,
+      "native_pid": 37192,
+      "result": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EQ-01-protection-timing\\27-registration-stop-proof.json",
+        "evidence_sha256": "c295ae9e4e8410d9d8080a8a5317d49f986821743b8744a3ebf9990706b742ff",
+        "execution_outcome_changed": false,
+        "id": "run:eq-cli:r1",
+        "lease_owner": {
+          "acquired_at_ms": 1793560836207,
+          "operation": "group_reservation",
+          "pid": 32448,
+          "schema": 2,
+          "token": "32448-1793560836207-f20106de983d34f4"
+        },
+        "malformed_publication": false,
+        "pending_intents_changed": false,
+        "prior_bytes": null,
+        "prior_reservation": {
+          "group_scope": {
+            "id": "run:eq-cli:r1",
+            "kind": "run",
+            "members": [
+              "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d"
+            ],
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_identity": null,
+            "owner": "azrael-maintenance-cli-integration",
+            "version": null
+          },
+          "id": "run:eq-cli:r1",
+          "lease_owner": {
+            "acquired_at_ms": 1793560836207,
+            "operation": "group_reservation",
+            "pid": 32448,
+            "schema": 2,
+            "token": "32448-1793560836207-f20106de983d34f4"
+          },
+          "manifest_revision": 4705,
+          "members": [
+            {
+              "generated": true,
+              "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+              "kind": "run",
+              "lifecycle_role": "artifact",
+              "owner": "azrael-maintenance-cli-integration",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+              "protection_known": true,
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+              "references": [],
+              "role": "run"
+            }
+          ],
+          "purpose": "registration",
+          "registration_sources": [
+            {
+              "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "source_fence": "479c0bf73e799b440b5385a66bf8206c2e450e86971eeb13cdb6ba708bee99ae",
+              "source_owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+                  "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+                  "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+                  "request_sha256": "528afb411166ce6fbe8c117d892401a3c78476c5bb4837407447b902971dcda9"
+                },
+                "created_at": "2026-11-01T18:55:54.691Z",
+                "id": "run:eq-cli:r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+                "owner": "azrael-maintenance-cli-integration",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+                  "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-01T19:19:05.312Z",
+                "version": null
+              }
+            }
+          ],
+          "schema": 1,
+          "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "source_fence": "479c0bf73e799b440b5385a66bf8206c2e450e86971eeb13cdb6ba708bee99ae",
+          "source_owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+              "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+              "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+              "request_sha256": "528afb411166ce6fbe8c117d892401a3c78476c5bb4837407447b902971dcda9"
+            },
+            "created_at": "2026-11-01T18:55:54.691Z",
+            "id": "run:eq-cli:r1",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+            "owner": "azrael-maintenance-cli-integration",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+              "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-11-01T19:19:05.312Z",
+            "version": null
+          },
+          "status": "active",
+          "token": "32448-1793560836207-f20106de983d34f4"
+        },
+        "reason": "Release exact stopped synchronous registration failure reservation; retain original exit1",
+        "reservation_sha256": "110438a2b865aacaf8888ddf8c250e5ea63edc4b605bd59a8a4fc3968033102b",
+        "status": "reservation_recovered"
+      },
+      "stderr": ""
+    },
+    {
+      "name": "register-after-recovery",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:eq-cli:r1",
+          "kind": "run",
+          "owner": "azrael-maintenance-cli-integration",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "azrael-maintenance-cli-integration",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 5000
+      },
+      "exit_code": 1,
+      "signal": null,
+      "native_pid": 12724,
+      "result": null,
+      "stderr": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog); lock wait exhausted after 5000 ms\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n"
+    },
+    {
+      "name": "inventory-after-contention",
+      "request": {
+        "operation": "inventory",
+        "lock_wait_ms": 5000
+      },
+      "exit_code": 0,
+      "native_pid": 52604,
+      "signal": null,
+      "stderr": "",
+      "result": {
+        "keys": [
+          "bundles",
+          "decisions",
+          "groups",
+          "items",
+          "logical_bytes",
+          "measurement",
+          "pagination",
+          "policy",
+          "project_id",
+          "project_root",
+          "runs"
+        ],
+        "groups": [],
+        "items": []
+      }
+    },
+    {
+      "name": "register-after-access-confirmed",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:eq-cli:r1",
+          "kind": "run",
+          "owner": "azrael-maintenance-cli-integration",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "azrael-maintenance-cli-integration",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 5000
+      },
+      "started": "2026-11-01T19:28:02.657Z",
+      "ended": "2026-11-01T19:30:00.368Z",
+      "exit_code": 1,
+      "signal": null,
+      "native_pid": 7964,
+      "result": null,
+      "stderr": "{\"error\":\"다른 프로세스가 파일의 한 부분을 잠갔으므로, 프로세스가 해당 파일을 액세스할 수 없습니다. (os error 33)\"}\n"
+    },
+    {
+      "name": "register-after-competing-controller-exit",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:eq-cli:r1",
+          "kind": "run",
+          "owner": "azrael-maintenance-cli-integration",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "azrael-maintenance-cli-integration",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 5000
+      },
+      "started": "2026-11-01T19:33:37.547Z",
+      "ended": "2026-11-01T19:35:30.410Z",
+      "exit_code": 1,
+      "signal": null,
+      "native_pid": 47416,
+      "result": null,
+      "stderr": "{\"error\":\"다른 프로세스가 파일의 한 부분을 잠갔으므로, 프로세스가 해당 파일을 액세스할 수 없습니다. (os error 33)\"}\n"
+    },
+    {
+      "name": "register-with-stage-diagnostics",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:eq-cli:r1",
+          "kind": "run",
+          "owner": "azrael-maintenance-cli-integration",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "azrael-maintenance-cli-integration",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 5000
+      },
+      "started": "2026-11-01T19:41:49.289Z",
+      "ended": "2026-11-01T19:43:30.345Z",
+      "timing_enabled": true,
+      "exit_code": 0,
+      "signal": null,
+      "native_pid": 53004,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:eq-cli:r1",
+          "kind": "run",
+          "members": [
+            "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "479c0bf73e799b440b5385a66bf8206c2e450e86971eeb13cdb6ba708bee99ae",
+          "owner": "azrael-maintenance-cli-integration",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+          "registered_at_ms": 1793562199709,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+            "identity": "efd0fc88f7fd059ec66c3322d9d529cea8cc6848441923637730afe0edb06936",
+            "kind": "run",
+            "lifecycle_group_id": "run:eq-cli:r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 667323352,
+            "measured_at_ms": 1793562182070,
+            "owner": "azrael-maintenance-cli-integration",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+            "references": [],
+            "registered_at_ms": 1793562182070,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": "",
+      "timing_summary": [
+        {
+          "key": "maintenance.lock_hold|maintenance|verified",
+          "count": 3
+        },
+        {
+          "key": "maintenance.lock_wait|wait_for_lock|acquired",
+          "count": 30
+        },
+        {
+          "key": "maintenance.phase|registry.catalog_snapshot_load|success",
+          "count": 16
+        },
+        {
+          "key": "maintenance.phase|registry.catalog|success",
+          "count": 36
+        },
+        {
+          "key": "maintenance.phase|registry.catalog_snapshot_hit|success",
+          "count": 20
+        },
+        {
+          "key": "maintenance.lock_hold|catalog|verified",
+          "count": 2
+        },
+        {
+          "key": "maintenance.phase|reservation.verify_sources|success",
+          "count": 7
+        },
+        {
+          "key": "maintenance.phase|registry.observe|success",
+          "count": 2
+        },
+        {
+          "key": "maintenance.phase|state.read|read",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|state.commit|committed",
+          "count": 1
+        },
+        {
+          "key": "maintenance.lock_hold|group_reservation|verified",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "review-with-stage-diagnostics",
+      "request": {
+        "operation": "review",
+        "group_ids": [
+          "run:eq-cli:r1"
+        ],
+        "lock_wait_ms": 5000
+      },
+      "started": "2026-11-01T19:43:30.346Z",
+      "ended": "2026-11-01T19:43:36.493Z",
+      "timing_enabled": true,
+      "exit_code": 0,
+      "signal": null,
+      "native_pid": 13396,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:eq-cli:r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "479c0bf73e799b440b5385a66bf8206c2e450e86971eeb13cdb6ba708bee99ae",
+            "owner": "azrael-maintenance-cli-integration",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d"
+            ],
+            "group_token": "1baf808dc6c26bb495f034c0a8357016ad12af64adf7819e45d4e7f9ae579f54",
+            "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+            "identity": "efd0fc88f7fd059ec66c3322d9d529cea8cc6848441923637730afe0edb06936",
+            "lifecycle_group_id": "run:eq-cli:r1",
+            "logical_bytes": 667323352,
+            "measured_at_ms": 1793562182070,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "479c0bf73e799b440b5385a66bf8206c2e450e86971eeb13cdb6ba708bee99ae",
+              "member_references": {
+                "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+                  "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+                  "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+                  "request_sha256": "528afb411166ce6fbe8c117d892401a3c78476c5bb4837407447b902971dcda9"
+                },
+                "created_at": "2026-11-01T18:55:54.691Z",
+                "id": "run:eq-cli:r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+                "owner": "azrael-maintenance-cli-integration",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\reports\\producer-02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4.json",
+                  "evidence_sha256": "02570883121a80e3354e5d9348af7eb571b1583dd168ca8b47e7b6695eeccaa4",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Shared CLI implementation and required focused verification completed; product release acceptance explicitly pending future build",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-01T19:19:05.312Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793562210582,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  58,
+                  98,
+                  208,
+                  0,
+                  0,
+                  0,
+                  4,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "6782bf81a3d24c5c308509fac5d9797712880baed2c056a4e965a77833018dd2",
+            "verification": "registered"
+          }
+        ]
+      },
+      "stderr": "",
+      "timing_summary": [
+        {
+          "key": "maintenance.lock_wait|wait_for_lock|acquired",
+          "count": 5
+        },
+        {
+          "key": "maintenance.phase|registry.catalog_snapshot_load|success",
+          "count": 2
+        },
+        {
+          "key": "maintenance.phase|registry.catalog|success",
+          "count": 2
+        },
+        {
+          "key": "maintenance.phase|registry.observe|success",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "apply-with-stage-diagnostics",
+      "request": {
+        "operation": "apply",
+        "decisions": [
+          {
+            "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+            "token": "6782bf81a3d24c5c308509fac5d9797712880baed2c056a4e965a77833018dd2",
+            "decision": "delete",
+            "reason": "Closed owned build/test run no longer used; source and independent acceptance evidence retained"
+          }
+        ],
+        "lock_wait_ms": 5000
+      },
+      "started": "2026-11-01T19:43:36.495Z",
+      "ended": "2026-11-01T19:44:58.974Z",
+      "timing_enabled": true,
+      "exit_code": 0,
+      "signal": null,
+      "native_pid": 47504,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:eq-cli:r1",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-47504-4707-1793562243914",
+            "decision": "delete",
+            "decision_id": "2bdfe1f3d3a8e4ba60c3929e81c3b10d3ec339adc72bc53759952ac50ad2a5bb",
+            "deletion": {
+              "attributes": [
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\aa\\d1ef6d8173e4047d2ba3741b358eba7459df57"
+                },
+                {
+                  "after": 16,
+                  "before": 18,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\03\\5640471244b53a54d9b519274df9a332ac5ba5"
+                },
+                {
+                  "after": 16,
+                  "before": 18,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\0c\\abfd1b51c329c2fa1d5e58d9afff354c72fe55"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\engine-source\\.git\\objects\\ec\\13bdcb44a35441d2b1813824f16f8aa8a1f017"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\2a\\b3b763a5265d112e5ff391acaf469fef0ccb69"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\d9\\ec9f7772324c488c11432cba3af3bdcec31d79"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\19\\d18cc0b3210944378c10fb1d54d2c95a6e6c0a"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\36\\1ddcdec08e43ff58da4b78b8c402a33f0ad338"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\3d\\01f62e3844245bc2f98c58201768f875e34595"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\fc\\912979ed64aebe214dc9151570a878d73c3c79"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\32\\2efd95e898794c449c4a7245d1dd192bb14c8f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\3d\\6e404869550cfc6785b444532a0d7483f68531"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\3d\\6e404869550cfc6785b444532a0d7483f68531"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\aa\\d1ef6d8173e4047d2ba3741b358eba7459df57"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\3d\\6e404869550cfc6785b444532a0d7483f68531"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\36\\1ddcdec08e43ff58da4b78b8c402a33f0ad338"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\aa\\d1ef6d8173e4047d2ba3741b358eba7459df57"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\ea\\f32a0b249e4670dc63af4215c18fdfd6294ea9"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\b5\\979cb9b7a0b617a7f8afd16aa0ab9d91646b3f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\engine-source\\.git\\objects\\ec\\13bdcb44a35441d2b1813824f16f8aa8a1f017"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\66\\1ec14a2ff9964e8e1014380cf98219b78e16f6"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\d7\\b4df5bbaecd646cb6b6d89e73b353d2ad0fb33"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\b5\\979cb9b7a0b617a7f8afd16aa0ab9d91646b3f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\3d\\6e404869550cfc6785b444532a0d7483f68531"
+                },
+                {
+                  "after": 32,
+                  "before": 34,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\.git"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\eb\\24f8759767401fa0b99e2e7c1064b851575dba"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\17\\70936349f8727991bd6e90e1425d45321186f1"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\2a\\f08e1cc07248f9ad2bda4fce05c057b98f06ad"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\engine-source\\.git\\objects\\28\\06a3c8cb0dd12309c034e41614544b5cfc414d"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\32\\2efd95e898794c449c4a7245d1dd192bb14c8f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\engine-source\\.git\\objects\\c3\\759da10076c26ad6e4b39475425be3ac12d6af"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\36\\1ddcdec08e43ff58da4b78b8c402a33f0ad338"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\17\\70936349f8727991bd6e90e1425d45321186f1"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\32\\2efd95e898794c449c4a7245d1dd192bb14c8f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\eb\\24f8759767401fa0b99e2e7c1064b851575dba"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\d7\\b4df5bbaecd646cb6b6d89e73b353d2ad0fb33"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\36\\1ddcdec08e43ff58da4b78b8c402a33f0ad338"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\10\\d269ad04c88bb3b82ab537ce0458f9de629304"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\66\\1ec14a2ff9964e8e1014380cf98219b78e16f6"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\9b\\b6d8d07c9ef526d56d4cd7f405847881882283"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\d7\\b4df5bbaecd646cb6b6d89e73b353d2ad0fb33"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\2a\\f08e1cc07248f9ad2bda4fce05c057b98f06ad"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\4f\\c98d23bc5da9927f5d6d862c4cc36d8a479155"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\3d\\6e404869550cfc6785b444532a0d7483f68531"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\10\\92c7085ed58c160c08f72e0f8550fe75783968"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\0c\\abfd1b51c329c2fa1d5e58d9afff354c72fe55"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\38\\bd33ec67a4949f33e417826b9bad3f31857601"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\ea\\f32a0b249e4670dc63af4215c18fdfd6294ea9"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\3d\\01f62e3844245bc2f98c58201768f875e34595"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\03\\5640471244b53a54d9b519274df9a332ac5ba5"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\2a\\f08e1cc07248f9ad2bda4fce05c057b98f06ad"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\2a\\b3b763a5265d112e5ff391acaf469fef0ccb69"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\fc\\912979ed64aebe214dc9151570a878d73c3c79"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\4f\\c98d23bc5da9927f5d6d862c4cc36d8a479155"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\3d\\6e404869550cfc6785b444532a0d7483f68531"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\32\\2efd95e898794c449c4a7245d1dd192bb14c8f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\10\\d269ad04c88bb3b82ab537ce0458f9de629304"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\17\\70936349f8727991bd6e90e1425d45321186f1"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\19\\d18cc0b3210944378c10fb1d54d2c95a6e6c0a"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\2a\\b3b763a5265d112e5ff391acaf469fef0ccb69"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\0c\\abfd1b51c329c2fa1d5e58d9afff354c72fe55"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\d7\\b4df5bbaecd646cb6b6d89e73b353d2ad0fb33"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\03\\5640471244b53a54d9b519274df9a332ac5ba5"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\e4\\5f07711fda2328176edc4dbb906871eec20353"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\10\\d269ad04c88bb3b82ab537ce0458f9de629304"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\aa\\d1ef6d8173e4047d2ba3741b358eba7459df57"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\b5\\979cb9b7a0b617a7f8afd16aa0ab9d91646b3f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\3d\\01f62e3844245bc2f98c58201768f875e34595"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\fc\\912979ed64aebe214dc9151570a878d73c3c79"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\e4\\5f07711fda2328176edc4dbb906871eec20353"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\engine-source\\.git\\objects\\5c\\c1f4c38181642dd4f6a1d5279e2e57d7d20e80"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\b5\\979cb9b7a0b617a7f8afd16aa0ab9d91646b3f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\d7\\b4df5bbaecd646cb6b6d89e73b353d2ad0fb33"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\17\\70936349f8727991bd6e90e1425d45321186f1"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\fc\\912979ed64aebe214dc9151570a878d73c3c79"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\0c\\abfd1b51c329c2fa1d5e58d9afff354c72fe55"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\19\\d18cc0b3210944378c10fb1d54d2c95a6e6c0a"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\38\\bd33ec67a4949f33e417826b9bad3f31857601"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\32\\2efd95e898794c449c4a7245d1dd192bb14c8f"
+                },
+                {
+                  "after": 16,
+                  "before": 18,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\engine-source\\.git"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\10\\92c7085ed58c160c08f72e0f8550fe75783968"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\b5\\979cb9b7a0b617a7f8afd16aa0ab9d91646b3f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\19\\d18cc0b3210944378c10fb1d54d2c95a6e6c0a"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\66\\1ec14a2ff9964e8e1014380cf98219b78e16f6"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\d9\\ec9f7772324c488c11432cba3af3bdcec31d79"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\e4\\5f07711fda2328176edc4dbb906871eec20353"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\ea\\f32a0b249e4670dc63af4215c18fdfd6294ea9"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\aa\\d1ef6d8173e4047d2ba3741b358eba7459df57"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\engine-source\\.git\\objects\\c3\\759da10076c26ad6e4b39475425be3ac12d6af"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\4f\\c98d23bc5da9927f5d6d862c4cc36d8a479155"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\4f\\c98d23bc5da9927f5d6d862c4cc36d8a479155"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\eb\\24f8759767401fa0b99e2e7c1064b851575dba"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\e4\\5f07711fda2328176edc4dbb906871eec20353"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\9b\\b6d8d07c9ef526d56d4cd7f405847881882283"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\38\\bd33ec67a4949f33e417826b9bad3f31857601"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\fc\\912979ed64aebe214dc9151570a878d73c3c79"
+                },
+                {
+                  "after": 32,
+                  "before": 34,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\.git"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\2a\\f08e1cc07248f9ad2bda4fce05c057b98f06ad"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\2a\\b3b763a5265d112e5ff391acaf469fef0ccb69"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\9b\\b6d8d07c9ef526d56d4cd7f405847881882283"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\d7\\b4df5bbaecd646cb6b6d89e73b353d2ad0fb33"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\9b\\b6d8d07c9ef526d56d4cd7f405847881882283"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\38\\bd33ec67a4949f33e417826b9bad3f31857601"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\19\\d18cc0b3210944378c10fb1d54d2c95a6e6c0a"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\2a\\b3b763a5265d112e5ff391acaf469fef0ccb69"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\0c\\abfd1b51c329c2fa1d5e58d9afff354c72fe55"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\66\\1ec14a2ff9964e8e1014380cf98219b78e16f6"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\aa\\d1ef6d8173e4047d2ba3741b358eba7459df57"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\03\\5640471244b53a54d9b519274df9a332ac5ba5"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\0c\\abfd1b51c329c2fa1d5e58d9afff354c72fe55"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\d9\\ec9f7772324c488c11432cba3af3bdcec31d79"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\2a\\b3b763a5265d112e5ff391acaf469fef0ccb69"
+                },
+                {
+                  "after": 16,
+                  "before": 18,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\9b\\b6d8d07c9ef526d56d4cd7f405847881882283"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\19\\d18cc0b3210944378c10fb1d54d2c95a6e6c0a"
+                },
+                {
+                  "after": 16,
+                  "before": 18,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\03\\5640471244b53a54d9b519274df9a332ac5ba5"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\9b\\b6d8d07c9ef526d56d4cd7f405847881882283"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\e4\\5f07711fda2328176edc4dbb906871eec20353"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\eb\\24f8759767401fa0b99e2e7c1064b851575dba"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\e4\\5f07711fda2328176edc4dbb906871eec20353"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\engine-source\\.git\\objects\\28\\06a3c8cb0dd12309c034e41614544b5cfc414d"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\10\\d269ad04c88bb3b82ab537ce0458f9de629304"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\10\\d269ad04c88bb3b82ab537ce0458f9de629304"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\ea\\f32a0b249e4670dc63af4215c18fdfd6294ea9"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\2a\\f08e1cc07248f9ad2bda4fce05c057b98f06ad"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\17\\70936349f8727991bd6e90e1425d45321186f1"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\3d\\01f62e3844245bc2f98c58201768f875e34595"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\32\\2efd95e898794c449c4a7245d1dd192bb14c8f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\engine-source\\.git\\objects\\37\\7acde8809280f6dc722f20fea726819ca00862"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\10\\d269ad04c88bb3b82ab537ce0458f9de629304"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\b5\\979cb9b7a0b617a7f8afd16aa0ab9d91646b3f"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\10\\92c7085ed58c160c08f72e0f8550fe75783968"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\fc\\912979ed64aebe214dc9151570a878d73c3c79"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\66\\1ec14a2ff9964e8e1014380cf98219b78e16f6"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\38\\bd33ec67a4949f33e417826b9bad3f31857601"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\engine-source\\.git\\objects\\5c\\c1f4c38181642dd4f6a1d5279e2e57d7d20e80"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\2a\\f08e1cc07248f9ad2bda4fce05c057b98f06ad"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\eb\\24f8759767401fa0b99e2e7c1064b851575dba"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\36\\1ddcdec08e43ff58da4b78b8c402a33f0ad338"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\eb\\24f8759767401fa0b99e2e7c1064b851575dba"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\03\\5640471244b53a54d9b519274df9a332ac5ba5"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\17\\70936349f8727991bd6e90e1425d45321186f1"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\.git\\objects\\38\\bd33ec67a4949f33e417826b9bad3f31857601"
+                },
+                {
+                  "after": 16,
+                  "before": 18,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\engine-source\\.git"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\.git\\objects\\ea\\f32a0b249e4670dc63af4215c18fdfd6294ea9"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\66\\1ec14a2ff9964e8e1014380cf98219b78e16f6"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\36\\1ddcdec08e43ff58da4b78b8c402a33f0ad338"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging-r2\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\ea\\f32a0b249e4670dc63af4215c18fdfd6294ea9"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\engine-source\\.git\\objects\\dd\\116de4fc1e462f886ab89ae29e2ff27a396d20"
+                },
+                {
+                  "after": 32,
+                  "before": 33,
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761"
+                }
+              ],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "a914f9450e6c181d7942db100691dc33f838afab4b652560e31a5112bd0ab78d",
+            "lifecycle_group_id": "run:eq-cli:r1",
+            "reason": "Closed owned build/test run no longer used; source and independent acceptance evidence retained",
+            "remaining": false,
+            "status": "deleted",
+            "token": "6782bf81a3d24c5c308509fac5d9797712880baed2c056a4e965a77833018dd2"
+          }
+        ]
+      },
+      "stderr": "",
+      "timing_summary": [
+        {
+          "key": "maintenance.lock_wait|wait_for_lock|acquired",
+          "count": 10
+        },
+        {
+          "key": "maintenance.phase|registry.catalog_snapshot_load|success",
+          "count": 5
+        },
+        {
+          "key": "maintenance.phase|registry.catalog|success",
+          "count": 9
+        },
+        {
+          "key": "maintenance.phase|registry.catalog_snapshot_hit|success",
+          "count": 4
+        },
+        {
+          "key": "maintenance.phase|registry.observe|success",
+          "count": 2
+        },
+        {
+          "key": "maintenance.phase|apply.initial_group_review|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|apply.reservation.acquire|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.lock_hold|catalog|verified",
+          "count": 2
+        },
+        {
+          "key": "maintenance.lock_hold|maintenance|verified",
+          "count": 3
+        },
+        {
+          "key": "maintenance.phase|apply.normalization_preflight|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|reservation.verify_sources|success",
+          "count": 3
+        },
+        {
+          "key": "maintenance.phase|apply.reservation.verify.before_item|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|apply.current_review|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|apply.safe_entries.pre_intent|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|state.read|read",
+          "count": 2
+        },
+        {
+          "key": "maintenance.phase|state.commit|committed",
+          "count": 2
+        },
+        {
+          "key": "maintenance.phase|apply.intent_save|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|apply.physical_delete|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|apply.actual_result_save|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|apply.final_presence|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.phase|apply.reservation.finalize|success",
+          "count": 1
+        },
+        {
+          "key": "maintenance.lock_hold|group_reservation|verified",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "paths": [
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq-cli\\runs\\r1"
+  ],
+  "retry_basis": {
+    "no_active_maintenance_owner": true,
+    "reservation_absent": true,
+    "observed_prior_register_exit": 1,
+    "prior_error": "retryable maintenance_busy before registration; no reservation"
+  },
+  "explicit_wait_ms": 5000,
+  "wait_scope": "Only this cleanup operation; observed concurrent short catalog update; no default policy change",
+  "final_retry_basis": {
+    "competing_controller_pid": 34516,
+    "controller_no_longer_present": true,
+    "no_native_maintenance_process_observed": true,
+    "read_probe_files": 2532,
+    "read_probe_failures": 0,
+    "prior_failure_observed_exit": 1
+  },
+  "paths_absent": true,
+  "finalize": {
+    "id": "run:eq-cli:r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\c3f17ed08b9ba7bc2dd92065f025dcf8f57d40a500e95aad833471fb708d8245.json"
+  },
+  "exit_code": 0,
+  "ended": "2026-11-01T19:45:00.840Z",
+  "final_integration_check": {
+    "source_changed_since_verification": [
+      "scripts/azrael-feature-contracts.json"
+    ],
+    "change_scope": "Concurrent inventory edits only; implemented code hashes unchanged",
+    "integration_owners_preserved": true,
+    "integration_check_preserved": true,
+    "inventory_sha256": "de2cc001e3f9376f6166d925b239fb01b96e674607be8268d93a1922b2e5f793",
+    "current_default_unchanged": true,
+    "native_selected_source_unchanged": true
+  },
+  "read_only_lock_diagnosis": {
+    "question": "Identify file locks behind native registration OS error33; one-byte read only, no content inventory or payload hashing",
+    "at_utc": "2026-11-01T19:31:52.413Z",
+    "files": 2532,
+    "links": [],
+    "failures": []
+  },
+  "remaining_uncertainty": "Earlier intermittent Windows OS33 location/root cause was not established; final unchanged owner passed registration, review and actual deletion with diagnostics enabled. No lock or guard was bypassed."
+}

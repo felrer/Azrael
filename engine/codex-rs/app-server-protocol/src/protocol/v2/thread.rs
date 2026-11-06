@@ -940,6 +940,10 @@ pub struct ThreadGoalClearResponse {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct QueuedSubmission {
+    /// Immutable profile captured by the host when this request was accepted.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub agent_profile: Option<codex_protocol::agent_profile::AgentProfileRef>,
     pub id: String,
     pub kind: QueuedSubmissionKind,
     pub input: Vec<UserInput>,
@@ -961,6 +965,10 @@ pub enum QueuedSubmissionKind {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct ThreadQueueAddParams {
+    /// Immutable profile captured by the host when this request was accepted.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub agent_profile: Option<codex_protocol::agent_profile::AgentProfileRef>,
     pub thread_id: String,
     /// Omission selects user input. Compaction requires an empty input array.
     #[ts(optional = nullable)]
@@ -1744,6 +1752,10 @@ pub struct ThreadReadParams {
 #[ts(export_to = "v2/")]
 pub struct ThreadReadResponse {
     pub thread: Thread,
+    /// Trusted execution mode; only ordinary roots accept project profile snapshots.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "\"direct\" | \"team\" | \"role\"")]
+    pub agent_profile_mode: Option<codex_protocol::agent_profile::AgentProfileExecutionMode>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
@@ -1923,6 +1935,9 @@ pub enum ThreadTimelineEntry {
         #[serde(default)]
         #[ts(rename = "rootResumeWait", optional = nullable)]
         root_resume_wait: Option<codex_protocol::root_resume::RootResumeWait>,
+        #[serde(default)]
+        #[ts(rename = "userWaitTiming", optional = nullable)]
+        user_wait_timing: Option<codex_protocol::user_wait::UserWaitTiming>,
     },
 }
 
@@ -2045,8 +2060,10 @@ mod response_performance_tests {
         assert_eq!(wire["responsePerformance"]["outputTokens"], 123);
         assert_eq!(wire["responsePerformance"]["completedRequests"], 1);
         assert_eq!(wire["responsePerformance"]["startedAtUnixMs"], 1_000);
-        assert_eq!(wire["responsePerformance"]["minuteSamples"][0]["mode"], "fast");
+        assert_eq!(wire["responsePerformance"]["minuteSamples"][0]["actualMode"], "fast");
+        assert!(wire["responsePerformance"]["minuteSamples"][0].get("mode").is_none());
         assert_eq!(wire["responsePerformance"]["history"][0]["turnId"], "previous");
+        assert_eq!(wire["responsePerformance"]["history"][0]["minuteSamples"][0]["actualMode"], "fast");
     }
 }
 

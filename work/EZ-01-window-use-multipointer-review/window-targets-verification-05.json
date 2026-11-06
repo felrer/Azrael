@@ -1,0 +1,27 @@
+{
+  "runId": "run:EZ01:window-targets-r5-mw1jnh2z",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-r5-mw1jnh2z",
+  "frozen": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-r5-mw1jnh2z\\temporary\\source",
+  "startedAt": "2026-11-04T03:16:05.160Z",
+  "steps": [
+    {
+      "name": "injection",
+      "files": [
+        "test-window-control-injection",
+        "test-computer-use-injection"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\window-targets-r5-mw1jnh2z\\logs\\injection.log"
+    }
+  ],
+  "endedAt": "2026-11-04T03:16:25.820Z",
+  "summary": {
+    "tests": 14,
+    "pass": 14,
+    "fail": 0,
+    "skipped": 0,
+    "causes": [],
+    "outcome": "passed"
+  }
+}

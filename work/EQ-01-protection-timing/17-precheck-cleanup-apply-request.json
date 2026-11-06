@@ -1,0 +1,17 @@
+{
+  "operation": "apply",
+  "decisions": [
+    {
+      "id": "abe610c1ad0edfffdbea51140cc7d2c7271f8ed574803e7eb728f37148d340c0",
+      "token": "065b7792e6c4ba6bd09cb86c9439314a665195a94a587fc44600b6012b54596f",
+      "decision": "delete",
+      "reason": "Verified replacement and independent acceptance preserved in ef98 candidate verification and work/14-precheck-acceptance.json; completed disposable run and uninstalled superseded candidate have no consumers"
+    },
+    {
+      "id": "cc22fc8c60a6dabf67e2424bb2faf455d24552b8fe0a6c3c224fd8b4ec7d5332",
+      "token": "ad0b20ed23bfd06b8b90c292824368863e2a3632073dc5f4f65f37110cb8b9f6",
+      "decision": "delete",
+      "reason": "Verified replacement and independent acceptance preserved in ef98 candidate verification and work/14-precheck-acceptance.json; completed disposable run and uninstalled superseded candidate have no consumers"
+    }
+  ]
+}

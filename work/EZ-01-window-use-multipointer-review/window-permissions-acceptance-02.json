@@ -1,0 +1,425 @@
+{
+  "schema": 1,
+  "scope": "Final Window Use app permission and retirement source acceptance; Windows x64, no installation",
+  "sourceResults": {
+    "selected": 197,
+    "passed": 196,
+    "skipped": 1,
+    "skip": "Linux-only approval test on Windows",
+    "basis": "191 final-r2 passes plus 4 formerly fixture-blocked cases passing in closure and the corrected exact-EXE approval assertion passing in card-r2; overlapping tests not added"
+  },
+  "source": [
+    {
+      "file": "scripts/test-use-control-settings.cjs",
+      "sha256": "9603240999d90314666a124cb33710c359224abfed09dfcbae43723406ba8977"
+    },
+    {
+      "file": "scripts/test-use-settings-host.cjs",
+      "sha256": "32ea853ab154d7945e3bfe86acb9a2390e50775ae732185b9dc233900ad04d29"
+    },
+    {
+      "file": "scripts/test-use-settings-ui.cjs",
+      "sha256": "9c2e3f59068ad379f280b7971d57189469fce28d9ddc44ca816f530b072a81f2"
+    },
+    {
+      "file": "scripts/test-window-use-host.cjs",
+      "sha256": "03610f877b2051891a39d1764c6ea86a086cea3e46aea53868f2f46510bd7c08"
+    },
+    {
+      "file": "scripts/test-window-async-approval-host.cjs",
+      "sha256": "2cb02f77df8fc47dae9f84ffbf155e5a5bf3ebc8639ba42bc070a8063d8956b2"
+    },
+    {
+      "file": "scripts/test-window-approval-notifications.cjs",
+      "sha256": "16a8a2d3bac3964e3c46db58f92ab894e85e8b485c8da62db433c26ba2b81f85"
+    },
+    {
+      "file": "scripts/test-window-approval-ui-integration.cjs",
+      "sha256": "d917c896db45a5fa4df859a9fb942598af686c319f5563a1e71c4d4c60d22210"
+    },
+    {
+      "file": "scripts/test-window-control-host-errors.cjs",
+      "sha256": "6e90e08457f2dd3845ec59da9a0f21f3fd77f89390677918588628f2ddb085eb"
+    },
+    {
+      "file": "scripts/test-window-control-host.cjs",
+      "sha256": "d99752dd70d95cbb733cb03eb993c148c8d92239b1b4e0dad71fa4728fd8705b"
+    },
+    {
+      "file": "scripts/test-window-overlay.cjs",
+      "sha256": "62139aaa48cf3a4e1af1737c1ceb0f956d681c23c79854666346c9ee0ac9b90e"
+    },
+    {
+      "file": "scripts/test-window-control-errors.cjs",
+      "sha256": "0979246297d3ef615d6074d5c184e43bbde9e51608e4474a7d64c0e12fd81db7"
+    },
+    {
+      "file": "scripts/test-computer-use-injection.cjs",
+      "sha256": "31be26310b38d34705c39971f8466416f1ce45ecfff4c79b876b77ca5ed99d7c"
+    },
+    {
+      "file": "scripts/test-window-control-approval.cjs",
+      "sha256": "99772eeb136f9d302bb6fedfdd741dbc4cd6437fe4f4ea4688bb5d2ecb550571"
+    },
+    {
+      "file": "scripts/test-source-test-fixtures.cjs",
+      "sha256": "c891567eb38840b34ccd1b69b9a882b81a46df6a0674ea94575b16d60b8f938c"
+    },
+    {
+      "file": "scripts/test-computer-use-runtime.cjs",
+      "sha256": "dda236f2b92b00719857cf26f186b088afdf4115a27e8706112213a08dbc0891"
+    },
+    {
+      "file": "scripts/test-window-control-runtime.cjs",
+      "sha256": "159f69cf71eaa95e44b56fe03eae2b445c340fbf44c316a70c89308333556a12"
+    },
+    {
+      "file": "scripts/tests/sync-codex-environment.test.cjs",
+      "sha256": "0ed414f95ba5e2da9111e2949b6525710ab0a25232aca4a9f08898e1f2c4ca0a"
+    },
+    {
+      "file": "scripts/test-window-control-mcp.cjs",
+      "sha256": "d3cfe2c500afed26f6f0b02c4ec77b77b5003f1126efe58ff90024c5279603e3"
+    },
+    {
+      "file": "scripts/test-window-control-injection.cjs",
+      "sha256": "116b82bada03d771982af8b88be94cf254ed88ef2e4624b8e954b0c5ebe98113"
+    },
+    {
+      "file": "scripts/test-window-virtual-policy.cjs",
+      "sha256": "841bc0e24e3d5732b1b4711f27f86bb3fc7108ebbd490230bd47c20be0748507"
+    },
+    {
+      "file": "scripts/window-control-host.cjs",
+      "sha256": "e5331d8bb4e79d63f789863feb8881645b9a292f64f80d5f64f5be1567cc9075"
+    },
+    {
+      "file": "scripts/window-control-policy.cjs",
+      "sha256": "e81162fbf96221727964e05e2a2f8b430ad128deb3732f0e607f0e4d9fc0dece"
+    },
+    {
+      "file": "scripts/window-control-mcp.cjs",
+      "sha256": "a959da64f6f4a28fa1522334aa469626060d2cd0a5d876eefb487ecf84db17d2"
+    },
+    {
+      "file": "scripts/window-control-backend.cjs",
+      "sha256": "ab2b3c8a557da9170a610c14174eca2a60d31e4f20b1d1deecb35d6a2c5acc70"
+    },
+    {
+      "file": "scripts/window-use-approvals.cjs",
+      "sha256": "068f06b036ceb48fce8ca8925f13766a945025421497eb3fb7255a2a189a64b2"
+    },
+    {
+      "file": "scripts/use-control-settings.cjs",
+      "sha256": "6724f4cb4a5011d620d9da4670a2456bc6851c691efda29530f2728169a1511b"
+    },
+    {
+      "file": "scripts/use-settings-host.cjs",
+      "sha256": "d697449bd39af06a6207cd3bfb85feb37cdd273bbd5ae26507ddaea9539ed37d"
+    },
+    {
+      "file": "scripts/inject-window-control.cjs",
+      "sha256": "6e82c2a54c3298bcd3a71e675bc09a0580aad6b37262eaab8213715fa809ee72"
+    },
+    {
+      "file": "scripts/inject-computer-use.cjs",
+      "sha256": "eb92e89b3efd270986ac3f2090c96b93da7219af8942fa0b1458e9883acde5a9"
+    },
+    {
+      "file": "scripts/computer-use-runtime.cjs",
+      "sha256": "3d01382c461b6c4565db055b0cec5ea82ac38570cf55216b8ba054c9702cd245"
+    },
+    {
+      "file": "scripts/window-control-runtime.cjs",
+      "sha256": "ffc052b005a1808f487ae5e616243fe06407b410a7dc07c323803491c2860531"
+    },
+    {
+      "file": "scripts/sync-codex-environment.cjs",
+      "sha256": "bca14413c2f733296caa5b4b363a1a5d99584fefa44b07c71e8af3f8c8cdfed6"
+    },
+    {
+      "file": "scripts/prepare-platform-host.cjs",
+      "sha256": "601fa3be78bd69465a2e05c8b93265ea55625bc5fb419b68d051594659a0bb7b"
+    },
+    {
+      "file": "scripts/namespace-azrael-host.cjs",
+      "sha256": "6ce84468ac16c7ef41b2efd1513496e8248a9ebcfadec1fbb59cbbd1a3c2bb8a"
+    }
+  ],
+  "rounds": [
+    {
+      "file": "window-permissions-final.json",
+      "lifecycleId": "run:EZ01:permissions-final-mw0bgksn",
+      "exitCode": 1,
+      "tests": [
+        "test-use-control-settings.cjs",
+        "test-use-settings-host.cjs",
+        "test-use-settings-ui.cjs",
+        "test-window-use-host.cjs",
+        "test-window-async-approval-host.cjs",
+        "test-window-approval-notifications.cjs",
+        "test-window-approval-ui-integration.cjs",
+        "test-window-control-host-errors.cjs",
+        "test-window-control-host.cjs",
+        "test-window-overlay.cjs",
+        "test-window-control-errors.cjs",
+        "test-computer-use-injection.cjs",
+        "test-window-control-approval.cjs",
+        "test-source-test-fixtures.cjs",
+        "test-computer-use-runtime.cjs",
+        "test-window-control-runtime.cjs",
+        "tests/sync-codex-environment.test.cjs",
+        "test-window-control-mcp.cjs",
+        "test-window-control-injection.cjs",
+        "test-window-virtual-policy.cjs"
+      ]
+    },
+    {
+      "file": "window-permissions-final-r2.json",
+      "lifecycleId": "run:EZ01:permissions-final-r2-mw0blbxi",
+      "exitCode": 1,
+      "tests": [
+        "test-use-control-settings.cjs",
+        "test-use-settings-host.cjs",
+        "test-use-settings-ui.cjs",
+        "test-window-use-host.cjs",
+        "test-window-async-approval-host.cjs",
+        "test-window-approval-notifications.cjs",
+        "test-window-approval-ui-integration.cjs",
+        "test-window-control-host-errors.cjs",
+        "test-window-control-host.cjs",
+        "test-window-overlay.cjs",
+        "test-window-control-errors.cjs",
+        "test-computer-use-injection.cjs",
+        "test-window-control-approval.cjs",
+        "test-source-test-fixtures.cjs",
+        "test-computer-use-runtime.cjs",
+        "test-window-control-runtime.cjs",
+        "tests/sync-codex-environment.test.cjs",
+        "test-window-control-mcp.cjs",
+        "test-window-control-injection.cjs",
+        "test-window-virtual-policy.cjs"
+      ],
+      "summary": [
+        "ℹ tests 197",
+        "ℹ pass 191",
+        "ℹ fail 5",
+        "ℹ skipped 1",
+        "ℹ duration_ms 45038.994"
+      ],
+      "failureCause": "Five cases unable to load extensions/azrael-ex/src/errorPresentation.js in frozen test fixture; no product source changes required"
+    },
+    {
+      "file": "window-permissions-closure.json",
+      "lifecycleId": "run:EZ01:permissions-closure-mw0bog7i",
+      "exitCode": 1,
+      "tests": [
+        "test-computer-use-injection.cjs",
+        "test-source-test-fixtures.cjs",
+        "test-window-control-injection.cjs"
+      ]
+    },
+    {
+      "file": "window-permissions-card.json",
+      "lifecycleId": "run:EZ01:permissions-card-mw0br79m",
+      "exitCode": 1
+    },
+    {
+      "file": "window-permissions-card-r2.json",
+      "lifecycleId": "run:EZ01:permissions-card-r2-mw0bsabx",
+      "exitCode": 0
+    },
+    {
+      "file": "window-permissions-settings-render-final.json",
+      "lifecycleId": "run:verify-use-settings-render:20261103T063902187Z-cc25c984-9d4a-4f82-80e1-75bdf9033e0b",
+      "exitCode": 0
+    }
+  ],
+  "nativeAndApprovalUIEvidence": "window-permissions-acceptance-01.json",
+  "finalSettingsUI": {
+    "exitCode": 0,
+    "checks": [
+      "initial schema3 Window Use on with independent empty app lists",
+      "native accessible switches",
+      "quiet background read leaves rendered controls enabled",
+      "rendered OFF click preempts quiet read with update request",
+      "save awaits host acknowledgement",
+      "real host persisted disabled Window Use before ack",
+      "unrelated request/error ignored",
+      "preempting update acknowledgement renders OFF",
+      "held quiet read contains previous ON policy",
+      "late quiet read cannot undo acknowledged OFF",
+      "master off keeps one master switch and preserves independent lists",
+      "native switch receives keyboard focus",
+      "keyboard Space toggles focused native switch",
+      "CAS rejection visible and preserves policy",
+      "retry clears server error",
+      "observation app picker persists blacklist without control grant",
+      "control app picker persists whitelist independently",
+      "long executable path wraps within page",
+      "light native page keeps added settings within normal section gap",
+      "dark native page keeps added settings within normal section gap",
+      "light and dark theme tokens differ",
+      "narrow layout has no horizontal overflow",
+      "dark-theme native master interaction persists",
+      "control whitelist removal leaves observation blacklist intact",
+      "observation blacklist removal leaves control unapproved",
+      "no browser console exceptions",
+      "unmount disposes production store bridge listener"
+    ],
+    "browserExit": {
+      "confirmed": true,
+      "exitCode": 0,
+      "signalCode": null,
+      "processInspectionExitCode": 0,
+      "processIds": []
+    }
+  },
+  "remainingUnverified": [
+    "Full product build/installed package loading",
+    "Linux/macOS product availability not enabled",
+    "Atomic compositor privacy isolation is not claimed"
+  ],
+  "cleanupGroups": [
+    "run:EZ01:permissions-final-mw0bgksn",
+    "run:EZ01:permissions-final-r2-mw0blbxi",
+    "run:EZ01:permissions-closure-mw0bog7i",
+    "run:EZ01:permissions-card-mw0br79m",
+    "run:EZ01:permissions-card-r2-mw0bsabx",
+    "run:verify-use-settings-render:20261103T063902187Z-cc25c984-9d4a-4f82-80e1-75bdf9033e0b"
+  ],
+  "cleanupRecords": [
+    {
+      "id": "run:EZ01:permissions-final-mw0bgksn",
+      "owner": "EZ-01-window-use-multipointer-review",
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-final-mw0bgksn\\reports\\producer-de89f6cf218572e5e21ba4859bc6fb7c02da33ca38141d6339f9bb64a63ae92e.json",
+        "evidence_sha256": "de89f6cf218572e5e21ba4859bc6fb7c02da33ca38141d6339f9bb64a63ae92e",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-final-mw0bgksn\\reports\\producer-de89f6cf218572e5e21ba4859bc6fb7c02da33ca38141d6339f9bb64a63ae92e.json",
+        "evidence_sha256": "de89f6cf218572e5e21ba4859bc6fb7c02da33ca38141d6339f9bb64a63ae92e",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "dbbb2fd94c8407598f6ad35237d0a304c67ccd26eed064b79c5ff80a59318153"
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-final-mw0bgksn"
+      ]
+    },
+    {
+      "id": "run:EZ01:permissions-final-r2-mw0blbxi",
+      "owner": "EZ-01-window-use-multipointer-review",
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-final-r2-mw0blbxi\\reports\\producer-e3cf1dfdc682dee471d966a77b5015592624d72d025585f71093e9b7872e113c.json",
+        "evidence_sha256": "e3cf1dfdc682dee471d966a77b5015592624d72d025585f71093e9b7872e113c",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-final-r2-mw0blbxi\\reports\\producer-e3cf1dfdc682dee471d966a77b5015592624d72d025585f71093e9b7872e113c.json",
+        "evidence_sha256": "e3cf1dfdc682dee471d966a77b5015592624d72d025585f71093e9b7872e113c",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "f42acb448c26a8c2e8d69dbc955d606a343be3ae491a3ee575a6ee8d1485fd8d"
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-final-r2-mw0blbxi"
+      ]
+    },
+    {
+      "id": "run:EZ01:permissions-closure-mw0bog7i",
+      "owner": "EZ-01-window-use-multipointer-review",
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-closure-mw0bog7i\\reports\\producer-e9267b0b41c35a1774e5f0f6f2e43dd326016eb72821d44ad2a7de7ca7fb1cb5.json",
+        "evidence_sha256": "e9267b0b41c35a1774e5f0f6f2e43dd326016eb72821d44ad2a7de7ca7fb1cb5",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-closure-mw0bog7i\\reports\\producer-e9267b0b41c35a1774e5f0f6f2e43dd326016eb72821d44ad2a7de7ca7fb1cb5.json",
+        "evidence_sha256": "e9267b0b41c35a1774e5f0f6f2e43dd326016eb72821d44ad2a7de7ca7fb1cb5",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "3ac6dc85c5b8a50c693648e2847bfebe77678deee130ad807978597ece367643"
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-closure-mw0bog7i"
+      ]
+    },
+    {
+      "id": "run:EZ01:permissions-card-mw0br79m",
+      "owner": "EZ-01-window-use-multipointer-review",
+      "state": "failed",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-mw0br79m\\reports\\producer-46d7790de6bb13d5105d655107c485595db74305d830a457899707bb6bb83820.json",
+        "evidence_sha256": "46d7790de6bb13d5105d655107c485595db74305d830a457899707bb6bb83820",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-mw0br79m\\reports\\producer-46d7790de6bb13d5105d655107c485595db74305d830a457899707bb6bb83820.json",
+        "evidence_sha256": "46d7790de6bb13d5105d655107c485595db74305d830a457899707bb6bb83820",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "1fb652b92d7d838fbde1a56fa362ab24e4890e4bbb5a7970522358629abd8c3a"
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-mw0br79m"
+      ]
+    },
+    {
+      "id": "run:EZ01:permissions-card-r2-mw0bsabx",
+      "owner": "EZ-01-window-use-multipointer-review",
+      "state": "complete",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-r2-mw0bsabx\\reports\\producer-60a421833b17ca3e81d4b5b03c4a8440d9b7915f78fe8e1fbd152f490ebd6a24.json",
+        "evidence_sha256": "60a421833b17ca3e81d4b5b03c4a8440d9b7915f78fe8e1fbd152f490ebd6a24",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-r2-mw0bsabx\\reports\\producer-60a421833b17ca3e81d4b5b03c4a8440d9b7915f78fe8e1fbd152f490ebd6a24.json",
+        "evidence_sha256": "60a421833b17ca3e81d4b5b03c4a8440d9b7915f78fe8e1fbd152f490ebd6a24",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "567876c0a2075a234b66c1acd687d7227cda980beaf3fa12b3d0e36332df33f8"
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-r2-mw0bsabx"
+      ]
+    },
+    {
+      "id": "run:verify-use-settings-render:20261103T063902187Z-cc25c984-9d4a-4f82-80e1-75bdf9033e0b",
+      "owner": "scripts/verify-use-settings-render.mjs",
+      "state": "complete",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-use-settings-render\\runs\\20261103T063902187Z-cc25c984-9d4a-4f82-80e1-75bdf9033e0b\\reports\\producer-8cfd9c00b6c51fb08b8ce002b70c534af83a0f88a137fb0ecd14f65cd6b17635.json",
+        "evidence_sha256": "8cfd9c00b6c51fb08b8ce002b70c534af83a0f88a137fb0ecd14f65cd6b17635",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "close_receipt": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-use-settings-render\\runs\\20261103T063902187Z-cc25c984-9d4a-4f82-80e1-75bdf9033e0b\\reports\\producer-8cfd9c00b6c51fb08b8ce002b70c534af83a0f88a137fb0ecd14f65cd6b17635.json",
+        "evidence_sha256": "8cfd9c00b6c51fb08b8ce002b70c534af83a0f88a137fb0ecd14f65cd6b17635",
+        "reason": "Owned producer and tracked children stopped",
+        "request_sha256": "109641541385d03ccee622383248071afc7218ed4eb5d822f3686c1a80f745b0"
+      },
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-use-settings-render\\runs\\20261103T063902187Z-cc25c984-9d4a-4f82-80e1-75bdf9033e0b"
+      ]
+    }
+  ]
+}

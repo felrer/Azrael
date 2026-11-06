@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "action": "recover-cleanup",
+  "source": {
+    "id": "run:CM-01-instruction-library-experience:20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+    "kind": "run",
+    "owner": "instruction-library-verification",
+    "version": null,
+    "generation": null,
+    "revision": 2,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": null,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+        "role": "run",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f\\temporary",
+        "role": "temporary",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f\\logs",
+        "role": "logs",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f\\reports",
+        "role": "reports",
+        "generated": true,
+        "protection_known": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f\\outputs",
+        "role": "outputs",
+        "generated": true,
+        "protection_known": true
+      }
+    ]
+  },
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "stop_basis": "Original generation, lifecycle and every existing file predate independently observed Windows kernel boot; the historical process tree cannot survive that reboot. Current matching process query returned zero. Owner checks current references/reservations.",
+  "membership_basis": "Original creator/owning work and producer-plan establish generated scope; complete bounded metadata inventory matches planned role directories and shows only original synthetic test fixtures. No boundary or ownership expansion. Original pending outcome and missing native exit remain unchanged.",
+  "producer_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-pending-generation-proof.json",
+      "sha256": "e1210fe7571c8697373fe3b9fc73a95122147f7d2f0190ecb1211e73a76d0ec3"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-pending-current-use.json",
+      "sha256": "ef1f50779b9b754e3f91ae3693608064ad76a36343ca07850fb4ad383988699e"
+    }
+  ]
+}

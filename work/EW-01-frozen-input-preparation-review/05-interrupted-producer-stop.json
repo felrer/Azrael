@@ -1,0 +1,41 @@
+{
+    "observedAt":  "2026-11-01T21:21:56.6471697+09:00",
+    "originalRootPid":  8268,
+    "observedCompletedChildPid":  41132,
+    "observedCompletedChildExitCode":  0,
+    "scope":  "Reviewed final-a controller and helpers spawn only Node, Python, Git and the maintenance owner. Current complete process snapshot has no old producer PID, immediate descendants, owned paths, or unexplained pre-resume process in those executable classes. Later processes belong to resumed verification or separately identified applications.",
+    "producerExitCode":  null,
+    "producerOutcome":  "unknown",
+    "boundedCurrentProcesses":  [
+                                    {
+                                        "ProcessId":  25304,
+                                        "ParentProcessId":  19496,
+                                        "Name":  "node.exe",
+                                        "CreationDate":  "\/Date(1793516199517)\/",
+                                        "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\felre\\Desktop\\LiAm\\scripts\\run-mobile-server.mjs --config C:\\Users\\felre\\Desktop\\LiAm\\data\\mobile-runtime\\local.json"
+                                    },
+                                    {
+                                        "ProcessId":  8560,
+                                        "ParentProcessId":  17084,
+                                        "Name":  "node.exe",
+                                        "CreationDate":  "\/Date(1793530560229)\/",
+                                        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\releases\\win014-eu01-20261101-aw-product\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\releases\\win014-eu01-20261101-aw-product\\window-control\\window-control-mcp.cjs"
+                                    },
+                                    {
+                                        "ProcessId":  37768,
+                                        "ParentProcessId":  17084,
+                                        "Name":  "node.exe",
+                                        "CreationDate":  "\/Date(1793530876659)\/",
+                                        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\releases\\win014-eu01-20261101-aw-product\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\releases\\win014-eu01-20261101-aw-product\\window-control\\window-control-mcp.cjs"
+                                    },
+                                    {
+                                        "ProcessId":  18380,
+                                        "ParentProcessId":  17084,
+                                        "Name":  "node.exe",
+                                        "CreationDate":  "\/Date(1793533939755)\/",
+                                        "CommandLine":  "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\releases\\win014-eu01-20261101-aw-product\\computer-use\\node.exe\" C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\u14t\\artifacts\\releases\\win014-eu01-20261101-aw-product\\window-control\\window-control-mcp.cjs"
+                                    }
+                                ],
+    "unresolvedOwnedCandidates":  0,
+    "membership":  "All planned writes of final-a are contained by its already claimed run root; source input and original manifest are read-only external execution references."
+}

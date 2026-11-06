@@ -1,0 +1,15 @@
+{
+  "runId": "ui-1792389925582-cf185d66",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CN-01-catalog-modules\\runs\\ui-1792389925582-cf185d66",
+  "evidenceId": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:evidence",
+  "temporaryId": "run:CN-01-catalog-modules:ui-1792389925582-cf185d66:temporary",
+  "stage": "ui",
+  "board": "catalog",
+  "argv": [
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\docs\\boards\\tests\\catalog-render.mjs"
+  ],
+  "startedAt": "2026-10-19T06:05:26.592Z",
+  "node": "v26.7.0",
+  "platform": "win32",
+  "arch": "x64"
+}

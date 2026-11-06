@@ -1,0 +1,64 @@
+{
+  "observed_at": "2026-11-01T14:20:21.084Z",
+  "id": "version:maintenance-owner:dx05",
+  "source": {
+    "schema": 1,
+    "id": "version:maintenance-owner:dx05",
+    "kind": "version",
+    "owner": "DX-05",
+    "version": "6f6f874e-windows-x64",
+    "state": "retained",
+    "membership_complete": true,
+    "members": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6f6f874e-win-x64-dx05",
+        "role": "release",
+        "generated": true,
+        "protection_known": true
+      }
+    ],
+    "references": [],
+    "revision": 2,
+    "created_at": "2026-10-26T10:40:38.921Z",
+    "updated_at": "2026-10-26T10:43:11.562Z"
+  },
+  "files": [
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6f6f874e-win-x64-dx05\\verification\\build.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-dx05-retirement-evidence\\build.json",
+      "sha256": "0be95d77cbc5e6485d5d0a6a9cf6fc82e8b714078ee12895d838f1ef92cb4b5c",
+      "bytes": 34139
+    },
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6f6f874e-win-x64-dx05\\verification\\cleanup-planned.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-dx05-retirement-evidence\\cleanup-planned.json",
+      "sha256": "422ce23ac29f723b32a44738c9923dac735d2c89fcb519e0dc6450e7708cb8c0",
+      "bytes": 483
+    },
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6f6f874e-win-x64-dx05\\verification\\cleanup.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-dx05-retirement-evidence\\cleanup.json",
+      "sha256": "883040da4a1ff427b7dfa073575fecfc1c12f6de13afe3030050874dfc2a3675",
+      "bytes": 1311
+    },
+    {
+      "original": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-6f6f874e-win-x64-dx05\\verification\\smoke.json",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EC-01-unused-file-archive\\07-dx05-retirement-evidence\\smoke.json",
+      "sha256": "e338d4f3e723f1160aa9ef58ecb3ff6c379d0fb0b893064a2b200efc81a799b5",
+      "bytes": 1855
+    }
+  ],
+  "replacement_selector": {
+    "schema": 1,
+    "protocol": "maintenance-owner-lease-v1",
+    "executable": "artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+    "sha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76",
+    "version_id": "version:maintenance-owner:eq01:protection-r3",
+    "version": "eq01-protection-r3-windows-x64",
+    "acceptance_sha256": "364c6696f4d26bfeb5b951e3458ecf6e964d64d84853f0f1a2d60d6abbc5245f"
+  },
+  "replacement_selector_sha256": "1623fee0ebd3d43e4090d882c3df96e92a05ad6d3430f4252307cb2779c66a88",
+  "replacement_binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\payload\\maintenance_owner.exe",
+  "basis": "Existing DX05 plan retains the old version only until replacement/retirement. Current installed selector and current cleanup processes use the verified f167 owner. No declared or implicit lifecycle consumer was found in the prior scoped catalog investigation. Preserve minimum original verification before fresh source reference review and retirement; this evidence preparation does not itself release retention or delete.",
+  "replacement_binary_sha256": "f167e9bdb5c3cd5ea796417ddb7bbd89d9bea1322a369f9de89b5c63bd53cc76"
+}

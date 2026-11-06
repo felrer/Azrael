@@ -1,0 +1,820 @@
+{
+  "schema": 1,
+  "started_utc": "2026-11-01T18:45:00.741Z",
+  "owner_executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-3b1f9bf4-win-x64-eq01-20261102\\payload\\maintenance_owner.exe",
+  "ids": [
+    "version:maintenance-owner:eq01:protection-r3",
+    "run:EQ-01-protection-timing:default-owner-20261102-r1",
+    "run:eq26:d"
+  ],
+  "calls": [
+    {
+      "name": "register-0",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "version:maintenance-owner:eq01:protection-r3",
+          "kind": "version",
+          "owner": "EQ-01",
+          "version": "eq01-protection-r3-windows-x64",
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ac8323a38801beaa355cf77d25e7dd76b81750d262bc9aa247530c1136bd3d69.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "0ed71e2c06abe366621ca0a49adfac85dcba91ff6c5dc7e9505eb3d75096a746",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64",
+              "role": "release",
+              "lifecycle_role": "artifact",
+              "kind": "release",
+              "owner": "EQ-01",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ac8323a38801beaa355cf77d25e7dd76b81750d262bc9aa247530c1136bd3d69.json"
+            }
+          ]
+        }
+      },
+      "exit_code": 0,
+      "signal": null,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "version:maintenance-owner:eq01:protection-r3",
+          "kind": "version",
+          "members": [
+            "0ed71e2c06abe366621ca0a49adfac85dcba91ff6c5dc7e9505eb3d75096a746"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "1a866053111e410cc3d87c118fb46a0eb76f949de517dff9db356e09f133cff2",
+          "owner": "EQ-01",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ac8323a38801beaa355cf77d25e7dd76b81750d262bc9aa247530c1136bd3d69.json",
+          "registered_at_ms": 1793558746380,
+          "version": "eq01-protection-r3-windows-x64"
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "0ed71e2c06abe366621ca0a49adfac85dcba91ff6c5dc7e9505eb3d75096a746",
+            "identity": "811396fc22182f37afb1d98f41d493b3e8c7c73a673de04d1f4871fac2d68cd9",
+            "kind": "release",
+            "lifecycle_group_id": "version:maintenance-owner:eq01:protection-r3",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 2414184,
+            "measured_at_ms": 1793558730516,
+            "owner": "EQ-01",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ac8323a38801beaa355cf77d25e7dd76b81750d262bc9aa247530c1136bd3d69.json",
+            "references": [],
+            "registered_at_ms": 1793558730516,
+            "remaining": true,
+            "role": "release",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "name": "register-1",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+          "kind": "run",
+          "owner": "standalone-default-transition",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d24ac0b13daed089fce8f1ac0ed5a85a4d64da0835b3594e616f4098430a50ae.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "93f40c412455eb70c2efd1674707e93dba2b405c14d7e47a21b5119e07f72cab",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "standalone-default-transition",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d24ac0b13daed089fce8f1ac0ed5a85a4d64da0835b3594e616f4098430a50ae.json"
+            }
+          ]
+        }
+      },
+      "exit_code": 0,
+      "signal": null,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+          "kind": "run",
+          "members": [
+            "93f40c412455eb70c2efd1674707e93dba2b405c14d7e47a21b5119e07f72cab"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "2293ddadf425d4f07454c36237afeb82163756bee422a14378fdd62b468f8b67",
+          "owner": "standalone-default-transition",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d24ac0b13daed089fce8f1ac0ed5a85a4d64da0835b3594e616f4098430a50ae.json",
+          "registered_at_ms": 1793558801126,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "93f40c412455eb70c2efd1674707e93dba2b405c14d7e47a21b5119e07f72cab",
+            "identity": "7e01d9c9e8d1a99fd7cdcaafb149c5543e45b3e183ef417c180ada08104146f5",
+            "kind": "run",
+            "lifecycle_group_id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 60046,
+            "measured_at_ms": 1793558784065,
+            "owner": "standalone-default-transition",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d24ac0b13daed089fce8f1ac0ed5a85a4d64da0835b3594e616f4098430a50ae.json",
+            "references": [],
+            "registered_at_ms": 1793558784065,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "name": "register-2",
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:eq26:d",
+          "kind": "run",
+          "owner": "standalone-default-transition",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0da11406b9e70bd6f1c18f54ba78daa47024b73692eadbe895435e6761a1b590.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "76e7d326e4533495a0bf65b42665cc53223c20ca92bfb705994fa53f40166d7e",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "standalone-default-transition",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0da11406b9e70bd6f1c18f54ba78daa47024b73692eadbe895435e6761a1b590.json"
+            }
+          ]
+        }
+      },
+      "exit_code": 0,
+      "signal": null,
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:eq26:d",
+          "kind": "run",
+          "members": [
+            "76e7d326e4533495a0bf65b42665cc53223c20ca92bfb705994fa53f40166d7e"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "0255918653ee585893beb2f90e40b0a31050282d9fa291c1ae0ddcdf4a656fe2",
+          "owner": "standalone-default-transition",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0da11406b9e70bd6f1c18f54ba78daa47024b73692eadbe895435e6761a1b590.json",
+          "registered_at_ms": 1793558854067,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "76e7d326e4533495a0bf65b42665cc53223c20ca92bfb705994fa53f40166d7e",
+            "identity": "7af7a55466a36c2018b229b4f11442433529132bd53b49064059000ac6eca3ed",
+            "kind": "run",
+            "lifecycle_group_id": "run:eq26:d",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 1906,
+            "measured_at_ms": 1793558835982,
+            "owner": "standalone-default-transition",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0da11406b9e70bd6f1c18f54ba78daa47024b73692eadbe895435e6761a1b590.json",
+            "references": [],
+            "registered_at_ms": 1793558835982,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "name": "review",
+      "request": {
+        "operation": "review",
+        "group_ids": [
+          "version:maintenance-owner:eq01:protection-r3",
+          "run:EQ-01-protection-timing:default-owner-20261102-r1",
+          "run:eq26:d"
+        ]
+      },
+      "exit_code": 0,
+      "signal": null,
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "2293ddadf425d4f07454c36237afeb82163756bee422a14378fdd62b468f8b67",
+            "owner": "standalone-default-transition",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d24ac0b13daed089fce8f1ac0ed5a85a4d64da0835b3594e616f4098430a50ae.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:eq26:d",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "0255918653ee585893beb2f90e40b0a31050282d9fa291c1ae0ddcdf4a656fe2",
+            "owner": "standalone-default-transition",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0da11406b9e70bd6f1c18f54ba78daa47024b73692eadbe895435e6761a1b590.json",
+            "version": null
+          },
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "version:maintenance-owner:eq01:protection-r3",
+            "kind": "version",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "1a866053111e410cc3d87c118fb46a0eb76f949de517dff9db356e09f133cff2",
+            "owner": "EQ-01",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ac8323a38801beaa355cf77d25e7dd76b81750d262bc9aa247530c1136bd3d69.json",
+            "version": "eq01-protection-r3-windows-x64"
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "0ed71e2c06abe366621ca0a49adfac85dcba91ff6c5dc7e9505eb3d75096a746"
+            ],
+            "group_token": "6d4fa2c53916c1da740a5b4f092bba8b04390c03b6f26da8108288b3c2c31291",
+            "id": "0ed71e2c06abe366621ca0a49adfac85dcba91ff6c5dc7e9505eb3d75096a746",
+            "identity": "811396fc22182f37afb1d98f41d493b3e8c7c73a673de04d1f4871fac2d68cd9",
+            "lifecycle_group_id": "version:maintenance-owner:eq01:protection-r3",
+            "logical_bytes": 2414184,
+            "measured_at_ms": 1793558730516,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "1a866053111e410cc3d87c118fb46a0eb76f949de517dff9db356e09f133cff2",
+              "member_references": {
+                "0ed71e2c06abe366621ca0a49adfac85dcba91ff6c5dc7e9505eb3d75096a746": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\verification\\default-installation-preflight.json",
+                  "evidence_sha256": "1bb641d8379af53e2bd9f6a9378fb192cd9b21776bbc78967aa670be09160a14",
+                  "reason": "Reconcile accepted candidate build with original terminal execution and completed preflight; no new payload production",
+                  "request_sha256": "37adcc6903fc802d3f781410b8c8feee8c0769c10880fce442723f37805577b2"
+                },
+                "created_at": "2026-10-29T16:24:56.989Z",
+                "id": "version:maintenance-owner:eq01:protection-r3",
+                "kind": "version",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64",
+                    "protection_known": true,
+                    "role": "release"
+                  }
+                ],
+                "membership_complete": true,
+                "owner": "EQ-01",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64\\verification\\default-installation-preflight.json",
+                  "evidence_sha256": "1bb641d8379af53e2bd9f6a9378fb192cd9b21776bbc78967aa670be09160a14",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Reconcile accepted candidate build with original terminal execution and completed preflight; no new payload production",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-10-30T00:44:50.681Z",
+                "version": "eq01-protection-r3-windows-x64"
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793558870216,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  247,
+                  86,
+                  216,
+                  0,
+                  0,
+                  0,
+                  40,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "837b6efc20309ec8ab49801960d20b1d3698431cdb02a83c4094d6317f5f8a9c",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "76e7d326e4533495a0bf65b42665cc53223c20ca92bfb705994fa53f40166d7e"
+            ],
+            "group_token": "24fe18a105a7b3712785abc982e4561e4228e5464b98b2801180197cbeda3fe5",
+            "id": "76e7d326e4533495a0bf65b42665cc53223c20ca92bfb705994fa53f40166d7e",
+            "identity": "7af7a55466a36c2018b229b4f11442433529132bd53b49064059000ac6eca3ed",
+            "lifecycle_group_id": "run:eq26:d",
+            "logical_bytes": 1906,
+            "measured_at_ms": 1793558835982,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "0255918653ee585893beb2f90e40b0a31050282d9fa291c1ae0ddcdf4a656fe2",
+              "member_references": {
+                "76e7d326e4533495a0bf65b42665cc53223c20ca92bfb705994fa53f40166d7e": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\reports\\producer-d463f1c0c664be852fd3c83fa24307f078776074094244bc32dc22d6ccf7dd48.json",
+                  "evidence_sha256": "d463f1c0c664be852fd3c83fa24307f078776074094244bc32dc22d6ccf7dd48",
+                  "reason": "Default transition and synchronous owned verification terminated successfully; first failed test is preserved independently",
+                  "request_sha256": "e459e7a68480ab0530412de36486e83c294d45475798422ff2c3769a78244bf7"
+                },
+                "created_at": "2026-11-01T18:39:37.862Z",
+                "id": "run:eq26:d",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d",
+                "owner": "standalone-default-transition",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d\\reports\\producer-d463f1c0c664be852fd3c83fa24307f078776074094244bc32dc22d6ccf7dd48.json",
+                  "evidence_sha256": "d463f1c0c664be852fd3c83fa24307f078776074094244bc32dc22d6ccf7dd48",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Default transition and synchronous owned verification terminated successfully; first failed test is preserved independently",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-01T18:44:46.631Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793558864460,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  43,
+                  97,
+                  208,
+                  0,
+                  0,
+                  0,
+                  3,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "82fe41ea21c79e34f521b34e311fde610cd1fdf49b4b176159057d91b2c6ab5b",
+            "verification": "registered"
+          },
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "93f40c412455eb70c2efd1674707e93dba2b405c14d7e47a21b5119e07f72cab"
+            ],
+            "group_token": "27dcfb07571a379cd39a4ec509925140f02d6043e5bbf82e4b9ef2b377498780",
+            "id": "93f40c412455eb70c2efd1674707e93dba2b405c14d7e47a21b5119e07f72cab",
+            "identity": "7e01d9c9e8d1a99fd7cdcaafb149c5543e45b3e183ef417c180ada08104146f5",
+            "lifecycle_group_id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+            "logical_bytes": 60046,
+            "measured_at_ms": 1793558784065,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "2293ddadf425d4f07454c36237afeb82163756bee422a14378fdd62b468f8b67",
+              "member_references": {
+                "93f40c412455eb70c2efd1674707e93dba2b405c14d7e47a21b5119e07f72cab": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\reports\\producer-12c03802e1eb80ca72b06cc7d6559a16001843ee9f2ce0802ac6325cb8344603.json",
+                  "evidence_sha256": "12c03802e1eb80ca72b06cc7d6559a16001843ee9f2ce0802ac6325cb8344603",
+                  "reason": "Default transition and synchronous owned verification terminated successfully; first failed test is preserved independently",
+                  "request_sha256": "8faf60dd6a150b4a174d47d3fd21ab459e4e227013d6df8c2972f01ab5261cd2"
+                },
+                "created_at": "2026-11-01T18:34:51.023Z",
+                "id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1",
+                "owner": "standalone-default-transition",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1\\reports\\producer-12c03802e1eb80ca72b06cc7d6559a16001843ee9f2ce0802ac6325cb8344603.json",
+                  "evidence_sha256": "12c03802e1eb80ca72b06cc7d6559a16001843ee9f2ce0802ac6325cb8344603",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Default transition and synchronous owned verification terminated successfully; first failed test is preserved independently",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-01T18:44:45.081Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793558858472,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  235,
+                  96,
+                  208,
+                  0,
+                  0,
+                  0,
+                  16,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "eeb72c16bc206ee58375392d450c704ebb08094eefb26f477c8066e71fe8b702",
+            "verification": "registered"
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "name": "apply",
+      "request": {
+        "operation": "apply",
+        "decisions": [
+          {
+            "id": "0ed71e2c06abe366621ca0a49adfac85dcba91ff6c5dc7e9505eb3d75096a746",
+            "token": "837b6efc20309ec8ab49801960d20b1d3698431cdb02a83c4094d6317f5f8a9c",
+            "decision": "delete",
+            "reason": "Verified latest default installed; prior executable has no installation or execution consumers; owned synchronous test runs stopped and minimum evidence preserved outside cleanup groups"
+          },
+          {
+            "id": "76e7d326e4533495a0bf65b42665cc53223c20ca92bfb705994fa53f40166d7e",
+            "token": "82fe41ea21c79e34f521b34e311fde610cd1fdf49b4b176159057d91b2c6ab5b",
+            "decision": "delete",
+            "reason": "Verified latest default installed; prior executable has no installation or execution consumers; owned synchronous test runs stopped and minimum evidence preserved outside cleanup groups"
+          },
+          {
+            "id": "93f40c412455eb70c2efd1674707e93dba2b405c14d7e47a21b5119e07f72cab",
+            "token": "eeb72c16bc206ee58375392d450c704ebb08094eefb26f477c8066e71fe8b702",
+            "decision": "delete",
+            "reason": "Verified latest default installed; prior executable has no installation or execution consumers; owned synchronous test runs stopped and minimum evidence preserved outside cleanup groups"
+          }
+        ]
+      },
+      "exit_code": 0,
+      "signal": null,
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+            "status": "deleted"
+          },
+          {
+            "id": "run:eq26:d",
+            "status": "deleted"
+          },
+          {
+            "id": "version:maintenance-owner:eq01:protection-r3",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-52396-4694-1793558896124",
+            "decision": "delete",
+            "decision_id": "245cb4b7a0d8c533c6c60697231bdba60402b7b095a5964c9221bcd99894dbfc",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "0ed71e2c06abe366621ca0a49adfac85dcba91ff6c5dc7e9505eb3d75096a746",
+            "lifecycle_group_id": "version:maintenance-owner:eq01:protection-r3",
+            "reason": "Verified latest default installed; prior executable has no installation or execution consumers; owned synchronous test runs stopped and minimum evidence preserved outside cleanup groups",
+            "remaining": false,
+            "status": "deleted",
+            "token": "837b6efc20309ec8ab49801960d20b1d3698431cdb02a83c4094d6317f5f8a9c"
+          },
+          {
+            "attempt_id": "attempt-52396-4696-1793558914789",
+            "decision": "delete",
+            "decision_id": "c51c111b683cc0ea03c5cdf04221864073a89eeaed25196c52e7e952d9492796",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "76e7d326e4533495a0bf65b42665cc53223c20ca92bfb705994fa53f40166d7e",
+            "lifecycle_group_id": "run:eq26:d",
+            "reason": "Verified latest default installed; prior executable has no installation or execution consumers; owned synchronous test runs stopped and minimum evidence preserved outside cleanup groups",
+            "remaining": false,
+            "status": "deleted",
+            "token": "82fe41ea21c79e34f521b34e311fde610cd1fdf49b4b176159057d91b2c6ab5b"
+          },
+          {
+            "attempt_id": "attempt-52396-4698-1793558931400",
+            "decision": "delete",
+            "decision_id": "1ca191bd9e559148628b358946e26bf69688e10e97a0e2f72a059164c7505eb7",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "93f40c412455eb70c2efd1674707e93dba2b405c14d7e47a21b5119e07f72cab",
+            "lifecycle_group_id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+            "reason": "Verified latest default installed; prior executable has no installation or execution consumers; owned synchronous test runs stopped and minimum evidence preserved outside cleanup groups",
+            "remaining": false,
+            "status": "deleted",
+            "token": "eeb72c16bc206ee58375392d450c704ebb08094eefb26f477c8066e71fe8b702"
+          }
+        ]
+      },
+      "stderr": ""
+    }
+  ],
+  "roots": [
+    {
+      "id": "version:maintenance-owner:eq01:protection-r3",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-eq01-protection-r3-win-x64"
+      ]
+    },
+    {
+      "id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EQ-01-protection-timing\\runs\\default-owner-20261102-r1"
+      ]
+    },
+    {
+      "id": "run:eq26:d",
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\eq26\\runs\\d"
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "0ed71e2c06abe366621ca0a49adfac85dcba91ff6c5dc7e9505eb3d75096a746",
+      "token": "837b6efc20309ec8ab49801960d20b1d3698431cdb02a83c4094d6317f5f8a9c",
+      "decision": "delete",
+      "reason": "Verified latest default installed; prior executable has no installation or execution consumers; owned synchronous test runs stopped and minimum evidence preserved outside cleanup groups"
+    },
+    {
+      "id": "76e7d326e4533495a0bf65b42665cc53223c20ca92bfb705994fa53f40166d7e",
+      "token": "82fe41ea21c79e34f521b34e311fde610cd1fdf49b4b176159057d91b2c6ab5b",
+      "decision": "delete",
+      "reason": "Verified latest default installed; prior executable has no installation or execution consumers; owned synchronous test runs stopped and minimum evidence preserved outside cleanup groups"
+    },
+    {
+      "id": "93f40c412455eb70c2efd1674707e93dba2b405c14d7e47a21b5119e07f72cab",
+      "token": "eeb72c16bc206ee58375392d450c704ebb08094eefb26f477c8066e71fe8b702",
+      "decision": "delete",
+      "reason": "Verified latest default installed; prior executable has no installation or execution consumers; owned synchronous test runs stopped and minimum evidence preserved outside cleanup groups"
+    }
+  ],
+  "absent": true,
+  "finalize": [
+    {
+      "id": "version:maintenance-owner:eq01:protection-r3",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\ac8323a38801beaa355cf77d25e7dd76b81750d262bc9aa247530c1136bd3d69.json"
+    },
+    {
+      "id": "run:EQ-01-protection-timing:default-owner-20261102-r1",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d24ac0b13daed089fce8f1ac0ed5a85a4d64da0835b3594e616f4098430a50ae.json"
+    },
+    {
+      "id": "run:eq26:d",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0da11406b9e70bd6f1c18f54ba78daa47024b73692eadbe895435e6761a1b590.json"
+    }
+  ],
+  "ended_utc": "2026-11-01T18:49:00.993Z",
+  "exit_code": 0
+}

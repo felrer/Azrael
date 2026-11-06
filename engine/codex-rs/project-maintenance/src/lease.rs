@@ -84,6 +84,419 @@ fn read_record(path: &Path) -> Result<Option<Vec<u8>>, String> {
     Ok(Some(bytes))
 }
 
+struct PendingObservation {
+    bytes: Vec<u8>,
+    identity: Vec<u64>,
+}
+
+// Keep the final comparison free of authorizer callbacks. All paths are
+// authorized first, then checked again after the last lease/reservation callback.
+fn observe_pending_file(path: &Path) -> Result<PendingObservation, String> {
+    use std::io::Read;
+    crate::lock_recovery::final_plain_path(path)?;
+    let file = File::open(path).map_err(|e| e.to_string())?;
+    let identity = crate::lock_recovery::identity(&file)?;
+    if file.metadata().map_err(|e| e.to_string())?.len() > MAX_RECORD_BYTES as u64 {
+        return Err("pending recovery file exceeds 16 MiB bound".into());
+    }
+    let mut bytes = Vec::new();
+    file.take(MAX_RECORD_BYTES as u64 + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|e| e.to_string())?;
+    if bytes.len() > MAX_RECORD_BYTES {
+        return Err("pending recovery file exceeds 16 MiB bound".into());
+    }
+    crate::lock_recovery::final_plain_path(path)?;
+    if crate::lock_recovery::identity(&File::open(path).map_err(|e| e.to_string())?)? != identity {
+        return Err("pending recovery file identity changed".into());
+    }
+    Ok(PendingObservation { bytes, identity })
+}
+
+fn observe_pending_authorized(
+    root: &Path,
+    path: &Path,
+    auth: crate::Auth<'_>,
+) -> Result<PendingObservation, String> {
+    paths::check(root, path, auth)?;
+    auth(path, AccessMode::Read)?;
+    observe_pending_file(path)
+}
+
+fn pending_sha(value: &str) -> bool {
+    value.len() == 64
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+}
+
+fn pending_evidence_path(root: &Path, value: &str) -> Result<PathBuf, String> {
+    let path = Path::new(value);
+    if !path.is_absolute() {
+        return Err("absolute pending recovery evidence path required".into());
+    }
+    let path = paths::resolve(root, path)?;
+    let directory = root.join("artifacts/maintenance/evidence");
+    if path == directory || !paths::within(&path, &directory) {
+        return Err("pending recovery evidence must be inside maintenance/evidence".into());
+    }
+    Ok(path)
+}
+
+fn pending_proof(
+    root: &Path,
+    reference: &str,
+    expected: &str,
+    auth: crate::Auth<'_>,
+) -> Result<(PathBuf, PendingObservation), String> {
+    if !pending_sha(expected) {
+        return Err("valid pending recovery proof SHA-256 required".into());
+    }
+    let path = pending_evidence_path(root, reference)?;
+    let observed = observe_pending_authorized(root, &path, auth)?;
+    if digest(&observed.bytes) != expected {
+        return Err("pending recovery proof SHA-256 mismatch".into());
+    }
+    Ok((path, observed))
+}
+
+fn pending_record(root: &Path, bytes: &[u8]) -> Result<Value, String> {
+    let record: Value = serde_json::from_slice(bytes).map_err(|e| e.to_string())?;
+    crate::registry::validate(root, &record)?;
+    // These are native write_record outputs, not arbitrary JSON documents.
+    // Exact round-tripping also rejects duplicate keys and trailing JSON/text.
+    if serde_json::to_vec(&record).map_err(|e| e.to_string())? != bytes {
+        return Err("complete native-serialized lifecycle record required".into());
+    }
+    Ok(record)
+}
+
+/// Abort only an unpublished reference-release record. The authoritative record
+/// and every reference stay intact; the original owner must retry its release.
+pub(crate) fn recover_pending(
+    root: &Path,
+    request: &Value,
+    auth: crate::Auth<'_>,
+) -> Result<Value, String> {
+    if request["operation"] != "recover_lifecycle_pending"
+        || request["decision"] != "abort"
+        || request["producer_stopped_verified"] != true
+    {
+        return Err("explicit abort-only lifecycle pending recovery required".into());
+    }
+    for key in ["record_id", "owner", "reason"] {
+        if string(request, key)?.trim().is_empty() {
+            return Err(format!("blank pending recovery {key}"));
+        }
+    }
+    let id = string(request, "record_id")?;
+    if id.len() > 4096 {
+        return Err("bounded record ID required".into());
+    }
+    for key in ["expected_record_sha256", "expected_pending_sha256"] {
+        if !pending_sha(string(request, key)?) {
+            return Err(format!("valid {key} required"));
+        }
+    }
+    let writer_pid = request["writer_pid"]
+        .as_u64()
+        .and_then(|pid| u32::try_from(pid).ok())
+        .filter(|pid| *pid > 0)
+        .ok_or("valid original writer_pid required")?;
+    let catalog = root.join("artifacts/maintenance/lifecycles");
+    let filename = catalog.join(format!("{}.json", digest(id.as_bytes())));
+    let pending = filename.with_extension("pending");
+    let original = observe_pending_authorized(root, &filename, auth)?;
+    let uncommitted = observe_pending_authorized(root, &pending, auth)?;
+    if digest(&original.bytes) != string(request, "expected_record_sha256")?
+        || digest(&uncommitted.bytes) != string(request, "expected_pending_sha256")?
+    {
+        return Err("lifecycle record or pending CAS mismatch".into());
+    }
+    let base = pending_record(root, &original.bytes)?;
+    let next = pending_record(root, &uncommitted.bytes)?;
+    let revision = base["revision"]
+        .as_u64()
+        .filter(|revision| *revision > 0)
+        .ok_or("positive authoritative revision required")?;
+    let next_revision = revision
+        .checked_add(1)
+        .ok_or("lifecycle revision overflow")?;
+    if base["id"] != id
+        || next["id"] != id
+        || base["owner"] != request["owner"]
+        || next["owner"] != base["owner"]
+        || next["revision"].as_u64() != Some(next_revision)
+    {
+        return Err("pending recovery ID, owner or consecutive revision mismatch".into());
+    }
+    for record in [&base, &next] {
+        for member in crate::registry::validate(root, record)? {
+            if paths::reserved(root, &member) {
+                return Err("pending recovery member overlaps protected state".into());
+            }
+            paths::check(root, &member, auth)?;
+        }
+    }
+    let source = pending_proof(
+        root,
+        string(request, "original_request_ref")?,
+        string(request, "original_request_sha256")?,
+        auth,
+    )?;
+    let release: Value = serde_json::from_slice(&source.1.bytes).map_err(|e| e.to_string())?;
+    let release_object = release
+        .as_object()
+        .ok_or("release request object required")?;
+    let mut keys = release_object
+        .keys()
+        .map(String::as_str)
+        .collect::<Vec<_>>();
+    keys.sort_unstable();
+    if keys
+        != [
+            "evidence_ref",
+            "evidence_sha256",
+            "expected_revision",
+            "owner",
+            "reason",
+            "reference_ids",
+        ]
+        || release["owner"] != base["owner"]
+        || release["expected_revision"] != revision
+        || string(&release, "reason")?.trim().is_empty()
+    {
+        return Err("original owner release request mismatch".into());
+    }
+    // Same canonical binding as artifact-lifecycle.cjs mutateLifecycle:
+    // SHA256(JSON.stringify(Object.keys(request).sort().map(k => [k, request[k]]))).
+    let canonical = keys
+        .iter()
+        .map(|key| json!([key, release[*key]]))
+        .collect::<Vec<_>>();
+    let request_sha = digest(&serde_json::to_vec(&canonical).map_err(|e| e.to_string())?);
+    let references = base["references"].as_array().ok_or("references required")?;
+    let release_ids = release["reference_ids"]
+        .as_array()
+        .filter(|ids| !ids.is_empty())
+        .ok_or("explicit release reference IDs required")?;
+    let mut selected = BTreeSet::new();
+    for selected_id in release_ids {
+        let selected_id = selected_id
+            .as_str()
+            .filter(|id| !id.is_empty())
+            .ok_or("nonblank release reference ID required")?;
+        if !selected.insert(selected_id)
+            || references
+                .iter()
+                .filter(|reference| reference["reference_id"] == selected_id)
+                .count()
+                != 1
+        {
+            return Err("exact unique persisted reference IDs required".into());
+        }
+    }
+    let mut expected = base.clone();
+    expected["references"] = json!(
+        references
+            .iter()
+            .filter(|reference| {
+                !reference["reference_id"]
+                    .as_str()
+                    .is_some_and(|id| selected.contains(id))
+            })
+            .collect::<Vec<_>>()
+    );
+    expected["revision"] = next["revision"].clone();
+    if string(&next, "updated_at")?.trim().is_empty() {
+        return Err("pending update timestamp required".into());
+    }
+    expected["updated_at"] = next["updated_at"].clone();
+    let release_evidence = pending_proof(
+        root,
+        string(&release, "evidence_ref")?,
+        string(&release, "evidence_sha256")?,
+        auth,
+    )?;
+    // checkedEvidence stores path.resolve(evidence_ref), while request_sha256
+    // binds the original request spelling. Rebuild native separators only for
+    // the receipt, after the existing containment, identity and hash checks.
+    let receipt_evidence = release_evidence.0.components().collect::<PathBuf>();
+    expected["release_receipt"] = json!({"request_sha256":request_sha,
+        "evidence_ref":receipt_evidence,"evidence_sha256":release["evidence_sha256"],
+        "reason":release["reason"]});
+    if expected != next {
+        return Err("pending contains changes beyond the exact owner reference release".into());
+    }
+    let stop = pending_proof(
+        root,
+        string(request, "writer_stop_ref")?,
+        string(request, "writer_stop_sha256")?,
+        auth,
+    )?;
+    let stopped: Value = serde_json::from_slice(&stop.1.bytes).map_err(|e| e.to_string())?;
+    if stopped["schema"] != 1
+        || stopped["record_id"] != id
+        || stopped["owner"] != base["owner"]
+        || stopped["writer_pid"] != writer_pid
+        || stopped["original_request_sha256"] != request["original_request_sha256"]
+        || stopped["expected_record_sha256"] != request["expected_record_sha256"]
+        || stopped["expected_pending_sha256"] != request["expected_pending_sha256"]
+        || stopped["producer_stopped_verified"] != true
+        || stopped["process_tree_stopped_verified"] != true
+        || string(&stopped, "stop_basis")?.trim().is_empty()
+    {
+        return Err("independent original writer stop binding required".into());
+    }
+    let receipt = pending_evidence_path(root, string(request, "receipt_ref")?)?;
+    let mut observations = vec![
+        (filename.clone(), original),
+        (pending.clone(), uncommitted),
+        source,
+        release_evidence,
+        stop,
+    ];
+    let mut names = observations
+        .iter()
+        .map(|(path, _)| path.clone())
+        .collect::<BTreeSet<_>>();
+    if names.len() != observations.len() || !names.insert(receipt.clone()) {
+        return Err("distinct pending recovery evidence and receipt paths required".into());
+    }
+    let producer_evidence = stopped["producer_evidence"]
+        .as_array()
+        .filter(|proofs| !proofs.is_empty() && proofs.len() <= 16)
+        .ok_or("independent writer termination evidence files required")?;
+    for proof in producer_evidence {
+        let proof = pending_proof(root, string(proof, "path")?, string(proof, "sha256")?, auth)?;
+        if proof.1.bytes.iter().all(u8::is_ascii_whitespace) {
+            return Err("nonblank independent writer termination evidence required".into());
+        }
+        if !names.insert(proof.0.clone()) {
+            return Err("writer termination evidence must be independent".into());
+        }
+        observations.push(proof);
+        if observations
+            .iter()
+            .map(|(_, file)| file.bytes.len())
+            .sum::<usize>()
+            > MAX_FRAME_BYTES
+        {
+            return Err("pending recovery aggregate evidence exceeds 64 MiB".into());
+        }
+    }
+    crate::lock_recovery::owner_absent(writer_pid)?;
+    // A new, actual OS lease excludes a live writer. It never replaces or removes
+    // an abandoned lock; legacy/unknown locks retain their separate recovery.
+    let lock = catalog.join("catalog.lock");
+    paths::check(root, &lock, auth)?;
+    if !fs::symlink_metadata(&lock)
+        .map_err(|e| e.to_string())?
+        .is_file()
+    {
+        return Err("existing lifecycle catalog lock required".into());
+    }
+    let lease = crate::lock_recovery::wait_for_lock_cancel(
+        auth.lock_wait.get(),
+        &|| auth.cancelled(),
+        || Sentinel::acquire(root, &lock, "recover_lifecycle_pending", auth),
+    )?;
+    crate::reservations::check_record_mutation(root, id, Some(&base), auth)?;
+    crate::reservations::check_record_mutation(root, id, Some(&next), auth)?;
+    paths::check(root, &receipt, auth)?;
+    auth(
+        receipt.parent().ok_or("missing evidence parent")?,
+        AccessMode::Write,
+    )?;
+    auth(&receipt, AccessMode::Write)?;
+    auth(&pending, AccessMode::Write)?;
+    auth(&catalog, AccessMode::Write)?;
+    let receipt_value = json!({"schema":1,"operation":"recover_lifecycle_pending",
+        "status":"authorized_abort_attempt","record_id":id,"owner":base["owner"],
+        "expected_record_sha256":request["expected_record_sha256"],
+        "expected_pending_sha256":request["expected_pending_sha256"],
+        "base_revision":revision,"pending_revision":next["revision"],
+        "record_identity":observations[0].1.identity,"pending_identity":observations[1].1.identity,
+        "original_request_ref":request["original_request_ref"],
+        "original_request_sha256":request["original_request_sha256"],
+        "release_request_sha256":request_sha,"writer_stop_ref":request["writer_stop_ref"],
+        "writer_stop_sha256":request["writer_stop_sha256"],"writer_pid":writer_pid,
+        "producer_stopped_verified":true,"reason":request["reason"],"recorded_at_ms":crate::now_ms()?});
+    let bytes = serde_json::to_vec_pretty(&receipt_value).map_err(|e| e.to_string())?;
+    if bytes.len() > 1024 * 1024 {
+        return Err("pending recovery receipt exceeds 1 MiB bound".into());
+    }
+    crate::lock_recovery::final_plain_path(receipt.parent().ok_or("missing evidence parent")?)?;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&receipt)
+        .map_err(|e| format!("create-new pending recovery receipt failed: {e}"))?;
+    file.write_all(&bytes)
+        .and_then(|_| file.sync_all())
+        .map_err(|e| e.to_string())?;
+    let mut permissions = file.metadata().map_err(|e| e.to_string())?.permissions();
+    permissions.set_readonly(true);
+    file.set_permissions(permissions)
+        .map_err(|e| e.to_string())?;
+    file.sync_all().map_err(|e| e.to_string())?;
+    let receipt_observed = PendingObservation {
+        bytes: bytes.clone(),
+        identity: crate::lock_recovery::identity(&file)?,
+    };
+    drop(file);
+    observations.push((receipt.clone(), receipt_observed));
+    // Authorize all observations before the last callback-bearing checks.
+    for (path, _) in &observations {
+        paths::check(root, path, auth)?;
+        auth(path, AccessMode::Read)?;
+    }
+    auth(&pending, AccessMode::Write)?;
+    auth(&catalog, AccessMode::Write)?;
+    crate::reservations::check_record_mutation(root, id, Some(&base), auth)?;
+    crate::reservations::check_record_mutation(root, id, Some(&next), auth)?;
+    crate::lock_recovery::owner_absent(writer_pid)?;
+    lease.verify()?;
+    // Proofs first, then authoritative CAS and the exact pending identity last.
+    for (path, expected) in observations
+        .iter()
+        .skip(2)
+        .chain(observations.iter().take(2))
+    {
+        let current = observe_pending_file(path)?;
+        if current.identity != expected.identity || current.bytes != expected.bytes {
+            return Err("pending recovery input changed before abort; pending retained".into());
+        }
+    }
+    fs::remove_file(&pending)
+        .map_err(|e| format!("ordinary pending abort failed; receipt retained: {e}"))?;
+    let current = observe_pending_file(&filename)?;
+    if current.identity != observations[0].1.identity || current.bytes != observations[0].1.bytes {
+        return Err("authoritative lifecycle record changed after abort; receipt retained".into());
+    }
+    match fs::symlink_metadata(&pending) {
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+        _ => return Err("pending remains after abort; receipt retained".into()),
+    }
+    let final_receipt = observe_pending_file(&receipt)?;
+    if final_receipt.identity
+        != observations
+            .last()
+            .ok_or("missing recovery receipt")?
+            .1
+            .identity
+        || final_receipt.bytes != bytes
+    {
+        return Err("pending recovery receipt changed after abort".into());
+    }
+    *auth.catalog.borrow_mut() = Default::default();
+    Ok(
+        json!({"status":"aborted","operation":"recover_lifecycle_pending","record_id":id,
+        "record_sha256":digest(&current.bytes),"pending_absent":true,"receipt_ref":receipt,
+        "receipt_sha256":digest(&bytes)}),
+    )
+}
+
 fn mutate(
     root: &Path,
     lock: &Path,

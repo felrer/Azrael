@@ -58,7 +58,11 @@ async fn clock_tools_emit_control_tool_analytics() -> Result<()> {
                     responses::ev_response_created(&response_id),
                     responses::ev_function_call_with_namespace(
                         &format!("call-{index}"),
-                        "clock",
+                        if *tool == "sleep" {
+                            "legacy_codex_tools"
+                        } else {
+                            "clock"
+                        },
                         tool,
                         &arguments.to_string(),
                     ),
@@ -138,7 +142,7 @@ async fn clock_tools_emit_control_tool_analytics() -> Result<()> {
             .iter()
             .enumerate()
             .map(|(index, (tool, _, status))| json!({
-                "tool": format!("clock.{tool}"),
+                "tool": format!("{}.{tool}", if *tool == "sleep" { "legacy_codex_tools" } else { "clock" }),
                 "call": format!("call-{index}"),
                 "thread": thread.id,
                 "turn": turn.id,
@@ -182,7 +186,7 @@ async fn external_sleep_polls_current_time_and_emits_items(
                 responses::ev_response_created("resp-1"),
                 responses::ev_function_call_with_namespace(
                     CALL_ID,
-                    "clock",
+                    "legacy_codex_tools",
                     "sleep",
                     &serde_json::json!({ "duration_ms": DURATION_MS }).to_string(),
                 ),

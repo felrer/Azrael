@@ -1,0 +1,80 @@
+{
+    "schema":  1,
+    "scope":  "Common owner propagation contract; verified Windows x64 Node26.7.0 PowerShell7.6.9 Python3.13. Linux/macOS unverified. No build/deployment/installation or real cache cleanup.",
+    "changedFiles":  [
+                         "scripts/deployment-workspace.cjs",
+                         "scripts/test-deployment-workspace.cjs",
+                         "scripts/deploy-azrael.ps1"
+                     ],
+    "syntax":  {
+                   "javascriptExitCode":  0,
+                   "powershellExitCode":  0
+               },
+    "attempts":  [
+                     {
+                         "command":  "node scripts/test-deployment-workspace.cjs \u003cowned fixture\u003e",
+                         "runRoot":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-workspace-owner\\runs\\r1",
+                         "lifecycleId":  "run:ec01-workspace-owner:r1",
+                         "exitCode":  1,
+                         "elapsedMs":  14871,
+                         "error":  null,
+                         "failure":  "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n3 !== 2\n\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-deployment-workspace.cjs:115:10) {\n  generatedMessage: true,\n  code: \u0027ERR_ASSERTION\u0027,\n  actual: 3,\n  expected: 2,\n  operator: \u0027strictEqual\u0027,\n  diff: \u0027simple\u0027\n}\n"
+                     },
+                     {
+                         "command":  "node scripts/test-deployment-workspace.cjs \u003cowned fixture\u003e",
+                         "runRoot":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-workspace-owner\\runs\\r2",
+                         "lifecycleId":  "run:ec01-workspace-owner:r2",
+                         "exitCode":  1,
+                         "elapsedMs":  46474,
+                         "error":  null,
+                         "failure":  "AssertionError [ERR_ASSERTION]: spawnSync python ENOENT\n\nnull !== 0\n\n    at main (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-deployment-workspace.cjs:431:10) {\n  generatedMessage: false,\n  code: \u0027ERR_ASSERTION\u0027,\n  actual: null,\n  expected: 0,\n  operator: \u0027strictEqual\u0027,\n  diff: \u0027simple\u0027\n}\n"
+                     },
+                     {
+                         "command":  "node scripts/test-deployment-workspace.cjs \u003cowned fixture\u003e",
+                         "runRoot":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-workspace-owner\\runs\\r3",
+                         "lifecycleId":  "run:ec01-workspace-owner:r3",
+                         "exitCode":  0,
+                         "elapsedMs":  73466,
+                         "error":  null,
+                         "failure":  null,
+                         "checks":  [
+                                        "fresh contained disjoint roots, caller ownership, report role and catalog overlap checks",
+                                        "independent normal workspaces expose stable artifact owner in manifests and verified contexts, rejecting owner redirection",
+                                        "tracked/untracked/deleted/nested snapshot, explicit override hashes and new top-level ownership, independent working source, generated artifacts separately owned, later checkout edits excluded",
+                                        "prepared and verified source finishes through synchronized caller revision; scoped execution references released and working input dependency preserved",
+                                        "two read-only callers reuse frozen inputs without copying or new producers; absent old working copy and later checkout ignored; hashes, ownership, root identity, tampering, truthful failure closure and scoped cleanup protections enforced",
+                                        "preparation failure after durable caller reference update closes actual nonzero failure with synchronized revision while incomplete inputs remain pending",
+                                        "working source, immutable payload and independent manifest changes rejected",
+                                        "imported engine Git ambiguity rejected before copy",
+                                        "script delta stores only exact changed files, independently verifies derived source, protects baseline and manifests, rejects tampering and closes prelaunch failures",
+                                        "invalid imported inventory rejected before deployment copies",
+                                        "reused imported engine receipt verified and immutable imported engine tampering rejected",
+                                        "actual imported engine fingerprints match; permitted Cargo cache ignored; compiled engine tampering rejected",
+                                        "tracked embedded imported engine captured once, external conflict refused, canonical roots audited, generated cache accepted and source tamper rejected",
+                                        "source selection and artifact ownership project roots remain separate"
+                                    ]
+                     }
+                 ],
+    "preparationRetry":  {
+                             "result":  "No r3 output created on first preparation attempt: shared catalog listed then lost dda8082af4cbea2cfe335ba47c2e57145d2d5fb54cd50521ebd38593210a061b.json. Root paused finalization; retry succeeded."
+                         },
+    "inputs":  {
+                   "scripts/deployment-workspace.cjs":  "0d4cbe07019043bf70c033223b1921225f6a2c26a095bc4ccd3877640d3ce200",
+                   "scripts/test-deployment-workspace.cjs":  "3f470582b3a6dfc8746cf668cc5e7f051f6f209a084514270f5a76407d5df7e6",
+                   "scripts/deploy-azrael.ps1":  "d6fefd5cef4fd9e1740c584696784ea87c2a077f108567cdc7e3a14a932cc4ed"
+               },
+    "focusedManifestResolver":  {
+                                    "exitCode":  0,
+                                    "elapsedMs":  1077,
+                                    "checks":  [
+                                                   "actual normal CLI stable owner",
+                                                   "wrong SHA256 rejected",
+                                                   "wrong execution root rejected",
+                                                   "actual derived resolver stable owner",
+                                                   "read-only execution source rejected"
+                                               ],
+                                    "fixtureRun":  "r3",
+                                    "artifactWrites":  0
+                                },
+    "verificationLimit":  "Full existing workspace suite passed before launch-resolver addition; new launch cases verified by focused actual CLI/API checks over unchanged retained r3 inputs. New assertions retained in existing suite; no second full suite run."
+}

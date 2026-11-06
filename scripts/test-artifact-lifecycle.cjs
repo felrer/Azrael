@@ -839,7 +839,16 @@ test("build producer records all planned members before first output creation fa
   const [record] = lifecycle.catalog(root);
   assert.equal(record.id, "version:failed-start"); assert.equal(record.owner, "azrael-release");
   assert.equal(record.state, "failed"); assert.equal(record.membership_complete, false);
-  assert.deepEqual(record.members.map(member => member.role), ["release", "inputs", "work", "logs"]);
+  assert.deepEqual(record.members.map(({ path, role }) => ({ path, role })), [
+    { path: output, role: "release" },
+    { path: output + ".inputs", role: "inputs" },
+    { path: output + ".work", role: "work" },
+    { path: at("logs/multi-platform/build/failed-start"), role: "logs" },
+    { path: output + ".pipeline.json", role: "pipeline-state" },
+    { path: output + ".pipeline.json.update-lock", role: "pipeline-update-lock" },
+    { path: output + ".pipeline.json.tmp", role: "pipeline-state-work" },
+    { path: output + ".pipeline.lock", role: "pipeline-lock" },
+  ]);
   assert.equal(fs.existsSync(output), false);
 });
 
@@ -1028,22 +1037,35 @@ test("CLI retirement pins surviving evidence and retains live members and consum
   assert.equal(JSON.parse(fs.readFileSync(evidence)).exitCode, null);
 });
 
-test("Windows lifecycle acceptance includes module management and keeps metric fixtures in the registered run", () => {
+test("Windows lifecycle acceptance selects only owned cleanup checks with contained fixtures", () => {
   const { commands } = require("./check-artifact-lifecycle.cjs");
   const run = path.join(repo, "artifacts/tasks/lifecycle-checks/runs/command-fixture");
   const selected = commands("windows", "win32", repo, run);
-  assert.deepEqual(selected.filter(([, args]) => args.includes("scripts/test-deployment-control-retirement.cjs")), [
+  const prefix = ["-NoLogo", "-NoProfile", "-File"];
+  const expected = [
+    ["scripts/test-build-module-cache.ps1", "-RegistryOnly", "-FixtureRoot", path.join(run, "temporary/module-registry")],
+    ["scripts/test-build-module-cache.ps1", "-LegacyRegistryOnly", "-FixtureRoot", path.join(run, "temporary/module-legacy-registry")],
+    ["scripts/test-clean-legacy-releases.ps1"],
+    ["scripts/test-clean-verification-artifacts.ps1"],
+    ["scripts/test-clean-engine-caches.ps1", "-FixtureRoot", path.join(run, "temporary/engine-cache-cleanup")],
+  ];
+  assert.deepEqual(selected, [
+    ...expected.map(args => ["pwsh", [...prefix, ...args]]),
     [process.execPath, ["scripts/test-deployment-control-retirement.cjs", path.join(run, "temporary/control-retirement"), "happy"]],
   ]);
-  const metrics = selected.find(([, args]) => args.includes("scripts/test-build-metrics.ps1"));
-  assert.ok(metrics);
-  assert.equal(metrics[1][metrics[1].indexOf("-OutputDirectory") + 1], path.join(run, "temporary/metrics"));
-  assert.ok(selected.some(([, args]) => args.includes("scripts/test-build-module-cache.ps1")));
   for (const [flag, fixture] of [["-RegistryOnly", "module-registry"], ["-LegacyRegistryOnly", "module-legacy-registry"]]) {
     const entry = selected.find(([, args]) => args.includes("scripts/test-build-module-cache.ps1") && args.includes(flag));
     assert.ok(entry, `${flag} must be part of Windows acceptance`);
     assert.equal(entry[1][entry[1].indexOf("-FixtureRoot") + 1], path.join(run, "temporary", fixture));
   }
+  assert.deepEqual(commands("windows", "win32", repo), [
+    ["scripts/test-build-module-cache.ps1", "-RegistryOnly"],
+    ["scripts/test-build-module-cache.ps1", "-LegacyRegistryOnly"],
+    ["scripts/test-clean-legacy-releases.ps1"],
+    ["scripts/test-clean-verification-artifacts.ps1"],
+    ["scripts/test-clean-engine-caches.ps1"],
+  ].map(args => ["pwsh", [...prefix, ...args]]));
+  assert.throws(() => commands("windows", "linux", repo, run), /require.*Windows/);
 });
 
 function stopEvidence(root, record, extra = {}) {
@@ -1092,6 +1114,148 @@ test("unknown terminal outcome remains protected; closure cannot promote legacy 
   assert.equal(stopped.members[0].generated, false); assert.equal(stopped.members[0].protection_known, false);
   assert.ok(lifecycle.planCleanup(root, { paths: [at("outputs/legacy")] }).groups[0].blockers.includes("unconfirmed-generated-ownership"));
 });
+function cleanupRecoveryFixture(t, { stopped = false, memberFlags = {}, references = [] } = {}) {
+  const f = fixture(t), member = f.at("outputs/recovery");
+  fs.mkdirSync(member, { recursive: true }); fs.writeFileSync(path.join(member, "partial"), "original incomplete output");
+  let source = f.record("cleanup-recovery", [], { state: "pending", membership_complete: false, generation: "original-generation", references,
+    members: [{ path: member, role: "output", generated: true, protection_known: true, ...memberFlags }] });
+  const terminal = stopEvidence(f.root, source, { outcome: "unknown", exit_code: null });
+  if (stopped) source = lifecycle.closeLifecycle(f.root, source.id, terminal);
+  const digest = filename => require("node:crypto").createHash("sha256").update(fs.readFileSync(filename)).digest("hex");
+  const document = { schema: 1, action: "recover-cleanup", source: {
+    id: source.id, kind: source.kind, owner: source.owner, version: source.version ?? null, generation: source.generation ?? null,
+    revision: source.revision, state: source.state, membership_complete: source.membership_complete, producer: source.producer ?? null, members: source.members
+  }, producer_stopped_verified: true, membership_complete_verified: true,
+    stop_basis: "Fixture producer tree independently verified stopped; exit remains unknown",
+    membership_basis: "Fixture producer planned output and actual partial output independently reconciled",
+    producer_evidence: [{ path: terminal.evidence_ref, sha256: terminal.evidence_sha256 }] };
+  const request = { owner: source.owner, expected_revision: source.revision, producer_stopped_verified: true, membership_complete_verified: true,
+    reason: "Authorize cleanup of confirmed complete membership without changing original outcome", evidence_ref: path.join(f.root, "cleanup-recovery.json") };
+  const seal = () => { fs.writeFileSync(request.evidence_ref, JSON.stringify(document)); request.evidence_sha256 = digest(request.evidence_ref); };
+  seal();
+  return { ...f, member, source, terminal, document, request, seal, digest, recover: () => lifecycle.recoverCleanup(f.root, source.id, request) };
+}
+test("cleanup recovery permits complete cleanup membership while preserving pending and unknown outcomes", async t => {
+  for (const stopped of [false, true]) await t.test(stopped ? "stopped unknown" : "pending without terminal result", t => {
+    const f = cleanupRecoveryFixture(t, { stopped });
+    assert.ok(lifecycle.planCleanup(f.root, { paths: [f.member] }).groups[0].blockers.length);
+    const recovered = f.recover();
+    assert.equal(recovered.state, f.source.state);
+    assert.deepEqual(recovered.producer ?? null, f.source.producer ?? null);
+    assert.equal(recovered.membership_complete, true);
+    assert.deepEqual(recovered.members, f.source.members);
+    assert.ok(recovered.cleanup_recovery);
+    assert.deepEqual(lifecycle.planCleanup(f.root, { paths: [f.member] }).groups[0].blockers, []);
+    const registered = lifecycle.registerRequest(f.root, recovered.id);
+    assert.ok(registered.group.members.every(member => !member.references.length));
+    assert.equal(f.recover().revision, recovered.revision);
+    assert.throws(() => lifecycle.recoverCleanup(f.root, recovered.id, { ...f.request, reason: "changed retry" }));
+    const requestFile = path.join(f.root, "recovery-request.json"); fs.writeFileSync(requestFile, JSON.stringify(f.request));
+    assert.equal(lifecycle.main(["recover-cleanup", "--project-root", f.root, "--id", recovered.id, "--request-file", requestFile]).revision, recovered.revision);
+    const preserved = f.record(recovered.id, [], { ...recovered, cleanup_recovery: undefined });
+    assert.deepEqual(preserved.cleanup_recovery, recovered.cleanup_recovery);
+    for (const change of [{ state: "complete" }, { producer: { status: "stopped", outcome: "success", exit_code: 0 } },
+      { generation: "replacement-generation", state: "pending", membership_complete: false },
+      { members: [...recovered.members, { path: f.at("outputs/extra"), role: "output", generated: true, protection_known: true }] }]) {
+      assert.throws(() => f.record(recovered.id, [], { ...preserved, ...change }));
+    }
+    assert.deepEqual(lifecycle.catalog(f.root).find(record => record.id === recovered.id).producer ?? null, f.source.producer ?? null);
+  });
+});
+test("cleanup recovery rejects invalid owner, source, membership and stop evidence before mutation", async t => {
+  const cases = {
+    owner: f => { f.request.owner = "another-owner"; },
+    revision: f => { f.request.expected_revision++; },
+    unverifiedStop: f => { f.request.producer_stopped_verified = false; },
+    unverifiedMembership: f => { f.request.membership_complete_verified = false; },
+    reason: f => { f.request.reason = " "; },
+    wrongSource: f => { f.document.source.generation = "other-generation"; f.seal(); },
+    wrongMembers: f => { f.document.source.members = []; f.seal(); },
+    wrongProducer: f => { f.document.source.producer = { status: "stopped", outcome: "success", exit_code: 0 }; f.seal(); },
+    proofStopFlag: f => { f.document.producer_stopped_verified = false; f.seal(); },
+    proofMembershipFlag: f => { f.document.membership_complete_verified = false; f.seal(); },
+    stopBasis: f => { f.document.stop_basis = " "; f.seal(); },
+    membershipBasis: f => { f.document.membership_basis = " "; f.seal(); },
+    emptyProducerEvidence: f => { f.document.producer_evidence = []; f.seal(); },
+    missingProof: f => { fs.unlinkSync(f.request.evidence_ref); },
+    changedProof: f => { fs.appendFileSync(f.request.evidence_ref, " "); },
+    changedProducerEvidence: f => { fs.appendFileSync(f.terminal.evidence_ref, "changed"); },
+    missingProducerEvidence: f => { fs.unlinkSync(f.terminal.evidence_ref); },
+    proofInsideGroup: f => { f.request.evidence_ref = path.join(f.member, "proof.json"); f.seal(); },
+    producerProofInsideGroup: f => {
+      const filename = path.join(f.member, "terminal.json"); fs.copyFileSync(f.terminal.evidence_ref, filename);
+      f.document.producer_evidence = [{ path: filename, sha256: f.digest(filename) }]; f.seal();
+    },
+    proofInsideRegistry: f => { f.request.evidence_ref = path.join(path.dirname(lifecycle.registryPath(f.root, f.source.id)), "recovery-proof.json"); f.seal(); },
+    hardlinkedProof: f => { const filename = path.join(f.root, "proof-alias.json"); fs.linkSync(f.request.evidence_ref, filename); f.request.evidence_ref = filename; },
+    linkedProof: f => {
+      const directory = path.join(f.root, "proof-source"), alias = path.join(f.root, "proof-link"); fs.mkdirSync(directory);
+      fs.copyFileSync(f.request.evidence_ref, path.join(directory, "proof.json"));
+      fs.symlinkSync(directory, alias, process.platform === "win32" ? "junction" : "dir");
+      f.request.evidence_ref = path.join(alias, "proof.json");
+    },
+    hardlinkedProducerProof: f => {
+      const filename = path.join(f.root, "terminal-alias.json"); fs.linkSync(f.terminal.evidence_ref, filename);
+      f.document.producer_evidence = [{ path: filename, sha256: f.digest(filename) }]; f.seal();
+    },
+    incomingConsumer: f => { f.record("consumer", [["outputs/consumer", "output"]], { references: [{ id: f.source.id, reason: "retained evidence" }] }); },
+    activeReservation: f => {
+      const directory = path.join(path.dirname(lifecycle.registryPath(f.root, f.source.id)), "reservations"); fs.mkdirSync(directory);
+      const filename = path.join(directory, require("node:crypto").createHash("sha256").update(JSON.stringify(f.source.id)).digest("hex") + ".json");
+      fs.writeFileSync(filename, JSON.stringify({ schema: 1, id: f.source.id, token: "active-fence", status: "active", members: f.source.members,
+        source: path.dirname(lifecycle.registryPath(f.root, f.source.id)), source_owner: f.source, source_fence: "a".repeat(64) }));
+    }
+  };
+  for (const [name, change] of Object.entries(cases)) await t.test(name, t => {
+    const f = cleanupRecoveryFixture(t, { stopped: true });
+    change(f);
+    const before = fs.readFileSync(lifecycle.registryPath(f.root, f.source.id));
+    assert.throws(f.recover);
+    assert.deepEqual(fs.readFileSync(lifecycle.registryPath(f.root, f.source.id)), before);
+  });
+  for (const memberFlags of [{ generated: false }, { protection_known: false }, { generated: undefined }, { protection_known: undefined }]) await t.test(JSON.stringify(memberFlags), t => {
+    const f = cleanupRecoveryFixture(t, { memberFlags });
+    assert.throws(f.recover);
+    assert.equal(lifecycle.catalog(f.root)[0].membership_complete, false);
+  });
+  for (const outcome of ["success", "failure"]) await t.test(`known ${outcome} is not recovery`, t => {
+    const f = cleanupRecoveryFixture(t);
+    const closed = lifecycle.closeLifecycle(f.root, f.source.id, { ...f.terminal, outcome, exit_code: outcome === "success" ? 0 : 7 });
+    f.request.expected_revision = closed.revision;
+    Object.assign(f.document.source, { revision: closed.revision, state: closed.state, membership_complete: closed.membership_complete, producer: closed.producer }); f.seal();
+    assert.throws(f.recover);
+    assert.deepEqual(lifecycle.catalog(f.root)[0].producer, closed.producer);
+  });
+});
+test("cleanup recovery preserves own references and revalidates proof and consumers for cleanup and retry", async t => {
+  for (const changed of ["proof", "producer-evidence", "missing-proof", "consumer"]) await t.test(changed, t => {
+    const f = cleanupRecoveryFixture(t, { stopped: true });
+    const recovered = f.recover();
+    if (changed === "consumer") f.record("later-consumer", [["outputs/consumer", "output"]], { references: [{ id: recovered.id, reason: "new evidence consumer" }] });
+    else if (changed === "missing-proof") fs.unlinkSync(f.request.evidence_ref);
+    else fs.appendFileSync(changed === "proof" ? f.request.evidence_ref : f.terminal.evidence_ref, "changed");
+    if (changed === "consumer") {
+      assert.ok(lifecycle.planCleanup(f.root, { paths: [f.member] }).groups[0].blockers.length);
+      assert.ok(lifecycle.registerRequest(f.root, recovered.id).group.members.every(member => member.references.length));
+    } else {
+      let protectedPlan = false;
+      try { protectedPlan = lifecycle.planCleanup(f.root, { paths: [f.member] }).groups[0].blockers.length > 0; }
+      catch { protectedPlan = true; }
+      assert.equal(protectedPlan, true);
+      assert.throws(() => lifecycle.registerRequest(f.root, recovered.id));
+    }
+    assert.throws(f.recover);
+    assert.deepEqual(JSON.parse(fs.readFileSync(lifecycle.registryPath(f.root, recovered.id))).producer, recovered.producer);
+  });
+  const f = cleanupRecoveryFixture(t);
+  f.record("dependency", [["outputs/dependency", "output"]]);
+  fs.mkdirSync(f.at("outputs/dependency"), { recursive: true });
+  const source = f.record(f.source.id, [], { ...f.source, references: [{ id: "dependency", reason: "execution dependency", kind: "execution", reference_id: "execution" },
+    { id: "dependency", reason: "persistent dependency", kind: "installation", reference_id: "installation" }] });
+  f.source = source; f.document.source.revision = source.revision; f.request.expected_revision = source.revision; f.seal();
+  const recovered = f.recover();
+  assert.deepEqual(recovered.references, source.references);
+});
 test("closure and release reject stale revisions, unverifiable stops and invalid evidence before mutation", t => {
   const { root, record } = fixture(t);
   const before = record("stale", [["outputs/stale", "output"]], { state: "pending", membership_complete: false });
@@ -1101,9 +1265,151 @@ test("closure and release reject stale revisions, unverifiable stops and invalid
     assert.throws(() => lifecycle.closeLifecycle(root, before.id, { ...request, ...invalid }));
     assert.equal(lifecycle.catalog(root)[0].revision, before.revision);
   }
+  // Retained: a later wait/retry refactor must not replay a terminal write
+  // whose result is unknown or whose source identity failed native CAS.
+  const locks = require("./maintenance-lock-owner.cjs"), acquire = locks.acquire;
+  for (const message of ["Native lease terminated; outcome unknown", "Lifecycle source changed during compare-and-swap"]) {
+    const failure = Object.assign(new Error(message), { code: "ELOCKOWNERSHIP" });
+    let acquisitions = 0, writes = 0;
+    locks.acquire = (filename, options) => {
+      acquisitions++;
+      assert.equal(options.queue, true);
+      const lease = acquire(filename, options);
+      return { ...lease, writeRecord() { writes++; throw failure; } };
+    };
+    try { assert.throws(() => lifecycle.closeLifecycle(root, before.id, request), error => error === failure); }
+    finally { locks.acquire = acquire; }
+    assert.equal(acquisitions, 1);
+    assert.equal(writes, 1);
+    assert.equal(lifecycle.catalog(root)[0].revision, before.revision);
+    assert.equal(lifecycle.catalog(root)[0].membership_complete, false);
+  }
   const requestFile = path.join(root, "close-request.json"); fs.writeFileSync(requestFile, JSON.stringify(request));
   assert.equal(lifecycle.main(["close", "--project-root", root, "--id", before.id, "--request-file", requestFile]).state, "failed");
   assert.throws(() => lifecycle.main(["close", "--project-root", root, "--id", before.id, "--request-file", "relative.json"]), /absolute/);
+});
+test("catalog snapshots reuse parsing only within one lease and return detached records", t => {
+  const { root, seedLegacy } = fixture(t);
+  const source = seedLegacy("snapshot", [["outputs/snapshot", "output"]]);
+  const filename = lifecycle.registryPath(root, source.id), raw = fs.readFileSync(filename, "utf8");
+  const parse = JSON.parse;
+  let parses = 0;
+  JSON.parse = function(value, ...args) { if (value === raw) parses++; return parse(value, ...args); };
+  try {
+    lifecycle.withCatalogLock(root, () => {
+      lifecycle.catalog(root)[0].owner = "uncommitted mutation";
+      assert.equal(lifecycle.catalog(root)[0].owner, source.owner);
+      assert.equal(parses, 1, "unchanged bytes reuse the lease snapshot");
+    });
+    lifecycle.withCatalogLock(root, () => lifecycle.catalog(root));
+    assert.equal(parses, 2, "a new lease must not reuse the previous snapshot");
+  } finally { JSON.parse = parse; }
+});
+test("catalog snapshots see nested observation writes, owner additions and removals", t => {
+  const { root, at, record } = fixture(t);
+  lifecycle.withCatalogLock(root, () => {
+    lifecycle.catalog(root);
+    const observation = lifecycle.recordObservation(root, { id: "observer", owner: "fixture", scopes: [{ path: at("outputs/observed"), reason: "Uncertain output" }] });
+    record("observed", [["outputs/observed", "output"]]);
+    const snapshot = lifecycle.catalog(root), updated = snapshot.find(value => value.id === observation.id);
+    assert.equal(updated.revision, observation.revision + 1);
+    assert.equal(updated.observation.holds[0].target_id, "observed");
+    assert.equal(updated.references[0].id, "observed");
+    record("disposable", [["outputs/absent", "output"]]);
+    assert.equal(lifecycle.finalize(root, "disposable").status, "finalized");
+    assert.ok(!lifecycle.catalog(root).some(value => value.id === "disposable"));
+  });
+});
+test("catalog snapshots observe raw mutations within and across leases", t => {
+  const { root, seedLegacy } = fixture(t);
+  seedLegacy("external", [["outputs/external", "output"]]);
+  lifecycle.withCatalogLock(root, () => {
+    lifecycle.catalog(root);
+    seedLegacy("reader", [["outputs/reader", "output"]], { references: [{ id: "external", reason: "raw consumer" }] });
+    assert.equal(lifecycle.catalog(root).find(value => value.id === "reader").references[0].id, "external");
+    seedLegacy("external", [["outputs/external", "output"]], { owner: "raw replacement" });
+    assert.equal(lifecycle.catalog(root).find(value => value.id === "external").owner, "raw replacement");
+    const filename = lifecycle.registryPath(root, "external"), raw = fs.readFileSync(filename);
+    fs.writeFileSync(filename, "{broken");
+    assert.throws(() => lifecycle.catalog(root), SyntaxError);
+    fs.writeFileSync(filename, raw);
+  });
+  seedLegacy("external", [["outputs/external", "output"]], { owner: "between leases" });
+  lifecycle.withCatalogLock(root, () => assert.equal(lifecycle.catalog(root).find(value => value.id === "external").owner, "between leases"));
+});
+test("catalog pass accepts active payload content and unrelated child entry changes", t => {
+  const { root, at, seedLegacy } = fixture(t);
+  const payload = at("outputs/one");
+  fs.mkdirSync(path.dirname(payload), { recursive: true });
+  fs.writeFileSync(payload, "before");
+  seedLegacy("one", [["outputs/one", "output"]]);
+  seedLegacy("two", [["outputs/two", "output"]]);
+  const read = fs.readFileSync;
+  let records = 0;
+  fs.readFileSync = function(filename, ...args) {
+    const value = read(filename, ...args);
+    if (String(filename).endsWith(".json") && String(filename).includes("lifecycles") && ++records === 2) {
+      fs.appendFileSync(payload, " and active producer content");
+      fs.mkdirSync(at("outputs/new-child"));
+      fs.mkdirSync(path.join(root, "unrelated-child"));
+      fs.writeFileSync(path.join(path.dirname(filename), "unrelated-note.txt"), "not a catalog record");
+    }
+    return value;
+  };
+  try { assert.equal(lifecycle.withCatalogLock(root, () => lifecycle.catalog(root)).length, 2); }
+  finally { fs.readFileSync = read; }
+  assert.equal(fs.readFileSync(payload, "utf8"), "before and active producer content");
+});
+test("catalog pass rejects raw source changes during enumeration", t => {
+  const { root, seedLegacy } = fixture(t);
+  seedLegacy("one", [["outputs/one", "output"]]);
+  const read = fs.readFileSync;
+  let changed = false;
+  fs.readFileSync = function(filename, ...args) {
+    const value = read(filename, ...args);
+    if (!changed && String(filename).endsWith(".json") && String(filename).includes("lifecycles")) {
+      changed = true;
+      fs.appendFileSync(filename, " ");
+    }
+    return value;
+  };
+  try { assert.throws(() => lifecycle.withCatalogLock(root, () => lifecycle.catalog(root)), /catalog source changed/); }
+  finally { fs.readFileSync = read; }
+});
+test("catalog pass detects a cached ancestor replacement before returning", t => {
+  const { root, at, seedLegacy } = fixture(t);
+  const parent = at("outputs");
+  fs.mkdirSync(parent, { recursive: true });
+  seedLegacy("one", [["outputs/one", "output"]]);
+  seedLegacy("two", [["outputs/two", "output"]]);
+  const read = fs.readFileSync;
+  let records = 0;
+  fs.readFileSync = function(filename, ...args) {
+    const value = read(filename, ...args);
+    if (String(filename).endsWith(".json") && String(filename).includes("lifecycles") && ++records === 2) {
+      fs.renameSync(parent, at("saved-outputs"));
+      fs.mkdirSync(parent);
+    }
+    return value;
+  };
+  try { assert.throws(() => lifecycle.withCatalogLock(root, () => lifecycle.catalog(root)), /ancestor identity changed/); }
+  finally { fs.readFileSync = read; }
+});
+test("catalog pass shares ancestor checks while preserving fresh reparse checks", t => {
+  const { root, at, seedLegacy } = fixture(t);
+  for (let i = 0; i < 12; i++) seedLegacy("prefix-" + i, [["outputs/prefix-" + i, "output"]]);
+  const lstat = fs.lstatSync;
+  let rootChecks = 0;
+  fs.lstatSync = function(filename, ...args) { if (filename === root) rootChecks++; return lstat(filename, ...args); };
+  try { lifecycle.withCatalogLock(root, () => { lifecycle.catalog(root); lifecycle.catalog(root); }); }
+  finally { fs.lstatSync = lstat; }
+  assert.ok(rootChecks < 20, `shared ancestors checked ${rootChecks} times`);
+  lifecycle.withCatalogLock(root, () => {
+    lifecycle.catalog(root);
+    fs.mkdirSync(at("linked-target"));
+    fs.symlinkSync(at("linked-target"), at("outputs"), process.platform === "win32" ? "junction" : "dir");
+    assert.throws(() => lifecycle.catalog(root), /Linked lifecycle path/);
+  });
 });
 test("catalog lock serializes mutations, and reference registration preserves external and planned targets", t => {
   const { root, at, record } = fixture(t);

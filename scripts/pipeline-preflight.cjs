@@ -86,7 +86,7 @@ function consumers(features) {
     python: checks.some(check => check.executable === 'python'),
     sdkPython: checks.some(check => check.args.includes('scripts/check-question-withdrawal-sdk.cjs') ||
       (check.args[0] === 'scripts/check-window-approval-native.cjs' && ['all', 'queue'].includes(check.args[2] || 'all'))),
-    cargo: checks.some(check => check.cargoPreflight === 'selected-tests-v1'),
+    cargo: checks.some(check => check.cargoPreflight === 'selected-tests-v2'),
   };
 }
 function filesystemBoundaries(config) {

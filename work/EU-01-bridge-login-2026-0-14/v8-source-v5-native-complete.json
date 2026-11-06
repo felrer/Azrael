@@ -1,0 +1,366 @@
+{
+  "schema": 1,
+  "component": "V8 150.4.0 Windows x64 sandbox source build",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v5",
+  "startedUtc": "2026-10-31T12:38:11.720Z",
+  "steps": [
+    {
+      "label": "clang-version",
+      "startedUtc": "2026-10-31T12:38:21.252Z",
+      "completedUtc": "2026-10-31T12:38:21.295Z",
+      "durationMs": 43.421699999998964,
+      "exitCode": 0
+    },
+    {
+      "label": "gn-version",
+      "startedUtc": "2026-10-31T12:38:21.295Z",
+      "completedUtc": "2026-10-31T12:38:21.310Z",
+      "durationMs": 14.397799999998824,
+      "exitCode": 0
+    },
+    {
+      "label": "ninja-version",
+      "startedUtc": "2026-10-31T12:38:21.310Z",
+      "completedUtc": "2026-10-31T12:38:21.319Z",
+      "durationMs": 8.903100000003178,
+      "exitCode": 0
+    },
+    {
+      "label": "v8-rust-tool-version",
+      "startedUtc": "2026-10-31T12:38:21.320Z",
+      "completedUtc": "2026-10-31T12:38:21.349Z",
+      "durationMs": 29.423600000001898,
+      "exitCode": 0
+    },
+    {
+      "label": "libclang-version",
+      "startedUtc": "2026-10-31T12:38:21.350Z",
+      "completedUtc": "2026-10-31T12:38:21.408Z",
+      "durationMs": 57.90569999999934,
+      "exitCode": 0
+    },
+    {
+      "label": "windows-sdk-toolchain",
+      "startedUtc": "2026-10-31T12:38:21.408Z",
+      "completedUtc": "2026-10-31T12:38:21.495Z",
+      "durationMs": 86.28549999999814,
+      "exitCode": 0
+    }
+  ],
+  "sourceArchive": {
+    "sha256": "42a978ff11f15b24e5c05a7123cf2b68f41e763546699781a924ef4e2cf43a49"
+  },
+  "icu": {
+    "url": "https://chromium.googlesource.com/chromium/deps/icu/+/ee5f27adc28bd3f15b2c293f726d14d2e336cbd5/common/?format=JSON",
+    "entry": {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d1a12cb93065157498a11ff5f4b9a6501ee22506",
+      "name": "icudtl.dat"
+    },
+    "bytes": 10822192,
+    "blob": "d1a12cb93065157498a11ff5f4b9a6501ee22506",
+    "sha256": "1cf67874b5a87a8363a86fb3f81e3cbbed54d389062dab8fb52308d5cf8c8612",
+    "matches": true
+  },
+  "vendor": {
+    "url": "https://chromium.googlesource.com/chromium/src/third_party/rust/+/26e8ff47f18a8d28d6187a04b6a16cb7332356f8/chromium_crates_io/vendor/?format=JSON",
+    "revision": "26e8ff47f18a8d28d6187a04b6a16cb7332356f8",
+    "identities": [
+      {
+        "name": "calendrical_calculations-v0_2",
+        "expected": "fc651bf38a5f44db033e244c6fa810555718e329",
+        "actual": "fc651bf38a5f44db033e244c6fa810555718e329",
+        "matches": true
+      },
+      {
+        "name": "core_maths-v0_1",
+        "expected": "effbfe789567777640cfa6401b2b6fd52f3d4d90",
+        "actual": "effbfe789567777640cfa6401b2b6fd52f3d4d90",
+        "matches": true
+      },
+      {
+        "name": "diplomat-runtime-v0_15",
+        "expected": "6b404ee1777e359f9b1f62ff30dee5bc664cabec",
+        "actual": "6b404ee1777e359f9b1f62ff30dee5bc664cabec",
+        "matches": true
+      },
+      {
+        "name": "diplomat-v0_15",
+        "expected": "11ce62bb2342b4471c432926f695d719bf8b9ca8",
+        "actual": "11ce62bb2342b4471c432926f695d719bf8b9ca8",
+        "matches": true
+      },
+      {
+        "name": "diplomat_core-v0_15",
+        "expected": "80c0e2d2a43821c31b9e1d9e4872316d4df0a3e3",
+        "actual": "80c0e2d2a43821c31b9e1d9e4872316d4df0a3e3",
+        "matches": true
+      },
+      {
+        "name": "displaydoc-v0_2",
+        "expected": "9f0f6b9566b93f0071724f62941124155409a572",
+        "actual": "9f0f6b9566b93f0071724f62941124155409a572",
+        "matches": true,
+        "gitModeOverride": {
+          "update-readme.sh": "100755"
+        },
+        "modeSource": "https://chromium.googlesource.com/chromium/src/third_party/rust/+/26e8ff47f18a8d28d6187a04b6a16cb7332356f8/chromium_crates_io/vendor/displaydoc-v0_2/?format=JSON"
+      },
+      {
+        "name": "either-v1",
+        "expected": "2a33c8f6329c2a976fe3972bb3a6053f1c85964e",
+        "actual": "2a33c8f6329c2a976fe3972bb3a6053f1c85964e",
+        "matches": true
+      },
+      {
+        "name": "icu_calendar-v2",
+        "expected": "708bf6b1a0fc84240503457f8edecbfbe7d55a4c",
+        "actual": "708bf6b1a0fc84240503457f8edecbfbe7d55a4c",
+        "matches": true
+      },
+      {
+        "name": "icu_calendar_data-v2",
+        "expected": "522795d5ba5ce6f21784f16984a3ba50999db56c",
+        "actual": "522795d5ba5ce6f21784f16984a3ba50999db56c",
+        "matches": true
+      },
+      {
+        "name": "icu_collections-v2",
+        "expected": "7fa06d7650d3906cab7f39df695945aad023ab3e",
+        "actual": "7fa06d7650d3906cab7f39df695945aad023ab3e",
+        "matches": true
+      },
+      {
+        "name": "icu_locale-v2",
+        "expected": "8b43dd524262dd836c4529ab760951103859f591",
+        "actual": "8b43dd524262dd836c4529ab760951103859f591",
+        "matches": true
+      },
+      {
+        "name": "icu_locale_core-v2",
+        "expected": "d9e23f5cd2a77ceca4dc313edbaa612703126113",
+        "actual": "d9e23f5cd2a77ceca4dc313edbaa612703126113",
+        "matches": true
+      },
+      {
+        "name": "icu_locale_data-v2",
+        "expected": "cd66ce3ee394050a0f261161543fa4e290e7432a",
+        "actual": "cd66ce3ee394050a0f261161543fa4e290e7432a",
+        "matches": true
+      },
+      {
+        "name": "icu_provider-v2",
+        "expected": "6fdbe19ce1132d9d90481620029a1098f4af60f7",
+        "actual": "6fdbe19ce1132d9d90481620029a1098f4af60f7",
+        "matches": true
+      },
+      {
+        "name": "ixdtf-v0_6",
+        "expected": "17ec21c2fb8dc53fb6955bb1f78c57027e2cc9b6",
+        "actual": "17ec21c2fb8dc53fb6955bb1f78c57027e2cc9b6",
+        "matches": true
+      },
+      {
+        "name": "libm-v0_2",
+        "expected": "477d61b137d7356b4696cdba6183f1f810910342",
+        "actual": "477d61b137d7356b4696cdba6183f1f810910342",
+        "matches": true
+      },
+      {
+        "name": "litemap-v0_8",
+        "expected": "ab5bf05b709a57ac682686c3b71595bb3551abd8",
+        "actual": "ab5bf05b709a57ac682686c3b71595bb3551abd8",
+        "matches": true
+      },
+      {
+        "name": "num-traits-v0_2",
+        "expected": "30cff94c0926e5a3aa3090b87aebdfbc09c583be",
+        "actual": "30cff94c0926e5a3aa3090b87aebdfbc09c583be",
+        "matches": true
+      },
+      {
+        "name": "potential_utf-v0_1",
+        "expected": "24bf479b046a5ac6e27d34c419e5f2fa1893c03e",
+        "actual": "24bf479b046a5ac6e27d34c419e5f2fa1893c03e",
+        "matches": true
+      },
+      {
+        "name": "proc-macro2-v1",
+        "expected": "6229be031394a885a836bbef6c5097367eed975d",
+        "actual": "6229be031394a885a836bbef6c5097367eed975d",
+        "matches": true
+      },
+      {
+        "name": "quote-v1",
+        "expected": "921cfb6205d7bdc3f59803ba29e3e2d5b21572b3",
+        "actual": "921cfb6205d7bdc3f59803ba29e3e2d5b21572b3",
+        "matches": true
+      },
+      {
+        "name": "resb-v0_1",
+        "expected": "c0a1e0fb769854acac55c4d84a67699e04c8440a",
+        "actual": "c0a1e0fb769854acac55c4d84a67699e04c8440a",
+        "matches": true
+      },
+      {
+        "name": "serde-v1",
+        "expected": "1208f4b09eab6e9f076d80ea6dfeacafc5579a1e",
+        "actual": "1208f4b09eab6e9f076d80ea6dfeacafc5579a1e",
+        "matches": true
+      },
+      {
+        "name": "serde_core-v1",
+        "expected": "040d4744b722c43d644eddbc486a0f0d5d1edddc",
+        "actual": "040d4744b722c43d644eddbc486a0f0d5d1edddc",
+        "matches": true
+      },
+      {
+        "name": "serde_derive-v1",
+        "expected": "189fdd3f9368368f5a4fe3a9ca37a9f1c36d739c",
+        "actual": "189fdd3f9368368f5a4fe3a9ca37a9f1c36d739c",
+        "matches": true
+      },
+      {
+        "name": "smallvec-v1",
+        "expected": "9c27420182842d1f8e59295ee216e0fd9fb689a0",
+        "actual": "9c27420182842d1f8e59295ee216e0fd9fb689a0",
+        "matches": true
+      },
+      {
+        "name": "stable_deref_trait-v1",
+        "expected": "5806767837ec27b1e454c2ce4c496332a621226c",
+        "actual": "5806767837ec27b1e454c2ce4c496332a621226c",
+        "matches": true
+      },
+      {
+        "name": "strck-v1",
+        "expected": "ab1a3d05a90bcc3208a7b7cf374e1bc87e4571df",
+        "actual": "ab1a3d05a90bcc3208a7b7cf374e1bc87e4571df",
+        "matches": true
+      },
+      {
+        "name": "syn-v2",
+        "expected": "2a97268ae5091a10db78b0c63c3d23ee0805d4f6",
+        "actual": "2a97268ae5091a10db78b0c63c3d23ee0805d4f6",
+        "matches": true
+      },
+      {
+        "name": "synstructure-v0_13",
+        "expected": "1cf96a4969dda038315e1c90cc12ac4302ad6b3b",
+        "actual": "1cf96a4969dda038315e1c90cc12ac4302ad6b3b",
+        "matches": true
+      },
+      {
+        "name": "temporal_capi-v0_2",
+        "expected": "9ebfd53d8fe6894cc926927db09ff6a539e29f6e",
+        "actual": "9ebfd53d8fe6894cc926927db09ff6a539e29f6e",
+        "matches": true
+      },
+      {
+        "name": "temporal_rs-v0_2",
+        "expected": "ebfb1b28c5ff6e6dbcf9e0d1c16cc92668a380bf",
+        "actual": "ebfb1b28c5ff6e6dbcf9e0d1c16cc92668a380bf",
+        "matches": true
+      },
+      {
+        "name": "timezone_provider-v0_2",
+        "expected": "8b797ad4d15c87781f0c065ed6e2323e58e99d7f",
+        "actual": "8b797ad4d15c87781f0c065ed6e2323e58e99d7f",
+        "matches": true
+      },
+      {
+        "name": "tinystr-v0_8",
+        "expected": "f3e59602fd2f9c62676a47cd50338dcbcf9b2d16",
+        "actual": "f3e59602fd2f9c62676a47cd50338dcbcf9b2d16",
+        "matches": true
+      },
+      {
+        "name": "unicode-ident-v1",
+        "expected": "2a56ab32c5ec6dc7fdc4944a9cd2df61131d8f51",
+        "actual": "2a56ab32c5ec6dc7fdc4944a9cd2df61131d8f51",
+        "matches": true
+      },
+      {
+        "name": "utf8_iter-v1",
+        "expected": "97dac87ea0ae3e97a99607e736231b718e44c187",
+        "actual": "97dac87ea0ae3e97a99607e736231b718e44c187",
+        "matches": true
+      },
+      {
+        "name": "writeable-v0_6",
+        "expected": "96165f6969addccac2e966058d1998991e4b1921",
+        "actual": "96165f6969addccac2e966058d1998991e4b1921",
+        "matches": true
+      },
+      {
+        "name": "yoke-derive-v0_8",
+        "expected": "82aef4986f7f796919598536f646ccb26e371d19",
+        "actual": "82aef4986f7f796919598536f646ccb26e371d19",
+        "matches": true
+      },
+      {
+        "name": "yoke-v0_8",
+        "expected": "ea219bde2005a3339874a0c8b602a992cd775676",
+        "actual": "ea219bde2005a3339874a0c8b602a992cd775676",
+        "matches": true
+      },
+      {
+        "name": "zerofrom-derive-v0_1",
+        "expected": "f230cd9a79a91f854db8c8625154a8b97ceeba93",
+        "actual": "f230cd9a79a91f854db8c8625154a8b97ceeba93",
+        "matches": true
+      },
+      {
+        "name": "zerofrom-v0_1",
+        "expected": "a778452c5a4ac8b89535594d73e4e6854a1abef4",
+        "actual": "a778452c5a4ac8b89535594d73e4e6854a1abef4",
+        "matches": true
+      },
+      {
+        "name": "zerotrie-v0_2",
+        "expected": "3472dcb3ca5b0b0ee39d03d4ddd4f69a45e96d2d",
+        "actual": "3472dcb3ca5b0b0ee39d03d4ddd4f69a45e96d2d",
+        "matches": true
+      },
+      {
+        "name": "zerovec-derive-v0_11",
+        "expected": "d21f3dfcdf82f4d825cc77e0eb3175b5935c0744",
+        "actual": "d21f3dfcdf82f4d825cc77e0eb3175b5935c0744",
+        "matches": true
+      },
+      {
+        "name": "zerovec-v0_11",
+        "expected": "7edc5b0e0bd765beb70afd42aba2e80f48f806b7",
+        "actual": "7edc5b0e0bd765beb70afd42aba2e80f48f806b7",
+        "matches": true
+      },
+      {
+        "name": "zoneinfo64-v0_3",
+        "expected": "e8ad3acc5097ad4050fd6e624f10fd58113e3a8f",
+        "actual": "e8ad3acc5097ad4050fd6e624f10fd58113e3a8f",
+        "matches": true
+      }
+    ]
+  },
+  "missingInputs": [],
+  "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-s2\\v8",
+  "preparedUtc": "2026-10-31T12:38:21.495Z",
+  "buildEnvironment": {
+    "V8_FROM_SOURCE": "1",
+    "PYTHON": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe",
+    "LIBCLANG_PATH": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\rusty-v8-150.4.0-source\\libclang-23\\bin",
+    "GN": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\outputs\\tools\\gn\\gn.exe",
+    "NINJA": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EU01-cargo-time\\runs\\v8-source\\outputs\\tools\\ninja\\ninja.exe",
+    "GYP_MSVS_OVERRIDE_PATH": "C:/Program Files/Microsoft Visual Studio/18/Community",
+    "GYP_MSVS_VERSION": "2026",
+    "WINDOWSSDKDIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\rusty-v8-150.4.0-source\\sdk-overlay",
+    "CARGO_TARGET_DIR": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\v8-t2"
+  },
+  "cargoStartedUtc": "2026-10-31T12:38:21.495Z",
+  "cargoDurationMs": 3282330.7365,
+  "cargoExitCode": 101,
+  "status": "failed",
+  "failure": "Error: V8 Cargo source build failed: 101\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\EU-01-bridge-login-2026-0-14\\resume-v8-source-v5.cjs:31:560)\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47",
+  "completedUtc": "2026-10-31T13:33:03.828Z"
+}

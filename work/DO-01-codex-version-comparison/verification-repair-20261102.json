@@ -1,0 +1,1370 @@
+{
+  "schema": 1,
+  "status": "accepted-scoped",
+  "acceptedAt": "2026-11-02T05:08:37.899Z",
+  "platform": "Windows x64",
+  "rust": "1.95.0",
+  "source": {
+    "schema": 2,
+    "sourceKind": "imported-snapshot",
+    "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+    "importedInventorySha256": "7c04a1010ebae8171349c16951046dcf55fa792983909f8a57b3aa695eb0f9f3",
+    "importedReceiptSha256": "823ede354deef24a983e8cc0d7061bafb6c45fb5b16ef5d8c0ae9f126e7fb300",
+    "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+    "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sourceSha256": "46e5c7ef8aaf1720539cf22272c7db78ff1b04d3beb9a9177aa044589313d1b1",
+    "fileCount": 9342,
+    "target": "x86_64-pc-windows-msvc",
+    "buildEnvironment": {
+      "RUSTFLAGS": "",
+      "CARGO_ENCODED_RUSTFLAGS": "",
+      "RUSTC_WRAPPER": "",
+      "RUSTUP_TOOLCHAIN": "",
+      "V8_FROM_SOURCE": "",
+      "V8_FORCE_DEBUG": "",
+      "RUSTY_V8_ARCHIVE": "",
+      "RUSTY_V8_MIRROR": "",
+      "RUSTY_V8_SRC_BINDING_PATH": "",
+      "GN": "",
+      "GN_ARGS": "",
+      "EXTRA_GN_ARGS": "",
+      "NINJA": "",
+      "CLANG_BASE_PATH": "",
+      "PYTHON": "",
+      "LIBCLANG_PATH": ""
+    }
+  },
+  "correctedFixtureSource": {
+    "schema": 2,
+    "sourceKind": "imported-snapshot",
+    "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+    "importedInventorySha256": "a833793bfbd8712b1e6bdc33c7a4fdb5e014464bab5ca04391108fef8597c824",
+    "importedReceiptSha256": "60f074499f7e54a03dc5ada7c8a43abaf90388d7dcc60fc21b32601b877fafe0",
+    "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+    "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sourceSha256": "3408677ab9a9e623e0af4793740e4f90118659b18263aa90be8ec51dc288a49a",
+    "fileCount": 9342,
+    "target": "x86_64-pc-windows-msvc",
+    "buildEnvironment": {
+      "RUSTFLAGS": "",
+      "CARGO_ENCODED_RUSTFLAGS": "",
+      "RUSTC_WRAPPER": "",
+      "RUSTUP_TOOLCHAIN": "",
+      "V8_FROM_SOURCE": "",
+      "V8_FORCE_DEBUG": "",
+      "RUSTY_V8_ARCHIVE": "",
+      "RUSTY_V8_MIRROR": "",
+      "RUSTY_V8_SRC_BINDING_PATH": "",
+      "GN": "",
+      "GN_ARGS": "",
+      "EXTRA_GN_ARGS": "",
+      "NINJA": "",
+      "CLANG_BASE_PATH": "",
+      "PYTHON": "",
+      "LIBCLANG_PATH": ""
+    }
+  },
+  "reuse": {
+    "schema": 1,
+    "previous": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9342,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "7c04a1010ebae8171349c16951046dcf55fa792983909f8a57b3aa695eb0f9f3",
+      "importedReceiptSha256": "823ede354deef24a983e8cc0d7061bafb6c45fb5b16ef5d8c0ae9f126e7fb300",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "46e5c7ef8aaf1720539cf22272c7db78ff1b04d3beb9a9177aa044589313d1b1",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "current": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9342,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "a833793bfbd8712b1e6bdc33c7a4fdb5e014464bab5ca04391108fef8597c824",
+      "importedReceiptSha256": "60f074499f7e54a03dc5ada7c8a43abaf90388d7dcc60fc21b32601b877fafe0",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "3408677ab9a9e623e0af4793740e4f90118659b18263aa90be8ec51dc288a49a",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "changedFiles": [
+      {
+        "path": "codex-rs/core/tests/suite/models_cache_auth.rs",
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "24313e7ee19aba3e4dd0680d0784e6e87f1253ecb9f3775587287913ba4dbbfd",
+          "size": 16082
+        },
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bae1ced5cebfd25bdb52f59235eb23e03936483bf11e963187c5f5ae8ef335ed",
+          "size": 17587
+        }
+      }
+    ],
+    "reason": "Only the failed catalog integration fixture changes. It is re-executed on candidate2; prior compiled crate tests and unaffected personality/skill cases retain their actual old generation evidence and are not presented as a full candidate2 suite execution."
+  },
+  "candidateBaseline": "e05346a37f3e6b6297b5988539c339fb2188f4508e75046cc8064ade4f9740a5",
+  "primarySourceReceiptUpdated": false,
+  "primaryTaskInputs": [
+    {
+      "path": "engine/codex-rs/analytics/Cargo.toml",
+      "primary": "b7c83e638115a61f8752e70d3faf06c4956c66d39855eafd538250675a14260e",
+      "frozen": "b7c83e638115a61f8752e70d3faf06c4956c66d39855eafd538250675a14260e",
+      "currentPrimary": "b7c83e638115a61f8752e70d3faf06c4956c66d39855eafd538250675a14260e"
+    },
+    {
+      "path": "engine/codex-rs/analytics/src/tests/suite/threads_tests.rs",
+      "primary": "a82de3a85d1af63124ef76fe2d6f928a94e30b1558771d398f92c7d1dfcd7e61",
+      "frozen": "a82de3a85d1af63124ef76fe2d6f928a94e30b1558771d398f92c7d1dfcd7e61",
+      "currentPrimary": "a82de3a85d1af63124ef76fe2d6f928a94e30b1558771d398f92c7d1dfcd7e61"
+    },
+    {
+      "path": "engine/codex-rs/ext/mcp/src/cloud_plugin_tests.rs",
+      "primary": "cd9c2a2350980791c263984cd5bef99065c18883dcfde3b115bb6f8c922a50b8",
+      "frozen": "cd9c2a2350980791c263984cd5bef99065c18883dcfde3b115bb6f8c922a50b8",
+      "currentPrimary": "cd9c2a2350980791c263984cd5bef99065c18883dcfde3b115bb6f8c922a50b8"
+    },
+    {
+      "path": "engine/codex-rs/models-manager/src/manager_tests.rs",
+      "primary": "e0b95dfa916f95e746b3f7b5829e3d7787afb91a0be4cae2b2074453601dad49",
+      "frozen": "e0b95dfa916f95e746b3f7b5829e3d7787afb91a0be4cae2b2074453601dad49",
+      "currentPrimary": "e0b95dfa916f95e746b3f7b5829e3d7787afb91a0be4cae2b2074453601dad49"
+    },
+    {
+      "path": "engine/codex-rs/models-manager/src/model_info_tests.rs",
+      "primary": "d852b1455785a2ed8624a91977ba13be0d06a493521e21a94bf0d557bdfa4281",
+      "frozen": "d852b1455785a2ed8624a91977ba13be0d06a493521e21a94bf0d557bdfa4281",
+      "currentPrimary": "d852b1455785a2ed8624a91977ba13be0d06a493521e21a94bf0d557bdfa4281"
+    },
+    {
+      "path": "engine/codex-rs/core/src/session/step_settings_tests.rs",
+      "primary": "2107962533be139e329a5af137fe8336589f9e43ff4c024caa4e0ce39c4bf3a5",
+      "frozen": "2107962533be139e329a5af137fe8336589f9e43ff4c024caa4e0ce39c4bf3a5",
+      "currentPrimary": "2107962533be139e329a5af137fe8336589f9e43ff4c024caa4e0ce39c4bf3a5"
+    },
+    {
+      "path": "engine/codex-rs/core/tests/suite/remote_models.rs",
+      "primary": "2fab7ca8005f4dd7186fa02e549a771ade05cc9648c5c4c0e1f4e6ecec8023db",
+      "frozen": "2fab7ca8005f4dd7186fa02e549a771ade05cc9648c5c4c0e1f4e6ecec8023db",
+      "currentPrimary": "2fab7ca8005f4dd7186fa02e549a771ade05cc9648c5c4c0e1f4e6ecec8023db"
+    },
+    {
+      "path": "engine/codex-rs/core/tests/suite/models_cache_auth.rs",
+      "primary": "24313e7ee19aba3e4dd0680d0784e6e87f1253ecb9f3775587287913ba4dbbfd",
+      "frozen": "24313e7ee19aba3e4dd0680d0784e6e87f1253ecb9f3775587287913ba4dbbfd",
+      "currentPrimary": "bae1ced5cebfd25bdb52f59235eb23e03936483bf11e963187c5f5ae8ef335ed"
+    },
+    {
+      "path": "engine/codex-rs/core/tests/suite/personality.rs",
+      "primary": "d36f33300050ab5b3f70dd97d13552b4cecc9df77658d865b8f5c93d72ca608e",
+      "frozen": "d36f33300050ab5b3f70dd97d13552b4cecc9df77658d865b8f5c93d72ca608e",
+      "currentPrimary": "d36f33300050ab5b3f70dd97d13552b4cecc9df77658d865b8f5c93d72ca608e"
+    },
+    {
+      "path": "scripts/cargo-verification.cjs",
+      "primary": "238968432fbef1ccedcd228f200a519e4d75c16988b5826b6e650cd0988e5c9e",
+      "frozen": "238968432fbef1ccedcd228f200a519e4d75c16988b5826b6e650cd0988e5c9e",
+      "currentPrimary": "238968432fbef1ccedcd228f200a519e4d75c16988b5826b6e650cd0988e5c9e"
+    },
+    {
+      "path": "scripts/cargo-target-owner.cjs",
+      "primary": "fc0b578c02787edb7530d49bbaf1f0eaf2db0a57620347fffaf732d5531cf1a3",
+      "frozen": "fc0b578c02787edb7530d49bbaf1f0eaf2db0a57620347fffaf732d5531cf1a3",
+      "currentPrimary": "fc0b578c02787edb7530d49bbaf1f0eaf2db0a57620347fffaf732d5531cf1a3"
+    },
+    {
+      "path": "scripts/cargo-shared-cache.cjs",
+      "primary": "33d7d262ab0fd88aee14d2fa6e27c48a5bb24310932a75867d67776aac816322",
+      "frozen": "33d7d262ab0fd88aee14d2fa6e27c48a5bb24310932a75867d67776aac816322",
+      "currentPrimary": "33d7d262ab0fd88aee14d2fa6e27c48a5bb24310932a75867d67776aac816322"
+    },
+    {
+      "path": "scripts/artifact-lifecycle.cjs",
+      "primary": "ff8e23ee9091c4e3a4014a56e5b70af055d95e22e65e1b471c86a5fed396b211",
+      "frozen": "ff8e23ee9091c4e3a4014a56e5b70af055d95e22e65e1b471c86a5fed396b211",
+      "currentPrimary": "ff8e23ee9091c4e3a4014a56e5b70af055d95e22e65e1b471c86a5fed396b211"
+    },
+    {
+      "path": "scripts/check-selected-upstream-native.cjs",
+      "primary": "a7fa615e86f518362907b887f1fac221d16a2cf7f6c5568127f943f4a8fdd91a",
+      "frozen": "a7fa615e86f518362907b887f1fac221d16a2cf7f6c5568127f943f4a8fdd91a",
+      "currentPrimary": "a7fa615e86f518362907b887f1fac221d16a2cf7f6c5568127f943f4a8fdd91a"
+    },
+    {
+      "path": "scripts/cargo-preflight-recipes.cjs",
+      "primary": "813248e3877d6bc87311b5208656968437f17d287282af42a0dd4aa6b88d9a1a",
+      "frozen": "813248e3877d6bc87311b5208656968437f17d287282af42a0dd4aa6b88d9a1a",
+      "currentPrimary": "813248e3877d6bc87311b5208656968437f17d287282af42a0dd4aa6b88d9a1a"
+    }
+  ],
+  "scriptsManifestSha256": "8c98173aec40f6a298826a1368623216b9e845a0c906b019f56e7761588ad988",
+  "host": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\code-mode-host-r1\\inputs\\azrael-code-mode-host.exe",
+    "sha256": "ec91f7a04dcb1a36f0e2ed87885777bf78900c2ea3295e82621c5721fd5d9f41",
+    "imported": true
+  },
+  "rustResults": [
+    {
+      "label": "analytics-original-accepted",
+      "exit": 0,
+      "evidence": [
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 127,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 0
+              }
+            ],
+            "passed": 127,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0,
+            "executed": 127
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-analytics",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T02:32:12.902Z",
+              "durationMs": 872788,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "r2-analytics-bound",
+      "exit": 0,
+      "started": "2026-11-02T02:53:12.222Z",
+      "ended": "2026-11-02T03:12:31.755Z",
+      "evidence": [
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 20,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 485
+              }
+            ],
+            "passed": 20,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 485,
+            "executed": 20
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-app-server",
+                "--lib",
+                "outgoing_message::tests",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T02:53:12.285Z",
+              "durationMs": 1159437,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "r2-catalog-retention",
+      "exit": 0,
+      "started": "2026-11-02T03:12:32.692Z",
+      "ended": "2026-11-02T03:48:35.772Z",
+      "evidence": [
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 62,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 0
+              }
+            ],
+            "passed": 62,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0,
+            "executed": 62
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-models-manager",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T03:12:32.766Z",
+              "durationMs": 445365,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 8,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 96
+              }
+            ],
+            "passed": 8,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 96,
+            "executed": 8
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-model-provider",
+                "--lib",
+                "shared_state::tests::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T03:19:58.133Z",
+              "durationMs": 413199,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 34,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 342
+              }
+            ],
+            "passed": 34,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 342,
+            "executed": 34
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-protocol",
+                "--lib",
+                "error::",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T03:26:51.335Z",
+              "durationMs": 193779,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 10,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 50
+              }
+            ],
+            "passed": 10,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 50,
+            "executed": 10
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-prompts",
+                "--lib",
+                "model_instructions",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T03:30:05.118Z",
+              "durationMs": 121658,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 2,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 3123
+              }
+            ],
+            "passed": 2,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 3123,
+            "executed": 2
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--lib",
+                "model_resolution_preserves_startup_overrides_and_instruction_provenance",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T03:32:06.778Z",
+              "durationMs": 988969,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "r3-catalog-refresh",
+      "exit": 0,
+      "started": "2026-11-02T04:01:30.273Z",
+      "ended": "2026-11-02T04:27:52.541Z",
+      "evidence": [
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 6,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 12
+              }
+            ],
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 12,
+            "executed": 6
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-mcp-extension",
+                "--lib",
+                "cloud_",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T04:01:30.328Z",
+              "durationMs": 522277,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 5,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 0
+              }
+            ],
+            "passed": 5,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0,
+            "executed": 5
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-mcp-extension",
+                "--test",
+                "plugin_mcp",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T04:10:12.607Z",
+              "durationMs": 131166,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 4,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 154
+              }
+            ],
+            "passed": 4,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 154,
+            "executed": 4
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-skills-extension",
+                "--lib",
+                "cloud_cache_tests",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T04:12:23.775Z",
+              "durationMs": 342343,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 1,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 3124
+              }
+            ],
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 3124,
+            "executed": 1
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--lib",
+                "turn_start_refreshes_dirty_mcp_reuses_clean_runtime_and_cancels_discovery",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T04:18:06.121Z",
+              "durationMs": 582446,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "r6-code-mode-trace",
+      "exit": 0,
+      "started": "2026-11-02T04:36:36.239Z",
+      "ended": "2026-11-02T04:49:58.050Z",
+      "evidence": [
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 71,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 0
+              }
+            ],
+            "passed": 71,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0,
+            "executed": 71
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-code-mode",
+                "--lib",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T04:36:36.298Z",
+              "durationMs": 181076,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        },
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 1,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 0
+              }
+            ],
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 0,
+            "executed": 1
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--test",
+                "code_mode_tracing",
+                "stdio_callbacks_preserve_context_across_overlapping_yielded_cells",
+                "--features",
+                "integration-tests",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T04:39:37.376Z",
+              "durationMs": 620651,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "r8-catalog-retention-integration",
+      "exit": 0,
+      "started": "2026-11-02T04:56:18.972Z",
+      "ended": "2026-11-02T04:56:57.438Z",
+      "evidence": [
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 6,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 1964
+              }
+            ],
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 1964,
+            "executed": 6
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--test",
+                "all",
+                "suite::personality::config_personality_",
+                "--features",
+                "integration-tests",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T04:56:19.031Z",
+              "durationMs": 38385,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "r8-catalog-refresh-integration",
+      "exit": 0,
+      "started": "2026-11-02T04:56:59.701Z",
+      "ended": "2026-11-02T04:57:22.583Z",
+      "evidence": [
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 3,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 1967
+              }
+            ],
+            "passed": 3,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 1967,
+            "executed": 3
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--test",
+                "all",
+                "suite::skills_extension::cloud_lifecycle_tests",
+                "--features",
+                "integration-tests",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T04:56:59.776Z",
+              "durationMs": 22788,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "r9-catalog-retention-integration",
+      "exit": 0,
+      "started": "2026-11-02T05:05:08.978Z",
+      "ended": "2026-11-02T05:08:13.192Z",
+      "evidence": [
+        {
+          "schema": 2,
+          "compilation": "cargo-test",
+          "testExecution": "nonzero-passed",
+          "contract": "selected-tests-v2",
+          "cargoInvocations": 1,
+          "accepted": true,
+          "actualCounts": {
+            "summaries": [
+              {
+                "status": "ok",
+                "passed": 1,
+                "failed": 0,
+                "ignored": 0,
+                "measured": 0,
+                "filteredOut": 1969
+              }
+            ],
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 1969,
+            "executed": 1
+          },
+          "phases": [
+            {
+              "phase": "compilation-and-execution",
+              "args": [
+                "test",
+                "-p",
+                "codex-core",
+                "--test",
+                "all",
+                "suite::models_cache_auth::failed_catalog_refresh_preserves_tool_search_on_the_next_turn",
+                "--features",
+                "integration-tests",
+                "--locked",
+                "--offline",
+                "--",
+                "--test-threads=1"
+              ],
+              "startedUtc": "2026-11-02T05:05:09.032Z",
+              "durationMs": 184139,
+              "exitCode": 0,
+              "signal": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "rustPassed": 361,
+  "node": {
+    "final": {
+      "passed": 291,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "additionalFixtureGuards": {
+      "passed": 43,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "selectedRecipes": {
+      "passed": 1,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "pendingClaimContention": {
+      "passed": 6,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "countsOverlap": true,
+    "logs": [
+      {
+        "original": "logs/node-r2-frozen.log",
+        "sha256": "bcc58a0c4f7e75355208b41b7b12ff46f711a082dc7664350aa1114c986d6500"
+      },
+      {
+        "original": "logs/node-extra.log",
+        "sha256": "edd52ec73d60bc122e17cb1ca8cf2d0c04649125744eee1d5f535f929df61f91"
+      },
+      {
+        "original": "logs/node-selected-recipes.log",
+        "sha256": "670f3b2fa0df8602562b03a40913e9e2d04fe36c2974ce2c6fec542f9e6c59ec"
+      },
+      {
+        "original": "logs/child-shared-begin.log",
+        "sha256": "d1a92878900cff0e614c1f834e1e5815de2aa9bd0b01ce773d9693693da30dc1"
+      }
+    ]
+  },
+  "priorAttempts": {
+    "r1": {
+      "state": "failed",
+      "cause": "Catalog acquisition Busy before app-server Cargo start; original analytics127 acceptance reused"
+    },
+    "r2": {
+      "state": "cancelled",
+      "executorExit": 1,
+      "unobservedMcpCargoExit": null,
+      "cancellationReconciliation": {
+        "schema": 1,
+        "executor": {
+          "summary": "Execution cancelled; executor exit observed",
+          "exitCode": 1,
+          "workId": "410e1d21-a75c-45ec-8649-baf943604357",
+          "state": "cancelled"
+        },
+        "cargoResult": {
+          "status": "unknown",
+          "exitCode": null
+        },
+        "ownerExecution": {
+          "status": "cancelled",
+          "exitCode": 1
+        },
+        "lease": {
+          "exists": true,
+          "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+          "targetStat": {
+            "dev": "3057815611",
+            "ino": "1407374897887589",
+            "birthtimeNs": "1793429485728317000"
+          },
+          "leasePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target\\.azrael-cargo-owner",
+          "leaseStat": {
+            "dev": "3057815611",
+            "ino": "1125899921456369",
+            "birthtimeNs": "1793591328954767400"
+          },
+          "ownerPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target\\.azrael-cargo-owner\\owner.json",
+          "ownerStat": {
+            "dev": "3057815611",
+            "ino": "1688849874877695",
+            "birthtimeNs": "1793591328955272500"
+          },
+          "token": "872b0d8c-5a99-447e-b5bd-a56747737ffd",
+          "ownerSha256": "c817928fd53e7e2a4033b05bbadf21ee10b508f968b45fdfc2b627d12e7eea67",
+          "owner": {
+            "schema": 1,
+            "token": "872b0d8c-5a99-447e-b5bd-a56747737ffd",
+            "run": "DO2-repair-20261102-r1",
+            "coordinatorPid": 43428,
+            "producerPid": null,
+            "startedUtc": "2026-11-02T03:48:48.953Z",
+            "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+            "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+            "command": "cargo",
+            "args": [
+              "test",
+              "-p",
+              "codex-mcp-extension",
+              "--lib",
+              "cloud_",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1\\candidate\\engine\\codex-rs",
+            "compilationSignature": "f53699c7c4ee22452508e12714b7e1a083b865e57793f50965a70fe7264fd045",
+            "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1\\temporary\\pending",
+            "status": "running",
+            "phase": "spawn-attempted",
+            "lastProgressUtc": "2026-11-02T03:48:48.957Z",
+            "preparingUtc": "2026-11-02T03:48:48.953Z",
+            "spawnAttemptedUtc": "2026-11-02T03:48:48.957Z"
+          },
+          "ownerBytesBase64": "ewogICJzY2hlbWEiOiAxLAogICJ0b2tlbiI6ICI4NzJiMGQ4Yy01YTk5LTQ0N2UtYjViZC1hNTY3NDc3MzdmZmQiLAogICJydW4iOiAiRE8yLXJlcGFpci0yMDI2MTEwMi1yMSIsCiAgImNvb3JkaW5hdG9yUGlkIjogNDM0MjgsCiAgInByb2R1Y2VyUGlkIjogbnVsbCwKICAic3RhcnRlZFV0YyI6ICIyMDI2LTExLTAyVDAzOjQ4OjQ4Ljk1M1oiLAogICJ0YXJnZXREaXJlY3RvcnkiOiAiQzpcXFVzZXJzXFxmZWxyZVxcRGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGNhY2hlXFxjYXJnb1xcOTZjOTYwYmY0OTcxMWNiZjYzMjdlMDg4ODU0MmU4ZDU2Y2IwNjg3ZTMxZDY5MGI3NThkNmM5YmVjYWEzY2EyNFxcdGFyZ2V0IiwKICAidGFyZ2V0SWRlbnRpdHkiOiAiYzpcXHVzZXJzXFxmZWxyZVxcZGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGNhY2hlXFxjYXJnb1xcOTZjOTYwYmY0OTcxMWNiZjYzMjdlMDg4ODU0MmU4ZDU2Y2IwNjg3ZTMxZDY5MGI3NThkNmM5YmVjYWEzY2EyNFxcdGFyZ2V0IiwKICAiY29tbWFuZCI6ICJjYXJnbyIsCiAgImFyZ3MiOiBbCiAgICAidGVzdCIsCiAgICAiLXAiLAogICAgImNvZGV4LW1jcC1leHRlbnNpb24iLAogICAgIi0tbGliIiwKICAgICJjbG91ZF8iLAogICAgIi0tbG9ja2VkIiwKICAgICItLW9mZmxpbmUiLAogICAgIi0tIiwKICAgICItLXRlc3QtdGhyZWFkcz0xIgogIF0sCiAgImN3ZCI6ICJDOlxcVXNlcnNcXGZlbHJlXFxEZXNrdG9wXFxwaS1oYXJuZXNzLWluaXRcXGFydGlmYWN0c1xcdGFza3NcXGRvMlxccnVuc1xccmVwYWlyLTIwMjYxMTAyLXIxXFxjYW5kaWRhdGVcXGVuZ2luZVxcY29kZXgtcnMiLAogICJjb21waWxhdGlvblNpZ25hdHVyZSI6ICJmNTM2OTljN2M0ZWUyMjQ1MjUwOGUxMjcxNGI3ZTFhMDgzYjg2NWU1Nzc5M2Y1MDk2NWE3MGZlNzI2NGZkMDQ1IiwKICAicGVuZGluZ0RpcmVjdG9yeSI6ICJDOlxcVXNlcnNcXGZlbHJlXFxEZXNrdG9wXFxwaS1oYXJuZXNzLWluaXRcXGFydGlmYWN0c1xcdGFza3NcXGRvMlxccnVuc1xccmVwYWlyLTIwMjYxMTAyLXIxXFx0ZW1wb3JhcnlcXHBlbmRpbmciLAogICJzdGF0dXMiOiAicnVubmluZyIsCiAgInBoYXNlIjogInNwYXduLWF0dGVtcHRlZCIsCiAgImxhc3RQcm9ncmVzc1V0YyI6ICIyMDI2LTExLTAyVDAzOjQ4OjQ4Ljk1N1oiLAogICJwcmVwYXJpbmdVdGMiOiAiMjAyNi0xMS0wMlQwMzo0ODo0OC45NTNaIiwKICAic3Bhd25BdHRlbXB0ZWRVdGMiOiAiMjAyNi0xMS0wMlQwMzo0ODo0OC45NTdaIgp9"
+        },
+        "cache": {
+          "created_at": "2026-10-31T06:51:22.240Z",
+          "generation": "435b5935-9a8d-49f3-9056-ec7cc2c07781",
+          "id": "shared:cargo-target:96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+          "kind": "work",
+          "members": [
+            {
+              "generated": true,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24",
+              "protection_known": true,
+              "role": "cargo-cache"
+            }
+          ],
+          "membership_complete": false,
+          "owner": "cargo-shared-cache",
+          "references": [],
+          "revision": 137,
+          "schema": 1,
+          "state": "pending",
+          "updated_at": "2026-11-02T03:48:46.326Z",
+          "version": null
+        },
+        "observation": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1\\cancellation-process-observation.json",
+          "sha256": "0aa8071017a7c1aebb407c2dc960bf64a499ac4109f589094d23796dcae9afbb"
+        },
+        "producer_stopped_verified": true,
+        "stop_basis": "Executor observed cancellation exit; independent full local Windows process enumeration excludes exact coordinator, descendants, all Cargo/compiler/linker processes and every executable in the leased target. No unknown Cargo exit is invented.",
+        "decision": "Close stopped cache generation as cancelled owner-execution failure with nullable Cargo exit, preserve unobserved Cargo result in immutable proof; retire exact stale target lease through supported recovery."
+      },
+      "targetRecovery": {
+        "schema": 1,
+        "action": "verified-cargo-lease-retirement",
+        "lease": {
+          "exists": true,
+          "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+          "targetStat": {
+            "dev": "3057815611",
+            "ino": "1407374897887589",
+            "birthtimeNs": "1793429485728317000"
+          },
+          "leasePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target\\.azrael-cargo-owner",
+          "leaseStat": {
+            "dev": "3057815611",
+            "ino": "1125899921456369",
+            "birthtimeNs": "1793591328954767400"
+          },
+          "ownerPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target\\.azrael-cargo-owner\\owner.json",
+          "ownerStat": {
+            "dev": "3057815611",
+            "ino": "1688849874877695",
+            "birthtimeNs": "1793591328955272500"
+          },
+          "token": "872b0d8c-5a99-447e-b5bd-a56747737ffd",
+          "ownerSha256": "c817928fd53e7e2a4033b05bbadf21ee10b508f968b45fdfc2b627d12e7eea67",
+          "owner": {
+            "schema": 1,
+            "token": "872b0d8c-5a99-447e-b5bd-a56747737ffd",
+            "run": "DO2-repair-20261102-r1",
+            "coordinatorPid": 43428,
+            "producerPid": null,
+            "startedUtc": "2026-11-02T03:48:48.953Z",
+            "targetDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+            "targetIdentity": "c:\\users\\felre\\desktop\\pi-harness-init\\artifacts\\cache\\cargo\\96c960bf49711cbf6327e0888542e8d56cb0687e31d690b758d6c9becaa3ca24\\target",
+            "command": "cargo",
+            "args": [
+              "test",
+              "-p",
+              "codex-mcp-extension",
+              "--lib",
+              "cloud_",
+              "--locked",
+              "--offline",
+              "--",
+              "--test-threads=1"
+            ],
+            "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1\\candidate\\engine\\codex-rs",
+            "compilationSignature": "f53699c7c4ee22452508e12714b7e1a083b865e57793f50965a70fe7264fd045",
+            "pendingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1\\temporary\\pending",
+            "status": "running",
+            "phase": "spawn-attempted",
+            "lastProgressUtc": "2026-11-02T03:48:48.957Z",
+            "preparingUtc": "2026-11-02T03:48:48.953Z",
+            "spawnAttemptedUtc": "2026-11-02T03:48:48.957Z"
+          },
+          "ownerBytesBase64": "ewogICJzY2hlbWEiOiAxLAogICJ0b2tlbiI6ICI4NzJiMGQ4Yy01YTk5LTQ0N2UtYjViZC1hNTY3NDc3MzdmZmQiLAogICJydW4iOiAiRE8yLXJlcGFpci0yMDI2MTEwMi1yMSIsCiAgImNvb3JkaW5hdG9yUGlkIjogNDM0MjgsCiAgInByb2R1Y2VyUGlkIjogbnVsbCwKICAic3RhcnRlZFV0YyI6ICIyMDI2LTExLTAyVDAzOjQ4OjQ4Ljk1M1oiLAogICJ0YXJnZXREaXJlY3RvcnkiOiAiQzpcXFVzZXJzXFxmZWxyZVxcRGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGNhY2hlXFxjYXJnb1xcOTZjOTYwYmY0OTcxMWNiZjYzMjdlMDg4ODU0MmU4ZDU2Y2IwNjg3ZTMxZDY5MGI3NThkNmM5YmVjYWEzY2EyNFxcdGFyZ2V0IiwKICAidGFyZ2V0SWRlbnRpdHkiOiAiYzpcXHVzZXJzXFxmZWxyZVxcZGVza3RvcFxccGktaGFybmVzcy1pbml0XFxhcnRpZmFjdHNcXGNhY2hlXFxjYXJnb1xcOTZjOTYwYmY0OTcxMWNiZjYzMjdlMDg4ODU0MmU4ZDU2Y2IwNjg3ZTMxZDY5MGI3NThkNmM5YmVjYWEzY2EyNFxcdGFyZ2V0IiwKICAiY29tbWFuZCI6ICJjYXJnbyIsCiAgImFyZ3MiOiBbCiAgICAidGVzdCIsCiAgICAiLXAiLAogICAgImNvZGV4LW1jcC1leHRlbnNpb24iLAogICAgIi0tbGliIiwKICAgICJjbG91ZF8iLAogICAgIi0tbG9ja2VkIiwKICAgICItLW9mZmxpbmUiLAogICAgIi0tIiwKICAgICItLXRlc3QtdGhyZWFkcz0xIgogIF0sCiAgImN3ZCI6ICJDOlxcVXNlcnNcXGZlbHJlXFxEZXNrdG9wXFxwaS1oYXJuZXNzLWluaXRcXGFydGlmYWN0c1xcdGFza3NcXGRvMlxccnVuc1xccmVwYWlyLTIwMjYxMTAyLXIxXFxjYW5kaWRhdGVcXGVuZ2luZVxcY29kZXgtcnMiLAogICJjb21waWxhdGlvblNpZ25hdHVyZSI6ICJmNTM2OTljN2M0ZWUyMjQ1MjUwOGUxMjcxNGI3ZTFhMDgzYjg2NWU1Nzc5M2Y1MDk2NWE3MGZlNzI2NGZkMDQ1IiwKICAicGVuZGluZ0RpcmVjdG9yeSI6ICJDOlxcVXNlcnNcXGZlbHJlXFxEZXNrdG9wXFxwaS1oYXJuZXNzLWluaXRcXGFydGlmYWN0c1xcdGFza3NcXGRvMlxccnVuc1xccmVwYWlyLTIwMjYxMTAyLXIxXFx0ZW1wb3JhcnlcXHBlbmRpbmciLAogICJzdGF0dXMiOiAicnVubmluZyIsCiAgInBoYXNlIjogInNwYXduLWF0dGVtcHRlZCIsCiAgImxhc3RQcm9ncmVzc1V0YyI6ICIyMDI2LTExLTAyVDAzOjQ4OjQ4Ljk1N1oiLAogICJwcmVwYXJpbmdVdGMiOiAiMjAyNi0xMS0wMlQwMzo0ODo0OC45NTNaIiwKICAic3Bhd25BdHRlbXB0ZWRVdGMiOiAiMjAyNi0xMS0wMlQwMzo0ODo0OC45NTdaIgp9"
+        },
+        "result": {
+          "status": "unknown",
+          "exitCode": null
+        },
+        "producer_stopped_verified": true,
+        "reason": "Verified stopped cancelled execution; no Cargo outcome inferred",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1\\cancellation-reconciliation.json",
+        "evidence_sha256": "6cb04dc798113802e1997de7b5373848ae56ca39b23143054eb483b27e913e87",
+        "decidedAt": "2026-11-02T03:58:10.614Z"
+      }
+    },
+    "r3": {
+      "state": "failed",
+      "result": {
+        "label": "r3-code-mode-trace",
+        "exe": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1\\p2\\scripts\\check-selected-upstream-native.cjs",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1\\candidate\\engine",
+          "code-mode-trace",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do1\\runs\\code-mode-host-r1\\inputs"
+        ],
+        "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+        "started": "2026-11-02T04:27:53.702Z",
+        "ended": "2026-11-02T04:28:03.730Z",
+        "exit": 1,
+        "signal": null
+      },
+      "cause": "code-mode trace cache claim exhausted bounded5000ms catalog wait; no Cargo started"
+    },
+    "r5": {
+      "state": "failed",
+      "cause": "Another owner's pending cache generation was detected after source audit; no Cargo started"
+    },
+    "r7": {
+      "state": "failed",
+      "cargoExit": 101,
+      "passed": 0,
+      "failed": 1,
+      "cause": "Portable catalog fixture had no deferred tool; assertion retained and actual deferred namespace fixture added, then reverified on candidate2"
+    },
+    "preparationFailures": [
+      "Windows MAX_PATH copy",
+      "Git hash-object long path",
+      "Concurrent primary lib.rs hash changed before overlay; final input narrowed to authorized exact10 deltas"
+    ]
+  },
+  "cleanupOwner": {
+    "command": {
+      "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-fc02-stdin-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "args": []
+    },
+    "sha256": "2e30f1bbfb248688d350547298f7120262322fc207b542635e229952225fb861",
+    "exit": 0,
+    "signal": null,
+    "capabilities": {
+      "operations": [
+        "inventory",
+        "register",
+        "review",
+        "apply",
+        "recover_lock",
+        "recover_reservation",
+        "recover_refresh_pending",
+        "recover_lifecycle_pending",
+        "partition_storage",
+        "compact_storage",
+        "reconcile_duplicate_groups"
+      ],
+      "platform": {
+        "arch": "x64",
+        "os": "win32"
+      },
+      "protocol": "maintenance-owner-lease-v1",
+      "request_file_policy": "outside-maintenance-state",
+      "request_transports": [
+        "file",
+        "stdin"
+      ],
+      "schema": 1,
+      "storage_formats": [
+        "legacy",
+        "partitioned-v1"
+      ]
+    },
+    "stderr": ""
+  },
+  "limits": [
+    "Linux x64 and macOS ARM64 not executed",
+    "Unrelated task-profile-skills.isolation global recipe mapping gap remains outside selected scope",
+    "Primary SOURCE has concurrent out-of-scope deltas; scoped candidate acceptance does not certify whole current checkout",
+    "No product build, installation or push",
+    "Old trace r11/r12 first detailed causes remain unknown and their failed wrappers are not rewritten"
+  ],
+  "cleanup": {
+    "state": "pending",
+    "lifecycle": "run:DO2:repair-20261102-r1",
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\do2\\runs\\repair-20261102-r1"
+  }
+}

@@ -3,8 +3,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
 const { createOwner } = require('./window-use-approvals.cjs');
-const { request: computerRequest } = require('./test-computer-use-approvals.cjs');
-function request(id, app) { const value = computerRequest(id, app); value.params.serverName = 'azrael_window'; value.params._meta.connector_id = 'window-use'; return value; }
+function request(id, app) {
+  return { id, method: 'mcpServer/elicitation/request', params: { serverName: 'azrael_window', threadId: 'thread-a', _meta: { connector_id: 'window-use', tool_params: { app, permission: 'control' }, tool_params_display: [{ name: 'app', value: 'Selected app' }], persist: ['session', 'always'] } } };
+}
 test('Linux executable approvals preserve case and reject relative paths', {skip:process.platform !== 'linux'}, () => {
   const home=fs.mkdtempSync(path.join(os.tmpdir(),'azrael-linux-approval-'));
   try {
@@ -21,7 +22,7 @@ test('Linux executable approvals preserve case and reject relative paths', {skip
     assert.equal(again.hasAppApproval('/opt/azrael/bin/editor'),false);
     again.removeAppApproval('/opt/Azrael/Bin/editor');
     assert.equal(owner.hasAppApproval('/opt/Azrael/Bin/editor'),false);
-  } finally {fs.rmSync(home,{recursive:true,force:true});}
+  } finally {fs.rmSync(home,{recursive:true});}
 });
 test('selected window authorization respects app grants and revocation across owners', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-window-approval-'));
@@ -43,12 +44,14 @@ test('selected window authorization respects app grants and revocation across ow
     assert.equal(a.hasAppApproval('C:\\Apps\\selected.exe', 'thread-a'), false);
   } finally { fs.rmSync(home, { recursive: true }); }
 });
-test('window store is isolated and allow-all changes cancel pending while preserving explicit grants', () => {
+test('window store ignores retired desktop grants and enablement changes cancel pending authority', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-window-policy-'));
   try {
     const settings = require('./use-control-settings.cjs').createSettingsOwner(home);
-    const old = require('./computer-use-approvals.cjs').createOwner(home);
-    old.addAppApproval('C:\\Apps\\old.exe', 'Old app');
+    const legacyFile = path.join(home, 'azrael/computer-use/app-approvals.json');
+    fs.mkdirSync(path.dirname(legacyFile), { recursive: true });
+    const legacyBytes = JSON.stringify({ schema: 1, apps: [{ bundleIdentifier: 'old.exe', displayName: 'Old app' }] });
+    fs.writeFileSync(legacyFile, legacyBytes);
     const a = createOwner(home), b = createOwner(home);
     assert.deepEqual(a.getPersistentAppApprovals(), { approvedApps: [] });
     assert.equal(a.hasAppApproval('C:\\Apps\\old.exe', 'thread-a'), false);
@@ -58,19 +61,19 @@ test('window store is isolated and allow-all changes cancel pending while preser
     a.receive(request('session', 'C:\\Apps\\session.exe'), () => {}, () => {});
     a.response('session', { action: 'accept', content: { persist: 'session' } });
     a.receive(request('late', 'C:\\Apps\\late.exe'), () => {}, () => {});
-    settings.updateSettings({ windowUseAllowAll: true }, 0);
-    assert.equal(a.hasAppApproval('C:\\Apps\\any.exe'), true);
-    settings.updateSettings({ windowUseAllowAll: false }, 1);
+    settings.updateSettings({ windowUseEnabled: false }, settings.getSettings().revision);
+    assert.equal(a.hasAppApproval('C:\\Apps\\saved.exe'), false);
+    settings.updateSettings({ windowUseEnabled: true }, settings.getSettings().revision);
     assert.equal(a.response('late', { action: 'accept', content: { persist: 'always' } }).action, 'cancel');
     assert.equal(a.hasAppApproval('C:\\Apps\\any.exe'), false);
     assert.equal(a.hasAppApproval('C:\\Apps\\saved.exe'), true);
-    assert.equal(a.hasAppApproval('C:\\Apps\\session.exe', 'thread-a'), true);
+    assert.equal(a.hasAppApproval('C:\\Apps\\session.exe', 'thread-a'), false);
     a.receive(request('revoked', 'C:\\Apps\\revoked.exe'), () => {}, () => {});
     b.removeAppApproval('C:\\Apps\\revoked.exe');
     assert.equal(a.response('revoked', { action: 'accept', content: { persist: 'always' } }).action, 'cancel');
     b.removeAppApproval('C:\\Apps\\session.exe');
     assert.equal(a.hasAppApproval('C:\\Apps\\session.exe', 'thread-a'), false);
-    assert.equal(old.hasAppApproval('C:\\Apps\\old.exe'), true);
+    assert.equal(fs.readFileSync(legacyFile, 'utf8'), legacyBytes);
     fs.writeFileSync(path.join(home, 'azrael/computer-use/use-settings.json'), 'bad');
     assert.throws(() => a.hasAppApproval('C:\\Apps\\saved.exe'));
   } finally { fs.rmSync(home, { recursive: true }); }

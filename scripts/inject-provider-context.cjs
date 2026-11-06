@@ -126,14 +126,18 @@ function responsePerformanceGraph(jsx, p, ko, options = {}) {
     if (!turn || typeof turn.turnId!=="string" || !turn.turnId.trim() || ids.has(turn.turnId) || !Number.isFinite(turn.startedAtUnixMs) || turn.startedAtUnixMs>end || !Array.isArray(turn.minuteSamples) || index>0&&turn.startedAtUnixMs<turns[index-1].startedAtUnixMs) return null;
     ids.add(turn.turnId);
     if(turn.startedAtUnixMs>=start) boundaries.push({id:turn.turnId,time:turn.startedAtUnixMs});
-    let previous=null;const seen=new Set();
+    let previous=null;const seen=new Set(),unknownPoints=new Map();
     for(const sample of turn.minuteSamples){
-      const mode=sample?.mode??null;
-      if(!sample || !Number.isSafeInteger(sample.minute) || sample.minute<0 || !Number.isFinite(sample.outputTokens) || sample.outputTokens<0 || !Number.isFinite(sample.requestDurationMs) || sample.requestDurationMs<=0 || !Number.isFinite(sample.outputTokens/sample.requestDurationMs*1000) || mode!==null&&!modes.includes(mode) || previous&&sample.minute<previous.minute || seen.has(sample.minute+':'+mode)) return null;
+      const mode=sample?.actualMode??null;
+      if(!sample || !Number.isSafeInteger(sample.minute) || sample.minute<0 || !Number.isFinite(sample.outputTokens) || sample.outputTokens<0 || !Number.isFinite(sample.requestDurationMs) || sample.requestDurationMs<=0 || !Number.isFinite(sample.outputTokens/sample.requestDurationMs*1000) || mode!==null&&!modes.includes(mode) || previous&&sample.minute<previous.minute || mode!==null&&seen.has(sample.minute+':'+mode)) return null;
       previous=sample;seen.add(sample.minute+':'+mode);
       const time=turn.startedAtUnixMs+sample.minute*minuteMs,right=Math.min(time+minuteMs,end),left=Math.max(time,start),fraction=(right-left)/(right-time);
       if(!Number.isFinite(time)||right<=left||!Number.isFinite(fraction)||fraction<=0)continue;
-      points.push({turnId:turn.turnId,minute:sample.minute,mode,time:left,tokens:sample.outputTokens*fraction,duration:sample.requestDurationMs*fraction,rate:sample.outputTokens/sample.requestDurationMs*1000});
+      const point={turnId:turn.turnId,minute:sample.minute,mode,time:left,tokens:sample.outputTokens*fraction,duration:sample.requestDurationMs*fraction,rate:sample.outputTokens/sample.requestDurationMs*1000};
+      // Legacy requested modes in one minute all become unknown; retain their weighted total.
+      const existing=mode===null?unknownPoints.get(sample.minute):null;
+      if(existing){existing.tokens+=point.tokens;existing.duration+=point.duration;existing.rate=existing.tokens/existing.duration*1000;if(!Number.isFinite(existing.rate))return null}
+      else{points.push(point);if(mode===null)unknownPoints.set(sample.minute,point)}
     }
   }
   if(!points.length&&!boundaries.length)return null;

@@ -69,6 +69,13 @@ pub type ElicitationReviewerHandle = Arc<dyn ElicitationReviewer>;
 #[derive(Clone)]
 pub struct ElicitationLifecycle {
     register: Arc<dyn Fn() -> Box<dyn Send + Sync> + Send + Sync>,
+    interaction: Option<
+        Arc<
+            dyn Fn(&str, &ProtocolRequestId, &ElicitationRequest) -> Box<dyn Send + Sync>
+                + Send
+                + Sync,
+        >,
+    >,
 }
 
 impl ElicitationLifecycle {
@@ -78,18 +85,49 @@ impl ElicitationLifecycle {
     {
         Self {
             register: Arc::new(move || Box::new(register())),
+            interaction: None,
         }
+    }
+
+    pub fn with_interaction<T>(
+        mut self,
+        interaction: impl Fn(&str, &ProtocolRequestId, &ElicitationRequest) -> T + Send + Sync + 'static,
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+    {
+        self.interaction = Some(Arc::new(move |server, id, request| {
+            Box::new(interaction(server, id, request))
+        }));
+        self
     }
 
     fn start(&self) -> ActiveElicitation {
         ActiveElicitation {
             _registration: (self.register)(),
+            _interaction: None,
+        }
+    }
+
+    fn start_interaction(
+        &self,
+        server: &str,
+        id: &ProtocolRequestId,
+        request: &ElicitationRequest,
+    ) -> ActiveElicitation {
+        ActiveElicitation {
+            _registration: (self.register)(),
+            _interaction: self
+                .interaction
+                .as_ref()
+                .map(|interaction| interaction(server, id, request)),
         }
     }
 }
 
 struct ActiveElicitation {
     _registration: Box<dyn Send + Sync>,
+    _interaction: Option<Box<dyn Send + Sync>>,
 }
 
 /// Routes model-visible elicitation response tokens to their exact pending responders.
@@ -191,10 +229,13 @@ impl ElicitationRequestRouter {
             RequestId::String(public_request_id.clone().into()),
         );
         let (tx, rx) = oneshot::channel();
-        let _active_elicitation = authority
-            .lifecycle
-            .as_ref()
-            .map(ElicitationLifecycle::start);
+        let _active_elicitation = authority.lifecycle.as_ref().map(|lifecycle| {
+            lifecycle.start_interaction(
+                &server_name,
+                &ProtocolRequestId::String(public_request_id.clone()),
+                &request,
+            )
+        });
         self.requests
             .lock()
             .map_err(|_| anyhow!("elicitation request router unavailable"))?

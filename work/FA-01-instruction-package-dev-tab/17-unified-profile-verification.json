@@ -1,0 +1,275 @@
+{
+  "schema": 1,
+  "at": "2026-11-02T13:35:48.736Z",
+  "platform": "Windows x64 / Node",
+  "scope": "Unified profile source checks; browser/docs owned separately by root",
+  "runs": [
+    {
+      "id": "run:DK-01-instruction-catalog-diagnosis:types-6e1cf124",
+      "owner": "instruction-library-verification",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-6e1cf124\\reports\\producer-11ef1e6dd57bf481571ea81fd8b9784fa641ef33b77f665c415ea0419be20236.json",
+        "evidence_sha256": "11ef1e6dd57bf481571ea81fd8b9784fa641ef33b77f665c415ea0419be20236",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:DK-01-instruction-catalog-diagnosis:types-6e1cf124",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-6e1cf124",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-library.cjs",
+          "types"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "summary": {
+        "scope": "types",
+        "startedAt": "2026-11-02T13:19:35.101Z",
+        "endedAt": "2026-11-02T13:19:41.669Z",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "extensions/azrael-ex/node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--project",
+          "extensions/azrael-ex/tsconfig.json"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-6e1cf124\\logs\\types.log",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-6e1cf124",
+        "reusedValidator": null
+      },
+      "log": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-6e1cf124\\logs\\types.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "counts": null
+    },
+    {
+      "id": "run:DK-01-instruction-catalog-diagnosis:types-60360217",
+      "owner": "instruction-library-verification",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-60360217\\reports\\producer-89d35a3ef3f79f0867c65e0753d8ef91f3d65de43271c10ae56ca8de3d45bb0d.json",
+        "evidence_sha256": "89d35a3ef3f79f0867c65e0753d8ef91f3d65de43271c10ae56ca8de3d45bb0d",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned producer and tracked children stopped",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:DK-01-instruction-catalog-diagnosis:types-60360217",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-60360217",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-library.cjs",
+          "types"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned producer and tracked children stopped",
+        "children": [],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "summary": {
+        "scope": "types",
+        "startedAt": "2026-11-02T13:33:25.255Z",
+        "endedAt": "2026-11-02T13:33:27.955Z",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "extensions/azrael-ex/node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--project",
+          "extensions/azrael-ex/tsconfig.json"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-60360217\\logs\\types.log",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-60360217",
+        "reusedValidator": null
+      },
+      "log": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DK-01-instruction-catalog-diagnosis\\runs\\types-60360217\\logs\\types.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "counts": null
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261102T132906031Z-7298b8fc-e402-423a-af34-15a9dd0eafd4",
+      "owner": "scripts/check-instruction-workbench.cjs",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132906031Z-7298b8fc-e402-423a-af34-15a9dd0eafd4\\reports\\producer-c6c5e3b58976a581d847e36affc14c3bf7e2b22b8cc7bc08c2e4d94a451ce48c.json",
+        "evidence_sha256": "c6c5e3b58976a581d847e36affc14c3bf7e2b22b8cc7bc08c2e4d94a451ce48c",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Owned test runner and tracked Node child completed",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T132906031Z-7298b8fc-e402-423a-af34-15a9dd0eafd4",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132906031Z-7298b8fc-e402-423a-af34-15a9dd0eafd4",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-workbench.cjs"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned test runner and tracked Node child completed",
+        "children": [
+          {
+            "pid": 40784,
+            "closed": true
+          }
+        ],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "summary": {
+        "startedAt": "2026-11-02T13:29:18.602Z",
+        "endedAt": "2026-11-02T13:30:13.911Z",
+        "exitCode": 0,
+        "signal": null,
+        "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132906031Z-7298b8fc-e402-423a-af34-15a9dd0eafd4\\logs\\tests.log",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132906031Z-7298b8fc-e402-423a-af34-15a9dd0eafd4",
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T132906031Z-7298b8fc-e402-423a-af34-15a9dd0eafd4"
+      },
+      "log": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132906031Z-7298b8fc-e402-423a-af34-15a9dd0eafd4\\logs\\tests.log",
+        "sha256": "334b2f62b161c8a3deb1d2417238f642a8511293b60ef58332d4d436e9575ac2",
+        "bytes": 7842
+      },
+      "counts": {
+        "tests": 75,
+        "pass": 75,
+        "fail": 0
+      }
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261102T132457866Z-154d9bad-d291-4e6f-ba11-6581a5cc740f",
+      "owner": "scripts/check-instruction-workbench.cjs",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132457866Z-154d9bad-d291-4e6f-ba11-6581a5cc740f\\reports\\producer-9f4ae1109766a80fb20bcf0c18a5f46c421350eec01a87b4843870f24ce1222f.json",
+        "evidence_sha256": "9f4ae1109766a80fb20bcf0c18a5f46c421350eec01a87b4843870f24ce1222f",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Owned test runner and tracked Node child completed",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T132457866Z-154d9bad-d291-4e6f-ba11-6581a5cc740f",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132457866Z-154d9bad-d291-4e6f-ba11-6581a5cc740f",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\check-instruction-workbench.cjs"
+        ],
+        "exitCode": 1,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Owned test runner and tracked Node child completed",
+        "children": [
+          {
+            "pid": 51296,
+            "closed": true
+          }
+        ],
+        "state": "failed",
+        "membership_complete": true
+      },
+      "summary": {
+        "startedAt": "2026-11-02T13:25:12.555Z",
+        "endedAt": "2026-11-02T13:25:55.295Z",
+        "exitCode": 1,
+        "signal": null,
+        "logfile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132457866Z-154d9bad-d291-4e6f-ba11-6581a5cc740f\\logs\\tests.log",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132457866Z-154d9bad-d291-4e6f-ba11-6581a5cc740f",
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T132457866Z-154d9bad-d291-4e6f-ba11-6581a5cc740f"
+      },
+      "log": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T132457866Z-154d9bad-d291-4e6f-ba11-6581a5cc740f\\logs\\tests.log",
+        "sha256": "7389b837197b55158d184d2bbfaf38a458a523ba26e650221a830cfd0ed8e397",
+        "bytes": 9972
+      },
+      "counts": {
+        "tests": 74,
+        "pass": 72,
+        "fail": 2
+      }
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261102T125611760Z-4bf324a9-42eb-429d-9098-7a3b7030892f",
+      "owner": "scripts/serve-instruction-workbench.cjs",
+      "producer": {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T125611760Z-4bf324a9-42eb-429d-9098-7a3b7030892f\\reports\\producer-6bd76843fd242ec3ab2169f774aa372b6b5198bf3b13c9618ec1f77859e0b7da.json",
+        "evidence_sha256": "6bd76843fd242ec3ab2169f774aa372b6b5198bf3b13c9618ec1f77859e0b7da",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Development HTTP server and background package queries stopped",
+        "status": "stopped"
+      },
+      "producerReport": {
+        "lifecycleId": "run:FA-01-instruction-package-dev-tab:20261102T125611760Z-4bf324a9-42eb-429d-9098-7a3b7030892f",
+        "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FA-01-instruction-package-dev-tab\\runs\\20261102T125611760Z-4bf324a9-42eb-429d-9098-7a3b7030892f",
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\serve-instruction-workbench.cjs",
+          "--port",
+          "4318",
+          "--data-run",
+          "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/FA-01-instruction-package-dev-tab/runs/20261101T185715674Z-dcb82c00-2c0b-43de-9c46-7c441d79bdce",
+          "--project",
+          "C:/Users/felre/Desktop/pi-harness-init",
+          "--repository",
+          "felrer/Azrael"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "producerStopped": true,
+        "reason": "Development HTTP server and background package queries stopped",
+        "children": [],
+        "state": "complete",
+        "membership_complete": true
+      },
+      "summary": null,
+      "log": null,
+      "counts": null
+    }
+  ],
+  "failedTests": [
+    {
+      "file": "scripts/tests/instruction-workbench-host.test.cjs:92",
+      "name": "native UI owns project identity while internal thread capture accepts another native project",
+      "cause": "Expected fixture workbench root, actual undefined"
+    },
+    {
+      "file": "scripts/tests/task-profile-runtime.test.cjs:14",
+      "name": "development resource selections cannot silently broaden legacy native admission",
+      "cause": "Expected /native admission support/ rejection, actual TypeError: this.request is not a function at task-profile-runtime.cjs:132"
+    }
+  ],
+  "adapterStop": {
+    "id": "run:FA-01-instruction-package-dev-tab:20261102T125611760Z-4bf324a9-42eb-429d-9098-7a3b7030892f",
+    "managedSession": 68754,
+    "actualExitCode": 0,
+    "basis": "Root observed supported stop and terminal managed session exit0; current immutable lifecycle producer also stopped exit0"
+  },
+  "sourceHashes": {
+    "scripts/instruction-workbench.cjs": "c8f94792f23eaf6aeffa012b57de57213eaabad9d53ec67c7866bd2682c28f78",
+    "scripts/instruction-workbench-view.cjs": "9aff1c1a125837d4b0781dd03a9494ea101ffc08b0b2265befb7912910487b6a",
+    "scripts/task-profile-runtime.cjs": "5fd72965c8a56421abe0231fcece9561d36fbcbcd77977c8f4e749fdf7ffe87f",
+    "scripts/serve-instruction-workbench.cjs": "3b15712b262285b5a772c147f9d9d63b1c1b4d2772758129bf41d4bbeb7fdda1"
+  },
+  "installedProductVerified": false
+}

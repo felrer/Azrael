@@ -1,0 +1,12 @@
+﻿{
+    "matching_processes":  [
+
+                           ],
+    "boot_utc":  "2026-10-31T06:25:03.8632550Z",
+    "observed_at_utc":  "2026-11-01T12:34:46.1868229Z",
+    "roots":  [
+                  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DC-01-queue-question-wait-diagnosis\\runs\\native-2",
+                  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\cancel-20261023T144738817Z",
+                  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\DM-01-boundary-pilot\\runs\\unknown-proof-refusal-20261023T144746673Z"
+              ]
+}

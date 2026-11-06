@@ -31,6 +31,8 @@ struct CredentialRequest<'a> {
     account_id: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     require_auto_switch: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    provider_account: Option<&'a codex_protocol::agent_profile::ProviderAccountScope>,
 }
 
 #[derive(Deserialize)]
@@ -57,14 +59,16 @@ pub(super) struct ManagedCredential {
 pub(super) async fn resolve(
     codex_home: &Path,
     binding: ExistingAccountBinding,
+    provider_account: Option<&codex_protocol::agent_profile::ProviderAccountScope>,
 ) -> CodexResult<ResolvedCredential> {
     match binding {
+        ExistingAccountBinding::Cli if provider_account.is_some() => Err(invalid("task profile requires a managed Devin account")),
         ExistingAccountBinding::Cli => cli_credential(),
         ExistingAccountBinding::Managed(account_id) => {
             let config = helper_config()?.ok_or_else(|| {
                 invalid("managed Devin account helper is required for this thread")
             })?;
-            let credential = request_credential(codex_home, &config, Some(&account_id)).await?;
+            let credential = request_credential(codex_home, &config, Some(&account_id), provider_account).await?;
             let credential = credential.ok_or_else(|| {
                 invalid("the managed Devin account for this thread is unavailable")
             })?;
@@ -79,7 +83,7 @@ pub(super) async fn resolve(
             let Some(config) = helper_config()? else {
                 return cli_credential();
             };
-            match request_credential(codex_home, &config, None).await? {
+            match request_credential(codex_home, &config, None, provider_account).await? {
                 Some(credential) => Ok(managed_credential(credential)),
                 None => cli_credential(),
             }
@@ -139,9 +143,10 @@ pub(super) async fn request_credential(
     codex_home: &Path,
     config: &HelperConfig,
     account_id: Option<&str>,
+    provider_account: Option<&codex_protocol::agent_profile::ProviderAccountScope>,
 ) -> CodexResult<Option<ManagedCredential>> {
     let request_id = uuid::Uuid::new_v4().to_string();
-    request_credential_with(codex_home, config, account_id, &request_id, HELPER_TIMEOUT).await
+    request_credential_with_scope(codex_home, config, account_id, &request_id, HELPER_TIMEOUT, provider_account).await
 }
 
 pub(super) async fn request_credential_with(
@@ -151,7 +156,19 @@ pub(super) async fn request_credential_with(
     request_id: &str,
     timeout: Duration,
 ) -> CodexResult<Option<ManagedCredential>> {
+    request_credential_with_scope(codex_home, config, account_id, request_id, timeout, None).await
+}
+
+async fn request_credential_with_scope(
+    codex_home: &Path,
+    config: &HelperConfig,
+    account_id: Option<&str>,
+    request_id: &str,
+    timeout: Duration,
+    provider_account: Option<&codex_protocol::agent_profile::ProviderAccountScope>,
+) -> CodexResult<Option<ManagedCredential>> {
     let request = CredentialRequest {
+        provider_account,
         protocol: PROTOCOL_VERSION,
         id: request_id,
         action: "credential",
@@ -196,7 +213,7 @@ pub(super) async fn request_retirement_credential(
 ) -> CodexResult<Option<ManagedCredential>> {
     let id = uuid::Uuid::new_v4().to_string();
     let request = CredentialRequest {
-        protocol: PROTOCOL_VERSION,
+        provider_account: None,        protocol: PROTOCOL_VERSION,
         id: &id,
         action: "credential",
         provider_id: "devin",
@@ -215,7 +232,7 @@ pub(super) async fn request_recovery_credential_with(
     cancellation: &tokio_util::sync::CancellationToken,
 ) -> CodexResult<Option<ManagedCredential>> {
     let request = CredentialRequest {
-        protocol: PROTOCOL_VERSION,
+        provider_account: None,        protocol: PROTOCOL_VERSION,
         id: request_id,
         action: "credential",
         provider_id: "devin",

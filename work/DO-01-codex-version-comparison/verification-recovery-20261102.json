@@ -1,0 +1,21 @@
+{
+  "id": "run:do2:source-20261102-r2",
+  "lease_owner": {
+    "acquired_at_ms": 1793561586445,
+    "operation": "group_reservation",
+    "pid": 34608,
+    "schema": 2,
+    "token": "34608-1793561586445-35048fada46fa066"
+  },
+  "reservation_sha256": "cc202a4cd0790035abca60da04aa642cac716f961e2291d9e08d1b5dfda1ec03",
+  "producer_stopped_verified": true,
+  "process_tree_stopped_verified": true,
+  "basis": {
+    "nativePid": 34608,
+    "nativeObservedExit": 1,
+    "controllerSession": 81780,
+    "controllerObservedExit": 1,
+    "stage": "register pre-intent; no delete worker launched",
+    "observation": "Exact synchronous native spawn returned status 1; registration uses in-process measurement threads, not external workers. Controller terminal status 1 observed."
+  }
+}

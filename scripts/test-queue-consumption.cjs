@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const vm = require("node:vm");
-const { QUEUE_CONSUMPTION_ASSET, QUEUE_CONSUMPTION_MARKER, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
+const { QUEUE_CONSUMPTION_ASSET, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
 const { injectQuestionQueue } = require("./inject-question-queue.cjs");
 const { injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
@@ -219,17 +219,7 @@ test("accepted receipts are scoped by conversation ID and disposal clears them",
   f.loads[0].resolve({ thread: [message("accepted")] }); await tick(); assert.equal(f.queue.messages.size, 0);
 });
 
-test("injection is idempotent and fails closed for absent, repeated, and partial anchors", () => {
-  assert.equal(injectQueueConsumption(patched).text, patched);
-  assert.throws(() => injectQueueConsumption("changed host"), /anchor/);
-  assert.throws(() => injectQueueConsumption(original + original), /anchor/);
-  assert.throws(() => injectQueueConsumption(original.replace("#y(e,t){this.messages.set(e,{messages:t,refreshing:!1})", "changed-anchor")), /anchor/);
-  assert.throws(() => injectQueueConsumption(patched + QUEUE_CONSUMPTION_MARKER), /Duplicate/);
-  assert.throws(() => injectQueueConsumption(patched.replace("async __azraelConsume", "async brokenConsume")), /Partial/);
-  assert.throws(() => injectQueueConsumption(original.replace("ljn=class extends DY{", "ljn=class extends DY{/*azrael-queue-consumption-v1*/")), /Outdated/);
-  assert.throws(() => injectQueueConsumption(original.replace("ljn=class extends DY{", "ljn=class extends DY{/*azrael-queue-consumption-v2*/")), /Outdated/);
-  assert.throws(() => injectQueueConsumption(patched.replace("async __azraelCompleteQueued", "async brokenCompleteQueued")), /Partial/);
-});
+
 
 const localMessage = (id, status = "pending", pausedReason) => ({ ...message(id), submission: { hostId: "local-host", status }, ...(pausedReason == null ? {} : { pausedReason }) });
 

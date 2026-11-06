@@ -1,0 +1,3168 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "id": "run:ec01-latest-build:input-preflight-check-r1",
+      "result": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:ec01-latest-build:input-preflight-check-r1"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-preflight-check-r1",
+            "role": "run",
+            "status": "deleted",
+            "attributes": []
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:ec01-latest-build:input-preflight-check-r1",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7097f21271d2a32848eaee5c732983c56a07c1c2bd209aba62761e5135a80adc.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "sha256": "34cccca90ab7fb66ea0f62bf1af8bbd35c9fdea26bfed06fc7346d5e24ea35c4",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\bd2d52eb42df433bb381039e5926e46f.json"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      }
+    },
+    {
+      "id": "run:ec01-latest-build:derived-input-check-r1",
+      "result": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:ec01-latest-build:derived-input-check-r1"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1",
+            "role": "run",
+            "status": "deleted",
+            "attributes": [
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\workspaces\\work\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\03\\6c67ce45c6c36746907e242ade81c983259161",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\inputs\\input\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\03\\6c67ce45c6c36746907e242ade81c983259161",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\reusable\\.git\\objects\\03\\6c67ce45c6c36746907e242ade81c983259161",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\preparation-failure\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\preparation-failure\\.git\\objects\\e9\\43d6e08f4e9f29423d34f1ccea28ac79e25920",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\preparation-failure\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\preparation-failure\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\preparation-failure\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\preparation-failure\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\preparation-failure\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\paths\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\paths\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\paths\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\paths\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\paths\\.git\\objects\\49\\b8cdff49f6786a9e20df41f85f0d362ca2d525",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\paths\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\paths\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\vendor\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\vendor\\.git\\objects\\db\\65fb87253e1631637006ecf78a281f0d6c3c51",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\vendor\\.git\\objects\\46\\8a399af25b03b3b6fe816e5ad6565f1178bc36",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\vendor\\.git\\objects\\08\\78e31db454f16bace2c209827a56ba4dc788f5",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\vendor\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\n0\\objects\\db\\65fb87253e1631637006ecf78a281f0d6c3c51",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\n0\\objects\\46\\8a399af25b03b3b6fe816e5ad6565f1178bc36",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\n0\\objects\\08\\78e31db454f16bace2c209827a56ba4dc788f5",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\4a\\4adf5a4aab2499856b14b9c1dbf8f75fa3176f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\0d\\b1ebecc7d72b420dac78902eda3388854c462e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\vendor\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\db\\65fb87253e1631637006ecf78a281f0d6c3c51",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\46\\8a399af25b03b3b6fe816e5ad6565f1178bc36",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\08\\78e31db454f16bace2c209827a56ba4dc788f5",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\4a\\4adf5a4aab2499856b14b9c1dbf8f75fa3176f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\0d\\b1ebecc7d72b420dac78902eda3388854c462e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\.git\\objects\\a0\\d499bc9f0512a18dc4de82c963c8b8c1860d66",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\.git\\objects\\4a\\4adf5a4aab2499856b14b9c1dbf8f75fa3176f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\normal\\.git\\objects\\0d\\b1ebecc7d72b420dac78902eda3388854c462e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\11\\ef9a9071bb46192fece3d0c5cf0cad3b5fb48c",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\11\\ef9a9071bb46192fece3d0c5cf0cad3b5fb48c",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\69\\0aad34a46dc93c1dd9d876aa7201a2f317f62b",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\11\\ef9a9071bb46192fece3d0c5cf0cad3b5fb48c",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\imported-engine\\.git\\objects\\11\\ef9a9071bb46192fece3d0c5cf0cad3b5fb48c",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\engine-source\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\engine-source\\.git\\objects\\c2\\ffc0c3054743f22e57ba9c0cfa724372047ef7",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\engine-source\\.git\\objects\\b6\\21737b3f0eca47bb0837637132f65a49d1004d",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\engine-source\\.git\\objects\\69\\324f1c40f9130a1beec62c73105edaa92f7c20",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\engine-source\\.git\\objects\\65\\7022ea2ae3b252a4d1127d147627e48640c987",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\vendor\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\vendor\\.git\\objects\\7e\\6cb12966b8b0c38d117ed87992c2ca5d2245ae",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\vendor\\.git\\objects\\73\\8121b43edf7fc61c54ebca644e85d26c2b8179",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\vendor\\.git\\objects\\21\\cea4433fba00225db79e8af4ebbe3a3d52b5f6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\vendor\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\n0\\objects\\7e\\6cb12966b8b0c38d117ed87992c2ca5d2245ae",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\n0\\objects\\73\\8121b43edf7fc61c54ebca644e85d26c2b8179",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\n0\\objects\\21\\cea4433fba00225db79e8af4ebbe3a3d52b5f6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\9d\\6323f395cb74a9155cac048c91c92d2724f5ac",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\55\\2451665a14165143aae777c737c4d206ebb70e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\vendor\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\7e\\6cb12966b8b0c38d117ed87992c2ca5d2245ae",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\73\\8121b43edf7fc61c54ebca644e85d26c2b8179",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\21\\cea4433fba00225db79e8af4ebbe3a3d52b5f6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\9d\\6323f395cb74a9155cac048c91c92d2724f5ac",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\55\\2451665a14165143aae777c737c4d206ebb70e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\vendor\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\n0\\objects\\7e\\6cb12966b8b0c38d117ed87992c2ca5d2245ae",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\n0\\objects\\73\\8121b43edf7fc61c54ebca644e85d26c2b8179",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\n0\\objects\\21\\cea4433fba00225db79e8af4ebbe3a3d52b5f6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\git\\objects\\9d\\6323f395cb74a9155cac048c91c92d2724f5ac",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\git\\objects\\55\\2451665a14165143aae777c737c4d206ebb70e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\git\\objects\\4b\\bffde1044258153b038e2ca9a53a2b36c6c133",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\artifacts\\derived\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\.git\\objects\\9d\\6323f395cb74a9155cac048c91c92d2724f5ac",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\.git\\objects\\55\\2451665a14165143aae777c737c4d206ebb70e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\derived\\.git\\objects\\11\\ef9a9071bb46192fece3d0c5cf0cad3b5fb48c",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\ambiguous-engine\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\ambiguous-engine\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\ambiguous-engine\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\ambiguous-engine\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\ambiguous-engine\\.git\\objects\\3c\\f4d59d075fe5693ec6efa2ee0568b2217cc3e1",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\ambiguous-engine\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\derived-input-check-r1\\temporary\\fixture\\ambiguous-engine\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              }
+            ]
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:ec01-latest-build:derived-input-check-r1",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\26c318c4948977042a4e7242033dccf4cd0e0be1a1b601a8d4c7f0e0b8e4865a.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "sha256": "09ca659c2a8441671c6fbcaaef8bfa1e9713a3ae5cd9905b329552c0e97f9799",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\3b4e302797404799938337bf465dbdf2.json"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      }
+    },
+    {
+      "id": "run:ec01-latest-build:input-acceptance-r1",
+      "result": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:ec01-latest-build:input-acceptance-r1"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1",
+            "role": "run",
+            "status": "deleted",
+            "attributes": [
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\f7\\c43f5a78feb73ed5547a5eb3de602e820ba33d",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\e2\\74f20e2fa44206b249b4b885ef51cb1f8b45e7",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\d7\\b4df5bbaecd646cb6b6d89e73b353d2ad0fb33",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\d5\\fa149f885fe77beb0c10ea131998e9acd0f724",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\c2\\22a745f35e8de0af6d366002e0e756c7b19a74",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\b5\\979cb9b7a0b617a7f8afd16aa0ab9d91646b3f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\a4\\a2da0ef07871c0485c0ddd15537c33e860a0ce",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\78\\d985f5f37582145aa19021810715729dafce27",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\6b\\2de1426ac5a916f2da58099cf23b4dbadbdec8",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\66\\1ec14a2ff9964e8e1014380cf98219b78e16f6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\58\\9c5ed4d9b9843e2fbd7773119e709fddd62ddc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\55\\4da8db672375e149ef557ebd9a370aa14f31ca",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\52\\436731c834db1404a62d9315e3ef2f197f5794",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\4f\\c98d23bc5da9927f5d6d862c4cc36d8a479155",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\3d\\01f62e3844245bc2f98c58201768f875e34595",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\36\\1ddcdec08e43ff58da4b78b8c402a33f0ad338",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\32\\2efd95e898794c449c4a7245d1dd192bb14c8f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\2a\\f08e1cc07248f9ad2bda4fce05c057b98f06ad",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\26\\2d9adf9fef6beafb8398b965789d8328a0b16e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\19\\d18cc0b3210944378c10fb1d54d2c95a6e6c0a",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\17\\70936349f8727991bd6e90e1425d45321186f1",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\10\\d269ad04c88bb3b82ab537ce0458f9de629304",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\workspaces\\full\\control\\git\\objects\\0c\\abfd1b51c329c2fa1d5e58d9afff354c72fe55",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\f7\\c43f5a78feb73ed5547a5eb3de602e820ba33d",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\e2\\74f20e2fa44206b249b4b885ef51cb1f8b45e7",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\d7\\b4df5bbaecd646cb6b6d89e73b353d2ad0fb33",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\d5\\fa149f885fe77beb0c10ea131998e9acd0f724",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\c2\\22a745f35e8de0af6d366002e0e756c7b19a74",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\b5\\979cb9b7a0b617a7f8afd16aa0ab9d91646b3f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\a4\\a2da0ef07871c0485c0ddd15537c33e860a0ce",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\78\\d985f5f37582145aa19021810715729dafce27",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\6b\\2de1426ac5a916f2da58099cf23b4dbadbdec8",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\66\\1ec14a2ff9964e8e1014380cf98219b78e16f6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\58\\9c5ed4d9b9843e2fbd7773119e709fddd62ddc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\55\\4da8db672375e149ef557ebd9a370aa14f31ca",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\52\\436731c834db1404a62d9315e3ef2f197f5794",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\4f\\c98d23bc5da9927f5d6d862c4cc36d8a479155",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\3d\\01f62e3844245bc2f98c58201768f875e34595",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\36\\1ddcdec08e43ff58da4b78b8c402a33f0ad338",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\32\\2efd95e898794c449c4a7245d1dd192bb14c8f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\2a\\f08e1cc07248f9ad2bda4fce05c057b98f06ad",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\26\\2d9adf9fef6beafb8398b965789d8328a0b16e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\19\\d18cc0b3210944378c10fb1d54d2c95a6e6c0a",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\17\\70936349f8727991bd6e90e1425d45321186f1",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\10\\d269ad04c88bb3b82ab537ce0458f9de629304",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\artifacts\\inputs\\full\\project\\.git\\objects\\0c\\abfd1b51c329c2fa1d5e58d9afff354c72fe55",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\f7\\c43f5a78feb73ed5547a5eb3de602e820ba33d",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\e2\\74f20e2fa44206b249b4b885ef51cb1f8b45e7",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\d7\\b4df5bbaecd646cb6b6d89e73b353d2ad0fb33",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\d5\\fa149f885fe77beb0c10ea131998e9acd0f724",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\c2\\22a745f35e8de0af6d366002e0e756c7b19a74",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\b5\\979cb9b7a0b617a7f8afd16aa0ab9d91646b3f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\a4\\a2da0ef07871c0485c0ddd15537c33e860a0ce",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\78\\d985f5f37582145aa19021810715729dafce27",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\6b\\2de1426ac5a916f2da58099cf23b4dbadbdec8",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\66\\1ec14a2ff9964e8e1014380cf98219b78e16f6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\58\\9c5ed4d9b9843e2fbd7773119e709fddd62ddc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\55\\4da8db672375e149ef557ebd9a370aa14f31ca",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\52\\436731c834db1404a62d9315e3ef2f197f5794",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\36\\1ddcdec08e43ff58da4b78b8c402a33f0ad338",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\32\\2efd95e898794c449c4a7245d1dd192bb14c8f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\2a\\f08e1cc07248f9ad2bda4fce05c057b98f06ad",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\26\\2d9adf9fef6beafb8398b965789d8328a0b16e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\19\\d18cc0b3210944378c10fb1d54d2c95a6e6c0a",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\17\\70936349f8727991bd6e90e1425d45321186f1",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\10\\d269ad04c88bb3b82ab537ce0458f9de629304",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\project\\.git\\objects\\0c\\abfd1b51c329c2fa1d5e58d9afff354c72fe55",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\engine-source\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\engine-source\\.git\\objects\\ec\\13bdcb44a35441d2b1813824f16f8aa8a1f017",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\engine-source\\.git\\objects\\c3\\759da10076c26ad6e4b39475425be3ac12d6af",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\engine-source\\.git\\objects\\8a\\787b2c7612298aa98aefc51623c5dcdb9199bf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\engine-source\\.git\\objects\\5c\\c1f4c38181642dd4f6a1d5279e2e57d7d20e80",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\packaging\\engine-source\\.git\\objects\\28\\06a3c8cb0dd12309c034e41614544b5cfc414d",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\workspaces\\work\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\2c\\61605b1b3baa351fe9c8142c9a5c33451bacc9",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\workspaces\\work\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\inputs\\input\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\2c\\61605b1b3baa351fe9c8142c9a5c33451bacc9",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\artifacts\\inputs\\input\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\.git\\objects\\2c\\61605b1b3baa351fe9c8142c9a5c33451bacc9",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\reusable\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\preparation-failure\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\preparation-failure\\.git\\objects\\c6\\98c747f82975c13c90bd758c0f1215cdd8b14e",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\preparation-failure\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\preparation-failure\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\preparation-failure\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\preparation-failure\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\preparation-failure\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\workspaces\\work\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\workspaces\\work\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\workspaces\\work\\control\\git\\objects\\c7\\94279adecac07d4d1bba2735f2a943838b529f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\workspaces\\work\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\workspaces\\work\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\workspaces\\work\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\workspaces\\work\\control\\git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\workspaces\\work\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\inputs\\input\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\inputs\\input\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\inputs\\input\\project\\.git\\objects\\c7\\94279adecac07d4d1bba2735f2a943838b529f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\inputs\\input\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\inputs\\input\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\inputs\\input\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\inputs\\input\\project\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\artifacts\\inputs\\input\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\.git\\objects\\63\\085f3590f1e25ceaa6c07697fd68c302b2af81",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\paths\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\vendor\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\vendor\\.git\\objects\\e7\\7697f1149f4debe686c48f8f706b59a122bb4a",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\vendor\\.git\\objects\\db\\65fb87253e1631637006ecf78a281f0d6c3c51",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\vendor\\.git\\objects\\08\\78e31db454f16bace2c209827a56ba4dc788f5",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\vendor\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\n0\\objects\\e7\\7697f1149f4debe686c48f8f706b59a122bb4a",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\n0\\objects\\db\\65fb87253e1631637006ecf78a281f0d6c3c51",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\n0\\objects\\08\\78e31db454f16bace2c209827a56ba4dc788f5",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\92\\486eb68c2d9be8dbe4006cc61d07867511b04f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\39\\c40268911b9d3c5aad87f78f79d4d13b848e02",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\workspaces\\work\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\vendor\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\e7\\7697f1149f4debe686c48f8f706b59a122bb4a",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\db\\65fb87253e1631637006ecf78a281f0d6c3c51",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\08\\78e31db454f16bace2c209827a56ba4dc788f5",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\92\\486eb68c2d9be8dbe4006cc61d07867511b04f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\39\\c40268911b9d3c5aad87f78f79d4d13b848e02",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\artifacts\\inputs\\input\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\.git\\objects\\92\\486eb68c2d9be8dbe4006cc61d07867511b04f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\.git\\objects\\4e\\2e0fa0d2c32a88b307d2bf62db8e91b9b745e5",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\.git\\objects\\39\\c40268911b9d3c5aad87f78f79d4d13b848e02",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\normal\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\95\\62bd9fd3539b412d78827789959eaa44f0e1da",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\work\\control\\git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\d5\\82a0b8c25d422b2de4acb07a7b13f0162bb6c3",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\c8\\b879b13a8e5a68568f206f3c8d001da7c288a2",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\b6\\21737b3f0eca47bb0837637132f65a49d1004d",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\a0\\abe7a91597332f67bcec250e045be3a3aee9f0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\69\\324f1c40f9130a1beec62c73105edaa92f7c20",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\64\\29d4774baf687168cbab3b357596dfa675743b",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\workspaces\\embedded\\control\\git\\objects\\05\\0310d9662c0aab957e2c5994afb47b9e510933",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\95\\62bd9fd3539b412d78827789959eaa44f0e1da",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\input\\project\\.git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\d5\\82a0b8c25d422b2de4acb07a7b13f0162bb6c3",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\c8\\b879b13a8e5a68568f206f3c8d001da7c288a2",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\b6\\21737b3f0eca47bb0837637132f65a49d1004d",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\a0\\abe7a91597332f67bcec250e045be3a3aee9f0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\69\\324f1c40f9130a1beec62c73105edaa92f7c20",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\64\\29d4774baf687168cbab3b357596dfa675743b",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\inputs\\embedded\\project\\.git\\objects\\05\\0310d9662c0aab957e2c5994afb47b9e510933",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\a5\\e1dfe11cd71f59ce6936ad24e409dfd6a952fc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\95\\62bd9fd3539b412d78827789959eaa44f0e1da",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\69\\0aad34a46dc93c1dd9d876aa7201a2f317f62b",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\12\\60bae2c9af18fd9161c064965d595188d57761",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\artifacts\\engine-derived\\control\\git\\objects\\0f\\62dccb7929a8d8ed90b7ea57dbd316c08a2e40",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\d5\\82a0b8c25d422b2de4acb07a7b13f0162bb6c3",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\c8\\b879b13a8e5a68568f206f3c8d001da7c288a2",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\b6\\21737b3f0eca47bb0837637132f65a49d1004d",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\a0\\abe7a91597332f67bcec250e045be3a3aee9f0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\95\\62bd9fd3539b412d78827789959eaa44f0e1da",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\69\\324f1c40f9130a1beec62c73105edaa92f7c20",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\64\\29d4774baf687168cbab3b357596dfa675743b",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\imported-engine\\.git\\objects\\05\\0310d9662c0aab957e2c5994afb47b9e510933",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\engine-source\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\engine-source\\.git\\objects\\c2\\ffc0c3054743f22e57ba9c0cfa724372047ef7",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\engine-source\\.git\\objects\\b6\\21737b3f0eca47bb0837637132f65a49d1004d",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\engine-source\\.git\\objects\\69\\324f1c40f9130a1beec62c73105edaa92f7c20",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\engine-source\\.git\\objects\\07\\99dd73ecbe27036b37a799c2fb09b73f4ea26f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\distinct-source\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\distinct-source\\.git\\objects\\c7\\94279adecac07d4d1bba2735f2a943838b529f",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\distinct-source\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\distinct-source\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\distinct-source\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\distinct-source\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\distinct-source\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\vendor\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\vendor\\.git\\objects\\ca\\b89b4940fd3b4787a6ebb19cb4ef490ba7d41b",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\vendor\\.git\\objects\\7e\\6cb12966b8b0c38d117ed87992c2ca5d2245ae",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\vendor\\.git\\objects\\73\\8121b43edf7fc61c54ebca644e85d26c2b8179",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\vendor\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\n0\\objects\\ca\\b89b4940fd3b4787a6ebb19cb4ef490ba7d41b",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\n0\\objects\\7e\\6cb12966b8b0c38d117ed87992c2ca5d2245ae",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\n0\\objects\\73\\8121b43edf7fc61c54ebca644e85d26c2b8179",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\5a\\baffa5a90f2f1344728d9af1b27f1ce7dbbc56",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\4b\\db5c80978557a97aadb557a7c43946f6f03ff6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\workspaces\\work\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\vendor\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\ca\\b89b4940fd3b4787a6ebb19cb4ef490ba7d41b",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\7e\\6cb12966b8b0c38d117ed87992c2ca5d2245ae",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\vendor\\.git\\objects\\73\\8121b43edf7fc61c54ebca644e85d26c2b8179",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\5a\\baffa5a90f2f1344728d9af1b27f1ce7dbbc56",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\4b\\db5c80978557a97aadb557a7c43946f6f03ff6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\inputs\\input\\project\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\vendor\\.git",
+                "before": 34,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\n0\\objects\\ca\\b89b4940fd3b4787a6ebb19cb4ef490ba7d41b",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\n0\\objects\\7e\\6cb12966b8b0c38d117ed87992c2ca5d2245ae",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\n0\\objects\\73\\8121b43edf7fc61c54ebca644e85d26c2b8179",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\git\\objects\\f7\\2c223e59368359d80278dab75c4bb77f4db8cd",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\git\\objects\\5a\\baffa5a90f2f1344728d9af1b27f1ce7dbbc56",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\git\\objects\\4b\\db5c80978557a97aadb557a7c43946f6f03ff6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\git\\objects\\4b\\bffde1044258153b038e2ca9a53a2b36c6c133",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\artifacts\\derived\\control\\git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\.git\\objects\\a8\\b98260391516f4c053f1213b4887ec1f8e8311",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\.git\\objects\\5a\\baffa5a90f2f1344728d9af1b27f1ce7dbbc56",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\.git\\objects\\4b\\db5c80978557a97aadb557a7c43946f6f03ff6",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\derived\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\ambiguous-engine\\.git",
+                "before": 18,
+                "after": 16,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\ambiguous-engine\\.git\\objects\\bd\\816eaba4ca3be8e4d68cfc0ae9f64b5aa712cc",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\ambiguous-engine\\.git\\objects\\88\\3fe30d30f4be864fd17e722379df4950782509",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\ambiguous-engine\\.git\\objects\\87\\78f9521a9f59ea34722fc53775758f8ded4894",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\ambiguous-engine\\.git\\objects\\6d\\8ccf5d6f69dffe0b3b2c760e403ac9f3da8322",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\ambiguous-engine\\.git\\objects\\23\\776d86c1364c8e79069ff9c8dfa25db4b268e0",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              },
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-acceptance-r1\\temporary\\derived\\ambiguous-engine\\.git\\objects\\22\\f3c821f20db0b8e657b67aade46194857b9dbf",
+                "before": 33,
+                "after": 32,
+                "status": "normalized"
+              }
+            ]
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\io-it",
+            "role": "inputs",
+            "status": "deleted",
+            "attributes": []
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\io-cs",
+            "role": "outputs",
+            "status": "deleted",
+            "attributes": []
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:ec01-latest-build:input-acceptance-r1",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\10d626d878f5b45fdd7a2801b177f9a48f7c65ffc5a7e543d8342efaf19147a8.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "sha256": "b3a9028b5a0467e72072da9fe05968d20040d87eadbd0abdd0f33199e907c0b0",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\010fa73005b549eca55262188bfbe200.json"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      }
+    },
+    {
+      "id": "run:ec01-latest-build:input-readiness-check-r1",
+      "result": {
+        "status": "deleted",
+        "reason": null,
+        "groups": [
+          "run:ec01-latest-build:input-readiness-check-r1"
+        ],
+        "members": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ec01-latest-build\\runs\\input-readiness-check-r1",
+            "role": "run",
+            "status": "deleted",
+            "attributes": []
+          }
+        ],
+        "finalization": [
+          {
+            "id": "run:ec01-latest-build:input-readiness-check-r1",
+            "status": "finalized",
+            "remaining": [],
+            "references": [],
+            "blockers": [],
+            "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\947767bea886614b41ef930bc99ac7ba04c380841accbca12e031cd66cb7b395.json"
+          }
+        ],
+        "errors": [],
+        "evidence": {
+          "sha256": "b5111e8e8b19ae3caa158827a786af77f55d3994ba46c197c49388d29f734047",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\cleanup\\a924e27562b249269ed1d0de4453c713.json"
+        },
+        "reservationFinalization": {
+          "finished": true,
+          "reservations_retained": []
+        }
+      }
+    }
+  ],
+  "remaining": []
+}

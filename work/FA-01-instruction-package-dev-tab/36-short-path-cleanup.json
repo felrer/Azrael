@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "groupId": "run:FA-01-windows-build-path:masm17",
+  "startedAtUtc": "2026-11-03T18:23:21.221Z",
+  "priorReviewBlocked": "outside configured managed roots; exact artifacts/ma17 root now declared",
+  "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FA-01-instruction-package-dev-tab\\35-short-path-probe.json",
+  "evidenceSha256": "84ca2dda1d8ac0f731d9e5995c331f0150c3f1eb166df5432ad97f26a4ca60f3",
+  "configSha256": "de1c5af40a8480ed68bffa7673dd901b0d0307a2ba2ecb2edaa56dc9836ab016",
+  "error": "Error: Fresh review still blocked: [{\"id\":\"76da1f2fb731e8c71e14b38f15ba251e29fb5c6639578518f49f1fa2cebc7cb0\",\"blockers\":[\"managed root itself is protected; select owned descendants\",\"a lifecycle group member is protected\"]},{\"id\":\"b7d3518a9b08379be0cfe7333ffc1a557f34f026f14ae3f75c1023c96133ea70\",\"blockers\":[\"a lifecycle group member is protected\"]}]\n    at [stdin]:9:124\n    at runScriptInThisContext (node:internal/vm:219:10)\n    at node:internal/process/execution:483:12\n    at [stdin]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:481:60)\n    at evalFunction (node:internal/process/execution:315:30)\n    at evalTypeScript (node:internal/process/execution:327:3)\n    at node:internal/main/eval_stdin:51:5\n    at Socket.<anonymous> (node:internal/process/execution:237:5)\n    at Socket.emit (node:events:526:24)",
+  "exitCode": 1,
+  "finishedAtUtc": "2026-11-03T18:23:28.971Z"
+}

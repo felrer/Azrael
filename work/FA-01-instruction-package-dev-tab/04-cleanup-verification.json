@@ -1,0 +1,131 @@
+{
+  "verifiedAt": "2026-11-01T17:48:26.883Z",
+  "owner": "maintenance-owner-eq01-protection-r3-win-x64",
+  "commandExitCode": 0,
+  "aborted": false,
+  "cancelled": false,
+  "results": [
+    {
+      "id": "1d197758644d40ffc0980e55e949c2d04d18543ad6d56a2f9bc7e2815cfea6a0",
+      "group": "run:FA-01-instruction-package-dev-tab:20261101T170208375Z-216456b2-070c-447f-a3c6-f3b7e80fe6bb",
+      "status": "deleted",
+      "remaining": false,
+      "deletion": "deleted",
+      "error": null
+    },
+    {
+      "id": "246bd3a3857a1452046207354fdceb76fa81dd4c47d177be4e2b63672f9c31df",
+      "group": "run:FA-01-instruction-package-dev-tab:20261101T171054133Z-99b3ff20-62d8-4b5a-af1e-cafbe117af32",
+      "status": "deleted",
+      "remaining": false,
+      "deletion": "deleted",
+      "error": null
+    },
+    {
+      "id": "257b19ffbfcdc5005c91367c3245a21937b5e0b63b916b4e4e1a211562e5f084",
+      "group": "run:FA-01-instruction-package-dev-tab:20261101T171009916Z-1b222318-6422-448a-99da-2312e98ffb00",
+      "status": "deleted",
+      "remaining": false,
+      "deletion": "deleted",
+      "error": null
+    },
+    {
+      "id": "677f043a5e00d4e8ff84a1d91069100a955023b46b82a894b3786e969c25731b",
+      "group": "run:FA-01-instruction-package-dev-tab:20261101T170718900Z-beeb353c-7a58-4ed6-890c-f71eb1623e88",
+      "status": "deleted",
+      "remaining": false,
+      "deletion": "deleted",
+      "error": null
+    },
+    {
+      "id": "8d7e840009d73f72284c55e51a087bcc4ed00f69fd70e3af771632ac4eeb4c2c",
+      "group": "run:FA-01-instruction-package-dev-tab:20261101T171552798Z-e617b94f-754f-4262-9568-69d75e30fa54",
+      "status": "deleted",
+      "remaining": false,
+      "deletion": "deleted",
+      "error": null
+    },
+    {
+      "id": "947c681939fb71215bc6f73849b22d341dcc431fe214c0f72ee38327526fa400",
+      "group": "run:FA-01-instruction-package-dev-tab:20261101T170352012Z-62cf60d4-9360-4a48-80e7-9dd58dfb41d5",
+      "status": "deleted",
+      "remaining": false,
+      "deletion": "deleted",
+      "error": null
+    },
+    {
+      "id": "9b3920ea5d97b91d5175423708cbdcda16d317852f56bce19e8f38f1bc6dc0e9",
+      "group": "run:FA-01-instruction-package-dev-tab:20261101T170315733Z-29634ec5-9484-4a26-9cff-c466ace2f502",
+      "status": "deleted",
+      "remaining": false,
+      "deletion": "deleted",
+      "error": null
+    },
+    {
+      "id": "c2b4647b022d5867779401f8c590040db1cdd1a590cc16c807144aeaf13f7069",
+      "group": "run:FA-01-instruction-package-dev-tab:20261101T171652535Z-b5109010-4acc-4437-af59-c2d24ddc767e",
+      "status": "deleted",
+      "remaining": false,
+      "deletion": "deleted",
+      "error": null
+    }
+  ],
+  "finalized": [
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T170208375Z-216456b2-070c-447f-a3c6-f3b7e80fe6bb",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T170315733Z-29634ec5-9484-4a26-9cff-c466ace2f502",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T170352012Z-62cf60d4-9360-4a48-80e7-9dd58dfb41d5",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T170718900Z-beeb353c-7a58-4ed6-890c-f71eb1623e88",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T171009916Z-1b222318-6422-448a-99da-2312e98ffb00",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T171054133Z-99b3ff20-62d8-4b5a-af1e-cafbe117af32",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T171552798Z-e617b94f-754f-4262-9568-69d75e30fa54",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    },
+    {
+      "id": "run:FA-01-instruction-package-dev-tab:20261101T171652535Z-b5109010-4acc-4437-af59-c2d24ddc767e",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": []
+    }
+  ]
+}

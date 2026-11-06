@@ -1,0 +1,11 @@
+﻿{
+    "matching_processes":  [
+
+                           ],
+    "boot_utc":  "2026-10-31T06:25:03.8632550Z",
+    "observed_at_utc":  "2026-11-01T13:08:38.0769973Z",
+    "roots":  [
+                  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CM-01-instruction-library-experience\\runs\\20261019T002054048Z-c5459cd5-d039-42ad-bf6e-bdf76e3dae8f",
+                  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\windows-2026-0-9\\runs\\engine-check-retirement-r1"
+              ]
+}

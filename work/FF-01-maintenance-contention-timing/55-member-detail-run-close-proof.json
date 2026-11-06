@@ -1,0 +1,43 @@
+{
+  "at": "2026-11-02T13:22:33.520Z",
+  "run_id": "run:ff1:member6",
+  "producer_stopped_verified": true,
+  "outcome": "success",
+  "exit_code": 0,
+  "source_files": 44,
+  "source_matches_accepted": true,
+  "native_tests": {
+    "focused": 97,
+    "full": 253,
+    "actual_exit_code": 0,
+    "release_exit_code": 0
+  },
+  "measurement": {
+    "native_closes": 9,
+    "all_exit0": true,
+    "scenarios": [
+      "detailed4",
+      "control80",
+      "detailed80"
+    ],
+    "current_review_N": true,
+    "commits_2N": true,
+    "durable_deleted_absent_noPending": true
+  },
+  "inputs": [
+    {
+      "path": "53-member-detail-native-acceptance.json",
+      "sha256": "e3bad8c41ea2b6a92a51488aecc1145ebeded8632a24c3f0bd6f2f27e74a4003"
+    },
+    {
+      "path": "54-member-detail-measurement.json",
+      "sha256": "5a1d8991ef17f982cf15660771844d4c73ae1d9f99e72175cd9b9c5884d81584"
+    },
+    {
+      "path": "59-member-detail-host-observation.json",
+      "sha256": "f89dee69301b5ed181b0c83d20a6db0a25961c77cd9b6cec79ad457bf961e705"
+    }
+  ],
+  "reason": "All preparation/native checks/release and measurement processes actually terminal; independent identities/results preserved outside disposable run; cleanup helper prepared before close.",
+  "installation_changed": false
+}

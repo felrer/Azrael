@@ -1,0 +1,33 @@
+{
+  "lifecycleId": "run:EZ01:desktop-source-mw0hiqiw",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\desktop-source-mw0hiqiw",
+  "tests": [
+    "test-use-control-settings.cjs",
+    "test-use-settings-host.cjs",
+    "test-use-settings-ui.cjs",
+    "test-window-use-host.cjs",
+    "test-window-async-approval-host.cjs",
+    "test-window-approval-notifications.cjs",
+    "test-window-approval-ui-integration.cjs",
+    "test-window-control-host-errors.cjs",
+    "test-window-control-host.cjs",
+    "test-window-overlay.cjs",
+    "test-window-control-errors.cjs",
+    "test-computer-use-injection.cjs",
+    "test-window-control-approval.cjs",
+    "test-source-test-fixtures.cjs",
+    "test-computer-use-runtime.cjs",
+    "test-window-control-runtime.cjs",
+    "tests/sync-codex-environment.test.cjs",
+    "test-window-control-mcp.cjs",
+    "test-window-control-injection.cjs",
+    "test-window-virtual-policy.cjs",
+    "test-window-switched-input.cjs",
+    "test-multi-pointer-mcp.cjs"
+  ],
+  "startedAt": "2026-11-03T09:28:04.367Z",
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\desktop-source-mw0hiqiw\\logs\\tests.log",
+  "exitCode": 1,
+  "signal": null,
+  "endedAt": "2026-11-03T09:29:16.753Z"
+}

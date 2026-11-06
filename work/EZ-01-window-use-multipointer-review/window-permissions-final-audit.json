@@ -1,0 +1,13 @@
+{
+  "syntaxChecks": 34,
+  "diffCheckExit": 0,
+  "archiveFiles": 90,
+  "archiveBytes": 1680630,
+  "postVerificationWhitespaceOnly": [
+    {
+      "file": "scripts/inject-computer-use.cjs",
+      "sha256": "630604122617ee9f0ccf137e25abef9b514dd2dec0c8670ba14b7c52ae9e96e1",
+      "change": "CRLF normalized to LF; JavaScript tokens unchanged"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "lifecycleId": "run:EZ01:permissions-card-r2-mw0bsabx",
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-r2-mw0bsabx",
+  "args": [
+    "--test",
+    "--test-name-pattern=pinned computer-use approval card",
+    "scripts/test-computer-use-injection.cjs"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\EZ01\\runs\\permissions-card-r2-mw0bsabx\\logs\\tests.log",
+  "text": "PASS pinned native card cancel/disabled/settlement/no persistence and unchanged deny/session/always approval actions\n✔ pinned computer-use approval card cancels the request through the native response closure (444.6493ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 539.3368\n"
+}

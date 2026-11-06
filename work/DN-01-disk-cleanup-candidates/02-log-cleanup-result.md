@@ -29,9 +29,9 @@
 
 # 증거와 다음 단계
 
-- [분류 목록 CSV](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/version-groups.csv)
-- [경로별 소유·버전 근거 JSON](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/version-groups.json)
-- [기존 묶음 fresh review](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/native-review.json), [defer 적용 결과](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/native-decisions.json)
-- [범위 메타데이터](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/log-inventory.json), [producer catalog 스냅샷](../../artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/producer-catalog.json)
+- [분류 목록 CSV](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/version-groups.csv)
+- [경로별 소유·버전 근거 JSON](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/version-groups.json)
+- [기존 묶음 fresh review](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/native-review.json), [defer 적용 결과](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/native-decisions.json)
+- [범위 메타데이터](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/log-inventory.json), [producer catalog 스냅샷](../../archive/EC-01-unused-file-archive-20261028/payload/artifacts/tasks/DN-01-disk-cleanup-candidates/runs/log-version-cleanup-20261024-r1/reports/producer-catalog.json)
 
 정리 실행을 이어가려면 구버전 후보의 실제 producer·연결 payload·현재 consumer를 확인하고 legacy custody를 검증된 소유자로 정식 이관해야 합니다. 지원 경로가 필요한 부분은 관리 기능의 별도 보완 범위로 결정해야 합니다. 이후 현행 버전이 요구하는 최소 검증 증거를 이관하고 해당 구버전 묶음 전체를 fresh review/apply합니다. 단순히 보호 플래그를 바꾸거나 원시 registry를 수정하는 작업은 제안하지 않습니다.

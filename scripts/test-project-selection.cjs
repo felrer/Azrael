@@ -5,8 +5,15 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
-const { parseArgs, select, runCommand } = require("./test-project.cjs");
+const { parseArgs, select, fixtureFiles, runCommand } = require("./test-project.cjs");
 const selection = args => select(parseArgs(args));
+
+test("cache ownership helpers select their retained lifecycle regressions", () => {
+  for (const source of ["scripts/build-module-cache.ps1", "scripts/window-control-cache.ps1", "scripts/build-window-control.ps1", "scripts/build-azrael.ps1"]) {
+    assert(selection(["--changed-only", "--changed", source, "--list"]).files.includes("scripts/test-build-module-cache.ps1"), source);
+  }
+  assert(selection(["--changed-only", "--changed", "scripts/module-cache-consumers.cjs", "--list"]).files.includes("scripts/test-preparation-state.cjs"));
+});
 
 test("args-file carries 5502 changed paths beyond Windows argv limits through the existing selector", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-args-file-"));
@@ -74,6 +81,7 @@ test("feature and cache areas select bounded checks without unrelated suites", (
   assert.ok(settings.files.includes("scripts/test-instruction-settings.cjs"));
   assert.ok(settings.extensionFiles.includes("extensions/azrael-ex/test/instructionView.test.ts"));
   assert.ok(!settings.files.includes("scripts/test-window-control-policy.cjs"));
+  assert.ok(fixtureFiles(settings).includes("extensions/azrael-ex/test/instructionService.test.ts"));
   assert.ok(!settings.extensionFiles.includes("extensions/azrael-ex/test/accountService.test.ts"));
   const accounts = selection(["--area", "accounts"]);
   assert.ok(accounts.extensionFiles.includes("extensions/azrael-ex/test/accountService.test.ts"));
@@ -309,14 +317,11 @@ test("btw and native cache deltas select their actual owners without unrelated U
     "scripts/test-asset-transform-cache.cjs",
     "scripts/test-btw.cjs",
     "scripts/test-composer-draft.cjs",
-    "scripts/test-computer-use-approvals.cjs",
     "scripts/test-computer-use-injection.cjs",
     "scripts/test-computer-use-runtime.cjs",
     "scripts/test-namespace-cache-owner.cjs",
     "scripts/test-send-result-integration.cjs",
-    "scripts/test-sky-control-policy.cjs",
     "scripts/test-ui-test-transform-fixture.cjs",
-    "scripts/test-window-desktop-authority.cjs",
     "scripts/tests/codex-environment-engine.test.cjs",
     "scripts/tests/sync-codex-environment.test.cjs",
   ]);
@@ -563,6 +568,10 @@ test("changed-only TypeScript owners preserve affected standalone tests and comp
   }
   const changedTest = selection(["--changed-only", "--changed", "extensions/azrael-ex/test/standaloneHostContract.test.ts"]);
   assert.deepEqual(changedTest.extensionFiles, ["extensions/azrael-ex/test/standaloneHostContract.test.ts"]);
+  assert.ok(fixtureFiles(changedTest).includes(changedTest.extensionFiles[0]));
+  assert.deepEqual(changedTest.files, []);
+  assert.ok(fixtureFiles(selection(["--area", "extension"])).includes("extensions/azrael-ex/test/instructionService.test.ts"));
+  assert.ok(!fixtureFiles(selection(["--area", "standalone"])).includes("extensions/azrael-ex/test/instructionService.test.ts"));
   const config = selection(["--changed-only", "--changed", "extensions/azrael-ex/tsconfig.json"]);
   for (const file of ["scripts/test-error-presentation.cjs", "scripts/test-recovery-bridge.cjs", "scripts/test-recovery-presentation.cjs"])
     assert.ok(config.files.includes(file), `declared compiler-config owner missing: ${file}`);

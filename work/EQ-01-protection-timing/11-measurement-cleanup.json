@@ -1,0 +1,45 @@
+{
+  "exit_code": 0,
+  "result": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:EQ-01-protection-timing:protection-delete-measure-r1",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-30088-4202-1793319949899",
+        "decision": "delete",
+        "decision_id": "872335591986121c756dfb154fc0e67fcc2598849a53bac7626a8eecda6059e2",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "4f8960acbf30053332a1bb0c56e6aef62236550dfc1e9e8a81e30830976d1f40",
+        "lifecycle_group_id": "run:EQ-01-protection-timing:protection-delete-measure-r1",
+        "reason": "Completed measurement run; requested results and exact stop evidence preserved in work/10-lifecycle-measurement.json",
+        "remaining": false,
+        "status": "deleted",
+        "token": "604157d5b56ed8f19b41fdf193d2c004e6b12f1491d81070f937ad685d03028b"
+      }
+    ]
+  },
+  "finalize": {
+    "id": "run:EQ-01-protection-timing:protection-delete-measure-r1",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d779662f357ed01c7980014b6170a8cc682a11e50264e65cc3b4509837abe4e4.json"
+  },
+  "run_absent": true,
+  "producer_record_absent": true,
+  "selector_sha256": "9bc66314681460df3d6da3a9dc923eac52411e22d1fb595b08371477ac492a26"
+}

@@ -278,6 +278,10 @@ impl SessionState {
             .filter(|attribution| attribution.turn_id == turn_id)
             .map(TurnAttribution::start_options)
             .unwrap_or_else(|| TurnStartOptions {
+                agent_profile: self
+                    .reference_context_item()
+                    .filter(|context| context.turn_id.as_deref() == Some(turn_id))
+                    .and_then(|context| context.agent_profile),
                 // Older rollouts only persisted the root on the model-context record.
                 root_turn_id: self
                     .reference_context_item()

@@ -1,0 +1,7 @@
+{
+  "operation": "review",
+  "group_ids": [
+    "run:EQ-01-protection-timing:delete-precheck-removal-r1",
+    "version:maintenance-owner:eq01:delete-apply-r1"
+  ]
+}

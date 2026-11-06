@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "scope": "Windows x64 local; existing test-maintenance-lock-owner.cjs only; no product build or RecipeOnly",
+  "originalQFailure": "Original native transport/timeout/protocol cause remains unknown; release error previously masked primary. Recovery SHA rejection and mocked npm exit9 were expected negatives.",
+  "runs": [
+    {
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a",
+      "checks": {
+        "before": {
+          "scripts/maintenance-lock-owner.cjs": "d62faac65828e97021d71f51458d3705810f7a607041f37fa32eb3a0e1749ca3",
+          "scripts/maintenance-lock-worker.cjs": "45c72047f34a115203ecf766349639d7c079b2ba7d8f0272324149619c30c2ce",
+          "scripts/artifact-lifecycle.cjs": "727a9ac825b8b6aa9f01b7e234840f17a75ecd55ca8259882e81319616030aee",
+          "scripts/test-maintenance-lock-owner.cjs": "06ae9392e56fc7528ea834c7e7837fdc951438a2987e2590b76e6af8b7ad94d8"
+        },
+        "after": {
+          "scripts/maintenance-lock-owner.cjs": "d62faac65828e97021d71f51458d3705810f7a607041f37fa32eb3a0e1749ca3",
+          "scripts/maintenance-lock-worker.cjs": "45c72047f34a115203ecf766349639d7c079b2ba7d8f0272324149619c30c2ce",
+          "scripts/artifact-lifecycle.cjs": "727a9ac825b8b6aa9f01b7e234840f17a75ecd55ca8259882e81319616030aee",
+          "scripts/test-maintenance-lock-owner.cjs": "06ae9392e56fc7528ea834c7e7837fdc951438a2987e2590b76e6af8b7ad94d8"
+        },
+        "argv": [
+          "C:\\Program Files\\nodejs\\node.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031a\\temporary\\native-lease"
+        ],
+        "actualExitCode": 1,
+        "signal": null,
+        "error": null,
+        "fixtureRemaining": false,
+        "sourceUnchanged": true,
+        "exitCode": 1
+      },
+      "stdout": "",
+      "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs:119\r\n    assert.equal(error.lease.native_pid, nativePid);\r\n                             ^\r\n\r\nTypeError: Cannot read properties of undefined (reading 'native_pid')\r\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs:119:30)\r\n    at expectedException (node:assert:547:17)\r\n    at expectsError (node:assert:672:21)\r\n    at strict.throws (node:assert:728:3)\r\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs:111:10)\r\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\r\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\r\n\r\nNode.js v26.7.0\r\n"
+    },
+    {
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031b",
+      "checks": {
+        "exitCode": 1,
+        "signal": null,
+        "before": {
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs": "d62faac65828e97021d71f51458d3705810f7a607041f37fa32eb3a0e1749ca3",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-worker.cjs": "45c72047f34a115203ecf766349639d7c079b2ba7d8f0272324149619c30c2ce",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs": "727a9ac825b8b6aa9f01b7e234840f17a75ecd55ca8259882e81319616030aee",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs": "c9aa24a2f2f886034b3e5ccd6e5bb2669afd16424ffa0a34f373d16d9c2d2274"
+        },
+        "after": {
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs": "d62faac65828e97021d71f51458d3705810f7a607041f37fa32eb3a0e1749ca3",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-worker.cjs": "45c72047f34a115203ecf766349639d7c079b2ba7d8f0272324149619c30c2ce",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs": "727a9ac825b8b6aa9f01b7e234840f17a75ecd55ca8259882e81319616030aee",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs": "c9aa24a2f2f886034b3e5ccd6e5bb2669afd16424ffa0a34f373d16d9c2d2274"
+        },
+        "sourceUnchanged": true,
+        "fixtureRemaining": false
+      },
+      "stdout": "",
+      "stderr": "node:internal/assert/utils:146\r\n  throw error;\r\n  ^\r\n\r\nAssertionError [ERR_ASSERTION]: Error: EBUSY: resource busy or locked, read\r\n    at Object.readSync (node:fs:896:18)\r\n    at tryReadSync (node:fs:477:20)\r\n    at Object.readFileSync (node:fs:577:19)\r\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs:112:31\r\n    at Object.withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:138:16)\r\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs:111:33\r\n    at getActual (node:assert:580:5)\r\n    at strict.throws (node:assert:728:24)\r\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs:111:10)\r\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\r\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs:119:5)\r\n    at expectedException (node:assert:547:17)\r\n    at expectsError (node:assert:672:21)\r\n    at strict.throws (node:assert:728:3)\r\n    at Object.<anonymous> (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs:111:10)\r\n    at Module._compile (node:internal/modules/cjs/loader:1934:14)\r\n    at Object..js (node:internal/modules/cjs/loader:2074:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1656:32)\r\n    at Module._load (node:internal/modules/cjs/loader:1448:12)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19) {\r\n  generatedMessage: false,\r\n  code: 'ERR_ASSERTION',\r\n  actual: undefined,\r\n  expected: true,\r\n  operator: '==',\r\n  diff: 'simple'\r\n}\r\n\r\nNode.js v26.7.0\r\n"
+    },
+    {
+      "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\ET-01-cold-build-cache-audit\\runs\\lease-diagnostics-20261031c",
+      "checks": {
+        "exitCode": 0,
+        "signal": null,
+        "before": {
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs": "d62faac65828e97021d71f51458d3705810f7a607041f37fa32eb3a0e1749ca3",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-worker.cjs": "45c72047f34a115203ecf766349639d7c079b2ba7d8f0272324149619c30c2ce",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs": "727a9ac825b8b6aa9f01b7e234840f17a75ecd55ca8259882e81319616030aee",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs": "b45046f5a9ebff71b5cbddbf9f3e2862bbe6bf665ff499b17a837304344f9733"
+        },
+        "after": {
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-owner.cjs": "d62faac65828e97021d71f51458d3705810f7a607041f37fa32eb3a0e1749ca3",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\maintenance-lock-worker.cjs": "45c72047f34a115203ecf766349639d7c079b2ba7d8f0272324149619c30c2ce",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs": "727a9ac825b8b6aa9f01b7e234840f17a75ecd55ca8259882e81319616030aee",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-maintenance-lock-owner.cjs": "b45046f5a9ebff71b5cbddbf9f3e2862bbe6bf665ff499b17a837304344f9733"
+        },
+        "sourceUnchanged": true,
+        "fixtureRemaining": false
+      },
+      "stdout": "{\"status\":\"passed\",\"platform\":\"win32\",\"arch\":\"x64\",\"checks\":[\"top-level and encoded busy metadata survive worker packets; transport, permission and corrupt errors stay distinct\",\"real child contention, persistent metadata, reacquisition\",\"bounded wait expires without taking a held lock\",\"parent crash closes native stdin and releases OS exclusion\",\"idle native helper death reports terminal state and releases exclusion\",\"native write failure preserves its primary operation and secondary release error without inventing terminal observation\",\"existing empty, malformed and schema1 markers require recovery\",\"replaced lock inode is preserved and release refuses replacement, or OS denies replacement\",\"symlink/reparse ancestors and non-file lock targets refused\",\"native >1 MiB UTF-8 record CAS/reserve/finish and oversized response preflight without durable fence creation\",\"native hashed-ID CAS, producer reservation/catalog handoff/pinned finish, unsafe member and wrong lock rejection\",\"default installation receipt resolves pinned owner; SHA/protocol/traversal/linked ancestors refuse without execution\",\"malformed protocol fails closed; unknown command refused\"]}\n",
+      "stderr": ""
+    }
+  ],
+  "diagnosis": "a assertion hid original fixture error; b exposed Windows EBUSY reading held OS lock. c captures actual acquire return PID and passes all existing regression checks.",
+  "remaining": "RecipeOnly and owner cleanup await root compiler/catalog signal"
+}

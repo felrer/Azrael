@@ -105,6 +105,106 @@ class RecorderTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cannot add"):
             importer.validate_receipt(self.destination, receipt)
 
+    def retire(self, names, expected=(), digest=None, **kwargs):
+        return recorder.record_changes(self.destination, self.baseline, self.digest, expected,
+                                       digest or self.current_digest(), expected_removed_paths=names, **kwargs)
+
+    def test_retirement_preserves_original_prior_reviews_and_exact_new_delta(self):
+        names = ("nested/new.rs", "codex-rs/prompts/templates/retired.md")
+        for name in names:
+            self.add_module(name)
+        self.record(("edit.rs", *names))
+        prior = self.receipt()
+        # Committed additions and newly indexed additions can both be retired.
+        self.git(self.repo, "add", "engine/SOURCE.json")
+        self.git(self.repo, "commit", "--quiet", "-m", "reviewed additions")
+        for name in names:
+            (self.destination / name).unlink()
+            self.git(self.repo, "rm", "--cached", "engine/" + name)
+        self.add_module("replacement.rs")
+        (self.destination / "other.rs").write_bytes(b"another reviewed edit\n")
+        self.retire(names, ("replacement.rs", "other.rs"))
+        receipt = self.receipt()
+        self.assertEqual(receipt["localIntegration"]["originalReceipt"], self.original)
+        self.assertEqual(receipt["localIntegration"]["changes"]["edit.rs"], prior["localIntegration"]["changes"]["edit.rs"])
+        for name in names:
+            self.assertNotIn(name, receipt["files"])
+            self.assertNotIn(name, receipt["localIntegration"]["changes"])
+        self.assertIsNone(receipt["localIntegration"]["changes"]["replacement.rs"]["before"])
+        importer.validate_receipt(self.destination, receipt)
+        (self.destination / "replacement.rs").unlink()
+        self.git(self.repo, "rm", "--cached", "engine/replacement.rs")
+        self.retire(("replacement.rs",))
+        self.assertEqual(self.receipt()["localIntegration"]["schema"], 1)
+        importer.validate_receipt(self.destination, self.receipt())
+
+    def test_retirement_requires_absence_from_filesystem_and_index(self):
+        self.add_module()
+        self.record(("edit.rs", "new.rs"))
+        before = (self.destination / "SOURCE.json").read_bytes()
+        with self.assertRaisesRegex(ValueError, "must be absent"):
+            self.retire(("new.rs",))
+        (self.destination / "new.rs").unlink()
+        with self.assertRaisesRegex(ValueError, "absent from Git index"):
+            self.retire(("new.rs",))
+        self.assertEqual((self.destination / "SOURCE.json").read_bytes(), before)
+
+    def test_retirement_rejects_dangling_symlink(self):
+        self.add_module()
+        self.record(("edit.rs", "new.rs"))
+        path = self.destination / "new.rs"
+        path.unlink()
+        self.git(self.repo, "rm", "--cached", "engine/new.rs")
+        try:
+            path.symlink_to("absent-target.rs")
+        except OSError as error:
+            self.skipTest(f"Symlink creation unavailable: {error}")
+        with self.assertRaisesRegex(ValueError, "including symlinks"):
+            self.retire(("new.rs",))
+        path.unlink()
+
+    def test_retirement_rejects_baseline_adaptation_sql_and_unreviewed_paths(self):
+        migration = self.add_migration()
+        self.record_migrations((migration,))
+        for name in ("other.rs", importer.REPLAY_PATH, "migrations/1.sql", migration, "unreviewed.rs"):
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, "reviewed ordinary source addition"):
+                self.retire((name,))
+        # An actual removed imported path still cannot be declared as retirement.
+        (self.destination / "other.rs").unlink()
+        self.git(self.repo, "rm", "--cached", "engine/other.rs")
+        with self.assertRaisesRegex(ValueError, "reviewed ordinary source addition"):
+            self.retire(("other.rs",))
+
+    def test_retirement_paths_are_explicit_unique_disjoint_and_anchor_bound(self):
+        self.add_module()
+        self.record(("edit.rs", "new.rs"))
+        (self.destination / "new.rs").unlink()
+        self.git(self.repo, "rm", "--cached", "engine/new.rs")
+        for names, options in ((("new.rs", "new.rs"), {}),
+                               (("new.rs",), {"expected": ("new.rs",)}),
+                               (("new.rs",), {"expected_adapted_paths": ("new.rs",)}),
+                               (("new.rs",), {"expected_migration_paths": ("new.rs",)})):
+            with self.subTest(names=names, options=options), self.assertRaisesRegex(ValueError, "explicit and unique"):
+                self.retire(names, **options)
+        with self.assertRaisesRegex(ValueError, "reviewed SHA256"):
+            self.retire(("new.rs",), digest="0" * 64)
+
+    def test_retirement_rejects_unlisted_deletions_and_unrelated_edits(self):
+        self.add_module()
+        self.add_module("second.rs")
+        self.record(("edit.rs", "new.rs", "second.rs"))
+        prior = (self.destination / "SOURCE.json").read_bytes()
+        for name in ("new.rs", "second.rs"):
+            (self.destination / name).unlink()
+            self.git(self.repo, "rm", "--cached", "engine/" + name)
+        with self.assertRaises(ValueError):
+            self.retire(("new.rs",))
+        self.assertEqual((self.destination / "SOURCE.json").read_bytes(), prior)
+        (self.destination / "other.rs").write_bytes(b"unlisted edit\n")
+        with self.assertRaisesRegex(ValueError, "Reviewed delta differs"):
+            self.retire(("new.rs", "second.rs"))
+        self.assertEqual((self.destination / "SOURCE.json").read_bytes(), prior)
+
     def test_direct_generated_protocol_contracts_are_explicit_tracked_and_content_bound(self):
         names = ("codex-rs/app-server-protocol/schema/typescript/HostApproval.ts",
                  "codex-rs/app-server-protocol/schema/typescript/v2/ThreadApprovalParams.ts",
