@@ -9,6 +9,166 @@ use crate::error_code::INVALID_REQUEST_ERROR_CODE;
 use http::StatusCode;
 use pretty_assertions::assert_eq;
 
+// Auth-only fixture: reuse the dispatcher harness's idle thread manager. This
+// checks native account bindings, not thread execution, history or UI behavior.
+#[tokio::test]
+async fn project_peers_share_selection_and_next_auth_without_sharing_policy() -> anyhow::Result<()>
+{
+    use crate::user_verification::test_support::Harness;
+    use app_test_support::ChatGptAuthFixture;
+    use app_test_support::write_chatgpt_auth;
+    use codex_login::AuthCredentialsStoreMode;
+
+    async fn peer(
+        source: &Arc<AccountRequestProcessor>,
+        project: Option<Arc<AccountRequestProcessor>>,
+        name: &str,
+    ) -> anyhow::Result<Arc<AccountRequestProcessor>> {
+        let manager = source.config_manager.fork_for_window();
+        let admission = project
+            .as_ref()
+            .map(|project| project.auth_manager.azrael_admission());
+        let (config, auth) = manager
+            .load_azrael_project_config(&source.config, admission)
+            .await?;
+        Ok(AccountRequestProcessor::new_with_azrael_state_paths(
+            auth,
+            source.thread_manager.clone(),
+            source.outgoing.clone(),
+            Arc::new(config),
+            manager,
+            Some(
+                super::super::azrael_state::AzraelAccountStatePaths::for_project(
+                    source
+                        .config
+                        .codex_home
+                        .join(format!("{name}.json"))
+                        .to_path_buf(),
+                )?,
+            ),
+            None,
+            project,
+        ))
+    }
+
+    let harness = Harness::new(crate::transport::ConnectionOrigin::InProcess, || true).await?;
+    let source = harness.processor.project_account_processor();
+    let first = peer(&source, None, "project-one").await?;
+    let second = peer(&source, Some(first.clone()), "same-project").await?;
+    let independent = peer(&source, None, "project-two").await?;
+    assert!(Arc::ptr_eq(&first.azrael, &second.azrael));
+    assert!(!Arc::ptr_eq(&first.azrael, &independent.azrael));
+    assert!(Arc::ptr_eq(&first.retirement_gate, &second.retirement_gate));
+    assert!(Arc::ptr_eq(
+        &first.auth_manager.azrael_admission(),
+        &second.auth_manager.azrael_admission()
+    ));
+    assert!(!Arc::ptr_eq(&first.auth_manager, &second.auth_manager));
+    assert_ne!(
+        first.auth_manager.application_network_policy(),
+        second.auth_manager.application_network_policy()
+    );
+    assert!(!Arc::ptr_eq(
+        &first.auth_manager.azrael_admission(),
+        &independent.auth_manager.azrael_admission()
+    ));
+
+    let mut profiles = Vec::new();
+    for (token, account) in [("synthetic-a", "account-a"), ("synthetic-b", "account-b")] {
+        write_chatgpt_auth(
+            harness.home.path(),
+            ChatGptAuthFixture::new(token)
+                .account_id(account)
+                .chatgpt_account_id(account)
+                .chatgpt_user_id("synthetic-user"),
+            AuthCredentialsStoreMode::File,
+        )?;
+        let profile = first.azrael.store.capture_current(&harness.auth).await?;
+        let request = first.auth_manager.azrael_admission().begin_switch()?;
+        let guard = request.try_commit().expect("fixture has no active work");
+        first.install_project_profile(profile.id()).await?;
+        {
+            let mut state = first.azrael.inner.lock().await;
+            state.selected_profile_id = Some(profile.id().to_string());
+            state.active_profile = Some(profile.clone());
+        }
+        assert_eq!(
+            second
+                .azrael
+                .inner
+                .lock()
+                .await
+                .selected_profile_id
+                .as_deref(),
+            Some(profile.id())
+        );
+        for participant in [&first, &second] {
+            let auth = participant
+                .auth_manager
+                .auth()
+                .await
+                .expect("installed native auth");
+            assert_eq!(auth.get_account_id().as_deref(), Some(account));
+            assert_eq!(auth.get_token()?, token);
+        }
+        assert!(independent.auth_manager.auth().await.is_none());
+        assert!(
+            independent
+                .azrael
+                .inner
+                .lock()
+                .await
+                .selected_profile_id
+                .is_none()
+        );
+        drop(guard);
+        drop(request);
+        profiles.push(profile);
+    }
+
+    let request = first.auth_manager.azrael_admission().begin_switch()?;
+    let attached = peer(&source, Some(first.clone()), "pending-attach").await?;
+    attached.bind_azrael_project_profile().await?;
+    assert_eq!(
+        attached.auth_manager.auth().await.unwrap().get_token()?,
+        "synthetic-b"
+    );
+    drop(request);
+
+    write_chatgpt_auth(
+        harness.home.path(),
+        ChatGptAuthFixture::new("synthetic-b-refreshed")
+            .account_id("account-b")
+            .chatgpt_account_id("account-b")
+            .chatgpt_user_id("synthetic-user"),
+        AuthCredentialsStoreMode::File,
+    )?;
+    let refreshed = first.azrael.store.capture_current(&harness.auth).await?;
+    let request = first.auth_manager.azrael_admission().begin_switch()?;
+    let guard = request.try_commit().expect("fixture has no active work");
+    profiles[1].replace_from(&refreshed).await?;
+    first.install_project_profile(profiles[1].id()).await?;
+    for participant in [&first, &second, &attached] {
+        let auth = participant.auth_manager.auth().await.unwrap();
+        assert_eq!(auth.get_account_id().as_deref(), Some("account-b"));
+        assert_eq!(auth.get_token()?, "synthetic-b-refreshed");
+    }
+    drop(guard);
+    drop(request);
+    profiles.push(refreshed);
+    for participant in [&first, &second, &attached, &independent] {
+        participant.clear_external_auth();
+    }
+    for profile in &profiles {
+        first.azrael.store.remove(profile.id()).await?;
+        assert!(!profile.auth_home().join("auth.json").exists());
+    }
+    drop(profiles);
+    drop((first, second, attached, independent, source));
+    harness.shutdown().await;
+    Ok(())
+}
+
 #[test]
 fn usage_errors_report_http_status_without_exposing_response_body() {
     for status in [

@@ -144,6 +144,61 @@ impl AccountRequestProcessor {
         }
     }
 
+    /// Bind a new context without changing the project's selected account or replaying work.
+    pub(crate) async fn bind_azrael_project_profile(&self) -> io::Result<()> {
+        if self.azrael.inner.lock().await.requires_recovery {
+            return super::retirement::block_saved_recovery(&self.auth_manager);
+        }
+        let _guard = self
+            .auth_manager
+            .azrael_admission()
+            .admit_queued_request()?;
+        let selected = self.azrael.inner.lock().await.selected_profile_id.clone();
+        if let Some(id) = selected {
+            let profile = self.azrael.store.open(&id, &self.auth_manager).await?;
+            let external: Arc<dyn ExternalAuth> = profile.clone();
+            self.auth_manager.set_external_auth(external).await?;
+            if !profile_identity_matches(&profile, self.auth_manager.auth_cached().as_ref())
+                || self
+                    .azrael
+                    .inner
+                    .lock()
+                    .await
+                    .selected_profile_id
+                    .as_deref()
+                    != Some(id.as_str())
+            {
+                super::retirement::block_saved_recovery(&self.auth_manager)?;
+                return Err(io::Error::other(
+                    "project account binding could not be verified",
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    pub(super) async fn install_project_profile(&self, id: &str) -> io::Result<()> {
+        for peer in self.project_participants() {
+            let profile = peer.azrael.store.open(id, &peer.auth_manager).await?;
+            // Each policy-bound manager may cache tokens replaced by another peer.
+            profile.manager().reload().await;
+            let external: Arc<dyn ExternalAuth> = profile.clone();
+            peer.auth_manager.set_external_auth(external).await?;
+            if !profile_identity_matches(&profile, peer.auth_manager.auth_cached().as_ref()) {
+                return Err(io::Error::other(
+                    "project account identity could not be verified",
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    pub(super) fn project_profile_matches(&self, profile: &AzraelProfileAuth) -> bool {
+        self.project_participants()
+            .iter()
+            .all(|peer| profile_identity_matches(profile, peer.auth_manager.auth_cached().as_ref()))
+    }
+
     async fn restore_azrael_profile_direct(&self, profile_id: &str) -> io::Result<()> {
         let profile = self
             .azrael
@@ -167,11 +222,18 @@ impl AccountRequestProcessor {
     }
 
     async fn azrael_capture_current(&self) -> Result<(), JSONRPCErrorError> {
-        self.auth_manager
+        // Root credentials are read only for this explicit import action.
+        let capture_manager = if self.auth_manager.auth_cached().is_some() {
+            Arc::clone(&self.auth_manager)
+        } else {
+            AuthManager::shared_for_azrael(self.config.as_ref(), false)
+                .await
+                .map_err(account_mutation_error)?
+        };
+        capture_manager
             .acquire_azrael_unmanaged_auth_lease()
             .map_err(|_| invalid_request("unmanaged authentication is owned by another engine"))?;
-        let _refresh_guard = self
-            .auth_manager
+        let _refresh_guard = capture_manager
             .lock_azrael_unmanaged_mutation()
             .await
             .map_err(account_mutation_error)?;
@@ -183,7 +245,7 @@ impl AccountRequestProcessor {
         let guard = request.try_commit().ok_or_else(|| {
             invalid_request("account capture is unavailable while account work is active")
         })?;
-        let auth = self.auth_manager.auth_cached().ok_or_else(|| {
+        let auth = capture_manager.auth_cached().ok_or_else(|| {
             invalid_request("managed ChatGPT authentication is required to capture an account")
         })?;
         if !matches!(auth, CodexAuth::Chatgpt(_)) {
@@ -206,7 +268,7 @@ impl AccountRequestProcessor {
         let captured = self
             .azrael
             .store
-            .capture_current(&self.auth_manager)
+            .capture_current(&capture_manager)
             .await
             .map_err(|_| internal_error("failed to capture the current account"))?;
         let profile = if let Some(existing) = existing {
@@ -225,7 +287,16 @@ impl AccountRequestProcessor {
         } else {
             captured
         };
-        self.commit_azrael_switch(profile, /*retire_root_auth*/ true, guard)
+        let retire_root_auth = Arc::ptr_eq(&capture_manager, &self.auth_manager);
+        if !retire_root_auth && capture_manager.logout().await.is_err() {
+            self.auth_manager.azrael_admission().block_new_work();
+            self.azrael.inner.lock().await.last_error = Some(
+                "The captured source account could not be retired. New work is blocked until restart."
+                    .to_string(),
+            );
+            return Err(internal_error("failed to retire captured source account"));
+        }
+        self.commit_azrael_switch(profile, retire_root_auth, guard)
             .await;
         drop(request);
         Ok(())
@@ -346,7 +417,14 @@ impl AccountRequestProcessor {
                 state.requires_recovery,
             )
         };
-        let previous_auth = self.auth_manager.auth_cached();
+        let previous_auth: Vec<_> = self
+            .project_participants()
+            .into_iter()
+            .map(|peer| {
+                let auth = peer.auth_manager.auth_cached();
+                (peer, auth)
+            })
+            .collect();
         if retire_root_auth && self.auth_manager.logout().await.is_err() {
             self.auth_manager.azrael_admission().block_new_work();
             let mut state = self.azrael.inner.lock().await;
@@ -358,9 +436,7 @@ impl AccountRequestProcessor {
             completion.completed = true;
             return;
         }
-        let external: Arc<dyn ExternalAuth> = profile.clone();
-        let switched = self.auth_manager.set_external_auth(external).await.is_ok()
-            && profile_identity_matches(&profile, self.auth_manager.auth_cached().as_ref());
+        let switched = self.install_project_profile(profile.id()).await.is_ok();
         let selected = profile.id().to_string();
         if switched {
             {
@@ -370,7 +446,7 @@ impl AccountRequestProcessor {
                 state.last_error = None;
             }
             self.refresh_after_azrael_account_change().await;
-            if profile_identity_matches(&profile, self.auth_manager.auth_cached().as_ref())
+            if self.project_profile_matches(&profile)
                 && write_selected_states(
                     &self.azrael.selection_path,
                     self.azrael.default_selection_path.as_deref(),
@@ -379,7 +455,9 @@ impl AccountRequestProcessor {
                 .is_ok()
             {
                 self.azrael.inner.lock().await.requires_recovery = false;
-                self.auth_manager.release_azrael_unmanaged_auth_lease();
+                for peer in self.project_participants() {
+                    peer.auth_manager.release_azrael_unmanaged_auth_lease();
+                }
                 self.auth_manager
                     .azrael_admission()
                     .complete_retirement(&guard);
@@ -391,18 +469,24 @@ impl AccountRequestProcessor {
         }
         // Restore both binding and durable selection before reopening execution.
         let restored = if previous_recovery {
-            super::retirement::block_saved_recovery(&self.auth_manager).is_ok()
+            self.project_participants()
+                .iter()
+                .all(|peer| super::retirement::block_saved_recovery(&peer.auth_manager).is_ok())
         } else if let Some(previous) = previous.as_ref() {
-            let external: Arc<dyn ExternalAuth> = previous.clone();
-            self.auth_manager.set_external_auth(external).await.is_ok()
-                && profile_identity_matches(previous, self.auth_manager.auth_cached().as_ref())
+            self.install_project_profile(previous.id()).await.is_ok()
         } else if !retire_root_auth {
-            self.auth_manager.clear_external_auth();
-            self.auth_manager.reload().await;
-            same_auth_identity(
-                previous_auth.as_ref(),
-                self.auth_manager.auth_cached().as_ref(),
-            )
+            let mut restored = true;
+            for (peer, auth) in &previous_auth {
+                if auth.is_none() {
+                    restored &= super::retirement::hide_project_auth(&peer.auth_manager).is_ok();
+                } else {
+                    peer.auth_manager.clear_external_auth();
+                    peer.auth_manager.reload().await;
+                    restored &=
+                        same_auth_identity(auth.as_ref(), peer.auth_manager.auth_cached().as_ref());
+                }
+            }
+            restored
         } else {
             false
         };
@@ -430,10 +514,9 @@ impl AccountRequestProcessor {
                     Some("Account switch failed; the previous account was restored.".to_string());
             }
             self.refresh_after_azrael_account_change().await;
-            if same_auth_identity(
-                previous_auth.as_ref(),
-                self.auth_manager.auth_cached().as_ref(),
-            ) {
+            if previous_auth.iter().all(|(peer, auth)| {
+                same_auth_identity(auth.as_ref(), peer.auth_manager.auth_cached().as_ref())
+            }) {
                 completion.completed = true;
                 drop(guard);
                 return;
@@ -467,7 +550,11 @@ impl AccountRequestProcessor {
             state
                 .active_profile
                 .as_ref()
-                .filter(|profile| profile.id() == profile_id)
+                .filter(|profile| {
+                    profile.id() == profile_id
+                        && profile.manager().application_network_policy()
+                            == self.auth_manager.application_network_policy()
+                })
                 .cloned()
         };
         match profile {
@@ -655,25 +742,27 @@ impl AccountRequestProcessor {
     }
 
     pub(super) async fn refresh_after_azrael_account_change(&self) {
-        self.config_manager.replace_cloud_config_bundle_loader(
-            self.auth_manager.clone(),
-            self.config.chatgpt_base_url.clone(),
-            self.config.http_client_factory(),
-        );
-        self.config_manager
-            .sync_default_client_residency_requirement()
+        for peer in self.project_participants() {
+            peer.config_manager.replace_cloud_config_bundle_loader(
+                peer.auth_manager.clone(),
+                peer.config.chatgpt_base_url.clone(),
+                peer.config.http_client_factory(),
+            );
+            peer.config_manager
+                .sync_default_client_residency_requirement()
+                .await;
+            Self::maybe_refresh_plugin_caches_for_current_config(
+                &peer.config_manager,
+                &peer.thread_manager,
+                peer.auth_manager.auth_cached(),
+            )
             .await;
-        Self::maybe_refresh_plugin_caches_for_current_config(
-            &self.config_manager,
-            &self.thread_manager,
-            self.auth_manager.auth_cached(),
-        )
-        .await;
-        self.outgoing
-            .send_server_notification(ServerNotification::AccountUpdated(
-                self.current_account_updated_notification(),
-            ))
-            .await;
+            peer.outgoing
+                .send_server_notification(ServerNotification::AccountUpdated(
+                    peer.current_account_updated_notification(),
+                ))
+                .await;
+        }
         self.send_azrael_update().await;
     }
 
@@ -749,11 +838,14 @@ impl AccountRequestProcessor {
     }
 
     pub(super) async fn send_azrael_update(&self) {
-        self.outgoing
-            .send_server_notification(ServerNotification::AzraelAccountUpdated(
-                self.azrael_state().await,
-            ))
-            .await;
+        let snapshot = self.azrael_state().await;
+        for peer in self.project_participants() {
+            peer.outgoing
+                .send_server_notification(ServerNotification::AzraelAccountUpdated(
+                    snapshot.clone(),
+                ))
+                .await;
+        }
     }
 }
 

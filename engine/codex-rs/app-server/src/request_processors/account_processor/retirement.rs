@@ -24,6 +24,10 @@ impl ExternalAuth for RecoveryRequiredAuth {
 
 pub(super) fn block_saved_recovery(auth: &codex_login::AuthManager) -> io::Result<()> {
     auth.azrael_admission().block_new_work();
+    hide_project_auth(auth)
+}
+
+pub(super) fn hide_project_auth(auth: &codex_login::AuthManager) -> io::Result<()> {
     auth.install_unavailable_external_auth(Arc::new(RecoveryRequiredAuth))?;
     auth.release_azrael_unmanaged_auth_lease();
     Ok(())
@@ -57,6 +61,10 @@ mod durable_recovery_tests {
             home.path().to_path_buf(),
         );
         assert!(manager.auth_cached().is_some());
+        hide_project_auth(&manager).unwrap();
+        assert!(manager.auth_cached().is_none());
+        assert!(manager.azrael_admission().admit_request().await.is_ok());
+        assert_eq!(std::fs::read(&root_auth).unwrap(), original);
         block_saved_recovery(&manager).unwrap();
         assert!(manager.auth_cached().is_none());
         assert!(manager.auth().await.is_none());
@@ -261,16 +269,18 @@ impl AccountRequestProcessor {
         // Block queues and new tasks before aborting work. Interrupt uses the existing
         // cleanup path, including parked roots, reservations, tools and subagents.
         let mut interrupted = Vec::new();
-        for thread_id in self.thread_manager.list_thread_ids().await {
-            if let Ok(thread) = self.thread_manager.get_thread(thread_id).await {
-                let execution = thread.account_execution_context().await;
-                if Arc::ptr_eq(
-                    &thread.auth_admission_for_model(&execution.model),
-                    &admission,
-                ) && execution.uses_openai_profile
-                {
-                    thread.close_account_retirement_admission(&execution.model);
-                    interrupted.push(thread);
+        for peer in self.project_participants() {
+            for thread_id in peer.thread_manager.list_thread_ids().await {
+                if let Ok(thread) = peer.thread_manager.get_thread(thread_id).await {
+                    let execution = thread.account_execution_context().await;
+                    if Arc::ptr_eq(
+                        &thread.auth_admission_for_model(&execution.model),
+                        &admission,
+                    ) && execution.uses_openai_profile
+                    {
+                        thread.close_account_retirement_admission(&execution.model);
+                        interrupted.push(thread);
+                    }
                 }
             }
         }
@@ -321,13 +331,7 @@ impl AccountRequestProcessor {
             if profile.resolve().await.is_err() {
                 continue;
             }
-            let external: Arc<dyn ExternalAuth> = profile.clone();
-            if self.auth_manager.set_external_auth(external).await.is_err()
-                || !azrael::profile_identity_matches(
-                    &profile,
-                    self.auth_manager.auth_cached().as_ref(),
-                )
-            {
+            if self.install_project_profile(&info.id).await.is_err() {
                 continue;
             }
             azrael_state::write_selected_states(
@@ -343,12 +347,7 @@ impl AccountRequestProcessor {
                 state.requires_recovery = false;
             }
             self.refresh_after_azrael_account_change().await;
-            if profile.resolve().await.is_err()
-                || !azrael::profile_identity_matches(
-                    &profile,
-                    self.auth_manager.auth_cached().as_ref(),
-                )
-            {
+            if profile.resolve().await.is_err() || !self.project_profile_matches(&profile) {
                 let mut state = self.azrael.inner.lock().await;
                 state.active_profile = None;
                 state.selected_profile_id = None;
@@ -360,7 +359,9 @@ impl AccountRequestProcessor {
                 )?;
                 continue;
             }
-            self.auth_manager.release_azrael_unmanaged_auth_lease();
+            for peer in self.project_participants() {
+                peer.auth_manager.release_azrael_unmanaged_auth_lease();
+            }
             admission.complete_retirement(&guard);
             self.reopen_native_account_threads().await;
             drop(guard);
@@ -369,6 +370,9 @@ impl AccountRequestProcessor {
         }
         // Leave the unavailable external owner installed: clearing it would expose
         // an unrelated root login through reload. Explicit user recovery is required.
+        for peer in self.project_participants() {
+            hide_project_auth(&peer.auth_manager)?;
+        }
         self.azrael.inner.lock().await.last_error = Some(
             "The account is unavailable. Work was stopped. Sign in again or select another account to continue.".to_string(),
         );
@@ -379,9 +383,11 @@ impl AccountRequestProcessor {
     }
 
     pub(super) async fn reopen_native_account_threads(&self) {
-        for id in self.thread_manager.list_thread_ids().await {
-            if let Ok(thread) = self.thread_manager.get_thread(id).await {
-                thread.clear_native_account_retirement();
+        for peer in self.project_participants() {
+            for id in peer.thread_manager.list_thread_ids().await {
+                if let Ok(thread) = peer.thread_manager.get_thread(id).await {
+                    thread.clear_native_account_retirement();
+                }
             }
         }
     }

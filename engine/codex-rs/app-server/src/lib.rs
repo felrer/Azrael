@@ -1050,6 +1050,7 @@ pub async fn run_main_with_transport_options(
             auth_manager,
             azrael_account_state_paths: None,
             azrael_account_backend_state: None,
+            azrael_project_account: None,
             installation_id,
             code_mode_session_provider,
             rpc_transport: analytics_rpc_transport(&transport),

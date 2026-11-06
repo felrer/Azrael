@@ -263,6 +263,7 @@ pub(super) async fn build_test_processor(
     let processor = Arc::new(MessageProcessor::new(MessageProcessorArgs {
         azrael_account_state_paths: None,
         azrael_account_backend_state: None,
+        azrael_project_account: None,
         outgoing,
         analytics_events_client,
         arg0_paths: Arg0DispatchPaths::default(),

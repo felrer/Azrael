@@ -138,6 +138,24 @@ impl ConfigManager {
         Ok((config, auth))
     }
 
+    pub(crate) async fn load_azrael_project_config(
+        &self,
+        template: &Config,
+        admission: Option<Arc<codex_login::AzraelAuthAdmission>>,
+    ) -> std::io::Result<(Config, Arc<AuthManager>)> {
+        self.load_startup_config(None).await?;
+        let mut config = template.clone();
+        self.apply_network_policy(&mut config);
+        let auth = AuthManager::shared_for_azrael_project(&config, admission).await?;
+        self.replace_cloud_config_bundle_loader(
+            Arc::clone(&auth),
+            config.chatgpt_base_url.clone(),
+            config.http_client_factory(),
+        );
+        let config = self.load_startup_config(None).await?;
+        Ok((config, auth))
+    }
+
     pub(crate) fn with_embedded_network_policy(
         mut self,
         policy: crate::in_process::EmbeddedNetworkPolicy,
@@ -614,6 +632,91 @@ mod window_context_tests {
     use super::*;
     use std::sync::atomic::AtomicUsize;
     use std::sync::atomic::Ordering;
+
+    #[tokio::test]
+    async fn project_accounts_share_admission_without_sharing_policy_or_root_login()
+    -> anyhow::Result<()> {
+        let home = tempfile::tempdir()?;
+        use base64::Engine as _;
+        let payload = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(serde_json::to_vec(
+            &serde_json::json!({"https://api.openai.com/auth": {
+                "chatgpt_account_id": "host-account", "chatgpt_account_user_id": "host-membership"
+            }}),
+        )?);
+        app_test_support::write_chatgpt_auth(
+            home.path(),
+            app_test_support::ChatGptAuthFixture::new(format!("header.{payload}.signature"))
+                .chatgpt_user_id("host-user")
+                .account_id("host-account")
+                .chatgpt_account_id("host-account"),
+            codex_config::types::AuthCredentialsStoreMode::File,
+        )?;
+        let original = std::fs::read(home.path().join("auth.json"))?;
+        let manager = ConfigManager::new_for_tests(
+            home.path().to_path_buf(),
+            Vec::new(),
+            LoaderOverrides::without_managed_config_for_tests(),
+            CloudConfigBundleLoader::default(),
+        );
+        let parent = manager.load_startup_config(None).await?;
+        let host = AuthManager::shared_from_config(&parent, false).await?;
+        assert!(host.auth_cached().is_some());
+        let first = manager.fork_for_window();
+        let (first_config, first_auth) = first.load_azrael_project_config(&parent, None).await?;
+        let second = manager.fork_for_window();
+        let (second_config, second_auth) = second
+            .load_azrael_project_config(&parent, Some(first_auth.azrael_admission()))
+            .await?;
+        let (_, other_project) = manager
+            .fork_for_window()
+            .load_azrael_project_config(&parent, None)
+            .await?;
+        assert!(Arc::ptr_eq(
+            &first_auth.azrael_admission(),
+            &second_auth.azrael_admission()
+        ));
+        assert!(!Arc::ptr_eq(
+            &first_auth.azrael_admission(),
+            &other_project.azrael_admission()
+        ));
+        assert!(!Arc::ptr_eq(&first_auth, &second_auth));
+        assert_ne!(
+            first_config.application_network_policy,
+            second_config.application_network_policy
+        );
+        assert_eq!(
+            first_auth.application_network_policy(),
+            first_config.application_network_policy
+        );
+        assert_eq!(
+            second_auth.application_network_policy(),
+            second_config.application_network_policy
+        );
+        for auth in [&first_auth, &second_auth, &other_project] {
+            auth.reload().await;
+            assert!(auth.auth_cached().is_none());
+        }
+        let switch = first_auth.azrael_admission().begin_switch()?;
+        assert!(
+            second_auth
+                .azrael_admission()
+                .admit_request()
+                .await
+                .is_err()
+        );
+        assert!(
+            other_project
+                .azrael_admission()
+                .admit_request()
+                .await
+                .is_ok()
+        );
+        drop(switch);
+        assert!(second_auth.azrael_admission().admit_request().await.is_ok());
+        assert!(host.auth_cached().is_some());
+        assert_eq!(std::fs::read(home.path().join("auth.json"))?, original);
+        Ok(())
+    }
 
     #[tokio::test]
     async fn window_auth_uses_new_policy_across_reload_and_other_windows() -> anyhow::Result<()> {

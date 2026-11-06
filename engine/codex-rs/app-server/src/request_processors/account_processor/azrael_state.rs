@@ -34,6 +34,7 @@ impl Default for AzraelAccountBackendState {
 pub(crate) struct AzraelAccountStatePaths {
     selection_path: PathBuf,
     default_selection_path: Option<PathBuf>,
+    project_scope: bool,
 }
 
 impl AzraelAccountStatePaths {
@@ -54,11 +55,20 @@ impl AzraelAccountStatePaths {
         Ok(Self {
             selection_path,
             default_selection_path,
+            project_scope: false,
         })
+    }
+
+    /// A project selection never inherits the host's default execution account.
+    pub(crate) fn for_project(selection_path: PathBuf) -> io::Result<Self> {
+        let mut paths = Self::new(selection_path, None)?;
+        paths.project_scope = true;
+        Ok(paths)
     }
 }
 
 pub(super) struct AzraelAccountRuntime {
+    pub(super) participants: std::sync::Mutex<Vec<std::sync::Weak<AccountRequestProcessor>>>,
     /// Shared backend identity; owner routing separately isolates account state.
     pub(super) instance_id: String,
     pub(super) selection_path: PathBuf,
@@ -110,6 +120,15 @@ impl AzraelAccountRuntime {
     }
 
     pub(super) fn new_with_state_paths(config: &Config, paths: AzraelAccountStatePaths) -> Self {
+        if paths.project_scope {
+            let persisted = read_persisted_state(&paths.selection_path);
+            return Self::from_state(
+                &config.codex_home.join("azrael"),
+                paths.selection_path,
+                None,
+                persisted,
+            );
+        }
         Self::from_paths(
             &config.codex_home.join("azrael"),
             Some(&paths.selection_path),
@@ -134,9 +153,19 @@ impl AzraelAccountRuntime {
     ) -> Self {
         let (selection_path, default_selection_path, persisted) =
             read_window_state_with_default(root, configured_path, configured_default_path);
+        Self::from_state(root, selection_path, default_selection_path, persisted)
+    }
+
+    fn from_state(
+        root: &Path,
+        selection_path: PathBuf,
+        default_selection_path: Option<PathBuf>,
+        persisted: PersistedState,
+    ) -> Self {
         let backend = AzraelAccountBackendState::default();
         Self {
             instance_id: backend.instance_id,
+            participants: std::sync::Mutex::new(Vec::new()),
             store: Arc::new(AzraelProfileStore::new(root.join("accounts"))),
             revision: backend.revision,
             selection_path,
@@ -375,6 +404,37 @@ mod durable_recovery_tests {
             );
         }
         assert!(AzraelAccountStatePaths::new(root.path().join("window.json"), None).is_ok());
+    }
+
+    #[tokio::test]
+    async fn project_selection_does_not_inherit_the_root_account() {
+        let home = tempfile::tempdir().unwrap();
+        let config = codex_core::config::ConfigBuilder::default()
+            .codex_home(home.path().to_path_buf())
+            .build()
+            .await
+            .unwrap();
+        let global = home.path().join("azrael/account-state.json");
+        write_selected_states(&global, None, Some("host-account".to_string())).unwrap();
+        let project = home.path().join("project.json");
+        let runtime = || {
+            AzraelAccountRuntime::new_with_state_paths(
+                &config,
+                AzraelAccountStatePaths::for_project(project.clone()).unwrap(),
+            )
+        };
+        assert!(runtime().inner.lock().await.selected_profile_id.is_none());
+        write_selected_states(&project, None, Some("project-account".to_string())).unwrap();
+        assert_eq!(
+            runtime().inner.lock().await.selected_profile_id.as_deref(),
+            Some("project-account")
+        );
+        write_recovery_states(&project, None).unwrap();
+        assert!(runtime().requires_startup_recovery());
+        assert_eq!(
+            read_selected_state(&global).as_deref(),
+            Some("host-account")
+        );
     }
 
     #[tokio::test]

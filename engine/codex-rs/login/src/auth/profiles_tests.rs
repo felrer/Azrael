@@ -194,6 +194,31 @@ async fn profiles_allow_independent_stores_to_share_usage_and_reuse_local_manage
         Some("workspace-1".to_string())
     );
 
+    // A project shares profile identity while each window retains its own transport policy.
+    let mut peer_template = self::template(root.path()).await;
+    let peer_controller = NetworkPolicyController::default();
+    let peer_policy = peer_controller.policy();
+    peer_template.auth_route_config = AuthRouteConfig::from_http_client_factory(
+        peer_template
+            .http_client_factory()
+            .with_network_policy(peer_policy.clone()),
+    );
+    let policy_peer = first_store.open(first.id(), &peer_template).await.unwrap();
+    assert!(!Arc::ptr_eq(&first, &policy_peer));
+    assert_eq!(
+        policy_peer.manager().application_network_policy(),
+        peer_policy
+    );
+    assert_eq!(
+        access_token(policy_peer.manager().auth().await),
+        access_token(first.manager().auth().await),
+    );
+    assert!(Arc::ptr_eq(
+        &policy_peer,
+        &first_store.open(first.id(), &peer_template).await.unwrap(),
+    ));
+    drop(policy_peer);
+
     let id = first.id().to_string();
     drop(reused);
     drop(first);

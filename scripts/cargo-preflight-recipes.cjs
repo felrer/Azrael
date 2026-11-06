@@ -21,7 +21,7 @@ const wrapperHashes = Object.freeze({
   'check-parent-requests': 'aa2456ae2edc5a2e3df68815594a0d01b6e1de202bebe50a2fe9ce7ac819a368',
   'check-capacity-recovery': 'ca6cccb3d50df005500d5ceeedbba0c064806a74aa4c089c880f82186b6d4c37',
   'check-task-profile-skills': '8b917134a02db256c4b5940e8611aaf37da7699934382563a4a34a0c895923e5',
-  'check-shared-engine-native': 'db9d1b3a0316cd017a8c5934b88ee295050a166ab9c4987644a0dcae17a2fc05',
+  'check-shared-engine-native': 'b3afbb0f8410ae3177bbe00f88a914518816665bf2b9ca6af9c3de47b17581bf',
   'check-question-withdrawal-native': 'b17ee0244ec76cb3fa54d0384dfdb260bd8d8055a5ff32958bd1305d5bf22080',
   'check-mcp-oauth-store': '1b2d990b48a5bdcd038fc6a58cfa56f587797681823e3c10d41e43513cfdddfa',
   'check-startup-performance-native': '5cb7624493f45adf3e04f8d3cc4c51b55f0386b735e87a001c99afede7c947e2',
@@ -139,6 +139,11 @@ function reviewedRecipes(wrapper, tail, platform) {
       appserver.push(lib('codex-install-context', 'azrael_entry_resolves_its_own_code_mode_host'));
       for (const f of ['entry::tests::', 'entry::endpoint_tests::']) appserver.push(finish(['-p', 'codex-app-server', '--bin', 'azrael', f]));
       args = scoped({ appserver,
+        accounts: [lib('codex-login', 'auth::manager::profiles::tests::'), lib('codex-app-server', 'config_manager::window_context_tests::'),
+          lib('codex-app-server', 'request_processors::account_processor::azrael_state::durable_recovery_tests::'),
+          lib('codex-app-server', 'request_processors::account_processor::azrael::tests::'),
+          lib('codex-app-server', 'request_processors::account_processor::retirement::durable_recovery_tests::'),
+          lib('codex-app-server', 'azrael_shared_server::tests::')],
         handoff: [lib('codex-app-server-daemon', 'session_handoff::tests::'),
           lib('codex-core', 'session::handoff::tests::'),
           lib('codex-app-server', 'azrael_session_handoff::tests::'),

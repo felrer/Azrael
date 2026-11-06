@@ -1,4 +1,3 @@
-use super::azrael::profile_identity_matches;
 use super::azrael::wait_for_switch_guard;
 use super::azrael_state::PendingLogin;
 use super::*;
@@ -6,7 +5,6 @@ use codex_app_server_protocol::AzraelLogin;
 use codex_login::AuthCredentialsStoreMode;
 use codex_login::AuthKeyringBackendKind;
 use codex_login::AzraelProfileAuth;
-use codex_login::ExternalAuth;
 use std::io;
 
 impl AccountRequestProcessor {
@@ -162,22 +160,27 @@ impl AccountRequestProcessor {
         }
         let request = self.auth_manager.azrael_admission().begin_switch()?;
         let guard = wait_for_switch_guard(&request, commit_cancel).await?;
+        let mut completion = super::quota_recovery::CommitCompletion {
+            admission: self.auth_manager.azrael_admission(),
+            completed: false,
+        };
         target.replace_from(staged).await?;
-        let external: Arc<dyn ExternalAuth> = target.clone();
-        self.auth_manager
-            .set_external_auth(external)
-            .await
-            .map_err(|_| io::Error::other("failed to activate refreshed account"))?;
-        self.refresh_after_azrael_account_change().await;
-        if !profile_identity_matches(&target, self.auth_manager.auth_cached().as_ref()) {
+        let activated = self.install_project_profile(id).await.is_ok();
+        if activated {
+            self.azrael.inner.lock().await.active_profile = Some(target.clone());
+            self.refresh_after_azrael_account_change().await;
+        }
+        if !activated || !self.project_profile_matches(&target) {
             self.auth_manager.azrael_admission().block_new_work();
             let mut state = self.azrael.inner.lock().await;
             state.last_error = Some("Refreshed account identity could not be verified. New work is blocked until restart.".to_string());
             state.failed_closed_guard = Some(guard);
+            completion.completed = true;
             return Err(io::Error::other(
                 "refreshed account identity could not be verified",
             ));
         }
+        completion.completed = true;
         drop(guard);
         drop(request);
         Ok(())

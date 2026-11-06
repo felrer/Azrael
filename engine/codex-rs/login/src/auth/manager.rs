@@ -3055,6 +3055,53 @@ impl AuthManager {
         Ok(manager)
     }
 
+    /// Project execution never borrows the host's root login. Each context keeps
+    /// its own transport policy, while admission spans all work in the project.
+    pub async fn shared_for_azrael_project(
+        config: &impl AuthManagerConfig,
+        admission: Option<Arc<crate::AzraelAuthAdmission>>,
+    ) -> std::io::Result<Arc<Self>> {
+        struct UnselectedProjectAuth;
+        impl ExternalAuth for UnselectedProjectAuth {
+            fn is_available(&self) -> bool {
+                false
+            }
+            fn resolve(&self) -> ExternalAuthFuture<'_, CodexAuth> {
+                Box::pin(async { Err(std::io::Error::other("select a project account")) })
+            }
+            fn refresh(&self, _: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, CodexAuth> {
+                self.resolve()
+            }
+        }
+
+        let mut auth_config = auth_config_from(config);
+        auth_config.forced_login_method = Some(ForcedLoginMethod::Chatgpt);
+        let external_auth = WorkloadIdentityExternalAuth::from_process_config(&auth_config)
+            .map_err(AuthManagerInitializationError::from)
+            .map_err(std::io::Error::from)?;
+        let mut manager = Self::new_from_auth_config_and_auth(auth_config, false, None);
+        manager.workload_identity_selected = external_auth.is_some();
+        if let Some(admission) = admission {
+            manager.azrael_admission = admission;
+        }
+        let lease = AzraelUnmanagedAuthLease::acquire_shared(&manager.codex_home)?;
+        manager.azrael_auth_usage = Some(lease.usage());
+        manager.azrael_auth_transaction = Some(lease.transaction());
+        manager.azrael_unmanaged_auth = Some(lease);
+        let manager = Arc::new(manager);
+        if let Some(external_auth) = external_auth {
+            manager
+                .install_external_auth(Arc::new(external_auth))
+                .await
+                .map_err(AuthManagerInitializationError::from)
+                .map_err(std::io::Error::from)?;
+        } else {
+            manager.install_unavailable_external_auth(Arc::new(UnselectedProjectAuth))?;
+        }
+        manager.release_azrael_unmanaged_auth_lease();
+        Ok(manager)
+    }
+
     pub(super) async fn reload_azrael_startup_auth(&self) -> std::io::Result<()> {
         let transaction = self.lock_azrael_unmanaged_refresh().await?.ok_or_else(|| {
             std::io::Error::other("authentication startup transaction is unavailable")
