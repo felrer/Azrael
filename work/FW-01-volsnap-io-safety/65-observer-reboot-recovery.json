@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "action": "recover-cleanup",
+  "source": {
+    "id": "run:fw04:copy-observer-20261106-01",
+    "kind": "run",
+    "owner": "fw04-copy-observer",
+    "version": null,
+    "generation": null,
+    "revision": 1,
+    "state": "pending",
+    "membership_complete": false,
+    "producer": null,
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+        "protection_known": true,
+        "role": "run"
+      }
+    ]
+  },
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "stop_basis": "Win32_OperatingSystem actual LastBootUpTime 2026-11-06T13:41:05.500Z plus Kernel-General event12 and EventLog6005 postdate all exact old-boot observers and targets; historical initial observer exit codes remain unknown.",
+  "membership_basis": "Independent exact root inventory contains 32 regular files/128436 bytes, no links/special entries, single supported owned root; SHA manifest and full terminal identities in producer proof.",
+  "producer_evidence": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-cleanup.json",
+      "sha256": "ed4ba582205e79e2c66c172400355736909237f72318c4433e87b1e7637f484d"
+    }
+  ]
+}

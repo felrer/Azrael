@@ -1,0 +1,416 @@
+{
+  "schema": 1,
+  "targetId": "run:fw04:copy-observer-20261106-01",
+  "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+  "scope": "Exact observer run only; no new caller run or product/build execution",
+  "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+  "evidenceSha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+  "priorAttempts": [
+    {
+      "schema": 1,
+      "targetId": "run:fw04:copy-observer-20261106-01",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+      "scope": "Exact observer run only; no new caller run or product/build execution",
+      "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-cleanup.json",
+      "evidenceSha256": "ed4ba582205e79e2c66c172400355736909237f72318c4433e87b1e7637f484d",
+      "startedAt": "2026-11-06T13:45:29.027Z",
+      "status": "failed",
+      "operations": [],
+      "error": "Error: Invalid cleanup recovery evidence\n    at validateCleanupRecovery (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:201:95)\n    at C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:341:5\n    at withCatalogLock.operation (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:291:7)\n    at withCatalogLock (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:141:16)\n    at mutateLifecycle (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:274:10)\n    at Object.recoverCleanup (C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.cjs:330:10)\n    at [stdin]:8:16\n    at runScriptInThisContext (node:internal/vm:219:10)\n    at node:internal/process/execution:483:12\n    at [stdin]-wrapper:6:24",
+      "actualControllerExitCode": 1,
+      "terminalChunk": "6460b1",
+      "lifecycleUnchangedAfterFailure": true
+    }
+  ],
+  "startedAt": "2026-11-06T13:46:27.814Z",
+  "status": "deleted-and-finalized",
+  "operations": [
+    {
+      "operation": "register",
+      "startedAt": "2026-11-06T13:46:33.560Z",
+      "durationMs": 36828,
+      "exitCode": 0,
+      "signal": null,
+      "requestSha256": "3f734acdf4476ec30cdd405349b05b01284bbc1f039f68a7a351b9582c2c0b88",
+      "stdoutSha256": "029be07146bf016012a83b921b60ae3c4f61b8881bf45c31210676c0df4c363e",
+      "stderr": "",
+      "response": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:fw04:copy-observer-20261106-01",
+          "kind": "run",
+          "members": [
+            "cba5aff6d72a3a5d95276cf5362cea755949792c44451d88f1af88bd128cfef5"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "dbb46251b4afaee68ae93bcb86557966cd5051e07dd1d6f8615774ac3c264663",
+          "owner": "fw04-copy-observer",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\bb3898b55e35403d46169fd0fe7f44e6991e6fe199b0bcd23df28e3b7c20e60a.json",
+          "registered_at_ms": 1793972825591,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "cba5aff6d72a3a5d95276cf5362cea755949792c44451d88f1af88bd128cfef5",
+            "identity": "d17d4d22678a748d4c2b8781a6b6e7244e5304b5630e83f0eb1b02eac07baaec",
+            "kind": "run",
+            "lifecycle_group_id": "run:fw04:copy-observer-20261106-01",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 128436,
+            "measured_at_ms": 1793972818214,
+            "owner": "fw04-copy-observer",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\bb3898b55e35403d46169fd0fe7f44e6991e6fe199b0bcd23df28e3b7c20e60a.json",
+            "references": [],
+            "registered_at_ms": 1793972818214,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "review",
+      "startedAt": "2026-11-06T13:47:10.389Z",
+      "durationMs": 8025,
+      "exitCode": 0,
+      "signal": null,
+      "requestSha256": "910a413207737c6df600fe9c9230e8dd258726760da01794fdc33e849b45439b",
+      "stdoutSha256": "653521d55dea50a7adaea094dbbe79662aa4d452f867a409fa64a280e7ffa43b",
+      "stderr": "",
+      "response": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:fw04:copy-observer-20261106-01",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "dbb46251b4afaee68ae93bcb86557966cd5051e07dd1d6f8615774ac3c264663",
+            "owner": "fw04-copy-observer",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\bb3898b55e35403d46169fd0fe7f44e6991e6fe199b0bcd23df28e3b7c20e60a.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "cba5aff6d72a3a5d95276cf5362cea755949792c44451d88f1af88bd128cfef5"
+            ],
+            "group_token": "665898488e1a7e9870e6551c287b23a99b65d01f2e6cd4bb7d8f8005078dc5f8",
+            "id": "cba5aff6d72a3a5d95276cf5362cea755949792c44451d88f1af88bd128cfef5",
+            "identity": "d17d4d22678a748d4c2b8781a6b6e7244e5304b5630e83f0eb1b02eac07baaec",
+            "lifecycle_group_id": "run:fw04:copy-observer-20261106-01",
+            "logical_bytes": 128436,
+            "measured_at_ms": 1793972818214,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "dbb46251b4afaee68ae93bcb86557966cd5051e07dd1d6f8615774ac3c264663",
+              "member_references": {
+                "cba5aff6d72a3a5d95276cf5362cea755949792c44451d88f1af88bd128cfef5": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "cleanup_recovery": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+                  "evidence_sha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+                  "generation": null,
+                  "id": "run:fw04:copy-observer-20261106-01",
+                  "kind": "run",
+                  "members": [
+                    {
+                      "generated": true,
+                      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+                      "protection_known": true,
+                      "role": "run"
+                    }
+                  ],
+                  "membership_complete_verified": true,
+                  "original_membership_complete": false,
+                  "original_producer": null,
+                  "original_state": "pending",
+                  "owner": "fw04-copy-observer",
+                  "producer_stopped_verified": true,
+                  "reason": "Verified new OS boot postdates old exact process identities; preserve historical unknown outcome and reconcile complete membership only",
+                  "schema": 1,
+                  "source_revision": 1,
+                  "verified_at": "2026-11-06T13:46:30.239Z",
+                  "version": null
+                },
+                "created_at": "2026-11-06T08:32:45.281Z",
+                "id": "run:fw04:copy-observer-20261106-01",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+                    "protection_known": true,
+                    "role": "run"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+                "owner": "fw04-copy-observer",
+                "ownership_scope": "run-root",
+                "recover_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+                  "evidence_sha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+                  "reason": "Verified new OS boot postdates old exact process identities; preserve historical unknown outcome and reconcile complete membership only",
+                  "request_sha256": "7500cc79ab186a404cba92583cd8ea611692100c5e7d4d3af2cd497fe5d9a000"
+                },
+                "references": [],
+                "release_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+                  "evidence_sha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+                  "reason": "Old-boot consumer is stopped by reboot; immutable independent proof survives cleanup",
+                  "request_sha256": "7fa368a3b65038bf00ea1b5985d040c2f0fb59de0dd27a123c9a32c2ff3097b0"
+                },
+                "revision": 3,
+                "schema": 1,
+                "state": "pending",
+                "updated_at": "2026-11-06T13:46:31.114Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793972830670,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  142,
+                  254,
+                  20,
+                  1,
+                  0,
+                  0,
+                  11,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "f78629d2d5e8b4acb008d03716f0ade59915774e3131e5baf9c950cb4e65ec44",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "operation": "apply",
+      "startedAt": "2026-11-06T13:47:18.415Z",
+      "durationMs": 24133,
+      "exitCode": 0,
+      "signal": null,
+      "requestSha256": "2edece5e521c331b40099c835debfb1a8e42983b6d4804ff1eb91eb21930c6c5",
+      "stdoutSha256": "923deaed8d30a982b758799a62628d976c7343202c23322788056280af4b4e7d",
+      "stderr": "",
+      "response": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:fw04:copy-observer-20261106-01",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-19040-7552-1793972856296",
+            "decision": "delete",
+            "decision_id": "251fc46a5eea435edb7fcf1c349c112ca7fda3eb08fc7719fbdf0a0f4923c409",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "cba5aff6d72a3a5d95276cf5362cea755949792c44451d88f1af88bd128cfef5",
+            "lifecycle_group_id": "run:fw04:copy-observer-20261106-01",
+            "reason": "Reboot independently proves exact old observer tree stopped; complete membership and parent authorized deletion",
+            "remaining": false,
+            "status": "deleted",
+            "token": "f78629d2d5e8b4acb008d03716f0ade59915774e3131e5baf9c950cb4e65ec44"
+          }
+        ]
+      }
+    }
+  ],
+  "recovery": {
+    "created_at": "2026-11-06T08:32:45.281Z",
+    "id": "run:fw04:copy-observer-20261106-01",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+        "protection_known": true,
+        "role": "run"
+      }
+    ],
+    "membership_complete": true,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+    "owner": "fw04-copy-observer",
+    "ownership_scope": "run-root",
+    "references": [
+      {
+        "id": "run:fw04:maintenance-input-fw01-02",
+        "kind": "dependency",
+        "member_paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\maintenance-input-fw01-02"
+        ],
+        "reason": "verified standalone metadata owner",
+        "reference_id": "e087eff4eb17021e7dc5cf2b882900729b2ed473296d3e6b9364c5177136cc9c"
+      }
+    ],
+    "revision": 2,
+    "schema": 1,
+    "state": "pending",
+    "updated_at": "2026-11-06T13:46:30.242Z",
+    "version": null,
+    "cleanup_recovery": {
+      "schema": 1,
+      "id": "run:fw04:copy-observer-20261106-01",
+      "kind": "run",
+      "owner": "fw04-copy-observer",
+      "version": null,
+      "generation": null,
+      "source_revision": 1,
+      "original_state": "pending",
+      "original_producer": null,
+      "original_membership_complete": false,
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+      "evidence_sha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+      "reason": "Verified new OS boot postdates old exact process identities; preserve historical unknown outcome and reconcile complete membership only",
+      "producer_stopped_verified": true,
+      "membership_complete_verified": true,
+      "verified_at": "2026-11-06T13:46:30.239Z"
+    },
+    "recover_receipt": {
+      "request_sha256": "7500cc79ab186a404cba92583cd8ea611692100c5e7d4d3af2cd497fe5d9a000",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+      "evidence_sha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+      "reason": "Verified new OS boot postdates old exact process identities; preserve historical unknown outcome and reconcile complete membership only"
+    }
+  },
+  "release": {
+    "cleanup_recovery": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+      "evidence_sha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+      "generation": null,
+      "id": "run:fw04:copy-observer-20261106-01",
+      "kind": "run",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+          "protection_known": true,
+          "role": "run"
+        }
+      ],
+      "membership_complete_verified": true,
+      "original_membership_complete": false,
+      "original_producer": null,
+      "original_state": "pending",
+      "owner": "fw04-copy-observer",
+      "producer_stopped_verified": true,
+      "reason": "Verified new OS boot postdates old exact process identities; preserve historical unknown outcome and reconcile complete membership only",
+      "schema": 1,
+      "source_revision": 1,
+      "verified_at": "2026-11-06T13:46:30.239Z",
+      "version": null
+    },
+    "created_at": "2026-11-06T08:32:45.281Z",
+    "id": "run:fw04:copy-observer-20261106-01",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+        "protection_known": true,
+        "role": "run"
+      }
+    ],
+    "membership_complete": true,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+    "owner": "fw04-copy-observer",
+    "ownership_scope": "run-root",
+    "recover_receipt": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+      "evidence_sha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+      "reason": "Verified new OS boot postdates old exact process identities; preserve historical unknown outcome and reconcile complete membership only",
+      "request_sha256": "7500cc79ab186a404cba92583cd8ea611692100c5e7d4d3af2cd497fe5d9a000"
+    },
+    "references": [],
+    "revision": 3,
+    "schema": 1,
+    "state": "pending",
+    "updated_at": "2026-11-06T13:46:31.114Z",
+    "version": null,
+    "release_receipt": {
+      "request_sha256": "7fa368a3b65038bf00ea1b5985d040c2f0fb59de0dd27a123c9a32c2ff3097b0",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+      "evidence_sha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+      "reason": "Old-boot consumer is stopped by reboot; immutable independent proof survives cleanup"
+    }
+  },
+  "logicalBytes": 128436,
+  "absent": true,
+  "finalization": {
+    "id": "run:fw04:copy-observer-20261106-01",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\bb3898b55e35403d46169fd0fe7f44e6991e6fe199b0bcd23df28e3b7c20e60a.json",
+    "retirement": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\65-observer-reboot-recovery.json",
+      "sha256": "7bc26f29454ef69591c3a01351cf5f06075be0ee563d65ee8dc1db582cf89c5a",
+      "reason": "Exact recovered observer root deleted by C0CF; reboot proof and historical unknown exits preserved independently",
+      "original_state": "pending",
+      "original_membership_complete": true
+    }
+  },
+  "completedAt": "2026-11-06T13:47:46.360Z"
+}

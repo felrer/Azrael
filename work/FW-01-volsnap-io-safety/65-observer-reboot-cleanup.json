@@ -1,0 +1,354 @@
+{
+  "schema": 1,
+  "scope": "Only run:fw04:copy-observer-20261106-01; no product/build/original unknown cleanup",
+  "observedAt": "2026-11-06T13:45:06.075Z",
+  "osBoot": {
+    "Events": [
+      {
+        "Id": 12,
+        "ProviderName": "Microsoft-Windows-UserModePowerService",
+        "TimeCreatedUtc": "2026-11-06T13:41:16.0994014Z"
+      },
+      {
+        "Id": 12,
+        "ProviderName": "Microsoft-Windows-UserModePowerService",
+        "TimeCreatedUtc": "2026-11-06T13:41:15.8140362Z"
+      },
+      {
+        "Id": 12,
+        "ProviderName": "Microsoft-Windows-Wininit",
+        "TimeCreatedUtc": "2026-11-06T13:41:13.8440009Z"
+      },
+      {
+        "Id": 12,
+        "ProviderName": "Microsoft-Windows-Kernel-General",
+        "TimeCreatedUtc": "2026-11-06T13:41:05.9013767Z"
+      },
+      {
+        "Id": 6005,
+        "ProviderName": "EventLog",
+        "TimeCreatedUtc": "2026-11-06T13:41:14.9682445Z"
+      }
+    ],
+    "EventQueryError": null,
+    "LastBootUpTimeUtc": "2026-11-06T13:41:05.5000000Z",
+    "ObservedUtc": "2026-11-06T13:45:05.9925019Z"
+  },
+  "bootQueryActualExitCode": 0,
+  "stopProof": "Actual OS boot is later than all exact owned observer/target identities from the prior boot. This proves their trees cannot remain running; PID absence alone is not used. Historical initial observer exit codes remain unknown.",
+  "originalLifecycle": {
+    "created_at": "2026-11-06T08:32:45.281Z",
+    "id": "run:fw04:copy-observer-20261106-01",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+        "protection_known": true,
+        "role": "run"
+      }
+    ],
+    "membership_complete": false,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+    "owner": "fw04-copy-observer",
+    "ownership_scope": "run-root",
+    "references": [
+      {
+        "id": "run:fw04:maintenance-input-fw01-02",
+        "kind": "dependency",
+        "member_paths": [
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\maintenance-input-fw01-02"
+        ],
+        "reason": "verified standalone metadata owner",
+        "reference_id": "e087eff4eb17021e7dc5cf2b882900729b2ed473296d3e6b9364c5177136cc9c"
+      }
+    ],
+    "revision": 1,
+    "schema": 1,
+    "state": "pending",
+    "updated_at": "2026-11-06T08:32:45.282Z",
+    "version": null
+  },
+  "oldIdentityEvidence": {
+    "initialObservers": [
+      {
+        "pid": 5276,
+        "startUtc": "2026-11-06T08:35:20.5368958Z",
+        "actualExitCode": null
+      },
+      {
+        "pid": 53608,
+        "startUtc": "2026-11-06T08:36:01.3261265Z",
+        "actualExitCode": null
+      }
+    ],
+    "terminalRecords": {
+      "nativeTiny": {
+        "status": "target-exited",
+        "observerPid": 5276,
+        "targetExitCode": 23,
+        "error": null,
+        "target": {
+          "pid": 23152,
+          "startUtc": "2026-11-06T08:35:20.9277172Z",
+          "name": "Observer",
+          "handle": 1408
+        },
+        "remainingObservedDescendants": [],
+        "utc": "2026-11-06T08:35:29.2068646Z"
+      },
+      "v2Tiny": {
+        "status": "target-exited",
+        "observerPid": 53608,
+        "targetExitCode": 23,
+        "error": null,
+        "target": {
+          "pid": 25940,
+          "startUtc": "2026-11-06T08:36:01.7181206Z",
+          "name": "Observer-v2",
+          "handle": 1440
+        },
+        "remainingObservedDescendants": [],
+        "resourceQueryPending": false,
+        "utc": "2026-11-06T08:36:07.8758310Z"
+      },
+      "finalTiny": {
+        "status": "target-exited",
+        "observerPid": 4988,
+        "targetExitCode": 23,
+        "error": null,
+        "target": {
+          "pid": 35664,
+          "startUtc": "2026-11-06T08:36:23.6160487Z",
+          "name": "Observer-v2",
+          "handle": 1408
+        },
+        "remainingObservedDescendants": [],
+        "resourceQueryPending": false,
+        "utc": "2026-11-06T08:36:29.7415369Z"
+      },
+      "subset": {
+        "status": "target-exited",
+        "observerPid": 43496,
+        "targetExitCode": 0,
+        "error": null,
+        "target": {
+          "pid": 9504,
+          "startUtc": "2026-11-06T08:39:24.5423078Z",
+          "name": "node",
+          "handle": 1452
+        },
+        "remainingObservedDescendants": [],
+        "resourceQueryPending": false,
+        "utc": "2026-11-06T08:39:45.7768925Z"
+      },
+      "full": {
+        "status": "target-exited",
+        "observerPid": 42028,
+        "targetExitCode": 0,
+        "error": null,
+        "target": {
+          "pid": 34208,
+          "startUtc": "2026-11-06T08:40:07.0186162Z",
+          "name": "node",
+          "handle": 1344
+        },
+        "remainingObservedDescendants": [],
+        "resourceQueryPending": false,
+        "utc": "2026-11-06T08:41:17.6979293Z"
+      }
+    },
+    "initialRequests": {
+      "nativeTiny": {
+        "workingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+        "targetCommandLine": "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\Observer.exe\" tiny23",
+        "maxSeconds": 30,
+        "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\native-tiny-observer.jsonl",
+        "terminalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\native-tiny-terminal.json",
+        "launchPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\native-tiny-launch.json"
+      },
+      "v2Tiny": {
+        "workingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+        "targetCommandLine": "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\Observer-v2.exe\" tiny23",
+        "maxSeconds": 30,
+        "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-tiny-observer.jsonl",
+        "terminalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-tiny-terminal.json",
+        "launchPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-tiny-launch.json"
+      }
+    }
+  },
+  "membership": {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+    "realpath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+    "fileCount": 32,
+    "logicalBytes": 128436,
+    "files": [
+      {
+        "path": "Observer-v2.exe",
+        "bytes": 24576,
+        "sha256": "d9ac79cf0e248d18b9cf0d60f5d494562edb47ee8f5bcfff41a129f746ab4795"
+      },
+      {
+        "path": "Observer.cs",
+        "bytes": 9666,
+        "sha256": "e1fe8ac051d9398dd4d23e0bcf4eddd2bd6e058b54d0798d95c1b59d5961fe52"
+      },
+      {
+        "path": "Observer.exe",
+        "bytes": 23552,
+        "sha256": "d58774c45ab456dcc19a817ffd6bf7e244068b663446d1f34330a802fbc8d080"
+      },
+      {
+        "path": "compile-native.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "compile-v2.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "compile.log",
+        "bytes": 258,
+        "sha256": "36c21418ff08733ea8cb43d108791dd4e5fce57336c19478bb4b49a3d2bc0035"
+      },
+      {
+        "path": "full-request.json",
+        "bytes": 1016,
+        "sha256": "145ea6bc30c67ceacf92eb5a6f51fd5153d5178ef2afea28a9e33f93ac24e078"
+      },
+      {
+        "path": "logs/full-observer.jsonl",
+        "bytes": 22263,
+        "sha256": "540b99119386e7d51205c97838889f1765edb7896bb04d05741991aa68f2095a"
+      },
+      {
+        "path": "logs/subset-observer.jsonl",
+        "bytes": 13473,
+        "sha256": "4f2156043689a91494cc58f1bed87f7e2f73d350a1c89d4f0196f1600c34245d"
+      },
+      {
+        "path": "native-tiny-launch.json",
+        "bytes": 275,
+        "sha256": "4da82cd2fea6d8f48f56a2dce66aa67cd9aff14d14d3f9b813e7ba77d0b32538"
+      },
+      {
+        "path": "native-tiny-observer.jsonl",
+        "bytes": 5379,
+        "sha256": "918171468f5bf399b99771e96a584a8cefe72d854fd92e039750b874f3d76b77"
+      },
+      {
+        "path": "native-tiny-request.json",
+        "bytes": 759,
+        "sha256": "f9d69b17e3f7d91961d7705b26c811eba9f89f5123c4024b5424ea37c9b1bcc5"
+      },
+      {
+        "path": "native-tiny-terminal.json",
+        "bytes": 247,
+        "sha256": "1d50cf6cdde2e60132b77a2b4aa9d77a83f8bf642aa6ec4be37cceb85cbf8838"
+      },
+      {
+        "path": "observer.ps1",
+        "bytes": 6236,
+        "sha256": "c3c8baa04a29d8206086f25836ed5d1bf74008c0bfae6be17e3b58911ae0a5bc"
+      },
+      {
+        "path": "reports/full-launch.json",
+        "bytes": 280,
+        "sha256": "7f21e1ab40394ffdebff65bd39bcbb31ee6015b1b94bddc1be5d68ed86783fb8"
+      },
+      {
+        "path": "reports/full-terminal.json",
+        "bytes": 272,
+        "sha256": "9e29db1068f39271fb9194d386506c1aa5a27f5ba2b2e1c5326cfaf7d7515b8a"
+      },
+      {
+        "path": "reports/subset-launch.json",
+        "bytes": 280,
+        "sha256": "de7b17e621ffac2c1b7e3a58836f1edb3e8b3958f674ad2c652a9b205f7289f8"
+      },
+      {
+        "path": "reports/subset-terminal.json",
+        "bytes": 271,
+        "sha256": "1ccf00334081be58d420c89b9a7d59a5bc4ffb786dcf3342b61ad92ed8c05a5e"
+      },
+      {
+        "path": "subset-request.json",
+        "bytes": 1024,
+        "sha256": "80ace6ebb73136d663c7cfd3b0a5f91f3c5c077850f9677b90892394aa2fc48f"
+      },
+      {
+        "path": "tiny-request.json",
+        "bytes": 738,
+        "sha256": "59725fe62a98084369d97fb293bf6cc62dab0af44bfa364762df701319d3f9ee"
+      },
+      {
+        "path": "v2-final-independence.json",
+        "bytes": 195,
+        "sha256": "d47d0ca17863b6164785cb23af2db92f24cef663c86b21f4b50a22b2e55ceb08"
+      },
+      {
+        "path": "v2-final-launch.json",
+        "bytes": 279,
+        "sha256": "84aee2568e426f8628a2040d7ebe43a3bbfea111b322110d243dbf74affdac79"
+      },
+      {
+        "path": "v2-final-observer-exit.json",
+        "bytes": 224,
+        "sha256": "6ea7a0f90d5346114d470a30f6bf18a6bf15a65a039c341fbb03bf08c3e8f1af"
+      },
+      {
+        "path": "v2-final-observer.jsonl",
+        "bytes": 7361,
+        "sha256": "105b090e116c6d56a07db917567c8a61c75b80728a2ad0ef254ffe32b02b3fa7"
+      },
+      {
+        "path": "v2-final-request.json",
+        "bytes": 753,
+        "sha256": "2e36e2ccacd60fa19cf170c607d91566e56bb226d8920f62d5c414cb3a65eadb"
+      },
+      {
+        "path": "v2-final-terminal.json",
+        "bytes": 279,
+        "sha256": "505ac8f37929de96ec4ce9ea3b9d3e6956ff5da654e9dcab147752dd858efae4"
+      },
+      {
+        "path": "v2-independence.json",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "v2-observer-exit.json",
+        "bytes": 80,
+        "sha256": "ce9cec34a4882b4ec95bec63a3d8aa235456b4a683207028e51609bf1ad87d6d"
+      },
+      {
+        "path": "v2-tiny-launch.json",
+        "bytes": 280,
+        "sha256": "b78d4615c9f48b79342d9a8467a15d7af4560e0f456a7917a5030df7b243b7f8"
+      },
+      {
+        "path": "v2-tiny-observer.jsonl",
+        "bytes": 7390,
+        "sha256": "b72438d31e554a978f56a50be1227122733311990c4f8fa00ea2e779dfaa05b9"
+      },
+      {
+        "path": "v2-tiny-request.json",
+        "bytes": 750,
+        "sha256": "01721ae2d4c6e866bfb50a6e423b222e5efc5e9b5195e50a3d9d017c611f25d9"
+      },
+      {
+        "path": "v2-tiny-terminal.json",
+        "bytes": 280,
+        "sha256": "acc1a1a046280d2dbf7be3b7da62330e19b69b98f58ffacfd39519a80ae9a8f4"
+      }
+    ],
+    "manifestSha256": "f26d901d7cc8f6d88dd6fa7cb86a1556da0e74ca5779c53fd56bb1142d085999"
+  },
+  "retainedInvestigation": {
+    "path": "work/FW-01-volsnap-io-safety/64-copy-crash-investigation.json",
+    "sha256": "e6307ea0a66a7f8c75d9355fd5c9caf1edae6f80071b7b6f6f59fe108d7881fb"
+  },
+  "authority": "Parent explicit reboot cleanup authorization; preserve unknown exit/outcome, recover protection only"
+}
