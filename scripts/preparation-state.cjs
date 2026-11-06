@@ -21,7 +21,7 @@ function writeJson(file, value) {
 async function inputs(config, uiSourceObservation) {
   const scripts = [
     "persisted-atoms.cjs",
-    "preparation-state.cjs", "directory-state.cjs", "ui-source-state.cjs", "engine-source-metadata.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
+    "preparation-state.cjs", "directory-state.cjs", "ui-source-state.cjs", "project-source-state.cjs", "source-observation.cjs", "engine-source-metadata.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
     "prepare-ordinary-vscode.ps1", "prepare-official-ui.ps1", "engine-provenance.py",
     "ordinary-runtime.cjs", "shared-engine-host.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
     "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs", "computer-use-runtime.cjs",

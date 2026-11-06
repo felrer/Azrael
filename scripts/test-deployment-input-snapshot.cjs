@@ -6,6 +6,7 @@ const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const { snapshotProject, compareSnapshots } = require('./deployment-input-snapshot.cjs');
+const { getProjectSourceState } = require('./project-source-state.cjs');
 
 const project = path.dirname(__dirname);
 const stamp = `${Date.now()}-${process.pid}`;
@@ -45,6 +46,14 @@ function summary(snapshot) {
   assert.ok(Number.isFinite(snapshot.elapsedMs) && snapshot.elapsedMs >= 0);
   assert.ok(Array.isArray(snapshot.inventory));
   return { schema: snapshot.schema, sha256: snapshot.sha256, fileCount: snapshot.fileCount, bytes: snapshot.bytes, inventory: snapshot.inventory };
+}
+
+async function countedSnapshot(root, context) {
+  const original = fs.open;
+  let reads = 0;
+  fs.open = async (...args) => { reads++; return original(...args); };
+  try { return { value: await getProjectSourceState(root, context), reads }; }
+  finally { fs.open = original; }
 }
 
 async function main() {
@@ -169,10 +178,18 @@ async function main() {
     git(vendor, 'commit', '--quiet', '-am', 'nested fixture');
     git(root, '-c', 'protocol.file.allow=always', 'submodule', 'add', '--quiet', vendor, 'modules/vendor');
     git(root, '-c', 'protocol.file.allow=always', 'submodule', 'update', '--init', '--recursive', '--quiet');
+    // Git emits a trailing slash for untracked embedded repositories, unlike
+    // tracked gitlinks. Both are recursive inputs of the same snapshot owner.
+    const embedded = await repository('embedded-source');
+    await fs.cp(embedded, path.join(root, 'embedded'), { recursive: true });
     const before = await snapshotProject(root);
     const inner = path.join(root, 'modules/vendor/nested/input.txt');
+    const observation = { statePath: path.join(fixtures, 'nested-state.json'), generation: 'nested-attempt' };
+    assert.deepEqual(summary(await getProjectSourceState(root, observation)), summary(before));
+    if (process.platform === 'win32') assert.equal((await countedSnapshot(root, observation)).reads, 0);
     await fs.writeFile(inner, 'bravo');
     const dirty = await snapshotProject(root);
+    assert.deepEqual(summary(await getProjectSourceState(root, observation)), summary(dirty));
     assert.notEqual(dirty.sha256, before.sha256);
     const difference = compareSnapshots(before, dirty);
     assert.deepEqual(difference.changes.map(entry => entry.path), ['modules/vendor/nested/input.txt']);
@@ -180,6 +197,63 @@ async function main() {
     assert.notEqual((await snapshotProject(root)).sha256, dirty.sha256);
     git(root, 'submodule', 'deinit', '--force', '--', 'modules/vendor');
     await assert.rejects(snapshotProject(root), /submodule|gitlink|initializ/i);
+  });
+  // Retained: later consumer/selector edits can mix attempts, omit fresh Git
+  // membership, or accidentally replace reuse with repeated content hashing.
+  if (process.platform === 'win32') await test('project observation reuses exact content identity across processes and isolates attempts', async () => {
+    const root = await repository('observation');
+    await fs.mkdir(path.join(root, 'reports'));
+    const context = { statePath: path.join(root, 'reports/state.json'), generation: 'first-attempt' };
+    const expected = await snapshotProject(root);
+    const first = await countedSnapshot(root, context);
+    assert.deepEqual(summary(first.value), summary(expected));
+    assert.equal(first.reads, expected.fileCount);
+    const reused = await countedSnapshot(root, context);
+    assert.deepEqual(summary(reused.value), summary(expected)); assert.equal(reused.reads, 0);
+    assert.equal(JSON.parse(await fs.readFile(context.statePath, 'utf8')).disposition, 'reused');
+    const child = spawnSync(process.execPath, ['-e',
+      "const fs=require('fs/promises');let reads=0;const open=fs.open;fs.open=(...a)=>{reads++;return open(...a)};require(process.argv[1]).getProjectSourceState(process.argv[2],JSON.parse(process.argv[3])).then(value=>console.log(JSON.stringify({value,reads}))).catch(e=>{console.error(e);process.exitCode=1})",
+      require.resolve('./project-source-state.cjs'), root, JSON.stringify(context)], { encoding: 'utf8', windowsHide: true });
+    assert.equal(child.status, 0, child.stderr);
+    const observed = JSON.parse(child.stdout);
+    assert.equal(observed.reads, 0); assert.deepEqual(summary(observed.value), summary(expected));
+    assert.equal((await countedSnapshot(root)).reads, expected.fileCount, 'standalone still hashes every input');
+    context.generation = 'fresh-resume-attempt';
+    assert.equal((await countedSnapshot(root, context)).reads, expected.fileCount);
+    for (const damage of [
+      () => fs.writeFile(context.statePath, '{broken'),
+      async () => { const saved = JSON.parse(await fs.readFile(context.statePath)); saved.binding = 'different-tools'; await fs.writeFile(context.statePath, JSON.stringify(saved)); },
+      async () => { const saved = JSON.parse(await fs.readFile(context.statePath)); saved.snapshot.bytes++; await fs.writeFile(context.statePath, JSON.stringify(saved)); },
+    ]) {
+      await damage(); assert.equal((await countedSnapshot(root, context)).reads, expected.fileCount);
+    }
+    const unsupported = { ...context, statePath: 'relative-state.json' };
+    assert.equal((await countedSnapshot(root, unsupported)).reads, expected.fileCount);
+    await fs.link(path.join(root, 'input.txt'), path.join(root, 'reports/shared.txt'));
+    assert.equal((await countedSnapshot(root, context)).reads, expected.fileCount, 'shared input keeps full validation');
+    assert.equal((await countedSnapshot(root, context)).reads, expected.fileCount);
+  });
+  if (process.platform === 'win32') await test('project observation refreshes Git selection and detects content changes with restored mtime', async () => {
+    const root = await repository('observation-changes');
+    await fs.mkdir(path.join(root, 'reports'));
+    const context = { statePath: path.join(root, 'reports/state.json'), generation: 'changes' };
+    await getProjectSourceState(root, context);
+    const input = path.join(root, 'input.txt'), stamp = await fs.stat(input);
+    await fs.writeFile(input, 'bravo'); await fs.utimes(input, stamp.atime, stamp.mtime);
+    const changed = await countedSnapshot(root, context);
+    assert.ok(changed.reads > 0); assert.deepEqual(summary(changed.value), summary(await snapshotProject(root)));
+    for (const mutate of [
+      () => fs.writeFile(path.join(root, 'untracked.txt'), 'included'),
+      () => fs.rename(path.join(root, 'untracked.txt'), path.join(root, 'renamed.txt')),
+      () => fs.appendFile(path.join(root, '.git/info/exclude'), '\nrenamed.txt\n'),
+      () => fs.unlink(input),
+      () => fs.writeFile(input, 'restored'),
+    ]) {
+      await mutate(); const current = await countedSnapshot(root, context);
+      assert.ok(current.reads > 0); assert.deepEqual(summary(current.value), summary(await snapshotProject(root)));
+    }
+    await fs.mkdir(path.join(root, 'ignored')); await fs.writeFile(path.join(root, 'ignored/cache'), 'ignored');
+    assert.equal((await countedSnapshot(root, context)).reads, 0, 'ignored changes do not alter selected identity');
   });
   await test('CLI returns only summary JSON and writes complete inventory report', async () => {
     const root = await repository('cli');

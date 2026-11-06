@@ -5,8 +5,17 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-function observe(root, excluded, includeShared = false) {
+function observe(root, excluded, includeShared = false, selectedPaths) {
   if (process.platform !== 'win32' || !path.isAbsolute(root) || !Array.isArray(excluded)) throw Error('Windows absolute source root and exclusions required');
+  let selected;
+  if (selectedPaths !== undefined) {
+    if (!Array.isArray(selectedPaths)) throw Error('Selected source paths required');
+    selected = new Set();
+    for (const name of selectedPaths) {
+      if (typeof name !== 'string' || !name || path.isAbsolute(name) || name.includes('\\') || name.includes(':') || name.split('/').some(part => !part || part === '.' || part === '..')) throw Error('Contained selected source path required');
+      for (let current = name; current !== '.'; current = path.posix.dirname(current)) selected.add(current);
+    }
+  }
   const physical = fs.realpathSync.native(root);
   const first = fs.lstatSync(physical, { bigint: true });
   const identity = s => [String(s.dev), String(s.ino), String(s.mode)];
@@ -16,6 +25,7 @@ function observe(root, excluded, includeShared = false) {
   function visit(directory, relative) {
     for (const child of fs.readdirSync(directory, { withFileTypes: true })) {
       const name = relative ? `${relative}/${child.name}` : child.name;
+      if (selected && !selected.has(name)) continue;
       if (excluded.includes(name) && child.isDirectory()) continue;
       const filename = path.join(directory, child.name);
       const s = fs.lstatSync(filename, { bigint: true });

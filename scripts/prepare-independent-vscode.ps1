@@ -232,6 +232,7 @@ function Invoke-PreparationPhase {
 $checkpointTool = Join-Path $PSScriptRoot 'preparation-state.cjs'
 # Fresh on every invocation, including Resume; never reuse an earlier attempt.
 $uiSourceObservation = [ordered]@{ statePath = (Join-Path $OutputDirectory 'ui-source-state.json'); generation = [guid]::NewGuid().ToString() }
+$projectSourceObservation = [ordered]@{ statePath = (Join-Path $OutputDirectory 'project-source-state.json'); generation = [guid]::NewGuid().ToString() }
 $config = [ordered]@{ release = $release; source = $source; stateRoot = [IO.Path]::GetFullPath($StateRoot); devinExecutable = $DevinExecutable; sourceCodexHome = [IO.Path]::GetFullPath($SourceCodexHome); skipSnapshot = [bool]$SkipCodexEnvironmentSnapshot; toolDirectory = $toolDirectory.FullName }
 $config.changedOnlyTests = [bool]$ChangedOnlyTests
 if ($null -ne $sourceTestPolicy) { $config.sourceTestPolicy = $sourceTestPolicy }
@@ -260,6 +261,7 @@ try {
     }
     $preservationConfig = [ordered]@{
         uiSourceObservation = $uiSourceObservation
+        projectSourceObservation = $projectSourceObservation
         projectRoot = $project; uiRoot = $source; engineSourceRoot = [string]$build.engineSourceRoot
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $OutputDirectory 'feature-preservation')
         area = 'ui'; typeScriptPath = (Join-Path $toolDirectory.FullName 'companion/node_modules/typescript/lib/typescript.js')

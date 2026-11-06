@@ -6,6 +6,7 @@ const crypto = require('node:crypto');
 const { spawn } = require('node:child_process');
 const { getDirectoryState } = require('./directory-state.cjs');
 const { snapshotProject } = require('./deployment-input-snapshot.cjs');
+const { getProjectSourceState } = require('./project-source-state.cjs');
 const verificationCache = require('./verification-result-cache.cjs');
 const nativeCache = require('./native-verification-cache.cjs');
 const cargoCache = require('./cargo-verification-cache.cjs');
@@ -180,13 +181,13 @@ async function sourceUiIdentity(config) {
 async function identity(config, manifest, rules, features, execution = execute) {
   const sourceStateArguments = provenanceArguments(config.sourceStatePath, config.sourceGeneration);
   if (config.identityProvider) return config.identityProvider(config, manifest, rules, features);
-  const references = new Set([manifestName, 'scripts/feature-preservation.cjs', 'scripts/directory-state.cjs', 'scripts/deployment-input-snapshot.cjs']);
+  const references = new Set([manifestName, 'scripts/feature-preservation.cjs', 'scripts/directory-state.cjs', 'scripts/deployment-input-snapshot.cjs', 'scripts/project-source-state.cjs', 'scripts/source-observation.cjs', 'scripts/engine-source-metadata.cjs']);
   const testPolicy = sourceTestPolicy(config);
   if (testPolicy) references.add('scripts/source-test-policy.cjs');
   features.forEach(feature => { feature.owners.forEach(owner => references.add(owner)); references.add(feature.contract); feature.checks.forEach(check => checkSources(check).forEach(source => references.add(source))); });
   // Resource entries bind their content digest through transformRules; they are not script filenames.
   for (const key of Object.keys(rules).filter(key => !key.includes(':') && /\.(?:cjs|json)$/.test(key))) references.add(`scripts/${key}`);
-  const input = { manifestSha256: hash(canonical(manifest)), projectSha256: (await snapshotProject(config.projectRoot)).sha256,
+  const input = { manifestSha256: hash(canonical(manifest)), projectSha256: (await getProjectSourceState(config.projectRoot, config.projectSourceObservation)).sha256,
     registered: await getDirectoryState(path.resolve(config.projectRoot), [...references].sort()), transformRules: rules };
   if (testPolicy) input.sourceTestPolicy = testPolicy;
   if (['ui', 'all'].includes(config.area)) {

@@ -8,16 +8,9 @@ const { pipeline } = require("node:stream/promises");
 
 const sha = value => crypto.createHash("sha256").update(value).digest("hex");
 
-async function snapshotProject(directory, { concurrency = 8 } = {}) {
-  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 32) {
-    throw new Error("Snapshot concurrency must be an integer from 1 to 32.");
-  }
-  const started = performance.now();
-  const root = path.resolve(directory);
+async function inventoryProject(root) {
   const leaves = [];
   const trees = [];
-  let bytes = 0;
-  let fileCount = 0;
   async function inventory(folder) {
     const git = spawnSync("git", ["-c", "core.longpaths=true", "-C", folder,
       "ls-files", "--cached", "--others", "--exclude-standard", "-z"], {
@@ -53,6 +46,18 @@ async function snapshotProject(directory, { concurrency = 8 } = {}) {
     return tree;
   }
   const tree = await inventory(root);
+  return { tree, trees, leaves };
+}
+
+async function snapshotProject(directory, { concurrency = 8 } = {}) {
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 32) {
+    throw new Error("Snapshot concurrency must be an integer from 1 to 32.");
+  }
+  const started = performance.now();
+  const root = path.resolve(directory);
+  let bytes = 0;
+  let fileCount = 0;
+  const { tree, trees, leaves } = await inventoryProject(root);
   let next = 0;
   let failure;
   async function readFiles() {
@@ -123,7 +128,7 @@ function compareSnapshots(before, after) {
             entry.path.split(/[\\/]/).some(part => part === '..' || part === '.') || seen.has(entry.path) ||
             (entry.sha256 !== 'deleted' && !/^[a-f0-9]{64}$/.test(entry.sha256 || ''))) throw new Error('Invalid input inventory entry.');
         seen.add(entry.path);
-        files.set(path.join(prefix, entry.path).replaceAll('\\', '/'), entry.sha256);
+        files.set(path.join(prefix, entry.path).replaceAll('\\', '/').replace(/\/$/, ''), entry.sha256);
       }
       trees.set(prefix, sha(JSON.stringify(tree.entries)));
     }
@@ -176,4 +181,4 @@ if (require.main === module) main().catch(error => {
   process.stderr.write(`Project input snapshot failed: ${error.message}\n`);
   process.exitCode = 1;
 });
-module.exports = { snapshotProject, compareSnapshots };
+module.exports = { snapshotProject, compareSnapshots, inventoryProject };
