@@ -7,6 +7,7 @@ pub(crate) mod claude_files;
 mod current_time;
 mod dynamic;
 pub(crate) mod extension_tools;
+mod find_names;
 mod get_context_remaining;
 pub(crate) mod get_context_remaining_spec;
 mod list_available_plugins_to_install;
@@ -67,6 +68,7 @@ use codex_protocol::models::AdditionalPermissionProfile;
 use codex_protocol::protocol::AskForApproval;
 pub use current_time::CurrentTimeHandler;
 pub use dynamic::DynamicToolHandler;
+pub use find_names::FindNamesHandler;
 pub use get_context_remaining::GetContextRemainingHandler;
 pub use list_available_plugins_to_install::ListAvailablePluginsToInstallHandler;
 pub use mcp::McpHandler;
@@ -170,7 +172,7 @@ where
     parse_arguments(arguments)
 }
 
-fn resolve_tool_environment<'a>(
+pub(crate) fn resolve_tool_environment<'a>(
     step_context: &'a StepContext,
     environment_id: Option<&str>,
     legacy_unavailable_message: &'static str,

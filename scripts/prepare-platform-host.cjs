@@ -118,7 +118,7 @@ async function prepare(options) {
   const rgTarget=path.join(root,"bin",toolDirectory,platform.executableName("rg",selected)); fs.mkdirSync(path.dirname(rgTarget),{recursive:true}); fs.writeFileSync(rgTarget,rgBytes); if(selected.os!=="win32") fs.chmodSync(rgTarget,0o755);
   fs.cpSync(account,path.join(root,"account-ui"),{recursive:true,dereference:false,filter:file=>!path.relative(account,file).split(path.sep).some(part=>part===".git" || part===".env" || part===".bin")});
   const companionNativeTools=normalizeCompanionModes(path.join(root,"account-ui"),selected);
-  const modules=["session-links.cjs","azrael-recovery.cjs","recovery-state.cjs","persisted-atoms.cjs", "shared-engine-host.cjs", "optional-diagnostics.cjs","url-safety-transport.cjs","pdf-file-open.cjs","computer-use-approvals.cjs","use-control-settings.cjs","devin-native-host.cjs","provider-accounts-host.cjs","platform-runtime.cjs","azrael-platforms.json"];
+  const modules=["session-links.cjs","azrael-recovery.cjs","recovery-state.cjs","persisted-atoms.cjs", "shared-engine-host.cjs", "optional-diagnostics.cjs","url-safety-transport.cjs","pdf-file-open.cjs","computer-use-approvals.cjs","use-control-settings.cjs","devin-native-host.cjs","provider-accounts-host.cjs","find-names-runtime.cjs","platform-runtime.cjs","azrael-platforms.json"];
   for (const name of modules) fs.copyFileSync(path.join(__dirname,name),path.join(root,"out",name));
   fs.copyFileSync(path.join(__dirname,"ordinary-runtime.cjs"),path.join(root,"out/azrael-runtime.cjs")); fs.copyFileSync(path.join(__dirname,"integrated-azrael-entry.cjs"),path.join(root,"integrated-azrael-entry.cjs"));
   const accountModules=["sync-shared-environment.cjs","sync-codex-environment.cjs","instruction-package.cjs","instruction-library.cjs","instruction-publisher.cjs","instruction-catalog.cjs","instruction-migration.cjs","task-profile-runtime.cjs","computer-use-runtime.cjs","computer-use-branding.cjs","window-control-runtime.cjs","window-virtual-input.cjs","window-control-errors.cjs","use-control-settings.cjs","window-use-approvals.cjs","computer-use-approvals.cjs","use-settings-host.cjs","sky-control-policy.mjs","sky-controlled-service.mjs","inject-sky-control-policy.cjs","platform-runtime.cjs","azrael-platforms.json"];
@@ -127,6 +127,12 @@ async function prepare(options) {
   for (const name of ["codex-environment-engine.cjs","azrael-rpc-check.mjs"]) fs.copyFileSync(path.join(__dirname,"lib",name),path.join(root,"account-ui/lib",name));
   const config={schema:1,platform:platform.platformIdentity(selected),engine:path.join(release,"engine",platform.executableName("azrael",selected)),bridge:path.join(release,"engine",platform.executableName("azrael-bridge",selected)),engineVersion:build.engineVersion,codexHome:path.join(os.homedir(),".azrael-ex"),originalExtension:ui};
   config.devinNative=require("./devin-native-host.cjs").readBundle(release); config.providerAccounts=require("./provider-accounts-host.cjs").readBundle(release);
+  if (fs.existsSync(path.join(release,"tools/find-names/manifest.json"))) {
+    const findNames=require("./find-names-runtime.cjs").verify(path.join(release,"tools/find-names/helper.cjs"));
+    config.findNamesHelper=findNames.helper;
+    config.nodeExecutable=findNames.nodeExecutable;
+    if(!config.nodeExecutable) throw new Error("find_names requires the selected Node runtime.");
+  }
   Object.assign(config, stageDesktopRuntimes(release, root, selected));
   for (const name of Object.keys(build.sha256).filter(name=>name.startsWith("host/") && /\.(?:cjs|mjs|json)$/.test(name))) {
     const target=path.join(root,"out",name.replace(/^host\/(?:out\/)?/,"")); fs.mkdirSync(path.dirname(target),{recursive:true}); fs.copyFileSync(shared.fileAt(release,name),target);

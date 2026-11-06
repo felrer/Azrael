@@ -1,0 +1,33 @@
+"use strict";
+const test=require("node:test"), assert=require("node:assert/strict"), fs=require("node:fs"), path=require("node:path"), os=require("node:os");
+const {spawnSync}=require("node:child_process"), runtime=require("./find-names-runtime.cjs");
+// Retained: adding or replacing parser dependencies must keep the deployed closure runnable.
+test("find_names staged closure runs without node_modules and rejects tampering", t=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"find-names-runtime-"));
+  t.after(()=>fs.rmSync(root,{recursive:true}));
+  const project=path.resolve(__dirname,".."), typescript=require.resolve("typescript/lib/typescript.js",{paths:[path.join(project,"extensions/azrael-ex")]});
+  const release=path.join(root,"before"), relocated=path.join(root,"after");
+  let {helper,manifest}=runtime.stage(release,project,typescript);
+  const config=require("./install-platform-release.cjs").relocateValue({findNamesHelper:helper,nodeExecutable:runtime.verify(helper).nodeExecutable},release,relocated);
+  fs.renameSync(release,relocated);
+  helper=config.findNamesHelper;
+  assert.equal(helper,path.join(relocated,"tools/find-names/helper.cjs"));
+  runtime.verify(helper);
+  assert.equal(manifest.typescriptVersion,"5.9.3");
+  assert.equal(manifest.unicodeVersion,"15.1.0");
+  const env={AZRAEL_FIND_NAMES_NODE:"ambient",AZRAEL_FIND_NAMES_HELPER:"ambient",NODE_OPTIONS:"--require ambient",NODE_PATH:"ambient"};
+  runtime.configureEnvironment(env,config);
+  assert.equal(env.AZRAEL_FIND_NAMES_NODE,config.nodeExecutable);
+  assert.equal(env.AZRAEL_FIND_NAMES_HELPER,helper);
+  assert.equal(env.NODE_OPTIONS,undefined);
+  assert.equal(env.NODE_PATH,undefined);
+  const child=spawnSync(env.AZRAEL_FIND_NAMES_NODE,[helper],{input:JSON.stringify({filename:"fixture.ts",query:"needle",source:"export function Needle(value: string): void {}",include_signature:false}),encoding:"utf8",env:{...process.env,NODE_OPTIONS:"",NODE_PATH:""},windowsHide:true});
+  assert.equal(child.status,0,child.stderr);
+  assert.deepEqual(JSON.parse(child.stdout),[["Needle",1,1]]);
+  assert.throws(()=>runtime.configureEnvironment({}, {findNamesHelper:helper}),/managed Node/);
+  fs.appendFileSync(path.join(path.dirname(helper),"typescript.js"),"tamper");
+  assert.throws(()=>runtime.verify(helper),/integrity mismatch/);
+  runtime.configureEnvironment(env,{});
+  assert.equal(env.AZRAEL_FIND_NAMES_NODE,undefined);
+  assert.equal(env.AZRAEL_FIND_NAMES_HELPER,undefined);
+});

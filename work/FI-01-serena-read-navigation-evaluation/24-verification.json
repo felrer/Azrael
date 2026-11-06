@@ -1,0 +1,846 @@
+{
+  "schema": 1,
+  "status": "source_verified_build_excluded_pending_commit_cleanup",
+  "plan": "work/FI-01-serena-read-navigation-evaluation/24-plan.md",
+  "feature_id": "tool.find-names",
+  "run_root": "artifacts/verification/find-names-product-20261103-7f4a91c2",
+  "platform_verified": "Windows x64",
+  "api": {
+    "name": "find_names",
+    "required": [
+      "relative_path",
+      "query"
+    ],
+    "include_signature_default": false,
+    "matching": "Unicode 15.1.0 casefold literal substring of declaration name",
+    "default_result": "[id,start,end]",
+    "line_numbers": "1-based inclusive",
+    "list_all": false,
+    "source_body": false,
+    "file_size_rule": false,
+    "terminal_restrictions": false
+  },
+  "identities": {
+    "helper_sha256": "81d209df5c8110d753387306c675f6f32984cd8e61fae4f3b41904ff7efd6917",
+    "native_handler_sha256": "e8ebae9d1ddd8191dc8fb5f11f867e5fc2c3cacb30b9abb29fd27fb8a3f0304a",
+    "native_checker_sha256": "069e33fb0d0162298f46bd71052669dce96c7913e33f9b2c05c2d50491af6c96",
+    "typescript_version": "5.9.3"
+  },
+  "passed": [
+    {
+      "scope": "helper contracts and retained actual gold: fixture14, App15, accessor/overload6 queries",
+      "exit_code": 0,
+      "evidence": "reports/helper-edge-gold.json"
+    },
+    {
+      "scope": "runtime, Devin and ordinary Node tests",
+      "passed": 30,
+      "exit_code": 0,
+      "evidence": "logs/packaging-runtime-tests.log"
+    },
+    {
+      "scope": "host source tests with TypeScript transpile hook",
+      "passed": 16,
+      "exit_code": 0,
+      "evidence": "logs/hostRuntime-tests.log",
+      "limitation": "not installed-host acceptance"
+    },
+    {
+      "scope": "portable Python package closure/checksum fixture",
+      "passed": 1,
+      "exit_code": 0,
+      "evidence": "logs/app-package-only-tests.log"
+    },
+    {
+      "scope": "common instruction copy equality",
+      "passed": 5,
+      "exit_code": 0,
+      "evidence": "logs/common-instructions.log"
+    },
+    {
+      "scope": "extension TypeScript noEmit",
+      "exit_code": 0,
+      "evidence": "logs/extension-types.log"
+    },
+    {
+      "scope": "Rust syntax/format and checker syntax/module load",
+      "exit_code": 0,
+      "evidence": "reports/native-static-review.json",
+      "limitation": "not Rust compilation or test execution"
+    },
+    {
+      "scope": "feature inventory validation",
+      "exit_code": 0
+    },
+    {
+      "scope": "task-related whitespace check",
+      "exit_code": 0
+    },
+    {
+      "scope": "Windows synthetic package closure and recipient installer PrepareOnly relocation/same-version refusal",
+      "passed": 2,
+      "exit_code": 0,
+      "duration_seconds": 13.357,
+      "command": "Python313/python.exe -B -m unittest scripts.tests.test_app_release.AppReleaseTests.test_package_portable_closure_and_checksum_contract scripts.tests.test_app_release.AppReleaseTests.test_relocated_prepare_only_and_same_version_refusal -v",
+      "powershell": "C:/Program Files/WindowsApps/Microsoft.PowerShell_7.6.9.0_x64__8wekyb3d8bbwe/pwsh.exe",
+      "stderr_sha256": "9b90d4662316052716073bf374e456fc5191f5b8da769af1d3a05fe618d672d8",
+      "limitation": "synthetic PrepareOnly fixtures; no real profile install",
+      "fixture_remaining": 0,
+      "raw_run": "artifacts/tasks/FI-01-find-names/runs/installer-20261106",
+      "cleanup": {
+        "deleted": true,
+        "remaining": false,
+        "logical_bytes": 2217,
+        "owner_sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680"
+      }
+    },
+    {
+      "scope": "Windows x64 native find_names compilation, registry/modes/providers, reviewer policy, tool-free mode, packaged helper invocation and missing-runtime explicit error",
+      "groups": 5,
+      "passed": 11,
+      "exit_code": 0,
+      "evidence": "artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\reports\\native-find-names.json",
+      "limitation": "selected native contracts; not final package/installed-host acceptance or concurrent file-change/symlink acceptance"
+    }
+  ],
+  "actual_provider_probe": {
+    "count": 1,
+    "driver_exit_code": 0,
+    "backend_exit_code": 0,
+    "observed_process_identities": 29,
+    "remaining_observed_processes": 0,
+    "result_sha256": "f99119cf79309e9a8ca130690c2cc4e396b92ef73c5c5ecfaed6c455caadf341",
+    "evidence": "outputs/native-id-edge/result.json"
+  },
+  "blocked": [],
+  "known_compatibility_limit": "Top-level exported overload implementation omission is preserved from v5; method/accessor native indexed IDs match actual gold.",
+  "unverified": [
+    "initial symlink escape at actual filesystem boundary",
+    "product build/package/installation excluded by latest user instruction",
+    "installed-host and direct model-tool acceptance",
+    "Linux and macOS execution"
+  ],
+  "new_model_trials": 0,
+  "installation_changed": false,
+  "unrelated_staged_paths_preserved": 37,
+  "task_commit": "Implementation/source provenance diff reviewed; isolated index ready; cleanup remains pending",
+  "cleanup": "Existing native/frozen and pre-edit bundles in current use for input comparison, evidence transfer and commit isolation; delete through owner after use. Recovery proof retains cache-provenance protection; previous unknown run22 untouched.",
+  "cargo_recovery": {
+    "verified": true,
+    "originalOutcome": "unknown",
+    "originalExitCode": null,
+    "leaseAbsent": true,
+    "basis": "System boot 2026-11-05T08:21:37.5000000Z after original lease start 2026-11-03T14:25:53.476Z",
+    "evidenceRoot": "artifacts/tasks/FI-01-find-names/runs/recovery-20261106-boot/reports"
+  },
+  "native_resumption": {
+    "command": "node scripts/check-find-names.cjs",
+    "work_id": "c89e5a0d-2f59-4713-9bd4-f75d6153ddd5",
+    "session_id": 27319,
+    "run_root": "artifacts/tasks/FI-01-find-names/runs/20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d",
+    "frozen_root": "artifacts/verification/fn-074404ce/engine",
+    "source_sha256": "dba174993424ca03a4d87d819d20550b7084ab253646bbeb9330aada76a5bce4",
+    "cargo_home": "artifacts/ch17",
+    "started_kst": "2026-11-06T11:38:30+09:00",
+    "first_checkpoint_kst": "2026-11-06T11:53:30+09:00",
+    "status": "succeeded",
+    "actual_exit_code": 0,
+    "checkpoint": {
+      "time_kst": "2026-11-06T11:53:30+09:00",
+      "cargo_started_utc": "2026-11-06T02:40:04.089Z",
+      "actual_cargo_pid": 17440,
+      "rustc_count": 2,
+      "free_memory_kib": 11974472,
+      "state": "compiling; no terminal outcome",
+      "next_checkpoint_kst": "2026-11-06T12:08:30+09:00"
+    },
+    "finished_utc": "2026-11-06T03:11:00.687Z",
+    "report_sha256": "e459d43afde4aca1ed394c0e8561eed410af21047cad74559b02c88ed5d37e00",
+    "accepted": true,
+    "fixed_inputs": {
+      "source_sha256": "dba174993424ca03a4d87d819d20550b7084ab253646bbeb9330aada76a5bce4",
+      "frozen_sha256": "038961366461989a1d607d8a9b7124c125c5e5a7a49fec2f7038ac2d669d6e1b",
+      "source_unchanged": true,
+      "frozen_unchanged": true,
+      "helper_unchanged": true
+    },
+    "groups": [
+      {
+        "id": "find-names",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--lib",
+          "--locked",
+          "--offline",
+          "find_names",
+          "--",
+          "--test-threads=1"
+        ],
+        "actual_exit_code": 0,
+        "wrapper_exit_code": 0,
+        "accepted": true,
+        "actual_counts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 4,
+              "failed": 0,
+              "ignored": 2,
+              "measured": 0,
+              "filteredOut": 3156
+            }
+          ],
+          "passed": 4,
+          "failed": 0,
+          "ignored": 2,
+          "measured": 0,
+          "filteredOut": 3156,
+          "executed": 4
+        }
+      },
+      {
+        "id": "find-names-policy",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--lib",
+          "--locked",
+          "--offline",
+          "reviewer_tool_policy",
+          "--",
+          "--test-threads=1"
+        ],
+        "actual_exit_code": 0,
+        "wrapper_exit_code": 0,
+        "accepted": true,
+        "actual_counts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 4,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3158
+            }
+          ],
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3158,
+          "executed": 4
+        }
+      },
+      {
+        "id": "find-names-tool-free",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--lib",
+          "--locked",
+          "--offline",
+          "api_tool_free_model_closes_catalog_and_native_dispatch_registry",
+          "--",
+          "--test-threads=1"
+        ],
+        "actual_exit_code": 0,
+        "wrapper_exit_code": 0,
+        "accepted": true,
+        "actual_counts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3161
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3161,
+          "executed": 1
+        }
+      },
+      {
+        "id": "find-names-helper",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--lib",
+          "--locked",
+          "--offline",
+          "find_names_with_packaged_helper",
+          "--",
+          "--test-threads=1",
+          "--ignored"
+        ],
+        "actual_exit_code": 0,
+        "wrapper_exit_code": 0,
+        "accepted": true,
+        "actual_counts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3161
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3161,
+          "executed": 1
+        }
+      },
+      {
+        "id": "find-names-missing-runtime",
+        "args": [
+          "test",
+          "-p",
+          "codex-core",
+          "--lib",
+          "--locked",
+          "--offline",
+          "find_names_missing_runtime",
+          "--",
+          "--test-threads=1",
+          "--ignored"
+        ],
+        "actual_exit_code": 0,
+        "wrapper_exit_code": 0,
+        "accepted": true,
+        "actual_counts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3161
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 3161,
+          "executed": 1
+        }
+      }
+    ],
+    "preserved_report": {
+      "schema": 1,
+      "startedUtc": "2026-11-06T02:38:47.097Z",
+      "finishedUtc": "2026-11-06T03:11:00.687Z",
+      "accepted": true,
+      "producerStopped": true,
+      "sourceSha256": "dba174993424ca03a4d87d819d20550b7084ab253646bbeb9330aada76a5bce4",
+      "frozenSha256": "038961366461989a1d607d8a9b7124c125c5e5a7a49fec2f7038ac2d669d6e1b",
+      "results": [
+        {
+          "id": "find-names",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--lib",
+            "--locked",
+            "--offline",
+            "find_names",
+            "--",
+            "--test-threads=1"
+          ],
+          "actualExitCode": 0,
+          "wrapperExitCode": 0,
+          "signal": null,
+          "accepted": true,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 4,
+                  "failed": 0,
+                  "ignored": 2,
+                  "measured": 0,
+                  "filteredOut": 3156
+                }
+              ],
+              "passed": 4,
+              "failed": 0,
+              "ignored": 2,
+              "measured": 0,
+              "filteredOut": 3156,
+              "executed": 4
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-core",
+                  "--lib",
+                  "--locked",
+                  "--offline",
+                  "find_names",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-11-06T02:39:55.589Z",
+                "durationMs": 1731413,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          },
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names.stderr.log"
+        },
+        {
+          "id": "find-names-policy",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--lib",
+            "--locked",
+            "--offline",
+            "reviewer_tool_policy",
+            "--",
+            "--test-threads=1"
+          ],
+          "actualExitCode": 0,
+          "wrapperExitCode": 0,
+          "signal": null,
+          "accepted": true,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 4,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 3158
+                }
+              ],
+              "passed": 4,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3158,
+              "executed": 4
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-core",
+                  "--lib",
+                  "--locked",
+                  "--offline",
+                  "reviewer_tool_policy",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-11-06T03:08:47.006Z",
+                "durationMs": 60743,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          },
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names-policy.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names-policy.stderr.log"
+        },
+        {
+          "id": "find-names-tool-free",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--lib",
+            "--locked",
+            "--offline",
+            "api_tool_free_model_closes_catalog_and_native_dispatch_registry",
+            "--",
+            "--test-threads=1"
+          ],
+          "actualExitCode": 0,
+          "wrapperExitCode": 0,
+          "signal": null,
+          "accepted": true,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 1,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 3161
+                }
+              ],
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3161,
+              "executed": 1
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-core",
+                  "--lib",
+                  "--locked",
+                  "--offline",
+                  "api_tool_free_model_closes_catalog_and_native_dispatch_registry",
+                  "--",
+                  "--test-threads=1"
+                ],
+                "startedUtc": "2026-11-06T03:09:47.754Z",
+                "durationMs": 18726,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          },
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names-tool-free.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names-tool-free.stderr.log"
+        },
+        {
+          "id": "find-names-helper",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--lib",
+            "--locked",
+            "--offline",
+            "find_names_with_packaged_helper",
+            "--",
+            "--test-threads=1",
+            "--ignored"
+          ],
+          "actualExitCode": 0,
+          "wrapperExitCode": 0,
+          "signal": null,
+          "accepted": true,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 1,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 3161
+                }
+              ],
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3161,
+              "executed": 1
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-core",
+                  "--lib",
+                  "--locked",
+                  "--offline",
+                  "find_names_with_packaged_helper",
+                  "--",
+                  "--test-threads=1",
+                  "--ignored"
+                ],
+                "startedUtc": "2026-11-06T03:10:06.749Z",
+                "durationMs": 18480,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          },
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names-helper.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names-helper.stderr.log"
+        },
+        {
+          "id": "find-names-missing-runtime",
+          "args": [
+            "test",
+            "-p",
+            "codex-core",
+            "--lib",
+            "--locked",
+            "--offline",
+            "find_names_missing_runtime",
+            "--",
+            "--test-threads=1",
+            "--ignored"
+          ],
+          "actualExitCode": 0,
+          "wrapperExitCode": 0,
+          "signal": null,
+          "accepted": true,
+          "preflight": {
+            "schema": 2,
+            "compilation": "cargo-test",
+            "testExecution": "nonzero-passed",
+            "contract": "selected-tests-v2",
+            "cargoInvocations": 1,
+            "accepted": true,
+            "actualCounts": {
+              "summaries": [
+                {
+                  "status": "ok",
+                  "passed": 1,
+                  "failed": 0,
+                  "ignored": 0,
+                  "measured": 0,
+                  "filteredOut": 3161
+                }
+              ],
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 3161,
+              "executed": 1
+            },
+            "phases": [
+              {
+                "phase": "compilation-and-execution",
+                "args": [
+                  "test",
+                  "-p",
+                  "codex-core",
+                  "--lib",
+                  "--locked",
+                  "--offline",
+                  "find_names_missing_runtime",
+                  "--",
+                  "--test-threads=1",
+                  "--ignored"
+                ],
+                "startedUtc": "2026-11-06T03:10:25.233Z",
+                "durationMs": 16788,
+                "exitCode": 0,
+                "signal": null
+              }
+            ]
+          },
+          "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names-missing-runtime.stdout.log",
+          "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\logs\\cargo-find-names-missing-runtime.stderr.log"
+        }
+      ],
+      "callerSha256": "e8ebae9d1ddd8191dc8fb5f11f867e5fc2c3cacb30b9abb29fd27fb8a3f0304a",
+      "helper": {
+        "node": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\outputs\\native-runtime\\node\\node.exe",
+        "nodeSha256": "e921fe5307e29bf6fd00000dd594356affd3a7b044e52720c7f10decbdc305b9",
+        "helper": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\FI-01-find-names\\runs\\20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d\\outputs\\native-runtime\\tools\\find-names\\helper.cjs",
+        "manifest": {
+          "schema": 1,
+          "typescriptVersion": "5.9.3",
+          "unicodeVersion": "15.1.0",
+          "node": {
+            "path": "node/node.exe",
+            "sha256": "e921fe5307e29bf6fd00000dd594356affd3a7b044e52720c7f10decbdc305b9"
+          },
+          "files": {
+            "helper.cjs": "81d209df5c8110d753387306c675f6f32984cd8e61fae4f3b41904ff7efd6917",
+            "find-names-casefold.json": "77b670df8597649702ed951562efd6c2433b971165674a4b1bef95dc30368d57",
+            "typescript.js": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+            "TypeScript-LICENSE.txt": "a7d00bfd54525bc694b6e32f64c7ebcf5e6b7ae3657be5cc12767bce74654a47",
+            "TypeScript-ThirdPartyNoticeText.txt": "1af3c68039c57e539422da82a4faada506ce6d0ea6f90e0b699d02dbcdb7a90c",
+            "Unicode-LICENSE.txt": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96"
+          }
+        }
+      },
+      "sourceUnchanged": true,
+      "frozenUnchanged": true,
+      "helperSourceUnchanged": true
+    }
+  },
+  "build_preflight": {
+    "command": "Python313/python.exe -B scripts/engine-provenance.py snapshot --root artifacts/verification/fn-074404ce/engine --file <run>/outputs/engine-source.json",
+    "actual_exit_code": 1,
+    "first_causal_error": "Copied source differs: codex-rs/app-server/src/azrael_shared_server.rs",
+    "source_receipt_mismatches": [
+      "codex-rs/app-server/src/azrael_shared_server.rs",
+      "codex-rs/app-server/src/config_manager.rs",
+      "codex-rs/app-server/src/in_process.rs",
+      "codex-rs/app-server/src/lib.rs",
+      "codex-rs/app-server/src/message_processor.rs",
+      "codex-rs/app-server/src/message_processor_tracing_tests.rs",
+      "codex-rs/app-server/src/request_processors/account_processor.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/retirement.rs",
+      "codex-rs/app-server/src/user_verification.rs",
+      "codex-rs/app-server/src/user_verification_test_support.rs",
+      "codex-rs/login/src/auth/manager.rs",
+      "codex-rs/login/src/auth/profiles.rs",
+      "codex-rs/login/src/auth/profiles_tests.rs",
+      "codex-rs/project-maintenance/src/cli.rs",
+      "codex-rs/project-maintenance/src/coordination.rs",
+      "codex-rs/project-maintenance/src/lock_recovery.rs"
+    ],
+    "source_or_receipt_modified": false,
+    "user_decision": "Include current 20 changed files; latest correction excludes build, packaging, installation and new Cargo compilation",
+    "run_root": "artifacts/tasks/FI-01-find-names/runs/preflight-20261106",
+    "cleanup": "active decision/diagnosis; delete through owner when no longer needed",
+    "resolution": "Corrected current engine receipt; current source snapshot passed exit0. Frozen native receipt preserved unchanged during verification."
+  },
+  "controlled_source_change": {
+    "accepted": true,
+    "scope": "Actual packaged helper invocation mutates exact owned source fixture after parsing and before handler recheck",
+    "actual_cargo_exit_code": 101,
+    "expected_cargo_exit_code": 101,
+    "harness_exit_code": 0,
+    "actual_test_failed": 1,
+    "causal_error": "0376) panicked at core\\src\\tools\\handlers\\find_names.rs:502:14:\nnative helper call: RespondToModel(\"File changed during name search; request find_names again\")\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n",
+    "product_sources_modified": false,
+    "helper_shim_sha256": "48f85619f0def1987c3f019e4a1b39ef8bde6d6c268d52ce353b48cd8f9b8819",
+    "stdout_sha256": "ea5773c266466d7ff590abba6e5b45c69dbbd45b471dbb874fc71b2cb8c618df",
+    "cleanup": {
+      "deleted": true,
+      "remaining": false,
+      "logical_bytes": 1422058,
+      "owner_sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680"
+    }
+  },
+  "execution_scope": {
+    "source_provenance": true,
+    "source_validation": true,
+    "reuse_completed_native_results": true,
+    "new_cargo_compilation": false,
+    "product_build": false,
+    "packaging": false,
+    "installation": false
+  },
+  "source_provenance": {
+    "scope": "Source provenance; no build",
+    "record_exit": 0,
+    "snapshot_exit": 0,
+    "source_before_sha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149",
+    "source_after_sha256": "a954ad80d95d0a9d798bbb9e133308781c1c593d9c4a853bbfe87f492159b0d1",
+    "inventory_sha256": "7297016908dbc6f4e1bf03ca51e88988daf9bba81cdfdf41b912a6647fedbdd5",
+    "reviewed_paths": [
+      "codex-rs/app-server/src/azrael_shared_server.rs",
+      "codex-rs/app-server/src/config_manager.rs",
+      "codex-rs/app-server/src/in_process.rs",
+      "codex-rs/app-server/src/lib.rs",
+      "codex-rs/app-server/src/message_processor.rs",
+      "codex-rs/app-server/src/message_processor_tracing_tests.rs",
+      "codex-rs/app-server/src/request_processors/account_processor.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
+      "codex-rs/app-server/src/request_processors/account_processor/retirement.rs",
+      "codex-rs/app-server/src/user_verification.rs",
+      "codex-rs/app-server/src/user_verification_test_support.rs",
+      "codex-rs/login/src/auth/manager.rs",
+      "codex-rs/login/src/auth/profiles.rs",
+      "codex-rs/login/src/auth/profiles_tests.rs",
+      "codex-rs/project-maintenance/src/cli.rs",
+      "codex-rs/project-maintenance/src/coordination.rs",
+      "codex-rs/project-maintenance/src/lock_recovery.rs"
+    ],
+    "original_baseline_raw_sha256": "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+    "source_modified": "Only engine/SOURCE.json; inherited code bytes unchanged",
+    "behavior_acceptance": "Recording inherited changes establishes source provenance; it does not imply behavioral acceptance of unrelated features."
+  },
+  "cleanup_releases": [
+    {
+      "group": "run:FI-01-find-names:preflight-20261106",
+      "reason": "Source choice resolved and independent diagnostic plus corrected receipt verification preserved in this record; no build will run."
+    },
+    {
+      "group": "run:FI-01-find-names:20261106T023830465Z-52f61339-9ee1-497a-8852-badf36ec227d",
+      "reason": "Native outcome and identity independently preserved; input comparison complete; no remaining frozen-source build consumer."
+    }
+  ],
+  "source_only_checks": [
+    {
+      "id": "helper",
+      "args": [
+        "scripts/test-find-names-helper.cjs"
+      ],
+      "exit_code": 0
+    },
+    {
+      "id": "instructions",
+      "args": [
+        "--test",
+        "scripts/test-common-agent-instructions.cjs"
+      ],
+      "exit_code": 0
+    },
+    {
+      "id": "manifest",
+      "args": [
+        "-e",
+        "const f=require('./scripts/feature-preservation.cjs');f.validateManifest(f.loadManifest(process.cwd()),process.cwd());console.log('manifest valid')"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "commit_scope": "Feature-only hunks and authorized current source receipt; unrelated staged entries preserved. Verification describes the combined working source, not a clean-commit build."
+}

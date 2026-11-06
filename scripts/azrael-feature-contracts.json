@@ -2,6 +2,79 @@
   "schema": 1,
   "features": [
     {
+      "id": "tool.find-names",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/core/src/tools/handlers/find_names.rs",
+        "engine/codex-rs/core/src/tools/handlers/mod.rs",
+        "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "engine/codex-rs/core/src/tools/spec_plan_tests.rs",
+        "scripts/find-names-helper.cjs",
+        "scripts/find-names-casefold.json",
+        "scripts/find-names-Unicode-LICENSE.txt",
+        "scripts/find-names-runtime.cjs",
+        "scripts/test-find-names-helper.cjs",
+        "scripts/test-find-names-runtime.cjs",
+        "scripts/check-find-names.cjs",
+        "scripts/cargo-verification.cjs",
+        "extensions/azrael-ex/src/hostRuntime.ts",
+        "extensions/azrael-ex/test/hostRuntime.test.ts",
+        "extensions/azrael-ex/test/ordinaryRuntime.test.ts",
+        "scripts/ordinary-runtime.cjs",
+        "scripts/build-platform.cjs",
+        "scripts/build-azrael.ps1",
+        "scripts/prepare-platform-host.cjs",
+        "scripts/prepare-ordinary-vscode.ps1",
+        "scripts/prepare-native-vscode.ps1",
+        "scripts/package-app-release.py",
+        "scripts/install-app-release.ps1",
+        "scripts/test-devin-native-host.cjs",
+        "scripts/test-ordinary-runtime-node.cjs",
+        "scripts/tests/test_app_release.py",
+        "instructions/instructions/agent-behavior.md",
+        "engine/codex-rs/prompts/templates/agent_behavior.md"
+      ],
+      "contract": "docs/architecture/code-navigation.md",
+      "checks": [
+        {
+          "id": "tool.find-names.helper",
+          "executable": "node",
+          "args": [
+            "scripts/test-find-names-helper.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "tool.find-names.runtime",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-find-names-runtime.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "tool.find-names.instructions",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-common-agent-instructions.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "tool.find-names.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-find-names.cjs"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "ui.request-preparation",
       "area": "ui",
       "owners": [

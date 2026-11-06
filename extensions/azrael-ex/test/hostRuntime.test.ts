@@ -109,6 +109,25 @@ function fixture(): { directory: string; config: Record<string, unknown>; write(
   };
 }
 
+test("find_names uses the managed Node and strips ambient injection", () => {
+  const f = fixture();
+  try {
+    const helper = path.join(f.directory, "helper.cjs");
+    fs.writeFileSync(helper, "helper");
+    f.config.helpers = { nodeExecutable: process.execPath, findNamesHelper: helper };
+    f.write();
+    const runtime = buildHostRuntime(f.directory, { AZRAEL_FIND_NAMES_NODE: "ambient", AZRAEL_FIND_NAMES_HELPER: "ambient", NODE_OPTIONS: "--require ambient", NODE_PATH: "ambient" });
+    assert.equal(runtime.env.AZRAEL_FIND_NAMES_NODE, process.execPath);
+    assert.equal(runtime.env.AZRAEL_DEVIN_NODE, process.execPath);
+    assert.equal(runtime.env.AZRAEL_FIND_NAMES_HELPER, helper);
+    assert.equal(runtime.env.NODE_OPTIONS, undefined);
+    assert.equal(runtime.env.NODE_PATH, undefined);
+    f.config.helpers = { findNamesHelper: helper };
+    f.write();
+    assert.throws(() => buildHostRuntime(f.directory), /managed Node/);
+  } finally { f.dispose(); }
+});
+
 test("standalone runtime isolates identity and parent environment", () => {
   const f = fixture();
   try {
@@ -213,6 +232,8 @@ function portableFixture() {
     "runtime/helpers/inference.js": "inference",
     "runtime/helpers/bun.exe": "bun",
     "runtime/helpers/devin.exe": "devin-cli",
+    "tools/find-names/helper.cjs": "find-names",
+    "tools/find-names/typescript.js": "parser",
   };
   const sha256: Record<string, string> = {};
   for (const [relative, content] of Object.entries(contents)) {
@@ -225,6 +246,7 @@ function portableFixture() {
     platform: platformIdentity(), schema: 3, engine: "runtime/engine/codex.exe", bridge: "runtime/engine/azrael-bridge.exe",
     engineVersion: "0.159.3", stateDirectory: ".azrael-ex", sha256,
     helpers: {
+      findNamesHelper: "tools/find-names/helper.cjs",
       nodeExecutable: "runtime/helpers/node.exe", devinNativeHelper: "runtime/helpers/devin.mjs",
       providerAccountsHelper: "runtime/helpers/accounts.js", providerInferenceHelper: "runtime/helpers/inference.js",
       providerBun: "runtime/helpers/bun.exe", devinExecutable: "runtime/helpers/devin.exe",
@@ -251,6 +273,8 @@ test("portable runtime relocates one bundle and isolates state in the current us
       assert.equal(runtime.bridge, path.join(bundle, "runtime", "engine", "azrael-bridge.exe"));
       assert.equal(runtime.codexHome, path.join(f.home, ".azrael-ex"));
       assert.equal(runtime.env.AZRAEL_DEVIN_NODE, path.join(bundle, "runtime", "helpers", "node.exe"));
+      assert.equal(runtime.env.AZRAEL_FIND_NAMES_NODE, path.join(bundle, "runtime", "helpers", "node.exe"));
+      assert.equal(runtime.env.AZRAEL_FIND_NAMES_HELPER, path.join(bundle, "tools", "find-names", "helper.cjs"));
       assert.equal(runtime.env.AZRAEL_PROVIDER_ACCOUNTS_HELPER, path.join(bundle, "runtime", "helpers", "accounts.js"));
       assert.equal(runtime.env.OPENAI_API_KEY, undefined);
       assert.equal(runtime.env.OTHER, "kept");

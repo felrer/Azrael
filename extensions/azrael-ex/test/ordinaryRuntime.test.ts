@@ -53,6 +53,7 @@ function makeRuntimeFixture(): { directory: string; modulePath: string } {
   fs.writeFileSync(engine, "fixture");
   fs.writeFileSync(bridge, "fixture");
   fs.copyFileSync(runtimeSource, path.join(directory, "azrael-runtime.cjs"));
+  fs.copyFileSync(path.join(path.dirname(runtimeSource), "find-names-runtime.cjs"), path.join(directory, "find-names-runtime.cjs"));
   fs.copyFileSync(path.join(path.dirname(runtimeSource), "devin-native-host.cjs"), path.join(directory, "devin-native-host.cjs"));
   fs.copyFileSync(path.join(path.dirname(runtimeSource), "provider-accounts-host.cjs"), path.join(directory, "provider-accounts-host.cjs"));
   fs.copyFileSync(path.join(path.dirname(runtimeSource), "platform-runtime.cjs"), path.join(directory, "platform-runtime.cjs"));

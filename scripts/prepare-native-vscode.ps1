@@ -40,6 +40,9 @@ if ($LASTEXITCODE -ne 0) { throw 'Provider bundle verification failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Devin bundle verification failed.' }
 $provider = Get-Content -LiteralPath (Join-Path $release 'opencodex-accounts-build.json') -Raw | ConvertFrom-Json
 $devin = Get-Content -LiteralPath (Join-Path $release 'devin-native-build.json') -Raw | ConvertFrom-Json
+$findNamesText = & node (Join-Path $PSScriptRoot 'find-names-runtime.cjs') verify (Join-Path $release 'tools/find-names/helper.cjs')
+if ($LASTEXITCODE -ne 0) { throw 'find_names runtime validation failed.' }
+$findNames = $findNamesText | ConvertFrom-Json
 if ($provider.schema -ne 2 -or -not $provider.inferenceHelper) { throw 'The native host requires the verified provider inference helper.' }
 if (-not $DevinExecutable) {
     $candidate = Join-Path $env:LOCALAPPDATA 'azrael-ex/tools/devin/3000.10.21/bin/devin.exe'
@@ -75,6 +78,7 @@ $manifest | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $manifestPath -
 $helpers = [ordered]@{
     devinNativeHelper = Join-Path $release 'providers/devin/helper.mjs'
     nodeExecutable = [string]$devin.node.path
+    findNamesHelper = Join-Path $release 'tools/find-names/helper.cjs'
     providerAccountsHelper = Join-Path $release ([string]$provider.helper)
     providerInferenceHelper = Join-Path $release ([string]$provider.inferenceHelper)
     providerBun = Join-Path $release ([string]$provider.bun.path)

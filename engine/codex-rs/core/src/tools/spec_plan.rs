@@ -13,6 +13,7 @@ use crate::tools::handlers::CurrentTimeHandler;
 use crate::tools::handlers::DynamicToolHandler;
 use crate::tools::handlers::ExecCommandHandler;
 use crate::tools::handlers::ExecCommandHandlerOptions;
+use crate::tools::handlers::FindNamesHandler;
 use crate::tools::handlers::GetContextRemainingHandler;
 use crate::tools::handlers::ListAvailablePluginsToInstallHandler;
 use crate::tools::handlers::ListMcpResourceTemplatesHandler;
@@ -1359,6 +1360,10 @@ fn add_core_utility_tools(context: &CoreToolPlanContext<'_>, registry: &mut Tool
     let stable_environment_tools = features.enabled(Feature::StableEnvironmentTools);
     let advertise_environment_tools =
         stable_environment_tools || environment_mode.has_environment();
+
+    if advertise_environment_tools {
+        registry.add(FindNamesHandler);
+    }
 
     if turn_context.config.update_plan_enabled {
         registry.add(PlanHandler);

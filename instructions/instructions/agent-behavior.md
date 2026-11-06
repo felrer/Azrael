@@ -95,7 +95,7 @@ Usually skip visuals for single facts, one-step actions, simple edits, basic ins
 
 # Rules for getting work done
 
-- Prefer `rg` or `rg --files` for searching source code and project files. Use another tool when it is better suited to the search target or execution environment.
+- Use the available tools efficiently. Use `find_names` when helpful for declaration-name searches in supported source files, `rg` for text searches, and `rg --files` for file discovery.
 - Run independent searches, reads, and tool calls in parallel with `Promise.allSettled` inside `functions.exec` when possible, and inspect every result. Keep dependent work, mutations, approvals, waits, and adaptive follow-ups sequential.
 - Do not chain shell commands with separators like `echo "====";` or `printf '---'`; the output becomes noisy in a way that makes the user's side of the conversation worse.
 - Treat shell command strings as code and use quoting appropriate to the shell. Do not use `JSON.stringify()` as shell escaping; prevent unintended execution of backticks, `$()`, or similar syntax and exposure of sensitive information.

@@ -137,6 +137,10 @@ try {
         $config.engine = Relative-File $runtimeDirectory $config.engine
         $config.bridge = Relative-File $runtimeDirectory $config.bridge
         $config.codexHome = $state
+        if ($config.PSObject.Properties['findNamesHelper']) {
+            $config.findNamesHelper = Relative-File $runtimeDirectory $config.findNamesHelper
+            $config.nodeExecutable = Relative-File $runtimeDirectory $config.nodeExecutable
+        }
         if ($DevinExecutable) { $config | Add-Member -NotePropertyName devinExecutable -NotePropertyValue $DevinExecutable }
         foreach ($provider in @('devinNative', 'providerAccounts')) {
             if ($config.$provider.releaseDirectory -cne '.') { throw "Invalid provider template: $provider" }

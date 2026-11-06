@@ -48,6 +48,21 @@ class AppReleaseTests(unittest.TestCase):
         self.write_json(self.release / 'devin-native-build.json', {'files': closure, 'node': {'path': str(self.node), 'sha256': sha(self.node.read_bytes())}})
         self.write_json(self.release / 'opencodex-accounts-build.json', {'files': {}})
         config = {'schema': 1, 'engineVersion': 'fixture', 'engine': str(self.release / 'engine/azrael.exe'), 'bridge': str(self.release / 'engine/azrael-bridge.exe'), 'devinNative': {}, 'providerAccounts': {}}
+        # Retained: future runtime dependency additions must survive portable relocation.
+        find_files = {}
+        for name in ('helper.cjs', 'typescript.js', 'find-names-casefold.json', 'TypeScript-LICENSE.txt', 'TypeScript-ThirdPartyNoticeText.txt', 'Unicode-LICENSE.txt'):
+            data = ('find_names fixture ' + name).encode()
+            self.write(self.release / 'tools/find-names' / name, data)
+            find_files[name] = sha(data)
+        self.write_json(self.release / 'tools/find-names/manifest.json', {'schema': 1, 'typescriptVersion': '5.9.3', 'unicodeVersion': '15.1.0', 'node': {'path': 'node/node.exe', 'sha256': sha(self.node.read_bytes())}, 'files': find_files})
+        info = json.loads((self.release / 'build-info.json').read_bytes())
+        for file in (self.release / 'tools/find-names').iterdir():
+            info['sha256'][file.relative_to(self.release).as_posix()] = sha(file.read_bytes())
+        self.write(self.release / 'node/node.exe', self.node.read_bytes())
+        info['sha256']['node/node.exe'] = sha(self.node.read_bytes())
+        self.write_json(self.release / 'build-info.json', info)
+        config['findNamesHelper'] = str(self.release / 'tools/find-names/helper.cjs')
+        config['nodeExecutable'] = str(self.release / 'node/node.exe')
         for owner, key in (('computer-use', 'computerUse'), ('window-control', 'windowControl')):
             self.write_json(self.release / owner / 'manifest.json', {'files': []})
             config[key] = {'manifestSha256': sha((self.release / owner / 'manifest.json').read_bytes())}
@@ -146,6 +161,10 @@ class AppReleaseTests(unittest.TestCase):
             self.assertTrue(devin['node']['bundled'])
             with zipfile.ZipFile(io.BytesIO(archive.read('host-template.vsix'))) as host:
                 config = json.loads(host.read('extension/out/azrael-runtime.json'))
+                self.assertEqual(config['findNamesHelper'], 'tools/find-names/helper.cjs')
+                self.assertEqual(config['nodeExecutable'], 'node/node.exe')
+                for name in ('helper.cjs', 'typescript.js', 'find-names-casefold.json', 'TypeScript-LICENSE.txt', 'TypeScript-ThirdPartyNoticeText.txt', 'Unicode-LICENSE.txt', 'manifest.json'):
+                    self.assertIn('runtime/tools/find-names/' + name, archive.namelist())
                 self.assertEqual(config['codexHome'], '@STATE@')
                 self.assertEqual(config['devinNative']['releaseDirectory'], '.')
 

@@ -18,6 +18,7 @@ interface RuntimeManifest {
     devinExecutable?: string;
     devinNativeHelper?: string;
     nodeExecutable?: string;
+    findNamesHelper?: string;
     providerAccountsHelper?: string;
     providerInferenceHelper?: string;
     providerBun?: string;
@@ -28,6 +29,7 @@ const helperEnv = {
   devinExecutable: "AZRAEL_EX_DEVIN_EXECUTABLE",
   devinNativeHelper: "AZRAEL_DEVIN_NATIVE_HELPER",
   nodeExecutable: "AZRAEL_DEVIN_NODE",
+  findNamesHelper: "AZRAEL_FIND_NAMES_HELPER",
   providerAccountsHelper: "AZRAEL_PROVIDER_ACCOUNTS_HELPER",
   providerInferenceHelper: "AZRAEL_PROVIDER_INFERENCE_HELPER",
   providerBun: "AZRAEL_PROVIDER_BUN",
@@ -68,6 +70,8 @@ export function buildHostRuntime(extensionDirectory: string, inheritedEnv: NodeJ
     }
   }
 
+  if (config.helpers?.findNamesHelper && !config.helpers.nodeExecutable) throw new Error("find_names requires the managed Node executable.");
+
   const ordinaryHome = canonicalHome(path.join(os.homedir(), ".codex"));
   const stateHome = canonicalHome(config.codexHome);
   if (stateHome === ordinaryHome || stateHome.startsWith(ordinaryHome + path.sep)) {
@@ -104,6 +108,7 @@ export function buildHostRuntime(extensionDirectory: string, inheritedEnv: NodeJ
     const candidate = config.helpers?.[key];
     if (candidate) env[helperEnv[key]] = candidate;
   }
+  if (config.helpers?.findNamesHelper) env.AZRAEL_FIND_NAMES_NODE = config.helpers.nodeExecutable;
   return { platform: config.platform, engine: config.engine, bridge: config.bridge, codexHome: config.codexHome, engineVersion: config.engineVersion, socket, env };
 }
 
@@ -196,6 +201,7 @@ function canonicalHome(value: string): string {
 
 function shouldStrip(key: string): boolean {
   const name = key.toUpperCase();
+  if (name === "NODE_OPTIONS" || name === "NODE_PATH") return true;
   if (name === "CODEX_HOME" || name === "OPENCODEX_HOME" || name.startsWith("AZRAEL_")) return true;
   if (/(?:^|_)API_?(?:KEY|TOKEN)(?:_|$)/.test(name)) return true;
   if (/^(?:OPENAI|CODEX|ANTHROPIC|AZURE_OPENAI)_(?:.*(?:BASE_URL|API_BASE|API_HOST|ENDPOINT|ACCESS_TOKEN|AUTH_TOKEN)|ORGANIZATION|PROJECT|KEY)$/.test(name)) return true;

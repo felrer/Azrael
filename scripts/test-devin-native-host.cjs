@@ -131,7 +131,7 @@ test("ordinary runtime loads its native host dependency with a private environme
   fs.copyFileSync(path.join(__dirname, "ordinary-runtime.cjs"), runtimePath);
   fs.copyFileSync(path.join(__dirname, "devin-native-host.cjs"), nativeHostPath);
   fs.copyFileSync(path.join(__dirname, "provider-accounts-host.cjs"), path.join(root, "provider-accounts-host.cjs"));
-  for (const name of ["platform-runtime.cjs", "azrael-platforms.json"]) fs.copyFileSync(path.join(__dirname, name), path.join(root, name));
+  for (const name of ["platform-runtime.cjs", "azrael-platforms.json", "find-names-runtime.cjs"]) fs.copyFileSync(path.join(__dirname, name), path.join(root, name));
   fs.writeFileSync(engine, "synthetic engine\n");
   fs.writeFileSync(bridge, "synthetic bridge\n");
   fs.chmodSync(engine, 0o755);

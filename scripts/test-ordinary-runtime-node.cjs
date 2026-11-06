@@ -16,7 +16,7 @@ function load(nodeExecutable, extra = {}){
       require(name){
         if(name==='./platform-runtime.cjs')return platform;
         if(name==='./shared-engine-host.cjs')return require('./shared-engine-host.cjs');
-        if(['./devin-native-host.cjs','./provider-accounts-host.cjs'].includes(name))return {configureEnvironment(){}};
+        if(['./devin-native-host.cjs','./provider-accounts-host.cjs','./find-names-runtime.cjs'].includes(name))return {configureEnvironment(){}};
         return require(name);
       }});
     return module.exports.runtime;
@@ -52,7 +52,7 @@ function workerFixture(t, extra = {}, providerTail = '') {
   const filename = path.join(root, 'ordinary-runtime.cjs');
   t.after(() => { delete require.cache[filename]; fs.rmSync(root, { recursive: true }); });
   for (const name of ['ordinary-runtime.cjs', 'platform-runtime.cjs', 'azrael-platforms.json',
-    'devin-native-host.cjs', 'provider-accounts-host.cjs', 'shared-engine-host.cjs']) {
+    'devin-native-host.cjs', 'provider-accounts-host.cjs', 'find-names-runtime.cjs', 'shared-engine-host.cjs']) {
     fs.copyFileSync(path.join(__dirname, name), path.join(root, name));
   }
   if (providerTail) fs.appendFileSync(path.join(root, 'provider-accounts-host.cjs'), providerTail);
