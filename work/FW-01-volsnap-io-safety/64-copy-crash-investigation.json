@@ -1,0 +1,540 @@
+{
+  "schema": 1,
+  "state": "partial",
+  "purpose": "Independent minimal incident evidence retained before disposable copy probe cleanup; all decisive terminal content is inline and readable without raw run payloads.",
+  "capturedUtc": "2026-11-06T08:46:49.615Z",
+  "scope": {
+    "platform": "Windows x64",
+    "node": {
+      "executable": "C:\\Program Files\\nodejs\\node.exe",
+      "node": "v26.7.0",
+      "platform": "win32",
+      "arch": "x64",
+      "bytes": 103173960,
+      "sha256": "e921fe5307e29bf6fd00000dd594356affd3a7b044e52720c7f10decbdc305b9"
+    },
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434",
+    "sourcePhysical": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434",
+    "sourceFileCount": 19632,
+    "sourceBytes": 1452149037,
+    "sourceDirectoryCount": 117,
+    "sourceContentHashed": false,
+    "originalHelper": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\w5\\scripts\\capture-project-inputs.cjs",
+      "sha256": "e352f14722c8f3b33b02e2951f8c28bf37b3f2aafeb9ac8fb137630018aa3247",
+      "options": {
+        "recursive": true,
+        "force": false,
+        "errorOnExist": true
+      },
+      "excludedSegments": [
+        "target",
+        "node_modules",
+        ".git"
+      ]
+    },
+    "sourcePlanSha256": "c1cf58047e5038d37f5269c9f83fe0e884eb6269aec52d1d435e70d037003a65",
+    "runnerSha256": "22df41cd80ce2fa80e2565d61fd27ba40f5e24e3e044e56e7082264750efebc0"
+  },
+  "originalIncident": {
+    "windowUtc": [
+      "2026-11-06T08:14:20Z",
+      "2026-11-06T08:14:40Z"
+    ],
+    "preflightSession": 6475,
+    "preflightLifecycle": "run:fw04:preflight-20261106-02b",
+    "outcome": "unknown",
+    "sessionObservation": "Unknown process id after application interruption; no terminal result; process absence is not promoted to stopped proof",
+    "stage": "in-process fs.promises.cp pinned UI into frozen working workspace",
+    "partialDestination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\w5\\artifacts\\upstream-ui\\26.1007.21434",
+    "observedPartialFiles": 10491,
+    "observedPartialBytes": 1195865994,
+    "copyBirthUtcRange": [
+      "2026-11-06T08:13:39.200Z",
+      "2026-11-06T08:14:37.587Z"
+    ],
+    "lastCreatedFileBytes": 0,
+    "rootCodeEvidence": {
+      "ptyHostHeartbeatMissingUtc": "2026-11-06T08:14:33.571Z",
+      "newCodeMainCreationUtc": "2026-11-06T08:14:37.669Z"
+    },
+    "catalogLockUsed": true,
+    "lastCatalogRecordWriteUtc": "2026-11-06T08:13:12.785Z",
+    "copyIntervalNativeCatalogCalls": 0,
+    "copyIntervalDeleteCalls": 0,
+    "buildOwnerCodeLaunchOrKillCalls": 0,
+    "cargoDeployInstallStarted": false,
+    "causality": "Temporal overlap confirmed; cause of original VSCode termination remains unverified."
+  },
+  "controlledPhases": [
+    {
+      "phase": "subset",
+      "started": {
+        "schema": 1,
+        "phase": "subset",
+        "pid": 9504,
+        "parentPid": 50604,
+        "utc": "2026-11-06T08:39:25.554Z",
+        "monotonicNs": "87469766020100",
+        "planSha256": "c1cf58047e5038d37f5269c9f83fe0e884eb6269aec52d1d435e70d037003a65",
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434",
+        "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\outputs\\subset",
+        "selectedFileCount": 11738,
+        "selectedBytes": 268435443
+      },
+      "result": {
+        "schema": 1,
+        "passed": true,
+        "exitCode": 0,
+        "phase": "subset",
+        "planSha256": "c1cf58047e5038d37f5269c9f83fe0e884eb6269aec52d1d435e70d037003a65",
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434",
+        "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\outputs\\subset",
+        "counters": {
+          "filesAccepted": 11738,
+          "bytesAccepted": 268435443,
+          "filesAudited": 11738,
+          "bytesAudited": 268435443
+        },
+        "utc": "2026-11-06T08:39:45.275Z",
+        "monotonicNs": "87489486870400",
+        "instrumentationLimit": "Per-file fs.cp completion callbacks are unavailable; file-start is filter acceptance and file-finish is the later size audit. No kernel trace, dump or content-hash proof."
+      },
+      "terminal": {
+        "status": "target-exited",
+        "observerPid": 43496,
+        "targetExitCode": 0,
+        "error": null,
+        "target": {
+          "pid": 9504,
+          "startUtc": "2026-11-06T08:39:24.5423078Z",
+          "name": "node",
+          "handle": 1452
+        },
+        "remainingObservedDescendants": [],
+        "resourceQueryPending": false,
+        "utc": "2026-11-06T08:39:45.7768925Z"
+      },
+      "rootHeldEvidence": {
+        "collectorSession": 44106,
+        "collectorExitCode": 0,
+        "observerPid": 43496,
+        "observerExitCode": 0,
+        "targetPid": 9504,
+        "targetExitCode": 0,
+        "proofOwner": "root independent retained Process handles and terminal collector; supplied via parent handoff",
+        "fullCollectorCompletionChunk": null
+      },
+      "copyInterval": {
+        "startUtc": "2026-11-06T08:39:25.554Z",
+        "endUtc": "2026-11-06T08:39:44.342Z",
+        "durationMs": 18787.484
+      },
+      "totalPhaseElapsedMs": 20346.9061,
+      "codeBaselineHandles": 27,
+      "observedCodeExitEvents": 0,
+      "resourceSamples": 19,
+      "availableMemoryMiB": {
+        "first": 11616,
+        "last": 11377,
+        "minimum": 11241,
+        "maximum": 11662
+      },
+      "sampleErrors": [],
+      "observedProcessExitEvents": [
+        {
+          "utc": "2026-11-06T08:39:45.7646346Z",
+          "eventName": "observed-process-exit",
+          "data": {
+            "identity": {
+              "pid": 35512,
+              "startUtc": "2026-11-06T08:39:24.5498964Z",
+              "name": "conhost",
+              "handle": 1456
+            },
+            "exitCode": 0
+          }
+        }
+      ]
+    },
+    {
+      "phase": "full",
+      "started": {
+        "schema": 1,
+        "phase": "full",
+        "pid": 34208,
+        "parentPid": 50604,
+        "utc": "2026-11-06T08:40:07.922Z",
+        "monotonicNs": "87512134541300",
+        "planSha256": "c1cf58047e5038d37f5269c9f83fe0e884eb6269aec52d1d435e70d037003a65",
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434",
+        "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\outputs\\full",
+        "selectedFileCount": 19632,
+        "selectedBytes": 1452149037
+      },
+      "result": {
+        "schema": 1,
+        "passed": true,
+        "exitCode": 0,
+        "phase": "full",
+        "planSha256": "c1cf58047e5038d37f5269c9f83fe0e884eb6269aec52d1d435e70d037003a65",
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434",
+        "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\outputs\\full",
+        "counters": {
+          "filesAccepted": 19632,
+          "bytesAccepted": 1452149037,
+          "filesAudited": 19632,
+          "bytesAudited": 1452149037
+        },
+        "utc": "2026-11-06T08:41:16.738Z",
+        "monotonicNs": "87580949948600",
+        "instrumentationLimit": "Per-file fs.cp completion callbacks are unavailable; file-start is filter acceptance and file-finish is the later size audit. No kernel trace, dump or content-hash proof."
+      },
+      "terminal": {
+        "status": "target-exited",
+        "observerPid": 42028,
+        "targetExitCode": 0,
+        "error": null,
+        "target": {
+          "pid": 34208,
+          "startUtc": "2026-11-06T08:40:07.0186162Z",
+          "name": "node",
+          "handle": 1344
+        },
+        "remainingObservedDescendants": [],
+        "resourceQueryPending": false,
+        "utc": "2026-11-06T08:41:17.6979293Z"
+      },
+      "rootHeldEvidence": {
+        "collectorSession": 20292,
+        "collectorExitCode": 0,
+        "observerPid": 42028,
+        "observerExitCode": 0,
+        "targetPid": 34208,
+        "targetExitCode": 0,
+        "proofOwner": "root independent retained Process handles and terminal collector; supplied via parent handoff",
+        "fullCollectorCompletionChunk": "71ca1b"
+      },
+      "copyInterval": {
+        "startUtc": "2026-11-06T08:40:07.922Z",
+        "endUtc": "2026-11-06T08:41:15.607Z",
+        "durationMs": 67683.4559
+      },
+      "totalPhaseElapsedMs": 69368.5687,
+      "codeBaselineHandles": 27,
+      "observedCodeExitEvents": 0,
+      "resourceSamples": 39,
+      "availableMemoryMiB": {
+        "first": 11549,
+        "last": 11414,
+        "minimum": 10710,
+        "maximum": 11549
+      },
+      "sampleErrors": [
+        {
+          "utc": "2026-11-06T08:41:16.8341568Z",
+          "eventName": "sample-error",
+          "data": {
+            "error": "System.InvalidOperationException: 프로세스가 끝났으므로 요청한 정보를 사용할 수 없습니다.\r\n   위치: System.Diagnostics.Process.EnsureState(State state)\r\n   위치: System.Diagnostics.Process.get_WorkingSet64()\r\n   위치: Observer.Main(String[] args)"
+          }
+        }
+      ],
+      "observedProcessExitEvents": [
+        {
+          "utc": "2026-11-06T08:41:17.6953949Z",
+          "eventName": "observed-process-exit",
+          "data": {
+            "identity": {
+              "pid": 41744,
+              "startUtc": "2026-11-06T08:40:07.0254659Z",
+              "name": "conhost",
+              "handle": 1452
+            },
+            "exitCode": 0
+          }
+        }
+      ]
+    }
+  ],
+  "calibrations": {
+    "nativeV1": {
+      "request": {
+        "workingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+        "targetCommandLine": "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\Observer.exe\" tiny23",
+        "maxSeconds": 30,
+        "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\native-tiny-observer.jsonl",
+        "terminalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\native-tiny-terminal.json",
+        "launchPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\native-tiny-launch.json"
+      },
+      "terminal": {
+        "status": "target-exited",
+        "observerPid": 5276,
+        "targetExitCode": 23,
+        "error": null,
+        "target": {
+          "pid": 23152,
+          "startUtc": "2026-11-06T08:35:20.9277172Z",
+          "name": "Observer",
+          "handle": 1408
+        },
+        "remainingObservedDescendants": [],
+        "utc": "2026-11-06T08:35:29.2068646Z"
+      },
+      "observerPid": 5276,
+      "observerExitCode": null,
+      "observerStoppedVerified": false,
+      "targetHeldExitCode": 23,
+      "conhostHeldExitCode": 0,
+      "cleanupProtection": "Original launcher/tool success and subsequent PID absence do not establish observer termination."
+    },
+    "nativeV2Initial": {
+      "request": {
+        "workingDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+        "targetCommandLine": "\"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\Observer-v2.exe\" tiny23",
+        "maxSeconds": 30,
+        "logPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-tiny-observer.jsonl",
+        "terminalPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-tiny-terminal.json",
+        "launchPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-tiny-launch.json"
+      },
+      "terminal": {
+        "status": "target-exited",
+        "observerPid": 53608,
+        "targetExitCode": 23,
+        "error": null,
+        "target": {
+          "pid": 25940,
+          "startUtc": "2026-11-06T08:36:01.7181206Z",
+          "name": "Observer-v2",
+          "handle": 1440
+        },
+        "remainingObservedDescendants": [],
+        "resourceQueryPending": false,
+        "utc": "2026-11-06T08:36:07.8758310Z"
+      },
+      "observerPid": 53608,
+      "observerExitCode": null,
+      "observerStoppedVerified": false,
+      "targetHeldExitCode": 23,
+      "conhostHeldExitCode": 0,
+      "cleanupProtection": "Observer handle acquisition/WaitForExit did not succeed; null exit remains unknown."
+    },
+    "nativeV2Final": {
+      "terminal": {
+        "status": "target-exited",
+        "observerPid": 4988,
+        "targetExitCode": 23,
+        "error": null,
+        "target": {
+          "pid": 35664,
+          "startUtc": "2026-11-06T08:36:23.6160487Z",
+          "name": "Observer-v2",
+          "handle": 1408
+        },
+        "remainingObservedDescendants": [],
+        "resourceQueryPending": false,
+        "utc": "2026-11-06T08:36:29.7415369Z"
+      },
+      "heldExitEvidence": {
+        "launcherAlive": false,
+        "observerAlive": true,
+        "observerExitCode": 0,
+        "utc": "2026-11-06T08:36:23.4456972Z",
+        "observerStartUtc": "2026-11-06T08:36:23.2288060Z",
+        "observerHandle": 2524
+      },
+      "observerPid": 4988,
+      "observerExitCode": 0,
+      "targetHeldExitCode": 23,
+      "conhostHeldExitCode": 0
+    },
+    "powerShellAttempt": {
+      "outcome": "Restricted execution policy rejected -File before WMI; no copy target started",
+      "policyChanged": false
+    }
+  },
+  "findings": {
+    "controlledCopyReproducedCodeTermination": false,
+    "observedCopyOsErrors": 0,
+    "claim": "The instrumented subset and full copies passed with zero observed Code exits. This does not identify or rule out the original crash cause.",
+    "memoryExhaustionObserved": false,
+    "rootEventQuery": {
+      "criteria": "System events since controlled probe interval for Volsnap/resource exhaustion/disk/display; root reported no matches",
+      "noMatchCollectorExitCode": 1,
+      "actualCopyAndObserverExitCodes": 0,
+      "distinction": "The separate Get-WinEvent no-match collector failure is not a copy failure."
+    }
+  },
+  "limitations": [
+    "No Procmon, kernel trace, ProcDump or new crash dump was collected.",
+    "Per-file start is filter acceptance; per-file finish is a later whole-copy size audit. Neither is a native per-file IO completion timestamp.",
+    "Destination verification checked regular-file sizes and unchanged ordinary source metadata, not destination/source content hashes.",
+    "Synchronous per-file JSONL logging, boundary fsync and outside-copy audits may change performance relative to the original helper.",
+    "The hidden WMI service environment was used; an environment allowlist was not applied.",
+    "The initial two calibration observers lack actual observer termination evidence and remain protected."
+  ],
+  "cleanupBoundaries": {
+    "probe": {
+      "id": "run:fw04:copy-probe-20261106-01",
+      "owner": "fw04-copy-probe",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01",
+      "knownCopiedPayloadBytes": 1720584480,
+      "finalTargetAndObserverActualExitCodes": 0,
+      "disposition": "Only supported close, current reference/protection review and exact C0CF application may delete this separate run; actual cleanup outcome is recorded by its cleanup caller."
+    },
+    "observer": {
+      "id": "run:fw04:copy-observer-20261106-01",
+      "owner": "fw04-copy-observer",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01",
+      "observedSize": {
+        "bytes": 128436,
+        "files": 32
+      },
+      "disposition": "HOLD: initial observer5276/53608 termination remains unverified; no successful close/deletion claimed.",
+      "reconsiderationCondition": "Independently establish exact whole-producer termination through actual completion/held-handle evidence or an applicable supported recovery basis; do not use PID absence alone."
+    },
+    "excluded": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\preflight-20261106-02b",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\workspaces\\w5",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\maintenance-input-fw01-02"
+    ],
+    "userCodeLogs": "Original user Code logs/crash data are not cleanup targets."
+  },
+  "rawArtifactDigests": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\full-request.json",
+      "bytes": 1016,
+      "sha256": "145ea6bc30c67ceacf92eb5a6f51fd5153d5178ef2afea28a9e33f93ac24e078"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\logs\\full-observer.jsonl",
+      "bytes": 22263,
+      "sha256": "540b99119386e7d51205c97838889f1765edb7896bb04d05741991aa68f2095a"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\logs\\subset-observer.jsonl",
+      "bytes": 13473,
+      "sha256": "4f2156043689a91494cc58f1bed87f7e2f73d350a1c89d4f0196f1600c34245d"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\native-tiny-launch.json",
+      "bytes": 275,
+      "sha256": "4da82cd2fea6d8f48f56a2dce66aa67cd9aff14d14d3f9b813e7ba77d0b32538"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\native-tiny-request.json",
+      "bytes": 759,
+      "sha256": "f9d69b17e3f7d91961d7705b26c811eba9f89f5123c4024b5424ea37c9b1bcc5"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\native-tiny-terminal.json",
+      "bytes": 247,
+      "sha256": "1d50cf6cdde2e60132b77a2b4aa9d77a83f8bf642aa6ec4be37cceb85cbf8838"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\Observer-v2.exe",
+      "bytes": 24576,
+      "sha256": "d9ac79cf0e248d18b9cf0d60f5d494562edb47ee8f5bcfff41a129f746ab4795"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\reports\\full-launch.json",
+      "bytes": 280,
+      "sha256": "7f21e1ab40394ffdebff65bd39bcbb31ee6015b1b94bddc1be5d68ed86783fb8"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\reports\\full-terminal.json",
+      "bytes": 272,
+      "sha256": "9e29db1068f39271fb9194d386506c1aa5a27f5ba2b2e1c5326cfaf7d7515b8a"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\reports\\subset-launch.json",
+      "bytes": 280,
+      "sha256": "de7b17e621ffac2c1b7e3a58836f1edb3e8b3958f674ad2c652a9b205f7289f8"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\reports\\subset-terminal.json",
+      "bytes": 271,
+      "sha256": "1ccf00334081be58d420c89b9a7d59a5bc4ffb786dcf3342b61ad92ed8c05a5e"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\subset-request.json",
+      "bytes": 1024,
+      "sha256": "80ace6ebb73136d663c7cfd3b0a5f91f3c5c077850f9677b90892394aa2fc48f"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-final-observer-exit.json",
+      "bytes": 224,
+      "sha256": "6ea7a0f90d5346114d470a30f6bf18a6bf15a65a039c341fbb03bf08c3e8f1af"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-final-request.json",
+      "bytes": 753,
+      "sha256": "2e36e2ccacd60fa19cf170c607d91566e56bb226d8920f62d5c414cb3a65eadb"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-final-terminal.json",
+      "bytes": 279,
+      "sha256": "505ac8f37929de96ec4ce9ea3b9d3e6956ff5da654e9dcab147752dd858efae4"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-tiny-launch.json",
+      "bytes": 280,
+      "sha256": "b78d4615c9f48b79342d9a8467a15d7af4560e0f456a7917a5030df7b243b7f8"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-tiny-request.json",
+      "bytes": 750,
+      "sha256": "01721ae2d4c6e866bfb50a6e423b222e5efc5e9b5195e50a3d9d017c611f25d9"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-observer-20261106-01\\v2-tiny-terminal.json",
+      "bytes": 280,
+      "sha256": "acc1a1a046280d2dbf7be3b7da62330e19b69b98f58ffacfd39519a80ae9a8f4"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\inputs\\copy-probe.cjs",
+      "bytes": 9840,
+      "sha256": "22df41cd80ce2fa80e2565d61fd27ba40f5e24e3e044e56e7082264750efebc0"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\inputs\\execution-plan.json",
+      "bytes": 8121,
+      "sha256": "f7d44ac8c63e24da7b762362f1a4834d8946301b0a962fce4c8494bed3009854"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\inputs\\source-plan.json",
+      "bytes": 4083993,
+      "sha256": "c1cf58047e5038d37f5269c9f83fe0e884eb6269aec52d1d435e70d037003a65"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\logs\\full-events.jsonl",
+      "bytes": 11664143,
+      "sha256": "246243c7a38b805ed88bfc2cb146acc46d2a6ff87c6610f4d128e9a64204d5c9"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\logs\\subset-events.jsonl",
+      "bytes": 7022982,
+      "sha256": "ae74b6a4dc2f569a22ff79d977683bd69345a1a3468fd85e7cd6b8b8f02857f2"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\reports\\full-result.json",
+      "bytes": 797,
+      "sha256": "a40b18a5b7c603eecb04cc26b49a9f59c5657a346d314c54f0f0bb4e44b3f6c7"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\reports\\full-started.json",
+      "bytes": 521,
+      "sha256": "8248792b912b7464e690032b88e2847b707544ce165ae39b2bba61395de081a7"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\reports\\subset-result.json",
+      "bytes": 799,
+      "sha256": "e5555955aa71a4e0c85cd031b17b7cc6489fba4ec6b770544e6ce3721c03ae45"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-probe-20261106-01\\reports\\subset-started.json",
+      "bytes": 523,
+      "sha256": "4536d6f796feb1471cf63a787e143bd4d353c287355f417b50157c8e22d74c39"
+    }
+  ],
+  "rawDigestAggregateSha256": "637402e65c4a33a8dc32a7a3cae07a9dadbfa93467a996fd9831fbd4dd5098b2"
+}
