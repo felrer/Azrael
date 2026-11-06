@@ -230,6 +230,8 @@ function Invoke-PreparationPhase {
     }
 }
 $checkpointTool = Join-Path $PSScriptRoot 'preparation-state.cjs'
+# Fresh on every invocation, including Resume; never reuse an earlier attempt.
+$uiSourceObservation = [ordered]@{ statePath = (Join-Path $OutputDirectory 'ui-source-state.json'); generation = [guid]::NewGuid().ToString() }
 $config = [ordered]@{ release = $release; source = $source; stateRoot = [IO.Path]::GetFullPath($StateRoot); devinExecutable = $DevinExecutable; sourceCodexHome = [IO.Path]::GetFullPath($SourceCodexHome); skipSnapshot = [bool]$SkipCodexEnvironmentSnapshot; toolDirectory = $toolDirectory.FullName }
 $config.changedOnlyTests = [bool]$ChangedOnlyTests
 if ($null -ne $sourceTestPolicy) { $config.sourceTestPolicy = $sourceTestPolicy }
@@ -253,10 +255,11 @@ try {
         if (-not $build.sha256.'computer-use/manifest.json' -or $computerUse.manifestSha256 -ine $build.sha256.'computer-use/manifest.json') { throw 'Release Computer Use manifest hash mismatch.' }
         & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify-release --release $release --source-root (Join-Path $project 'native/window-control') | Out-Null
         if ($LASTEXITCODE -ne 0) { throw 'Preparation requires a verified Window Control runtime when declared.' }
-        & node $checkpointTool init $OutputDirectory $configPath ([string][bool]$Resume).ToLowerInvariant()
+        & node $checkpointTool init $OutputDirectory $configPath ([string][bool]$Resume).ToLowerInvariant() $uiSourceObservation.statePath $uiSourceObservation.generation
         if ($LASTEXITCODE -ne 0) { throw 'Preparation inputs or checkpoint verification failed.' }
     }
     $preservationConfig = [ordered]@{
+        uiSourceObservation = $uiSourceObservation
         projectRoot = $project; uiRoot = $source; engineSourceRoot = [string]$build.engineSourceRoot
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $OutputDirectory 'feature-preservation')
         area = 'ui'; typeScriptPath = (Join-Path $toolDirectory.FullName 'companion/node_modules/typescript/lib/typescript.js')

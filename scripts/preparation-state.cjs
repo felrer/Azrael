@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { getDirectoryState } = require("./directory-state.cjs");
+const { getUiSourceState } = require("./ui-source-state.cjs");
 
 const digest = value => crypto.createHash("sha256").update(value).digest("hex");
 const readJson = file => JSON.parse(fs.readFileSync(file, "utf8").replace(/^\uFEFF/, ""));
@@ -17,10 +18,10 @@ function writeJson(file, value) {
   fs.writeFileSync(temporary, JSON.stringify(value, null, 2) + "\n");
   fs.renameSync(temporary, file);
 }
-async function inputs(config) {
+async function inputs(config, uiSourceObservation) {
   const scripts = [
     "persisted-atoms.cjs",
-    "preparation-state.cjs", "directory-state.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
+    "preparation-state.cjs", "directory-state.cjs", "ui-source-state.cjs", "engine-source-metadata.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
     "prepare-ordinary-vscode.ps1", "prepare-official-ui.ps1", "engine-provenance.py",
     "ordinary-runtime.cjs", "shared-engine-host.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
     "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs", "computer-use-runtime.cjs",
@@ -49,12 +50,12 @@ async function inputs(config) {
     [name, await fileHash(path.join(config.toolDirectory, name))])));
   return { schema: 1, config, scripts: hashes, transformRules: getTransformRules(), tools,
     build: await fileHash(path.join(config.release, "build-info.json")), bundle,
-    source: await getDirectoryState(config.source),
+    source: await getUiSourceState(config.source, uiSourceObservation),
     devin: config.devinExecutable ? await fileHash(config.devinExecutable) : null };
 }
-async function initialize(output, config, resume) {
+async function initialize(output, config, resume, uiSourceObservation) {
   const file = path.join(output, "preparation-state.json");
-  const current = await inputs(config);
+  const current = await inputs(config, uiSourceObservation);
   const inputSha256 = digest(JSON.stringify(current));
   if (resume) {
     const previous = readJson(file);
@@ -97,9 +98,9 @@ async function load(output, stage) {
 }
 module.exports = { initialize, save, load, inputs };
 if (require.main === module) {
-  const [command, output, argument, extra] = process.argv.slice(2);
+  const [command, output, argument, extra, statePath, generation] = process.argv.slice(2);
   (async () => {
-    if (command === "init") await initialize(output, readJson(argument), extra === "true");
+    if (command === "init") await initialize(output, readJson(argument), extra === "true", statePath && generation ? { statePath, generation } : undefined);
     else if (command === "save") await save(output, argument, readJson(extra));
     else if (command === "load") console.log(JSON.stringify(await load(output, argument)));
     else throw new Error("Unknown preparation checkpoint command.");
