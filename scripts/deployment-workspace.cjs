@@ -11,6 +11,12 @@ const lifecycle = require("./artifact-lifecycle.cjs");
 const { addArtifactRunReferences } = require("./artifact-run.cjs");
 const inside = (root, file) => { const rel = path.relative(root, file); return rel === "" || (rel !== ".." && !rel.startsWith(".." + path.sep) && !path.isAbsolute(rel)); };
 const overlaps = (a, b) => inside(a, b) || inside(b, a);
+function serializeDeploymentManifest(manifest) {
+  // Lifecycle close reads this exact evidence through the native registry bound.
+  const bytes = Buffer.from(JSON.stringify(manifest) + "\n");
+  if (bytes.length > 16 * 1024 * 1024) throw Error(`Deployment manifest evidence exceeds 16 MiB registry bound: ${bytes.length} bytes`);
+  return bytes;
+}
 function checked(root, value) {
   if (typeof value !== "string" || !path.isAbsolute(value) || value.includes("\0") || value.split(/[\\/]/).includes("..")) throw Error("Absolute deployment path without traversal required");
   const result = path.resolve(value);
@@ -194,7 +200,7 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
       reason: "Lifecycle member guards exclude .git; retain this small structural gitfile until a supported control-file retirement owner exists" },
     timings: { ...timings, immutableGitPreparationMs, workingGitPreparationMs, preparationMs: performance.now() - started } };
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-  fs.writeFileSync(reportPath, JSON.stringify(manifest, null, 2) + "\n", { flag: "wx" });
+  fs.writeFileSync(reportPath, serializeDeploymentManifest(manifest), { flag: "wx" });
   const manifestSha256 = hash(reportPath);
   inputRecord = lifecycle.closeLifecycle(artifactProjectRoot, inputLifecycleId, { owner, expected_revision: inputRecord.revision, producer_stopped_verified: true, outcome: "success", exit_code: 0,
     reason: "Immutable deployment input preparation completed", evidence_ref: reportPath, evidence_sha256: manifestSha256 });
@@ -217,4 +223,4 @@ async function verifyDeploymentWorkspace(context) {
   return { status: "verified", projectSha256: immutable.sha256, engine: manifest.engine, inputLifecycleId: manifest.inputLifecycleId, workingLifecycleId: manifest.workingLifecycleId };
 }
 const { prepareDeploymentControlRetirement, applyDeploymentControlRetirement } = require("./deployment-control-retirement.cjs");
-module.exports = { prepareDeploymentWorkspace, verifyDeploymentWorkspace, prepareDeploymentControlRetirement, applyDeploymentControlRetirement };
+module.exports = { serializeDeploymentManifest, prepareDeploymentWorkspace, verifyDeploymentWorkspace, prepareDeploymentControlRetirement, applyDeploymentControlRetirement };

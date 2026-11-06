@@ -6,7 +6,23 @@ const { spawnSync } = require("node:child_process");
 const { createHash } = require("node:crypto");
 const { beginArtifactRun, finishArtifactRun } = require("./artifact-run.cjs");
 const { catalog, recordLifecycle } = require("./artifact-lifecycle.cjs");
-const { prepareDeploymentWorkspace, verifyDeploymentWorkspace } = require("./deployment-workspace.cjs");
+const { serializeDeploymentManifest, prepareDeploymentWorkspace, verifyDeploymentWorkspace } = require("./deployment-workspace.cjs");
+function checkManifestSerialization() {
+  const manifest = { schema: 1, path: "C:\\입력\\source", inventory: [{ path: "file", size: 7, deleted: false }], optional: null };
+  const bytes = serializeDeploymentManifest(manifest);
+  assert.deepEqual(JSON.parse(bytes), manifest, "compact manifest preserves every selected value");
+  assert.equal(bytes.toString(), JSON.stringify(manifest) + "\n");
+  const limit = 16 * 1024 * 1024;
+  const overhead = Buffer.byteLength(JSON.stringify({ payload: "" }) + "\n");
+  assert.equal(serializeDeploymentManifest({ payload: "a".repeat(limit - overhead) }).length, limit);
+  assert.throws(() => serializeDeploymentManifest({ payload: "a".repeat(limit - overhead + 1) }), /exceeds 16 MiB registry bound/);
+  assert.throws(() => serializeDeploymentManifest({ payload: "한".repeat(Math.floor((limit - overhead) / 3) + 1) }), /exceeds 16 MiB registry bound/);
+}
+checkManifestSerialization();
+if (process.argv[2] === "--serialization-only") {
+  console.log("Deployment manifest serialization: roundtrip, exact UTF-8 byte bound and oversized evidence rejection passed");
+  process.exit(0);
+}
 const fixture = process.argv[2];
 const pythonExecutable = process.env.AZRAEL_TEST_PYTHON || (process.platform === "win32" ? "python" : "python3");
 assert(fixture && path.isAbsolute(fixture), "fresh absolute owned fixture required");
