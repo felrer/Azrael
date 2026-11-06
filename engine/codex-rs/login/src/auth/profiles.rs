@@ -141,7 +141,10 @@ impl AzraelProfileStore {
     ) -> io::Result<Arc<AzraelProfileAuth>> {
         validate_id(id)?;
         ensure_profile_not_removed(&self.root.join(id))?;
-        if let Some(profile) = self.cached(id) {
+        if let Some(profile) = self.cached(id)
+            && profile.manager().application_network_policy()
+                == template.application_network_policy()
+        {
             return Ok(profile);
         }
         let auth_home = self.root.join(id);
@@ -298,7 +301,10 @@ impl AzraelProfileStore {
         template: &AuthManager,
     ) -> io::Result<Arc<AzraelProfileAuth>> {
         let lease = acquire_lease(&auth_home)?;
-        if let Some(profile) = self.cached(&id) {
+        if let Some(profile) = self.cached(&id)
+            && profile.manager().application_network_policy()
+                == template.application_network_policy()
+        {
             return Ok(profile);
         }
         let manager = Arc::new(

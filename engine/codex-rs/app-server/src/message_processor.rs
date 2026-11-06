@@ -267,6 +267,7 @@ pub(crate) struct MessageProcessorArgs {
     pub(crate) auth_manager: Arc<AuthManager>,
     pub(crate) azrael_account_state_paths: Option<AzraelAccountStatePaths>,
     pub(crate) azrael_account_backend_state: Option<AzraelAccountBackendState>,
+    pub(crate) azrael_project_account: Option<Arc<AccountRequestProcessor>>,
     pub(crate) user_verification: Arc<crate::user_verification::Service>,
     pub(crate) installation_id: String,
     pub(crate) code_mode_session_provider: Option<Arc<dyn CodeModeSessionProvider>>,
@@ -415,6 +416,7 @@ impl MessageProcessor {
             auth_manager,
             azrael_account_state_paths,
             azrael_account_backend_state,
+            azrael_project_account,
             user_verification,
             installation_id,
             code_mode_session_provider,
@@ -515,6 +517,7 @@ impl MessageProcessor {
             config_manager.clone(),
             azrael_account_state_paths,
             azrael_account_backend_state,
+            azrael_project_account,
         );
         let model_catalog = Arc::new(crate::model_catalog::ModelCatalog::new(
             config_manager.clone(),
@@ -1318,6 +1321,10 @@ impl MessageProcessor {
 
     pub(crate) async fn restore_azrael_profile(&self) {
         self.account_processor.restore_azrael_profile().await;
+    }
+
+    pub(crate) fn project_account_processor(&self) -> Arc<AccountRequestProcessor> {
+        Arc::clone(&self.account_processor)
     }
 
     async fn handle_initialized_client_request(

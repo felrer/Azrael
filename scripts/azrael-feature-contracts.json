@@ -393,7 +393,13 @@
         "scripts/verification-state.ps1",
         "scripts/test-verification-state.ps1",
         "scripts/cargo-owner-audit.cjs",
-        "scripts/test-cargo-owner-audit.cjs"
+        "scripts/test-cargo-owner-audit.cjs",
+        "engine/codex-rs/login/src/auth/manager.rs",
+        "engine/codex-rs/login/src/auth/profiles.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/retirement.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
+        "engine/codex-rs/login/src/auth/profiles_tests.rs"
       ],
       "contract": "docs/architecture/azrael-runtime.md",
       "reportFields": [],
@@ -464,6 +470,17 @@
             "scripts/tests/test_compile_scope_manifests.py"
           ],
           "level": "source"
+        },
+        {
+          "id": "engine.shared-engine.project-accounts",
+          "executable": "node",
+          "args": [
+            "scripts/check-shared-engine-native.cjs",
+            "{engineSourceRoot}",
+            "accounts"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v1"
         }
       ]
     },

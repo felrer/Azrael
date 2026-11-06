@@ -207,6 +207,7 @@ impl AccountRequestProcessor {
             config_manager,
             None,
             None,
+            None,
         )
     }
 
@@ -218,16 +219,33 @@ impl AccountRequestProcessor {
         config_manager: ConfigManager,
         paths: Option<AzraelAccountStatePaths>,
         backend: Option<AzraelAccountBackendState>,
+        project: Option<Arc<AccountRequestProcessor>>,
     ) -> Arc<Self> {
-        let azrael = match paths {
-            Some(paths) => azrael_state::AzraelAccountRuntime::new_with_state_paths(&config, paths),
-            None => azrael_state::AzraelAccountRuntime::new(&config),
+        let (azrael, retirement_gate) = if let Some(project) = project.as_ref() {
+            assert!(Arc::ptr_eq(
+                &auth_manager.azrael_admission(),
+                &project.auth_manager.azrael_admission(),
+            ));
+            (
+                Arc::clone(&project.azrael),
+                Arc::clone(&project.retirement_gate),
+            )
+        } else {
+            let azrael = match paths {
+                Some(paths) => {
+                    azrael_state::AzraelAccountRuntime::new_with_state_paths(&config, paths)
+                }
+                None => azrael_state::AzraelAccountRuntime::new(&config),
+            };
+            (
+                Arc::new(match backend {
+                    Some(backend) => azrael.with_backend_state(backend),
+                    None => azrael,
+                }),
+                Arc::new(Mutex::new(())),
+            )
         };
-        let azrael = Arc::new(match backend {
-            Some(backend) => azrael.with_backend_state(backend),
-            None => azrael,
-        });
-        if azrael.requires_startup_recovery() {
+        if project.is_none() && azrael.requires_startup_recovery() {
             let _ = retirement::block_saved_recovery(&auth_manager);
         }
         let gateway_notifications = crate::gateway_oauth_notifications::spawn(
@@ -254,10 +272,16 @@ impl AccountRequestProcessor {
             workspace_routing_fetches: Arc::new(Mutex::new(HashMap::new())),
             workspace_routing_shutdown: CancellationToken::new(),
             azrael,
-            retirement_gate: Arc::new(Mutex::new(())),
+            retirement_gate,
             retirement_monitor: Arc::new(std::sync::Mutex::new(None)),
             enterprise_login,
         });
+        processor
+            .azrael
+            .participants
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .push(Arc::downgrade(&processor));
         let resolver: Arc<dyn codex_login::WorkspaceRoutingResolver> = processor.clone();
         processor
             .auth_manager
@@ -272,6 +296,10 @@ impl AccountRequestProcessor {
             let _ = startup.read_account(/*request*/ None).await;
         });
         processor
+    }
+
+    pub(crate) fn project_auth_manager(&self) -> Arc<AuthManager> {
+        Arc::clone(&self.auth_manager)
     }
 
     pub(crate) async fn azrael_account(
@@ -376,6 +404,26 @@ impl AccountRequestProcessor {
     pub(crate) fn clear_external_auth(&self) {
         self.workspace_routing_shutdown.cancel();
         self.auth_manager.clear_external_auth();
+    }
+
+    fn project_participants(&self) -> Vec<Arc<Self>> {
+        let mut participants = self
+            .azrael
+            .participants
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut peers = Vec::new();
+        participants.retain(|participant| {
+            if let Some(peer) = participant.upgrade() {
+                if !peer.workspace_routing_shutdown.is_cancelled() {
+                    peers.push(peer);
+                }
+                true
+            } else {
+                false
+            }
+        });
+        peers
     }
 
     fn current_account_updated_notification(&self) -> AccountUpdatedNotification {
@@ -1427,15 +1475,21 @@ impl AccountRequestProcessor {
         }
 
         let active_profile = self.azrael.inner.lock().await.active_profile.clone();
+        let managed_logout = active_profile.is_some();
         if let Some(profile) = active_profile {
+            let profile = self.azrael_profile_auth(profile.id()).await?;
             // Admit destructive profile logout before revoking any shared credentials.
             profile
                 .logout_with_revoke()
                 .await
                 .map_err(azrael::account_mutation_error)?;
-            self.auth_manager.clear_external_auth();
-            self.auth_manager.release_azrael_unmanaged_auth_lease();
-            self.auth_manager.reload().await;
+            for peer in self.project_participants() {
+                retirement::block_saved_recovery(&peer.auth_manager)
+                    .map_err(azrael::account_mutation_error)?;
+                peer.thread_manager.invalidate_mcp_runtimes().await;
+                peer.config_manager.clear_cloud_config_bundle_loader();
+                *peer.workspace_routing.lock().await = None;
+            }
         } else {
             let _refresh_guard = self
                 .auth_manager
@@ -1453,6 +1507,15 @@ impl AccountRequestProcessor {
             .map_err(|_| internal_error("failed to clear the active account profile"))?;
         self.auth_manager.release_azrael_unmanaged_auth_lease();
         drop(enterprise_guard);
+        if managed_logout {
+            self.azrael.inner.lock().await.requires_recovery = true;
+            azrael_state::write_recovery_states(
+                &self.azrael.selection_path,
+                self.azrael.default_selection_path.as_deref(),
+            )
+            .map_err(|_| internal_error("failed to save account recovery state"))?;
+            self.refresh_after_azrael_account_change().await;
+        }
         self.thread_manager.invalidate_mcp_runtimes().await;
 
         self.config_manager.clear_cloud_config_bundle_loader();

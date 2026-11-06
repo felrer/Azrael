@@ -261,7 +261,7 @@ mod cancel_tests;
 
 #[cfg(test)]
 #[path = "user_verification_test_support.rs"]
-mod test_support;
+pub(crate) mod test_support;
 
 #[cfg(test)]
 #[path = "user_verification_activation_tests.rs"]

@@ -498,6 +498,7 @@ async fn start_uninitialized(mut args: InProcessStartArgs) -> IoResult<InProcess
             let processor = Arc::new(MessageProcessor::new(MessageProcessorArgs {
                 azrael_account_state_paths: None,
                 azrael_account_backend_state: None,
+                azrael_project_account: None,
                 outgoing: Arc::clone(&processor_outgoing),
                 analytics_events_client,
                 arg0_paths: args.arg0_paths,

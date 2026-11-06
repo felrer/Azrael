@@ -103,20 +103,20 @@ impl native::UserVerificationProvider for BlockingProvider {
     }
 }
 
-pub(super) struct Harness {
-    pub(super) processor: Arc<MessageProcessor>,
+pub(crate) struct Harness {
+    pub(crate) processor: Arc<MessageProcessor>,
     pub(super) session: Arc<ConnectionSessionState>,
-    pub(super) auth: Arc<AuthManager>,
+    pub(crate) auth: Arc<AuthManager>,
     pub(super) service: Arc<Service>,
     pub(super) provider: Arc<BlockingProvider>,
     pub(super) outgoing: Arc<OutgoingMessageSender>,
     pub(super) messages: mpsc::Receiver<OutgoingEnvelope>,
-    pub(super) home: tempfile::TempDir,
+    pub(crate) home: tempfile::TempDir,
     transport: AppServerTransport,
 }
 
 impl Harness {
-    pub(super) async fn new(origin: ConnectionOrigin, supported: fn() -> bool) -> Result<Self> {
+    pub(crate) async fn new(origin: ConnectionOrigin, supported: fn() -> bool) -> Result<Self> {
         let home = tempfile::tempdir()?;
         write_auth(home.path(), "first")?;
         let config = Arc::new(
@@ -156,6 +156,7 @@ impl Harness {
         let processor = Arc::new(MessageProcessor::new(MessageProcessorArgs {
             azrael_account_state_paths: None,
             azrael_account_backend_state: None,
+            azrael_project_account: None,
             outgoing: Arc::clone(&outgoing),
             analytics_events_client: AnalyticsEventsClient::disabled(),
             arg0_paths: Arg0DispatchPaths::default(),
@@ -258,7 +259,7 @@ impl Harness {
         Ok(())
     }
 
-    pub(super) async fn shutdown(self) {
+    pub(crate) async fn shutdown(self) {
         self.provider
             .released
             .store(/*val*/ true, Ordering::Release);

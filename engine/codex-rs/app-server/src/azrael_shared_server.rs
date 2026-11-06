@@ -395,6 +395,7 @@ async fn capture_shutdown_snapshot(
 }
 
 struct Context {
+    workspace_id: String,
     processor: Arc<MessageProcessor>,
     tasks: Vec<tokio::task::JoinHandle<()>>,
 }
@@ -524,10 +525,16 @@ async fn create_context(
     owner: &Owner,
     id: &str,
     events: mpsc::Sender<ContextEvent>,
+    project: Option<Arc<crate::request_processors::AccountRequestProcessor>>,
 ) -> io::Result<Context> {
     let mut args = template.clone();
     let manager = args.config_manager.fork_for_window();
-    let (config, auth) = manager.load_azrael_window_config(&args.config).await?;
+    let admission = project
+        .as_ref()
+        .map(|peer| peer.project_auth_manager().azrael_admission());
+    let (config, auth) = manager
+        .load_azrael_project_config(&args.config, admission)
+        .await?;
     args.config = Arc::new(config);
     args.config_manager = manager;
     args.auth_manager = Arc::clone(&auth);
@@ -536,10 +543,15 @@ async fn create_context(
         &args.config,
     );
     args.user_verification = Arc::new(crate::user_verification::Service::new(auth));
-    args.azrael_account_state_paths = Some(AzraelAccountStatePaths::new(
-        owner.account_state_file.clone(),
-        owner.account_default_file.clone(),
+    args.azrael_account_state_paths = Some(AzraelAccountStatePaths::for_project(
+        owner
+            .account_default_file
+            .as_ref()
+            .unwrap_or(&owner.account_state_file)
+            .clone(),
     )?);
+    let joining_project = project.is_some();
+    args.azrael_project_account = project;
     let (tx, mut rx) = mpsc::channel(CHANNEL_CAPACITY);
     args.outgoing = Arc::new(OutgoingMessageSender::new(
         tx,
@@ -548,7 +560,15 @@ async fn create_context(
     // Private window contexts cannot enroll remote transports sharing another window's auth.
     args.remote_control_handle = None;
     let processor = Arc::new(MessageProcessor::new(args));
-    processor.restore_azrael_profile().await;
+    if joining_project {
+        processor
+            .project_account_processor()
+            .bind_azrael_project_profile()
+            .await
+            .map_err(invalid)?;
+    } else {
+        processor.restore_azrael_profile().await;
+    }
     let mut threads = processor.thread_created_receiver();
     let outgoing_events = events.clone();
     let outgoing_id = id.to_owned();
@@ -585,9 +605,20 @@ async fn create_context(
         }
     });
     Ok(Context {
+        workspace_id: owner.workspace_id.clone(),
         processor,
         tasks: vec![outgoing_task, thread_task],
     })
+}
+
+fn project_account(
+    contexts: &HashMap<String, Context>,
+    owner: &Owner,
+) -> Option<Arc<crate::request_processors::AccountRequestProcessor>> {
+    contexts
+        .values()
+        .find(|context| context.workspace_id == owner.workspace_id)
+        .map(|context| context.processor.project_account_processor())
 }
 
 fn validated_target_snapshot(
@@ -665,7 +696,14 @@ async fn prepare_target_context(
         };
         let id = binding.context.clone();
         if !contexts.contains_key(&id) {
-            let context = create_context(template, &binding, &id, events).await?;
+            let context = create_context(
+                template,
+                &binding,
+                &id,
+                events,
+                project_account(contexts, &binding),
+            )
+            .await?;
             if let Some(snapshot) = snapshot {
                 context
                     .processor
@@ -698,7 +736,14 @@ async fn prepare_target_context(
         session_thread: Some(thread.to_owned()),
         session_handoff_pending: true,
     };
-    let context = create_context(template, &binding, &id, events).await?;
+    let context = create_context(
+        template,
+        &binding,
+        &id,
+        events,
+        project_account(contexts, &binding),
+    )
+    .await?;
     context
         .processor
         .install_handoff_restore(thread.to_owned(), snapshot)
@@ -1085,7 +1130,7 @@ pub(crate) async fn run(
                                     }
                                     let host = capture_process_identity(attach.host_pid).await.map_err(invalid)?.ok_or_else(|| invalid("session host is not alive"))?;
                                     if !contexts.contains_key(&context_id) {
-                                        contexts.insert(context_id.clone(), create_context(&template, binding, &context_id, context_tx.clone()).await?);
+                                        contexts.insert(context_id.clone(), create_context(&template, binding, &context_id, context_tx.clone(), project_account(&contexts, binding)).await?);
                                     }
                                     if !contexts.get(&context_id).ok_or_else(||invalid("session context unavailable"))?.processor.session_attach_supported() {
                                         return Err(invalid("externally managed authentication requires its original host connection"));
@@ -1169,7 +1214,7 @@ pub(crate) async fn run(
                                     let context_id = registry.context(&registration.owner_id)?;
                                     if !contexts.contains_key(&context_id) {
                                         let binding = registry.saved.owners.get(&context_id).ok_or_else(|| invalid("context account binding missing"))?;
-                                        contexts.insert(context_id.clone(), create_context(&template, binding, &context_id, context_tx.clone()).await?);
+                                        contexts.insert(context_id.clone(), create_context(&template, binding, &context_id, context_tx.clone(), project_account(&contexts, binding)).await?);
                                     }
                                     // Commit a lease only after persistence and context preparation succeed.
                                     if registration.role == Role::Window {
@@ -1272,7 +1317,7 @@ pub(crate) async fn run(
                                         }
                                         if !contexts.contains_key(&context_id) {
                                             let binding = registry.saved.owners.get(&context_id).ok_or_else(|| invalid("rejoin context binding missing"))?;
-                                            contexts.insert(context_id.clone(), create_context(&template, binding, &context_id, context_tx.clone()).await?);
+                                            contexts.insert(context_id.clone(), create_context(&template, binding, &context_id, context_tx.clone(), project_account(&contexts, binding)).await?);
                                         }
                                         if rebound {
                                             let retained = &contexts.get(&context_id).ok_or_else(|| invalid("rejoined context unavailable"))?.processor;
