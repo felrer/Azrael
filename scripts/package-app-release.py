@@ -123,6 +123,12 @@ def main():
                 if any(part in (".git", ".cache", "auth.json", "settings.json") for part in path.relative_to(directory).parts):
                     raise ValueError(f"Unexpected state/cache in runtime: {rel}")
                 files["runtime/" + rel] = safe_file(release, rel).read_bytes()
+    if (release / "tools/find-names/manifest.json").is_file():
+        for file in (release / "tools/find-names").iterdir():
+            rel = file.relative_to(release).as_posix()
+            if rel not in build["sha256"]:
+                raise ValueError(f"Unbound find_names payload: {rel}")
+            files["runtime/" + rel] = verified(release, rel, build["sha256"][rel]).read_bytes()
     files["runtime/build-info.json"] = build_bytes
     for name in ("devin-native-build.json", "opencodex-accounts-build.json"):
         files["runtime/" + name] = safe_file(release, name).read_bytes()
@@ -184,6 +190,17 @@ def main():
         if digest(safe_file(source_file.parent, source_file.name).read_bytes()) != build["engineProvenance"]["binaries"][name].lower():
             raise ValueError(f"Host {key} does not match selected build")
     portable = {"schema": 1, "engine": "engine/azrael.exe", "bridge": "engine/azrael-bridge.exe", "engineVersion": config["engineVersion"], "codexHome": "@STATE@"}
+    if config.get("findNamesHelper"):
+        helper = "tools/find-names/helper.cjs"
+        if Path(config["findNamesHelper"]).resolve() != (release / helper).resolve() or "runtime/" + helper not in files:
+            raise ValueError("Host find_names helper does not match selected build")
+        receipt = json.loads(files["runtime/tools/find-names/manifest.json"])
+        if receipt.get("node", {}).get("path") != "node/node.exe" or receipt["node"].get("sha256") != devin["node"]["sha256"].lower():
+            raise ValueError("find_names Node receipt does not match selected build")
+        if Path(config.get("nodeExecutable", "")).resolve() != (release / "node/node.exe").resolve():
+            raise ValueError("Host find_names Node does not match selected build")
+        portable["findNamesHelper"] = helper
+        portable["nodeExecutable"] = "node/node.exe"
     for key in ("devinNative", "providerAccounts"):
         if key not in config:
             raise ValueError(f"Missing integrated host provider: {key}")

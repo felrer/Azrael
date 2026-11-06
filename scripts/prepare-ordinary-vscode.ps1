@@ -48,6 +48,9 @@ if ($state -ieq $ordinary -or $state.StartsWith($ordinary + '\', [StringComparis
 $nativeConfigText = & node (Join-Path $PSScriptRoot 'devin-native-host.cjs') $release
 if ($LASTEXITCODE -ne 0) { throw 'Devin native bundle validation failed. No host was installed.' }
 $nativeConfig = $nativeConfigText | ConvertFrom-Json
+$findNamesText = & node (Join-Path $PSScriptRoot 'find-names-runtime.cjs') verify (Join-Path $release 'tools/find-names/helper.cjs')
+if ($LASTEXITCODE -ne 0) { throw 'find_names runtime validation failed. No host was installed.' }
+$findNames = $findNamesText | ConvertFrom-Json
 $providerAccountsConfigText = & node (Join-Path $PSScriptRoot 'provider-accounts-host.cjs') $release
 if ($LASTEXITCODE -ne 0) { throw 'Provider accounts bundle validation failed. No host was installed.' }
 $providerAccountsConfig = $providerAccountsConfigText | ConvertFrom-Json
@@ -83,6 +86,7 @@ $guard = 'if(require("vscode").env.remoteName || require("vscode").workspace.get
 [IO.File]::WriteAllText($hostFile, $guard + "`n(function(process){`n" + $hostText + "`n}).call(this, require('./azrael-runtime.cjs').process);`n", [Text.UTF8Encoding]::new($false))
 Copy-Item (Join-Path $PSScriptRoot 'ordinary-runtime.cjs') (Join-Path $prepared.Extension 'out/azrael-runtime.cjs')
 Copy-Item (Join-Path $PSScriptRoot 'shared-engine-host.cjs') (Join-Path $prepared.Extension 'out/shared-engine-host.cjs')
+Copy-Item (Join-Path $PSScriptRoot 'find-names-runtime.cjs') (Join-Path $prepared.Extension 'out/find-names-runtime.cjs')
 Copy-Item (Join-Path $PSScriptRoot 'devin-native-host.cjs') (Join-Path $prepared.Extension 'out/devin-native-host.cjs')
 Copy-Item (Join-Path $PSScriptRoot 'provider-accounts-host.cjs') (Join-Path $prepared.Extension 'out/provider-accounts-host.cjs')
 if (-not $DevinExecutable) {
@@ -100,6 +104,8 @@ if ($DevinExecutable) { $DevinExecutable = (Resolve-Path -LiteralPath $DevinExec
     engineSha256 = ([string]$manifest.sha256['engine/azrael.exe']).ToLowerInvariant()
     codexHome = $state
     devinExecutable = $DevinExecutable
+    nodeExecutable = [string]$findNames.nodeExecutable
+    findNamesHelper = Join-Path $release 'tools/find-names/helper.cjs'
     devinNative = $nativeConfig
     providerAccounts = $providerAccountsConfig
     windowControl = $windowControl

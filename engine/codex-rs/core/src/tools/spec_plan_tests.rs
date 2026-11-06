@@ -592,6 +592,53 @@ async fn allowed_tools_filter_sources_before_code_mode_and_discovery() {
 }
 
 #[tokio::test]
+async fn find_names_registration_preserves_modes_and_agent_provider_boundaries() {
+    // Adding a core tool must include the automatic code-mode catalog without
+    // changing its contract for child agents or provider-specific planning.
+    for bedrock in [false, true] {
+        for child in [false, true] {
+            for mode in [ToolMode::Direct, ToolMode::CodeMode, ToolMode::CodeModeOnly] {
+                let plan = probe(|turn| {
+                    set_feature(turn, Feature::CodeMode, mode != ToolMode::Direct);
+                    set_feature(turn, Feature::CodeModeOnly, mode == ToolMode::CodeModeOnly);
+                    if bedrock {
+                        use_bedrock_provider(turn);
+                    }
+                    if child {
+                        turn.session_source = SessionSource::SubAgent(SubAgentSource::ThreadSpawn {
+                            parent_thread_id: ThreadId::new(),
+                            depth: 1,
+                            agent_path: Some(AgentPath::try_from("/root/worker").unwrap()),
+                            agent_nickname: None,
+                            agent_role: None,
+                        });
+                    }
+                }).await;
+                assert_eq!(plan.tool_mode, mode);
+                plan.assert_registered_contains(&["find_names"]);
+                if mode == ToolMode::CodeModeOnly {
+                    plan.assert_visible_lacks(&["find_names"]);
+                } else {
+                    plan.assert_visible_contains(&["find_names"]);
+                    let ToolSpec::Function(spec) = plan.visible_spec("find_names") else {
+                        panic!("expected find_names function schema");
+                    };
+                    let schema = serde_json::to_value(&spec.parameters).unwrap();
+                    assert_eq!(schema["required"], json!(["relative_path", "query"]));
+                    assert_eq!(schema["properties"]["include_signature"]["type"], "boolean");
+                    assert!(schema["properties"].get("environment_id").is_none());
+                }
+                assert_eq!(
+                    plan.code_mode_tool_names.values().any(|name| name == &ToolName::plain("find_names")),
+                    mode != ToolMode::Direct,
+                    "mode {mode:?}, bedrock {bedrock}, child {child}",
+                );
+            }
+        }
+    }
+}
+
+#[tokio::test]
 async fn reviewer_tool_policy_exclude_optional_core_tools() {
     let (mut session, mut turn) = make_session_and_context().await;
     session.tool_policy = Arc::new(codex_guardian_reviewer::reviewer_tool_policy());

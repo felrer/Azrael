@@ -114,6 +114,7 @@ if (registry.has(runtimeKey)) {
   if (config.devinExecutable) env.AZRAEL_EX_DEVIN_EXECUTABLE = config.devinExecutable;
   require("./devin-native-host.cjs").configureEnvironment(env, config);
   require("./provider-accounts-host.cjs").configureEnvironment(env, config);
+  require("./find-names-runtime.cjs").configureEnvironment(env, config);
   return { ...config, socket, env };
   }
 }

@@ -252,6 +252,16 @@ if ($IncludeProviderAccounts) {
     . Invoke-BuildModuleProvidersRecipe
     }
 }
+if (-not $moduleTypeScriptPath) { $moduleTypeScriptPath = Join-Path $projectRoot 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js' }
+Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'find-names-runtime.cjs'), 'stage', $release, $projectRoot, $moduleTypeScriptPath, $nodePath) 'find-names-staging.log'
+$findNamesBuildInfo = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json -AsHashtable
+$findNamesBuildInfo.sha256['node/node.exe'] = (Get-FileHash -LiteralPath (Join-Path $release 'node/node.exe') -Algorithm SHA256).Hash
+foreach ($file in Get-ChildItem -LiteralPath (Join-Path $release 'tools/find-names') -File) {
+    $findNamesBuildInfo.sha256[('tools/find-names/' + $file.Name)] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
+}
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'find-names-runtime.cjs') -Destination (Join-Path $release 'host/find-names-runtime.cjs')
+$findNamesBuildInfo.sha256['host/find-names-runtime.cjs'] = (Get-FileHash -LiteralPath (Join-Path $release 'host/find-names-runtime.cjs') -Algorithm SHA256).Hash
+$findNamesBuildInfo | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $release 'build-info.json') -Encoding utf8NoBOM
 $phase = Start-BuildStage $buildMetrics 'packaged-engine-provenance-check'
 if ($RetainedSourceRoot) {
     Invoke-BuildCommand 'python' (@('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--profile', 'release', '--root', $RetainedSourceRoot, '--engine-dir', (Join-Path $release 'engine')) + $sourceStateArguments) 'packaged-retained-source-check.log'
