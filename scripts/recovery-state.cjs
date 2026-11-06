@@ -44,6 +44,13 @@ const serverHttpCategories = new Set([
 const openaiProcessingFailure = /^stream disconnected before completion: An error occurred while processing your request\. You can retry your request, or contact us through our help center at help\.openai\.com if the error persists\. Please include the request ID [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} in your message\.$/;
 const helperServerFailure = /^(?:Fatal error:|미분류 오류:) native inference helper failed \(provider_http_5[0-9]{2}\)$/;
 
+// Keep the exact model/account rejection boundary used by errorPresentation.js.
+function isUnsupportedChatGptModel(error) {
+  return ["badRequest", "other"].includes(error?.codexErrorInfo) &&
+    typeof error.message === "string" && !/[\r\n]/.test(error.message) &&
+    /^The '[A-Za-z0-9][A-Za-z0-9._/-]*' model is not supported when using Codex with a ChatGPT account\.$/.test(error.message);
+}
+
 function serverErrorKind(error) {
   const category = error?.codexErrorInfo;
   if (typeof category === "string" && serverCategories.has(category)) return serverCategories.get(category);
@@ -63,6 +70,7 @@ const diagnosticError = error => !error ? "none" :
   error.codexErrorInfo === "other" && error.message === "Fatal error: 모델 제공자가 응답을 거부했습니다. (provider_refusal)" ? "provider_refusal" :
   error.codexErrorInfo === "usageLimitExceeded" ? "usage_limit_exceeded" :
   error.codexErrorInfo === "rateLimitExceeded" ? "rate_limit_exceeded" :
+  isUnsupportedChatGptModel(error) ? "model_not_supported" :
   serverErrorKind(error) ?? diagnosticErrors.get(error.message) ?? "other";
 const knownStatus = (value, allowed) => allowed.includes(value) ? value : "unknown";
 const handlerOutcomeUnknown = error => error?.rpcError?.code === -32603 &&
@@ -77,6 +85,7 @@ function admitsContinuation(thread, latest) {
   return thread.status?.type === "systemError" && latest?.status === "failed" &&
     (["usageLimitExceeded", "rateLimitExceeded"].includes(latest.error?.codexErrorInfo) ||
       serverErrorKind(latest.error) !== undefined ||
+      isUnsupportedChatGptModel(latest.error) ||
       (latest.error?.codexErrorInfo === "other" &&
         (continuationTimeouts.has(latest.error.message) || continuationRejections.has(latest.error.message) ||
           continuationTaskFailures.has(latest.error.message))));

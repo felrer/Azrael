@@ -909,6 +909,12 @@ const serverErrors = [
     error: { codexErrorInfo: "other", message: "Fatal error: native inference helper failed (provider_http_599)" } },
 ];
 
+const unsupportedModelMessage = "The 'gpt-5.5' model is not supported when using Codex with a ChatGPT account.";
+const unsupportedModelErrors = ["other", "badRequest"].map(codexErrorInfo => ({
+  name: `model-not-supported-${codexErrorInfo}`,
+  error: { codexErrorInfo, message: unsupportedModelMessage },
+}));
+
 const terminalErrors = [
   { name: "timeout", error: { codexErrorInfo: "other", message: timeoutMessages[2] } },
   { name: "quota", error: { codexErrorInfo: "usageLimitExceeded", message: "Usage limit reached" } },
@@ -917,7 +923,75 @@ const terminalErrors = [
   { name: "rate-limit", error: { codexErrorInfo: "rateLimitExceeded", message: "Provider request rate limit reached. Try again later." } },
   ...serverErrors,
   { name: "task-panic", error: { codexErrorInfo: "other", message: "Fatal error: session task panicked" } },
+  ...unsupportedModelErrors,
 ];
+
+for (const { name, error } of unsupportedModelErrors) {
+  test(`${name} permits only explicit continuation with the current model and preserves failure`, async () => {
+    for (const action of ["play", "continue", "recover"]) {
+      const calls = [], records = [];
+      const failed = failedTurn("turn-failed", error);
+      const before = structuredClone(failed);
+      const baseRpc = systemErrorRpc(calls, { error });
+      const state = new RecoveryState({ store: memoryStore(), log: record => records.push(record),
+        rpc: async (method, params) => {
+          const result = await baseRpc(method, params);
+          return method === "thread/turns/list" ? { data: [failed] } : result;
+        } });
+      state.observe({ method: "turn/completed", params: { threadId: name, turn: failed } });
+      assert.equal(calls.length, 0, "failure notifications must not resume inference");
+      const result = action === "recover" ? await state.recover(name) : await state.start({
+        ...(action === "play" ? { threadId: name, input: [] } : continuation(name)), model: "available-model",
+      });
+      assert.equal(result.turn.id, "turn-new");
+      const starts = calls.filter(call => call.method === "turn/start");
+      assert.equal(starts.length, 1);
+      assert.deepEqual(starts[0].params.input, [{ type: "text", text: "continue" }]);
+      if (action !== "recover") assert.equal(starts[0].params.model, "available-model");
+      assert.ok(calls.every(call => ["thread/read", "thread/turns/list", "turn/start"].includes(call.method)));
+      assert.deepEqual(failed, before);
+      assert.equal(records.find(record => record.event === "recovery.admission").errorKind, "model_not_supported");
+      assert.equal(JSON.stringify(records).includes(error.message), false);
+    }
+  });
+
+  test(`${name} preserves failed-turn and active-turn guards`, async () => {
+    for (const latestStatus of ["completed", "interrupted", "inProgress"]) {
+      const calls = [];
+      const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls, { error, latestStatus }) });
+      await assert.rejects(state.start(continuation(name)));
+      assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+    }
+    const calls = [];
+    const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls,
+      { error, threadStatus: "active", latestStatus: "inProgress" }) });
+    assert.equal((await state.start(continuation(name))).turn.id, "turn-failed");
+    assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+  });
+}
+
+test("model rejection lookalikes, arbitrary bad requests and invalid encrypted content remain blocked", async () => {
+  const messages = [
+    "Bad request", "The encrypted content could not be verified.",
+    `${unsupportedModelMessage}\n`, `docs: ${unsupportedModelMessage}`, `${unsupportedModelMessage} extra`,
+    unsupportedModelMessage.replace("gpt-5.5", "gpt 5.5"),
+    unsupportedModelMessage.replace("gpt-5.5", ""),
+  ];
+  for (const codexErrorInfo of ["badRequest", "other"]) {
+    for (const message of messages) {
+      const calls = [];
+      const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls,
+        { error: { codexErrorInfo, message } }) });
+      await assert.rejects(state.start(continuation("model-lookalike")));
+      assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+    }
+  }
+  const calls = [];
+  const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls,
+    { error: { codexErrorInfo: "unauthorized", message: unsupportedModelMessage } }) });
+  await assert.rejects(state.start(continuation("model-wrong-category")));
+  assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+});
 
 for (const { name, error, kind } of serverErrors) {
   for (const text of [null, "continue", "계속"]) {
