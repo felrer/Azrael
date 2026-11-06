@@ -26,10 +26,11 @@ function leaseError(packet, filename, initial) {
     recovery_required: /explicit recovery/.test(message),
     ...(structured ? { maintenance_code: details.code, retryable: details.retryable, owner: details.owner, lock_path: details.lock_path } : {}) });
 }
-function acquire(filename, { operation, waitMs, queue = false, command } = {}) {
+function acquire(filename, { operation, waitMs, queue = false, command, drainOnly = false } = {}) {
   if (typeof filename !== "string" || !path.isAbsolute(filename) || filename.includes("\0") || filename.split(/[\\/]/).some(x => x === ".." || x === ".")) throw Error("Absolute lock path without traversal required");
   if (typeof operation !== "string" || !/^[a-zA-Z0-9_.:-]{1,120}$/.test(operation)) throw Error("Bounded lock operation required");
   if (typeof queue !== "boolean") throw Error("Boolean lock queue option required");
+  if (typeof drainOnly !== "boolean") throw Error("Boolean drainOnly lock option required");
   if (waitMs !== undefined && (!Number.isSafeInteger(waitMs) || waitMs < 0 || waitMs > 600000)) throw Error("Lock wait must be between 0 and 600000ms");
   const { port1, port2 } = new MessageChannel();
   const signal = new Int32Array(new SharedArrayBuffer(8));
@@ -55,7 +56,13 @@ function acquire(filename, { operation, waitMs, queue = false, command } = {}) {
   }
   function contextual(error, packet) {
     observe(packet);
-    error.lease = { lock_path: filename, operation, request_operation: currentRequest.operation, request_id: currentRequest.id,
+    const diagnostics = packet?.coordination_diagnostics ?? error.lease?.coordination_diagnostics ?? error.lease?.diag;
+    let boundedDiagnostics;
+    if (diagnostics && typeof diagnostics === "object" && !Array.isArray(diagnostics)) {
+      try { if (Buffer.byteLength(JSON.stringify(diagnostics), "utf8") <= 16 * 1024) boundedDiagnostics = diagnostics; }
+      catch { /* Invalid diagnostic data cannot change the operation failure. */ }
+    }
+    error.lease = { ...(boundedDiagnostics ? { coordination_diagnostics: boundedDiagnostics } : {}), lock_path: filename, operation, request_operation: currentRequest.operation, request_id: currentRequest.id,
       native_pid: nativePid, native_exit_observed: nativeExit.observed, native_exit_code: nativeExit.code, native_signal: nativeExit.signal,
       native_close_observed: nativeClosed, worker_shutdown_requested: shutdownRequested,
       native_kill_requested: killRequested, worker_termination_requested: observerClosed,
@@ -85,9 +92,11 @@ function acquire(filename, { operation, waitMs, queue = false, command } = {}) {
     if (!shutdownRequested && !nativeClosed) {
       shutdownRequested = true;
       try { port1.postMessage({ control: "shutdown" }); } catch { /* Preserve the first operation failure. */ }
-      drainUntil(performance.now() + 10000);
+      // Explicit retirement callers wait for the actual native close. A late
+      // reply remains diagnostic evidence and cannot replace the first error.
+      drainUntil(drainOnly ? Infinity : performance.now() + 10000);
     }
-    if (!nativeClosed && !killRequested) {
+    if (!drainOnly && !nativeClosed && !killRequested) {
       killRequested = true;
       try { port1.postMessage({ control: "kill" }); } catch { /* A missing close stays unknown. */ }
       drainUntil(performance.now() + 5000);

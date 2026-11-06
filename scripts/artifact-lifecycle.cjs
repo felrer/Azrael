@@ -72,15 +72,33 @@ function projectMembers(members) {
     .sort((a, b) => Number(/log|report|evidence/.test(a.role)) - Number(/log|report|evidence/.test(b.role)));
 }
 const catalogLeases = new Map();
-function withCatalogLock(root, action, { waitMs, operation = "lifecycle.catalog" } = {}) {
+function withCatalogLock(root, action, { waitMs, operation = "lifecycle.catalog", drainOnly = false } = {}) {
   root = path.resolve(root);
   if (catalogLeases.has(root)) return action();
   const directory = registry(root);
   fs.mkdirSync(directory, { recursive: true });
   const lock = checked(root, path.join(directory, "catalog.lock"));
-  const descriptor = maintenanceLocks.acquire(lock, { operation, waitMs, queue: true });
+  const descriptor = maintenanceLocks.acquire(lock, { operation, waitMs, queue: true, drainOnly });
   catalogLeases.set(root, descriptor);
-  try { return action(); } finally { catalogLeases.delete(root); descriptor.release(); }
+  let actionFailed = false, actionError;
+  try { return action(); }
+  catch (error) { actionFailed = true; actionError = error; throw error; }
+  finally {
+    catalogLeases.delete(root);
+    try {
+      const release = descriptor.release();
+      if (actionFailed && actionError && typeof actionError === "object" && Object.isExtensible(actionError)) {
+        actionError.catalog_lease_release = { ...release, native_pid: descriptor.owner?.pid ?? null };
+      }
+    }
+    catch (releaseError) {
+      if (!actionFailed) throw releaseError;
+      // Preserve the original failure and stack even when transport teardown
+      // also fails. Never turn either failure into a successful operation.
+      if (actionError && typeof actionError === "object" && Object.isExtensible(actionError)) actionError.release_error = releaseError;
+      else console.error(JSON.stringify({ secondary_release_error: { message: releaseError.message, stack: releaseError.stack, lease: releaseError.lease } }));
+    }
+  }
 }
 const referenceKinds = new Set(["execution", "installation", "recovery", "evidence", "dependency"]);
 function referenceShape(reference) { return [reference.id, reference.reason, reference.kind ?? null, ...(reference.member_paths !== undefined || reference.target_revision !== undefined || reference.target_version !== undefined ? [reference.member_paths === undefined ? null : [...reference.member_paths].sort(), reference.target_revision ?? null, reference.target_version ?? null] : [])]; }
@@ -805,6 +823,6 @@ function main(argv = process.argv.slice(2)) {
 }
 const observationApi = require("./artifact-observations.cjs").createObservationApi({ fs, path, sha, inside, overlap, checked, registry, registryPath,
   validate, catalog, projectMembers, withCatalogLock, writeRecord, checkedEvidence, referenceIdentity, cleanupReservation });
-module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, freezeCustody, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main,
+module.exports = { checkedEvidence, withCatalogLock, closeLifecycle, releaseReferences, freezeCustody, transferCustody, relocateCustody, refineCustody, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, cleanupReservation, finalize, main,
   recordObservation: observationApi.recordObservation, migrateObservation: observationApi.migrateObservation, resolveObservation: observationApi.resolveObservation, observationCatalog: observationApi.observationCatalog };
 if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) { console.error(error.message); process.exitCode = 1; } }

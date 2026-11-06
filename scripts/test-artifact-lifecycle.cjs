@@ -1032,6 +1032,9 @@ test("Windows lifecycle acceptance includes module management and keeps metric f
   const { commands } = require("./check-artifact-lifecycle.cjs");
   const run = path.join(repo, "artifacts/tasks/lifecycle-checks/runs/command-fixture");
   const selected = commands("windows", "win32", repo, run);
+  assert.deepEqual(selected.filter(([, args]) => args.includes("scripts/test-deployment-control-retirement.cjs")), [
+    [process.execPath, ["scripts/test-deployment-control-retirement.cjs", path.join(run, "temporary/control-retirement"), "happy"]],
+  ]);
   const metrics = selected.find(([, args]) => args.includes("scripts/test-build-metrics.ps1"));
   assert.ok(metrics);
   assert.equal(metrics[1][metrics[1].indexOf("-OutputDirectory") + 1], path.join(run, "temporary/metrics"));

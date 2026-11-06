@@ -65,6 +65,80 @@ struct Key<'a> {
     wait: u64,
 }
 
+// Response-only observations: never scheduler state, authority, or replay evidence.
+struct AdmissionDiagnostics {
+    started: Instant,
+    deadline_wait_ms: u64,
+    enrollment_elapsed_ms: Option<u64>,
+    last_phase: &'static str,
+    blocker_checked: bool,
+    last_blocker: Option<Value>,
+}
+
+fn elapsed_ms(started: Instant) -> u64 {
+    started.elapsed().as_millis().min(u64::MAX as u128) as u64
+}
+
+fn diagnostic_text(text: &str, limit: usize) -> (String, bool) {
+    let end = text
+        .char_indices()
+        .map(|(index, character)| index + character.len_utf8())
+        .take_while(|end| *end <= limit)
+        .last()
+        .unwrap_or(0);
+    (text[..end].to_owned(), end < text.len())
+}
+
+impl AdmissionDiagnostics {
+    fn observe_blocker(&mut self, scopes: &[Scope], blocker: &Execution) {
+        let pair = scopes.iter().find_map(|left| {
+            blocker.scopes.iter().find_map(|right| {
+                ((left.exclusive || right.exclusive)
+                    && (paths::within(&left.path, &right.path)
+                        || paths::within(&right.path, &left.path)))
+                .then_some([left, right])
+            })
+        });
+        let scopes = pair.map(|pair| {
+            pair.map(|scope| {
+                let (path, path_truncated) = diagnostic_text(&scope.path.to_string_lossy(), 512);
+                json!({"path":path,"path_truncated":path_truncated,"exclusive":scope.exclusive})
+            })
+        });
+        self.last_blocker = Some(json!({
+            "id":diagnostic_text(&blocker.id, 128).0,
+            "state":diagnostic_text(&blocker.state, 32).0,
+            "conflicting_scopes":scopes
+        }));
+    }
+
+    fn failure(
+        &self,
+        key: &Key<'_>,
+        execution_id: &str,
+        cancelled: bool,
+        expired: bool,
+        first_attempt: bool,
+    ) -> String {
+        // IDs are bounded by key(); at most one blocker and two 512-byte paths
+        // keep even JSON-escaped responses below the 16 KiB display bound.
+        json!({
+            "error":"request cancelled or wait deadline exhausted",
+            "coordination_diagnostics":{
+                "request_id":key.request,"session_id":key.session,
+                "execution_id":diagnostic_text(execution_id, 128).0,
+                "cancelled":cancelled,"expired":expired,"first_attempt":first_attempt,
+                "last_phase":self.last_phase,"elapsed_ms":elapsed_ms(self.started),
+                "deadline_wait_ms":self.deadline_wait_ms,
+                "enrollment_elapsed_ms":self.enrollment_elapsed_ms,
+                "blocker_checked":self.blocker_checked,"last_blocker":self.last_blocker,
+                "blocker_observation":"Last check only; null does not establish historical absence"
+            }
+        })
+        .to_string()
+    }
+}
+
 fn project(root: &Path, request: &Value) -> Result<String, String> {
     let path = match request.get("_coordination_project") {
         Some(value) => Path::new(
@@ -409,7 +483,16 @@ pub(crate) fn run(
     execute: impl FnOnce() -> Result<Value, String>,
 ) -> Result<Value, String> {
     let key = key(request)?;
-    let mut deadline = Instant::now() + Duration::from_millis(key.wait);
+    let started = Instant::now();
+    let mut deadline = started + Duration::from_millis(key.wait);
+    let mut diagnostics = AdmissionDiagnostics {
+        started,
+        deadline_wait_ms: key.wait,
+        enrollment_elapsed_ms: None,
+        last_phase: "preparing",
+        blocker_checked: false,
+        last_blocker: None,
+    };
     let wall_deadline = crate::now_ms()?.saturating_add(key.wait);
     let project = project(root, request)?;
     if scopes.is_empty() {
@@ -454,7 +537,9 @@ pub(crate) fn run(
             }
             Err(error) => return Err(error),
         };
+        diagnostics.last_phase = "queue-mutex-acquired";
         let mut queue = load(root, &dir, auth)?;
+        diagnostics.last_phase = "queue-loaded";
         let now = crate::now_ms()?;
         expire(&mut queue, now);
         if !enrolled {
@@ -547,6 +632,8 @@ pub(crate) fn run(
             }
             enrolled = true;
             save(root, &dir, &mut queue, auth)?;
+            diagnostics.enrollment_elapsed_ms = Some(elapsed_ms(started));
+            diagnostics.last_phase = "enrollment-complete";
         }
         let (i, j) = locate(&queue, &key).ok_or("request reference disappeared")?;
         if auth.cancelled() {
@@ -561,9 +648,20 @@ pub(crate) fn run(
         // A zero wait still permits one immediate admission attempt.
         let e = &queue.executions[i];
         if e.subscribers[j].cancelled || e.subscribers[j].expired {
+            let (execution_id, cancelled, expired) = (
+                e.id.clone(),
+                e.subscribers[j].cancelled,
+                e.subscribers[j].expired,
+            );
             expire(&mut queue, now);
             save(root, &dir, &mut queue, auth)?;
-            return Err("request cancelled or wait deadline exhausted".into());
+            return Err(diagnostics.failure(
+                &key,
+                &execution_id,
+                cancelled,
+                expired,
+                first_attempt,
+            ));
         }
         if e.state == "unknown" {
             let error = e
@@ -585,6 +683,8 @@ pub(crate) fn run(
                 "retryable":true,"lock_path":dir.join("queue.lock"),"owner":null,
                 "queue_status":"running","execution_id":e.id,"request_id":key.request}).to_string());
         }
+        diagnostics.blocker_checked = true;
+        diagnostics.last_blocker = None;
         let blocker = queue
             .executions
             .iter()
@@ -595,7 +695,11 @@ pub(crate) fn run(
                     && (other.state != "waiting" || *index < i)
                     && conflicts(&e.scopes, &other.scopes)
             })
-            .map(|(_, other)| (other.id.clone(), other.state.clone()));
+            .map(|(_, other)| {
+                diagnostics.observe_blocker(&e.scopes, other);
+                (other.id.clone(), other.state.clone())
+            });
+        diagnostics.last_phase = "blocker-check-complete";
         if e.state == "waiting" && blocker.is_none() {
             let id = e.id.clone();
             let custody = lock_recovery::Sentinel::acquire(
@@ -1943,6 +2047,86 @@ mod tests {
             elapsed < Duration::from_secs(1),
             "request wait was restarted or replaced: {elapsed:?}"
         );
+
+        // Preserve the actual response contract when admission expires during
+        // enrollment I/O, before any conflicting-scope check has happened.
+        // The cancellation variant must remain distinguishable from expiry.
+        for cancel in [false, true] {
+            let triggered = std::cell::Cell::new(false);
+            let cancelled = std::cell::Cell::new(false);
+            let pending = root.join("artifacts/maintenance/requests/queue.pending");
+            let authorize = |path: &Path, access: AccessMode| {
+                if path == pending && access == AccessMode::Write && !triggered.replace(true) {
+                    if cancel {
+                        cancelled.set(true);
+                    } else {
+                        std::thread::sleep(Duration::from_millis(20));
+                    }
+                }
+                Ok(())
+            };
+            let observe_cancel = || cancelled.get();
+            let auth = crate::Context::with_cancellation(&authorize, &observe_cancel);
+            let wait = if cancel { 600_000 } else { 1 };
+            let request_id = if cancel {
+                "cancel-during-enrollment"
+            } else {
+                "expire-during-enrollment"
+            };
+            let request = json!({"operation":"apply","coordination":{
+                "session_id":"session","request_id":request_id,"wait_ms":wait}});
+            let error = run(
+                &root,
+                &request,
+                &[Scope {
+                    path: root.join("payload"),
+                    exclusive: true,
+                }],
+                &auth,
+                || panic!("cancelled or expired admission executed"),
+            )
+            .unwrap_err();
+            assert!(error.len() <= 16 * 1024);
+            let response: Value = serde_json::from_str(&error).unwrap();
+            assert_eq!(
+                response["error"],
+                "request cancelled or wait deadline exhausted"
+            );
+            assert_eq!(response.as_object().unwrap().len(), 2);
+            assert_eq!(crate::error_response(&error), response);
+            let details = &response["coordination_diagnostics"];
+            assert_eq!(details["request_id"], request_id);
+            assert_eq!(details["session_id"], "session");
+            assert!(!details["execution_id"].as_str().unwrap().is_empty());
+            assert_eq!(details["cancelled"], cancel);
+            assert_eq!(details["expired"], !cancel);
+            assert_eq!(details["first_attempt"], true);
+            assert_eq!(details["last_phase"], "enrollment-complete");
+            assert_eq!(details["deadline_wait_ms"], wait);
+            assert!(
+                details["elapsed_ms"].as_u64().unwrap()
+                    >= details["enrollment_elapsed_ms"].as_u64().unwrap()
+            );
+            assert_eq!(details["blocker_checked"], false);
+            assert!(details["last_blocker"].is_null());
+
+            // Only this exact bounded two-field display shape bypasses ordinary
+            // string wrapping; it grants no retry or acquisition authority.
+            let mut extra = response.clone();
+            extra["retryable"] = json!(true);
+            let extra = extra.to_string();
+            assert_eq!(crate::error_response(&extra), json!({"error":extra}));
+            let mut oversized = response;
+            oversized["coordination_diagnostics"]["oversized"] = json!("x".repeat(16 * 1024));
+            let oversized = oversized.to_string();
+            assert_eq!(
+                crate::error_response(&oversized),
+                json!({"error":oversized})
+            );
+        }
+        for ordinary in ["ordinary I/O error", r#"{"error":"another JSON error"}"#] {
+            assert_eq!(crate::error_response(ordinary), json!({"error":ordinary}));
+        }
     }
 
     #[test]

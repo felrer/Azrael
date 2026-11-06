@@ -67,6 +67,16 @@ Windows 명시적 복구는 프로세스 객체가 조회된다는 이유만으�
 
 `evidence_ref`는 선택 프로젝트의 `artifacts/maintenance/evidence/` 아래에 있는 1 MiB 이하 일반 파일이다. 현재 읽기 권한과 링크 검사를 통과해야 하며 내용 identity를 검토 토큰에 묶는다. 이 실행기는 선택 경계의 기존 OS 권한을 사용한다. 승격·force·ACL/소유권 변경을 하지 않는다. 거부된 보호를 다른 shell이나 API로 우회하지 않는다. `results`의 실제 status/remaining과 경로 부재를 확인하고 부분 실패를 보존한다. 설정된 경계와 native 이력은 보존되므로 payload 삭제가 별칭 해제나 관리 이력 삭제를 뜻하지 않는다. 별칭이 필요 없으면 실제 결과 확인 뒤 별도의 `unregister_project`로 메타데이터만 해제한다.
 
+### 배포 gitfile과 빈 구조 디렉터리
+
+상태: `partial` — Windows 전용 구현의 실제 수용은 [FW-01 작업](../../work/FW-01-volsnap-io-safety/02-plan.md)에서 확인한다. `scripts/deployment-workspace.cjs`의 `await prepareDeploymentControlRetirement(options)`와 `await applyDeploymentControlRetirement({planPath,planSha256})`를 사용한다. 일반 정리에서 `.git`을 허용하거나 payload를 이 API로 삭제하지 않는다. 일반 실행 이력이 있으면 선택 실행기의 `operations`에 읽기 전용 `run_status` 지원이 필요하다. 미지원 실행기는 해당 경계를 차단하며 자동 빌드·설치·실행기 교체로 대체하지 않는다.
+
+원래 workspace lifecycle이 최종화되어 없어졌고 그 producer의 종료·참조 해제·payload 정리가 독립 근거로 확인되어야 한다. caller는 pending run의 reports 경로를 소유한다. `original`, 정확한 `gitfile:{path,text,sha256,gitdir}`, workspace를 포함한 모든 `structuralDirectories`, 별도 `outputDirectory`, `owner`, `runLifecycleId`, 불변 `evidence_ref`와 `evidence_sha256`을 지정한다. 증거에는 같은 선택 범위와 `schema:1`, `action:"deployment-control-retirement-attestation"`, `producer_stopped_verified`, `references_zero`, `payload_finalized`, `reason`을 기록한다. 과거 원본 증거가 없어졌다면 그 한계를 명시하며 새 증거로 과거 성공을 재작성하지 않는다.
+
+`await prepareDeploymentControlRetirement(options)` 결과의 계획 경로와 SHA를 그대로 적용한다. 선택한 검증 실행기는 `run_status`와 stdin 요청을 지원하고 `storage_formats`에 `legacy`만 광고해야 한다. 분할 저장 형식은 이 절차로 처리하지 않는다. 기존 기본 실행기가 이를 지원하지 않으면 자동 설치·교체하지 않고 명시한 검증 실행기만 사용한다. native 목록은 metadata만 읽으며 전체 페이지·실행 입력·manifest 및 설정의 불변성을 확인한다. 상태 잠금을 먼저 잡고 catalog 잠금을 취득하며 상태 잠금 보유 중 native 목록 조회를 중첩하지 않는다.
+
+이미 intent가 있거나 partial/unknown이면 자동 재개하지 않는다. 실제 결과에서 worker exit/close, native exit/close, 예약 finish, 경로 부재와 lifecycle finalize를 각각 확인한다. 시작한 작업은 종료까지 drain하므로 호출 시간이 길어질 수 있다. 미확인 종료에는 원래 fence와 증거를 보존하고 지원되는 예약 복구 절차를 사용한다. 정확한 결과를 별도 작업 근거로 이관한 다음 caller run의 일회용 계획·로그·fixture를 기존 소유자 절차로 정리한다.
+
 ## 중첩 소유 항목의 단계적 폐기
 
 검증한 `maintenance_owner`에서만 `retire_nested_member`를 사용한다. 예시는 `{"parent":"PARENT_ID","child":"CHILD_ID","owner":"OWNER","reason":"폐기 근거","evidence_ref":"artifacts/maintenance/evidence/retirement.json"}`다. 같은 소유자의 서로 다른 완결 묶음이며 각각 live 항목이 하나이고 child가 parent의 엄격한 하위여야 한다. 근거 파일은 parent 밖에 보존한다.

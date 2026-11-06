@@ -78,6 +78,8 @@ Azrael 관리 호출자는 요청을 한 번 접수하고 요청 identity로 대
 
 같은 유지관리 설정 home을 사용하는 프로젝트와 진입점은 OS handle 잠금으로 삭제 예산을 공유한다. 기본 동시성은 1이며 설정으로 최대 2까지 허용한다. 현재는 물리 디스크 매핑을 구현하지 않아 모든 볼륨과 VHD에 하나의 보수적인 공유 예산을 적용한다. 서로 다른 설정 home 사이에는 예산이 공유되지 않는다. Windows I/O 우선순위와 순차 묶음 처리의 기존 안전 경계를 유지한다.
 
+lease 오류 응답의 `coordination_diagnostics`는 16KiB 이하의 응답 전용 진단이다. 취소·기한 만료·등록 단계와 마지막으로 관측한 blocker를 설명하며 미관측 값 `null`은 충돌·보호가 없다는 증거가 아니다. 진단 전달은 대기 기한, FIFO 순서, busy 분류와 호출자의 권한·삭제 승인 경계를 바꾸지 않는다.
+
 ### 관리 잠금의 소유와 명시적 복구
 
 관리·producer catalog·run claim은 schema 2 진단 파일과 OS handle 잠금을 사용한다. 정상 종료와 프로세스 소실은 OS 배타성만 해제하며 파일은 삭제하지 않는다. 남은 PID·시각은 진단 정보이며 점유나 작업 성공의 근거가 아니다. 획득·commit·해제는 열린 handle과 경로 identity를 재확인한다. 기존 schema 1·empty·미확정 sentinel은 자동 인수하지 않는다. `recover_lock`은 구형 marker의 명시적 폐기만 담당하고 새 OS 잠금 파일은 제거하지 않는다. run claim 경합의 최대 5초 대기와 불명확한 경계의 차단을 유지한다.
@@ -131,6 +133,19 @@ Windows 삭제에 사용하는 내부 PowerShell은 공용 `background_command` 
 대상은 완결된 lifecycle group에 속하고 항목과 그룹의 소유자가 요청과 같아야 한다. 경로는 정확히 설정된 managed root이며 프로젝트의 엄격한 하위여야 한다. 다른 등록 항목·원본 경로·중첩 관리 경계와 겹치면 거부한다. 참조·보존·실행·pending·구성·권한·링크·예약 경로·보호 경로 검사는 그대로 적용한다. 증거는 프로젝트의 보호된 `artifacts/maintenance/evidence/` 아래 1 MiB 이하의 읽기 가능한 일반 파일이어야 한다. 폐기 요청 전체와 현재 증거 내용 identity를 검토 토큰에 묶어 일반 삭제 토큰이나 변경된 폐기 요청을 재사용하지 못하게 한다. 같은 그룹의 모든 live 구성원에 대한 명시적 결정과 실제 결과를 요구한다.
 
 적용은 기존 durable intent와 일반 삭제 경로를 재사용하고 폐기 요청을 결과에 남긴다. 부분 실패를 등록 해제나 부재로 바꾸지 않는다. 설정된 관리 경계와 native 이력은 보존하여 결과를 재검토할 수 있게 한다. 실제 payload 부재와 별칭·기록의 해제는 별개의 결과다. `maintenance_owner`는 선택한 절대 프로젝트 경계 안에서 `inventory`·`register`·`review`·`apply`를 수행하는 소유자 실행기다. 실행 환경의 권한을 따르며 자동 승격이나 제품 설치를 하지 않는다. 공통 정책의 대상은 지원 플랫폼 전체이고, 실제 검증 환경은 검증 결과에 따로 기록한다.
+
+#### 배포 제어 파일과 빈 컨테이너의 폐기
+상태: `partial` — Windows 전용 소스 구현이며 실제 수용과 남은 검증은 [FW-01 작업](../../work/FW-01-volsnap-io-safety/02-plan.md)이 소유한다. 보존 기능은 `tool.project-maintenance`다. 일반 `.git` 보호와 재귀 삭제 경계는 유지한다. 이 예외는 payload 소유 기록이 이미 최종화된 생성 배포 workspace의 일반 gitfile 하나와 명시적으로 열거한 빈 구조 디렉터리에만 적용한다. 전용 배포 소유자의 경계는 프로젝트 `artifacts`의 엄격한 하위이며 일반 native `managed_roots` 소속과 별도로 검증한다. 설정된 보호 경계 및 managed root 자체·조상은 이 예외로 폐기하지 않는다.
+
+배포 소유자는 원래 생성자의 ID·소유자·generation, 종료·참조 해제·payload 부재 근거, gitfile의 정확한 bytes·SHA·이전 `control/git` 연결과 그 대상의 부재를 별도 불변 증거에 묶는다. 새 폐기 소유권과 journal은 살아 있는 caller run 아래 게시하며 원래 실행 결과를 변경하지 않는다. 다른 소유·참조·예약과 경합하거나 내용·identity·구성이 달라지면 삭제를 거부한다. Windows의 대상과 상위 경로에서 reparse 속성을 새로 확인한다.
+
+일반 native 항목과 실행 입력의 보호도 확인한다. 이 전용 경로는 Windows의 `legacy` 저장 형식만 광고하는 검증 실행기로 제한하며 분할 저장 형식은 지원하지 않는다. 준비와 적용은 완전한 metadata inventory 및 실행 상세를 읽고 manifest·설정 identity와 SHA가 조회 전후 같음을 확인한다. inventory의 그룹 요약에 없는 구성원 ID는 같은 fence로 검증한 legacy manifest에서 읽어 요약 수치·핵심 필드·항목의 역방향 소속과 대조한다. 과거 pending/unknown decision은 대상의 항목·그룹·source·출처·참조 경로와 겹치거나 해석이 불확실하면 보호하며, 무관함이 확인된 이력은 다른 대상의 폐기를 차단하지 않는다. `provenance_ref`의 기존 `문서.md: 설명` 형식은 실제 문서 경로와 설명을 구분하며 일반 경로 필드의 모호한 colon은 계속 거절한다. 저렴한 구조 검사를 실행 상세 조회보다 먼저 수행한다.
+
+상태 잠금은 그 다음 catalog 잠금 순서로 취득하고 같은 snapshot을 CAS로 재확인한다. 다른 active reservation·미게시 pending 제어 파일·관련 실행 입력·일반 소유 및 source 경로가 있으면 거부한다. 상태 잠금 안에서는 native inventory를 다시 호출하지 않는다. 이 작은 예외에 한해 물리 작업이 끝날 때까지 상태 잠금을 유지하며 대량 payload 삭제의 잠금 범위는 넓히지 않는다.
+
+적용은 native 소유 예약을 유지한 별도 worker에서 일반 unlink와 빈 디렉터리 rmdir만 사용한다. 시작된 작업은 실제 worker·native·속성 조회 프로세스의 종료와 pipe close까지 기다린다. 이 경로의 `drainOnly`는 timeout에 의한 kill을 사용하지 않으며 기존 lease 호출자의 기본 정책은 바꾸지 않는다. 부분 실패와 미확인 결과는 성공으로 바꾸거나 자동 재실행하지 않는다. 물리 부재·예약 종료·소유 기록 최종화를 각각 확인해야 완료다. 협력하는 writer의 예약 보호와 외부 프로세스의 임의 파일 교체에 대한 원자적 방어를 동일시하지 않는다.
+
+Windows 속성 조회는 OS에 전달하는 경로만 표준 namespace 경로로 변환하며 선택·보호 검증과 보고에는 원래 경로를 유지한다. catalog 작업 오류의 `lease`는 작업 실패 시점의 관측이며 이후 정상 반환을 확인한 `catalog_lease_release`는 실제 native PID·종료 코드·pipe close를 별도로 보존한다. 원래 오류·stack과 `release_error`는 유지하고 물리 삭제, 예약 종료, metadata 최종화의 결과를 서로 대체하지 않는다.
 
 관리 항목은 테스트/fixture, 실행파일, 빌드 결과, 캐시, 소스 스냅샷, 패키지, 백업으로 구분한다. 생성 시각·소유자·생성 작업·원본·경로·내용 identity·크기·버전/출처·관련 실행·최근 사용·보존 사유와 재검토 조건을 기록한다. 버전 정보에는 확인 가능한 소스 커밋, 도구 버전, 대상과 설정, 캐시 형식 등을 담으며 알 수 없는 정보는 추정하지 않는다.
 

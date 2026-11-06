@@ -36,6 +36,7 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
     ...["verify only", "account-success", "build-fail"].map(name =>
       ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-deploy-azrael.ps1", "-Case", name,
         ...(artifactRoot ? ["-ArtifactProjectRoot", artifactRoot] : [])]]),
+    ...(runRoot ? [[process.execPath, ["scripts/test-deployment-control-retirement.cjs", path.join(runRoot, "temporary/control-retirement"), "happy"]]] : []),
   ];
 }
 function main(argv) {
