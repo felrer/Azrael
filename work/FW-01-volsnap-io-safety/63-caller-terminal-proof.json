@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "action": "producer-stop",
+  "id": "run:fw03v:internal-junction63-01",
+  "owner": "FW-01/internal-junction63",
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "actualController": {
+    "pid": 47632,
+    "session": 96223,
+    "exit_code": 0,
+    "terminalChunk": "93c7b2",
+    "scope": "new exact junction caller only; not original NATIVE aggregate"
+  },
+  "actualChild": {
+    "pid": 53712,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "error": null,
+    "close_observed": true,
+    "stdout_drained": true,
+    "stderr_drained": true
+  },
+  "custodyReleases": [
+    {
+      "operation": "lifecycle.internal-junction",
+      "owner": {
+        "acquired_at_ms": 1793949961853,
+        "operation": "lifecycle.internal-junction",
+        "parent_pid": 47632,
+        "pid": 52012,
+        "schema": 2,
+        "token": "52012-1793949961853-4254deb56ce95f82"
+      },
+      "release": {
+        "released": true,
+        "reservations_retained": [],
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true
+      }
+    },
+    {
+      "operation": "lifecycle.reconcile",
+      "owner": {
+        "acquired_at_ms": 1793949961932,
+        "operation": "lifecycle.reconcile",
+        "parent_pid": 47632,
+        "pid": 40348,
+        "schema": 2,
+        "token": "40348-1793949961932-e6cdf38f8d1184fa"
+      },
+      "release": {
+        "released": true,
+        "reservations_retained": [],
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true
+      }
+    }
+  ],
+  "independentResult": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\63-internal-junction-result.json",
+    "sha256": "d5509950a91193f859c6e47e394952522513ed12a2627e5f144e4f261250bb3d"
+  },
+  "selectedVerification": {
+    "schema": 1,
+    "pid": 46068,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "close_observed": true,
+    "stdout_drained": true,
+    "stderr_drained": true,
+    "fixtureAbsent": true,
+    "stdout": "\r\nPassed Failed Selection\r\n------ ------ ---------\r\n    11      0 InternalJunctionOnly\r\n\r\n",
+    "stderr": ""
+  },
+  "testFixturesAbsent": true,
+  "source": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\artifact-lifecycle.ps1",
+      "sha256": "1b3bbe1477847ef11ce79cadf25ae0f2a7102f50e68ddda504ffd5bd653e6df1"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-clean-verification-artifacts.ps1",
+      "sha256": "22091740f7c83d81be3f54634ec7f489aa3b62e1d91f7f87dfa955c91a545446"
+    }
+  ],
+  "ownPatch": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\63-internal-junction-ownpatch-v2.diff",
+    "sha256": "7311c9a8520b3039ddcf5d5876260fa0a9ae6b41692e4f14e222f7d8bd28119d"
+  },
+  "beforeSnapshotLimitation": "Initial byte snapshot unavailable: before-text was reconstructed by reversing only this task edits using normalized LF; after files are exact byte copies. Pre-existing user/concurrent edits preserved.",
+  "retainedTestPurpose": "Prevent future omission of exact ownership/identity/no-follow/target-preservation/authority checks; 11 selected assertions, default suite also includes new case and original SubtreeOnly is unchanged.",
+  "gitDiffCheckExit": 0,
+  "originalNativePendingAndUnknownsUnchanged": true,
+  "globalOsTreeObservation": false,
+  "cleanup": "Only this caller raw/input/state whole run remains; root source consumption and external cleanup caller required. NATIVE whole cleanup and build remain outside this delegated scope."
+}

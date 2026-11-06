@@ -233,6 +233,8 @@ Windows 소유 정리 경로의 하드링크·테스트 junction 확장은 `scri
 
 결과는 항목별 삭제·보류·차단·실패·불확실 상태, 속성 변경 전후와 실제 잔여를 기록한다. 요청 묶음의 모든 ID와 결정을 변경 전에 검사하고, 파괴적 시도 전 의도와 이후 결과를 항목별로 영속 기록한다. 중단 시 확인되지 않은 결과는 pending/unknown으로 남기며 실제 잔여를 다시 확인한다. 등록된 하위 항목이나 원본의 보호도 상위 폴더 삭제에 적용한다. 일부 삭제나 조회 완료를 전체 정리 완료로 표시하지 않는다. 재시도는 남은 항목의 identity와 보호 상태를 다시 확인한다.
 
+Windows 내부 정션의 독립 폐기는 `artifact-lifecycle.ps1`의 `Remove-ArtifactInternalJunction`이 소유한다. 기존 cleanup 권한과 maintenance/catalog custody 아래 같은 작업의 물리 경계·정지 상태·참조 해제·링크/대상 identity·mount-point 종류를 확인한 후 비재귀 ordinary link-only 제거를 수행한다. System 속성을 변경하거나 일반 System 항목의 보호를 완화하지 않는다. 연결 대상을 통해 순회하지 않으며 물리 대상 경로의 전후 identity·속성·파일 해시를 비교한다(최대 4096항목·깊이32·64MiB). 이는 보존 확인의 한계이며 경합을 원자적으로 차단하는 OS handle 삭제를 주장하지 않는다. `test-clean-verification-artifacts.ps1`의 내부 정션 선택 검사는 대상 보존과 identity·범위·권한 거절을 유지하고, 기존 기본 검사에도 포함된다. 보존 항목 `tool.project-maintenance`가 두 구현·검사 파일을 이미 소유한다.
+
 ## 보호의 종료와 참조 해제
 
 실행 결과와 생산자 종료, 구성 완결은 독립 사실이다. producer record의 `producer`는 종료 상태·성공/실패/미확인 결과·실제 exit code와 종료 근거 identity를 보존한다. 소유자가 정확한 revision과 읽을 수 있는 근거를 제출한 `closeLifecycle`은 확인된 종료와 구성 완결을 기록하고 명시한 `execution` 참조만 해제한다. 종료된 실패도 `failed`를 유지한 채 정리 검토가 가능하다. 미확인 종료·결과와 남은 자식 작업은 보호하며 완료로 바꾸지 않는다. 새 run writer는 자신이 배타적으로 생성한 경로에만 generated/protection_known을 명시한다. 기존 미확정 자료를 종료했다는 이유로 소유 확인된 자료로 승격하지 않는다.

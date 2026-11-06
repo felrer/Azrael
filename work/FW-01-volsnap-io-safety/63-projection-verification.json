@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "scope": "HEAD-based internal junction source/test only; unrelated bulk/SubtreeOnly changes excluded",
+  "projection": {
+    "schema": 1,
+    "status": "minimal HEAD projection prepared; syntax pending",
+    "head": "3e617b5fcc51393bb59f0d72103dd7f7c4d6bd80",
+    "scope": [
+      "scripts/artifact-lifecycle.ps1",
+      "scripts/test-clean-verification-artifacts.ps1"
+    ],
+    "changes": "Only ReparseTag PInvoke/method, new internal target snapshot/unlink entry, InternalJunctionOnly flag/test/default call. Existing HEAD bulk and test suite retained; no SubtreeOnly copied.",
+    "checks": [
+      {
+        "symbol": "Initialize-ArtifactWindowsIdentity",
+        "identicalToCurrent": true,
+        "sha256": "afb84abb61af5564582096ddb6a909179e96352664949166e662e7eddbb1167d"
+      },
+      {
+        "symbol": "Test-ArtifactRemovalContained",
+        "identicalToCurrent": true,
+        "sha256": "c424f6c84d0141fe7da21a5517d0755097f3257f861c7b893fd301352dca16c8"
+      },
+      {
+        "symbol": "Assert-ArtifactRemovalAncestors",
+        "identicalToCurrent": true,
+        "sha256": "2a2f50d5768bc0144d1a15aea3957fde962f3fe373b885e5caaf6e3ff3d208a1"
+      },
+      {
+        "symbol": "Get-ArtifactCleanupRemaining",
+        "identicalToCurrent": true,
+        "sha256": "7cbc452d7682bed3eecb38b38e9a6121467beaa29f56adda52974d2847c163bd"
+      },
+      {
+        "symbol": "Get-ArtifactInternalJunctionTargetSnapshot",
+        "identicalToCurrent": true,
+        "sha256": "c5128bf4086f35939ca732f8a0b4c9309dc4538f164fc055ee4f4a67a51e5896"
+      },
+      {
+        "symbol": "Remove-ArtifactInternalJunction",
+        "identicalToCurrent": true,
+        "sha256": "393d432ce748dd3b7264ac0c2663ae9b77ffc0faed5fd622dbe35df098e4cbd4"
+      }
+    ],
+    "source": {
+      "owner": "c82276dc06150394b285983b4d26b8b0fcfc9a25898b83434c4015882a874b81",
+      "test": "32d5e46fe2a5e2dffa734c8f53d18c90bdde2242a9d186a956e2690a12db2663"
+    },
+    "currentSource": {
+      "owner": "1b3bbe1477847ef11ce79cadf25ae0f2a7102f50e68ddda504ffd5bd653e6df1",
+      "test": "22091740f7c83d81be3f54634ec7f489aa3b62e1d91f7f87dfa955c91a545446"
+    }
+  },
+  "syntax": {
+    "schema": 1,
+    "status": "ready",
+    "actualExit": 0,
+    "signal": null,
+    "stdout": "Projection syntax passed (2 files)\r\n",
+    "stderr": "",
+    "files": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\internal-junction63-01\\inputs\\commit-projection\\artifact-lifecycle.ps1",
+        "sha256": "c82276dc06150394b285983b4d26b8b0fcfc9a25898b83434c4015882a874b81"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\internal-junction63-01\\inputs\\commit-projection\\test-clean-verification-artifacts.ps1",
+        "sha256": "32d5e46fe2a5e2dffa734c8f53d18c90bdde2242a9d186a956e2690a12db2663"
+      }
+    ],
+    "harnessCorrection": "First command omitted foreach closing parenthesis; original readiness failure preserved. Only validation command corrected; projection bytes unchanged.",
+    "newFunctionsAndCalledExistingHelpersIdenticalToCurrent": true,
+    "fixtureTestsReused": "Current exact function bodies: targeted11 assertions, actual0 close/drain; exact real Systemjunction positive actual0",
+    "notRun": "No fullsuite or repeated actual junction removal"
+  },
+  "originalHarnessFailure": {
+    "schema": 1,
+    "status": "failed",
+    "actualExit": 1,
+    "signal": null,
+    "stdout": "",
+    "stderr": "ParserError: \r\nLine |\r\n   1 |  �� ts\\commit-projection\\test-clean-verification-artifacts.ps1'){ $tokens ��\r\n     |                                                                ~\r\n     | Unexpected token '{' in expression or statement.\r\n",
+    "files": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\internal-junction63-01\\inputs\\commit-projection\\artifact-lifecycle.ps1",
+        "sha256": "c82276dc06150394b285983b4d26b8b0fcfc9a25898b83434c4015882a874b81"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\internal-junction63-01\\inputs\\commit-projection\\test-clean-verification-artifacts.ps1",
+        "sha256": "32d5e46fe2a5e2dffa734c8f53d18c90bdde2242a9d186a956e2690a12db2663"
+      }
+    ],
+    "newFunctionsAndCalledExistingHelpersIdenticalToCurrent": true,
+    "fixtureTestsReused": "Current exact function bodies: targeted11 assertions, actual0 close/drain; exact real Systemjunction positive actual0",
+    "notRun": "No fullsuite or repeated actual junction removal"
+  },
+  "sourceBlob": "fe0b2ac147cd3e82f0f086d686042220e00f6c45",
+  "testBlob": "8f6864d43dcb64504d96433434ee924b7cef5b9e",
+  "actualVerificationReused": "63-caller-terminal-proof.json",
+  "actualSystemJunctionRemoval": "63-internal-junction-result.json",
+  "retainedTestReason": "Future edits to the link-only owner can omit endpoint/authority checks or recurse into target; small existing-suite checks cover those errors."
+}

@@ -1,6 +1,6 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param([string]$FixtureRoot)
+param([string]$FixtureRoot, [switch]$InternalJunctionOnly)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
 $testRoot = Join-Path $project ('artifacts/logs/storage-cleanup-20261006/verification-fixtures-' + [guid]::NewGuid().ToString('N'))
@@ -47,7 +47,33 @@ function Start-Reference([string]$Reference) {
     foreach ($arg in @('-NoProfile','-File',$sleeper,'-Reference',$Reference)) { $info.ArgumentList.Add($arg) }
     [Diagnostics.Process]::Start($info)
 }
+function Test-InternalJunctionRemoval {
+    if (-not [OperatingSystem]::IsWindows()) { throw 'Internal junction verification requires Windows.' }
+    $boundary = Join-Path $testRoot 'internal-junction'
+    $target = Join-Path $boundary 'target'
+    $other = Join-Path $boundary 'other'
+    $link = Join-Path $boundary 'link'
+    $null = [IO.Directory]::CreateDirectory($target)
+    $null = [IO.Directory]::CreateDirectory($other)
+    $sentinel = Join-Path $target 'preserve.txt'
+    [IO.File]::WriteAllText($sentinel, 'target content must survive')
+    New-Item -ItemType Junction -Path $link -Target $target | Out-Null
+    Initialize-ArtifactWindowsIdentity
+    $request = @{Path=$link;Target=$target;Boundary=$boundary;ExpectedBoundaryIdentity=[ArtifactRemovalNative]::Identity($boundary);ExpectedLinkIdentity=[ArtifactRemovalNative]::Identity($link);ExpectedTargetIdentity=[ArtifactRemovalNative]::Identity($target);OwnershipVerified=$true;ProducerStoppedVerified=$true;ReferencesZero=$true;CheckAuthority={$true}}
+    foreach ($change in @(@{ExpectedLinkIdentity='wrong'}, @{ExpectedTargetIdentity='wrong'}, @{ExpectedBoundaryIdentity='wrong'}, @{Target=$other}, @{Target=(Join-Path $testRoot 'outside')}, @{ProducerStoppedVerified=$false}, @{ReferencesZero=$false}, @{CheckAuthority={$false}}, @{CheckAuthority={'true'}})) {
+        $invalid = $request.Clone()
+        foreach ($key in $change.Keys) { $invalid[$key] = $change[$key] }
+        $refused = $false
+        try { $null = Remove-ArtifactInternalJunction @invalid } catch { $refused = $true }
+        Assert ($refused -and (Get-ArtifactCleanupRemaining $link) -and [IO.File]::ReadAllText($sentinel) -ceq 'target content must survive') 'Internal junction guard failed to preserve link/target.'
+    }
+    $result = Remove-ArtifactInternalJunction @request
+    Assert ($result.status -eq 'deleted' -and $result.targetPreserved -and -not $result.attributesChanged -and -not $result.recursive) 'Internal junction link-only audit differs.'
+    Assert (-not (Get-ArtifactCleanupRemaining $link) -and [IO.File]::ReadAllText($sentinel) -ceq 'target content must survive') 'Internal junction target was removed or changed.'
+}
 try {
+    if ($InternalJunctionOnly) { Test-InternalJunctionRemoval; [pscustomobject]@{Passed=$passed;Failed=0;Selection='InternalJunctionOnly'}; return }
+    Test-InternalJunctionRemoval
     foreach ($case in @('ok','unregistered','wrong-owner','pending','incomplete','referenced','protected')) {
         $short = Join-Path $testRoot "artifacts/v-$case"
         Write-Json (Join-Path $short 'check-result.json') @{passed=$true;exitCodes=@{initialInventory=0;hostInstall=0;finalInventory=0;namespace=0;standaloneHost=0;host=0}}
