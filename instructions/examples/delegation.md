@@ -8,6 +8,8 @@ The paths and symbols below are fictional examples for illustration. Replace the
 <a id="직접-처리할-때"></a>
 ## When to Handle Work Directly
 
+For an internal junction in an already authorized disposable test run, assign its existing cleanup owner to verify both endpoints, stopped use, released references and stable identities, then remove only the link without another user approval. Apply [internal junction cleanup](../skills/implementation/references/artifact-lifecycle.md#internal-junction-cleanup). Do not interpret a shared directory prefix as ownership, follow the link into its target, or substitute a direct deletion API for a rejected owner operation.
+
 The parent directly handles looking up one setting, making a short edit to a known file, or summarizing evidence already obtained, because writing a delegation handoff and integrating results would cost more.
 
 For document edits, update the currently valid content in place. Once the user's answer is settled, remove the question and incorporate the answer into requirements or the plan; do not append dated response records or research logs. Keep history only when change history itself is the objective.
