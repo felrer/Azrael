@@ -3,7 +3,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const vm = require("node:vm");
-const { azraelTaskTimeGroups: automaticGroups, azraelTaskTimeLabel: label } = require("./task-work-time.cjs");
+const { azraelTaskTimeGroups: automaticGroups, azraelTaskTimeLabel: label, azraelUserWaitDuration: workDuration } = require("./task-work-time.cjs");
 
 // Timing fixtures use production automatic lineage.
 const groups = automaticGroups;
@@ -250,4 +250,107 @@ test('all durable native states count committed use but preparing never counts',
   values[0].rootResumeWait=invalid;
   assert.equal(automaticGroups(values,99999)[0].eligible,false);
  }
+});
+
+const timing = (blockedIntervals = [], requests = [], revision = 1) => ({ revision, blockedIntervals, requests });
+
+test("user blocking intervals are clipped and unioned while asynchronous requests keep counting", () => {
+  const value = turn("a", 1000, 9000, { userWaitTiming: timing([
+    { startedAtMs: 0, endedAtMs: 2000 },
+    { startedAtMs: 3000, endedAtMs: 6000 },
+    { startedAtMs: 5000, endedAtMs: 7000 },
+    { startedAtMs: 9000, endedAtMs: 12000 },
+  ], [{ requestId: "async", startedAtMs: 1000, endedAtMs: 10000 }]) });
+  const [task] = groups([value], 50000);
+  assert.equal(task.durationMs, 3000);
+  assert.equal(task.partial, false);
+  assert.equal(task.userWaitUnmeasured, false);
+  assert.equal(groups([{ ...value, userWaitTiming: timing([], value.userWaitTiming.requests) }], 50000)[0].durationMs, 9000);
+});
+
+test("open user blocks pause live work and freeze at terminal elapsed end", () => {
+  const value = turn("a", 1000, 5000, { status: "inProgress", userWaitTiming: timing([
+    { startedAtMs: 3000, endedAtMs: null },
+  ]) });
+  assert.equal(groups([value], 4000)[0].durationMs, 2000);
+  assert.equal(groups([value], 9000)[0].durationMs, 2000);
+  for (const status of ["completed", "interrupted", "failed"]) {
+    assert.equal(groups([{ ...value, status }], 9000)[0].durationMs, 2000);
+    assert.equal(groups([{ ...value, status }], 90000)[0].durationMs, 2000);
+  }
+  const resumed = { ...value, userWaitTiming: timing([{ startedAtMs: 3000, endedAtMs: 5000 }]) };
+  assert.equal(groups([resumed], 9000)[0].durationMs, 6000);
+});
+
+test("user blocking never removes automatic resume waits or changes eligibility", () => {
+  const values = chain("w", 3).map(value => ({ ...value,
+    userWaitTiming: timing([{ startedAtMs: value.turnStartedAtMs + 500, endedAtMs: null }]) }));
+  const [task] = groups(values, 99999);
+  assert.equal(task.durationMs, 4500);
+  assert.equal(task.resumeCount, 3);
+  assert.equal(task.eligible, true);
+});
+
+test("coarse measured floor subtracts blocked work and historical absence stays distinguishable", () => {
+  const values = [
+    turn("a", 12000, 200, { turnStartedAtPrecisionMs: 1000, userWaitTiming: timing() }),
+    turn("b", 12000, 400, { turnStartedAtPrecisionMs: 1000, status: "deferred",
+      userWaitTiming: timing([{ startedAtMs: 12250, endedAtMs: 12350 }]),
+      rootResumeWait: { state: "resumed", waitStartedAtMs: 12400, waitEndedAtMs: 12450 } }),
+  ];
+  const [task] = groups(values, 90000);
+  assert.equal(task.durationMs, 500);
+  assert.equal(task.partial, true);
+  const [historical] = groups([turn("a", 0, 1000)], 5000);
+  assert.equal(historical.userWaitUnmeasured, true);
+  assert.equal(historical.partial, false);
+  const isolated = vm.runInNewContext(`(${automaticGroups.toString()})`);
+  assert.equal(isolated(values, 90000)[0].durationMs, 500);
+});
+
+test("serialized per-turn work duration excludes unioned user blocks without resume wait additions", () => {
+  const snapshot = timing([
+    { startedAtMs: 0, endedAtMs: 2000 },
+    { startedAtMs: 3000, endedAtMs: 6000 },
+    { startedAtMs: 5000, endedAtMs: 7000 },
+    { startedAtMs: 9000, endedAtMs: null },
+  ]);
+  const expected = { durationMs: 3000, userWaitUnmeasured: false, partial: false };
+  assert.deepEqual(workDuration(9000, 1000, snapshot), expected);
+  const isolated = vm.runInNewContext(`(${workDuration.toString()})`);
+  assert.equal(isolated(9000, 1000, snapshot).durationMs, 3000);
+  const value = turn("a", 1000, 9000, { userWaitTiming: snapshot,
+    rootResumeWait: { state: "resumed", waitStartedAtMs: 10000, waitEndedAtMs: 15000 } });
+  assert.equal(groups([value], 99999)[0].durationMs, 8000);
+  assert.equal(workDuration(value.durationMs, value.turnStartedAtMs, value.userWaitTiming).durationMs, 3000);
+});
+
+test("per-turn work duration distinguishes unmeasured history and invalid clocks", () => {
+  assert.deepEqual(workDuration(1000, null, null), { durationMs: 1000, userWaitUnmeasured: true, partial: false });
+  assert.deepEqual(workDuration(1000, null, timing()), { durationMs: 1000, userWaitUnmeasured: false, partial: false });
+  for (const value of [null, undefined, NaN, Infinity, -1, "1000"]) {
+    assert.equal(workDuration(value, 0, timing()).durationMs, null);
+    assert.equal(workDuration(value, 0, timing()).partial, true);
+  }
+  const blocked = timing([{ startedAtMs: 0, endedAtMs: null }]);
+  for (const start of [null, NaN, Infinity, -1, "1000", 0n, Symbol("start")]) {
+    assert.equal(workDuration(1000, start, blocked).durationMs, null);
+  }
+  assert.equal(workDuration(Number.MAX_VALUE, Number.MAX_VALUE, blocked).durationMs, null);
+  assert.equal(workDuration(1000, 0, { revision: -1 }).userWaitUnmeasured, true);
+  assert.equal(workDuration(1000, 0, timing([{ startedAtMs: 900, endedAtMs: 100 }])).partial, true);
+});
+
+test("exact snapshot origins override coarse history starts for group and per-turn work", () => {
+  const snapshot = { ...timing([{ startedAtMs: 1001999, endedAtMs: 1010999 }]), startedAtMs: 1000999 };
+  const value = turn("a", 1000000, 10000, { userWaitTiming: snapshot, turnStartedAtPrecisionMs: 1000 });
+  assert.equal(groups([value], 9999999)[0].durationMs, 1000);
+  assert.equal(groups([value], 9999999)[0].partial, false);
+  assert.equal(workDuration(10000, 1000000, snapshot).durationMs, 1000);
+  assert.equal(workDuration(10000, null, snapshot).durationMs, 1000);
+  const waiting = { ...value, rootResumeWait: { state: "resumed", waitStartedAtMs: 1010999, waitEndedAtMs: 1015999 } };
+  assert.equal(groups([waiting], 9999999)[0].durationMs, 6000);
+  assert.equal(workDuration(waiting.durationMs, waiting.turnStartedAtMs, snapshot).durationMs, 1000);
+  const live = { ...value, status: "inProgress" };
+  assert.equal(groups([live], 1010999)[0].durationMs, 1000);
 });

@@ -73,6 +73,7 @@ use codex_protocol::protocol::SessionSource;
 use codex_protocol::protocol::SubAgentSource;
 use codex_protocol::protocol::TurnAbortReason;
 use codex_protocol::protocol::TurnAbortedEvent;
+
 use codex_protocol::protocol::TurnCompleteEvent;
 use codex_protocol::user_input::UserInput;
 use codex_state::DirectionalThreadSpawnEdgeStatus;
@@ -91,6 +92,71 @@ use std::time::Duration;
 use tokio::sync::Mutex;
 use tokio::time::timeout;
 use tokio_util::sync::CancellationToken;
+
+// Both native dispatch paths must enforce the same captured policy even if a caller
+// bypasses the advertised tool schema or requests a full-history fork.
+#[tokio::test]
+async fn role_profile_spawn_dispatch_rejects_omission_overrides_and_unlisted_profile() {
+    let (session, mut turn) = make_session_and_context().await;
+    let mut config = (*turn.config).clone();
+    config.role_profile = Some(serde_json::from_value(json!({
+        "role":"lead", "profile_id":"lead", "profiles":[
+            {"id":"lead","name":"Lead","allowed_roles":["lead"],"model":"gpt-5.5","instructions":"lead"},
+            {"id":"root","name":"Root","allowed_roles":["root"],"model":"gpt-5.5","instructions":"root"}
+        ], "root_profile_ids":["root"], "subagent_profile_ids":[]
+    })).unwrap());
+    turn.config = Arc::new(config);
+    let session = Arc::new(session);
+    let turn = Arc::new(turn);
+    for v2 in [false, true] {
+        for (extra, expected) in [
+            (json!({}), "requires profile_id"),
+            (
+                json!({"profile_id":"root","agent_type":""}),
+                "agent_type is forbidden",
+            ),
+            (
+                json!({"profile_id":"root","model":"other"}),
+                "forbids agent_type, model and reasoning_effort",
+            ),
+            (
+                json!({"profile_id":"root","reasoning_effort":"high"}),
+                "forbids agent_type, model and reasoning_effort",
+            ),
+            (json!({"profile_id":"missing"}), "not allowed"),
+        ] {
+            let mut args = json!({"message":"inspect", "task_name":"profile_test"});
+            args.as_object_mut()
+                .unwrap()
+                .extend(extra.as_object().unwrap().clone());
+            if v2 {
+                args["fork_turns"] = json!("all");
+            } else {
+                args["fork_context"] = json!(true);
+            }
+            let call = invocation(
+                Arc::clone(&session),
+                Arc::clone(&turn),
+                "spawn_agent",
+                function_payload(args),
+            );
+            let result = if v2 {
+                SpawnAgentHandlerV2::default().handle(call).await
+            } else {
+                SpawnAgentHandler::default().handle(call).await
+            };
+            let FunctionCallError::RespondToModel(message) =
+                result.err().expect("profile bypass must fail before spawn")
+            else {
+                panic!("expected admission error");
+            };
+            assert!(
+                message.contains(expected),
+                "unexpected admission error: {message}"
+            );
+        }
+    }
+}
 
 fn set_agent_control(
     session: &mut crate::session::session::Session,

@@ -48,15 +48,7 @@ pub enum MultiAgentRoleInstructions {
         max_concurrency: usize,
         wait_agent_enabled: bool,
         expose_model_overrides: bool,
-        claude_tools: bool,
     },
-}
-
-impl MultiAgentRoleInstructions {
-    pub fn with_claude_tools(mut self, enabled: bool) -> Self {
-        if let Self::Composed { claude_tools, .. } = &mut self { *claude_tools = enabled; }
-        self
-    }
 }
 
 impl ContextualUserFragment for MultiAgentRoleInstructions {
@@ -94,7 +86,6 @@ impl ContextualUserFragment for MultiAgentRoleInstructions {
                 max_concurrency,
                 wait_agent_enabled,
                 expose_model_overrides,
-                claude_tools,
                 ..
             } => {
                 let base = if *omit_update_plan_instructions {
@@ -107,16 +98,13 @@ impl ContextualUserFragment for MultiAgentRoleInstructions {
                 } else {
                     String::new()
                 };
-                let base = if *claude_tools { base.replace("spawn_agent", "Agent") } else { base };
-                let shared = if *claude_tools {
-                    "Call Agent directly using its declared input schema. Other declared collaboration tools use their native schemas. All agents share the workspace and must preserve each other's edits."
-                } else { DEFAULT_MULTI_AGENT_V2_SHARED_USAGE_HINT_TEXT };
+                let shared = DEFAULT_MULTI_AGENT_V2_SHARED_USAGE_HINT_TEXT;
                 let mut text = format!(
                     "{base}\n{shared}\n{wait_agent_guidance}There are {max_concurrency} available concurrency slots, meaning that up to {max_concurrency} agents can be active at once, including you."
                 );
                 if *expose_model_overrides {
                     text.push_str("\n\n");
-                    text.push_str(if *claude_tools { "Agent uses native roles and full catalog model identifiers. It creates a task-scoped child without copying full parent history. Provider/tool eligibility is resolved independently for the selected child model." } else { DEFAULT_MULTI_AGENT_V2_MODEL_OVERRIDE_USAGE_HINT_TEXT });
+                    text.push_str(DEFAULT_MULTI_AGENT_V2_MODEL_OVERRIDE_USAGE_HINT_TEXT);
                 }
                 text
             }

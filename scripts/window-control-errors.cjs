@@ -2,22 +2,43 @@
 
 // Classify ordinary recovery paths; unexpected implementation/provider failures
 // share one public fallback instead of exposing arbitrary exception text.
-const CODES = new Set(['permission_pending', 'approval_timeout', 'approval_declined', 'cancelled', 'selection_required', 'state_changed', 'window_minimized', 'isolated_viewer_minimized', 'permission_denied', 'timeout', 'connection_error', 'unsupported_action', 'invalid_request', 'condition_failed', 'unclassified']);
+const CODES = new Set(['window_busy', 'permission_pending', 'security_app_blocked', 'approval_timeout', 'approval_denied', 'cancelled', 'selection_required', 'state_changed', 'window_minimized', 'isolated_viewer_minimized', 'permission_denied', 'timeout', 'connection_error', 'unsupported_action', 'invalid_request', 'condition_failed', 'unclassified']);
 const UNCLASSIFIED = '미분류된 오류';
 const APPROVAL_STATES = new Set(['waiting', 'pending', 'expired', 'declined', 'cancelled', 'accepted']);
 const NATIVE_PERMISSION_REASONS = new Set(['missing', 'malformed', 'not_disabled']);
 const PAUSE_REASONS = new Set(['minimized', 'user_stopped', 'error']);
 const RECOVERIES = new Set(['observe_again', 'reselect', 'user_resume']);
+function switchedMetadata(value) {
+  const out={};if(!value||typeof value!=='object'||Array.isArray(value))return out;
+  const project=(source,numbers,booleans,strings=[])=>{const result={};if(!source||typeof source!=='object'||Array.isArray(source))return result;for(const key of numbers)if(Number.isSafeInteger(source[key])&&source[key]>=0)result[key]=source[key];for(const key of booleans)if(typeof source[key]==='boolean')result[key]=source[key];for(const key of strings)if(typeof source[key]==='string'&&/^[A-Za-z0-9_-]{1,96}$/.test(source[key]))result[key]=source[key];return result;};
+  Object.assign(out,project(value,['operationId','deliveredInputs','activationDeliveredInputs'],['actionExecuted','appEffectVerified','applicationEffectVerified','observeRequired','duplicateOperation','delivered','cleanupPending','syntheticReleased']));
+  if(value.recovery)out.recovery=project(value.recovery,['operationId','rounds','maxRounds','activeRecoveryMs','maxActiveRecoveryMs','applicationInputs'],['observeRequired','uncertainDelivery','budgetExhausted','completed'],['lastBlocker']);
+  if(value.operations)out.operations=project(value.operations,['admittedHighWatermark','retainedOutcomes','retentionLimit'],[]);
+  if(value.collaboration){
+    const c=value.collaboration;
+    out.collaboration=project(c,['probeRemainingMs','rawPackets','suppressedMouseEvents','rawSuppressionPairs','queuedHumanOperations','queuedInputOperations','pendingLogicalMoves','failureCount','lastRawEventTime','lastSuppressedEventTime','completedHumanOperations','skippedHumanOperations','lastHumanApplicationInputs'],['requested','enabled','capability_pending','failed','suppression','modelActive','lastHumanObserveRequired','rawConsumerAppsVerified','pointerAccelerationEmulated'],['phase','lastFailure','lastHumanFailure','physicalKeyboard']);
+    if(c.user&&Number.isSafeInteger(c.user.x)&&Number.isSafeInteger(c.user.y))out.collaboration.user={x:c.user.x,y:c.user.y};
+    if(c.systemCursor)out.collaboration.systemCursor=project(c.systemCursor,['visibilityCommands'],['supported','hidden','restorePending','guardReady'],['lastError']);
+    if(c.deviceDiagnostics){
+      const d=c.deviceDiagnostics;
+      const safe=project(d,['snapshotMouseCount','allowedInitialArrivals','rejectedDeviceChanges','ignoredOwnRawPackets'],['mouseSnapshotReady'],['snapshotReason','preparationWaitReason']);
+      if(d.lastDeviceChange)safe.lastDeviceChange=project(d.lastDeviceChange,['observedAtTick64'],['knownAtEnable','infoVerified'],['change','deviceType','phase','reason']);
+      if(d.lastRaw)safe.lastRaw=project(d.lastRaw,['mouseFlags','buttonFlags','eventTime'],['knownAtEnable','absolute','ownExtraInfoLow32','ownReceiptMatched'],['deviceType','reason']);
+      out.collaboration.deviceDiagnostics=safe;
+    }
+  }
+  return out;
+}
 function copyApprovalDetails(source, target) {
   if (APPROVAL_STATES.has(source?.approvalState)) target.approvalState = source.approvalState;
   if (typeof source?.approvalRequestId === 'string' && /^azrael-window-consent-[a-f0-9-]{36}$/i.test(source.approvalRequestId)) target.approvalRequestId = source.approvalRequestId;
   for (const key of ['userResponded', 'actionExecuted', 'restoreAllowed', 'observationRequired', 'inputReleaseConfirmed', 'connectionRecovered']) if (typeof source?.[key] === 'boolean') target[key] = source[key];
   if (['minimized','normal','absent'].includes(source?.viewerState)) target.viewerState = source.viewerState;
   if (source?.requiredUserAction === 'restore_isolated_viewer') target.requiredUserAction = source.requiredUserAction;
-  if (source?.diagnostic && typeof source.diagnostic === 'object' && !Array.isArray(source.diagnostic)) target.diagnostic = require('./window-use-isolation.cjs').childDiagnostic({ diagnostic: source.diagnostic });
   if (RECOVERIES.has(source?.recovery)) target.recovery = source.recovery;
   if (PAUSE_REASONS.has(source?.pauseReason)) target.pauseReason = source.pauseReason;
   if (NATIVE_PERMISSION_REASONS.has(source?.nativePermissionReason)) target.nativePermissionReason = source.nativePermissionReason;
+  if (source?.switchedInputDetails) target.switchedInputDetails=switchedMetadata(source.switchedInputDetails);
 }
 function windowError(code, message, options = {}) {
   const error = new Error(CODES.has(code) && code !== 'unclassified' ? message : UNCLASSIFIED, options.cause ? { cause: options.cause } : undefined);
@@ -43,7 +64,7 @@ function fromPayload(value) {
 }
 function classifyExpected(message) {
   if (/cancelled|disposed/i.test(message)) return 'cancelled';
-  if (/approval (declined|refused)/i.test(message)) return 'approval_declined';
+  if (/approval (declined|refused)/i.test(message)) return 'approval_denied';
   if (/No selected window|Create a selected-window conversation|No selected-window session/.test(message)) return 'selection_required';
   if (/authorization revoked|permission.*denied|Native Disabled permission|authentication|trusted.*(metadata|identifier)|native.*(metadata|context|proof)/i.test(message)) return 'permission_denied';
   if (/Fresh selected-window observation|Stale or forged|identity changed|[Ww]indow .*minimized|Selected window paused|user resume required/.test(message)) return 'state_changed';
@@ -60,4 +81,4 @@ function expectedError(message, options = {}) {
   }
   return windowError(classifyExpected(message), message, options);
 }
-module.exports = { CODES, UNCLASSIFIED, windowError, expectedError, errorPayload, fromPayload };
+module.exports = { CODES, UNCLASSIFIED, windowError, expectedError, errorPayload, fromPayload, switchedMetadata };

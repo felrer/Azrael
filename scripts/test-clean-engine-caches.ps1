@@ -131,7 +131,8 @@ try {
     Write-Output 'PASS: readonly deletion diagnosed and retained; regular prerelease cache removed; source/current/newer/unknown and external sentinel preserved'
     # Only this diagnosed synthetic file has its readonly bit restored for the
     # remaining tests and ordinary fixture cleanup. The cleaner never does this.
-    Set-ItemProperty -LiteralPath $readOnlyCacheFile -Name Attributes -Value ($attributes -band (-bnot [IO.FileAttributes]::ReadOnly))
+    # The provider rejects filesystem-managed flags such as Compressed; preserve them.
+    [IO.File]::SetAttributes($readOnlyCacheFile, ($attributes -band (-bnot [IO.FileAttributes]::ReadOnly)))
     $retry = Run -Apply
     Assert ($retry.status -eq 'completed' -and -not (Test-Path -LiteralPath (Join-Path $old 'codex-rs/target'))) 'Ordinary deletion after fixture attribute correction failed'
     Assert (Test-Path -LiteralPath $sentinel) 'Retry traversed external junction'

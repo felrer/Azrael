@@ -36,7 +36,7 @@ async fn empty_goal_continuations_block_after_three_without_activity(
             && let Some(recovery) = recovery
         {
             if recovery == "tool" {
-                events.push(responses::ev_function_call("get-goal", "get_goal", "{}"));
+                events.push(responses::ev_function_call_with_namespace("get-goal", "legacy_codex_tools", "get_goal", "{}"));
                 events.push(responses::ev_completed(&id));
                 scripts.push(responses::sse(events));
                 id.push_str("-after-tool");

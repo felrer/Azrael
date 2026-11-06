@@ -17,7 +17,7 @@ async function zip(files,modes={}) {
   archive.end(); return result;
 }
 async function fixture(v="1.0.0",options={}) {
-  const components=[
+  const components=options.components || [
     {id:"global",title:"Global",kind:"instructions",default:true,scope:"home",files:[{source:"instructions/AGENTS.md",target:"AGENTS.md"}]},
     {id:"agent",title:"Agent",kind:"agent",default:true,scope:"home",files:[{source:"agents/helper.toml",target:"agents/helper.toml"}]},
     {id:"skill",title:"Skill",kind:"skill",default:true,scope:"home",files:[{source:"skills/example/SKILL.md",target:"skills/example/SKILL.md"}]},
@@ -53,6 +53,25 @@ async function context(t,fixtures,options={}) {
   const store=new InstructionStore({stateRoot:path.join(dir,"home"),workspaceRoot:path.join(dir,"workspace"),appVersion:"0.4.0",engine:async()=>true,request,...options.store});
   return {dir,store,request,calls,home:store.homeRoot,workspace:store.workspaceRoot};
 }
+// Retained: sharing one maintained fragment across selectable roles must not
+// regress into overlapping installation targets or overwrite another role.
+test("task-memory role resources install together without overlapping targets", async t => {
+  const root = path.resolve(__dirname, "../../instructions");
+  const source = JSON.parse(await fs.readFile(path.join(root, "azrael-environment.json"), "utf8"));
+  const components = source.components.filter(c => ["task-memory-root", "task-memory-subagent"].includes(c.id));
+  assert.equal(components.length, 2);
+  const files = {};
+  for (const component of components) for (const mapping of component.files) files[mapping.source] = await fs.readFile(path.join(root, mapping.source), "utf8");
+  const f = await fixture("1.0.0", { components, files });
+  const { store, home } = await context(t, [f]);
+  await store.download(f.v);
+  const ids = components.map(c => c.id);
+  const plan = await store.planApply(f.v, ids);
+  assert.deepEqual(plan.conflicts, []);
+  await store.apply(f.v, ids);
+  for (const component of components) for (const mapping of component.files) assert.equal(await text(path.join(home, mapping.target)), files[mapping.source]);
+});
+
 async function text(file) {return fs.readFile(file,"utf8");}
 async function exists(file) {try{await fs.stat(file);return true;}catch(e){if(e.code==="ENOENT")return false;throw e;}}
 function updateArchive(f,archive) {f.archive=archive;f.manifest.archive.sha256=hash(archive);f.manifest.archive.size=archive.length;}

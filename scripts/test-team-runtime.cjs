@@ -89,14 +89,32 @@ async function main() {
   const hostText = injected.get(runtime.HOST_ASSET).output;
   const fetchMethods = hostText.slice(hostText.indexOf("async azraelTeamLeadDraft("), hostText.indexOf("handleVSCodeRequest(e,r,n){if(e===\"azrael-team-lead-draft\")"));
   const hostMethods = hostText.slice(hostText.indexOf("async azraelPrepareTeamRequest("), hostText.indexOf("async deliverMcpResponseToOrigin(e){try{e=await this.azraelFinishTeamRequest(e)}"));
-  const hostContext = { require, console, URLSearchParams };
+  const profileSource = { mode: "team", presetId: "saved-team", leadProfileId: "lead-profile", rootProfileIds: ["root-profile"], subagentProfileIds: ["worker-profile"], profiles: [
+    { id: "lead-profile", name: "Lead", allowedRoles: ["lead"], model: "lead-model", provider: "openai", reasoningEffort: "high", instructions: "Captured Lead guidance" },
+    { id: "root-profile", name: "Root", allowedRoles: ["root"], model: "root-model", provider: "openai", instructions: "Root guidance" },
+    { id: "worker-profile", name: "Worker", allowedRoles: ["subagent"], model: "worker-model", provider: "openai", instructions: "Worker guidance" },
+  ] };
+  const trustedCommands = [], attached = [], discarded = [];
+  const hostContext = { require, console, URLSearchParams, Mt: { commands: { executeCommand: async (command, ...args) => {
+    trustedCommands.push({ command, args });
+    if (command === "azrael.captureRoleProfile") return structuredClone(profileSource);
+    if (command === "azrael.roleProfileSettings") return { teamPresets: [{ id: "saved-team", name: "Saved Team" }] };
+    if (command === "azrael.attachTeamProfile") { attached.push(args); return; }
+    if (command === "azrael.discardTeamProfile") { if (args[0] === "protected-config") throw Error("Owner refused cleanup"); discarded.push(args); return; }
+    throw Error("Unexpected trusted command: " + command);
+  } } } };
   vm.runInNewContext(injected.get(runtime.HOST_ASSET).helper + `\nglobalThis.FetchOwner=class{${fetchMethods}};globalThis.HostOwner=class{${hostMethods}};`, hostContext);
   const fetchOwner = new hostContext.FetchOwner();
   let projectId = "project-a";
   fetchOwner.getWorkspaceProject = async () => ({ id: projectId });
   fetchOwner.getWorkspaceRoots = async () => ["C:/project"];
   const view = {}, otherView = {};
-  const firstDraft = await fetchOwner.azraelTeamLeadDraft({ action: "begin" }, view);
+  const settings = await fetchOwner.azraelTeamLeadDraft({ action: "settings" }, view);
+  assert.equal(settings.teamPresets[0].id, "saved-team");
+  const firstDraft = await fetchOwner.azraelTeamLeadDraft({ action: "begin", presetId: "saved-team", profileConfiguration: { mode: "direct" } }, view);
+  assert.deepEqual(JSON.parse(JSON.stringify(trustedCommands.at(-1).args)), [{ mode: "team", presetId: "saved-team" }]);
+  assert.deepEqual(Object.keys(firstDraft), ["token"]);
+  profileSource.profiles[0].instructions = "Later source edit";
   await assert.rejects(fetchOwner.azraelConsumeLeadDraft({token:firstDraft.token}, otherView, {}));
   projectId = "project-b";
   await assert.rejects(fetchOwner.azraelConsumeLeadDraft({token:firstDraft.token}, view, {}));
@@ -112,9 +130,25 @@ async function main() {
   assert.equal(reads, 0);
   fetchOwner.sendInternalAppServerRequest = async (method, params) => { descendantRequests.push({ method, params }); return { data: [{ id: "native-child" }], nextCursor: null }; };
   const start = await owner.azraelPrepareTeamRequest(view, "local", "start-id", "thread/start", { __azraelTeamLeadDraft: {token:firstDraft.token,project:null}, developerInstructions: "existing", model: "model", approvalPolicy: "on-request" });
-  assert(!Object.hasOwn(start, "__azraelTeamLeadDraft")); assert(start.developerInstructions.startsWith("existing\n\n")); assert.equal(start.approvalPolicy, "on-request");
+  assert(!Object.hasOwn(start, "__azraelTeamLeadDraft")); assert(start.developerInstructions.startsWith("existing\n\n")); assert(!start.developerInstructions.includes("# Team Lead")); assert.equal(start.approvalPolicy, "on-request");
+  assert.equal(owner.azraelTeamRequests.get("start-id").profileConfiguration.profiles[0].instructions, "Captured Lead guidance");
+  owner.azraelTeamRequests.get("start-id").configurationPath = "trusted-team-config";
   const response = await owner.azraelFinishTeamRequest({ id: "start-id", result: { thread: { id: "native-lead" } } });
   assert.equal(response.result.thread.id, "native-lead"); assert.equal(writes, 1);
+  assert.deepEqual(attached, [["trusted-team-config", "native-lead"]]);
+  assert.equal(persisted[runtime.REGISTRY_KEY].teams[0].profileConfiguration.profiles[0].instructions, "Captured Lead guidance");
+  for (const result of [{ error: { code: -32603, message: "uncertain native failure" } }, { result: null }]) {
+    owner.azraelTeamRequests.set("uncertain-start", { lead: true, configurationPath: "possibly-live-config" });
+    await owner.azraelFinishTeamRequest({ id: "uncertain-start", ...result });
+  }
+  assert.equal(discarded.length, 0); // Neither native failure nor success permits discarding a potentially live configuration.
+  owner.azraelTeamRequests.set("not-sent-start", { lead: true, configurationPath: "not-sent-config" });
+  await owner.azraelDiscardPreparedTeamRequest("not-sent-start");
+  assert.deepEqual(discarded, [["not-sent-config"]]);
+  assert.equal(owner.azraelTeamRequests.has("not-sent-start"), false);
+  owner.azraelTeamRequests.set("protected-start", { lead: true, configurationPath: "protected-config" });
+  await assert.rejects(owner.azraelDiscardPreparedTeamRequest("protected-start"), /Owner refused cleanup/);
+  assert.equal(owner.azraelTeamRequests.get("protected-start").configurationPath, "protected-config");
   const writeRegistry = owner.globalState.updatePersistedAtomValue;
   const failedDraft = await fetchOwner.azraelTeamLeadDraft({ action: "begin" }, view);
   draftContext.mg = async () => failedDraft;
@@ -125,14 +159,21 @@ async function main() {
   const failedRegistryClient = { sendRequest: async (method, params) => {
     failedRegistrySends++;
     await owner.azraelPrepareTeamRequest(view, "local", "registry-failed-start", method, params);
+    owner.azraelTeamRequests.get("registry-failed-start").configurationPath = "live-registry-failed-config";
     return owner.azraelFinishTeamRequest({ id: "registry-failed-start", result: { thread: { id: "unregistered-native-lead" } } });
   } };
   await assert.rejects(draftContext.azraelSendLeadDraft(failedRegistryClient, "thread/start", {}, "local", {}), /native registry persistence failed/);
   await assert.rejects(draftContext.azraelSendLeadDraft(failedRegistryClient, "thread/start", {}, "local", {}), /selected again/);
   assert.equal(failedRegistrySends, 1);
+  assert.equal(discarded.length, 1); // Registry failure follows native creation and must retain its configuration.
   owner.globalState.updatePersistedAtomValue = writeRegistry;
   const resume = await owner.azraelPrepareTeamRequest(view, "local", "resume-id", "thread/resume", { threadId: "native-lead", developerInstructions: "resume-existing", collaborationMode: { mode: "default" } });
-  assert(resume.developerInstructions.includes("native-lead")); assert.equal(resume.collaborationMode.mode, "default");
+  assert(resume.developerInstructions.startsWith("resume-existing\n\n")); assert(!resume.developerInstructions.includes("# Team Lead")); assert.equal(resume.collaborationMode.mode, "default");
+  // Legacy saved Leads retain their existing restore behavior without rebinding profiles.
+  persisted[runtime.REGISTRY_KEY] = runtime.registerLead(persisted[runtime.REGISTRY_KEY], "local", "legacy-lead");
+  const legacyResume = await owner.azraelPrepareTeamRequest(view, "local", "legacy-resume", "thread/resume", { threadId: "legacy-lead" });
+  assert(legacyResume.developerInstructions.includes("legacy-lead"));
+  persisted[runtime.REGISTRY_KEY].teams = persisted[runtime.REGISTRY_KEY].teams.filter(team => team.leadId !== "legacy-lead");
   const childResume = { threadId: "native-child" };
   assert.equal(await owner.azraelPrepareTeamRequest(view, "local", "child-resume-id", "thread/resume", childResume), childResume);
   await owner.azraelPrepareTeamRequest(view, "local", "list-id", "thread/list", { __azraelWorkspaceThreadList: true, archived: false, sourceKinds: [], modelProviders: ["openai"] });
@@ -285,9 +326,10 @@ async function main() {
     Object.assign(hostContext, { IR: "native-provider", SK: () => false, require: moduleName => {
       if (moduleName === "./azrael-runtime.cjs") return { runtime: { windowControl: true } };
       if (moduleName === "./window-control-host.cjs") return { registerApprovalUI: connection => { assert.equal(connection, approvalConnection); approvalEvents.push("bind"); } };
-      if (moduleName === "./computer-use-approvals.cjs") return { outgoing: (method, params) => {
+      if (moduleName === "./window-use-approvals.cjs") return { outgoing: (method, params) => {
         approvalEvents.push("outgoing"); assert.equal(method, "thread/start");
-        assert(!Object.hasOwn(params, "__azraelTeamLeadDraft")); assert(params.developerInstructions.includes("# Team Lead"));
+        assert(!Object.hasOwn(params, "__azraelTeamLeadDraft"));
+        assert.equal(owner.azraelTeamRequests.get("approval-start").profileConfiguration.mode, "team");
       } };
       return require(moduleName);
     } });

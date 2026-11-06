@@ -6,6 +6,7 @@ const fs = require('node:fs').promises;
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { setTimeout: delay } = require('node:timers/promises');
+const { reviewReuse, loadDecisions } = require('./verification-reuse-policy.cjs');
 const CACHE_SCHEMA = 1;
 const MAX_LOG_BYTES = 32 * 1024 * 1024;
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -381,11 +382,12 @@ async function begin(options) {
   const { checkId, key } = options, logName = options.logName || checkId;
   if (!safeId(checkId) || !safeId(logName) || !isHash(key)) throw Error('Invalid verification cache check ID, log name or key');
   if (options.force !== undefined && typeof options.force !== 'boolean') throw Error('Verification cache force must be boolean');
+  if (options.exactOnly !== undefined && typeof options.exactOnly !== 'boolean') throw Error('Verification cache exactOnly must be boolean');
   if (typeof options.runDirectory !== 'string' || !options.runDirectory) throw Error('Verification cache requires runDirectory');
   const runDirectory = path.resolve(options.runDirectory), deferred = [];
   if (inside(cacheRoot, runDirectory)) throw Error('Run evidence must be outside the verification result cache');
   const slot = path.join(cacheRoot, `v${CACHE_SCHEMA}`, sha(checkId)), entry = path.join(slot, key);
-  let releaseCheck, releaseLifecycle, closing, needsPrune = false, closeRequested = false, closed = false, publishing = false;
+  let releaseCheck, releaseLifecycle, closing, needsPrune = false, closeRequested = false, closed = false, publishing = false, selected;
   const handle = { hit: null, reason: null, blockingLease: null, deferred, publish: async () => ({ published: false, reason: handle.reason || 'cache unavailable' }), close: () => {
     if (closed) return Promise.resolve();
     if (closing) return closing;
@@ -431,11 +433,45 @@ async function begin(options) {
     needsPrune = true;
     handle.lease = { ...releaseCheck.owner, lease: sha(checkId), ownerSha256: (await inspectLease({ ...options, lease: sha(checkId) })).ownerSha256 };
     await directory(slot, true);
-    await pruneKeys(cacheRoot, slot, key, deferred);
-    // A forced probe must revoke the old pass before executing, so a later
-    // failure cannot leave that same input key eligible for reuse.
-    if (options.force && await inspect(entry, 'directory', true)) await remove(cacheRoot, entry);
-  } catch (error) { handle.reason = message(error); await handle.close(); return handle; }
+    const candidates = (await fs.readdir(slot)).filter(isHash).sort();
+    // Inspect under the existing check lease, before retiring any candidate.
+    // Invalid evidence is a hard denial, never an ordinary cache miss.
+    const verified = [];
+    for (const candidateKey of candidates) {
+      const candidateEntry = path.join(slot, candidateKey);
+      let cached;
+      try { cached = await readEntry(candidateEntry, checkId, candidateKey); }
+      catch (cause) {
+        const error = new Error(`Invalid verification evidence: ${candidateEntry}: ${cause.message}`, { cause });
+        error.code = 'VERIFICATION_EVIDENCE_INVALID'; throw error;
+      }
+      verified.push({ key: candidateKey, entry: candidateEntry, cached });
+    }
+    if (options.force) {
+      handle.reuseReview = { action: 'rerun', mode: 'forced', reason: 'Explicit force requested fresh verification' };
+      for (const candidate of verified) await remove(cacheRoot, candidate.entry);
+    } else {
+      const exact = verified.find(candidate => candidate.key === key);
+      let decisions = [];
+      if (!exact && verified.length && !options.exactOnly) {
+        try { decisions = loadDecisions(options.reuseDecisionsPath); }
+        catch (error) { error.code = 'VERIFICATION_REUSE_DECISIONS_INVALID'; throw error; }
+      }
+      for (const candidate of exact ? [exact] : options.exactOnly ? [] : verified) {
+        const sourceEvidence = { entry: candidate.entry, receiptPath: path.join(candidate.entry, 'receipt.json'),
+          logSha256: candidate.cached.receipt.logSha256, errorSha256: candidate.cached.receipt.errorSha256 };
+        const review = reviewReuse({ scope: `verification-result:${checkId}`, previous: { key: candidate.key }, current: { key },
+          evidence: sourceEvidence, decisions });
+        handle.reuseReview = review;
+        if (review.action === 'reuse') { selected = { ...candidate, sourceEvidence, review }; break; }
+      }
+      if (!selected && verified.length && !options.exactOnly) for (const candidate of verified) await remove(cacheRoot, candidate.entry);
+    }
+  } catch (error) {
+    handle.reason = message(error); await handle.close();
+    if (['VERIFICATION_REVIEW_REQUIRED', 'VERIFICATION_EVIDENCE_INVALID', 'VERIFICATION_REUSE_DECISIONS_INVALID'].includes(error.code)) throw error;
+    return handle;
+  }
   finally {
     if (releaseLifecycle) {
       try { await releaseLifecycle(); releaseLifecycle = null; }
@@ -443,16 +479,19 @@ async function begin(options) {
     }
   }
   try {
-    if (options.force) throw Error('forced execution');
-    const cached = await readEntry(entry, checkId, key);
+    if (!selected) throw Error(options.force ? 'forced execution' : 'no reusable candidate');
+    const { cached } = selected;
+    await releaseCheck.assertOwned();
     await directory(runDirectory, true);
     const logPath = path.join(runDirectory, `${logName}.log`), errorPath = path.join(runDirectory, `${logName}.stderr.log`);
     for (const filename of [logPath, errorPath]) await inspect(filename, 'file', true);
     await fs.writeFile(logPath, cached.stdout);
     await fs.writeFile(errorPath, cached.stderr);
-    handle.hit = { exitCode: 0, signal: null, error: undefined, logPath, errorPath, logSha256: cached.receipt.logSha256, errorSha256: cached.receipt.errorSha256, stdout: cached.stdout.toString(), stderr: cached.stderr.toString(), reused: true };
-  } catch (error) { handle.reason = `miss: ${message(error)}`; }
+    handle.hit = { exitCode: 0, signal: null, error: undefined, logPath, errorPath, logSha256: cached.receipt.logSha256, errorSha256: cached.receipt.errorSha256, stdout: cached.stdout.toString(), stderr: cached.stderr.toString(), reused: true,
+      sourceKey: selected.key, sourceEvidence: selected.sourceEvidence, reuseReview: selected.review };
+  } catch (error) { handle.reason = `miss: ${message(error)}`; if (selected) { await handle.close(); throw error; } }
   handle.publish = async record => {
+    if (handle.hit || record?.reused) return { published: false, reason: 'reused evidence cannot publish a fresh result' };
     if (closeRequested || publishing) return { published: false, reason: closeRequested ? 'closed' : 'publication already active' };
     if (!record || record.exitCode !== 0 || record.signal != null || record.error != null) return { published: false, reason: 'check did not succeed' };
     publishing = true;

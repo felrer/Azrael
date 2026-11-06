@@ -23,6 +23,7 @@ fn computer(id: &str) -> ThreadItem {
 fn turn(id: &str, items: Vec<ThreadItem>) -> Turn {
     Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: id.to_string(),
         root_turn_id: None,

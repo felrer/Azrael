@@ -9,8 +9,8 @@ const request = input => ({
 });
 const user = text => ({ type: "message", role: "user", content: [{ type: "input_text", text }] });
 const section = (tag, text) => `<${tag}>\n<![CDATA[${text}]]>\n</${tag}>`;
-const xml = { promptFormat: "anthropic-xml" };
-const compile = async (value, options = xml) => (await import("../providers/opencodex/inference-mapping.mjs")).compileRequest(value, options);
+const xml = { instruction_format: "anthropic-xml" };
+const compile = async (value, options = xml) => (await import("../providers/opencodex/inference-mapping.mjs")).compileRequest({ ...value, harness_profile: { id: "anthropic", fingerprint: "fixture-v1", tool_profile: "builtin/azrael-default", prompt_profile: "builtin/anthropic", ...options } });
 
 test("Anthropic sections preserve roles, user history, runtime guidance and request input", async () => {
   const value = request([

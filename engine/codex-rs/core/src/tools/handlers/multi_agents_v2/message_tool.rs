@@ -21,6 +21,8 @@ use crate::tools::context::FunctionToolOutput;
 pub(crate) struct SendMessageArgs {
     pub(crate) target: String,
     pub(crate) message: String,
+    #[serde(default)]
+    pub(crate) attachments: Vec<crate::image_attachments::ImageAttachmentInput>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -29,6 +31,8 @@ pub(crate) struct SendMessageArgs {
 pub(crate) struct FollowupTaskArgs {
     pub(crate) target: String,
     pub(crate) message: String,
+    #[serde(default)]
+    pub(crate) attachments: Vec<crate::image_attachments::ImageAttachmentInput>,
 }
 
 pub(super) fn message_content(message: String) -> Result<String, FunctionCallError> {
@@ -46,6 +50,7 @@ pub(super) async fn handle_message_string_tool(
     mode: MessageDeliveryMode,
     target: String,
     message: String,
+    attachment_inputs: Vec<crate::image_attachments::ImageAttachmentInput>,
     analytics: &mut ToolCallAnalytics,
 ) -> Result<FunctionToolOutput, FunctionCallError> {
     let message = message_content(message)?;
@@ -69,6 +74,12 @@ pub(super) async fn handle_message_string_tool(
     }
     let resume_config =
         build_agent_resume_config(&turn).map_err(FunctionCallError::RespondToModel)?;
+    let attachments = crate::image_attachments::prepare_attachments(
+        &session,
+        &invocation.step_context,
+        &attachment_inputs,
+    )
+    .await?;
     let receipt = session
         .services
         .agent_control
@@ -77,7 +88,7 @@ pub(super) async fn handle_message_string_tool(
             target: AgentTarget::Id(receiver_thread_id),
             resume_config,
             input: AgentInput::Message {
-                message: agent_message_from_tool(message, &source),
+                message: agent_message_with_attachments(message, &source, attachments.clone()),
                 mode,
             },
             start_options: TurnStartOptions {
@@ -109,5 +120,9 @@ pub(super) async fn handle_message_string_tool(
     )
     .await;
 
-    Ok(FunctionToolOutput::from_text(String::new(), Some(true)))
+    let output = attachment_receipt(&session, &attachments)
+        .await
+        .map(|receipt| serde_json::to_string(&receipt).expect("attachment receipt serializes"))
+        .unwrap_or_default();
+    Ok(FunctionToolOutput::from_text(output, Some(true)))
 }

@@ -33,6 +33,71 @@ use futures::future::BoxFuture;
 use std::collections::HashSet;
 
 impl AgentControl for LocalAgentControl {
+    fn track_user_wait_activity(
+        &self,
+        parent: ThreadId,
+        id: String,
+        running: tokio::sync::watch::Receiver<Option<bool>>,
+    ) -> BoxFuture<'_, ()> {
+        Box::pin(async move {
+            let Ok(manager) = self.runtime.upgrade() else {
+                return;
+            };
+            let Ok(parent) = manager.get_thread(parent).await else {
+                return;
+            };
+            let runtime = parent
+                .session
+                .active_turn
+                .lock()
+                .await
+                .as_ref()
+                .and_then(|turn| turn.task.as_ref())
+                .and_then(|task| task.turn_context.turn_timing_state.user_wait());
+            let Some(runtime) = runtime else {
+                return;
+            };
+            runtime.track_child(id, running);
+        })
+    }
+
+    fn user_wait_child_activity(
+        &self,
+        parent: ThreadId,
+    ) -> BoxFuture<'_, Vec<(String, tokio::sync::watch::Receiver<Option<bool>>)>> {
+        Box::pin(async move {
+            let Ok(manager) = self.runtime.upgrade() else {
+                return Vec::new();
+            };
+            let Ok(ids) = self
+                .runtime
+                .list_live_agent_subtree_thread_ids(parent)
+                .await
+            else {
+                return Vec::new();
+            };
+            let mut children = Vec::new();
+            for id in ids {
+                if id == parent {
+                    continue;
+                }
+                let Ok(thread) = manager.get_thread(id).await else {
+                    continue;
+                };
+                let active = thread.session.active_turn.lock().await;
+                if let Some(task) = active.as_ref().and_then(|turn| turn.task.as_ref())
+                    && let Some(runtime) = task.turn_context.turn_timing_state.user_wait()
+                {
+                    children.push((
+                        format!("agent:{id}:{}", task.turn_context.sub_id),
+                        runtime.subscribe_running(),
+                    ));
+                }
+            }
+            children
+        })
+    }
+
     fn identity(&self) -> SessionId {
         self.session_id()
     }
@@ -168,12 +233,40 @@ impl AgentControl for LocalAgentControl {
                     // locally evicted recipients can retain mail without reloading.
                     // Loaded recipients go straight to delivery, which rejects sends
                     // racing an in-progress eviction when it acquires the residency pin.
-                    if mode == MessageDeliveryMode::TriggerTurn
+                    if message.has_attachments()
+                        || mode == MessageDeliveryMode::TriggerTurn
                         || (self.runtime.upgrade()?.get_thread(target).await.is_err()
                             && self.runtime.registry.evicted_environments(target).is_none())
                     {
                         self.ensure_v2_agent_loaded(resume_config, target, /*parent*/ None)
                             .await?;
+                    }
+                    if message.has_attachments() {
+                        let thread = self.runtime.upgrade()?.get_thread(target).await?;
+                        let config = thread.session.get_config().await;
+                        let snapshot = thread.config_snapshot().await;
+                        if message.is_encrypted()
+                            && crate::devin::catalog::is_devin(&snapshot.model)
+                        {
+                            return Err(CodexErr::UnsupportedOperation(
+                                "Devin requires a plaintext task through azrael_agents; encrypted native task content cannot be transferred.".to_string(),
+                            ));
+                        }
+                        let info = thread
+                            .session
+                            .services
+                            .models_manager
+                            .get_model_info(&snapshot.model, &config.to_models_manager_config())
+                            .await;
+                        if !info
+                            .input_modalities
+                            .contains(&codex_protocol::openai_models::InputModality::Image)
+                        {
+                            return Err(CodexErr::UnsupportedOperation(format!(
+                                "Target model `{}` does not support image attachments",
+                                snapshot.model
+                            )));
+                        }
                     }
                     let communication = message.into_communication(author, receiver_path, mode);
                     let kind = match mode {

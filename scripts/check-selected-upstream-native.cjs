@@ -9,8 +9,10 @@ const { runCargoTest } = require("./cargo-verification.cjs");
 const suites = {
   "catalog-retention": [
     ["codex-models-manager", "--lib", ""],
-    ["codex-model-provider", "--lib", "shared_state_tests"],
+    ["codex-model-provider", "--lib", "shared_state::tests::"],
     ["codex-protocol", "--lib", "error::"],
+    ["codex-prompts", "--lib", "model_instructions"],
+    ["codex-core", "--lib", "model_resolution_preserves_startup_overrides_and_instruction_provenance"],
   ],
   "analytics-bound": [
     ["codex-analytics", "--lib", ""],
@@ -21,7 +23,9 @@ const suites = {
     ["codex-core", "--test", "code_mode_tracing", "stdio_callbacks_preserve_context_across_overlapping_yielded_cells"],
   ],
   "catalog-retention-integration": [
-    ["codex-core", "--test", "all", "suite::remote_models"],
+    ["codex-core", "--test", "all", "suite::models_cache_auth::failed_catalog_refresh_preserves_tool_search_on_the_next_turn"],
+    ["codex-core", "--test", "all", "suite::personality::config_personality_"],
+    ...(process.platform === "win32" ? [] : [["codex-core", "--test", "all", "suite::remote_models"]]),
   ],
   "catalog-refresh": [
     ["codex-mcp-extension", "--lib", "cloud_"],

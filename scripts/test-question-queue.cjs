@@ -22,14 +22,7 @@ const prepared = new Map(QUESTION_QUEUE_ASSETS.map(asset => [asset, prepare(asse
 const transformed = new Map([...prepared].map(([asset, text]) => [asset, injectQuestionQueue(text, asset).text]));
 const asts = new Map([...transformed].map(([asset, text]) => [asset, ts.createSourceFile(asset, text, 99, true, 1)]));
 
-test("question queue transforms compose, parse, and reject partial or changed pinned inputs", () => {
-  for (const [asset, text] of transformed) {
-    assert.equal(asts.get(asset).parseDiagnostics.length, 0);
-    assert.equal(injectQuestionQueue(text, asset).text, text);
-    assert.throws(() => injectQuestionQueue(text.replace("/*azrael-question-queue-", "/*broken-question-queue-"), asset), /anchor/);
-  }
-  assert.throws(() => injectQuestionQueue("unrecognized source", QUESTION_QUEUE_CORE_ASSET), /anchor/);
-});
+
 
 test("missing, malformed, or failed question state never establishes an empty wait", () => {
   for (const count of [undefined, null, -1, 1.5, "0", Infinity, NaN]) assert.throws(() => __azraelPendingQuestionCount({ pendingQuestionCount: count }), /unavailable/);

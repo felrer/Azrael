@@ -309,6 +309,7 @@ async fn parent_response_wait_rotation_is_atomic_and_idempotent() -> Result<()> 
     runtime.create_parent_request(&request()).await?;
     let mut original = wait();
     original.resume_settings = Some(codex_protocol::parent_request::ParentResponseWaitSettings {
+        agent_profile: None,
         model: "fixture-model".into(),
         provider_id: "fixture-provider".into(),
         reasoning_effort: Some(codex_protocol::openai_models::ReasoningEffort::Medium),

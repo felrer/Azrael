@@ -1,80 +1,62 @@
 # Model harness profiles
 
-Status: `partial`. The approved first implementation adds configuration, request snapshots and native Claude-compatible tools. Compilation, native fixtures and provider payload checks are recorded in the [work plan](../../work/AF-01-model-harness-profiles/01-plan.md). Package installation, live Anthropic acceptance and Linux/macOS execution are separate gates.
+Status: `partial`. Profile reconstruction is implemented in source; request projection and native verification evidence belongs to the [work plan](../../work/EM-01-anthropic-oauth-identity-removal/02-plan.md). Installed-host, live OAuth and non-Windows acceptance are separate gates.
 
 ## Ownership and selection
 
-Prompt profiles own model behavior templates. Tool profiles own the model-visible tool environment; execution remains in the native Azrael runtime. Harness profiles compose a prompt and tool profile. Provider and model bindings select that composition without copying its definitions. The engine config loader resolves inheritance, captures template file contents and validates references before session admission.
+Prompt profiles own behavior composition and instruction representation. Tool profiles own the model-visible executable catalog. Harness profiles compose them; actual tools, approvals, sandbox enforcement and conversation persistence remain owned by the native Azrael runtime.
 
-Selection starts with the existing `azrael-default` profile for every provider and model, including new Anthropic models. A configured global default then applies, followed by explicit transport/actual-provider bindings and the exact model binding. Per-model settings override only specified fields; an explicit provider prompt binding is preserved for other fields. There is no automatic Anthropic profile override. Bundled defaults do not overwrite user files.
+Actual Anthropic provider routes default to the `anthropic` harness profile, composing `builtin/anthropic` instructions and `builtin/azrael-default` tools. Other providers default to `azrael-default`. Direct Anthropic identity and managed/azrael-managed `managed/anthropic/<opaque-model>` routes select the same default, including future models. A Claude model name behind another provider does not select Anthropic behavior. Explicit global, transport-provider, actual-provider and exact-model bindings apply afterward in that order; sparse overrides replace only specified fields.
 
-`builtin/azrael-default` composes runtime core followed by the merged common behavior and uses native Azrael tools. `builtin/anthropic-default` remains an explicit alternative with adapted shared behavior when paired with `builtin/claude-code-core`, while `builtin/claude-lean` remains an optional concise behavior profile. Prompt selection can change independently of tool selection. The resolver no longer rejects selections based on provider identity; the managed adapter still requires an actual Anthropic adapter for the optional Claude tool wire preset. Azrael tools are accepted on Anthropic. Profile inheritance, provider/model bindings and custom behavior replacement remain configurable rather than forcing every profile through identical behavior.
+`builtin/azrael-default` and `builtin/anthropic` share the same runtime core and common behavior source. Anthropic chooses `anthropic-xml` instruction representation; Azrael chooses `native`. The optional `builtin/claude-lean` remains a concise behavior template using ordinary shared tools. Custom behavior replacement preserves runtime authority and user/project instruction provenance.
 
-The resolver produces one immutable request profile with its composition ID, prompt/tool IDs and a SHA-256 semantic fingerprint. The fingerprint includes loaded user template content, bundled rendered instructions and tool contract revision. The request's pinned model, registry, system instructions and input-budget projection use this configuration snapshot. A live model switch takes effect in the next captured request. Captured execution is not rebound.
+The retired `anthropic-default`, `builtin/anthropic-default` and `builtin/claude-code-core` identifiers have no compatibility alias. Configuration referencing them fails explicitly and must select the new profile. Bundled defaults do not overwrite user configuration files or stored conversations.
 
 Common behavior separates neutral follow-up questions and new information from established errors or omissions: compare existing content before correcting it, and do not infer authorization for additional work from a needed correction. The bundled model-catalog template follows the same rule. This instruction contract does not establish live-model compliance.
 
 ## Configuration
 
-Use `[harness]` in the existing base `config.toml`, project config layers or modern named `<profile>.config.toml` layers. Normal layer merging preserves unrelated entries. These names are independent of legacy `[profiles.*]` tables and the new `[harness.profiles.*]` composition definitions. Relative template paths resolve against their declaring configuration layer.
+Use `[harness]` in the existing configuration layers. Existing relative-template path anchoring, cycle detection, reserved-ID checks and fail-closed validation remain authoritative.
 
 ```toml
 [harness]
 schemaVersion = 1
 
+[harness.providers.anthropic]
+profile = "anthropic"
+
 [harness.prompt_profiles.team]
-extends = "builtin/anthropic-default"
+extends = "builtin/anthropic"
 behavior_template_file = "harness/team.md"
+# Inherits anthropic-xml; an explicit override may choose native.
+instruction_format = "anthropic-xml"
 
 [harness.profiles.anthropic-team]
 prompt_profile = "team"
-tool_profile = "builtin/claude-code-core"
-
-[harness.providers.anthropic]
-profile = "anthropic-team"
-
-[harness.models."managed/anthropic/claude-opus-5-5"]
-prompt_profile = "builtin/claude-lean"
+tool_profile = "builtin/azrael-default"
 ```
 
-The template replaces model behavior; immutable runtime identity, permissions, declared-tool guidance and explicit user/project instructions retain their independent meaning. Prompt inheritance is single-parent and sparse; a child's template replaces its parent's template. Invalid schemas, missing references, cycles and unavailable/empty templates fail explicitly. Template or profile changes require configuration reload and apply at the next captured request rather than changing a running snapshot.
+Prompt inheritance is single-parent. `instruction_format` is optional and inherits independently of the behavior template; valid values are `native` and `anthropic-xml`. The resolved request snapshot and semantic fingerprint include this format and loaded behavior content. Changing only format changes the fingerprint, preventing incompatible private replay reuse. Configuration reload applies changes to later captured requests, never to an in-flight request.
 
 ## Tool and context isolation
 
-The registry applies profile selection before discovery and code-mode planning. The default Azrael tool profile keeps native tools on every provider. Anthropic follows the common tool-mode resolver: an explicit model tool mode takes precedence, followed by the shared Code Mode features and existing availability fallback. User API models retain their direct function-call override. This source policy does not establish installed Anthropic Code Mode acceptance or reduced context usage. Explicit Claude tool selection replaces native equivalents in executable registry entries, schemas, search results and nested definitions. The Azrael tool profile excludes the compatible built-ins. Historical calls and discovered definitions cannot grant current execution authority. MCP/server namespaces remain distinct from reserved built-in names.
+All profiles use the Azrael common tool catalog, including `exec_command`, `apply_patch`, current MCP tools and native collaboration tools such as `spawn_agent` when enabled. Model capability, tool mode, source omissions, permissions, exposure/discovery and session-role rules remain authoritative. Prompt choice does not rename tools or grant unavailable capabilities.
 
-| Compatible tool | Native responsibility |
-| --- | --- |
-| Read | Sandbox-aware executor filesystem; numbered text and accepted read coverage |
-| Edit / Write | Native patch approvals, sandbox, diff events and exact-content writes |
-| Bash / TaskOutput / TaskStop | Unified execution, cancellation, output bounds and owned process IDs |
-| Grep / Glob | Ripgrep through native execution and filesystem metadata access |
-| Agent | Native V2 roles, child authority and terminal task wait or background handle |
-| Skill | Current skill catalog and native loading/invocation records |
-| ToolSearch | Current registry and authoritative native search-output history |
-| AskUserQuestion | Native user-input delivery and actual answer wait where available |
+Claude Code-style Read/Edit/Write/Bash/Agent/Skill/ToolSearch/AskUserQuestion/TaskOutput/TaskStop wrappers are not registered. Native names, schemas and execution semantics remain consistent across providers. Native root instructions and role guidance refer to the shared collaboration tools without Claude-specific substitutions.
 
-The shared runtime contract keeps Azrael identity, permissions, user language, work preservation and evidence requirements. Its instruction text distinguishes questions, review requests and investigation requests from modification authority: those requests alone do not authorize modifications, while approval of requirements or an explicit request for specific modifications authorizes modifications within that scope. The maintained common behavior requires directly investigating answer-relevant uncertain facts with available tools within authorized scope before finishing an answer, reporting results and any concrete verification limits rather than returning feasible investigation to the user. Fact-finding questions remain distinct from user decisions and missing permissions. It asks about consequential missing decisions or genuinely missing authority, carries settled decisions across turns, and reports actual results and remaining uncertainty after action. These instructions do not replace native permission enforcement or establish verified model compliance. Provider-owned tool guidance names only the compatible surface. User/project instruction files remain preserved with their provenance. Managed Anthropic conversion preserves the OAuth adapter's existing first system block, then projects native instructions without rewriting their text or adding the vendor's escaped-tool catalog guidance. The adapter's final system cache boundary moves to the final native block; automatic, tool and message cache controls remain unchanged. This preserves the existing transport envelope without changing authentication or granting tool authority. The helper performs transport conversion; it never executes tools or decides approvals.
+The `legacy_codex_tools` namespace groups `create_goal`, `get_goal`, `update_goal`, `request_user_input` and `sleep` as search-only model tools. Their detailed definitions are excluded from the initial model catalog and nested Code Mode declarations; discovery retains their input schemas and existing execution permissions, goal lifecycle, question-mode restrictions and cancellation behavior. Namespace guidance is brief. `clock.curr_time`, asynchronous user questions and `update_plan` retain their own exposure policies. This common contract applies to local Windows x64, glibc Linux x64 and macOS ARM64; source verification and installed acceptance remain distinct.
 
-### MCP discovery
+The helper creates stable namespace-aware wire aliases for all tools and restores calls through the current request catalog. Unknown, ambiguous, undeclared or malformed calls cannot acquire execution authority. The Anthropic adapter handles `input_schema`, `tool_use`, `tool_result`, OAuth transport-name escaping, streaming and credentials; it does not choose a tool environment or a prompt profile. Tool definitions, history and choice names use the same transport mapping without profile-specific prefix removal.
 
-Status: `partial` — implemented in source; Windows native and helper verification is recorded in the [discovery work plan](../../work/BD-01-session-rate-limit-analysis/01-plan.md). Installed-host and live Anthropic acceptance require a matching release.
+## Instruction representation
 
-The resolved Claude tool profile supplies native client search independently of the model's Responses search capability. MCP exposure and search executor registration use the same host-side decision. Eligible MCP tools are deferred, while explicit source omissions and direct-only namespaces retain their policy. Core tools keep their immediate exposure. ToolSearch carries bounded native source hints with its compatible name and input schema.
+The captured `instruction_format` controls request projection independently of provider-name and tool-profile checks. `native` preserves text without added XML sections. `anthropic-xml` adds common/runtime/user/task/result origin sections with CDATA escaping, without promoting user or tool content to system authority. Current managed projection collects native system/developer content into the top-level system prompt and preserves order among those instruction blocks. Inline system placement is outside this contract.
 
-On discovery, the next request includes the complete current schema of each discovered live tool. Claude retains discoveries found in the retained conversation, without the user API's eight-tool/64 KiB active-set cap. Repeated identities are merged once; hidden or removed tools and fabricated ordinary tool-result text cannot add callable definitions. The normal request/context budgets still apply to complete schemas. Compaction can remove historical discoveries; a tool can then be searched again.
-
-The helper's request copy replaces search schemas with references to the current catalog and matches the final Anthropic wire names. This preserves search call/result IDs and ordering, external namespaces, original saved history and native execution authority. The [managed projection contract](managed-providers.md#tool-search-history-projection) owns wire representation. The Claude tool contract revision participates in its existing semantic fingerprint; other profiles retain their revision.
-
-Anthropic's compatible built-ins retain Claude-style wire names. External tools keep stable namespace-aware aliases. The compatible profile forwards native system/developer content without the extra Anthropic XML wrapper or an invented Claude Code app identity. API-native tool-use/result IDs, images and user content retain their representation. Other provider requests retain their existing projection.
+No OAuth Claude Code or Claude Agent SDK identity sentence is added. Native instructions, user/project provenance, current caching boundaries, images and call/result identities retain their existing meaning. Formatting changes only a request copy and contributes to its budget/fingerprint; stored history is not rewritten. The helper never executes tools or grants approvals.
 
 ## Execution contracts and limits
 
-Read initially supports UTF-8 text/code, 1-based line ranges and bounded numbered output. Existing-file Edit/Write requires accepted coverage of the complete current file; multiple ranges can accumulate coverage. Rejected post-tool hooks do not authorize a write. Edit requires an exact unique old string unless `replace_all` is explicit. Writes preserve CRLF and final-newline state and recheck canonical target and expected preimage after approval. The executor filesystem does not provide atomic compare-and-write; a residual concurrent modification race remains between that recheck and the native write. Individual lines above the declared output bound cannot establish complete read coverage.
-
-Bash uses actual Bash on Unix and installed Git Bash on Windows. Missing Bash fails with actionable setup information. Cwd and owned background jobs persist within a live session, while environment changes do not persist between calls. Session restart does not restore this shell state. Commands replacing the exit trap or using `exec` can prevent cwd capture. Job polling/stopping compares the originating call ID atomically so a reused process ID cannot control an unrelated job.
-
-Grep defaults to respecting ignore files and excluding hidden files; explicit include globs override those filters using ripgrep semantics. Binary contents remain excluded. Grep/Glob retain explicit output and collection bounds; Glob scans at most 10,000 matches, orders scanned paths by modification time and returns up to 2,000. Native collection overflow is reported. Newline-containing file names are outside the current line-oriented search contract. Agent uses native roles and complete model identifiers; shorthand Claude model aliases are not supported. Native question UI limits remain explicit, including single-choice questions. Media Read, NotebookEdit, Cron, Worktree, Plan transitions and a profile settings UI remain follow-up scope.
+The native runtime owns filesystem access, edits, process control, MCP discovery, skills, questions and collaboration. Provider conversion does not emulate another application's user-visible tool contracts. Anthropic follows common direct/code-mode availability rules and common discovery policy. Source request fixtures do not establish live model proficiency, installed-host compatibility or lower context use.
 
 ## Persistence, replay and future extension
 
@@ -86,4 +68,4 @@ Future custom model variants can reference an existing real provider/model plus 
 
 ## Preservation
 
-Feature ID: `engine.model-harness-profiles`. Owners are config/protocol, prompt rendering, core request/registry/runtime and managed provider projection. Required evidence covers Azrael defaults, explicit selection/inheritance/errors, runtime/common composition and template replacement, native patch/read/command results, and retained compatible file/Bash/search/process/discovery behavior. Provider wire aliases/replay, maintained prompt copies and existing managed context/provider regressions keep their owning checks; changing a default does not require adding a full provider/model matrix. Requested local targets are Windows x64, Linux x64 and Apple Silicon macOS; actual tested environments remain explicit in the work record.
+Feature ID: `engine.model-harness-profiles`. Config selection/inheritance/error checks, shared prompt composition, request format/fingerprint, common executable tools, root role isolation, provider handoff, namespace alias/replay and instruction-source checks preserve this contract. Claude-specific wrapper checks are retired with the removed surface; shared native execution and discovery remain covered by their existing owners. Requested targets are Windows x64, Linux x64 and Apple Silicon macOS; actual executed environments and acceptance limits are recorded in the work plan.

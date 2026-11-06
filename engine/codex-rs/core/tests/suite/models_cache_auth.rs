@@ -7,7 +7,9 @@ use std::time::Duration;
 use tokio_util::sync::CancellationToken;
 
 use anyhow::Result;
+use codex_core::StartThreadOptions;
 use codex_core::TurnInputRequest;
+use codex_features::Feature;
 use codex_login::AuthCredentialsStoreMode;
 use codex_login::AuthHeaders;
 use codex_login::AuthKeyringBackendKind;
@@ -19,6 +21,10 @@ use codex_login::login_with_api_key;
 use codex_models_manager::bundled_models_response;
 use codex_models_manager::manager::RefreshStrategy;
 use codex_protocol::AgentPath;
+use codex_protocol::dynamic_tools::DynamicToolFunctionSpec;
+use codex_protocol::dynamic_tools::DynamicToolNamespaceSpec;
+use codex_protocol::dynamic_tools::DynamicToolNamespaceTool;
+use codex_protocol::dynamic_tools::DynamicToolSpec;
 use codex_protocol::openai_models::ModelVisibility;
 use codex_protocol::openai_models::ModelsResponse;
 use codex_protocol::openai_models::ToolMode;
@@ -29,7 +35,9 @@ use codex_protocol::user_input::UserInput;
 use core_test_support::responses;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
 use http::HeaderMap;
@@ -383,5 +391,109 @@ async fn auth_and_provider_switches_do_not_reuse_chatgpt_catalog() -> Result<()>
         vec![model]
     );
     assert_eq!(other_models.requests().len(), 1);
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn failed_catalog_refresh_preserves_tool_search_on_the_next_turn() -> Result<()> {
+    skip_if_no_network!(Ok(()));
+    let server = MockServer::start().await;
+    let mut model = codex_models_manager::model_info::model_info_from_slug("gateway-model");
+    model.visibility = ModelVisibility::List;
+    model.supports_search_tool = true;
+    model.tool_mode = Some(ToolMode::Direct);
+    model.used_fallback_model_metadata = false;
+    let catalog = ModelsResponse {
+        models: vec![model],
+    };
+    Mock::given(method("GET"))
+        .and(path("/codex/models"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(&catalog))
+        .up_to_n_times(1)
+        .expect(1)
+        .mount(&server)
+        .await;
+    let responses = mount_sse_sequence(
+        &server,
+        vec![
+            sse(vec![ev_response_created("first"), ev_completed("first")]),
+            sse(vec![ev_response_created("second"), ev_completed("second")]),
+        ],
+    )
+    .await;
+    let catalog_url = format!("{}/codex/models", server.uri());
+    let mut test = test_codex()
+        .with_auth(CodexAuth::from_api_key("gateway-api-key"))
+        .with_model("gateway-model")
+        .with_config(move |config| {
+            config.model_provider.model_catalog_url = Some(catalog_url.into());
+            config
+                .features
+                .enable(Feature::ApiKeyModelDiscovery)
+                .unwrap();
+            config.agents_enabled = false;
+        })
+        .build_with_auto_env(&server)
+        .await?;
+    // A search-capable model advertises tool_search only when a deferred tool exists.
+    let thread = test
+        .thread_manager
+        .start_thread(StartThreadOptions {
+            dynamic_tools: vec![DynamicToolSpec::Namespace(DynamicToolNamespaceSpec {
+                name: "catalog_fixture".to_string(),
+                description: "Tools used to verify catalog retention.".to_string(),
+                tools: vec![DynamicToolNamespaceTool::Function(
+                    DynamicToolFunctionSpec {
+                        name: "lookup".to_string(),
+                        description: "Look up a catalog fixture record.".to_string(),
+                        input_schema: serde_json::json!({
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": false,
+                        }),
+                        defer_loading: true,
+                    },
+                )],
+            })],
+            environments: Some(vec![test.executor_environment().request()]),
+            ..StartThreadOptions::new(test.config.clone())
+        })
+        .await?;
+    test.codex = thread.thread;
+    test.session_configured = thread.session_configured;
+    test.submit_turn("first turn").await?;
+    let first_tools = responses.single_request().body_json()["tools"].clone();
+    assert!(
+        first_tools
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|tool| tool["type"] == "tool_search"),
+        "the initial catalog must enable deferred tool search"
+    );
+
+    Mock::given(method("GET"))
+        .and(path("/codex/models"))
+        .respond_with(ResponseTemplate::new(503))
+        .expect(1..)
+        .mount(&server)
+        .await;
+    let manager = test.thread_manager.get_models_manager();
+    manager
+        .refresh_if_new_etag(
+            "changed-etag".into(),
+            codex_core::test_support::default_http_client_factory(),
+        )
+        .await;
+    assert_eq!(manager.get_remote_models().await, catalog.models);
+
+    test.submit_turn("second turn").await?;
+    let requests = responses.requests();
+    assert_eq!(requests.len(), 2);
+    assert_eq!(requests[1].body_json()["tools"], first_tools);
+    assert_eq!(
+        requests[1].instructions_text(),
+        requests[0].instructions_text()
+    );
     Ok(())
 }

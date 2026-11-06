@@ -722,11 +722,12 @@ pub(super) async fn submission_loop(
                     reload_user_config(&sess).await;
                     false
                 }
-                Op::CompactIfIdle { explicit, reply } => {
+                Op::CompactIfIdle { explicit, agent_profile, reply } => {
                     let result = super::compact_input::handle_with_authority(
                         &sess,
                         sub.id.clone(),
                         explicit,
+                        agent_profile,
                     )
                     .await;
                     let _ = reply.send(result);

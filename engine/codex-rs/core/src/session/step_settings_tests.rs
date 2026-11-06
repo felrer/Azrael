@@ -10,6 +10,7 @@ use codex_config::Sourced;
 use codex_features::Feature;
 use codex_models_manager::manager::StaticModelsManager;
 use codex_models_manager::model_info::model_info_from_slug;
+use codex_prompts::COMMON_AGENT_INSTRUCTIONS;
 use codex_prompts::render_model_instructions;
 use codex_protocol::config_types::ModeKind;
 use codex_protocol::config_types::Settings;
@@ -475,12 +476,16 @@ async fn model_resolution_preserves_startup_overrides_and_instruction_provenance
             .await;
         assert_eq!(resolved, legacy);
         assert_eq!(
-            render_model_instructions(&resolved),
-            if explicit_instructions {
+            resolved
+                .model_messages
+                .as_ref()
+                .and_then(|messages| messages.instructions_template.as_deref()),
+            Some(if explicit_instructions {
                 configured_instructions
             } else {
                 catalog_instructions
-            },
+            }),
         );
+        assert_eq!(render_model_instructions(&resolved), COMMON_AGENT_INSTRUCTIONS);
     }
 }

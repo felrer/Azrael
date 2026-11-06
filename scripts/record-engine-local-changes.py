@@ -14,7 +14,7 @@ spec.loader.exec_module(importer)
 
 
 def record_changes(destination, baseline, baseline_receipt_sha256, expected_paths, current_receipt_sha256=None,
-                   expected_adapted_paths=(), expected_migration_paths=()):
+                   expected_adapted_paths=(), expected_migration_paths=(), expected_removed_paths=()):
     destination, baseline = importer.canonical_path(destination), importer.canonical_path(baseline)
     if destination == baseline or destination.is_relative_to(baseline) or baseline.is_relative_to(destination):
         raise ValueError("Baseline must be an independent immutable import")
@@ -44,10 +44,13 @@ def record_changes(destination, baseline, baseline_receipt_sha256, expected_path
     expected = set(expected_paths)
     expected_adapted = set(expected_adapted_paths)
     expected_migrations = set(expected_migration_paths)
-    if ((not expected and not expected_adapted and not expected_migrations) or
+    expected_removed = set(expected_removed_paths)
+    if ((not expected and not expected_adapted and not expected_migrations and not expected_removed) or
             len(expected) != len(expected_paths) or len(expected_adapted) != len(expected_adapted_paths) or
             len(expected_migrations) != len(expected_migration_paths) or expected & expected_adapted or
-            expected_migrations & (expected | expected_adapted)):
+            expected_migrations & (expected | expected_adapted) or
+            len(expected_removed) != len(expected_removed_paths) or
+            expected_removed & (expected | expected_adapted | expected_migrations)):
         raise ValueError("Expected paths must be explicit and unique")
     fixes = {fix["adaptedPath"]: (name, fix) for name, fix in original.get("sourceFixes", {}).items()}
     for name in expected_adapted:
@@ -62,6 +65,16 @@ def record_changes(destination, baseline, baseline_receipt_sha256, expected_path
         importer.safe_path(destination, name)
         if name in current["files"] or importer.migration_version(name) is None:
             raise ValueError(f"Expected migration must be a new SQL migration in an imported owner: {name}")
+    for name in expected_removed:
+        path = importer.safe_path(destination, name)
+        entry = current["files"].get(name, {})
+        prior_change = current.get("localIntegration", {}).get("changes", {}).get(name)
+        if (name in original["files"] or not prior_change or prior_change["before"] is not None or
+                entry.get("kind") != "file" or entry.get("gitMode") != "100644" or
+                not importer.is_reviewed_source_addition(name)):
+            raise ValueError(f"Expected removal must retire a reviewed ordinary source addition: {name}")
+        if path.exists() or path.is_symlink():
+            raise ValueError(f"Expected removed source must be absent, including symlinks: {name}")
     expected |= expected_migrations
     root = importer.canonical_path(importer.git(destination, "rev-parse", "--show-toplevel").decode().strip())
     prefix = destination.relative_to(root).as_posix()
@@ -85,10 +98,20 @@ def record_changes(destination, baseline, baseline_receipt_sha256, expected_path
         if stage != "0" or mode == "160000":
             raise ValueError("Unmerged source or submodule")
         modes[raw.decode("utf-8")] = mode
+    for name in expected_removed:
+        if prefix + "/" + name in modes:
+            raise ValueError(f"Expected removed source must be absent from Git index: {name}")
     record = copy.deepcopy(current)
     changes = {}
     for name in sorted(set(current["files"]) | expected):
         entry = current["files"].get(name)
+        if name in expected_removed:
+            measured = importer.describe(importer.safe_path(destination, name), entry["gitMode"])
+            if measured["kind"] != "missing":
+                raise ValueError(f"Expected removed source must remain absent: {name}")
+            changes[name] = {"before": entry, "after": None}
+            del record["files"][name]
+            continue
         stored = importer.PRESERVED_IGNORE if name == ".gitignore" and original.get("distributionAdaptation") else name
         if name in original.get("sourceFixes", {}):
             stored = name + ".upstream"
@@ -106,8 +129,8 @@ def record_changes(destination, baseline, baseline_receipt_sha256, expected_path
         if measured != entry:
             changes[name] = {"before": entry, "after": measured}
             record["files"][name] = measured
-    if set(changes) != expected:
-        raise ValueError(f"Reviewed delta differs: actual={sorted(changes)}, expected={sorted(expected)}")
+    if set(changes) != expected | expected_removed:
+        raise ValueError(f"Reviewed delta differs: actual={sorted(changes)}, expected={sorted(expected | expected_removed)}")
     prior_adapted = current.get("localIntegration", {}).get("adaptedChanges", {})
     adapted_changes, adapted_delta = {}, set()
     for name, (original_name, fix) in sorted(fixes.items()):
@@ -169,9 +192,11 @@ def main():
     parser.add_argument("--expected-path", action="append", default=[])
     parser.add_argument("--expected-adapted-path", action="append", default=[], help="Explicit new content delta in fixed Rust adaptation")
     parser.add_argument("--expected-migration-path", action="append", default=[], help="Explicit new reviewed append-only SQL migration")
+    parser.add_argument("--expected-removed-path", action="append", default=[], help="Explicit retirement of a reviewed ordinary source addition")
     args = parser.parse_args()
     print(json.dumps(record_changes(args.destination, args.baseline, args.baseline_receipt_sha256, args.expected_path,
-                                   args.current_receipt_sha256, args.expected_adapted_path, args.expected_migration_path), indent=2))
+                                   args.current_receipt_sha256, args.expected_adapted_path, args.expected_migration_path,
+                                   args.expected_removed_path), indent=2))
 
 
 if __name__ == "__main__":

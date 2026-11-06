@@ -4,6 +4,16 @@
 
 Design Azrael UI in the OpenAI style. Reuse the pinned UI’s existing native components, page layouts, settings rows, switches, buttons, typography, spacing and semantic theme tokens. Verify the actual rendered page and its interactions in light and dark themes; plain unstyled controls or source-only tests do not establish visual acceptance.
 
+### Instruction package workbench
+
+Status: `partial` for the standalone development surface. The [package workbench contract](instructions.md#package-development-workbench) owns package/profiles and activation semantics. Use neutral typography, restrained borders, rounded cards and semantic light/dark tokens. The standalone page title is `Agent 프로필`; its former introductory sentence, equip buttons and request-timing helper are omitted. Saved profile cards themselves support drag, click and keyboard activation. Uniform horizontal image/title/description cards form a responsive grid. A detail dialog provides complete content and accessible keyboard navigation. Stored profiles have drag and keyboard/click alternatives for equipping the current project's single active slot. Background GitHub progress stays in a small corner status and does not replace or disable the catalog. Source-mode and project download-target controls are absent; the visible project context identifies whose profile slot is being edited. The existing library remains a secondary collapsed area beneath the catalog. Feature: `ui.instruction-settings`.
+
+  The profile composer uses a wide two-column dialog: ordered vertical slots on the left and a searchable categorized resource list on the right, stacked at narrow widths. Core harness identity and builtin profiles are read-only. One profile list and composer serve ordinary requests and Team/Direct, with allowed-role choices. Clicking a profile card opens its view/editor; a top-right ellipsis menu offers duplication and deletion for editable personal profiles. Deletion requires an explicit confirmation dialog. A separate small activation/drag control preserves project profile activation. Profile names reserve a circular image area with an icon fallback. Team cards open their configuration editor on click, keep deletion in the same ellipsis pattern and reserve a full-width 4:3 image above their text with a team icon fallback. Local PNG/JPEG/WebP selection, preview and removal use the existing bounded image validation. Resource addition supports drag and click/keyboard alternatives; ordered instructions have explicit move controls. Provider/model/reasoning fields expand inline without their own enclosing card. One `저장` action persists edits; slot and profile diagnostics distinguish saved invalid edits from the last valid applied configuration. Full skill descriptions remain accessible while resource rows show a short preview.
+
+### Team and Direct role profiles
+
+Status: `partial` for the source development surface. The [role profile contract](instructions.md#role-profiles-for-team-and-direct) owns session creation and instruction semantics. The unified composer exposes allowed roles alongside the profile's resources and optional model settings. Built-in profiles are read-only and can be duplicated. Ordinary conversations activate one Root-compatible profile per project; other role-only profiles remain visible and editable but have no project activation control. Team presets select one Lead and allowed root/subagent profiles from the same library. Direct common settings select one Root-compatible profile and multiple Subagent-compatible profiles, with each slot filtered by its allowed role. Created Teams retain copied profiles with immutable identity and allowed roles; edits affect newly created children. Use the existing neutral light/dark controls and dialogs. Features: `ui.role-profiles`, `ui.team-lead`.
+
 ## Withdrawn questions and queue waiting
 
 Question-panel replies carry explicit `questionReply` queue provenance when
@@ -40,6 +50,14 @@ the existing queue status surface. The queue retains its order, cancellation and
 explicit send controls. State and automatic dispatch authority belong to the
 [question and queue contract](queued-compaction.md#unanswered-asynchronous-questions).
 Preservation feature: `ui.question-withdrawal`.
+
+## Approval waiting time
+
+Status: `partial` — 소스 변환과 Windows native React/CSS fixture의 시간 갱신·종료 고정·테마·좁은 폭·기존 승인 동작을 검증했다. 설치본 및 다른 OS 수용은 별도다. [작업 기록](../../work/EK-01-user-wait-time/01-plan.md)이 검증 범위를 소유한다.
+
+승인 카드의 기존 보조 텍스트·간격·테마 토큰을 재사용해 사용자 응답 대기를 표시한다. 대기 중에는 `응답 대기 2분 13초`, 처리 후에는 `응답까지 2분 13초`로 표시하며 거절·취소도 종료 경계에서 고정한다. 엔진의 요청 시각을 사용하고 화면 mount 시각으로 측정을 시작하지 않는다. 기록이 없는 과거 요청은 시간을 추정하지 않는다. [시간 계약](task-work-time.md#사용자-응답-대기-제외)이 작업 총계에서 제외하는 구간의 의미를 소유한다.
+
+대기 카드가 처리 후 사라지는 native 흐름에서는 해당 턴의 시간 내역에 요청 종류와 고정된 응답 시간을 남긴다. 새로고침 후에도 같은 요청 식별자를 사용한다. 사용자 대기가 구분되지 않은 과거 시간에는 `기록된` 표시와 설명을 붙인다. 보존 기능은 `ui.task-work-time`이다.
 
 ## Composer and feature surface
 
@@ -126,6 +144,16 @@ Status: `partial` — source creation/admission fixtures and native composer-eff
 Editing or restoring a new-chat draft keeps the project-scoped persisted draft and creates no native session. Text entry, deletion, paste, attachment changes, model changes and navigation retain the existing draft ownership. The shared thread-creation boundary releases unused prewarm input readers without preparing or starting a thread. Local and cloud-prototype composer prewarming use this boundary. A valid first submission uses the native conversation creation and request admission flow, including current model and permission settings, draft custody, failure handling and pending submission identity. Creating the session at submission adds its preparation time to the first send.
 
 Existing conversations, queued requests and submitted pending conversations retain their native list and resume behavior. A blank title or preview does not identify an unsent session. Stored user conversations are preserved; ambiguous existing entries are not automatically hidden or deleted. The preservation inventory connects this boundary through `ui.submit-only-thread`, alongside `ui.project-drafts` and `ui.composer-draft`.
+
+## Request preparation
+
+Status: `current` in source and the Windows isolated installed-host request path; measured latency effects and other acceptance limits are recorded in [request latency work](../../work/EH-01-sol-medium-latency/03-plan.md). Preservation feature: `ui.request-preparation`.
+
+After submission, request parameters and feature overrides are resolved before shell-environment and dynamic-tool reads start concurrently. Their results are applied in the native shell-policy and tool-registration order; developer instructions receive the resolved tool capabilities. Missing optional readers and shell-environment fallback retain native behavior. Both asynchronous reads have rejection handlers, and a failed tool read prevents request dispatch.
+
+The host shares overlapping saved-configuration reads only within the same native connection. The frontend shares overlapping option-free account-list reads within one request client. Settled results and failures are removed immediately; the next read starts a new request. Writes and account mutation requests invalidate the corresponding pending entries; host account notifications and client version initialization also invalidate their owner's entries. An older read finishing cannot remove a newer entry. The existing cwd-effective configuration and option-sensitive request memoizer remain separate from saved configuration.
+
+Sharing must not introduce a persistent account/configuration cache, weaken native account admission, omit instructions, or create native sessions while editing drafts. Account changes, configuration writes, cancellation and uncertain delivery retain their owning guards.
 
 ## Team groups and Lead entry
 
@@ -225,13 +253,15 @@ The same preservation owner includes content-free Webview health diagnostics. Th
 
 ## Settings module contracts
 
+Plugins is the single integration-management navigation entry when the native Plugins capability is available. It retains plugin, app, MCP and skill management plus Add and Browse directory actions. The redundant MCP servers entry is filtered using that same capability; environments without Plugins retain native MCP access. Existing MCP settings links render the full Plugins component rather than its reduced manage-only wrapper. This shared settings-navigation behavior is maintained by `scripts/inject-instruction-settings.cjs` and the existing `ui.instruction-settings` preservation checks. It does not delete MCP configuration, servers or permissions.
+
 Azrael settings use the OpenAI native page layout, heading hierarchy, settings rows, switches, buttons, spacing and semantic theme tokens. Reuse the pinned bundle's actual components and verified exports. Rendered light/dark layout and interaction checks are required for presentation acceptance.
 
 Settings injectors import the bridge through the pinned UI `26.1007.21434` export `X9t` (`vm` internally); internal aliases are not module exports. Native ReactDOM root creation uses `XAt`; the separate legacy ReactDOM export does not supply `createRoot`. Settings navigation reuses initialized platform icon assets. Retired Pets registry entries retain an inert `{ visible: false, pending: false }` visibility result so shared navigation never dereferences an undefined result.
 
 Account and usage surfaces, including shadow-root settings panels, inherit the native semantic palette and color scheme with VS Code and light/dark fallbacks. Cards, ticket rows, buttons and switches use theme surfaces. Both standalone and embedded presentations must show readable foregrounds and distinct light/dark backgrounds while preserving native geometry and interaction.
 
-Instruction documents and Design use the native React Intl context for the active app language, including navigation labels, accessible text and page states. Korean language variants select Korean; other languages select English. Changing the app language updates presentation. Student names remain English in either language, while source document content and external diagnostics retain their original text. The standalone instruction surface follows the VS Code display language. Instruction navigation reads “Instruction Documents” in English or “지침 문서” in Korean; the not-implemented notice appears only in the page heading.
+Instruction documents and Design use the native React Intl context for the active app language, including navigation labels, accessible text and page states. Korean language variants select Korean; other languages select English. Changing the app language updates presentation. Student names remain English in either language, while source document content and external diagnostics retain their original text. The standalone instruction surface follows the VS Code display language. Instruction navigation, accessible names and native page titles read “Presets” in English or “프리셋” in Korean, covering instructions, profiles and Team configuration. The existing `computer-use` route uses “Window use” for those same labels; the not-implemented notice appears only in the page heading.
 
 ## Window Use settings
 
@@ -310,13 +340,3 @@ The candidate system uses a 24×24 coordinate grid, `currentColor`, consistent s
 ## Preservation mapping
 
 Registered features: `ui.submit-only-thread`, `ui.session-flags`, `ui.student-design`, `ui.project-drafts`, `ui.file-open-menu`, `ui.image-file-open`, `ui.missing-image`, `ui.local-file-drop`, `ui.composer-draft`, `ui.ui-cleanup`, `ui.pets-cleanup`, `ui.content-fonts`, `ui.command-drag-block`, `ui.scroll-fade`, `ui.thread-branch`, `ui.paginated-history`, `ui.recent-chat-filter`, `ui.session-links`, `ui.input-diagnostics`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
-
-## Request preparation
-
-Status: `current` in source and the Windows isolated installed-host request path; measured latency effects and other acceptance limits are recorded in [request latency work](../../work/EH-01-sol-medium-latency/03-plan.md). Preservation feature: `ui.request-preparation`.
-
-After submission, request parameters and feature overrides are resolved before shell-environment and dynamic-tool reads start concurrently. Their results are applied in the native shell-policy and tool-registration order; developer instructions receive the resolved tool capabilities. Missing optional readers and shell-environment fallback retain native behavior. Both asynchronous reads have rejection handlers, and a failed tool read prevents request dispatch.
-
-The host shares overlapping saved-configuration reads only within the same native connection. The frontend shares overlapping option-free account-list reads within one request client. Settled results and failures are removed immediately; the next read starts a new request. Writes and account mutation requests invalidate the corresponding pending entries; host account notifications and client version initialization also invalidate their owner's entries. An older read finishing cannot remove a newer entry. The existing cwd-effective configuration and option-sensitive request memoizer remain separate from saved configuration.
-
-Sharing must not introduce a persistent account/configuration cache, weaken native account admission, omit instructions, or create native sessions while editing drafts. Account changes, configuration writes, cancellation and uncertain delivery retain their owning guards.

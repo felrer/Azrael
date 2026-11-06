@@ -1229,8 +1229,9 @@ async fn thread_provider_refreshes_at_the_next_step_of_an_active_turn() -> Resul
         vec![
             sse(vec![
                 ev_response_created("active-turn"),
-                responses::ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "pause-for-thread-instructions",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({
                         "questions": [{

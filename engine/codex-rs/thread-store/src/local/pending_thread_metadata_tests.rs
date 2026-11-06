@@ -348,6 +348,7 @@ fn staged_model_patch() -> ThreadMetadataPatch {
 
 fn create_thread_params(thread_id: ThreadId) -> CreateThreadParams {
     CreateThreadParams {
+        role_profile: None,
         computer_use_mode: None,
         creator_user_id: None,
         creator_account_id: None,

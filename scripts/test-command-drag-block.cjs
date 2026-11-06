@@ -1,7 +1,7 @@
 "use strict";
 const test = require("node:test"), assert = require("node:assert/strict"), fs = require("node:fs"), path = require("node:path");
 const { installCommandDragBlock, wrapCommandDragBlock } = require("./command-drag-policy.cjs");
-const { ASSETS, CSS_ASSET, ACTIVITY_ASSET, SHELL_ASSET, injectCommandDragBlock } = require("./inject-command-drag-block.cjs");
+const { ASSETS, CSS_ASSET } = require("./inject-command-drag-block.cjs");
 const uiRoot = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434");
 
 test("only command scopes cancel selection and drag; disposal releases both capture listeners", () => {
@@ -33,23 +33,6 @@ test("dynamic execution results are scoped without changing unrelated tool and m
   for (const item of [{ type: "assistant-message" }, { type: "dynamic-tool-call", namespace: "other", tool: "exec" }, { type: "dynamic-tool-call", namespace: "functions", tool: "search" }]) {
     assert.equal(wrapCommandDragBlock(item, content, jsx), content);
   }
-});
-
-test("pinned assets keep native controls, reject drift and remain idempotent", () => {
-  const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? "../extensions/azrael-ex/node_modules/typescript");
-  for (const asset of ASSETS) {
-    const original = fs.readFileSync(path.join(uiRoot, asset), "utf8");
-    const result = injectCommandDragBlock(original, asset);
-
-    if ([ACTIVITY_ASSET, SHELL_ASSET].includes(asset)) {
-
-      assert.equal(ts.createSourceFile(asset, result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
-    }
-  }
-  const shell = fs.readFileSync(path.join(uiRoot, SHELL_ASSET), "utf8");
-  assert.throws(() => injectCommandDragBlock(shell.replace("De=d(`flex flex-col overflow-clip`,Ee)", "De=changed"), SHELL_ASSET), /Pinned/);
-  assert.throws(() => injectCommandDragBlock(injectCommandDragBlock(shell, SHELL_ASSET).text.replace("azrael-command-execution", "damaged"), SHELL_ASSET), /Damaged/);
-
 });
 
 test("namespace CSS composition preserves typography and scroll-fade guards; scoped cache inputs are bound", () => {

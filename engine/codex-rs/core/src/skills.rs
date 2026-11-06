@@ -30,11 +30,14 @@ pub(crate) fn skills_load_input_from_config(
     config: &Config,
     effective_skill_roots: Vec<PluginSkillRoot>,
 ) -> HostSkillsLoadInput {
+    let effective = config.config_layer_stack.effective_config();
+    let selection = effective.get("agent_profile_resources").filter(|v| v.get("enabled").and_then(toml::Value::as_bool) == Some(true));
+    let selected_roots = selection.map(|v| v.get("skill_roots").and_then(toml::Value::as_array).into_iter().flatten().filter_map(toml::Value::as_str).map(std::path::PathBuf::from).collect());
     HostSkillsLoadInput::new(
         config.cwd.clone(),
         effective_skill_roots,
         config.config_layer_stack.clone(),
-    )
+    ).with_selected_roots(selected_roots)
 }
 
 pub(crate) async fn emit_explicit_skill_invocations(

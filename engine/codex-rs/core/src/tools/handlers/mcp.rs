@@ -197,6 +197,9 @@ impl McpHandler {
         &self,
         invocation: ToolInvocation,
     ) -> Result<Box<dyn crate::tools::context::ToolOutput>, FunctionCallError> {
+        if !invocation.turn.config.profile_allows_mcp_server(&self.tool_info.server_name) {
+            return Err(FunctionCallError::RespondToModel("MCP server is excluded by the selected profile".into()));
+        }
         let prepared_mcp_call = invocation.session.prepare_mcp_call(&self.tool_info).await;
         // Use the executed call's binding; a later catalog refresh must not change eligibility.
         let result_metadata_capture_allowed = invocation

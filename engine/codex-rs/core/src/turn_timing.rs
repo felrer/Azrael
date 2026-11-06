@@ -46,6 +46,7 @@ pub(crate) async fn record_turn_ttfm_metric(turn_context: &TurnContext, item: &T
 pub(crate) struct TurnTimingState {
     state: Mutex<TurnTimingStateInner>,
     profile: StdMutex<TurnProfileState>,
+    user_wait: StdMutex<Option<Arc<crate::user_wait_runtime::UserWaitRuntime>>>,
 }
 
 #[derive(Debug, Default)]
@@ -89,6 +90,7 @@ pub(crate) struct TurnProfileTimingGuard {
     timing: Arc<TurnTimingState>,
     phase: TurnProfilePhase,
     active: bool,
+    _activity: Option<crate::user_wait_runtime::UserWaitGuard>,
 }
 
 /// One clock pair per inference, with no per-token work. Unfinished attempts
@@ -97,11 +99,10 @@ pub(crate) struct ResponsePerformanceGuard {
     timing: Arc<TurnTimingState>,
     started_at: Instant,
     finished: bool,
-    mode: Option<ResponseSpeedMode>,
 }
 
 impl ResponsePerformanceGuard {
-    pub(crate) fn complete(&mut self, output_tokens: Option<i64>) {
+    pub(crate) fn complete(&mut self, output_tokens: Option<i64>, service_tier: Option<&str>) {
         if self.finished {
             return;
         }
@@ -115,7 +116,7 @@ impl ResponsePerformanceGuard {
             output_tokens,
             duration_to_u64_ms(self.started_at.elapsed()),
             started_at_ms,
-            self.mode,
+            ResponseSpeedMode::from_service_tier(service_tier),
         );
     }
 }
@@ -123,21 +124,17 @@ impl ResponsePerformanceGuard {
 impl Drop for ResponsePerformanceGuard {
     fn drop(&mut self) {
         if !self.finished {
-            self.complete(None);
+            self.complete(None, None);
         }
     }
 }
 
 impl TurnTimingState {
-    pub(crate) fn begin_response_performance(
-        self: &Arc<Self>,
-        service_tier: Option<&str>,
-    ) -> ResponsePerformanceGuard {
+    pub(crate) fn begin_response_performance(self: &Arc<Self>) -> ResponsePerformanceGuard {
         ResponsePerformanceGuard {
             timing: Arc::clone(self),
             started_at: Instant::now(),
             finished: false,
-            mode: ResponseSpeedMode::from_service_tier(service_tier),
         }
     }
 
@@ -156,6 +153,12 @@ impl TurnTimingState {
         state.item_started_at_ms.clear();
         state.first_token_at = None;
         state.first_message_at = None;
+        *self
+            .user_wait
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) = Some(
+            crate::user_wait_runtime::UserWaitRuntime::new(started_at, started_at_unix_ms),
+        );
         self.profile_state().start(started_at);
         self.profile_state().response_performance.started_at_unix_ms = Some(started_at_unix_ms);
         started_at_unix_ms
@@ -228,12 +231,20 @@ impl TurnTimingState {
             .map(|duration| i64::try_from(duration.as_millis()).unwrap_or(i64::MAX))
     }
 
+    pub(crate) fn user_wait(&self) -> Option<Arc<crate::user_wait_runtime::UserWaitRuntime>> {
+        self.user_wait
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone()
+    }
+
     pub(crate) fn begin_sampling(self: &Arc<Self>) -> TurnProfileTimingGuard {
         let active = self.profile_state().begin_sampling(Instant::now());
         TurnProfileTimingGuard {
             timing: Arc::clone(self),
             phase: TurnProfilePhase::Sampling,
             active,
+            _activity: self.user_wait().map(|runtime| runtime.phase()),
         }
     }
 
@@ -254,6 +265,7 @@ impl TurnTimingState {
             timing: Arc::clone(self),
             phase: TurnProfilePhase::Compaction,
             active,
+            _activity: self.user_wait().map(|runtime| runtime.phase()),
         }
     }
 
@@ -263,6 +275,7 @@ impl TurnTimingState {
             timing: Arc::clone(self),
             phase: TurnProfilePhase::ToolBlocking,
             active,
+            _activity: None,
         }
     }
 

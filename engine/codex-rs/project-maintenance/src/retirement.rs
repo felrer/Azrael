@@ -164,12 +164,25 @@ pub(crate) fn validate(
             }
         }
         for other in state.items.values() {
-            if other["id"] != *id && overlaps(&target, Path::new(string(other, "path")?)) {
-                return Err("retirement target overlaps another registered item".into());
-            }
             if let Some(source) = other["source_path"].as_str() {
                 if overlaps(&target, &paths::resolve(root, Path::new(source))?) {
                     return Err("retirement target overlaps registered original source".into());
+                }
+            }
+            if other["id"] != *id && overlaps(&target, Path::new(string(other, "path")?)) {
+                if other["cleanup_status"] == "deleted"
+                    && other["remaining"] == false
+                    && paths::checked_metadata(root, Path::new(string(other, "path")?), auth)?.is_none()
+                {
+                    continue;
+                }
+                return Err("retirement target overlaps another registered item".into());
+            }
+        }
+        for group in state.groups.values() {
+            if let Some(source) = group["membership_source"].as_str() {
+                if overlaps(&target, &paths::resolve(root, Path::new(source))?) {
+                    return Err("retirement target overlaps lifecycle control evidence".into());
                 }
             }
         }

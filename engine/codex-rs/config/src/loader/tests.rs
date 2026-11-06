@@ -34,7 +34,8 @@ async fn harness_templates_report_missing_and_unreadable_paths() {
         config.prompt_profiles.insert(
             "team".into(),
             PromptProfileToml {
-                extends: Some("builtin/anthropic-default".into()),
+                extends: Some("builtin/anthropic".into()),
+                instruction_format: None,
                 behavior_template_file: Some(AbsolutePathBuf::from_absolute_path(&path).unwrap()),
             },
         );
@@ -64,7 +65,8 @@ async fn harness_templates_are_captured_once_at_configuration_load() {
     config.prompt_profiles.insert(
         "team".into(),
         PromptProfileToml {
-            extends: Some("builtin/anthropic-default".into()),
+            extends: Some("builtin/anthropic".into()),
+            instruction_format: None,
             behavior_template_file: Some(AbsolutePathBuf::from_absolute_path(&path).unwrap()),
         },
     );
@@ -109,7 +111,7 @@ async fn harness_profile_v2_layer_deep_merges_provider_and_model_siblings() {
         tmp.path().join(CONFIG_TOML_FILE),
         r#"
         [harness.prompt_profiles.team]
-        extends = "builtin/anthropic-default"
+        extends = "builtin/anthropic"
         [harness.providers.anthropic]
         prompt_profile = "team"
         [harness.models."managed/anthropic/sibling"]
@@ -121,7 +123,7 @@ async fn harness_profile_v2_layer_deep_merges_provider_and_model_siblings() {
         tmp.path().join("review.config.toml"),
         r#"
         [harness.models."managed/anthropic/exact"]
-        tool_profile = "builtin/claude-code-core"
+        tool_profile = "builtin/azrael-default"
     "#,
     )
     .unwrap();

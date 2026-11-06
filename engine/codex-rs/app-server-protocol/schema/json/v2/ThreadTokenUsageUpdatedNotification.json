@@ -115,12 +115,7 @@
     },
     "ResponseMinuteSample": {
       "properties": {
-        "minute": {
-          "format": "uint64",
-          "minimum": 0.0,
-          "type": "integer"
-        },
-        "mode": {
+        "actualMode": {
           "anyOf": [
             {
               "$ref": "#/definitions/ResponseSpeedMode"
@@ -130,6 +125,11 @@
             }
           ],
           "default": null
+        },
+        "minute": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
         },
         "outputTokens": {
           "format": "uint64",

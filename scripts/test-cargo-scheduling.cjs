@@ -149,7 +149,7 @@ test('account persistence remains the first Cargo check after the tooling prereq
   const usage = impacted.find(feature => feature.id === 'engine.usage-window');
   assert(usage, 'Changed account persistence regression must select engine.usage-window through its declared owner');
   assert.deepEqual(usage.checks, [{ id: 'engine.usage-window.native', executable: 'node',
-    args: ['scripts/check-usage-window.cjs', '{engineSourceRoot}'], level: 'native', cargoPreflight: 'selected-tests-v1' }]);
+    args: ['scripts/check-usage-window.cjs', '{engineSourceRoot}'], level: 'native', cargoPreflight: 'selected-tests-v2' }]);
   assert.equal(manifest.verificationSchedule.priorities['engine.usage-window.native'], 110);
   const groups = manifest.features.flatMap(feature => feature.checks.filter(check => check.level === 'native')
     .map(check => ({ check, entries: [{ feature, check }] })));

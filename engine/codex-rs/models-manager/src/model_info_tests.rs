@@ -1,5 +1,6 @@
 use super::*;
 use crate::ModelsManagerConfig;
+use codex_prompts::COMMON_AGENT_INSTRUCTIONS;
 use codex_prompts::render_model_instructions;
 use codex_protocol::config_types::Personality;
 use codex_protocol::openai_models::ApprovalMessages;
@@ -118,7 +119,7 @@ fn base_instruction_override_is_literal_and_preserves_catalog_messages() {
 
     messages.instructions_template = Some(override_instructions.to_string());
     assert_eq!(updated.model_messages, Some(messages));
-    assert_eq!(render_model_instructions(&updated), override_instructions);
+    assert_eq!(render_model_instructions(&updated), COMMON_AGENT_INSTRUCTIONS);
 }
 
 #[test]
@@ -195,10 +196,15 @@ fn baked_personality_section_is_preserved_without_explicit_none() {
             .expect("fallback model messages")
             .instructions_template = Some(instructions.to_string());
 
+        let updated = with_config_overrides(model, &config);
         assert_eq!(
-            render_model_instructions(&with_config_overrides(model, &config)),
-            instructions
+            updated
+                .model_messages
+                .as_ref()
+                .and_then(|messages| messages.instructions_template.as_deref()),
+            Some(instructions)
         );
+        assert_eq!(render_model_instructions(&updated), COMMON_AGENT_INSTRUCTIONS);
     }
 }
 
@@ -225,14 +231,21 @@ fn explicit_empty_base_instructions_stay_empty_with_personality_none() {
             .and_then(|messages| messages.instructions_template.as_deref()),
         Some("")
     );
-    assert_eq!(render_model_instructions(&updated), "");
+    assert_eq!(render_model_instructions(&updated), COMMON_AGENT_INSTRUCTIONS);
 }
 
 #[test]
 fn unknown_model_uses_builtin_instruction_template() {
     let model = model_info_from_slug("unknown-model");
 
-    assert_eq!(render_model_instructions(&model), BASE_INSTRUCTIONS);
+    assert_eq!(
+        model
+            .model_messages
+            .as_ref()
+            .and_then(|messages| messages.instructions_template.as_deref()),
+        Some(BASE_INSTRUCTIONS)
+    );
+    assert_eq!(render_model_instructions(&model), COMMON_AGENT_INSTRUCTIONS);
     assert!(model.used_fallback_model_metadata);
 }
 

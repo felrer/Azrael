@@ -188,6 +188,9 @@ impl AppServerArgs {
 }
 
 pub(crate) fn azrael_main() -> anyhow::Result<()> {
+    if let Some(code) = azrael_project_maintenance::cli::run_if_requested(std::env::args_os()) {
+        std::process::exit(code);
+    }
     run_entry(true)
 }
 

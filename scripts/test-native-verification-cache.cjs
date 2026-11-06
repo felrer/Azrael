@@ -19,7 +19,7 @@ function write(root, file, contents) {
 }
 function setup() {
   const root = path.join(fixtures, String(++sequence));
-  for (const file of ['feature-preservation.cjs', 'native-verification-cache.cjs', 'verification-result-cache.cjs', 'directory-state.cjs']) {
+  for (const file of ['feature-preservation.cjs', 'native-verification-cache.cjs', 'verification-result-cache.cjs', 'verification-reuse-policy.cjs', 'directory-state.cjs']) {
     write(root, `scripts/${file}`, fs.readFileSync(path.join(__dirname, file)));
   }
   write(root, 'scripts/owner.cjs', '// owner');
@@ -70,8 +70,18 @@ console.log('passing native evidence '+id);process.exit(control.fail===id?9:0);`
     summaries.push({ fixture: sequence, status, executed, reused, timings: receipt.timings });
     return receipt;
   }
+  async function rerun() {
+    const before = calls().length;
+    const pending = await gate.runPreservation(config);
+    assert.equal(pending.status, 'review-required', pending.error);
+    assert.equal(calls().length, before, 'input changes must not silently execute');
+    assert.equal(pending.review.scope.startsWith('verification-result:'), true);
+    config.reuseNativeChecks = false;
+    try { return await run(3, 0); }
+    finally { delete config.reuseNativeChecks; }
+  }
   const entries = check => path.join(root, 'artifacts/cache/verification-results/native', `v${cache.CACHE_SCHEMA}`, sha(check.checkId), check.cacheKey);
-  return { root, config, manifest, run, calls, entries, identities: () => identities,
+  return { root, config, manifest, run, rerun, calls, entries, identities: () => identities,
     reject: () => { rejectProvenance = true; }, drift: () => { driftIdentity = true; },
     stable: (ignore = false) => { driftIdentity = false; ignoreProject = ignore; } };
 }
@@ -96,20 +106,20 @@ test('UI and unrelated engine source changes retain native keys; copied same-byt
 for (const file of ['engine/azrael.exe', 'engine/azrael-bridge.exe', 'engine/azrael-code-mode-host.exe',
   'engine-source/codex-rs/models-manager/models.json', 'scripts/helper.cjs', 'scripts/owner.cjs', 'docs/contract.md',
   'scripts/feature-preservation.cjs', 'scripts/native-verification-cache.cjs', 'scripts/verification-result-cache.cjs']) {
-  test(`changed ${file} reruns and removes superseded key`, async () => {
+  test(`changed ${file} requires review before explicit rerun removes superseded key`, async () => {
     const f = setup(), cold = await f.run(3, 0), old = f.entries(cold.checks[0]);
     fs.appendFileSync(path.join(f.root, file), '\nchanged input');
-    await f.run(3, 0); assert.equal(fs.existsSync(old), false); await f.run(0, 3);
+    await f.rerun(); assert.equal(fs.existsSync(old), false); await f.run(0, 3);
   });
 }
 test('command templates and environment are bound', async () => {
   const f = setup(); await f.run(3, 0);
-  f.manifest.features.forEach(feature => feature.checks[0].args.push('new-flag')); await f.run(3, 0);
+  f.manifest.features.forEach(feature => feature.checks[0].args.push('new-flag')); await f.rerun();
   const previous = process.env.AZRAEL_NATIVE_CACHE_TEST;
-  try { process.env.AZRAEL_NATIVE_CACHE_TEST = 'changed'; await f.run(3, 0); await f.run(0, 3); }
+  try { process.env.AZRAEL_NATIVE_CACHE_TEST = 'changed'; await f.rerun(); await f.run(0, 3); }
   finally { if (previous === undefined) delete process.env.AZRAEL_NATIVE_CACHE_TEST; else process.env.AZRAEL_NATIVE_CACHE_TEST = previous; }
 });
-test('missing, corrupt or tampered stored evidence executes the affected probe', async () => {
+test('missing, corrupt or tampered stored evidence blocks execution and reuse', async () => {
   for (const mode of ['missing', 'corrupt', 'tampered']) {
     const f = setup(), cold = await f.run(3, 0), entry = f.entries(cold.checks[0]);
     const files = fs.readdirSync(entry);
@@ -118,7 +128,13 @@ test('missing, corrupt or tampered stored evidence executes the affected probe',
     assert(receipt && log);
     if (mode === 'missing') fs.unlinkSync(path.join(entry, log));
     else fs.writeFileSync(path.join(entry, mode === 'corrupt' ? receipt : log), 'corrupted');
-    await f.run(1, 2); await f.run(0, 3);
+    const before = f.calls().length;
+    const blocked = await gate.runPreservation(f.config);
+    assert.equal(blocked.status, 'failed'); assert.match(blocked.error, /Invalid verification evidence/);
+    assert.equal(f.calls().length, before);
+    f.config.reuseNativeChecks = false;
+    const forced = await gate.runPreservation(f.config);
+    assert.equal(forced.status, 'failed'); assert.equal(f.calls().length, before);
   }
 });
 test('completed native probes survive later failure while drifting inputs reject publication', async () => {
@@ -135,7 +151,7 @@ test('completed native probes survive later failure while drifting inputs reject
     for (const check of failed.checks) assert.equal(fs.existsSync(f.entries(check)), mode !== 'identity' && check.checkId.includes('provider-context'));
     write(f.root, 'control.json', '{}');
     f.stable();
-    const complete = await f.run(mode === 'fail' ? 2 : 3, mode === 'fail' ? 1 : 0);
+    const complete = mode === 'native' ? await f.rerun() : await f.run(mode === 'fail' ? 2 : 3, mode === 'fail' ? 1 : 0);
     await gate.verifyReceipt({ ...f.config, receiptPath: complete.receiptPath });
     assert.equal(JSON.parse(fs.readFileSync(failed.receiptPath)).status, 'failed');
     await f.run(0, 3);

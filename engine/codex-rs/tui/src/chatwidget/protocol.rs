@@ -105,7 +105,7 @@ impl ChatWidget {
                     self.on_task_started();
                 }
             }
-            ServerNotification::TurnDeferred(_) | ServerNotification::RootResumeWaitUpdated(_) => {}
+            ServerNotification::TurnDeferred(_) | ServerNotification::RootResumeWaitUpdated(_) | ServerNotification::UserWaitTimingUpdated(_) => {}
             ServerNotification::TurnCompleted(notification) => {
                 self.restore_realtime_transcripts_before_turn(&notification.turn.id);
                 self.handle_turn_completed_notification(notification, replay_kind);

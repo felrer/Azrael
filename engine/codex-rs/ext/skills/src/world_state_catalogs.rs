@@ -157,6 +157,14 @@ impl<'a> CatalogContext<'a> {
     }
 
     pub(crate) async fn discover_catalogs(&self) -> CatalogContributions {
+        if self.input.turn_store.get::<HostSkillsSnapshot>().is_some_and(|s| s.selected_only()) {
+            self.input.turn_store.insert(ExecutorSkillsStepState(SkillCatalog::default()));
+            return CatalogContributions {
+                executor: CatalogContribution::unavailable(),
+                cloud: CatalogContribution::unavailable(),
+                host: self.discover_host_catalog().await,
+            };
+        }
         let cloud_enabled =
             self.thread_state.cloud_skill_enabled() && self.providers.has_cloud_provider();
         let query = SkillListQuery {

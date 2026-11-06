@@ -204,6 +204,25 @@ impl CodeModeService {
             .mark_cell_ready_for_dispatch(cell_id, originating_call);
     }
 
+    pub(crate) fn set_cell_timing_activity(
+        &self,
+        cell_id: &CellId,
+        call_id: &str,
+        runtime: &Arc<crate::user_wait_runtime::UserWaitRuntime>,
+    ) {
+        self.dispatch_broker
+            .set_timing_activity(cell_id, call_id, runtime);
+    }
+    pub(crate) fn track_existing_cell_activity(
+        &self,
+        runtime: &Arc<crate::user_wait_runtime::UserWaitRuntime>,
+    ) {
+        self.dispatch_broker.track_existing_cell_activity(runtime);
+    }
+    pub(crate) fn cell_timing_activity(&self, cell_id: &CellId) -> Option<String> {
+        self.dispatch_broker.cell_timing_activity(cell_id)
+    }
+
     pub(crate) fn cell_originating_call(
         &self,
         cell_id: &codex_code_mode::CellId,

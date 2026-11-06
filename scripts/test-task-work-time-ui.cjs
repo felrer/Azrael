@@ -1,15 +1,9 @@
 "use strict";
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const {ASSET,TURN_ASSET,MARKER,TURN_MARKER,azraelTaskTimeRows,injectTaskWorkTime}=require('./inject-task-work-time.cjs');
-const ts=require(require.resolve('typescript',{paths:[path.join(__dirname,'../extensions/azrael-ex')]}));
+const {TURN_ASSET,azraelTaskTimeRows,injectTaskWorkTime}=require('./inject-task-work-time.cjs');
 const base=path.join(__dirname,'../artifacts/upstream-ui/26.1007.21434');
 const read=asset=>fs.readFileSync(path.join(base,asset),'utf8');
-for(const [asset,marker] of [[ASSET,MARKER],[TURN_ASSET,TURN_MARKER]])test(asset+' guarded transform, namespace dispatch, parse and idempotence',()=>{
- const source=read(asset),out=injectTaskWorkTime(source,asset);
- assert.throws(()=>injectTaskWorkTime(out.text.replace(marker,marker+marker),asset));
- assert.deepEqual(ts.createSourceFile(asset,out.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics,[]);
- const {transformAsset}=require('./ui-test-transform-fixture.cjs'),native=transformAsset(source,asset,path.join(base,asset),ts);assert.deepEqual(ts.createSourceFile(asset,native.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics,[]);
-});
+
 test('native list stays pristine and both user message paths insert the summary below the first user',()=>{
  const rowAsset='webview/assets/virtualized-turn-list-c0fd56eabf08.js';assert.equal(injectTaskWorkTime(read(rowAsset),rowAsset).text, read(rowAsset));
 

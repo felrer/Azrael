@@ -640,6 +640,13 @@
         "string",
         "null"
       ]
+    },
+    "userWaitRequestId": {
+      "description": "Exact engine user-wait identity for this MCP request, when measured.",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [

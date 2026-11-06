@@ -123,6 +123,11 @@ async fn handle_spawn_agent(
     let args: SpawnAgentArgs = parse_arguments(&arguments)?;
     let fork_mode = args.fork_mode()?;
     let message = message_content(args.message)?;
+    if turn.config.role_profile.is_some() && args.agent_type.is_some() {
+        return Err(FunctionCallError::RespondToModel(
+            "agent_type is forbidden in profiled spawning; select profile_id".to_string(),
+        ));
+    }
     let role_name = args
         .agent_type
         .as_deref()
@@ -138,6 +143,7 @@ async fn handle_spawn_agent(
             version: SpawnConfigVersion::V2,
             full_history_fork: matches!(fork_mode, Some(SpawnAgentForkMode::FullHistory)),
             role_name,
+            profile_id: args.profile_id.as_deref(),
             model: args.model.as_deref(),
             reasoning_effort: args.reasoning_effort.clone(),
         },
@@ -147,6 +153,28 @@ async fn handle_spawn_agent(
     let config = prepared.config;
     let is_full_history_fork = matches!(fork_mode, Some(SpawnAgentForkMode::FullHistory));
     validate_message_recipient(config.model.as_deref().unwrap_or_default(), &source)?;
+    if !args.attachments.is_empty() {
+        let model = config.model.as_deref().unwrap_or(&turn.model_info().slug);
+        let info = session
+            .services
+            .models_manager
+            .get_model_info(model, &config.to_models_manager_config())
+            .await;
+        if !info
+            .input_modalities
+            .contains(&codex_protocol::openai_models::InputModality::Image)
+        {
+            return Err(FunctionCallError::RespondToModel(format!(
+                "Target model `{model}` does not support image attachments"
+            )));
+        }
+    }
+    let attachments = crate::image_attachments::prepare_attachments(
+        &session,
+        step_context.as_ref(),
+        &args.attachments,
+    )
+    .await?;
     let spawn_source = thread_spawn_source(
         session.thread_id,
         &turn.session_source,
@@ -190,7 +218,7 @@ async fn handle_spawn_agent(
             caller: session.thread_id,
             config,
             input: AgentInput::Message {
-                message: agent_message_from_tool(message, &source),
+                message: agent_message_with_attachments(message, &source, attachments.clone()),
                 mode: MessageDeliveryMode::TriggerTurn,
             },
             source: spawn_source,
@@ -248,12 +276,17 @@ async fn handle_spawn_agent(
     let task_name = String::from(new_agent_path);
 
     let hide_agent_metadata = turn.config.multi_agent_v2.hide_spawn_agent_metadata;
+    let attachment_receipt = attachment_receipt(&session, &attachments).await;
     let output = if hide_agent_metadata {
-        SpawnAgentResult::HiddenMetadata { task_name }
+        SpawnAgentResult::HiddenMetadata {
+            task_name,
+            attachments: attachment_receipt,
+        }
     } else {
         SpawnAgentResult::WithNickname {
             task_name,
             nickname,
+            attachments: attachment_receipt,
         }
     };
     Ok((output, new_thread_id, agent_status, agent_snapshot))
@@ -269,8 +302,11 @@ impl CoreToolRuntime for Handler {
 #[serde(deny_unknown_fields)]
 struct SpawnAgentArgs {
     message: String,
+    #[serde(default)]
+    attachments: Vec<crate::image_attachments::ImageAttachmentInput>,
     task_name: String,
     agent_type: Option<String>,
+    profile_id: Option<String>,
     model: Option<String>,
     reasoning_effort: Option<ReasoningEffort>,
     fork_turns: Option<String>,
@@ -312,9 +348,13 @@ pub(crate) enum SpawnAgentResult {
     WithNickname {
         task_name: String,
         nickname: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        attachments: Option<AttachmentReceipt>,
     },
     HiddenMetadata {
         task_name: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        attachments: Option<AttachmentReceipt>,
     },
 }
 

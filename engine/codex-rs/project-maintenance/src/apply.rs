@@ -90,15 +90,17 @@ pub(crate) fn apply<'a>(
             if batches.contains_key(group_id) {
                 continue;
             }
-            let batch = groups::batch(
-                root,
-                config,
-                config_identity,
-                &store.state,
-                group_id,
-                auth,
-                verification.unwrap_or(Verification::Registered),
-            )?;
+            let batch = crate::timing::phase("apply.initial_group_review", Some(root), || {
+                groups::batch(
+                    root,
+                    config,
+                    config_identity,
+                    &store.state,
+                    group_id,
+                    auth,
+                    verification.unwrap_or(Verification::Registered),
+                )
+            })?;
             let initial = batch.initial()?;
             if !batch.members.contains_key(string(choice, "id")?) {
                 return Err("selected grouped item is not live in its membership".into());
@@ -118,7 +120,12 @@ pub(crate) fn apply<'a>(
                 {
                     stopped_groups.insert(
                         group_id.to_owned(),
-                        "whole lifecycle group review is stale, incomplete or protected".into(),
+                        if initial[member_id]["token"] != member_choice["token"] {
+                            format!("whole lifecycle group review is stale, incomplete or protected; {}",
+                                stale_diagnostic(&member_choice["token"], None, &initial[member_id])?)
+                        } else {
+                            "whole lifecycle group review is stale, incomplete or protected".into()
+                        },
                     );
                 }
             }
@@ -135,243 +142,287 @@ pub(crate) fn apply<'a>(
             );
         }
     }
-    let mut ordered = Vec::new();
-    let mut approved_entries = BTreeMap::new();
-    // This precedes every destructive group member, so a later shared file
-    // cannot be discovered only after an earlier member was normalized.
-    for (group_id, batch) in &batches {
-        if stopped_groups.contains_key(group_id)
-            || !batch
-                .members
-                .keys()
-                .any(|id| by_id[id.as_str()]["decision"] == "delete")
-        {
-            continue;
-        }
-        for item in batch.members.values() {
-            let id = string(item, "id")?;
-            let prepared = (|| -> Result<Vec<PathBuf>, String> {
-                let path = Path::new(string(item, "path")?);
-                let entries = if paths::checked_metadata(root, path, auth)?.is_none() {
-                    Vec::new()
-                } else {
-                    paths::entries(root, path, auth)?
-                };
-                paths::normalization_preflight(&entries)?;
-                Ok(entries)
-            })();
-            match prepared {
-                Ok(entries) => {
-                    approved_entries.insert(id.to_owned(), entries);
-                }
-                Err(error) => {
-                    stopped_groups.insert(group_id.clone(), error);
-                    break;
-                }
-            }
-        }
-    }
-    let mut ordered_groups = BTreeSet::new();
-    let mut reservations =
-        crate::reservations::ReservationSet::acquire(root, request, &store.state, auth)?;
-    drop(catalog_locks);
-    store.suspend()?;
-    for choice in choices {
-        let item = &store.state.items[string(choice, "id")?];
-        if let Some(group_id) = groups::id(item) {
-            if !ordered_groups.insert(group_id.to_owned()) {
+    let mut reservations = crate::timing::phase("apply.reservation.acquire", Some(root), || {
+        crate::reservations::ReservationSet::acquire(root, request, &store.state, auth)
+    })?;
+    let mut publication_started = false;
+    let result = (|| {
+        drop(catalog_locks);
+        store.suspend()?;
+        let mut ordered = Vec::new();
+        let mut approved_entries = BTreeMap::new();
+        // This precedes every destructive group member, so a later shared file
+        // cannot be discovered only after an earlier member was normalized.
+        for (group_id, batch) in &batches {
+            if stopped_groups.contains_key(group_id)
+                || !batch
+                    .members
+                    .keys()
+                    .any(|id| by_id[id.as_str()]["decision"] == "delete")
+            {
                 continue;
             }
-            let mut members = batches[group_id].members.iter().collect::<Vec<_>>();
-            members.sort_by_key(|(id, item)| {
-                (
-                    (matches!(item["lifecycle_role"].as_str(), Some("log" | "evidence"))) as u8,
-                    (*id).clone(),
-                )
-            });
-            for (id, _) in members {
-                ordered.push(*by_id.get(id.as_str()).ok_or("missing lifecycle decision")?);
-            }
-        } else {
-            ordered.push(choice);
-        }
-    }
-    if let Some(nested) = auth.nested_retirement.borrow().as_ref() {
-        ordered.sort_by_key(|choice| choice["id"] == nested.parent);
-    }
-    let nested_parent_group = auth
-        .nested_retirement
-        .borrow()
-        .as_ref()
-        .and_then(|nested| groups::id(&store.state.items[&nested.parent]).map(str::to_owned));
-    let mut results = Vec::new();
-    for choice in ordered {
-        reservations.verify(auth)?;
-        let id = string(choice, "id")?;
-        let item = store.state.items[id].clone();
-        let path = Path::new(string(&item, "path")?);
-        let group_id = groups::id(&item).map(str::to_owned);
-        let mut outcome = choice.clone();
-        outcome["decision_id"] = json!(hash(&(
-            std::process::id(),
-            now_ms()?,
-            &id,
-            &store.state.revision,
-            &results
-        ))?);
-        if auth.nested_retirement.borrow().is_some() {
-            outcome["retire_nested_member"] =
-                serde_json::to_value(&*auth.nested_retirement.borrow())
-                    .map_err(|e| e.to_string())?;
-            outcome["nested_evidence_identity"] =
-                json!(crate::nested_retirement::evidence_identity(root, auth)?);
-        }
-        if crate::retirement::selected(auth, &item) {
-            outcome["retire_managed_roots"] = serde_json::to_value(&*auth.retirement.borrow())
-                .map_err(|error| error.to_string())?;
-            outcome["retirement_evidence_identity"] = json!(
-                auth.retirement
-                    .borrow()
-                    .as_ref()
-                    .map(|retirement| &retirement.evidence_identity)
-            );
-        }
-        if let Some(group) = &group_id {
-            outcome["lifecycle_group_id"] = json!(group);
-        }
-        let mut destructive = false;
-        let entries = if auth.cancelled() {
-            outcome["status"] = json!("cancelled");
-            outcome["attempted"] = json!(false);
-            None
-        } else if let Some(reason) = group_id
-            .as_ref()
-            .and_then(|group| stopped_groups.get(group))
-        {
-            outcome["status"] = json!("blocked");
-            outcome["error"] = json!(reason);
-            outcome["attempted"] = json!(false);
-            None
-        } else if choice["decision"] == "delete" {
-            match safe_entries(
-                root,
-                config,
-                config_identity,
-                &store.state,
-                &item,
-                choice,
-                auth,
-                group_id.as_ref().and_then(|group| batches.get(group)),
-                approved_entries.get(id).map(Vec::as_slice),
-                nested_parent_group
-                    .as_ref()
-                    .and_then(|group| batches.get(group)),
-            ) {
-                Ok(entries) if entries.is_empty() => {
-                    outcome["status"] = json!("deleted");
-                    outcome["attempted"] = json!(false);
-                    outcome["remaining"] = json!(false);
-                    None
-                }
-                Ok(entries) => {
-                    destructive = true;
-                    Some(entries)
-                }
-                Err(error) => {
-                    outcome["status"] = json!("blocked");
-                    outcome["error"] = json!(error);
-                    None
-                }
-            }
-        } else {
-            outcome["status"] = json!("deferred");
-            None
-        };
-        let index = store.state.decisions.len();
-        let mut persisted_group = None;
-        if destructive {
-            outcome["attempt_id"] = json!(format!(
-                "attempt-{}-{}-{}",
-                std::process::id(),
-                store.state.revision,
-                now_ms()?
-            ));
-            outcome["status"] = json!("pending");
-            outcome["remaining"] = Value::Null;
-            record(&mut store.state, index, &outcome);
-            if let Err(error) = store.save(auth) {
-                outcome["persistence_error"] = json!(error);
-                results.push(outcome);
-                return Ok(
-                    json!({"results":results,"aborted":true,"reason":"intent could not be persisted; deletion was not attempted"}),
-                );
-            }
-            // The intent save can trigger external policy/state changes. Validate
-            // again against the model's original token before any attributes move.
-            match safe_entries(
-                root,
-                config,
-                config_identity,
-                &store.state,
-                &item,
-                choice,
-                auth,
-                group_id.as_ref().and_then(|group| batches.get(group)),
-                if group_id
-                    .as_ref()
-                    .and_then(|group| batches.get(group))
-                    .is_some_and(|batch| batch.verification == Verification::Registered)
-                {
-                    entries.as_deref()
-                } else {
-                    None
-                },
-                nested_parent_group
-                    .as_ref()
-                    .and_then(|group| batches.get(group)),
-            ) {
-                Err(error) => {
-                    outcome["status"] = json!("blocked");
-                    outcome["error"] = json!(error);
-                }
-                Ok(fresh) => {
-                    if Some(&fresh) != entries.as_ref() {
-                        outcome["status"] = json!("blocked");
-                        outcome["error"] = json!("authorized descendant set changed");
-                    } else {
-                        reservations.verify(auth)?;
-                        if auth.cancelled() {
-                            outcome["status"] = json!("cancelled");
-                            outcome["attempted"] = json!(false);
+            for item in batch.members.values() {
+                let id = string(item, "id")?;
+                let prepared = crate::timing::phase(
+                    "apply.normalization_preflight",
+                    Some(root),
+                    || -> Result<Vec<PathBuf>, String> {
+                        let path = Path::new(string(item, "path")?);
+                        let entries = if paths::checked_metadata(root, path, auth)?.is_none() {
+                            Vec::new()
                         } else {
-                            match crate::timing::phase("apply.physical_delete", Some(path), || {
-                                let fallback_home = root.join("artifacts/maintenance/runtime");
-                                let home =
-                                    auth.coordination_home.as_deref().unwrap_or(&fallback_home);
-                                let budget =
-                                    crate::disk_budget::acquire(home, path, &|| auth.cancelled())?;
-                                let result = paths::delete_verified(root, path, &fresh, auth);
-                                budget.release();
-                                result
-                            }) {
-                                Ok(report) => {
-                                    outcome["status"] = report["status"].clone();
-                                    outcome["remaining"] = report["remaining"].clone();
-                                    outcome["deletion"] = report;
-                                }
-                                Err(error) => {
-                                    outcome["status"] = json!("failed");
-                                    outcome["remaining"] = Value::Null;
-                                    outcome["error"] = json!(error);
-                                }
-                            }
-                        }
+                            paths::entries(root, path, auth)?
+                        };
+                        paths::normalization_preflight(&entries)?;
+                        Ok(entries)
+                    },
+                );
+                match prepared {
+                    Ok(entries) => {
+                        approved_entries.insert(id.to_owned(), entries);
+                    }
+                    Err(error) => {
+                        stopped_groups.insert(group_id.clone(), error);
+                        break;
                     }
                 }
             }
-            if outcome["status"] == "deleted" && outcome["remaining"] == false {
-                if let Some(batch) = group_id.as_ref().and_then(|group| batches.get_mut(group)) {
-                    batch.completed.insert(id.to_owned());
+        }
+        let mut ordered_groups = BTreeSet::new();
+        for choice in choices {
+            let item = &store.state.items[string(choice, "id")?];
+            if let Some(group_id) = groups::id(item) {
+                if !ordered_groups.insert(group_id.to_owned()) {
+                    continue;
+                }
+                let mut members = batches[group_id].members.iter().collect::<Vec<_>>();
+                members.sort_by_key(|(id, item)| {
+                    (
+                        (matches!(item["lifecycle_role"].as_str(), Some("log" | "evidence"))) as u8,
+                        (*id).clone(),
+                    )
+                });
+                for (id, _) in members {
+                    ordered.push(*by_id.get(id.as_str()).ok_or("missing lifecycle decision")?);
+                }
+            } else {
+                ordered.push(choice);
+            }
+        }
+        if let Some(nested) = auth.nested_retirement.borrow().as_ref() {
+            ordered.sort_by_key(|choice| choice["id"] == nested.parent);
+        }
+        let nested_parent_group =
+            auth.nested_retirement.borrow().as_ref().and_then(|nested| {
+                groups::id(&store.state.items[&nested.parent]).map(str::to_owned)
+            });
+        let mut results = Vec::new();
+        for choice in ordered {
+            crate::timing::phase("apply.reservation.verify.before_item", Some(root), || {
+                reservations.verify(auth)
+            })?;
+            let id = string(choice, "id")?;
+            let item = store.state.items[id].clone();
+            let path = Path::new(string(&item, "path")?);
+            let group_id = groups::id(&item).map(str::to_owned);
+            let mut outcome = choice.clone();
+            outcome["decision_id"] = json!(hash(&(
+                std::process::id(),
+                now_ms()?,
+                &id,
+                &store.state.revision,
+                &results
+            ))?);
+            if auth.nested_retirement.borrow().is_some() {
+                outcome["retire_nested_member"] =
+                    serde_json::to_value(&*auth.nested_retirement.borrow())
+                        .map_err(|e| e.to_string())?;
+                outcome["nested_evidence_identity"] =
+                    json!(crate::nested_retirement::evidence_identity(root, auth)?);
+            }
+            if crate::retirement::selected(auth, &item) {
+                outcome["retire_managed_roots"] = serde_json::to_value(&*auth.retirement.borrow())
+                    .map_err(|error| error.to_string())?;
+                outcome["retirement_evidence_identity"] = json!(
+                    auth.retirement
+                        .borrow()
+                        .as_ref()
+                        .map(|retirement| &retirement.evidence_identity)
+                );
+            }
+            if let Some(group) = &group_id {
+                outcome["lifecycle_group_id"] = json!(group);
+            }
+            let mut destructive = false;
+            let entries = if auth.cancelled() {
+                outcome["status"] = json!("cancelled");
+                outcome["attempted"] = json!(false);
+                None
+            } else if let Some(reason) = group_id
+                .as_ref()
+                .and_then(|group| stopped_groups.get(group))
+            {
+                outcome["status"] = json!("blocked");
+                outcome["error"] = json!(reason);
+                outcome["attempted"] = json!(false);
+                None
+            } else if choice["decision"] == "delete" {
+                match crate::timing::phase("apply.safe_entries.pre_intent", Some(path), || {
+                    safe_entries(
+                        root,
+                        config,
+                        config_identity,
+                        &store.state,
+                        &item,
+                        choice,
+                        auth,
+                        group_id.as_ref().and_then(|group| batches.get(group)),
+                        approved_entries.get(id).map(Vec::as_slice),
+                        nested_parent_group
+                            .as_ref()
+                            .and_then(|group| batches.get(group)),
+                    )
+                }) {
+                    Ok(entries) if entries.is_empty() => {
+                        outcome["status"] = json!("deleted");
+                        outcome["attempted"] = json!(false);
+                        outcome["remaining"] = json!(false);
+                        None
+                    }
+                    Ok(entries) => {
+                        destructive = true;
+                        Some(entries)
+                    }
+                    Err(error) => {
+                        outcome["status"] = json!("blocked");
+                        outcome["error"] = json!(error);
+                        None
+                    }
+                }
+            } else {
+                outcome["status"] = json!("deferred");
+                None
+            };
+            let index = store.state.decisions.len();
+            let mut persisted_group = None;
+            if let Some(approved) = entries.as_deref() {
+                outcome["attempt_id"] = json!(format!(
+                    "attempt-{}-{}-{}",
+                    std::process::id(),
+                    store.state.revision,
+                    now_ms()?
+                ));
+                outcome["status"] = json!("pending");
+                outcome["remaining"] = Value::Null;
+                record(&mut store.state, index, &outcome);
+                publication_started = true;
+                if let Err(error) =
+                    crate::timing::phase("apply.intent_save", Some(path), || store.save(auth))
+                {
+                    outcome["persistence_error"] = json!(error);
+                    results.push(outcome);
+                    return Ok(
+                        json!({"results":results,"aborted":true,"reason":"intent could not be persisted; deletion was not attempted"}),
+                    );
+                }
+                // Use the entries approved before the durable intent. Physical
+                // deletion retains its own approved-tree and OS/link handling.
+                if auth.cancelled() {
+                    outcome["status"] = json!("cancelled");
+                    outcome["attempted"] = json!(false);
+                } else {
+                    match crate::timing::phase("apply.physical_delete", Some(path), || {
+                        // Hold the shared I/O slot only for the destructive
+                        // attempt, never while reviewing the next group member.
+                        let fallback_home = root.join("artifacts/maintenance/runtime");
+                        let home = auth.coordination_home.as_deref().unwrap_or(&fallback_home);
+                        let budget = crate::disk_budget::acquire(home, path, &|| auth.cancelled())?;
+                        let result = paths::delete_verified(root, path, approved, auth);
+                        budget.release();
+                        result
+                    }) {
+                        Ok(report) => {
+                            outcome["status"] = report["status"].clone();
+                            outcome["remaining"] = report["remaining"].clone();
+                            outcome["deletion"] = report;
+                        }
+                        Err(error) => {
+                            outcome["status"] = json!("failed");
+                            outcome["remaining"] = Value::Null;
+                            outcome["error"] = json!(error);
+                        }
+                    }
+                }
+                if outcome["status"] == "deleted" && outcome["remaining"] == false {
+                    if let Some(batch) = group_id.as_ref().and_then(|group| batches.get_mut(group))
+                    {
+                        batch.completed.insert(id.to_owned());
+                    }
+                }
+                group_outcome(
+                    &mut store.state,
+                    &batches,
+                    &mut stopped_groups,
+                    group_id.as_deref(),
+                    &mut outcome,
+                    destructive,
+                );
+                // Persist the actual deletion result before any subsequent read or
+                // authorization can fail. A denied result write returns the observed
+                // outcome while its durable intent remains pending for recovery.
+                if let Some(nested) = auth.nested_retirement.borrow().as_ref() {
+                    store
+                        .state
+                        .items
+                        .get_mut(&nested.parent)
+                        .ok_or("nested parent disappeared")?["nested_retirement_requires_registration"] =
+                        json!(true);
+                }
+                record(&mut store.state, index, &outcome);
+                publication_started = true;
+                if let Err(error) =
+                    crate::timing::phase("apply.actual_result_save", Some(path), || {
+                        store.save(auth)
+                    })
+                {
+                    outcome["persistence_error"] = json!(error);
+                    results.push(outcome);
+                    return Ok(
+                        json!({"results":results,"aborted":true,"reason":"result persistence failed; durable intent may remain pending"}),
+                    );
+                }
+                persisted_group = group_id.as_ref().map(|id| store.state.groups[id].clone());
+            }
+            let observation = crate::timing::phase(
+                "apply.final_presence",
+                Some(path),
+                || -> Result<bool, String> {
+                    paths::check(root, path, auth)?;
+                    match std::fs::symlink_metadata(path) {
+                        Ok(_) => Ok(true),
+                        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
+                        Err(error) => Err(error.to_string()),
+                    }
+                },
+            );
+            match observation {
+                Ok(remaining) => outcome["remaining"] = json!(remaining),
+                Err(error) => {
+                    outcome["remaining"] = Value::Null;
+                    outcome["observation_error"] = json!(error);
+                }
+            }
+            if !destructive && outcome["status"] == "deleted" {
+                if outcome["remaining"] == false {
+                    if let Some(batch) = group_id.as_ref().and_then(|group| batches.get_mut(group))
+                    {
+                        batch.completed.insert(id.to_owned());
+                    }
+                } else {
+                    outcome["status"] = json!("blocked");
+                    outcome["error"] =
+                        json!("previously absent target reappeared or is unavailable");
                 }
             }
             group_outcome(
@@ -382,91 +433,68 @@ pub(crate) fn apply<'a>(
                 &mut outcome,
                 destructive,
             );
-            // Persist the actual deletion result before any subsequent read or
-            // authorization can fail. A denied result write returns the observed
-            // outcome while its durable intent remains pending for recovery.
-            if let Some(nested) = auth.nested_retirement.borrow().as_ref() {
-                store
+            // The destructive receipt is already durable. Only a changed final
+            // observation or group state needs another commit; errors change the
+            // outcome too and must never be discarded with this redundant write.
+            if !destructive
+                || store
                     .state
-                    .items
-                    .get_mut(&nested.parent)
-                    .ok_or("nested parent disappeared")?["nested_retirement_requires_registration"] =
-                    json!(true);
-            }
-            record(&mut store.state, index, &outcome);
-            if let Err(error) = store.save(auth) {
-                outcome["persistence_error"] = json!(error);
-                results.push(outcome);
-                return Ok(
-                    json!({"results":results,"aborted":true,"reason":"result persistence failed; durable intent may remain pending"}),
-                );
-            }
-            persisted_group = group_id.as_ref().map(|id| store.state.groups[id].clone());
-        }
-        let observation = (|| -> Result<bool, String> {
-            paths::check(root, path, auth)?;
-            match std::fs::symlink_metadata(path) {
-                Ok(_) => Ok(true),
-                Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
-                Err(error) => Err(error.to_string()),
-            }
-        })();
-        match observation {
-            Ok(remaining) => outcome["remaining"] = json!(remaining),
-            Err(error) => {
-                outcome["remaining"] = Value::Null;
-                outcome["observation_error"] = json!(error);
-            }
-        }
-        if !destructive && outcome["status"] == "deleted" {
-            if outcome["remaining"] == false {
-                if let Some(batch) = group_id.as_ref().and_then(|group| batches.get_mut(group)) {
-                    batch.completed.insert(id.to_owned());
+                    .decisions
+                    .iter()
+                    .find(|decision| decision["decision_id"] == outcome["decision_id"])
+                    != Some(&outcome)
+                || group_id.as_ref().map(|id| &store.state.groups[id]) != persisted_group.as_ref()
+            {
+                record(&mut store.state, index, &outcome);
+                publication_started = true;
+                if let Err(error) =
+                    crate::timing::phase("apply.final_observation_save", Some(path), || {
+                        store.save(auth)
+                    })
+                {
+                    outcome["persistence_error"] = json!(error);
+                    results.push(outcome);
+                    return Ok(
+                        json!({"results":results,"aborted":true,"reason":"observation persistence failed; prior destructive result remains recorded"}),
+                    );
                 }
-            } else {
-                outcome["status"] = json!("blocked");
-                outcome["error"] = json!("previously absent target reappeared or is unavailable");
             }
+            results.push(outcome);
         }
-        group_outcome(
-            &mut store.state,
-            &batches,
-            &mut stopped_groups,
-            group_id.as_deref(),
-            &mut outcome,
-            destructive,
-        );
-        // The destructive receipt is already durable. Only a changed final
-        // observation or group state needs another commit; errors change the
-        // outcome too and must never be discarded with this redundant write.
-        if !destructive
-            || store
-                .state
-                .decisions
-                .iter()
-                .find(|decision| decision["decision_id"] == outcome["decision_id"])
-                != Some(&outcome)
-            || group_id.as_ref().map(|id| &store.state.groups[id]) != persisted_group.as_ref()
-        {
-            record(&mut store.state, index, &outcome);
-            if let Err(error) = store.save(auth) {
-                outcome["persistence_error"] = json!(error);
-                results.push(outcome);
-                return Ok(
-                    json!({"results":results,"aborted":true,"reason":"observation persistence failed; prior destructive result remains recorded"}),
-                );
-            }
+        let group_results = batches
+            .keys()
+            .map(|id| json!({"id":id,"status":store.state.groups[id]["cleanup_status"]}))
+            .collect::<Vec<_>>();
+        let cancelled = results.iter().any(|result| result["status"] == "cancelled");
+        let _catalog_locks = crate::lock_recovery::wait_for_lock(auth.lock_wait.get(), || {
+            crate::registry::lock_request(root, request, &store.state, auth)
+        })?;
+        crate::timing::phase("apply.reservation.finalize", Some(root), || {
+            reservations.release_terminal(&store.state, auth)
+        })?;
+        Ok(
+            json!({"results":results,"groups":group_results,"aborted":cancelled,"cancelled":cancelled}),
+        )
+    })();
+    if result.is_err() && !publication_started {
+        let aborted = (|| -> Result<(), String> {
+            store.resume_before_abort()?;
+            let _catalog_locks = crate::lock_recovery::wait_for_lock(auth.lock_wait.get(), || {
+                crate::registry::lock_request(root, request, &store.state, auth)
+            })?;
+            let current = store.preintent_state()?;
+            crate::timing::phase("apply.reservation.abort_before_intent", Some(root), || {
+                reservations.abort_before_intent(&current, auth)
+            })
+        })();
+        if let Err(abort_error) = aborted {
+            return Err(crate::lock_recovery::with_context(
+                result.unwrap_err(),
+                &format!("pre-intent reservation retained: {abort_error}"),
+            ));
         }
-        results.push(outcome);
     }
-    let group_results = batches
-        .keys()
-        .map(|id| json!({"id":id,"status":store.state.groups[id]["cleanup_status"]}))
-        .collect::<Vec<_>>();
-    let cancelled = results.iter().any(|result| result["status"] == "cancelled");
-    let _catalog_locks = crate::registry::lock_request(root, request, &store.state, auth)?;
-    reservations.release_terminal(&store.state, auth)?;
-    Ok(json!({"results":results,"groups":group_results,"aborted":cancelled,"cancelled":cancelled}))
+    result
 }
 
 fn group_outcome(
@@ -546,7 +574,11 @@ fn safe_entries(
     approved: Option<&[PathBuf]>,
     enclosing: Option<&groups::Batch>,
 ) -> Result<Vec<PathBuf>, String> {
-    crate::reservations::check_item(root, item, auth)?;
+    if batch.is_some() {
+        crate::reservations::check_group_member_local(root, item, auth)?;
+    } else {
+        crate::reservations::check_item(root, item, auth)?;
+    }
     let observe = || -> Result<Value, String> {
         if let Some(enclosing) = enclosing {
             enclosing.unchanged_controls(root, state, auth)?;
@@ -580,10 +612,17 @@ fn safe_entries(
     }
     // Observe after every write authorization: callbacks may change either the
     // target or another group member. Compare directly with the model's review,
-    // retaining a fresh observation on both sides of the durable intent save.
-    let latest = observe()?;
+    // using the fresh pre-intent observation to approve the deletion entries.
+    let latest = crate::timing::phase("apply.current_review", Some(path), observe)?;
     if latest["token"] != choice["token"] {
-        return Err("stale review token after authorization".into());
+        let baseline = batch.map(|batch| batch.initial()).transpose()?;
+        return Err(stale_diagnostic(
+            &choice["token"],
+            baseline
+                .as_ref()
+                .and_then(|reviews| reviews.get(string(item, "id").ok()?)),
+            &latest,
+        )?);
     }
     if !latest["blockers"].as_array().is_some_and(Vec::is_empty) {
         return Err(format!("protected: {}", latest["blockers"]));
@@ -594,4 +633,55 @@ fn safe_entries(
         return Err("config changed during review".into());
     }
     Ok(entries)
+}
+
+fn stale_diagnostic(
+    expected: &Value,
+    baseline: Option<&Value>,
+    current: &Value,
+) -> Result<String, String> {
+    let components = |review: &Value| -> Result<Value, String> {
+        let source = &review["membership_source_observation"];
+        Ok(
+            json!({"identity":review["identity"],"root_sha256":hash(&review["root_observation"])?,
+            "source_identity":source["identity"],"owner_revision":source["owner"]["revision"],
+            "references_sha256":hash(&source["references"])?,"group_token":review["group_token"]}),
+        )
+    };
+    // Opaque caller tokens cannot reconstruct historical components. Report the
+    // in-request baseline separately rather than inventing expected evidence.
+    Ok(format!(
+        "stale review token after authorization: {}",
+        json!({
+        "expected_token":expected,"current_token":current["token"],
+        "baseline_components":baseline.map(components).transpose()?,"current_components":components(current)?})
+    ))
+}
+
+#[cfg(test)]
+mod diagnostic_tests {
+    use super::*;
+
+    #[test]
+    fn stale_diagnostics_hash_components_without_exporting_owner_payload() {
+        let baseline = json!({"identity":"old","token":"old-token","root_observation":{"file_id":1},
+            "membership_source_observation":{"identity":"source-old","owner":{"revision":1,"payload":"private payload"},"references":["private reason"]}});
+        let mut current = baseline.clone();
+        current["token"] = json!("new-token");
+        current["root_observation"]["file_id"] = json!(2);
+        current["membership_source_observation"]["owner"]["revision"] = json!(2);
+        let error = stale_diagnostic(&baseline["token"], Some(&baseline), &current).unwrap();
+        assert!(!error.contains("private payload"));
+        assert!(!error.contains("private reason"));
+        let (_, detail) = error.split_once(": ").unwrap();
+        let detail: Value = serde_json::from_str(detail).unwrap();
+        assert_eq!(detail["expected_token"], "old-token");
+        assert_eq!(detail["current_token"], "new-token");
+        assert_ne!(
+            detail["baseline_components"]["root_sha256"],
+            detail["current_components"]["root_sha256"]
+        );
+        assert_eq!(detail["baseline_components"]["owner_revision"], 1);
+        assert_eq!(detail["current_components"]["owner_revision"], 2);
+    }
 }

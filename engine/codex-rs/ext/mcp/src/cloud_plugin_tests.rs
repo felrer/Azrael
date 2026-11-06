@@ -544,6 +544,13 @@ async fn run_cloud_catalog_refresh_lifecycle() -> anyhow::Result<()> {
             None,
             None,
         ),
+        (
+            "same-account-cooldown",
+            Ok(PluginCatalog::default()),
+            Some("plugin_remote"),
+            None,
+            None,
+        ),
         ("removed", Ok(PluginCatalog::default()), None, None, None),
         (
             "restored",
@@ -575,7 +582,6 @@ async fn run_cloud_catalog_refresh_lifecycle() -> anyhow::Result<()> {
         ),
     ] {
         let previous_discoveries = provider.calls.load(Ordering::SeqCst);
-        let retry_discovery = turn == "in-flight-auth-change";
         if let Some(account) = new_account {
             // Do not manually refresh MCP: the auth transition must pick up this new inventory.
             *apps_tools
@@ -615,14 +621,46 @@ async fn run_cloud_catalog_refresh_lifecycle() -> anyhow::Result<()> {
             .await?;
             assert_eq!(provider.calls.load(Ordering::SeqCst), previous_discoveries);
         }
-        if matches!(
-            turn,
-            "complete-with-warning-disables-plugin" | "new-account-partial"
-        ) {
+        if matches!(turn, "removed" | "new-account-discovered") {
             // Reconnecting permits recovery before the thread's cooldown expires.
+            let resources = provider
+                .resources
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .clone()
+                .context("cloud provider resource client missing")?;
+            let previous_auth =
+                resources.auth_cache_key_for_server(codex_mcp::CODEX_APPS_MCP_SERVER_NAME);
+            let previous_resource =
+                resources.server_cache_key(codex_mcp::CODEX_APPS_MCP_SERVER_NAME);
+            assert!(previous_resource.is_some(), "turn {turn}: Apps connection");
             test.codex
                 .submit(codex_protocol::protocol::Op::RefreshMcpServers)
                 .await?;
+            tokio::time::timeout(Duration::from_secs(10), async {
+                loop {
+                    test.codex
+                        .mcp_server_status_snapshot(
+                            codex_mcp::CODEX_APPS_MCP_SERVER_NAME,
+                            codex_mcp::McpSnapshotDetail::ToolsAndAuthOnly,
+                        )
+                        .await?;
+                    let resource =
+                        resources.server_cache_key(codex_mcp::CODEX_APPS_MCP_SERVER_NAME);
+                    if resource.is_some() && resource != previous_resource {
+                        break;
+                    }
+                    tokio::task::yield_now().await;
+                }
+                anyhow::Ok(())
+            })
+            .await??;
+            assert!(
+                resources.auth_cache_key_for_server(codex_mcp::CODEX_APPS_MCP_SERVER_NAME)
+                    == previous_auth,
+                "turn {turn}: reconnect should preserve auth"
+            );
+            assert_eq!(provider.calls.load(Ordering::SeqCst), previous_discoveries);
         }
         provider.set_reply(reply);
         let previous_calls = recorded_apps_tool_calls(&server).await.len();
@@ -763,7 +801,12 @@ async fn run_cloud_catalog_refresh_lifecycle() -> anyhow::Result<()> {
         );
         assert_eq!(
             provider.calls.load(Ordering::SeqCst),
-            previous_discoveries + 1 + if retry_discovery { requests.len() } else { 0 },
+            previous_discoveries
+                + match turn {
+                    "same-account-cooldown" => 0,
+                    "in-flight-auth-change" => 1 + requests.len(),
+                    _ => 1,
+                },
             "turn {turn}"
         );
     }

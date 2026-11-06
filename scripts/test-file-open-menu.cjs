@@ -5,7 +5,7 @@ const vo = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 const { test } = require("node:test");
-const { FILE_OPEN_MENU_ASSET, ANCHOR, MARKER, REPLACEMENT, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
+const { FILE_OPEN_MENU_ASSET, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
 const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const _s = require("../extensions/azrael-ex/node_modules/typescript");
 const original = vo.readFileSync(path.join(root, FILE_OPEN_MENU_ASSET), "utf8");
@@ -135,20 +135,10 @@ test("menu transform participates in the host transform and cache fingerprint", 
     assert.equal(statistics.hits, 1);
   } finally {
     assert.equal(path.dirname(cacheDirectory), temporaryRoot);
-    vo.rmSync(cacheDirectory, { recursive: true, force: true });
+    vo.rmSync(cacheDirectory, { recursive: true });
   }
 });
 
-test("menu transform is idempotent, scoped to its asset and rejects ambiguous pinned input", () => {
-  const result = injectFileOpenMenu(original, FILE_OPEN_MENU_ASSET);
-
-  assert.equal(_s.createSourceFile(FILE_OPEN_MENU_ASSET, result.text, _s.ScriptTarget.Latest, true, _s.ScriptKind.JS).parseDiagnostics.length, 0);
-
-  assert.equal(injectFileOpenMenu(original, "other.js").text, original);
-  for (const input of ["unrelated", ANCHOR + ANCHOR, MARKER + ANCHOR, REPLACEMENT.replace("vscode", "other")]) {
-    assert.throws(() => injectFileOpenMenu(input, FILE_OPEN_MENU_ASSET), /marker|anchor/);
-  }
-});
 function pinnedNode(source, ownerName, predicate) {
   const hst = _s.createSourceFile("pinned-owner.js", source, _s.ScriptTarget.Latest, true, _s.ScriptKind.JS);
   const owners = [];

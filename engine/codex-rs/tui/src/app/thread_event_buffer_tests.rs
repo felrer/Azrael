@@ -18,6 +18,7 @@ fn turn_started_notification(thread_id: ThreadId, turn_id: &str) -> ServerNotifi
         thread_id: thread_id.to_string(),
         turn: Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: turn_id.to_string(),
             root_turn_id: None,

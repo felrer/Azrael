@@ -47,6 +47,7 @@ async fn usage_notice_preserves_composer_geometry_on_recovery() -> Result<()> {
                     thread_id: ThreadId::new().to_string(),
                     turn: Turn {
                         root_resume_wait: None,
+                        user_wait_timing: None,
 
                         id: "turn".into(),
                         root_turn_id: None,

@@ -787,7 +787,7 @@ async fn get_model_info_applies_long_context_override_to_bundled_gpt_5_6_models(
             .get_model_info(slug, &ModelsManagerConfig::default())
             .await;
         expected.context_window = Some(872_000);
-        expected.auto_compact_token_limit = Some(828_400);
+        expected.auto_compact_token_limit = Some(258_400);
 
         assert_eq!(model_info, expected);
     }

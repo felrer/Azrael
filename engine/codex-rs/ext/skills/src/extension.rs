@@ -289,6 +289,9 @@ where
         thread_store: &ExtensionData,
         step_store: &ExtensionData,
     ) -> Vec<Arc<dyn for<'call> ToolExecutor<ToolCall<'call>>>> {
+        if step_store.get::<HostSkillsSnapshot>().is_some_and(|s| s.selected_only()) {
+            return Vec::new();
+        }
         let resolved_executor_roots = step_store
             .get::<Vec<ResolvedSelectedCapabilityRoot>>()
             .map(|roots| roots.as_slice().to_vec())
@@ -388,6 +391,9 @@ where
                 .map(|executor_skills| executor_skills.0.clone())
                 .unwrap_or_default();
             catalog.extend(self.list_skills(query, &thread_state).await);
+            if host_snapshot.as_ref().is_some_and(|s| s.selected_only()) {
+                catalog.entries.retain(|entry| entry.authority.kind == SkillSourceKind::Host);
+            }
             if let Some(model_info) = thread_store.get::<ModelInfo>() {
                 crate::world_state_catalogs::filter_host_catalog_for_model(
                     &mut catalog,

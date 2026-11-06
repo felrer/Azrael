@@ -137,6 +137,7 @@ fn persisted_event_msg(
         | EventMsg::TurnStarted(_)
         | EventMsg::TurnComplete(_)
         | EventMsg::TurnDeferred(_)
+        | EventMsg::UserWaitTimingUpdated(_)
         | EventMsg::RootResumeWaitUpdated(_)
         | EventMsg::HostApprovalLedgerUpdated(_)
         | EventMsg::ThreadSettingsApplied(_) => Some(Cow::Borrowed(ev)),

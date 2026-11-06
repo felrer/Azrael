@@ -163,6 +163,7 @@ fn start_safety_buffering_test_turn(
             thread_id: thread_id.to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: turn_id.to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -529,6 +530,7 @@ async fn tool_suggestion_install_url_is_validated_before_opening() {
         chat.handle_elicitation_request_now(
             codex_app_server_protocol::RequestId::Integer(9),
             codex_app_server_protocol::McpServerElicitationRequestParams {
+                user_wait_request_id: None,
                 thread_id: request_thread_id.to_string(),
                 turn_id: Some("turn-install".to_string()),
                 server_name: "connector-server".to_string(),
@@ -593,6 +595,7 @@ async fn invalid_url_elicitation_is_declined() {
     chat.handle_elicitation_request_now(
         codex_app_server_protocol::RequestId::Integer(9),
         codex_app_server_protocol::McpServerElicitationRequestParams {
+            user_wait_request_id: None,
             thread_id: request_thread_id.to_string(),
             turn_id: Some("turn-auth".to_string()),
             server_name: "payments".to_string(),
@@ -879,6 +882,7 @@ async fn live_app_server_turn_completed_clears_working_status_after_answer_item(
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -930,6 +934,7 @@ async fn live_app_server_turn_completed_clears_working_status_after_answer_item(
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -971,6 +976,7 @@ async fn live_app_server_turn_started_sets_feedback_turn_id() {
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -1558,6 +1564,7 @@ async fn live_app_server_failed_turn_does_not_duplicate_error_history() {
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -1597,6 +1604,7 @@ async fn live_app_server_failed_turn_does_not_duplicate_error_history() {
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -1734,6 +1742,7 @@ async fn live_app_server_stream_recovery_restores_previous_status_header() {
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -1815,6 +1824,7 @@ async fn live_app_server_server_overloaded_error_renders_error() {
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,
@@ -1862,6 +1872,7 @@ async fn live_app_server_cyber_policy_error_renders_dedicated_notice() {
             thread_id: "thread-1".to_string(),
             turn: AppServerTurn {
                 root_resume_wait: None,
+                user_wait_timing: None,
                 id: "turn-1".to_string(),
                 root_turn_id: None,
                 parent_turn_id: None,

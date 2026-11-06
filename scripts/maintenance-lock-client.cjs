@@ -3,11 +3,13 @@
 const path = require("node:path");
 const lifecycle = require("./artifact-lifecycle.cjs");
 const { acquire } = require("./maintenance-lock-owner.cjs");
+const { assertEnabled } = require("./maintenance-preferences.cjs");
 
 function main(root) {
   if (!root || !path.isAbsolute(root)) throw Error("Absolute project root required");
   root = path.resolve(root);
-  const lease = acquire(path.join(root, "artifacts/maintenance/lifecycles/catalog.lock"), { operation: "lifecycle.cleanup" });
+  assertEnabled("deletion");
+  const lease = acquire(path.join(root, "artifacts/maintenance/lifecycles/catalog.lock"), { operation: "lifecycle.cleanup", queue: true });
   let reservations = [], released = false, reserved = false, finished = false, sequence = 0;
   let buffered = "";
   const maxFrameBytes = 64 * 1024 * 1024;
@@ -36,6 +38,7 @@ function main(root) {
           result = lifecycle.planCleanup(root, { paths: request.paths, protectedPaths: request.protectedPaths, reportPath: request.reportPath, reservations });
           break;
         case "reserve": {
+          assertEnabled("deletion");
           if (reserved) throw Error("Cleanup already reserved");
           if (!Array.isArray(request.ids) || !request.ids.length || new Set(request.ids).size !== request.ids.length) throw Error("Unique cleanup IDs required");
           const records = lifecycle.catalog(root);

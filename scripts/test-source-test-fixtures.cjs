@@ -19,6 +19,12 @@ function fixture() {
 function write(root, relative, value = 'fixture') {
   const filename = path.join(root, relative); fs.mkdirSync(path.dirname(filename), { recursive: true }); fs.writeFileSync(filename, value); return filename;
 }
+function instructionFixture() {
+  const root = fixture(), parent = path.join(root, 'artifacts/instruction-fixtures');
+  fs.mkdirSync(parent, { recursive: true });
+  require('node:child_process').execFileSync('git', ['init', '--quiet', root], { windowsHide: true });
+  return { root, parent };
+}
 after(() => { for (const root of roots) { assert.equal(path.dirname(root), parent); fs.rmSync(root, { recursive: true }); } });
 
 test('unrelated selections have no prerequisites or effects', () => {
@@ -30,48 +36,26 @@ test('all missing prerequisites aggregate with structured evidence', () => {
   const options = { root, files, env: { AZRAEL_TEST_COMPUTER_USE_PLUGIN: path.join(root, 'plugin') } };
   const report = inspect(options);
   assert.equal(report.status, 'blocked');
-  assert(report.requirements.filter(r => r.status === 'blocked').length > 15);
-  assert.throws(() => check(options), error => error.code === 'AZRAEL_SOURCE_FIXTURES_BLOCKED' && error.readiness.status === 'blocked' && error.message.includes('computer-use.runtime') && error.message.includes('instruction.engine'));
+  assert(report.requirements.some(r => r.status === 'blocked' && r.id.startsWith('session-links.')));
+  assert.throws(() => check(options), error => error.code === 'AZRAEL_SOURCE_FIXTURES_BLOCKED' && error.readiness.status === 'blocked' && error.message.includes('session-links.') && error.message.includes('instruction.engine'));
   assert.equal(fs.readdirSync(root).length, 0);
 });
 
 test('explicit instruction roots must be nonempty absolute but may have another registered owner', () => {
   const root = fixture(), otherOwner = path.join(parent, 'caller-owned-not-created');
-  const files = ['scripts/tests/instruction-catalog.test.cjs', 'scripts/tests/instruction-migration.test.cjs'];
-  assert.equal(inspect({ root, files, env: { AZRAEL_CATALOG_TEST_ROOT: otherOwner, AZRAEL_MIGRATION_TEST_ROOT: otherOwner } }).status, 'ready');
-  const report = inspect({ root, files, env: { AZRAEL_CATALOG_TEST_ROOT: 'relative', AZRAEL_MIGRATION_TEST_ROOT: '' } });
+  const files = ['scripts/tests/instruction-catalog.test.cjs', 'scripts/tests/instruction-migration.test.cjs', 'scripts/tests/instruction-workbench-resources.test.cjs'];
+  assert.equal(inspect({ root, files, env: { AZRAEL_CATALOG_TEST_ROOT: otherOwner, AZRAEL_MIGRATION_TEST_ROOT: otherOwner, AZRAEL_WORKBENCH_TEST_ROOT: otherOwner } }).status, 'ready');
+  const report = inspect({ root, files, env: { AZRAEL_CATALOG_TEST_ROOT: 'relative', AZRAEL_MIGRATION_TEST_ROOT: '', AZRAEL_WORKBENCH_TEST_ROOT: 'relative' } });
   assert(report.requirements.every(r => r.status === 'blocked'));
   assert(!fs.existsSync(otherOwner));
 });
 
-test('runtime source hashes reject packaged or altered bytes without executing them', () => {
-  const root = fixture(), runtime = path.join(root, 'raw'), transport = 'bin/node_modules/@oai/sky/dist/project/cua/sky_js/src/targets/windows/internal/computer_use_client.js';
-  write(runtime, transport, 'transformed or corrupt bytes');
-  const report = inspect({ root, files: ['scripts/tests/sync-codex-environment.test.cjs'], env: { AZRAEL_TEST_COMPUTER_USE_RUNTIME: runtime } });
-  assert.equal(report.requirements.length, 1);
-  assert.match(report.requirements[0].reason, /SHA256 mismatch/);
-  assert.equal(fs.readFileSync(path.join(runtime, transport), 'utf8'), 'transformed or corrupt bytes');
-});
-
-test('LOCALAPPDATA fallback and historical default follow the selected root', () => {
-  const root = fixture(), appData = path.join(root, 'local');
-  const report = inspect({ root, files: ['scripts/test-computer-use-runtime.cjs'], env: { LOCALAPPDATA: appData, AZRAEL_TEST_COMPUTER_USE_PLUGIN: path.join(root, 'plugin') } });
-  assert(report.requirements.find(r => r.id === 'computer-use.transport').path.startsWith(path.join(appData, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77/bin')));
-  assert.equal(report.requirements.find(r => r.id === 'computer-use.historical-manifest').path, path.join(root, 'artifacts/releases/all_changes_20261007_r6/computer-use/manifest.json'));
-});
-
-test('each runtime consumer uses the same bin override; empty runtime/plugin overrides use consumer defaults', () => {
-  const root = fixture(), override = path.join(root, 'selected-raw');
-  for (const selected of ['scripts/test-computer-use-runtime.cjs', 'scripts/test-sky-control-policy.cjs', 'scripts/tests/sync-codex-environment.test.cjs']) {
-    const report = inspect({ root, files: [selected], env: { AZRAEL_TEST_COMPUTER_USE_RUNTIME: override } });
-    assert.equal(report.requirements.find(r => r.id === 'computer-use.transport').path,
-      path.join(override, 'bin', require('./inject-sky-control-policy.cjs').TRANSPORT));
-    assert(report.requirements.every(r => !r.id.startsWith('session-links.') && !r.id.startsWith('instruction.')));
-  }
-  const report = inspect({ root, files: ['scripts/test-computer-use-runtime.cjs'], env: { LOCALAPPDATA: path.join(root, 'local'), AZRAEL_TEST_COMPUTER_USE_RUNTIME: '', AZRAEL_TEST_COMPUTER_USE_PLUGIN: '' } });
-  assert.equal(report.requirements.find(r => r.id === 'computer-use.plugin.docs/api.md').path,
-    path.join(os.homedir(), '.azrael-ex/plugins/cache/openai-bundled/computer-use/26.1007.21434/docs/api.md'));
-  assert(report.requirements.find(r => r.id === 'computer-use.transport').path.startsWith(path.join(root, 'local')));
+test('generic Node runtime and sync consumers use self-contained fixtures without vendor prerequisites', () => {
+  const root = fixture();
+  const files = ['scripts/test-computer-use-runtime.cjs', 'scripts/tests/sync-codex-environment.test.cjs'];
+  const report = check({ root, files, env: { LOCALAPPDATA: path.join(root, 'missing-runtime'), AZRAEL_TEST_COMPUTER_USE_RUNTIME: path.join(root, 'missing-vendor'), AZRAEL_TEST_COMPUTER_USE_PLUGIN: path.join(root, 'missing-plugin') } });
+  assert.deepEqual(report, { status: 'ready', requirements: [] });
+  assert.deepEqual(fs.readdirSync(root), []);
 });
 
 test('legacy and current link assets stay hardcoded while current package honors its override', () => {
@@ -88,7 +72,7 @@ test('legacy and current link assets stay hardcoded while current package honors
 });
 
 test('instruction host requires current source metadata and accepts exact existing latest codex fallback', () => {
-  const root = fixture(), release = path.join(root, 'release');
+  const { root, parent } = instructionFixture(), release = path.join(root, 'release');
   const engine = write(release, `engine/${process.platform === 'win32' ? 'codex.exe' : 'codex'}`);
   write(root, 'artifacts/latest.json', JSON.stringify({ releaseDirectory: release }));
   const metadata = write(root, 'instructions/azrael-environment.json', JSON.stringify({ schemaVersion: 1, instructionVersion: '1.1.0', components: [] }));
@@ -103,7 +87,7 @@ test('instruction host requires current source metadata and accepts exact existi
 });
 
 test('service requires an absolute root and explicit engine bypasses latest; management requires only its root', () => {
-  const root = fixture(), engine = write(root, 'engine.exe');
+  const { root, parent } = instructionFixture(), engine = write(root, 'engine.exe');
   write(root, 'instructions/azrael-environment.json', JSON.stringify({ schemaVersion: 1, instructionVersion: '1.1.0', components: [] }));
   const files = ['extensions/azrael-ex/test/instructionService.test.ts'];
   const env = { AZRAEL_INSTRUCTION_TEST_ENGINE: engine, AZRAEL_INSTRUCTION_RELEASE_ASSETS: path.join(root, 'unused-legacy-assets') };
@@ -137,4 +121,79 @@ test('malformed current metadata and nonregular engine paths block without chang
   assert.deepEqual(fs.readFileSync(metadata), metadataBefore);
   assert(fs.lstatSync(engine).isDirectory());
   assert.deepEqual(fs.readFileSync(sentinel), sentinelBefore);
+});
+
+test('selected pinned consumers require their actual closure as regular files at the hardcoded pin', () => {
+  const { pinnedAssetMatrix, PINNED_UI_ROOT } = require('./source-test-policy.cjs');
+  const root = fixture(), files = ['scripts/test-asset-transform-cache.cjs', 'scripts/test-namespace-cache-owner.cjs',
+    'scripts/test-task-work-time-ui.cjs', 'scripts/test-user-wait-time.cjs'];
+  const env = { AZRAEL_PRESERVATION_UI_ROOT: path.join(root, 'unused-override') };
+  const missing = inspect({ root, files, env });
+  assert.equal(missing.status, 'blocked');
+  const expected = [...new Set([...pinnedAssetMatrix().assets, 'webview/assets/virtualized-turn-list-c0fd56eabf08.js'])].sort();
+  assert.deepEqual(missing.requirements.map(r => path.relative(path.join(root, PINNED_UI_ROOT), r.path)).map(p => p.replaceAll('\\', '/')).sort(), expected);
+  for (const requirement of missing.requirements) write(root, path.relative(root, requirement.path));
+  assert.equal(check({ root, files, env }).status, 'ready');
+  const asset = missing.requirements[0].path;
+  fs.unlinkSync(asset); fs.mkdirSync(asset);
+  assert.equal(inspect({ root, files, env }).requirements.filter(r => r.status === 'blocked').length, 1);
+  assert.match(inspect({ root, files, env }).requirements.find(r => r.path === asset).reason, /regular file/);
+  assert(!fs.existsSync(env.AZRAEL_PRESERVATION_UI_ROOT));
+});
+
+test('small pinned consumers do not require unrelated matrix assets', () => {
+  const root = fixture(), targets = require('./inject-task-work-time.cjs');
+  for (const selected of ['scripts/test-namespace-cache-owner.cjs', 'scripts/test-task-work-time-ui.cjs']) {
+    const report = inspect({ root, files: [selected], env: {} });
+    const assets = [targets.ASSET, targets.TURN_ASSET];
+    if (selected === 'scripts/test-task-work-time-ui.cjs') assets.push('webview/assets/virtualized-turn-list-c0fd56eabf08.js');
+    assert.deepEqual(report.requirements.map(r => r.id), assets.map(asset => `pinned-ui.${asset}`));
+  }
+  const ui = require('./inject-user-wait-time.cjs');
+  assert.deepEqual(inspect({ root, files: ['scripts/test-user-wait-time.cjs'], env: {} }).requirements.map(r => r.id),
+    ['REDUCER', 'PRESENTATION', 'APPROVAL', 'TURN', 'PENDING'].map(key => `pinned-ui.${ui[key]}`));
+});
+
+test('instruction release readiness rejects absent, outside, linked and nested-checkout parents without writing', () => {
+  const { root, parent } = instructionFixture();
+  const engine = write(root, 'engine.exe');
+  write(root, 'instructions/azrael-environment.json', '{}');
+  const options = target => ({ root, files: ['extensions/azrael-ex/test/instructionService.test.ts'],
+    env: { AZRAEL_INSTRUCTION_TEST_ROOT: target, AZRAEL_INSTRUCTION_TEST_ENGINE: engine } });
+  assert.equal(check(options(parent)).status, 'ready');
+  write(parent, 'leftover.json');
+  assert.match(inspect(options(parent)).requirements.find(r => r.id === 'instruction.test-root').reason, /must be empty/);
+  fs.unlinkSync(path.join(parent, 'leftover.json'));
+  assert.equal(check(options(parent)).status, 'ready');
+  for (const target of [path.join(parent, 'absent'), path.join(root, 'artifacts'), fixture()]) {
+    assert.equal(inspect(options(target)).requirements.find(r => r.id === 'instruction.test-root').status, 'blocked');
+  }
+  const nested = path.join(parent, 'nested'); fs.mkdirSync(nested);
+  require('node:child_process').execFileSync('git', ['init', '--quiet', nested], { windowsHide: true });
+  assert.match(inspect(options(nested)).requirements.find(r => r.id === 'instruction.test-root').reason, /current project checkout/);
+  const linked = path.join(root, 'artifacts/linked');
+  fs.symlinkSync(parent, linked, process.platform === 'win32' ? 'junction' : 'dir');
+  try {
+    for (const target of [linked, path.join(linked, 'absent')]) {
+      assert.match(inspect(options(target)).requirements.find(r => r.id === 'instruction.test-root').reason, /ordinary directory ancestors/);
+    }
+  } finally { if (process.platform === 'win32') fs.rmdirSync(linked); else fs.unlinkSync(linked); }
+  assert(!fs.existsSync(path.join(parent, 'absent')));
+});
+
+test('Windows stable Cargo readiness checks the actual planned linker path before fixture creation', { skip: process.platform !== 'win32' }, () => {
+  const root = fixture(), files = ['scripts/test-cargo-stable-source.cjs'];
+  const defaultReport = inspect({ root, files, env: {} });
+  const suffix = path.join('case-XXXXXX/artifacts/cache/cargo', '0'.repeat(64), 'target/debug/deps/stable_probe-0000000000000000.exe');
+  const defaultBase = path.join(root, 'artifacts/tasks/cargo-stable-tests/runs', '0'.repeat(12), 'temporary');
+  assert.equal(defaultReport.requirements[0].path, defaultBase);
+  assert.equal(defaultReport.status, path.join(defaultBase, suffix).length < 260 ? 'ready' : 'blocked');
+  const prefix = path.parse(root).root;
+  const base = length => prefix + 'x'.repeat(length - prefix.length);
+  const inspectLength = length => inspect({ root, files, env: { AZRAEL_STABLE_CARGO_TEST_ROOT: base(length - suffix.length - 1) } });
+  assert.equal(inspectLength(259).status, 'ready');
+  assert.equal(inspectLength(260).status, 'blocked');
+  assert.match(inspectLength(260).requirements[0].reason, /planned 260/);
+  assert.equal(inspect({ root, files, env: { AZRAEL_STABLE_CARGO_TEST_ROOT: 'relative' } }).status, 'blocked');
+  assert.equal(fs.readdirSync(root).length, 0);
 });

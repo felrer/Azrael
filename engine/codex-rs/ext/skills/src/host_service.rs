@@ -51,6 +51,7 @@ pub struct HostSkillsLoadInput {
     effective_skill_roots: Vec<PluginSkillRoot>,
     config_layer_stack: ConfigLayerStack,
     plugin_skill_snapshots: Option<SkillRootSnapshots<PluginSkillRoot>>,
+    selected_roots: Option<Vec<std::path::PathBuf>>,
 }
 
 impl HostSkillsLoadInput {
@@ -64,7 +65,14 @@ impl HostSkillsLoadInput {
             effective_skill_roots,
             config_layer_stack,
             plugin_skill_snapshots: None,
+            selected_roots: None,
         }
+    }
+
+    /// Restricts optional skills to an immutable profile while preserving core guidance.
+    pub fn with_selected_roots(mut self, roots: Option<Vec<std::path::PathBuf>>) -> Self {
+        self.selected_roots = roots;
+        self
     }
 
     /// Attaches plugin skill snapshots parsed during plugin loading, when available.
@@ -294,7 +302,7 @@ impl HostSkillsService {
         if bundled_skills_enabled {
             self.ensure_system_skills_installed();
         }
-        let use_cwd_cache = fs.is_some();
+        let use_cwd_cache = fs.is_some() && input.selected_roots.is_none();
         let effective_config = input.config_layer_stack.effective_config();
         let has_config_extra_roots = effective_config
             .get("skills")
@@ -334,7 +342,7 @@ impl HostSkillsService {
             HostSkillsSnapshot::new(Arc::new(
                 self.build_skill_outcome(input, roots, &skill_config_rules, request_root_snapshots)
                     .await,
-            ))
+            )).with_selected_only(input.selected_roots.is_some())
         };
         if cache_snapshot_by_cwd {
             let mut cache = self
@@ -401,7 +409,7 @@ impl HostSkillsService {
         skill_config_rules: &SkillConfigRules,
         request_root_snapshots: Option<&RequestSkillRootSnapshots>,
     ) -> SkillLoadOutcome {
-        let outcome = load_and_merge_host_skill_roots_with_request_snapshots(
+        let mut outcome = load_and_merge_host_skill_roots_with_request_snapshots(
             roots,
             &self.root_scan_slots,
             self.restriction_product,
@@ -409,12 +417,28 @@ impl HostSkillsService {
             request_root_snapshots,
         )
         .await;
-        let disabled_paths = skill_config_rules.resolve_disabled_paths(
+        if let Some(roots) = &input.selected_roots {
+            let allowed = |skill: &codex_skills::SkillMetadata| {
+                matches!(skill.name.as_str(), "design-collaboration" | "design-documentation" | "development-workflow" | "implementation" | "testing" | "project-bootstrap")
+                    || roots.iter().any(|root| std::path::Path::new(&skill.path_to_skills_md.inferred_native_path_string()).starts_with(root))
+            };
+            outcome.skills.retain(allowed);
+            Arc::make_mut(&mut outcome.implicit_skills_by_scripts_dir).retain(|_, skill| allowed(skill));
+            Arc::make_mut(&mut outcome.implicit_skills_by_doc_path).retain(|_, skill| allowed(skill));
+        }
+        let mut disabled_paths = skill_config_rules.resolve_disabled_paths(
             outcome
                 .skills
                 .iter()
                 .map(|skill| (skill.name.as_str(), &skill.path_to_skills_md)),
         );
+        if input.selected_roots.is_some() {
+            for skill in &outcome.skills {
+                if matches!(skill.name.as_str(), "design-collaboration" | "design-documentation" | "development-workflow" | "implementation" | "testing" | "project-bootstrap") {
+                    disabled_paths.remove(&skill.path_to_skills_md);
+                }
+            }
+        }
         outcome.with_disabled_paths(disabled_paths)
     }
 

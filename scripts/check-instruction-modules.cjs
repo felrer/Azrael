@@ -8,6 +8,10 @@ const { spawnSync } = require("node:child_process");
 const instructionModules = Object.freeze([
   "instruction-package.cjs", "instruction-library.cjs",
   "instruction-publisher.cjs", "instruction-catalog.cjs", "instruction-migration.cjs", "task-profile-runtime.cjs",
+  "role-profile-store.cjs", "role-profile-defaults.cjs", "role-profile-runtime.cjs",
+  "instruction-workbench.cjs", "instruction-workbench-view.cjs", "instruction-workbench-options.cjs", "instruction-workbench-resources.cjs", "instruction-workbench-runtime.cjs",
+  "maintenance-preferences-host.cjs", "maintenance-owner-config.cjs", "maintenance-lock-owner.cjs", "maintenance-lock-worker.cjs",
+  "provider-accounts-host.cjs", "platform-runtime.cjs", "azrael-platforms.json",
 ]);
 
 function accountRoot(directory) {
@@ -32,13 +36,21 @@ function verifyIsolated(directory) {
     }
     return resolved;
   };
-  const loaded = instructionModules.map(name => require(path.join(root, name)));
+  const loaded = instructionModules.map(name => name === "maintenance-lock-worker.cjs" ? null : require(path.join(root, name)));
+  // A worker entry requires workerData and cannot execute in the checking thread.
+  if (!fs.statSync(path.join(root, "maintenance-lock-worker.cjs")).isFile()) throw new Error("Packaged maintenance lock worker required.");
   // Preserve the constructor smoke checks without writing state or contacting
   // external services. All state paths are inert until a method is called.
   new loaded[1].InstructionLibrary({ root: path.join(root, ".check-library"), installedRoot: path.join(root, ".check-home") });
   new loaded[2].InstructionPublisher({ stateRoot: path.join(root, ".check-operations") });
   const taskRuntime = loaded[instructionModules.indexOf("task-profile-runtime.cjs")];
   new taskRuntime.TaskProfileRuntime({ codexHome: path.join(root, ".check-home"), request: async () => { throw new Error("No network allowed in packaging check"); } });
+  const defaults = JSON.parse(fs.readFileSync(path.join(root, "role-profile-defaults.json"), "utf8"));
+  const expectedRoles = { "azrael-lead": "lead", "azrael-root": "root", sol_executor: "subagent", luna_explorer: "subagent" };
+  for (const [id, role] of Object.entries(expectedRoles)) {
+    const profile = defaults.find(p => p.id === id);
+    if (!profile || profile.allowedRoles?.length !== 1 || profile.allowedRoles[0] !== role || typeof profile.instructions !== "string" || !profile.instructions.trim()) throw Error("Packaged role-profile default is incomplete: " + id);
+  }
   return { modules: instructionModules };
 }
 

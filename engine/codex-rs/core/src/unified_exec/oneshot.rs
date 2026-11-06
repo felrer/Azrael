@@ -43,17 +43,28 @@ impl UnifiedExecProcessManager {
         context: &UnifiedExecContext,
         timeout: Duration,
     ) -> Result<ExecCommandToolOutput, UnifiedExecError> {
-        let context = UnifiedExecContext::new(
+        let mut cloned_context = UnifiedExecContext::new(
             Arc::clone(&context.session),
             Arc::clone(&context.step_context),
             context.cancellation_token.child_token(),
             context.call_id.clone(),
         );
+        cloned_context.work_completion = context.work_completion.clone();
+        let context = cloned_context;
         let _cancel_on_drop = context.cancellation_token.clone().drop_guard();
         let task = async move {
             let manager = &context.session.services.unified_exec_manager;
             let process_id = request.process_id;
             if Instant::now().checked_add(timeout).is_none() {
+                if let Some(completion) = &context.work_completion
+                    && let Err(error) = completion.complete(
+                        crate::session::work_completion::WorkCompletionState::Failed,
+                        None,
+                        "Execution was not started because timeout_ms is too large",
+                    )
+                {
+                    tracing::error!(error = %error, "failed to publish execution rejection completion");
+                }
                 manager.release_process_id(process_id).await;
                 return (
                     Err(UnifiedExecError::process_failed(

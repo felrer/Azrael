@@ -20,8 +20,8 @@ use crate::context::DeveloperInstructions;
 use crate::context::ManagedDeveloperInstructions;
 use crate::context::MultiAgentModeInstructions;
 use crate::context::MultiAgentRoleInstructions;
-use crate::context::RootCoordinationInstructions;
 use crate::context::ParentRequestGuidance;
+use crate::context::RootCoordinationInstructions;
 use crate::context::world_state::PersistentModeState;
 use crate::session::multi_agents::resolve_usage_hints;
 use codex_context_fragments::set_annotated_content;
@@ -429,7 +429,23 @@ impl LocalAgentControl {
             None
         };
         config.model_reasoning_effort = stored_reasoning_effort;
-        if let Some(role_name) = session_source.get_agent_role() {
+        let captured_policy = initial_history
+            .get_rollout_items()
+            .iter()
+            .find_map(|item| {
+                if let RolloutItem::SessionMeta(meta) = item {
+                    Some(meta.meta.role_profile.clone())
+                } else {
+                    None
+                }
+            })
+            .flatten();
+        config.role_profile = captured_policy;
+        crate::agent::role_profile::apply_policy(&mut config, false)
+            .map_err(CodexErr::InvalidRequest)?;
+        if config.role_profile.is_none()
+            && let Some(role_name) = session_source.get_agent_role()
+        {
             let runtime_approval_policy = config.permissions.approval_policy.value();
             let runtime_approvals_reviewer = config.approvals_reviewer;
             let runtime_cwd = config.cwd.clone();
@@ -1051,8 +1067,11 @@ impl LocalAgentControl {
                 .subagent_developer_instructions
                 .as_ref(),
         ) {
-            (MultiAgentVersion::V2, override_instructions)
-                if override_instructions.is_some() || session_source.get_agent_role().is_some() =>
+            (version, override_instructions)
+                if config.role_profile.is_some()
+                    || (version == MultiAgentVersion::V2
+                        && (override_instructions.is_some()
+                            || session_source.get_agent_role().is_some())) =>
             {
                 let parent_developer_instructions = match parent_thread
                     .session
@@ -1072,6 +1091,19 @@ impl LocalAgentControl {
             (MultiAgentVersion::Disabled | MultiAgentVersion::V1, _)
             | (MultiAgentVersion::V2, _) => (None, None),
         };
+        let parent_profile_instructions = parent_thread
+            .session
+            .get_config()
+            .await
+            .role_profile
+            .as_ref()
+            .and_then(|policy| policy.selected_profile().ok())
+            .map(|profile| profile.instructions.clone());
+        let child_profile_instructions = config
+            .role_profile
+            .as_ref()
+            .and_then(|policy| policy.selected_profile().ok())
+            .map(|profile| profile.instructions.clone());
         let parent_history_mode = parent_thread.config_snapshot().await.history_mode;
         // `record_conversation_items` only queues persistence writes asynchronously.
         // Flush before snapshotting store history for a fork.
@@ -1194,6 +1226,25 @@ impl LocalAgentControl {
                     else {
                         return true;
                     };
+                    // Older unmarked context can split common developer text and role text.
+                    // Replace only the captured role fragment in that case, retaining common instructions.
+                    if !text.contains(parent_developer_instructions)
+                        && let (Some(parent_role), Some(child_role)) =
+                            (&parent_profile_instructions, &child_profile_instructions)
+                        && !parent_role.is_empty()
+                        && text.contains(parent_role)
+                    {
+                        *replaced = true;
+                        *text = text.replace(
+                            parent_role,
+                            if preserve_context_baselines {
+                                child_role
+                            } else {
+                                ""
+                            },
+                        );
+                        return !text.is_empty();
+                    }
                     // TODO(anp) track better message fragment provenance in rollouts.
                     if !text.contains(parent_developer_instructions) {
                         return true;
@@ -1595,7 +1646,8 @@ mod root_coordination_tests {
     }
 
     #[test]
-    fn parent_request_guidance_fork_sanitation_removes_markers_and_kind_but_preserves_other_fragments() {
+    fn parent_request_guidance_fork_sanitation_removes_markers_and_kind_but_preserves_other_fragments()
+     {
         for annotated in [false, true] {
             let mut item = ResponseItem::Message {
                 id: None,
@@ -1605,7 +1657,11 @@ mod root_coordination_tests {
                         text: if annotated {
                             "older root scheduling wording".to_string()
                         } else {
-                            ParentRequestGuidance { has_parent: false, tools_enabled: true }.render()
+                            ParentRequestGuidance {
+                                has_parent: false,
+                                tools_enabled: true,
+                            }
+                            .render()
                         },
                     },
                     ContentItem::InputText {

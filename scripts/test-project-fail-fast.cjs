@@ -5,7 +5,23 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
-const { parseArgs, runSelection } = require("./test-project.cjs");
+const { parseArgs, runSelection, runCommand } = require("./test-project.cjs");
+
+test('memory admission keeps the real command unstarted until 4 GiB is available', async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'memory-admission-'));
+  const original = os.freemem;
+  let free = 4 * 1024 ** 3 - 1;
+  try {
+    os.freemem = () => free;
+    const pending = runCommand({ name: 'memory-probe', executable: process.execPath,
+      args: ['-e', 'process.stdout.write("started")'], cwd: directory }, directory, 0, process.env);
+    assert.equal(fs.existsSync(path.join(directory, '01-memory-probe.stdout.log')), false);
+    free++;
+    const result = await pending;
+    assert.equal(result.exitCode, 0);
+    assert.equal(fs.readFileSync(result.stdout, 'utf8'), 'started');
+  } finally { os.freemem = original; fs.rmSync(directory, { recursive: true }); }
+});
 
 function selection(names) {
   return { files: ["fixture.cjs"], reasons: [], separateChecks: [], coverageStatus: "selected-source-scope",
@@ -30,10 +46,13 @@ test("failure collection requires an explicit CLI flag", () => {
   assert.equal(parseArgs(["--collect-failures"]).collectFailures, true);
 });
 
-test("fixture readiness is explicit and blocks before output creation or command launch", async () => {
+test("fixture readiness is explicit and blocks before output creation or command launch", async t => {
   assert.equal(parseArgs(["--check-fixtures"]).checkFixtures, true);
   const inspect = require('./source-test-fixtures.cjs').inspectSourceFixtures;
-  const hostEnvironment = { AZRAEL_INSTRUCTION_TEST_ROOT: os.tmpdir(),
+  const projectRoot = path.resolve(__dirname, "..");
+  const hostParent = fs.mkdtempSync(path.join(process.env.AZRAEL_PROJECT_RUNNER_TEST_ROOT || path.join(projectRoot, "artifacts/verification"), "instruction-readiness-"));
+  t.after(() => { fs.rmSync(hostParent, { recursive: true }); assert.equal(fs.existsSync(hostParent), false); });
+  const hostEnvironment = { AZRAEL_INSTRUCTION_TEST_ROOT: hostParent,
     AZRAEL_INSTRUCTION_TEST_ENGINE: process.execPath,
     AZRAEL_INSTRUCTION_RELEASE_ASSETS: path.join(os.tmpdir(), 'absent-legacy-instruction-assets') };
   const hostScope = { root: path.resolve(__dirname, '..'),
@@ -46,7 +65,7 @@ test("fixture readiness is explicit and blocks before output creation or command
   const directory = path.join(os.tmpdir(), `azrael-fixture-gate-${require('node:crypto').randomUUID()}`);
   let called = false;
   try {
-    await assert.rejects(runSelection({ ...selection(["source"]), files: ["scripts/tests/instruction-catalog.test.cjs"] }, {
+    await assert.rejects(runSelection({ ...selection(["source"]), files: ["scripts/tests/instruction-catalog.test.cjs"], extensionFiles: [] }, {
       directory, runCommand: async () => { called = true; return { status: "passed", exitCode: 0 }; },
     }), error => error.code === "AZRAEL_SOURCE_FIXTURES_BLOCKED");
     assert.equal(called, false);

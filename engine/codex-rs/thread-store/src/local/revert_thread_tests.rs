@@ -311,6 +311,7 @@ async fn rollout_paths_for_thread(
 async fn create_paginated_thread(store: &LocalThreadStore, thread_id: ThreadId) {
     store
         .create_thread(CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: Some("creator-user".to_string()),
             creator_account_id: Some("creator-account".to_string()),

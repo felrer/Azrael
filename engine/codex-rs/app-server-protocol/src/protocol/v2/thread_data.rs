@@ -395,6 +395,9 @@ pub struct Turn {
     #[serde(default)]
     #[ts(optional = nullable)]
     pub root_resume_wait: Option<codex_protocol::root_resume::RootResumeWait>,
+    #[serde(default)]
+    #[ts(optional = nullable)]
+    pub user_wait_timing: Option<codex_protocol::user_wait::UserWaitTiming>,
     /// Identifier for this turn. Codex-generated turn IDs are UUIDv7.
     pub id: String,
     /// ID of the first turn in the chain of work that led to this turn.

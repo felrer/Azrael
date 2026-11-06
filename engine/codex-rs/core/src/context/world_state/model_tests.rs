@@ -83,7 +83,7 @@ fn first_request_does_not_repeat_behavior_already_in_initial_instructions() {
 #[test]
 fn snapshotless_model_switch_compares_actual_composed_behavior() {
     let instructions =
-        codex_prompts::compose_harness_instructions("builtin/azrael-default", None, false, None);
+        codex_prompts::compose_harness_instructions("builtin/azrael-default", None, None);
     let initial = format!(
         "{}\n<custom_agent_instructions>\npreserved\n</custom_agent_instructions>",
         codex_prompts::COMMON_AGENT_INSTRUCTIONS

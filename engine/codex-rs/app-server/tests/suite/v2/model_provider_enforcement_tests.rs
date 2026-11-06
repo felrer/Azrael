@@ -105,6 +105,7 @@ base_url = "{}/v1"
         .request(|request_id| ClientRequest::ThreadQueueAdd {
             request_id,
             params: ThreadQueueAddParams {
+            agent_profile: None,
                 thread_id: started.thread.id.clone(),
                 input: input.clone(),
                 client_user_message_id: "queued-message".into(),

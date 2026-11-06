@@ -82,7 +82,7 @@ test('actual Windows PowerShell resolves one Node executable after environment p
   assert.equal(sources.filter(source => path.win32.normalize(source).toLowerCase() === path.win32.normalize(process.execPath).toLowerCase()).length, 1);
 });
 const sdkFeatures = [{ checks: [{ executable: 'node', args: ['scripts/check-question-withdrawal-sdk.cjs'], level: 'source' },
-  { id: 'native', executable: 'node', args: ['scripts/check-api-context.cjs'], cargoPreflight: 'selected-tests-v1' }] }];
+  { id: 'native', executable: 'node', args: ['scripts/check-api-context.cjs'], cargoPreflight: 'selected-tests-v2' }] }];
 function environmentFixture() {
   const f = fixture(); const engineSourceRoot = path.join(f.projectRoot, 'selected');
   fs.mkdirSync(path.join(engineSourceRoot, 'codex-rs'), { recursive: true });
@@ -121,7 +121,7 @@ test('selected consumers probe actual SDK import and composed child PATH with se
 });
 test('base Cargo Python parser and Cargo lookup failures block remaining consumers', async () => {
   const f=environmentFixture();
-  const cargoOnly=[{checks:[{executable:'node',args:['scripts/check-api-context.cjs'],cargoPreflight:'selected-tests-v1'}]}];
+  const cargoOnly=[{checks:[{executable:'node',args:['scripts/check-api-context.cjs'],cargoPreflight:'selected-tests-v2'}]}];
   let calls=0;
   await assert.rejects(preflight.environment(f,cargoOnly,{env:{PATH:path.dirname(process.execPath)},run(){calls++;return {status:1,stderr:'No module named tomllib'};}}),/tomllib/);
   assert.equal(calls,1);

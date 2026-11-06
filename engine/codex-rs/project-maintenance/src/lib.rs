@@ -5,12 +5,14 @@ mod apply;
 pub mod cli;
 mod coordination;
 mod disk_budget;
+mod duplicate_claims;
 mod groups;
 mod io_priority;
 pub mod lease;
 mod lock_recovery;
 mod lock_wait;
 mod nested_retirement;
+mod partitioned_storage;
 mod paths;
 mod planning;
 pub mod preferences;
@@ -23,10 +25,12 @@ mod review_reuse;
 mod run_measurement;
 mod storage;
 mod timing;
+#[cfg(unix)]
+mod unix_delete;
 #[cfg(windows)]
 mod windows_delete;
 
-pub use lock_recovery::{error_response, recover_lock};
+pub use lock_recovery::{error_response, recover_lock, recover_refresh_pending};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -41,8 +45,10 @@ pub enum AccessMode {
 pub type Authorizer = dyn Fn(&Path, AccessMode) -> Result<(), String> + Send + Sync;
 pub(crate) type Auth<'a> = &'a Context<'a>;
 
-// Memoized content/JSON decoding never replaces fresh filesystem observations,
-// authorization or policy checks. Windows deletion workers are request-scoped.
+// Content/JSON decoding is request-local. Catalog filesystem snapshots are used
+// only under continuous source catalog custody; release and own writes invalidate
+// them. Unlocked catalogs and selected-owner payload/proof checks stay fresh.
+// Windows deletion workers are request-scoped.
 pub(crate) struct Context<'a> {
     authorize: &'a dyn Fn(&Path, AccessMode) -> Result<(), String>,
     content: std::cell::RefCell<paths::ContentCache>,
@@ -256,8 +262,17 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     if operation == "recover_lock" {
         return lock_recovery::recover_lock(&root, request, authorize.authorize);
     }
+    if operation == "recover_refresh_pending" {
+        return lock_recovery::recover_refresh_pending(&root, request, authorize.authorize);
+    }
+    if operation == "recover_lifecycle_pending" {
+        return lease::recover_pending(&root, &request, authorize);
+    }
     if operation == "recover_reservation" {
         return reservations::recover(&root, &request, authorize);
+    }
+    if matches!(operation, "partition_storage" | "compact_storage") {
+        return storage::partition(&root, &request, authorize);
     }
     let receipt_operation = matches!(
         operation,
@@ -298,14 +313,22 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     }
     let mutate = matches!(
         operation,
-        "register" | "begin_run" | "finish_step" | "validate_step" | "recover_run" | "apply"
+        "register"
+            | "begin_run"
+            | "finish_step"
+            | "validate_step"
+            | "recover_run"
+            | "apply"
+            | "reconcile_duplicate_groups"
     );
     let wait = authorize.lock_wait.get();
     // Retry only transaction acquisition. A failed catalog acquisition drops all
     // partial leases before sleeping; every attempt reads fresh state and policy.
     // Never replay refresh, save, or any operation that may have committed.
-    let (mut store, catalog_locks) =
-        lock_recovery::wait_for_lock_cancel(wait, &|| authorize.cancelled(), || {
+    let (mut store, catalog_locks) = lock_recovery::wait_for_lock_cancel(
+        wait,
+        &|| authorize.cancelled(),
+        || {
             authorize.junctions.borrow_mut().clear();
             let store = storage::Store::open(&root, authorize, mutate)?;
             for item in store.state.items.values() {
@@ -314,9 +337,15 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             if mutate {
                 store.authorize_save(authorize)?;
             }
-            let locks = registry::lock_request(&root, &request, &store.state, authorize)?;
+            let lock_request = if operation == "reconcile_duplicate_groups" {
+                json!({"operation":"apply","decisions":store.state.items.keys().map(|id| json!({"id":id})).collect::<Vec<_>>()})
+            } else {
+                request.clone()
+            };
+            let locks = registry::lock_request(&root, &lock_request, &store.state, authorize)?;
             Ok((store, locks))
-        })?;
+        },
+    )?;
     if admission::supported(&request)
         && (authorize.admitted_scopes.is_some() || admission::has_queue(&root, authorize)?)
     {
@@ -344,6 +373,16 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
         retirement::validate(&root, config.as_ref(), &store.state, &request, authorize)?;
     *authorize.nested_retirement.borrow_mut() =
         nested_retirement::validate(&root, &store.state, &request, authorize)?;
+    if operation == "reconcile_duplicate_groups" {
+        return duplicate_claims::reconcile(
+            &root,
+            config.as_ref().ok_or("valid project config required")?,
+            &config_identity,
+            &request,
+            &mut store,
+            authorize,
+        );
+    }
     if operation == "apply" {
         return apply::apply(
             &root,

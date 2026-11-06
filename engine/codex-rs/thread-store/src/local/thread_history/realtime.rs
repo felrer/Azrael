@@ -128,7 +128,8 @@ SELECT rollout_end_ordinal AS rollout_ordinal, 3 AS kind, turn_id AS id, turn_id
                    'turnId', turn_id, 'status', status, 'error', json(error_json),
                    'startedAt', started_at, 'completedAt', completed_at,
                    'durationMs', duration_ms,
-                   'rootResumeWait', json(root_resume_wait_json)) AS item_json
+                   'rootResumeWait', json(root_resume_wait_json),
+                   'userWaitTiming', json(user_wait_timing_json)) AS item_json
 FROM thread_turns
 WHERE thread_id = ?1 AND rollout_end_ordinal >= ?2
   AND rollout_end_ordinal < ?3 AND rollout_end_ordinal <= ?4

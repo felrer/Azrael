@@ -189,8 +189,9 @@ fn paused_response(response_id: &str, call_id: &str) -> String {
 }
 
 fn pause_call(call_id: &str) -> Value {
-    ev_function_call(
+    core_test_support::responses::ev_function_call_with_namespace(
         call_id,
+        "legacy_codex_tools",
         "request_user_input",
         &json!({
             "questions": [{

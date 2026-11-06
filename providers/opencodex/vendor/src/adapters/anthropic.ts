@@ -15,7 +15,7 @@ import type {
   OcxUsage,
 } from "../types";
 import { isAllowedToolChoice, namespacedToolName, resolveToolChoiceWireName, toolChoiceToolPredicate } from "../types";
-import { ANTHROPIC_OAUTH_BETA, CLAUDE_CODE_SYSTEM_INSTRUCTION, applyClaudeToolPrefix, stripClaudeToolPrefix } from "../oauth/anthropic";
+import { ANTHROPIC_OAUTH_BETA, applyClaudeToolPrefix, stripClaudeToolPrefix } from "../oauth/anthropic";
 import { parseDataUrl } from "./image";
 import { enforceAnthropicImageLimits } from "./anthropic-image-guard";
 import { normalizeAnthropicImages } from "./anthropic-image-normalize";
@@ -942,13 +942,7 @@ export function createAnthropicAdapter(provider: OcxProviderConfig, cacheRetenti
         stream: parsed.stream,
         max_tokens: parsed.options.maxOutputTokens ?? omittedMaxTokens,
       };
-      if (isOAuth) {
-        // Claude OAuth (Pro/Max) requires the first system block to be the Claude Code identity.
-        body.system = [
-          { type: "text", text: CLAUDE_CODE_SYSTEM_INSTRUCTION },
-          ...(system ? [{ type: "text", text: system }] : []),
-        ];
-      } else if (system) {
+      if (system) {
         body.system = [{ type: "text", text: system }];
       }
       if (tools) body.tools = tools;

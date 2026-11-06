@@ -6,6 +6,74 @@
       "description": "A path that is guaranteed to be absolute and normalized (though it is not guaranteed to be canonicalized or exist on the filesystem).\n\nIMPORTANT: When deserializing an `AbsolutePathBuf`, a base path must be set using [AbsolutePathBufGuard::new]. If no base path is set, the deserialization will fail unless the path being deserialized is already absolute.",
       "type": "string"
     },
+    "AgentProfileRef": {
+      "additionalProperties": false,
+      "properties": {
+        "digest": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "revision": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "digest"
+      ],
+      "type": "object"
+    },
+    "AgentProfileRole": {
+      "description": "Frozen Team/Direct role-profile policy. It grants no execution permissions.",
+      "enum": [
+        "lead",
+        "root",
+        "subagent"
+      ],
+      "type": "string"
+    },
+    "AgentRoleProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_roles": {
+          "items": {
+            "$ref": "#/definitions/AgentProfileRole"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "instructions": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "profile_extension": {
+          "$ref": "#/definitions/RoleProfileExtension"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "reasoning_effort": {
+          "$ref": "#/definitions/ReasoningEffort"
+        }
+      },
+      "required": [
+        "allowed_roles",
+        "id",
+        "instructions",
+        "name"
+      ],
+      "type": "object"
+    },
     "AgentRoleToml": {
       "additionalProperties": false,
       "properties": {
@@ -2048,6 +2116,78 @@
       ],
       "type": "string"
     },
+    "HarnessBindingToml": {
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "type": "string"
+        },
+        "prompt_profile": {
+          "type": "string"
+        },
+        "tool_profile": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "HarnessProfileToml": {
+      "additionalProperties": false,
+      "properties": {
+        "extends": {
+          "type": "string"
+        },
+        "prompt_profile": {
+          "type": "string"
+        },
+        "tool_profile": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "HarnessProfilesToml": {
+      "additionalProperties": false,
+      "properties": {
+        "default_profile": {
+          "type": "string"
+        },
+        "models": {
+          "additionalProperties": {
+            "$ref": "#/definitions/HarnessBindingToml"
+          },
+          "default": {},
+          "type": "object"
+        },
+        "profiles": {
+          "additionalProperties": {
+            "$ref": "#/definitions/HarnessProfileToml"
+          },
+          "default": {},
+          "type": "object"
+        },
+        "prompt_profiles": {
+          "additionalProperties": {
+            "$ref": "#/definitions/PromptProfileToml"
+          },
+          "default": {},
+          "type": "object"
+        },
+        "providers": {
+          "additionalProperties": {
+            "$ref": "#/definitions/HarnessBindingToml"
+          },
+          "default": {},
+          "type": "object"
+        },
+        "schemaVersion": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
     "History": {
       "additionalProperties": false,
       "description": "Settings that govern if and what will be written to `~/.codex/history.jsonl`.",
@@ -2305,6 +2445,13 @@
         }
       },
       "type": "object"
+    },
+    "InstructionFormat": {
+      "enum": [
+        "native",
+        "anthropic-xml"
+      ],
+      "type": "string"
     },
     "KeybindingsSpec": {
       "anyOf": [
@@ -3713,6 +3860,26 @@
       },
       "type": "object"
     },
+    "PromptProfileToml": {
+      "additionalProperties": false,
+      "properties": {
+        "behavior_template_file": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/AbsolutePathBuf"
+            }
+          ],
+          "description": "Replaces the inherited optional behavior template; runtime guidance stays authoritative. Relative paths are anchored by the existing configuration layer path resolver."
+        },
+        "extends": {
+          "type": "string"
+        },
+        "instruction_format": {
+          "$ref": "#/definitions/InstructionFormat"
+        }
+      },
+      "type": "object"
+    },
     "ProviderAutoCompact": {
       "description": "Legacy provider settings and overrides keyed by the exact model slug.",
       "properties": {
@@ -4107,6 +4274,69 @@
           "type": "string"
         }
       ]
+    },
+    "RoleProfileExtension": {
+      "additionalProperties": false,
+      "description": "Credential-free host metadata. Execution uses only the validated snapshot reference.",
+      "properties": {
+        "agentProfile": {
+          "$ref": "#/definitions/AgentProfileRef"
+        },
+        "componentIds": true,
+        "components": true,
+        "diagnostics": true,
+        "image": true,
+        "mcpServerIds": true,
+        "optionalSelection": true,
+        "providerAccount": true,
+        "providerSelection": true,
+        "resourceIds": true,
+        "resourceSelections": true
+      },
+      "type": "object"
+    },
+    "RoleProfilePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "base_developer_instructions": {
+          "type": "string"
+        },
+        "configuration_path": {
+          "type": "string"
+        },
+        "profile_id": {
+          "type": "string"
+        },
+        "profiles": {
+          "items": {
+            "$ref": "#/definitions/AgentRoleProfile"
+          },
+          "type": "array"
+        },
+        "role": {
+          "$ref": "#/definitions/AgentProfileRole"
+        },
+        "root_profile_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "subagent_profile_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "profile_id",
+        "profiles",
+        "role",
+        "root_profile_ids",
+        "subagent_profile_ids"
+      ],
+      "type": "object"
     },
     "RolloutBudgetConfigToml": {
       "additionalProperties": false,
@@ -7587,6 +7817,22 @@
       ],
       "description": "Goal-related settings."
     },
+    "harness": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/HarnessProfilesToml"
+        }
+      ],
+      "default": {
+        "default_profile": null,
+        "models": {},
+        "profiles": {},
+        "prompt_profiles": {},
+        "providers": {},
+        "schemaVersion": null
+      },
+      "description": "Model/provider harness selection, loaded and validated before inference."
+    },
     "hide_agent_reasoning": {
       "default": false,
       "description": "When set to `true`, `AgentReasoning` events will be hidden from the UI/output. Defaults to `false`.",
@@ -7904,6 +8150,14 @@
     "review_model": {
       "description": "Review model override used by the `/review` feature.",
       "type": "string"
+    },
+    "role_profile": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RoleProfilePolicy"
+        }
+      ],
+      "description": "Thread-owned captured Team/Direct role-profile policy."
     },
     "sandbox_mode": {
       "allOf": [

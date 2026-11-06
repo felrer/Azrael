@@ -5,6 +5,7 @@ const { acquire } = require("./maintenance-lock-owner.cjs");
 const path = require("node:path");
 const { randomUUID, createHash } = require("node:crypto");
 const lifecycle = require("./artifact-lifecycle.cjs");
+const { assertEnabled } = require("./maintenance-preferences.cjs");
 const { isDeepStrictEqual } = require("node:util");
 const roles = ["inputs", "temporary", "logs", "reports", "outputs"];
 const activeRuns = new Map();
@@ -47,6 +48,7 @@ function checked(root, value) {
   return result;
 }
 function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISOString().replace(/[-:.]/g, "") + "-" + randomUUID(), references = [], paths = {}, requireStopEvidence = false }) {
+  assertEnabled("groups");
   projectRoot = fs.realpathSync(projectRoot);
   safeId(workId); safeId(runId);
   if (typeof requireStopEvidence !== "boolean") throw Error("Boolean requireStopEvidence required");
@@ -70,9 +72,9 @@ function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISO
   }
   fs.mkdirSync(claimDirectory, { recursive: true });
   const claimPath = path.join(claimDirectory, ".run-claim.lock");
-  const claim = acquire(claimPath, { operation: "artifact-run.claim", waitMs: 5000 });
+  const claim = acquire(claimPath, { operation: "artifact-run.claim", queue: true });
   try {
-  const existingClaims = lifecycle.catalog(projectRoot);
+  const existingClaims = lifecycle.withCatalogLock(projectRoot, () => lifecycle.catalog(projectRoot));
   for (const member of members) {
     if (fs.existsSync(member.path)) throw Error(`Artifact destination already exists: ${member.path}`);
     if (existingClaims.some(record => record.members.some(old => inside(old.path, member.path) || inside(member.path, old.path)))) throw Error(`Artifact destination already claimed: ${member.path}`);
@@ -145,11 +147,11 @@ function finishArtifactRun(run, { exitCode, signal = null, producerStopped, reas
     run.record = stopped ? lifecycle.closeLifecycle(run.projectRoot, run.lifecycleId, { owner: run.owner, expected_revision: run.record.revision,
       producer_stopped_verified: true, outcome: knownOutcome ? (success ? "success" : "failure") : "unknown", exit_code: Number.isInteger(exitCode) ? exitCode : null,
       reason, evidence_ref: evidence, evidence_sha256: digest(bytes) })
-      : lifecycle.recordLifecycle(run.projectRoot, { ...run.record, state, membership_complete: false, expected_revision: run.record.revision });
+      : lifecycle.recordLifecycle(run.projectRoot, { ...run.record, state, membership_complete: false, expected_revision: run.record.revision }, { operation: "lifecycle.reconcile" });
     process.removeListener("exit", run.onExit);
     if (run.record.producer) activeRuns.delete(runKey(run.projectRoot, run.lifecycleId));
     return run.record;
-  });
+  }, { operation: "lifecycle.reconcile" });
 }
 async function confirmOwnedBrowserExit(child,profilePath,spawn){
  if(!child)return {confirmed:true,exitCode:null,signalCode:null,processIds:[]};

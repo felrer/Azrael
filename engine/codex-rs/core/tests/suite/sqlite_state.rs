@@ -557,6 +557,7 @@ async fn backfill_scans_existing_rollouts() -> Result<()> {
             fs::create_dir_all(parent).expect("should create rollout directory");
             let session_meta_line = SessionMetaLine {
                 meta: SessionMeta {
+                    role_profile: None,
                     computer_use_mode: None,
                     creator_user_id: None,
                     creator_account_id: None,

@@ -107,6 +107,7 @@ pub fn spawn_response_stream(
 #[allow(dead_code)]
 struct ResponseCompleted {
     id: String,
+    service_tier: Option<String>,
     #[serde(default)]
     usage: Option<ResponseCompletedUsage>,
     usage_metadata: Option<ResponseUsageMetadata>,
@@ -445,6 +446,7 @@ pub fn process_responses_event(
                         }
                         return Ok(Some(ResponseEvent::Completed {
                             response_id: resp.id,
+                            service_tier: resp.service_tier,
                             token_usage: resp.usage.map(Into::into),
                             usage_metadata: resp.usage_metadata,
                             end_turn: if interrupted {
@@ -844,6 +846,7 @@ mod tests {
 
         match &events[2] {
             Ok(ResponseEvent::Completed {
+                service_tier: None,
                 response_id,
                 token_usage,
                 usage_metadata,
@@ -855,6 +858,33 @@ mod tests {
                 assert!(end_turn.is_none());
             }
             other => panic!("unexpected third event: {other:?}"),
+        }
+    }
+
+    #[tokio::test]
+    async fn completed_preserves_server_service_tier() {
+        for service_tier in [
+            None,
+            Some(Value::Null),
+            Some(json!("default")),
+            Some(json!("priority")),
+            Some(json!("ultrafast")),
+            Some(json!("future-tier")),
+        ] {
+            let mut response = json!({ "id": "resp-tier" });
+            if let Some(value) = &service_tier {
+                response["service_tier"] = value.clone();
+            }
+            let expected = service_tier.as_ref().and_then(Value::as_str);
+            let completed = json!({ "type": "response.completed", "response": response });
+            let sse = format!("event: response.completed\ndata: {completed}\n\n");
+            let events = collect_events(&[sse.as_bytes()]).await;
+
+            assert_matches!(
+                events.as_slice(),
+                [Ok(ResponseEvent::Completed { service_tier, .. })]
+                    if service_tier.as_deref() == expected
+            );
         }
     }
 
@@ -1042,6 +1072,7 @@ mod tests {
         assert_eq!(events.len(), 1);
         match &events[0] {
             Ok(ResponseEvent::Completed {
+                service_tier: None,
                 response_id,
                 token_usage,
                 usage_metadata,
@@ -1619,6 +1650,7 @@ mod tests {
         assert_matches!(
             &events[1],
             ResponseEvent::Completed {
+                service_tier: None,
                 response_id,
                 token_usage: None,
                 usage_metadata: None,
@@ -1663,6 +1695,7 @@ mod tests {
                 response_id,
                 token_usage: None,
                 usage_metadata: None,
+                service_tier: None,
                 end_turn: None,
             } if response_id == "resp-1"
         );
@@ -1699,6 +1732,7 @@ mod tests {
                 response_id,
                 token_usage: None,
                 usage_metadata: None,
+                service_tier: None,
                 end_turn: None,
             } if response_id == "resp-1"
         );
@@ -1735,6 +1769,7 @@ mod tests {
                 response_id,
                 token_usage: None,
                 usage_metadata: None,
+                service_tier: None,
                 end_turn: None,
             } if response_id == "resp-1"
         );

@@ -418,6 +418,10 @@ impl From<rmcp::model::ElicitationAction> for McpServerElicitationAction {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct McpServerElicitationRequestParams {
+    /// Exact engine user-wait identity for this MCP request, when measured.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub user_wait_request_id: Option<String>,
     pub thread_id: String,
     /// Active Codex turn when this elicitation was observed, if app-server could correlate one.
     ///
@@ -925,5 +929,23 @@ impl From<rmcp::model::ElicitResult> for McpServerElicitationRequestResponse {
             content: value.content,
             meta: None,
         }
+    }
+}
+
+#[cfg(test)]
+mod user_wait_identity_tests {
+    use super::McpServerElicitationRequestParams;
+
+    #[test]
+    fn user_wait_mcp_identity_is_optional_and_round_trips_unchanged() {
+        let mut params: McpServerElicitationRequestParams = serde_json::from_value(serde_json::json!({
+            "threadId": "thread", "turnId": null, "serverName": "server",
+            "mode": "url", "_meta": null, "message": "Approve",
+            "url": "https://example.com/approve", "elicitationId": "request"
+        })).expect("legacy params without wait identity");
+        assert_eq!(params.user_wait_request_id, None);
+        assert!(serde_json::to_value(&params).unwrap().get("userWaitRequestId").is_none());
+        params.user_wait_request_id = Some("mcp:server:\"request\"".into());
+        assert_eq!(serde_json::to_value(&params).unwrap()["userWaitRequestId"], "mcp:server:\"request\"");
     }
 }

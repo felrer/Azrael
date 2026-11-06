@@ -96,7 +96,7 @@ test("minute TPS graph distinguishes estimates, gaps, zero and truncated history
 });
 test("timestamped TPS retains turns, clips weighted mode averages, and marks a waiting turn",()=>{
  const end=new Date(2026,9,23,12,40).getTime(),start=end-40*60000;
- const sample=(minute,outputTokens,requestDurationMs,mode)=>({minute,outputTokens,requestDurationMs,mode});
+ const sample=(minute,outputTokens,requestDurationMs,mode)=>({minute,outputTokens,requestDurationMs,actualMode:mode});
  const p={turnId:'waiting',startedAtUnixMs:end,observedAtUnixMs:end,outputTokens:0,requestDurationMs:0,completedRequests:0,unmeasuredRequests:0,graphEstimated:true,minuteSamples:[],history:[
   {turnId:'old',startedAtUnixMs:start-30000,minuteSamples:[sample(0,100,1000,'standard'),sample(1,100,3000,'standard'),sample(3,0,1000,'fast'),sample(4,400,1000,'fast'),sample(4,300,1000,'ultrafast'),sample(5,200,1000,null)]},
   {turnId:'prior',startedAtUnixMs:end-60000,minuteSamples:[sample(0,50,1000,'standard')]}
@@ -127,6 +127,23 @@ test("timestamped TPS retains turns, clips weighted mode averages, and marks a w
  const one=injection.responsePerformanceGraph(jsx,{...p,history:[],startedAtUnixMs:end-1000,minuteSamples:[sample(0,0,1000,'fast')]},false);assert.equal(one.props.children[1].props.children.find(n=>n?.type==='circle').props.cy,78);
  const multimode=injection.responsePerformanceGraph(jsx,{...p,history:[],startedAtUnixMs:end-60000,minuteSamples:[sample(0,100,1000,'standard'),sample(0,200,1000,'fast'),sample(0,300,1000,'ultrafast')]},false,{averages:true});assert.equal(multimode.props.children[1].props.children.filter(n=>n?.type==='circle').length,3);assert.equal(multimode.props.children[1].props.children.filter(n=>n?.props['data-tps-join']).length,0);
  const unknown=injection.responsePerformanceGraph(jsx,{...p,history:[],startedAtUnixMs:end-60000,minuteSamples:[{minute:0,outputTokens:1,requestDurationMs:1000}]},false,{averages:true});assert.equal(unknown.props.children[1].props.children.find(n=>n?.type==='circle').props['data-mode'],'unknown');assert.equal(unknown.props.children[1].props.children.filter(n=>n?.props['data-mode-average']).length,0);
+});
+test("TPS colors and averages use server actualMode and never historical requested mode",()=>{
+ const end=Date.UTC(2026,9,29,6,0),base={turnId:'actual',startedAtUnixMs:end-60000,observedAtUnixMs:end,history:[],minuteSamples:[]};
+ const sample=(mode,actualMode,outputTokens=100)=>({minute:0,outputTokens,requestDurationMs:1000,mode,...(actualMode===undefined?{}:{actualMode})});
+ const graph=injection.responsePerformanceGraph(jsx,{...base,minuteSamples:[sample('ultrafast','standard')]},false,{averages:true});
+ const shapes=graph.props.children[1].props.children;
+ assert.equal(shapes.find(n=>n?.type==='circle').props['data-mode'],'standard');
+ assert.equal(shapes.filter(n=>n?.props['data-mode-average']).length,1);
+ assert.equal(shapes.find(n=>n?.props['data-mode-average']).props['data-mode-average'],'standard');
+ for(const actualMode of [undefined,null]){
+  const old=injection.responsePerformanceGraph(jsx,{...base,minuteSamples:[sample('fast',actualMode),sample('ultrafast',actualMode,300)]},false,{averages:true});
+  const nodes=old.props.children[1].props.children,points=nodes.filter(n=>n?.type==='circle');
+  assert.equal(points.length,1);assert.equal(points[0].props['data-mode'],'unknown');assert.equal(points[0].props['data-tps'],200);
+  assert.equal(nodes.filter(n=>n?.props['data-mode-average']).length,0);
+ }
+ const replay=injection.responsePerformanceGraph(jsx,{...base,turnId:'waiting',startedAtUnixMs:end,history:[{turnId:'prior',startedAtUnixMs:end-60000,minuteSamples:[sample('standard','ultrafast')]}]},false,{averages:true});
+ assert.equal(replay.props.children[1].props.children.find(n=>n?.type==='circle').props['data-mode'],'ultrafast');
 });
 test("disabled auto-compaction uses the second capacity lap only at the threshold",()=>{
  for(const [input,enabled,percent,lap] of [[599999,false,599999/600000*100,false],[600000,false,0,true],[800000,false,50,true],[1000000,false,100,true],[1200000,false,100,true],[600000,true,100,false],[800000,true,100,false]]){
@@ -234,11 +251,8 @@ test("Personalization parent cache refreshes provider settings on host changes w
   const first=h.Tr();assert.equal(first.props.children[2],null);assert.equal(first.props.children[5].props.hostId,"first");assert.equal(h.Tr(),first,"unchanged host retains cache");
   selectedHostId="second";const second=h.Tr();assert.notEqual(second,first);assert.equal(second.props.children[2],null);assert.equal(second.props.children[5].props.hostId,"second");assert.equal(h.Tr(),second,"new host retains its updated cache");
 });
-test("provider controls inject only Personalization and preserve original bindings and instructions",()=>{
 
-  const asset="webview/assets/agent-settings-4d2487cc749f.js",configuration=injection.injectProviderContext(hs.readFileSync(path.join(root,asset),"utf8"),asset).text;assert.equal(configuration,hs.readFileSync(path.join(root,asset),"utf8"));
-});
-test("all injected pinned assets are idempotent; targeted English and Korean labels retain RPC/link literals",()=>{for(const asset of [injection.CONTEXT_ASSET,injection.SETTINGS_ASSET,"webview/assets/ko-KR-ebd6264cb102.js"]){const s=hs.readFileSync(path.join(root,asset),"utf8"), first=injection.injectProviderContext(s,asset);assert.equal(injection.injectProviderContext(first.text,asset).text,first.text);}assert.throws(()=>injection.injectProviderContext("function aCa(e){}",injection.CONTEXT_ASSET),/anchor/);const settings=hs.readFileSync(path.join(root,injection.SETTINGS_ASSET),"utf8");for(const malformed of [settings.replace("function Tr(){","function Unknown(){"),settings+"function Tr(){let e=(0,Ar.c)(10)"])assert.throws(()=>injection.injectProviderContext(malformed,injection.SETTINGS_ASSET),/anchor/)});
+
 test("combined namespace pipeline parses pinned settings/gauge and caches provider context metadata",()=>{
   const transformer=require("./namespace-azrael-host.cjs"),{createAssetTransformCache}=require("./asset-transform-cache.cjs"),crypto=require("node:crypto");
   const tsPath=path.resolve(process.argv[2]??require.resolve("typescript",{paths:[path.resolve(__dirname,"../extensions/azrael-ex")]})),ts=require(tsPath),sha=x=>crypto.createHash("sha256").update(x).digest("hex");

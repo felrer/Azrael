@@ -38,6 +38,7 @@ pub(crate) struct SpawnConfigOptions<'a> {
     pub(crate) version: SpawnConfigVersion,
     pub(crate) full_history_fork: bool,
     pub(crate) role_name: Option<&'a str>,
+    pub(crate) profile_id: Option<&'a str>,
     pub(crate) model: Option<&'a str>,
     pub(crate) reasoning_effort: Option<ReasoningEffort>,
 }
@@ -56,6 +57,29 @@ pub(crate) async fn prepare_agent_spawn_config(
     let turn = step_context.turn.as_ref();
     let mut config =
         build_agent_spawn_config(&session.get_base_instructions().await, step_context)?;
+    if let Some(policy) = super::role_profile::spawn_policy(&turn.config)?.as_ref() {
+        if options.role_name.is_some()
+            || options.model.is_some()
+            || options.reasoning_effort.is_some()
+        {
+            return Err("Profiled spawning requires profile_id and forbids agent_type, model and reasoning_effort overrides".to_string());
+        }
+        let profile_id = options
+            .profile_id
+            .ok_or_else(|| "Profiled spawning requires profile_id".to_string())?;
+        config.role_profile = Some(super::role_profile::child_policy(policy, profile_id)?);
+        super::role_profile::apply_policy(&mut config, true)?;
+        validate_role_profile_model(session, &config, turn.multi_agent_version).await?;
+        apply_spawn_agent_service_tier(session, &mut config).await?;
+        apply_spawn_agent_runtime_overrides(&mut config, turn)?;
+        return Ok(PreparedSpawnConfig {
+            config,
+            role_name: Some(profile_id.to_owned()),
+        });
+    }
+    if options.profile_id.is_some() {
+        return Err("profile_id requires an active role_profile policy".to_string());
+    }
     if options.version == SpawnConfigVersion::V1 && options.full_history_fork {
         reject_full_fork_agent_type_override(options.role_name)?;
     }
@@ -277,6 +301,51 @@ pub(crate) async fn apply_spawn_agent_service_tier(
     config.service_tier = model_info
         .supports_service_tier(service_tier.as_str())
         .then_some(service_tier);
+    Ok(())
+}
+
+/// Validate against the actual catalog and provider metadata; never accept fallback metadata.
+pub(crate) async fn validate_role_profile_model(
+    session: &Session,
+    config: &Config,
+    version: MultiAgentVersion,
+) -> Result<(), String> {
+    validate_captured_profile_model(&session.services.models_manager, config, version).await
+}
+
+pub(crate) async fn validate_captured_profile_model(
+    models_manager: &codex_models_manager::manager::SharedModelsManager,
+    config: &Config,
+    version: MultiAgentVersion,
+) -> Result<(), String> {
+    let model = config
+        .model
+        .as_deref()
+        .ok_or("Role profile requires a model")?;
+    let available = models_manager
+        .list_models(RefreshStrategy::Offline, config.http_client_factory())
+        .await;
+    find_spawn_agent_model_name(&available, model, version)?;
+    if !available
+        .iter()
+        .any(|entry| entry.model == model && entry.model_provider == config.model_provider_id)
+    {
+        return Err(format!(
+            "Role profile model `{model}` is unavailable on provider `{}`",
+            config.model_provider_id
+        ));
+    }
+    let info = models_manager
+        .get_model_info(model, &config.to_models_manager_config())
+        .await;
+    if info.used_fallback_model_metadata {
+        return Err(format!(
+            "Role profile model `{model}` has no compatible provider metadata"
+        ));
+    }
+    if let Some(effort) = &config.model_reasoning_effort {
+        validate_spawn_agent_reasoning_effort(model, &info.supported_reasoning_levels, effort)?;
+    }
     Ok(())
 }
 

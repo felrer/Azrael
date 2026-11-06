@@ -6,13 +6,14 @@
 #![deny(clippy::print_stdout, clippy::print_stderr)]
 
 pub mod account_retirement;
-pub mod azrael_manual_resume;
 mod apply_patch;
 mod apps;
+pub mod azrael_manual_resume;
 mod capacity_recovery;
 mod client;
 mod client_common;
 mod devin;
+mod image_attachments;
 mod managed_account_recovery;
 mod managed_catalog;
 mod managed_runtime;
@@ -205,6 +206,8 @@ mod tools;
 pub(crate) mod turn_diff_tracker;
 mod turn_metadata;
 mod turn_timing;
+mod user_wait_runtime;
+mod user_wait_timing;
 pub use rollout::ARCHIVED_SESSIONS_SUBDIR;
 pub use rollout::Cursor;
 pub use rollout::INTERACTIVE_SESSION_SOURCES;
@@ -259,9 +262,9 @@ pub use exec_policy::load_exec_policy;
 pub use installation_id::resolve_installation_id;
 pub mod compact;
 mod memory_usage;
+pub mod otel_init;
 mod project_usage;
 mod project_usage_pricing;
-pub mod otel_init;
 
 // Captured environment bindings can be passed back to ThreadManager by internal reviewers.
 pub use environment_selection::TurnEnvironmentSnapshot;

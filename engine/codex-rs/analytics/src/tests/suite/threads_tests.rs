@@ -127,10 +127,11 @@ fn thread_initialized_event_serializes_expected_shape() {
 
 #[tokio::test]
 async fn thread_initialized_classifies_validated_linked_worktrees() {
-    let root = std::env::temp_dir().join(format!(
-        "codex-analytics-worktree-{}",
-        codex_protocol::ThreadId::new()
-    ));
+    let checkout = tempfile::Builder::new()
+        .prefix("codex-analytics-worktree-")
+        .tempdir()
+        .expect("temporary test checkout");
+    let root = checkout.path();
     let primary = root.join("primary");
     let linked = root.join("linked");
     let admin = primary.join(".git/worktrees/linked");
@@ -149,6 +150,9 @@ async fn thread_initialized_classifies_validated_linked_worktrees() {
         format!("gitdir: {}\n", admin.display()),
     )
     .expect("linked checkout git file");
+    // Stop ancestor discovery even when TEMP is inside the project's checkout.
+    std::fs::write(root.join(".git"), "invalid git metadata\n")
+        .expect("unknown repository boundary");
 
     let mut reducer = AnalyticsReducer::default();
     let mut events = Vec::new();
@@ -156,7 +160,7 @@ async fn thread_initialized_classifies_validated_linked_worktrees() {
     for (cwd, expected) in [
         (primary.as_path(), json!(false)),
         (linked.as_path(), json!(true)),
-        (root.as_path(), serde_json::Value::Null),
+        (root, serde_json::Value::Null),
     ] {
         events.clear();
         let mut response =
@@ -181,7 +185,7 @@ async fn thread_initialized_classifies_validated_linked_worktrees() {
         assert_eq!(payload[0]["event_params"]["is_worktree"], expected);
     }
 
-    std::fs::remove_dir_all(root).expect("remove test checkout");
+    checkout.close().expect("remove test checkout");
 }
 
 #[tokio::test]

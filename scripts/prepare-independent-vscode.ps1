@@ -14,6 +14,7 @@ param(
     [switch]$Resume,
     [switch]$ChangedOnlyTests,
     [string]$SourceTestPolicyPath,
+    [string]$ReuseDecisionsPath,
     [string]$SourceStatePath,
     [string]$SourceGeneration,
     [switch]$ExhaustiveTests,
@@ -106,7 +107,6 @@ function Assert-IntegratedHostVsixContents {
             'extension/out/shared-engine-host.cjs',
             'extension/out/optional-diagnostics.cjs',
             'extension/out/url-safety-transport.cjs',
-            'extension/out/computer-use-approvals.cjs',
             'extension/out/use-control-settings.cjs',
             'extension/out/window-use-approvals.cjs',
             'extension/out/use-settings-host.cjs',
@@ -123,13 +123,19 @@ function Assert-IntegratedHostVsixContents {
             'extension/account-ui/instruction-catalog.cjs',
             'extension/account-ui/instruction-migration.cjs',
             'extension/account-ui/task-profile-runtime.cjs',
+            'extension/account-ui/role-profile-store.cjs',
+            'extension/account-ui/role-profile-runtime.cjs',
+            'extension/account-ui/role-profile-defaults.cjs',
+            'extension/account-ui/role-profile-defaults.json',
+            'extension/account-ui/instruction-workbench.cjs',
+            'extension/account-ui/instruction-workbench-view.cjs',
+            'extension/account-ui/instruction-workbench-options.cjs',
+            'extension/account-ui/instruction-workbench-resources.cjs',
+            'extension/account-ui/instruction-workbench-runtime.cjs',
+            'extension/account-ui/provider-accounts-host.cjs',
+            'extension/account-ui/platform-runtime.cjs',
+            'extension/account-ui/azrael-platforms.json',
             'extension/account-ui/computer-use-runtime.cjs',
-            'extension/account-ui/computer-use-branding.cjs',
-            'extension/account-ui/inject-sky-control-policy.cjs',
-            'extension/computer-use/sky-controlled-service.mjs',
-            'extension/computer-use/sky-control-policy.mjs',
-            'extension/computer-use/use-control-settings.cjs',
-            'extension/computer-use/use-control-settings.mjs',
             'extension/computer-use/manifest.json',
             'extension/account-ui/node_modules/@xterm/headless/package.json',
             'extension/account-ui/node_modules/node-pty/package.json',
@@ -162,7 +168,7 @@ function Assert-IntegratedHostVsixContents {
                 try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) } finally { $stream.Dispose() }
                 if ($actual -ine $file.sha256) { throw "Window Control VSIX hash mismatch: $entryName" }
             }
-            foreach ($module in (@('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs') + @(if ($windowManifest.virtualInput) { 'window-virtual-input.cjs' }))) {
+            foreach ($module in (@('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'use-settings-host.cjs') + @(if ($windowManifest.virtualInput) { 'window-virtual-input.cjs' }) + @(if ($windowManifest.multiPointer) { 'multi-pointer-mcp.cjs'; 'window-switched-input.cjs' }))) {
                 $entry = $archive.GetEntry("extension/out/$module")
                 if (-not $entry) { throw "Window Control host module missing: $module" }
                 $stream = $entry.Open()
@@ -244,6 +250,12 @@ $configPath = Join-Path $OutputDirectory 'preparation-inputs.json'
 $config | ConvertTo-Json | Set-Content -LiteralPath $configPath -Encoding utf8NoBOM
 # Prevent module cache collection while preparation uses cached TypeScript/vsce.
 $moduleCacheLock=Join-Path $project 'artifacts/cache/modules/.lock'
+if ($toolDirectory.Name -cmatch '^[a-f0-9]{64}$' -and $toolDirectory.Parent.Name -ceq 'companion' -and
+    $toolDirectory.Parent.Parent.Name -ceq 'modules' -and $toolDirectory.Parent.Parent.Parent.Name -ceq 'cache' -and
+    $toolDirectory.Parent.Parent.Parent.Parent.Name -ceq 'artifacts') {
+    # Shared tools must hold the physical owner's lease, not the source copy's.
+    $moduleCacheLock=Join-Path $toolDirectory.Parent.Parent.FullName '.lock'
+}
 [IO.Directory]::CreateDirectory((Split-Path $moduleCacheLock -Parent)) | Out-Null
 $moduleCacheLease=[IO.File]::Open($moduleCacheLock,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::Read,[IO.FileShare]::Read)
 try {
@@ -262,6 +274,7 @@ try {
     $preservationConfig = [ordered]@{
         uiSourceObservation = $uiSourceObservation
         projectSourceObservation = $projectSourceObservation
+        reuseDecisionsPath = $ReuseDecisionsPath
         projectRoot = $project; uiRoot = $source; engineSourceRoot = [string]$build.engineSourceRoot
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $OutputDirectory 'feature-preservation')
         area = 'ui'; typeScriptPath = (Join-Path $toolDirectory.FullName 'companion/node_modules/typescript/lib/typescript.js')
@@ -272,7 +285,11 @@ try {
     $preservationConfig | ConvertTo-Json | Set-Content -LiteralPath $preservationConfigPath -Encoding utf8NoBOM
     $preservation = Invoke-PreparationPhase 'feature-preservation' {
         $verified = & node (Join-Path $PSScriptRoot 'feature-preservation.cjs') run --config $preservationConfigPath 2> (Join-Path $OutputDirectory 'feature-preservation.stderr.log')
-        if ($LASTEXITCODE -ne 0) { throw 'UI feature preservation failed. See feature-preservation logs.' }
+        if ($LASTEXITCODE -ne 0) {
+            $failure = [Exception]::new('UI feature preservation failed. See feature-preservation logs.')
+            $failure.Data['exitCode'] = $LASTEXITCODE
+            throw $failure
+        }
         $verified | ConvertFrom-Json
     }
     $namespaceCheckpoint = [pscustomobject]@{ found = $false }
@@ -310,15 +327,22 @@ try {
             }
             Expand-AccountUiVsix -VsixPath $prepared.CompanionVsix -Destination $accountUiDirectory | Out-Null
             Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'integrated-azrael-entry.cjs') -Destination (Join-Path $prepared.OfficialExtension 'integrated-azrael-entry.cjs')
-            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'instruction-library.cjs', 'instruction-publisher.cjs', 'instruction-catalog.cjs', 'instruction-migration.cjs', 'task-profile-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs', 'window-virtual-input.cjs', 'window-control-errors.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
+            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'instruction-library.cjs', 'instruction-publisher.cjs', 'instruction-catalog.cjs', 'instruction-migration.cjs', 'task-profile-runtime.cjs', 'role-profile-store.cjs', 'role-profile-defaults.cjs', 'role-profile-runtime.cjs', 'instruction-workbench.cjs', 'instruction-workbench-view.cjs', 'instruction-workbench-options.cjs', 'instruction-workbench-resources.cjs', 'instruction-workbench-runtime.cjs', 'maintenance-preferences-host.cjs', 'maintenance-owner-config.cjs', 'maintenance-lock-owner.cjs', 'maintenance-lock-worker.cjs', 'provider-accounts-host.cjs', 'platform-runtime.cjs', 'azrael-platforms.json', 'computer-use-runtime.cjs', 'window-control-runtime.cjs', 'window-virtual-input.cjs', 'window-control-errors.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'use-settings-host.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
+            foreach ($module in @('multi-pointer-mcp.cjs', 'window-switched-input.cjs')) {
+                if ($build.sha256."host/$module") {
+                    Copy-Item -LiteralPath (Join-Path $release "host/$module") -Destination (Join-Path $accountUiDirectory $module)
+                }
+            }
+            & node (Join-Path $PSScriptRoot 'role-profile-defaults.cjs') $project (Join-Path $accountUiDirectory 'role-profile-defaults.json')
+            if ($LASTEXITCODE -ne 0) { throw 'Role profile defaults staging failed.' }
             $environmentLib = Join-Path $accountUiDirectory 'lib'
             New-Item -ItemType Directory -Path $environmentLib -Force | Out-Null
             foreach ($module in @('codex-environment-engine.cjs', 'azrael-rpc-check.mjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot "lib/$module") -Destination (Join-Path $environmentLib $module)
             }
-            foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'persisted-atoms.cjs', 'shared-engine-host.cjs', 'optional-diagnostics.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
+            foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'persisted-atoms.cjs', 'shared-engine-host.cjs', 'optional-diagnostics.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'window-use-approvals.cjs', 'use-control-settings.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $prepared.OfficialExtension "out/$module")
             }
         }
@@ -374,7 +398,11 @@ try {
     $preservationBindingConfig | ConvertTo-Json | Set-Content -LiteralPath $preservationBindingConfigPath -Encoding utf8NoBOM
     Invoke-PreparationPhase 'feature-preservation-binding' {
         & node (Join-Path $PSScriptRoot 'feature-preservation.cjs') bind --config $preservationBindingConfigPath | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw 'UI preservation could not be bound to the prepared package.' }
+        if ($LASTEXITCODE -ne 0) {
+            $failure = [Exception]::new('UI preservation could not be bound to the prepared package.')
+            $failure.Data['exitCode'] = $LASTEXITCODE
+            throw $failure
+        }
     }
     $environmentSnapshot = $null
     if (-not $SkipCodexEnvironmentSnapshot) {
@@ -408,10 +436,13 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Could not save completed package checkpoint.' }
     }
     $script:preparationMetrics.status = 'passed'
+    & node $checkpointTool release-tools $OutputDirectory $project | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Completed package tool references could not be released.' }
     [pscustomobject]$result
     $global:LASTEXITCODE = 0
 } catch {
-    $script:preparationMetrics.status = 'failed'
+    $script:preparationMetrics.status = if ($_.Exception.Data['exitCode'] -eq 3) { 'review-required' } else { 'failed' }
+    if ($_.Exception.Data['exitCode'] -eq 3) { [Console]::Error.WriteLine($_.Exception.Message); $global:LASTEXITCODE = 3; exit 3 }
     throw
 } finally {
     $moduleCacheLease.Dispose()

@@ -371,6 +371,7 @@ async fn replayed_commands_preserve_individual_output_and_failure_status() {
     }
     let turn = AppServerTurn {
         root_resume_wait: None,
+        user_wait_timing: None,
         items: vec![
             replayed_command("call-first", "first", ExecCommandSource::Agent),
             replayed_command(

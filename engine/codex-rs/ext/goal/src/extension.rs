@@ -467,7 +467,8 @@ where
                 input.tool_name,
                 input.outcome,
             );
-            if input.tool_name.is_default_namespace()
+            if input.tool_name.namespace.as_deref()
+                == Some(codex_tools::LEGACY_CODEX_TOOLS_NAMESPACE)
                 && input.tool_name.name == CREATE_GOAL_TOOL_NAME
                 && matches!(input.outcome, ToolCallOutcome::Completed { success: true })
             {
@@ -486,7 +487,8 @@ where
             }
             let should_count_for_goal_progress =
                 tool_attempt_counts_for_goal_progress(input.outcome)
-                    && !(input.tool_name.is_default_namespace()
+                    && !(input.tool_name.namespace.as_deref()
+                        == Some(codex_tools::LEGACY_CODEX_TOOLS_NAMESPACE)
                         && input.tool_name.name == UPDATE_GOAL_TOOL_NAME);
             if !should_count_for_goal_progress {
                 return;

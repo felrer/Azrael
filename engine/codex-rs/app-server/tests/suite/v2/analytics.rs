@@ -838,8 +838,9 @@ async fn assert_plugin_measurement_analytics(remote: bool, background: bool) -> 
     let pause_response = |id: &str| {
         responses::sse(vec![
             responses::ev_response_created(id),
-            responses::ev_function_call(
+            core_test_support::responses::ev_function_call_with_namespace(
                 id,
+                "legacy_codex_tools",
                 "request_user_input",
                 &json!({
                     "questions": [{

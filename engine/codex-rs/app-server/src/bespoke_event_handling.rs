@@ -164,6 +164,7 @@ pub(crate) async fn apply_bespoke_event_handling(
                 let state = thread_state.lock().await;
                 let mut turn = state.active_turn_snapshot().unwrap_or_else(|| Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: payload.turn_id.clone(),
                     root_turn_id: payload.root_turn_id.clone(),
@@ -223,6 +224,24 @@ pub(crate) async fn apply_bespoke_event_handling(
                 ))
                 .await;
         }
+        EventMsg::UserWaitTimingUpdated(payload) => {
+            let timing = thread_state
+                .lock()
+                .await
+                .user_wait_timing
+                .get(&payload.turn_id)
+                .cloned()
+                .unwrap_or(payload.timing);
+            outgoing
+                .send_server_notification(ServerNotification::UserWaitTimingUpdated(
+                    codex_app_server_protocol::UserWaitTimingUpdatedNotification {
+                        thread_id: conversation_id.to_string(),
+                        turn_id: payload.turn_id,
+                        timing,
+                    },
+                ))
+                .await;
+        }
         EventMsg::TurnDeferred(payload) => {
             // The sampling turn has ended, so no turn-bound request may remain pending.
             outgoing.abort_pending_server_requests().await;
@@ -236,7 +255,20 @@ pub(crate) async fn apply_bespoke_event_handling(
                 .last_turn_attribution
                 .clone()
                 .filter(|attribution| attribution.turn_id == payload.turn_id);
-            emit_turn_deferred(conversation_id, payload, turn_attribution, &outgoing).await;
+            let user_wait_timing = thread_state
+                .lock()
+                .await
+                .user_wait_timing
+                .get(&payload.turn_id)
+                .cloned();
+            emit_turn_deferred(
+                conversation_id,
+                payload,
+                turn_attribution,
+                user_wait_timing,
+                &outgoing,
+            )
+            .await;
         }
         EventMsg::McpStartupUpdate(update) => {
             let (status, error, failure_reason) = match update.status {
@@ -949,6 +981,7 @@ pub(crate) async fn apply_bespoke_event_handling(
                 }
             };
             let params = McpServerElicitationRequestParams {
+                user_wait_request_id: Some(mcp_user_wait_request_id(&request.server_name, &request.id)),
                 thread_id: conversation_id.to_string(),
                 turn_id,
                 server_name: request.server_name.clone(),
@@ -1358,6 +1391,7 @@ async fn handle_turn_plan_update(
 
 struct TurnCompletionMetadata {
     root_resume_wait: Option<codex_protocol::root_resume::RootResumeWait>,
+    user_wait_timing: Option<codex_protocol::user_wait::UserWaitTiming>,
     status: TurnStatus,
     root_turn_id: Option<String>,
     parent_turn_id: Option<String>,
@@ -1373,6 +1407,7 @@ async fn emit_turn_deferred(
     conversation_id: ThreadId,
     event: TurnDeferredEvent,
     turn_attribution: Option<codex_protocol::turn_input::TurnAttribution>,
+    user_wait_timing: Option<codex_protocol::user_wait::UserWaitTiming>,
     outgoing: &ThreadScopedOutgoingMessageSender,
 ) {
     let notification = TurnDeferredNotification {
@@ -1394,6 +1429,7 @@ async fn emit_turn_deferred(
             completed_at: None,
             duration_ms: event.duration_ms,
             root_resume_wait: event.wait,
+            user_wait_timing,
         },
         reservation_id: event.reservation_id,
     };
@@ -1416,6 +1452,7 @@ async fn emit_turn_completed_with_status(
         thread_id: conversation_id.to_string(),
         turn: Turn {
             root_resume_wait: turn_completion_metadata.root_resume_wait,
+            user_wait_timing: turn_completion_metadata.user_wait_timing,
             id: event_turn_id,
             root_turn_id: turn_completion_metadata.root_turn_id,
             parent_turn_id: turn_completion_metadata.parent_turn_id,
@@ -1601,6 +1638,12 @@ async fn handle_turn_complete(
         .last_turn_attribution
         .clone()
         .filter(|attribution| attribution.turn_id == event_turn_id);
+    let user_wait_timing = thread_state
+        .lock()
+        .await
+        .user_wait_timing
+        .get(&event_turn_id)
+        .cloned();
     let root_resume_wait = thread_state
         .lock()
         .await
@@ -1620,6 +1663,7 @@ async fn handle_turn_complete(
         event_turn_id,
         TurnCompletionMetadata {
             root_resume_wait,
+            user_wait_timing,
             status,
             root_turn_id: turn_complete_event.root_turn_id,
             parent_turn_id: turn_attribution
@@ -1652,6 +1696,12 @@ async fn handle_turn_interrupted(
         .last_turn_attribution
         .clone()
         .filter(|attribution| attribution.turn_id == event_turn_id);
+    let user_wait_timing = thread_state
+        .lock()
+        .await
+        .user_wait_timing
+        .get(&event_turn_id)
+        .cloned();
     let root_resume_wait = thread_state
         .lock()
         .await
@@ -1666,6 +1716,7 @@ async fn handle_turn_interrupted(
         event_turn_id,
         TurnCompletionMetadata {
             root_resume_wait,
+            user_wait_timing,
             status: TurnStatus::Interrupted,
             root_turn_id: turn_aborted_event.root_turn_id,
             parent_turn_id: turn_attribution
@@ -1845,6 +1896,10 @@ async fn on_request_user_input_response(
 struct PendingMcpElicitationResponse {
     receiver: oneshot::Receiver<ClientRequestResult>,
     user_verification: bool,
+}
+
+fn mcp_user_wait_request_id(server_name: &str, request_id: &codex_protocol::mcp::RequestId) -> String {
+    format!("mcp:{server_name}:{}", serde_json::to_string(request_id).unwrap_or_default())
 }
 
 async fn on_mcp_server_elicitation_response(
@@ -3624,6 +3679,7 @@ mod tests {
                 &event_turn_id,
                 &EventMsg::TurnStarted(codex_protocol::protocol::TurnStartedEvent {
                     turn_attribution: Some(codex_protocol::turn_input::TurnAttribution {
+                        agent_profile: None,
                         turn_id: event_turn_id.clone(),
                         root_turn_id: Some("causal-root".into()),
                         parent_turn_id: Some("origin".into()),
@@ -3736,12 +3792,14 @@ mod tests {
             conversation_id,
             turn_deferred_event(&event_turn_id),
             Some(codex_protocol::turn_input::TurnAttribution {
+                agent_profile: None,
                 turn_id: event_turn_id.clone(),
                 root_turn_id: Some("causal-root".into()),
                 parent_turn_id: Some("origin".into()),
                 turn_trigger: Some("root_resume".into()),
                 initiating_agent_path: None,
             }),
+            Some(codex_protocol::user_wait::UserWaitTiming::default()),
             &outgoing,
         )
         .await;
@@ -3756,6 +3814,7 @@ mod tests {
             notification.turn,
             Turn {
                 root_resume_wait: None,
+                user_wait_timing: Some(codex_protocol::user_wait::UserWaitTiming::default()),
 
                 id: event_turn_id,
                 root_turn_id: Some("causal-root".to_owned()),
@@ -3775,10 +3834,32 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_handle_turn_interrupted_emits_interrupted_without_error() -> Result<()> {
+    async fn test_user_wait_terminal_notification_preserves_latest_snapshot_and_raw_duration()
+    -> Result<()> {
         let conversation_id = ThreadId::new();
         let event_turn_id = "interrupt1".to_string();
         let thread_state = new_thread_state();
+        let timing = codex_protocol::user_wait::UserWaitTiming {
+            started_at_ms: None,
+            revision: 2,
+            requests: Vec::new(),
+            blocked_intervals: Vec::new(),
+        };
+        for revision in [2, 1] {
+            thread_state.lock().await.track_current_turn_event(
+                &event_turn_id,
+                &EventMsg::UserWaitTimingUpdated(
+                    codex_protocol::protocol::UserWaitTimingUpdatedEvent {
+                        turn_id: event_turn_id.clone(),
+                        timing: codex_protocol::user_wait::UserWaitTiming {
+                            started_at_ms: None,
+                            revision,
+                            ..timing.clone()
+                        },
+                    },
+                ),
+            );
+        }
         handle_error(
             conversation_id,
             TurnError {
@@ -3817,6 +3898,7 @@ mod tests {
         match msg {
             ServerNotification::TurnCompleted(n) => {
                 assert_eq!(n.turn.id, event_turn_id);
+                assert_eq!(n.turn.user_wait_timing, Some(timing));
                 assert_eq!(n.turn.root_turn_id.as_deref(), Some("root-a"));
                 assert_eq!(n.turn.status, TurnStatus::Interrupted);
                 assert_eq!(n.turn.error, None);
@@ -4228,5 +4310,18 @@ mod tests {
         }
         assert!(rx.try_recv().is_err(), "no extra messages expected");
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod mcp_user_wait_identity_tests {
+    use super::mcp_user_wait_request_id;
+    use codex_protocol::mcp::RequestId;
+
+    #[test]
+    fn user_wait_mcp_identity_preserves_raw_string_and_integer_ids() {
+        assert_eq!(mcp_user_wait_request_id("server", &RequestId::Integer(42)), "mcp:server:42");
+        assert_eq!(mcp_user_wait_request_id("server", &RequestId::String("42".into())), "mcp:server:\"42\"");
+        assert_eq!(mcp_user_wait_request_id("other", &RequestId::Integer(42)), "mcp:other:42");
     }
 }

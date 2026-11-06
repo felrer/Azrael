@@ -283,7 +283,7 @@ async fn global_instructions_refresh_after_a_tool_in_the_same_turn() -> Result<(
         vec![
             sse(vec![
             ev_response_created("waiting"),
-            responses::ev_function_call("pause", "request_user_input", &json!({
+            responses::ev_function_call_with_namespace("pause", "legacy_codex_tools", "request_user_input", &json!({
                 "questions": [{"id": "continue", "header": "Continue", "question": "Continue?",
                     "options": [{"label": "Yes", "description": "Continue the turn."},
                         {"label": "No", "description": "Stop the turn."}]}]

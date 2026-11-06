@@ -726,6 +726,7 @@ fn sample_turn_start_response() -> ClientResponsePayload {
     ClientResponsePayload::TurnStart(TurnStartResponse {
         turn: Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: "turn-1".to_string(),
             root_turn_id: None,

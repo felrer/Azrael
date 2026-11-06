@@ -101,10 +101,15 @@ fn request_mode_with_home(
                 | "request_recover_pending"
                 | "recover_lock"
                 | "recover_reservation"
+                | "recover_refresh_pending"
+                | "recover_lifecycle_pending"
+                | "partition_storage"
+                | "compact_storage"
+                | "reconcile_duplicate_groups"
         )
     ) {
         return Err(
-            "owner runner supports only inventory/register/review/apply/begin_run/run_status/request_status/request_cancel/request_ack/request_recover/request_recover_pending/recover_lock/recover_reservation".into(),
+            "owner runner supports only inventory/register/review/apply/begin_run/run_status/request_status/request_cancel/request_ack/request_recover/request_recover_pending/recover_lock/recover_reservation/recover_refresh_pending/recover_lifecycle_pending/partition_storage/compact_storage/reconcile_duplicate_groups".into(),
         );
     }
     let automatic = automatic_envelope(&mut request)?;
@@ -254,9 +259,10 @@ pub fn capabilities() -> Value {
         "operations": [
             "inventory", "register", "review", "apply", "begin_run", "run_status",
             "request_status", "request_cancel", "request_ack", "request_recover", "request_recover_pending", "recover_lock",
-            "recover_reservation",
+            "recover_reservation", "recover_refresh_pending", "recover_lifecycle_pending",
+            "partition_storage", "compact_storage", "reconcile_duplicate_groups"
         ],
-        "storage_formats": ["legacy"]
+        "storage_formats": ["legacy", "partitioned-v1"]
     })
 }
 
@@ -528,9 +534,17 @@ mod tests {
                 "request_recover_pending",
                 "recover_lock",
                 "recover_reservation",
+                "recover_refresh_pending",
+                "recover_lifecycle_pending",
+                "partition_storage",
+                "compact_storage",
+                "reconcile_duplicate_groups"
             ])
         );
-        assert_eq!(value["storage_formats"], serde_json::json!(["legacy"]));
+        assert_eq!(
+            value["storage_formats"],
+            serde_json::json!(["legacy", "partitioned-v1"])
+        );
         #[cfg(target_os = "windows")]
         assert_eq!(value["platform"]["os"], "win32");
         #[cfg(target_os = "linux")]

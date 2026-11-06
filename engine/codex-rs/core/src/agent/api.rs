@@ -39,6 +39,23 @@ const _: Option<&dyn AgentControl> = None;
 /// remote ownership, retries and recovery are separate backend work.
 /// Boxed Send futures allow callers to use `Arc<dyn AgentControl>`.
 pub trait AgentControl: Send + Sync {
+    /// Observe actual child work independently of its latest public status.
+    fn track_user_wait_activity(
+        &self,
+        _parent: ThreadId,
+        _id: String,
+        _running: tokio::sync::watch::Receiver<Option<bool>>,
+    ) -> BoxFuture<'_, ()> {
+        Box::pin(async {})
+    }
+
+    fn user_wait_child_activity(
+        &self,
+        _parent: ThreadId,
+    ) -> BoxFuture<'_, Vec<(String, tokio::sync::watch::Receiver<Option<bool>>)>> {
+        Box::pin(async { Vec::new() })
+    }
+
     fn identity(&self) -> SessionId;
 
     /// Resolve an ID or a name relative to the caller's captured source, without loading.

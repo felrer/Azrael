@@ -70,6 +70,24 @@ export class InstructionLibraryService {
 
   handles(action: InstructionAction): boolean { return libraryActions.has(action); }
 
+  /** Host-only workbench configuration. Never serialize credentials to a webview. */
+  async workbenchMetadata(): Promise<{ root: string; baselineRoot?: string; connections: Array<Connection & { token?: string }> }> {
+    this.backend();
+    const source = this.source();
+    const candidate = source.mode === "project" && source.project ? path.join(source.project, "instructions") : undefined;
+    const baselineRoot = candidate && this.projects().some(project => this.pathKey(project.id) === this.pathKey(source.project!)) && fs.existsSync(path.join(candidate, "azrael-environment.json")) ? candidate : undefined;
+    const connections = await Promise.all(this.connections().map(async connection => {
+      let token: string | undefined;
+      if (connection.sharing === "collaborators") {
+        try { token = (await vscode.authentication.getSession("github", ["repo"], { silent: true }))?.accessToken; }
+        catch { /* Reuse the same repository-scoped secret when sessions are unavailable. */ }
+        token ??= await this.context.secrets?.get(`azrael.instructions.${connection.repository}`);
+      }
+      return { ...connection, token };
+    }));
+    return { root: this.root, baselineRoot, connections };
+  }
+
   private module(name: string): any {
     const extensionRoot = this.context.extensionUri.fsPath;
     const filename = [path.join(extensionRoot, "account-ui", name), path.join(extensionRoot, name), path.resolve(extensionRoot, "../../scripts", name)].find(file => fs.existsSync(file));

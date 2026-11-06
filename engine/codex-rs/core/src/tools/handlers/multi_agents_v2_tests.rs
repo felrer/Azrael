@@ -15,6 +15,37 @@ fn tool_message_transport_is_derived_from_the_call_source() {
 }
 
 #[test]
+fn image_attachments_preserve_the_message_transport_and_empty_default() {
+    let image = codex_protocol::protocol::ImageAttachment {
+        attachment_id: "img_test".to_string(),
+        image_url: "data:image/png;base64,AA==".to_string(),
+    };
+    for (source, encrypted) in [
+        (ToolCallSource::Direct, true),
+        (ToolCallSource::DirectPlaintextMessage, false),
+    ] {
+        let message =
+            agent_message_with_attachments("task".to_string(), &source, vec![image.clone()]);
+        assert!(message.has_attachments());
+        let AgentMessage::WithAttachments {
+            message,
+            attachments,
+        } = message
+        else {
+            panic!("images must remain structured");
+        };
+        assert_eq!(attachments, vec![image.clone()]);
+        assert!(if encrypted {
+            matches!(*message, AgentMessage::Encrypted(_))
+        } else {
+            matches!(*message, AgentMessage::Plaintext(_))
+        });
+        let text = agent_message_with_attachments("task".to_string(), &source, Vec::new());
+        assert!(!text.has_attachments());
+    }
+}
+
+#[test]
 fn devin_recipient_requires_plaintext_azrael_source() {
     assert_eq!(
         validate_message_recipient("gpt-6-astra", &ToolCallSource::Direct),

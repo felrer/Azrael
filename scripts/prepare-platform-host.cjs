@@ -85,10 +85,12 @@ function prepareLinuxSupervision(root,ts,selected) {
 function stageDesktopRuntimes(release, root, selected) {
   const config = {};
   if (!selected.desktopControl) return config;
+  if (fs.existsSync(path.join(release, "window-control")) && !fs.existsSync(path.join(release, "computer-use"))) throw new Error("Window Control requires the owned Node REPL runtime");
   for (const [owner, reader] of [["computerUse", "computer-use-runtime.cjs"], ["windowControl", "window-control-runtime.cjs"]]) {
     const directory = path.join(release, owner === "computerUse" ? "computer-use" : "window-control");
     if (!fs.existsSync(directory)) continue;
     const { manifest, ...verified } = require("./" + reader).verifyRuntime(directory);
+    if (selected.os !== "win32" && (manifest.platform === "win32" || verified.multiPointer)) throw new Error("Windows desktop runtimes require a Windows target");
     config[owner] = verified;
     fs.cpSync(directory, path.join(root, path.basename(directory)), { recursive: true });
   }
@@ -103,7 +105,7 @@ async function prepare(options) {
   const release=shared.inspectPath(shared.absolute(options.release)), ui=shared.inspectPath(shared.absolute(options["ui-root"])), account=shared.inspectPath(shared.absolute(options["account-ui-root"])), output=shared.inspectPath(shared.absolute(options.output));
   for (const input of [ui,account]) shared.disjoint(input,output);
   if(shared.within(output,release)) throw new Error("Output cannot contain the release input.");
-  if(fs.existsSync(output)) throw new Error("Output must be a new directory.");
+  if(fs.existsSync(output) && !options.resume) throw new Error("Output must be a new directory.");
   shared.version(options["host-version"]);
   const {build,selected}=shared.verifyBuild(release), uiSnapshot=snapshot(ui), accountSnapshot=snapshot(account);
   const toolDirectory={win32:"windows-x86_64",linux:"linux-x86_64",darwin:"macos-aarch64"}[selected.os];
@@ -114,15 +116,36 @@ async function prepare(options) {
   if(accountManifest.main!=="./dist/src/extension.js" || !/^0\.(?:[3-9]|\d{2,})\./.test(accountManifest.version)) throw new Error("Integrated account UI 0.3.0 or newer required.");
   const typescript=require.resolve("typescript/lib/typescript.js",{paths:[account,path.join(__dirname,"../extensions/azrael-ex")]}), vsce=require.resolve("@vscode/vsce/vsce",{paths:[account,path.join(__dirname,"../extensions/azrael-ex")]});
   const cacheOptions=namespaceCacheOptions(options,typescript);
+  const defaults=await require("./role-profile-defaults.cjs").buildDefaultProfiles(path.resolve(__dirname,".."));
+  const producerInputs=[...snapshot(__dirname)];
+  const toolInputs=[typescript,vsce].filter(file=>!shared.within(account,file)).map(file=>{
+    let directory=path.dirname(file);
+    while(path.dirname(directory)!==directory && path.basename(directory)!=="node_modules") directory=path.dirname(directory);
+    if(path.basename(directory)!=="node_modules") throw new Error("Cannot bind selected host preparation tool dependencies.");
+    return {directory,files:[...snapshot(directory)]};
+  });
+  const lease=require("./maintenance-lock-owner.cjs").acquire(output+".pipeline.lock",{operation:"portable-prepare"});
+  let pipeline;
+  try {
+  const {resume,'reuse-decisions-path':reuseDecisionsPath,...selectedOptions}=options;
+  pipeline=require("./pipeline-state.cjs").openPipelineState({file:output+".pipeline.json",identity:{options:selectedOptions,release,output},resume:!!resume,lockHeld:true,reuseDecisionsPath});
+  const inputs={build:shared.sha(shared.encode(build)),ui:[...uiSnapshot],account:[...accountSnapshot],rgSha256,typescript:cacheOptions.typescriptSha256,producerInputs,toolInputs,defaults};
+  const reusable=pipeline.lookup("prepare",{inputs});
+  if(reusable) { stable(ui,uiSnapshot); stable(account,accountSnapshot); shared.verifyBuild(release); return reusable.data; }
+  pipeline.start("prepare",{inputs});
   const root=path.join(output,"host"); fs.mkdirSync(output,{recursive:true}); fs.cpSync(ui,root,{recursive:true,dereference:false}); brandHost(root);
   const rgTarget=path.join(root,"bin",toolDirectory,platform.executableName("rg",selected)); fs.mkdirSync(path.dirname(rgTarget),{recursive:true}); fs.writeFileSync(rgTarget,rgBytes); if(selected.os!=="win32") fs.chmodSync(rgTarget,0o755);
   fs.cpSync(account,path.join(root,"account-ui"),{recursive:true,dereference:false,filter:file=>!path.relative(account,file).split(path.sep).some(part=>part===".git" || part===".env" || part===".bin")});
   const companionNativeTools=normalizeCompanionModes(path.join(root,"account-ui"),selected);
-  const modules=["session-links.cjs","azrael-recovery.cjs","recovery-state.cjs","persisted-atoms.cjs", "shared-engine-host.cjs", "optional-diagnostics.cjs","url-safety-transport.cjs","pdf-file-open.cjs","computer-use-approvals.cjs","use-control-settings.cjs","devin-native-host.cjs","provider-accounts-host.cjs","find-names-runtime.cjs","platform-runtime.cjs","azrael-platforms.json"];
+  const modules=["session-links.cjs","azrael-recovery.cjs","recovery-state.cjs","persisted-atoms.cjs", "shared-engine-host.cjs", "optional-diagnostics.cjs","url-safety-transport.cjs","pdf-file-open.cjs","window-use-approvals.cjs","use-control-settings.cjs","devin-native-host.cjs","provider-accounts-host.cjs","find-names-runtime.cjs","platform-runtime.cjs","azrael-platforms.json"];
   for (const name of modules) fs.copyFileSync(path.join(__dirname,name),path.join(root,"out",name));
   fs.copyFileSync(path.join(__dirname,"ordinary-runtime.cjs"),path.join(root,"out/azrael-runtime.cjs")); fs.copyFileSync(path.join(__dirname,"integrated-azrael-entry.cjs"),path.join(root,"integrated-azrael-entry.cjs"));
-  const accountModules=["sync-shared-environment.cjs","sync-codex-environment.cjs","instruction-package.cjs","instruction-library.cjs","instruction-publisher.cjs","instruction-catalog.cjs","instruction-migration.cjs","task-profile-runtime.cjs","computer-use-runtime.cjs","computer-use-branding.cjs","window-control-runtime.cjs","window-virtual-input.cjs","window-control-errors.cjs","use-control-settings.cjs","window-use-approvals.cjs","computer-use-approvals.cjs","use-settings-host.cjs","sky-control-policy.mjs","sky-controlled-service.mjs","inject-sky-control-policy.cjs","platform-runtime.cjs","azrael-platforms.json"];
+  const accountModules=["sync-shared-environment.cjs","sync-codex-environment.cjs","instruction-package.cjs","instruction-library.cjs","instruction-publisher.cjs","instruction-catalog.cjs","instruction-migration.cjs","task-profile-runtime.cjs","role-profile-store.cjs","role-profile-defaults.cjs","role-profile-runtime.cjs","instruction-workbench.cjs","instruction-workbench-view.cjs","instruction-workbench-options.cjs","instruction-workbench-resources.cjs","instruction-workbench-runtime.cjs","maintenance-preferences-host.cjs","maintenance-owner-config.cjs","maintenance-lock-owner.cjs","maintenance-lock-worker.cjs","provider-accounts-host.cjs","computer-use-runtime.cjs","window-control-runtime.cjs","window-virtual-input.cjs","window-control-errors.cjs","use-control-settings.cjs","window-use-approvals.cjs","use-settings-host.cjs","platform-runtime.cjs","azrael-platforms.json"];
+  if (selected.os === "win32") for (const name of ["multi-pointer-mcp.cjs", "window-switched-input.cjs"]) {
+    if (build.sha256[`host/${name}`]) accountModules.push(name);
+  }
   for (const name of accountModules) fs.copyFileSync(path.join(__dirname,name),path.join(root,"account-ui",name));
+  fs.writeFileSync(path.join(root,"account-ui/role-profile-defaults.json"),JSON.stringify(defaults)+"\n");
   fs.mkdirSync(path.join(root,"account-ui/lib"),{recursive:true});
   for (const name of ["codex-environment-engine.cjs","azrael-rpc-check.mjs"]) fs.copyFileSync(path.join(__dirname,"lib",name),path.join(root,"account-ui/lib",name));
   const config={schema:1,platform:platform.platformIdentity(selected),engine:path.join(release,"engine",platform.executableName("azrael",selected)),bridge:path.join(release,"engine",platform.executableName("azrael-bridge",selected)),engineVersion:build.engineVersion,codexHome:path.join(os.homedir(),".azrael-ex"),originalExtension:ui};
@@ -164,8 +187,12 @@ async function prepare(options) {
     fs.writeFileSync(path.join(output,"macos-host-signing.json"),shared.encode(signing));
   }
   stable(ui,uiSnapshot); stable(account,accountSnapshot); shared.verifyBuild(release);
+  stable(__dirname,new Map(producerInputs)); for(const tool of toolInputs) stable(tool.directory,new Map(tool.files));
+  if(JSON.stringify(defaults)!==JSON.stringify(await require("./role-profile-defaults.cjs").buildDefaultProfiles(path.resolve(__dirname,"..")))) throw new Error("Default role profile inputs changed during preparation.");
   if(shared.sha(fs.readFileSync(rgInput))!==rgSha256) throw new Error("Ripgrep source changed.");
-  const result={schema:1,platform:config.platform,hostVersion:options["host-version"],hostVsix:vsix,hostSha256:shared.sha(fs.readFileSync(vsix)),release,sourceUi:ui,sourceAccountUi:account,companionNativeTools,cache:{projectRoot:cacheOptions.cacheProjectRoot,directory:cacheOptions.cacheDirectory},...(linuxSupervision ? {linuxSupervision} : {}),...(signing ? {signing} : {}),ripgrep:{source:rgInput,sha256:rgSha256,target:`bin/${toolDirectory}/${platform.executableName("rg",selected)}`}}; fs.writeFileSync(path.join(output,"preparation.json"),shared.encode(result)); return result;
+  const result={schema:1,platform:config.platform,hostVersion:options["host-version"],hostVsix:vsix,hostSha256:shared.sha(fs.readFileSync(vsix)),release,sourceUi:ui,sourceAccountUi:account,companionNativeTools,cache:{projectRoot:cacheOptions.cacheProjectRoot,directory:cacheOptions.cacheDirectory},...(linuxSupervision ? {linuxSupervision} : {}),...(signing ? {signing} : {}),ripgrep:{source:rgInput,sha256:rgSha256,target:`bin/${toolDirectory}/${platform.executableName("rg",selected)}`}}; fs.writeFileSync(path.join(output,"preparation.json"),shared.encode(result));
+  pipeline.finish("prepare",{exitCode:0,outputs:[vsix,path.join(output,"preparation.json"),...(signing ? [path.join(output,"macos-host-signing.json")] : [])],data:result}); return result;
+  } catch(error) { if(pipeline?.snapshot.stages.prepare?.at(-1)?.status==="running") pipeline.finish("prepare",{exitCode:null,outcome:"failed",error:error.message}); throw error; } finally { lease.release(); }
 }
 module.exports={prepare,stageDesktopRuntimes,brandHost,single,psLiteral,normalizeCompanionModes,projectMacSigning,prepareLinuxSupervision,namespaceCacheOptions};
-if(require.main===module) prepare(shared.args(process.argv.slice(2))).then(result=>console.log(JSON.stringify(result))).catch(error=>{console.error(error.message);process.exitCode=1;});
+if(require.main===module) prepare(shared.args(process.argv.slice(2))).then(result=>console.log(JSON.stringify(result))).catch(require('./verification-reuse-policy.cjs').reportCliError);

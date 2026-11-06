@@ -63,6 +63,11 @@ async fn handle_spawn_agent(
     let turn = &step_context.turn;
     let arguments = function_arguments(payload)?;
     let args: SpawnAgentArgs = parse_arguments(&arguments)?;
+    if turn.config.role_profile.is_some() && args.agent_type.is_some() {
+        return Err(FunctionCallError::RespondToModel(
+            "agent_type is forbidden in profiled spawning; select profile_id".to_string(),
+        ));
+    }
     let role_name = args
         .agent_type
         .as_deref()
@@ -102,6 +107,7 @@ async fn handle_spawn_agent(
             version: SpawnConfigVersion::V1,
             full_history_fork: args.fork_context,
             role_name,
+            profile_id: args.profile_id.as_deref(),
             model: args.model.as_deref(),
             reasoning_effort: args.reasoning_effort.clone(),
         },
@@ -220,6 +226,7 @@ struct SpawnAgentArgs {
     message: Option<String>,
     items: Option<Vec<UserInput>>,
     agent_type: Option<String>,
+    profile_id: Option<String>,
     model: Option<String>,
     reasoning_effort: Option<ReasoningEffort>,
     #[serde(default)]

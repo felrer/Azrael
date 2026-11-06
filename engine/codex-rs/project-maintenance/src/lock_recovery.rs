@@ -7,6 +7,7 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 
 const MAX_BYTES: u64 = 65_536;
+const MAX_STATE_BYTES: u64 = 64 * 1024 * 1024;
 
 pub(crate) fn requested_wait(request: &Value) -> Result<std::time::Duration, String> {
     let millis = match request.get("lock_wait_ms") {
@@ -245,6 +246,71 @@ fn digest(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 
+#[cfg(test)]
+mod busy_contract_tests {
+    use super::*;
+
+    #[test]
+    fn immediate_busy_and_explicit_wait_keep_structured_diagnostics() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("lock");
+        let allow = |_: &Path, _: AccessMode| Ok(());
+        let context = Context::new(&allow);
+        let held = Sentinel::acquire(root.path(), &path, "fixture", &context).unwrap();
+        for wait in [0, 15] {
+            let mut attempts = 0;
+            let started = std::time::Instant::now();
+            let error = wait_for_lock::<()>(std::time::Duration::from_millis(wait), || {
+                attempts += 1;
+                Sentinel::acquire(root.path(), &path, "contender", &context).map(|_| ())
+            })
+            .unwrap_err();
+            let response = error_response(&error);
+            assert_eq!(response["code"], "maintenance_busy");
+            assert_eq!(response["retryable"], true);
+            assert_eq!(response["lock_path"], json!(path));
+            assert!(response["owner"].is_null() || response["owner"]["pid"] == std::process::id());
+            assert!(response["owner"].get("token").is_none());
+            if wait == 0 {
+                assert_eq!(attempts, 1);
+            } else {
+                assert!(started.elapsed() >= std::time::Duration::from_millis(wait));
+                assert_eq!(
+                    attempts, 1,
+                    "queue on the handle instead of replaying acquisition"
+                );
+            }
+        }
+        held.release().unwrap();
+        for error in [
+            "permission denied (os error 33)",
+            "OS lock busy: policy denial",
+        ] {
+            assert_eq!(error_response(error), json!({"error":error}));
+        }
+    }
+
+    #[test]
+    fn wait_policy_is_explicit_bounded_and_integral() {
+        assert!(requested_wait(&json!({})).unwrap().is_zero());
+        assert_eq!(
+            requested_wait(&json!({"lock_wait_ms":600000}))
+                .unwrap()
+                .as_millis(),
+            600000
+        );
+        for value in [
+            json!(-1),
+            json!(600001),
+            json!(1.5),
+            json!("5"),
+            Value::Null,
+        ] {
+            assert!(requested_wait(&json!({"lock_wait_ms":value})).is_err());
+        }
+    }
+}
+
 #[cfg(unix)]
 pub(crate) fn identity(file: &File) -> Result<Vec<u64>, String> {
     use std::os::unix::fs::MetadataExt;
@@ -302,22 +368,31 @@ struct Observation {
 }
 
 fn observe(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Observation, String> {
+    observe_bounded(root, path, auth, MAX_BYTES)
+}
+
+fn observe_bounded(
+    root: &Path,
+    path: &Path,
+    auth: Auth<'_>,
+    bound: u64,
+) -> Result<Observation, String> {
     let metadata = paths::checked_metadata(root, path, auth)?.ok_or("recovery file missing")?;
-    if !metadata.is_file() || metadata.len() > MAX_BYTES {
+    if !metadata.is_file() || metadata.len() > bound {
         return Err("recovery requires a bounded plain file".into());
     }
     auth(path, AccessMode::Read)?;
     let file = File::open(path).map_err(|e| e.to_string())?;
     let metadata = file.metadata().map_err(|e| e.to_string())?;
-    if !metadata.is_file() || metadata.len() > MAX_BYTES {
+    if !metadata.is_file() || metadata.len() > bound {
         return Err("recovery requires a bounded plain file".into());
     }
     let id = identity(&file)?;
     let mut bytes = Vec::new();
-    file.take(MAX_BYTES + 1)
+    file.take(bound + 1)
         .read_to_end(&mut bytes)
         .map_err(|e| e.to_string())?;
-    if bytes.len() as u64 > MAX_BYTES {
+    if bytes.len() as u64 > bound {
         return Err("recovery file exceeds bound".into());
     }
     paths::check(root, path, auth)?;
@@ -352,6 +427,17 @@ fn final_boundary(
     guard: Option<&File>,
     auth: Auth<'_>,
 ) -> Result<(), String> {
+    final_boundary_inner(root, expected, guard, true, None, auth)
+}
+
+fn final_boundary_inner(
+    root: &Path,
+    expected: &[(&Path, &Observation)],
+    guard: Option<&File>,
+    require_pending_absent: bool,
+    held_lease: Option<&Sentinel<'_>>,
+    auth: Auth<'_>,
+) -> Result<(), String> {
     let guard_path = root.join("artifacts/maintenance/recovery.guard");
     let pending = root.join("artifacts/maintenance/manifest.pending");
     let mut paths = std::collections::BTreeSet::new();
@@ -364,6 +450,12 @@ fn final_boundary(
     if guard.is_some() {
         paths.extend(guard_path.ancestors().map(Path::to_owned));
         paths.extend(pending.ancestors().map(Path::to_owned));
+    }
+    if let Some(lease) = held_lease {
+        if !lease.path.starts_with(root) {
+            return Err("final recovery lease escapes project".into());
+        }
+        paths.extend(lease.path.ancestors().map(Path::to_owned));
     }
     for path in &paths {
         auth(path, AccessMode::Read)?;
@@ -392,18 +484,41 @@ fn final_boundary(
             return Err("final recovery file identity changed".into());
         }
         let mut bytes = Vec::new();
-        file.take(MAX_BYTES + 1)
+        file.take(original.bytes.len() as u64 + 1)
             .read_to_end(&mut bytes)
             .map_err(|e| e.to_string())?;
         if bytes != original.bytes {
             return Err("final recovery file contents changed".into());
         }
     }
+    if let Some(lease) = held_lease {
+        // Windows byte-range locks reject reads through a second handle even
+        // within this process. Reopen only to compare path identity; read
+        // metadata through the handle that owns the exclusive OS lease.
+        let current = File::open(&lease.path).map_err(|e| e.to_string())?;
+        if identity(&lease._file)? != lease.observed.identity
+            || identity(&current)? != lease.observed.identity
+        {
+            return Err("final recovery lease identity changed".into());
+        }
+        let mut reader = &*lease._file;
+        reader.seek(SeekFrom::Start(0)).map_err(|e| e.to_string())?;
+        let mut bytes = Vec::new();
+        reader
+            .take(lease.observed.bytes.len() as u64 + 1)
+            .read_to_end(&mut bytes)
+            .map_err(|e| e.to_string())?;
+        if bytes != lease.observed.bytes {
+            return Err("final recovery lease contents changed".into());
+        }
+    }
     if let Some(guard) = guard {
-        match fs::symlink_metadata(&pending) {
-            Ok(_) => return Err("manifest.pending requires separate recovery".into()),
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
-            Err(error) => return Err(error.to_string()),
+        if require_pending_absent {
+            match fs::symlink_metadata(&pending) {
+                Ok(_) => return Err("manifest.pending requires separate recovery".into()),
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => return Err(error.to_string()),
+            }
         }
         if identity(guard)? != identity(&File::open(guard_path).map_err(|e| e.to_string())?)? {
             return Err("recovery guard was replaced".into());
@@ -438,8 +553,17 @@ fn recovery_guard(root: &Path, auth: Auth<'_>) -> Result<File, String> {
         .truncate(false)
         .open(&path)
         .map_err(|e| e.to_string())?;
-    file.try_lock()
-        .map_err(|e| format!("recovery guard unavailable: {e}"))?;
+    wait_for_lock_cancel(auth.lock_wait.get(), &|| auth.cancelled(), || {
+        file.try_lock().map_err(|error| match error {
+            std::fs::TryLockError::WouldBlock => {
+                busy_for_file(root, &path, "recovery.guard", auth, &file)
+            }
+            std::fs::TryLockError::Error(error) => LockAcquireError::Other(format!(
+                "recovery guard acquisition failed: {} (recovery.guard): {error}",
+                path.display()
+            )),
+        })
+    })?;
     paths::check(root, &path, auth)?;
     auth(&path, AccessMode::Read)?;
     if identity(&file)? != identity(&File::open(&path).map_err(|e| e.to_string())?)? {
@@ -866,6 +990,7 @@ pub fn recover_lock(
     authorize: &dyn Fn(&Path, AccessMode) -> Result<(), String>,
 ) -> Result<Value, String> {
     let context = Context::new(authorize);
+    context.lock_wait.set(requested_wait(&request)?);
     recover(root, &request, &context)
 }
 
@@ -988,9 +1113,543 @@ fn recover(root: &Path, request: &Value, auth: Auth<'_>) -> Result<Value, String
     )
 }
 
+fn sha256_value(value: &Value) -> bool {
+    value
+        .as_str()
+        .is_some_and(|s| s.len() == 64 && s.bytes().all(|b| b.is_ascii_hexdigit()))
+}
+
+/// Admit only an uncommitted protection-revision refresh. Compare the raw JSON
+/// as well as decoding State: unknown fields must never disappear in recovery.
+fn refresh_delta(base: &[u8], pending: &[u8], group_id: &str) -> Result<Value, String> {
+    for bytes in [base, pending] {
+        let value: Value = serde_json::from_slice(bytes).map_err(|error| error.to_string())?;
+        if value.get("storage_format").is_some() {
+            return Err(
+                "partitioned or unknown storage requires independent pending recovery".into(),
+            );
+        }
+    }
+    let base_state: crate::State = serde_json::from_slice(base).map_err(|e| e.to_string())?;
+    let next_state: crate::State = serde_json::from_slice(pending).map_err(|e| e.to_string())?;
+    let base: Value = serde_json::from_slice(base).map_err(|e| e.to_string())?;
+    let mut next: Value = serde_json::from_slice(pending).map_err(|e| e.to_string())?;
+    for state in [&base, &next] {
+        if !state.is_object()
+            || state["revision"].as_u64().is_none()
+            || !state["items"].is_object()
+            || !state["groups"].is_object()
+            || !state["runs"].is_object()
+            || !state["decisions"].is_array()
+        {
+            return Err("invalid maintenance State schema".into());
+        }
+    }
+    if base_state.revision.checked_add(1) != Some(next_state.revision) {
+        return Err("pending revision must be exactly base revision plus one".into());
+    }
+    let group = base_state
+        .groups
+        .get(group_id)
+        .ok_or("unknown refresh group")?;
+    let next_group = next_state
+        .groups
+        .get(group_id)
+        .ok_or("pending refresh group missing")?;
+    if group["id"] != group_id || group["membership_source_format"] != "producer_registry_v1" {
+        return Err("refresh requires the named existing producer_registry_v1 group".into());
+    }
+    let members = group["members"]
+        .as_array()
+        .ok_or("invalid refresh membership")?;
+    if members.is_empty() || members.len() > 200 {
+        return Err("refresh requires 1..200 existing members".into());
+    }
+    let mut ids = std::collections::BTreeSet::new();
+    let mut changes = Vec::new();
+    let revision = &next_group["protection_revision"];
+    let previous_revision = group.get("protection_revision");
+    if !sha256_value(revision) || previous_revision.is_some_and(|value| !sha256_value(value)) {
+        return Err("refresh protection revisions must be SHA-256 values".into());
+    }
+    for member in members {
+        let id = member.as_str().ok_or("invalid refresh member id")?;
+        if !ids.insert(id) {
+            return Err("duplicate refresh member".into());
+        }
+        let before = base_state.items.get(id).ok_or("refresh member missing")?;
+        let after = next_state
+            .items
+            .get(id)
+            .ok_or("pending refresh member missing")?;
+        if before["id"] != id
+            || before["lifecycle_group_id"] != group_id
+            || after["protection_revision"] != *revision
+            || before.get("protection_revision") != previous_revision
+        {
+            return Err("inconsistent refresh member identity or protection revision".into());
+        }
+        if before.get("protection_revision") != after.get("protection_revision") {
+            changes.push(json!({"section":"items","id":id,
+                "before_present":before.get("protection_revision").is_some(),
+                "before":before.get("protection_revision"),"pending":after["protection_revision"]}));
+        }
+        if let Some(previous) = previous_revision {
+            next["items"][id]["protection_revision"] = previous.clone();
+        } else {
+            next["items"][id]
+                .as_object_mut()
+                .ok_or("invalid refresh member")?
+                .remove("protection_revision");
+        }
+    }
+    // Reject orphaned back-references and cross-group membership ambiguity.
+    for (id, item) in &base_state.items {
+        if item["lifecycle_group_id"] == group_id && !ids.contains(id.as_str()) {
+            return Err("refresh group has an unlisted member".into());
+        }
+    }
+    for (other_id, other) in &base_state.groups {
+        if other_id != group_id
+            && other["members"].as_array().is_some_and(|members| {
+                members
+                    .iter()
+                    .any(|id| id.as_str().is_some_and(|id| ids.contains(id)))
+            })
+        {
+            return Err("refresh member belongs to multiple groups".into());
+        }
+    }
+    if previous_revision != Some(revision) {
+        changes.push(json!({"section":"groups","id":group_id,
+            "before_present":previous_revision.is_some(),"before":previous_revision,"pending":revision}));
+    }
+    if let Some(previous) = previous_revision {
+        next["groups"][group_id]["protection_revision"] = previous.clone();
+    } else {
+        next["groups"][group_id]
+            .as_object_mut()
+            .ok_or("invalid refresh group")?
+            .remove("protection_revision");
+    }
+    next["revision"] = base["revision"].clone();
+    if changes.is_empty() || next != base {
+        return Err("pending transaction is not exclusively a protection_revision refresh".into());
+    }
+    Ok(json!(changes))
+}
+
+/// Materialize only supported pairs and pin every immutable input for the final
+/// callback boundary. Hash binding also rejects transient callback substitutions
+/// during the native partitioned reader, before any discard receipt is created.
+fn refresh_snapshots(
+    root: &Path,
+    original: &Observation,
+    pending: &Observation,
+    auth: Auth<'_>,
+) -> Result<(Vec<u8>, Vec<u8>, Vec<(PathBuf, Observation)>), String> {
+    let base: Value = serde_json::from_slice(&original.bytes).map_err(|e| e.to_string())?;
+    let next: Value = serde_json::from_slice(&pending.bytes).map_err(|e| e.to_string())?;
+    match (base.get("storage_format"), next.get("storage_format")) {
+        (None, None) => return Ok((original.bytes.clone(), pending.bytes.clone(), Vec::new())),
+        (Some(a), Some(b)) if a == "partitioned-v1" && b == "partitioned-v1" => {}
+        _ => return Err("mixed or unknown storage requires independent pending recovery".into()),
+    }
+    let mut hashes = std::collections::BTreeSet::new();
+    for index in [&base, &next] {
+        for section in ["items", "groups", "runs"] {
+            for reference in index[section]
+                .as_object()
+                .ok_or("invalid state index section")?
+                .values()
+            {
+                let hash = reference
+                    .as_str()
+                    .filter(|hash| {
+                        hash.len() == 64
+                            && hash
+                                .bytes()
+                                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+                    })
+                    .ok_or("invalid state record hash reference")?;
+                hashes.insert(hash.to_owned());
+            }
+        }
+        for reference in index["decisions"]
+            .as_array()
+            .ok_or("invalid state index decisions")?
+        {
+            let hash = reference
+                .as_str()
+                .filter(|hash| {
+                    hash.len() == 64
+                        && hash
+                            .bytes()
+                            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+                })
+                .ok_or("invalid state record hash reference")?;
+            hashes.insert(hash.to_owned());
+        }
+    }
+    // Two snapshots each have at most 64 live buckets; never capture arbitrary
+    // directory contents or an unbounded collection before reader validation.
+    if hashes.len() > 128 {
+        return Err("refresh recovery state record count exceeds bound".into());
+    }
+    let directory = root.join("artifacts/maintenance/state-records");
+    let marker = directory.join(".owner.json");
+    let marker_observed = observe(root, &marker, auth)?;
+    let marker_value: Value =
+        serde_json::from_slice(&marker_observed.bytes).map_err(|e| e.to_string())?;
+    if marker_value != json!({"schema":1,"owner":"azrael-project-maintenance/state-records"}) {
+        return Err("unknown state record owner marker".into());
+    }
+    let mut total = marker_observed.bytes.len() as u64;
+    let mut observed = vec![(marker, marker_observed)];
+    for hash in hashes {
+        let path = directory.join(format!("{hash}.json"));
+        let remaining = (MAX_STATE_BYTES * 2 + MAX_BYTES)
+            .checked_sub(total)
+            .ok_or("refresh recovery aggregate state exceeds bound")?;
+        let snapshot = observe_bounded(root, &path, auth, MAX_STATE_BYTES.min(remaining))?;
+        if digest(&snapshot.bytes) != hash {
+            return Err("refresh recovery state record SHA-256 differs".into());
+        }
+        total += snapshot.bytes.len() as u64;
+        observed.push((path, snapshot));
+    }
+    let mut logical = Vec::new();
+    for index in [&base, &next] {
+        let state = crate::partitioned_storage::read(root, index, auth)?;
+        let bytes = serde_json::to_vec(&state).map_err(|e| e.to_string())?;
+        if bytes.len() as u64 > MAX_STATE_BYTES {
+            return Err("refresh recovery logical state exceeds bound".into());
+        }
+        logical.push(bytes);
+    }
+    let next = logical.pop().ok_or("missing pending logical state")?;
+    let base = logical.pop().ok_or("missing base logical state")?;
+    Ok((base, next, observed))
+}
+
+/// Explicitly discard one narrowly validated uncommitted refresh snapshot.
+/// The manifest is never opened for writing, restored, renamed or rewritten.
+pub fn recover_refresh_pending(
+    root: &Path,
+    request: Value,
+    authorize: &dyn Fn(&Path, AccessMode) -> Result<(), String>,
+) -> Result<Value, String> {
+    let context = Context::new(authorize);
+    context.lock_wait.set(requested_wait(&request)?);
+    let auth = &context;
+    if request["operation"] != "recover_refresh_pending"
+        || request["producer_stopped_verified"] != true
+    {
+        return Err("explicit recover_refresh_pending producer-stop attestation required".into());
+    }
+    for key in ["group_id", "reason", "evidence_ref", "receipt_ref"] {
+        if string(&request, key)?.trim().is_empty() {
+            return Err(format!("blank {key}"));
+        }
+    }
+    let pid = request["producer_pid"]
+        .as_u64()
+        .and_then(|pid| u32::try_from(pid).ok())
+        .filter(|pid| *pid > 0)
+        .ok_or("valid producer_pid required")?;
+    for key in [
+        "expected_manifest_sha256",
+        "expected_pending_sha256",
+        "evidence_sha256",
+    ] {
+        if !sha256_value(&request[key]) {
+            return Err(format!("valid {key} required"));
+        }
+    }
+    paths::check(root, root, auth)?;
+    let root = dunce::canonicalize(root).map_err(|e| e.to_string())?;
+    paths::check(&root, &root, auth)?;
+    let directory = root.join("artifacts/maintenance");
+    let manifest = directory.join("manifest.json");
+    let pending = directory.join("manifest.pending");
+    let evidence_root = directory.join("evidence");
+    let evidence = paths::resolve(&root, Path::new(string(&request, "evidence_ref")?))?;
+    let receipt = paths::resolve(&root, Path::new(string(&request, "receipt_ref")?))?;
+    if !evidence.starts_with(&evidence_root)
+        || !receipt.starts_with(&evidence_root)
+        || evidence == evidence_root
+        || receipt == evidence_root
+        || evidence == receipt
+    {
+        return Err(
+            "distinct evidence and receipt plain files must be inside maintenance/evidence".into(),
+        );
+    }
+    owner_absent(pid)?;
+    // Waiting is explicit and applies only to acquisition. Use the recovery order and
+    // retain the persistent lock inode throughout this state transaction.
+    let guard = recovery_guard(&root, auth)?;
+    let mut lease = wait_for_lock_cancel(auth.lock_wait.get(), &|| auth.cancelled(), || {
+        Sentinel::acquire(
+            &root,
+            &directory.join("maintenance.lock"),
+            "recover_refresh_pending",
+            auth,
+        )
+    })?;
+    // This operation verifies the held lease in its final callback boundary.
+    // Dropping it must not invoke more callbacks after that boundary.
+    lease.verify_on_drop = false;
+    let original = observe_bounded(&root, &manifest, auth, MAX_STATE_BYTES)?;
+    let uncommitted = observe_bounded(&root, &pending, auth, MAX_STATE_BYTES)?;
+    if digest(&original.bytes) != string(&request, "expected_manifest_sha256")?
+        || digest(&uncommitted.bytes) != string(&request, "expected_pending_sha256")?
+    {
+        return Err("manifest or pending SHA-256 differs".into());
+    }
+    let (base_bytes, pending_bytes, state_observed) =
+        refresh_snapshots(&root, &original, &uncommitted, auth)?;
+    let changes = refresh_delta(&base_bytes, &pending_bytes, string(&request, "group_id")?)?;
+    let evidence_observed = observe(&root, &evidence, auth)?;
+    if digest(&evidence_observed.bytes) != string(&request, "evidence_sha256")? {
+        return Err("producer-stop evidence SHA-256 differs".into());
+    }
+    let evidence_text =
+        std::str::from_utf8(&evidence_observed.bytes).map_err(|_| "evidence must be UTF-8 text")?;
+    if evidence_text.trim().is_empty() {
+        return Err("nonblank independent producer-stop evidence required".into());
+    }
+    let base: Value = serde_json::from_slice(&base_bytes).map_err(|e| e.to_string())?;
+    let result = json!({"schema":1,"operation":"recover_refresh_pending",
+        "status":"authorized_discard_attempt","group_id":request["group_id"],
+        "expected_manifest_sha256":request["expected_manifest_sha256"],
+        "expected_pending_sha256":request["expected_pending_sha256"],
+        "base_revision":base["revision"],"pending_revision":base["revision"].as_u64().unwrap() + 1,
+        "changed_protection_revisions":changes,"producer_pid":pid,
+        "producer_stopped_verified":true,"reason":request["reason"],
+        "evidence_ref":request["evidence_ref"],"evidence_sha256":request["evidence_sha256"],
+        "evidence":evidence_text,"receipt_ref":request["receipt_ref"],"recorded_at_ms":crate::now_ms()?});
+    let bytes = serde_json::to_vec_pretty(&result).map_err(|e| e.to_string())?;
+    // Evidence can expand under JSON escaping, but the receipt never embeds State.
+    if bytes.len() as u64 > 1024 * 1024 {
+        return Err("refresh recovery receipt exceeds bound".into());
+    }
+    paths::check(&root, &receipt, auth)?;
+    auth(
+        receipt.parent().ok_or("missing receipt parent")?,
+        AccessMode::Write,
+    )?;
+    auth(&receipt, AccessMode::Write)?;
+    auth(&directory, AccessMode::Write)?;
+    auth(&pending, AccessMode::Write)?;
+    let mut expected = vec![
+        (&manifest, &original),
+        (&pending, &uncommitted),
+        (&evidence, &evidence_observed),
+    ];
+    expected.extend(
+        state_observed
+            .iter()
+            .map(|(path, observation)| (path, observation)),
+    );
+    let expected: Vec<(&Path, &Observation)> = expected
+        .into_iter()
+        .map(|(path, observation)| (path.as_path(), observation))
+        .collect();
+    final_boundary_inner(&root, &expected, Some(&guard), false, Some(&lease), auth)?;
+    final_plain_path(receipt.parent().ok_or("missing receipt parent")?)?;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&receipt)
+        .map_err(|e| format!("create-new refresh recovery receipt failed: {e}"))?;
+    file.write_all(&bytes).map_err(|e| e.to_string())?;
+    file.sync_all().map_err(|e| e.to_string())?;
+    let mut permissions = file.metadata().map_err(|e| e.to_string())?.permissions();
+    permissions.set_readonly(true);
+    auth(&receipt, AccessMode::Write)?;
+    file.set_permissions(permissions)
+        .map_err(|e| e.to_string())?;
+    file.sync_all().map_err(|e| e.to_string())?;
+    let receipt_observed = Observation {
+        identity: identity(&file)?,
+        bytes,
+    };
+    drop(file);
+    auth(&directory, AccessMode::Write)?;
+    auth(&pending, AccessMode::Write)?;
+    let mut expected_with_receipt = expected.clone();
+    expected_with_receipt.push((&receipt, &receipt_observed));
+    final_boundary_inner(
+        &root,
+        &expected_with_receipt,
+        Some(&guard),
+        false,
+        Some(&lease),
+        auth,
+    )?;
+    owner_absent(pid)?;
+    fs::remove_file(&pending).map_err(|e| {
+        format!("ordinary pending discard failed; authorized-attempt receipt retained: {e}")
+    })?;
+    expected_with_receipt.retain(|(path, _)| *path != pending.as_path());
+    final_boundary_inner(
+        &root,
+        &expected_with_receipt,
+        Some(&guard),
+        true,
+        Some(&lease),
+        auth,
+    )?;
+    Ok(
+        json!({"status":"discarded","operation":"recover_refresh_pending",
+        "group_id":request["group_id"],"manifest_sha256":digest(&original.bytes),
+        "receipt_ref":request["receipt_ref"],"receipt_sha256":digest(&receipt_observed.bytes)}),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(windows)]
+    #[test]
+    fn final_recovery_boundary_reads_metadata_through_the_locked_owner_handle() {
+        let root = tempfile::tempdir().unwrap();
+        fs::create_dir_all(root.path().join("artifacts/maintenance")).unwrap();
+        let allow = |_: &Path, _: AccessMode| Ok(());
+        let context = Context::new(&allow);
+        let guard = recovery_guard(root.path(), &context).unwrap();
+        let path = root.path().join("artifacts/maintenance/maintenance.lock");
+        let mut lease = Sentinel::acquire(root.path(), &path, "recovery-test", &context).unwrap();
+        lease.verify_on_drop = false;
+        // Both files remain exclusively OS-locked. A new-handle content read
+        // would fail with Windows ERROR_LOCK_VIOLATION (33).
+        final_boundary_inner(root.path(), &[], Some(&guard), true, Some(&lease), &context).unwrap();
+        // Identity alone is insufficient for the metadata-bearing lease.
+        let mut writer = &*lease._file;
+        writer.seek(SeekFrom::Start(0)).unwrap();
+        writer
+            .write_all(&vec![b' '; lease.observed.bytes.len()])
+            .unwrap();
+        writer.sync_all().unwrap();
+        let error =
+            final_boundary_inner(root.path(), &[], Some(&guard), true, Some(&lease), &context)
+                .unwrap_err();
+        assert!(error.contains("lease contents changed"), "{error}");
+    }
+
+    #[test]
+    fn lock_wait_distinguishes_typed_contention_and_stops_before_expired_retry() {
+        let mut attempts = 0;
+        let error = wait_for_lock(std::time::Duration::from_millis(5), || {
+            attempts += 1;
+            if attempts == 1 {
+                Err(LockAcquireError::Busy("OS lock busy: fixture".into()))
+            } else {
+                Ok(())
+            }
+        })
+        .unwrap_err();
+        assert_eq!(attempts, 1, "must not acquire after the wait deadline");
+        assert!(error.contains("lock wait exhausted after 5 ms"));
+
+        let mut attempts = 0;
+        let error = wait_for_lock::<()>(std::time::Duration::from_secs(5), || {
+            attempts += 1;
+            Err(LockAcquireError::Other(
+                "OS lock busy: policy denial".into(),
+            ))
+        })
+        .unwrap_err();
+        assert_eq!(attempts, 1, "error wording must not authorize a retry");
+        assert_eq!(error, "OS lock busy: policy denial");
+    }
+
+    #[test]
+    fn nested_availability_returns_partial_leases_before_queued_wait() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("catalog.lock");
+        let partial = root.path().join("maintenance.lock");
+        let allow = |_: &Path, _: AccessMode| Ok(());
+        let context = Context::new(&allow);
+        Sentinel::acquire(root.path(), &path, "seed", &context)
+            .unwrap()
+            .release()
+            .unwrap();
+        Sentinel::acquire(root.path(), &partial, "seed", &context)
+            .unwrap()
+            .release()
+            .unwrap();
+        let owner = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&path)
+            .unwrap();
+        owner.try_lock().unwrap();
+        let probe = partial.clone();
+        let (started, ready) = std::sync::mpsc::channel();
+        let holder = std::thread::spawn(move || {
+            ready.recv().unwrap();
+            std::thread::sleep(std::time::Duration::from_millis(50));
+            let file = OpenOptions::new()
+                .read(true)
+                .write(true)
+                .open(probe)
+                .unwrap();
+            // Waiting with the partial maintenance lease would deadlock here.
+            file.try_lock().unwrap();
+            std::thread::sleep(std::time::Duration::from_millis(80));
+            drop(file);
+            drop(owner);
+        });
+        context
+            .lock_wait
+            .set(std::time::Duration::from_millis(600_000));
+        let mut attempts = 0;
+        let result = wait_for_lock(std::time::Duration::from_secs(2), || {
+            attempts += 1;
+            let partial = Sentinel::acquire(root.path(), &partial, "partial", &context)?;
+            if attempts == 1 {
+                started.send(()).unwrap();
+            }
+            check_available(root.path(), &path, &context)?;
+            Ok(partial)
+        });
+        holder.join().unwrap();
+        result.unwrap().release().unwrap();
+        assert_eq!(
+            attempts, 2,
+            "one failed transaction and one fresh acquisition"
+        );
+    }
+
+    #[test]
+    fn queued_wait_cancels_without_reacquiring_or_changing_owner() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("lock");
+        let allow = |_: &Path, _: AccessMode| Ok(());
+        let context = Context::new(&allow);
+        let held = Sentinel::acquire(root.path(), &path, "owner", &context).unwrap();
+        let original = held.owner();
+        let started = std::time::Instant::now();
+        let mut attempts = 0;
+        let error = wait_for_lock_cancel(
+            std::time::Duration::from_millis(600_000),
+            &|| started.elapsed() >= std::time::Duration::from_millis(30),
+            || {
+                attempts += 1;
+                Sentinel::acquire(root.path(), &path, "contender", &context)
+            },
+        )
+        .err()
+        .unwrap();
+        assert!(error.contains("cancelled"), "{error}");
+        assert_eq!(attempts, 1);
+        assert!(started.elapsed() < std::time::Duration::from_secs(2));
+        assert_eq!(held.owner(), original);
+        held.release().unwrap();
+    }
     #[cfg(windows)]
     #[test]
     fn owner_veto_distinguishes_live_and_exited_process_with_retained_handle() {
@@ -1043,7 +1702,11 @@ mod tests {
         assert_eq!(lease.owner()["schema"], 2);
         assert!(Sentinel::acquire(root.path(), &path, "contender", &context).is_err());
         assert!(ObservationLock::acquire(root.path(), &path, "observer", &context).is_err());
-        assert!(check_available(root.path(), &path, &context).is_err());
+        let error = check_available(root.path(), &path, &context).unwrap_err();
+        let response = error_response(&error);
+        assert_eq!(response["code"], "maintenance_busy", "{error}");
+        assert_eq!(response["lock_path"], json!(path));
+        assert_eq!(response["retryable"], true);
         lease.release().unwrap();
         assert!(path.exists());
         check_available(root.path(), &path, &context).unwrap();
@@ -1068,10 +1731,52 @@ mod tests {
             .unwrap();
         for bytes in ["", "malformed", r#"{"schema":1}"#] {
             fs::write(&path, bytes).unwrap();
+            assert!(check_available(root.path(), &path, &context).is_err());
             assert!(Sentinel::acquire(root.path(), &path, "legacy", &context).is_err());
             assert!(ObservationLock::acquire(root.path(), &path, "legacy", &context).is_err());
             assert_eq!(fs::read_to_string(&path).unwrap(), bytes);
         }
+    }
+    #[test]
+    fn availability_waits_for_exclusive_owner_before_reading_metadata() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("lock");
+        let allow = |_: &Path, _: AccessMode| Ok(());
+        let context = Context::new(&allow);
+        Sentinel::acquire(root.path(), &path, "initial", &context)
+            .unwrap()
+            .release()
+            .unwrap();
+        let mut owner = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&path)
+            .unwrap();
+        owner.try_lock().unwrap();
+        // A new owner's metadata is authoritative after waiting; a snapshot
+        // taken before acquiring shared custody must not be compared against it.
+        let holder = std::thread::spawn(move || {
+            owner.seek(SeekFrom::Start(0)).unwrap();
+            owner.set_len(0).unwrap();
+            owner
+                .write_all(
+                    serde_json::to_string(&json!({"schema":2,"pid":std::process::id(),
+                        "token":"next-owner","operation":"replacement","acquired_at_ms":1}))
+                    .unwrap()
+                    .as_bytes(),
+                )
+                .unwrap();
+            std::thread::sleep(std::time::Duration::from_millis(6000));
+            drop(owner);
+        });
+        context
+            .lock_wait
+            .set(std::time::Duration::from_millis(600_000));
+        let result = check_available(root.path(), &path, &context);
+        holder.join().unwrap();
+        result.unwrap();
+        let metadata: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
+        assert_eq!(metadata["token"], "next-owner");
     }
     #[test]
     fn recovery_never_unlinks_schema_two_os_lock_files() {

@@ -8,7 +8,19 @@ const SETTINGS_REPLACEMENT = "case`computer-use`:return{visible:!0,pending:!1};"
 const COMPUTER_USE_APPROVAL_CARD_ASSET = "webview/assets/computer-use-app-approval-request-card-a9ef3724f471.js";
 const CANCEL_MARKER = "/*azrael-computer-use-cancel-request-v1*/";
 const CANCEL_ANCHOR = "{headerContent:I,title:L,subtitle:R,actions:W}";
-const CANCEL_REPLACEMENT = '{headerContent:I,title:L,subtitle:R,actions:W,body:(0,k.jsx)(`button`,{type:`button`,disabled:z,onClick:()=>F(`cancel`),className:`text-sm text-token-text-secondary hover:text-token-text-primary disabled:opacity-50`,children:(0,k.jsx)(a,{id:`azrael.computerUse.cancelRequest`,defaultMessage:`Cancel request`})})}' + CANCEL_MARKER;
+const CANCEL_BUTTON = '(0,k.jsx)(`button`,{type:`button`,disabled:z,onClick:()=>F(`cancel`),className:`text-sm text-token-text-secondary hover:text-token-text-primary disabled:opacity-50`,children:(0,k.jsx)(a,{id:`azrael.computerUse.cancelRequest`,defaultMessage:`Cancel request`})})';
+const APPROVAL_SETTINGS_IMPORT = 'import{X9t as azraelApprovalSettingsBridge}from"./app-initial-c014f9ee4429.js";';
+const approvalResponseOrigin = require('./team-approval-routing.cjs').approvalResponseOrigin;
+function azraelOpenApprovalSettings(manager, conversationId, requestId, hostId, list) {
+  const context = { hostId, getConversationRequests: id => manager.getConversation(id)?.requests || [] };
+  const origin = approvalResponseOrigin(context, conversationId, requestId);
+  if (!origin || hostId !== 'local' || typeof origin.requestId !== 'string' || !origin.requestId.startsWith('azrael-window-consent-')) return;
+  const request = context.getConversationRequests(origin.conversationId).find(item => item.id === origin.requestId);
+  if (!request || request.completed === true || request.params?._meta?.connector_id !== 'window-use') return;
+  azraelApprovalSettingsBridge.dispatchMessage('mcp-response', { hostId, response: { id: origin.requestId, result: { action: 'settings', content: { list } } } });
+}
+const APPROVAL_SETTINGS_HELPERS = approvalResponseOrigin.toString() + '\n' + azraelOpenApprovalSettings.toString();
+const CANCEL_REPLACEMENT = '{headerContent:I,title:L,subtitle:R,actions:W,body:d.connectorName===`Window Use`?(0,k.jsxs)(`div`,{className:`flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 px-4`,children:[...[[`controlAllowedApps`,`화이트리스트 설정`],[`observationBlockedApps`,`시큐리티 앱 설정`]].map(([list,label])=>(0,k.jsx)(`button`,{type:`button`,disabled:z,onClick:()=>azraelOpenApprovalSettings(_(p,l),i,f,l,list),onKeyDown:event=>{if(event.key===`Enter`||event.key===` `){event.preventDefault();event.stopPropagation();if(!event.repeat)event.currentTarget.click()}},onKeyUp:event=>{if(event.key===`Enter`||event.key===` `){event.preventDefault();event.stopPropagation()}},className:`text-sm text-token-text-secondary hover:text-token-text-primary focus-visible:underline disabled:opacity-50`,children:label},list)),' + CANCEL_BUTTON + ']}):' + CANCEL_BUTTON + '}' + CANCEL_MARKER;
 const COMPUTER_USE_MANAGEMENT_ASSET = "webview/assets/computer-use-settings-a06e6e547020.js";
 const MANAGEMENT_MARKER = "/*azrael-computer-use-local-management-v1*/";
 const managementReplacements = [
@@ -20,7 +32,7 @@ const managementReplacements = [
 ];
 const windowAccess = 'require("./window-control-host.cjs")';
 const bindWindowApproval = `if(${windowEnabled}){if(this.azraelWindowApprovalNative!==this.codexMcpConnection){this.azraelWindowApprovalNative=this.codexMcpConnection;this.azraelWindowApprovalPublish=envelope=>this.broadcastToAllViews(envelope);this.azraelWindowApprovalNavigate=async(threadId,isPending)=>{if(!isPending())return;await require("vscode").commands.executeCommand("azrael.openSidebar");if(isPending())this.navigateToRoute("/local/"+threadId)}}${windowAccess}.registerApprovalUI(this.codexMcpConnection,this.azraelWindowApprovalPublish,this.azraelWindowApprovalNavigate);}`;
-const access = 'require("./computer-use-approvals.cjs")';
+const access = 'require("./window-use-approvals.cjs")';
 const replacements = [
   ['onRequest:F=>{this.broadcastToAllViews({type:"mcp-request",hostId:"local",request:F})}', `onRequest:F=>{${bindWindowApproval}${access}.receive(F,(id,result)=>this.codexMcpConnection.sendResponse(id,result),request=>this.broadcastToAllViews({type:"mcp-request",hostId:"local",request}))}${MARKER}`],
   ['case"mcp-response":{let{id:n,result:o}=r.response;this.codexMcpConnection.sendResponse(n,o);break}', `case"mcp-response":{let{id:n,result:o}=r.response;if(${windowEnabled}?${windowAccess}.respondApproval(this.codexMcpConnection,n,o):typeof n==="string"&&n.startsWith("azrael-window-consent-"))break;this.codexMcpConnection.sendResponse(n,${access}.response(n,o));break}`],
@@ -64,13 +76,13 @@ function injectComputerUseCancelRequest(text, relativePath) {
   const markers = text.split(CANCEL_MARKER).length - 1;
   const anchors = text.split(CANCEL_ANCHOR).length - 1;
   if (markers) {
-    if (markers !== 1 || anchors !== 0 || text.split(CANCEL_REPLACEMENT).length - 1 !== 1) {
+    if (markers !== 1 || anchors !== 0 || text.split(CANCEL_REPLACEMENT).length - 1 !== 1 || text.split(APPROVAL_SETTINGS_IMPORT).length - 1 !== 1 || text.split(APPROVAL_SETTINGS_HELPERS).length - 1 !== 1) {
       throw new Error("Invalid computer-use cancel-request injection marker");
     }
     return { text, count: 0 };
   }
   if (anchors !== 1) throw new Error("Pinned computer-use cancel-request anchor must occur exactly once");
-  return { text: text.replace(CANCEL_ANCHOR, CANCEL_REPLACEMENT), count: 1 };
+  return { text: APPROVAL_SETTINGS_IMPORT + text.replace(CANCEL_ANCHOR, CANCEL_REPLACEMENT) + '\n' + APPROVAL_SETTINGS_HELPERS, count: 1 };
 }
 const WINDOW_TITLE_MARKER = "/*azrael-window-approval-title-v1*/";
 const windowTitleReplacements = [
@@ -109,4 +121,4 @@ module.exports = { injectComputerUse, injectComputerUseSettings, injectComputerU
   SETTINGS_MARKER, SETTINGS_ANCHOR, SETTINGS_REPLACEMENT, CANCEL_MARKER, CANCEL_ANCHOR, CANCEL_REPLACEMENT,
   MARKER, replacements };
 
-Object.assign(module.exports,{injectWindowApprovalTitle,WINDOW_TITLE_MARKER,windowTitleReplacements});
+Object.assign(module.exports,{injectWindowApprovalTitle,WINDOW_TITLE_MARKER,windowTitleReplacements,azraelOpenApprovalSettings,APPROVAL_SETTINGS_HELPERS});

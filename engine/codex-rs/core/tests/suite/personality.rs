@@ -1,4 +1,5 @@
 use codex_core::TurnInputRequest;
+use codex_prompts::COMMON_AGENT_INSTRUCTIONS;
 use codex_protocol::config_types::CollaborationMode;
 use codex_protocol::config_types::ModeKind;
 use codex_protocol::config_types::Settings;
@@ -20,6 +21,8 @@ use pretty_assertions::assert_eq;
 use test_case::test_case;
 
 const CUSTOM_INSTRUCTIONS: &str = "Custom instructions\n# Personality\nThis must remain\n## Writing Style\nThis must also remain\n# General\nGeneral instructions";
+const HARNESS_RUNTIME_CORE: &str =
+    include_str!("../../../prompts/templates/harness-runtime-core.md");
 
 fn read_only_text_turn(
     test: &TestCodex,
@@ -55,7 +58,7 @@ fn read_only_text_turn(
 #[test_case(Some("none"), Some(false); "none with removed feature disabled")]
 #[test_case(Some("none"), Some(true); "none with removed feature enabled")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn config_personality_controls_baked_personality_section(
+async fn config_personality_preserves_harness_instructions(
     personality: Option<&'static str>,
     legacy_feature_setting: Option<bool>,
 ) -> anyhow::Result<()> {
@@ -92,11 +95,7 @@ async fn config_personality_controls_baked_personality_section(
 
     wait_for_event(&test.codex, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    let expected = if personality == Some("none") {
-        "Base instructions\n# General\nGeneral instructions"
-    } else {
-        "Base instructions\n# Personality\nBaked personality\n## Writing Style\nNested writing style\n# General\nGeneral instructions"
-    };
+    let expected = format!("{HARNESS_RUNTIME_CORE}\n{COMMON_AGENT_INSTRUCTIONS}");
     assert_eq!(resp_mock.single_request().instructions_text(), expected);
 
     Ok(())
@@ -144,9 +143,19 @@ async fn config_personality_none_preserves_explicit_base_instructions(
     let request = resp_mock.single_request();
     let body = request.body_json();
     assert!(body.get("instructions").is_none());
-    if !custom_instructions.is_empty() {
-        assert_eq!(request.instructions_text(), custom_instructions);
+    assert_eq!(
+        test.config.base_instructions.as_deref(),
+        Some(custom_instructions)
+    );
+    let mut expected = format!("{HARNESS_RUNTIME_CORE}\n{COMMON_AGENT_INSTRUCTIONS}");
+    if custom_instructions.is_empty() {
+        assert!(!request.body_contains_text("<custom_agent_instructions>"));
+    } else {
+        expected.push_str(&format!(
+            "\n<custom_agent_instructions>\n{custom_instructions}\n</custom_agent_instructions>"
+        ));
     }
+    assert_eq!(request.instructions_text(), expected);
     assert!(
         request
             .message_input_texts("developer")

@@ -9,6 +9,10 @@ use ts_rs::TS;
 #[serde(rename_all = "camelCase")]
 #[ts(rename_all = "camelCase")]
 pub struct RootResumeReasoningSettings {
+    /// Profile of the deferred request, independent of current project selection.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub agent_profile: Option<crate::agent_profile::AgentProfileRef>,
     pub effort: Option<crate::openai_models::ReasoningEffort>,
 }
 
@@ -186,7 +190,7 @@ mod tests {
         for effort in [None, Some(crate::openai_models::ReasoningEffort::High)] {
             let mut record: RootResumeReservation =
                 serde_json::from_value(reservation_json()).unwrap();
-            record.reasoning_settings = Some(RootResumeReasoningSettings { effort });
+            record.reasoning_settings = Some(RootResumeReasoningSettings { agent_profile: None, effort });
             let value = serde_json::to_value(&record).unwrap();
             assert!(value["reasoningSettings"].is_object());
             assert_eq!(

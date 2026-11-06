@@ -268,6 +268,7 @@ pub(super) fn sample_turn_start_response(turn_id: &str) -> ClientResponsePayload
     ClientResponsePayload::TurnStart(codex_app_server_protocol::TurnStartResponse {
         turn: Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: turn_id.to_string(),
             root_turn_id: None,
@@ -292,6 +293,7 @@ pub(super) fn sample_turn_started_notification(
         thread_id: thread_id.to_string(),
         turn: Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: turn_id.to_string(),
             root_turn_id: None,
@@ -334,6 +336,7 @@ pub(super) fn sample_turn_completed_notification(
         thread_id: thread_id.to_string(),
         turn: Turn {
             root_resume_wait: None,
+            user_wait_timing: None,
 
             id: turn_id.to_string(),
             root_turn_id: None,

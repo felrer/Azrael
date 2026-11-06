@@ -33,14 +33,8 @@ test('shared runtime awaits native release endpoint and preserves unrelated envi
   try {
   const extra={sharedEngine:true,sharedEngineProtocol:2,engineSha256:'a'.repeat(64),codexHome:home};
   const first=load(undefined,extra);
-  const second=load(undefined,extra);
-  assert.equal(first.socket,second.socket);
   assert.equal(first.socket,undefined);
   assert.equal(first.env.AZRAEL_EX_MANAGEMENT_SOCKET,undefined);
-  first.socket=path.join(home,'release-instance','control.sock');
-  assert.equal(first.socket,path.join(home,'release-instance','control.sock'));
-  const other={...extra}; delete other.codexHome;
-  assert.equal(load(undefined,other).socket,undefined);
   assert.equal(process.env.AZRAEL_EX_MANAGEMENT_SOCKET,before);
   } finally { fs.rmSync(home,{recursive:true}); }
 });

@@ -1,14 +1,19 @@
 //! Classify explicit filesystem deletion commands without executing them.
 //! This is not a detector for arbitrary interpreter code or external scripts.
 use super::is_dangerous_command::DangerousCommandPlatform;
-use crate::bash::parse_shell_lc_literal_commands;
+use crate::bash::parse_shell_lc_command_literals;
 use crate::powershell::extract_powershell_command;
 
 pub fn is_deletion_command(command: &[String], platform: DangerousCommandPlatform) -> bool {
-    classify(command, platform, 0)
+    classify(command, platform, 0, false)
 }
 
-fn classify(command: &[String], platform: DangerousCommandPlatform, depth: usize) -> bool {
+fn classify(
+    command: &[String],
+    platform: DangerousCommandPlatform,
+    depth: usize,
+    has_dynamic_arguments: bool,
+) -> bool {
     if depth > 8 {
         return false;
     }
@@ -17,7 +22,7 @@ fn classify(command: &[String], platform: DangerousCommandPlatform, depth: usize
     };
     let name = executable_name(program, platform);
     if matches!(name.as_str(), "rm" | "unlink" | "rmdir") {
-        return !args.is_empty()
+        return (!args.is_empty() || has_dynamic_arguments)
             && (platform == DangerousCommandPlatform::Windows
                 || !args
                     .iter()
@@ -29,7 +34,14 @@ fn classify(command: &[String], platform: DangerousCommandPlatform, depth: usize
             || args
                 .iter()
                 .position(|arg| matches!(arg.as_str(), "-exec" | "-execdir"))
-                .is_some_and(|index| classify(&args[index + 1..], platform, depth + 1));
+                .is_some_and(|index| {
+                    classify(
+                        &args[index + 1..],
+                        platform,
+                        depth + 1,
+                        has_dynamic_arguments,
+                    )
+                });
     }
     if matches!(name.as_str(), "sudo" | "env") {
         // Only unwrap known option-free wrappers, including env assignments.
@@ -38,13 +50,13 @@ fn classify(command: &[String], platform: DangerousCommandPlatform, depth: usize
             .position(|arg| !arg.contains('='))
             .unwrap_or(args.len());
         if args.get(start).is_some_and(|arg| !arg.starts_with('-')) {
-            return classify(&args[start..], platform, depth + 1);
+            return classify(&args[start..], platform, depth + 1, has_dynamic_arguments);
         }
     }
-    if let Some(commands) = parse_shell_lc_literal_commands(command)
+    if let Some(commands) = parse_shell_lc_command_literals(command)
         && commands
             .iter()
-            .any(|cmd| classify(cmd, platform, depth + 1))
+            .any(|cmd| classify(&cmd.words, platform, depth + 1, cmd.has_dynamic_arguments))
     {
         return true;
     }
@@ -150,6 +162,8 @@ mod tests {
             vec!["rmdir", "dir"],
             vec!["bash", "-lc", "echo ready; rm -- file"],
             vec!["bash", "-lc", "for f in a b; do rm \"$f\"; done"],
+            vec!["bash", "-lc", "unlink \"$f\""],
+            vec!["bash", "-lc", "rmdir \"$dir\""],
             vec!["sudo", "rm", "file"],
             vec!["env", "X=1", "rm", "file"],
         ] {
@@ -161,6 +175,10 @@ mod tests {
         for command in [
             vec!["echo", "rm file"],
             vec!["rm", "--help"],
+            vec!["rm"],
+            vec!["bash", "-lc", "rm"],
+            vec!["bash", "-lc", "rm >log"],
+            vec!["bash", "-lc", "rm --help \"$f\""],
             vec!["git", "reset", "--hard"],
             vec!["node", "script.js"],
             vec!["cargo", "test"],

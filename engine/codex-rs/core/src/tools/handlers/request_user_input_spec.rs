@@ -3,6 +3,7 @@ use codex_protocol::request_user_input::RequestUserInputQuestion;
 use codex_tools::JsonSchema;
 use codex_tools::ResponsesApiTool;
 use codex_tools::ToolSpec;
+use codex_tools::legacy_codex_tool;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
@@ -74,7 +75,7 @@ pub fn create_request_user_input_tool(description: String) -> ToolSpec {
 
     let properties = BTreeMap::from([("questions".to_string(), questions_schema)]);
 
-    ToolSpec::Function(ResponsesApiTool {
+    legacy_codex_tool(ResponsesApiTool {
         name: REQUEST_USER_INPUT_TOOL_NAME.to_string(),
         description,
         strict: false,

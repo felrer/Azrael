@@ -10,6 +10,22 @@ const physical = filename => {
   return process.platform === 'win32' ? value.toLowerCase() : value;
 };
 
+// Scheduling changes execution parallelism, but filters and unknown options
+// cannot establish that every test in a file ran.
+function completeTestArgs(args) {
+  if (args[0] !== '--test') return null;
+  const files = [];
+  let concurrency = false;
+  for (const arg of args.slice(1)) {
+    if (/^--test-concurrency=(?:[1-9]|1[0-6])$/.test(arg)) {
+      if (concurrency || files.length) return null;
+      concurrency = true;
+    } else if (/^scripts\/[\w./-]+\.(?:cjs|mjs|js)$/.test(arg)) files.push(arg);
+    else return null;
+  }
+  return files.length ? ['--test', ...files] : null;
+}
+
 // In deployment, the verified engine gate owns these unfiltered node:test
 // bundles. This is not permission to reuse arbitrary per-file or native logs.
 async function bindSourcePreflight(selection, config, root, verify = gate.verifyReceipt) {
@@ -17,7 +33,7 @@ async function bindSourcePreflight(selection, config, root, verify = gate.verify
       !path.isAbsolute(config.receiptPath || '') || physical(config.projectRoot) !== physical(root)) {
     throw Error('Source reuse requires a same-project engine source preflight receipt');
   }
-  let receiptHash;
+  let receiptHash, acceptedAction;
   const validate = async () => {
     const currentHash = digest(config.receiptPath);
     if (receiptHash && currentHash !== receiptHash) throw Error('Source preflight receipt changed');
@@ -25,31 +41,41 @@ async function bindSourcePreflight(selection, config, root, verify = gate.verify
     // verifyReceipt owns the current input, log and execution-environment
     // checks. Require its environment evidence without measuring it twice.
     const receipt = await verify(config);
-    if (!receipt.sourceExecution || (verify !== gate.verifyReceipt &&
-        JSON.stringify(receipt.sourceExecution) !== JSON.stringify(await gate.sourceExecutionIdentity(config))))
+    const validated = gate.validatedReceiptReuse(receipt);
+    const currentExecution = validated?.sourceExecution ?? await gate.sourceExecutionIdentity(config);
+    const canonical = require('./verification-reuse-policy.cjs').canonical;
+    if (!receipt.sourceExecution || (validated
+      ? JSON.stringify(canonical(receipt.sourceExecution)) !== validated.evidenceSourceExecution
+      : JSON.stringify(receipt.sourceExecution) !== JSON.stringify(currentExecution)))
       throw Error('Source reuse requires matching execution environment evidence');
+    if (!['passed', 'rerun-required'].includes(receipt.status)) throw Error('Source reuse requires passing evidence');
+    const action = receipt.status === 'rerun-required' ? 'rerun' : 'reuse';
+    if (acceptedAction && acceptedAction !== action) throw Error('Source preflight reuse decision changed');
+    acceptedAction = action;
     return receipt;
   };
   const receipt = await validate();
   const manifest = gate.loadManifest(root);
   const candidates = new Set(selection.commands.filter(command => command.name === 'source' &&
     command.executable === process.execPath && path.resolve(command.cwd) === path.resolve(root) &&
-    command.args[0] === '--test' && command.args.every(arg =>
-      /^--test-(?:concurrency|skip-pattern)=/.test(arg) || arg === '--test' || command.files.includes(arg)))
-    .flatMap(command => command.files));
+    completeTestArgs(command.args)?.slice(1).every(file => command.files.includes(file)))
+    .flatMap(command => completeTestArgs(command.args).slice(1)));
   const covered = new Set(), records = [];
-  for (const check of receipt.checks) {
+  for (const check of receipt.status === 'rerun-required' ? [] : receipt.checks) {
     const declared = manifest.features.find(feature => feature.id === check.featureId)?.checks.find(item => item.id === check.checkId);
+    const actualArgs = completeTestArgs(check.args);
     if (!declared || declared.level !== 'source' || declared.executable !== check.executable ||
-        JSON.stringify(declared.args) !== JSON.stringify(check.args)) continue;
-    const [flag, ...files] = check.args;
+        !actualArgs || JSON.stringify(completeTestArgs(declared.args)) !== JSON.stringify(actualArgs)) continue;
+    const [, ...files] = actualArgs;
     // A filtered/operational command can never establish whole-file coverage.
-    if (check.executable !== 'node' || flag !== '--test' || !files.length ||
-        !files.every(file => /^scripts\/[\w./-]+\.(?:cjs|mjs|js)$/.test(file) && candidates.has(file))) continue;
-    files.forEach(file => covered.add(file));
+    if (check.executable !== 'node') continue;
+    const selected = files.filter(file => candidates.has(file));
+    if (!selected.length) continue;
+    selected.forEach(file => covered.add(file));
     records.push({ featureId: check.featureId, checkId: check.checkId, executable: check.executable,
       args: check.args, logPath: check.logPath, logSha256: check.logSha256,
-      errorPath: check.errorPath, errorSha256: check.errorSha256, exitCode: check.exitCode });
+      errorPath: check.errorPath, errorSha256: check.errorSha256, exitCode: check.exitCode,
+      ...(receipt.reuseReview?.mode === 'reviewed' ? { reuseReview: receipt.reuseReview } : {}) });
   }
   const commands = selection.commands.flatMap(command => {
     if (command.name !== 'source') return [command];
@@ -59,8 +85,8 @@ async function bindSourcePreflight(selection, config, root, verify = gate.verify
   });
   return { validate, environment: gate.checkEnvironment(config), selection: { ...selection, commands,
     sourcePreflight: { receiptPath: receipt.receiptPath, receiptSha256: receiptHash,
-      files: [...covered].sort(), checks: records,
+      files: [...covered].sort(), checks: records, ...(receipt.reuseReview ? { reuseReview: receipt.reuseReview } : {}),
       reason: 'Passing engine gate owns complete unfiltered node:test bundles; identity and logs revalidated before and after source execution' } } };
 }
 
-module.exports = { bindSourcePreflight };
+module.exports = { bindSourcePreflight, completeTestArgs };

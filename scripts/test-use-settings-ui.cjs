@@ -1,11 +1,28 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict'), vm = require('node:vm');
 const { createUseSettingsStore, AzraelWindowControlLauncher } = require('./inject-window-control.cjs');
+test('approval settings uses trusted current origin without settling native requests', () => {
+  const { APPROVAL_SETTINGS_HELPERS } = require('./inject-computer-use.cjs');
+  const original = { id: 'azrael-window-consent-current', method: 'mcpServer/elicitation/request', params: { _meta: { connector_id: 'window-use' } } };
+  const mirror = { id: 'mirror', __azraelTeamApproval: { hostId: 'local', leadId: 'lead', threadId: 'child', requestId: original.id, method: original.method } };
+  const requests = { child: [original], lead: [mirror] }, calls = [];
+  const context = vm.createContext({ azraelApprovalSettingsBridge: { dispatchMessage: (...args) => calls.push(args) } });
+  vm.runInContext(APPROVAL_SETTINGS_HELPERS, context);
+  const manager = { getConversation: id => ({ requests: requests[id] || [] }) };
+  for (const list of ['controlAllowedApps', 'observationBlockedApps']) context.azraelOpenApprovalSettings(manager, 'lead', 'mirror', 'local', list);
+  assert.equal(calls.length, 2); assert.equal(requests.child.length, 1); assert.equal(requests.lead.length, 1);
+  assert.equal(calls[0][0], 'mcp-response'); assert.equal(calls[0][1].response.id, original.id);
+  assert.equal(calls[0][1].response.result.action, 'settings'); assert.equal(calls[0][1].response.result.content.list, 'controlAllowedApps');
+  assert.deepEqual(Object.keys(calls[0][1].response.result.content), ['list']);
+  requests.child = []; context.azraelOpenApprovalSettings(manager, 'lead', 'mirror', 'local', 'controlAllowedApps');
+  context.azraelOpenApprovalSettings(manager, 'child', original.id, 'local', 'controlAllowedApps');
+  assert.equal(calls.length, 2);
+});
 function fixture() {
   const calls = [], timeouts = new Map(), intervals = new Map(); let serial = 0, receive, unsubscribed = false;
   const timing = { setTimeout: fn => { timeouts.set(++serial, fn); return serial; }, clearTimeout: id => timeouts.delete(id), setInterval: fn => { intervals.set(++serial, fn); return serial; }, clearInterval: id => intervals.delete(id) };
   const store = createUseSettingsStore({ subscribe: (type, fn) => { assert.equal(type, 'azrael-use-settings-state'); receive = fn; return () => unsubscribed = true; }, dispatchMessage: (...args) => calls.push(args) }, 'client', timing);
-  const settings = { schema: 2, stage1Enabled: true, stage2Enabled: true, stage3Enabled: false, stage4Enabled: true, revision: 0, windowUseEnabled: true, windowUseAllowAll: false, computerUseGeneration: 0, windowUseGeneration: 0 };
+  const settings = { schema: 3, revision: 0, windowUseEnabled: true, observationBlockedApps: [], controlAllowedApps: [], windowUseGeneration: 0 };
   return { store, calls, timeouts, intervals, settings, receive: m => receive({ clientId: 'client', requestId: calls.at(-1)[1].requestId, settings, approvedApps: [], ...m }), get unsubscribed() { return unsubscribed; } };
 }
 test('store saves only host acknowledged flags and renders host failures with retry', () => {
@@ -34,10 +51,11 @@ test('native component initializes lazily and passes row aria props, switch bool
   const root = context.AzraelWindowControlLauncher(); assert.deepEqual(initializers, ['card','row','switch','button']);
   const cuSwitch = root.props.children[0].props.children.props.control({ 'aria-labelledby': 'cu' }); assert.equal(cuSwitch.type, 'NativeSwitch'); assert.equal(cuSwitch.props['aria-labelledby'], 'cu');
   cuSwitch.props.onChange(false); assert.equal(f.calls.at(-1)[1].patch.windowUseEnabled, false); f.receive({});
-  const wu = root.props.children[1]; const wuSwitch = wu.props.children[2].props.children.props.control({}); assert.equal(wuSwitch.props.checked, false);
-  wuSwitch.props.onChange(true); assert.equal(f.calls.at(-1)[1].patch.windowUseAllowAll, true); f.receive({});
-  const add = wu.props.children[3].props.children[0].props.control({}); assert.equal(add.type, 'NativeButton'); assert.equal(add.props.color, 'secondary'); assert.equal(add.props.size, 'default'); add.props.onClick(); assert.equal(f.calls.at(-1)[1].action, 'addApp'); f.receive({});
-  const remove = wu.props.children[3].props.children[1].props.control({}); remove.props.onClick(); assert.equal(f.calls.at(-1)[1].bundleIdentifier, 'c:\\apps\\example.exe');
+  const observation = root.props.children[1], control = root.props.children[2];
+  assert.equal(observation.props.children[0].props.label, '시큐리티 앱');
+  assert.equal(control.props.children[0].props.label, '화이트리스트');
+  const add = observation.props.children[0].props.control({}); assert.equal(add.type, 'NativeButton'); assert.equal(add.props.color, 'secondary'); add.props.onClick(); assert.equal(f.calls.at(-1)[1].list, 'observationBlockedApps'); f.receive({});
+  const remove = control.props.children[1].props.control({}); remove.props.onClick(); assert.equal(f.calls.at(-1)[1].source, 'controlAllowedApps');
   effects[0]()(); assert.equal(f.unsubscribed, true);
 });
 test('late timed-out replies cannot complete or overwrite the active request', () => {
@@ -56,7 +74,7 @@ test('late timed-out replies cannot complete or overwrite the active request', (
 test('first dispatch accepts synchronous bridge acknowledgment and owns no pending timeout', () => {
   let receive; const timeouts = new Map(); let serial = 0;
   const timing = { setTimeout: fn => { timeouts.set(++serial, fn); return serial; }, clearTimeout: id => timeouts.delete(id), setInterval: () => 7, clearInterval() {} };
-  const settings = { schema: 2, stage1Enabled: true, stage2Enabled: true, stage3Enabled: false, stage4Enabled: true, revision: 0, windowUseEnabled: true, windowUseAllowAll: false };
+  const settings = { schema: 3, revision: 0, windowUseEnabled: true, observationBlockedApps: [], controlAllowedApps: [], windowUseGeneration: 0 };
   const store = createUseSettingsStore({ subscribe: (_type, fn) => { receive = fn; return () => {}; }, dispatchMessage: (_type, request) => receive({ clientId: request.clientId, requestId: request.requestId, settings, approvedApps: [] }) }, 'sync-client', timing, () => 'opaque-request');
   assert.equal(store.getSnapshot().loading, false); assert.equal(store.getSnapshot().settings.windowUseEnabled, true); assert.equal(timeouts.size, 0); store.dispose();
 });

@@ -36,7 +36,7 @@ function compilationSignature({ command, args, cwd, env }) {
     env: Object.keys(env).sort().map(key => [key, env[key]]) })).digest("hex");
 }
 
-function acquireTargetOwner(spec) {
+function validateTargetOwner(spec) {
   // CLI config can override build.target-dir after CARGO_TARGET_DIR. Current
   // managed commands do not need it; reject this unsupported input rather
   // than pretending arbitrary TOML/file overrides share the selected owner.
@@ -53,6 +53,11 @@ function acquireTargetOwner(spec) {
   if (explicitTarget && identity(physicalPath(path.resolve(spec.cwd, explicitTarget.value))) !== identity(physicalTarget)) {
     throw new Error("Cargo --target-dir conflicts with leased CARGO_TARGET_DIR; select the same physical target before launching Cargo");
   }
+  return physicalTarget;
+}
+
+function acquireTargetOwner(spec) {
+  const physicalTarget = validateTargetOwner(spec);
   fs.mkdirSync(physicalTarget, { recursive: true });
   const leasePath = path.join(physicalTarget, ".azrael-cargo-owner");
   const ownerPath = path.join(leasePath, "owner.json");
@@ -60,7 +65,8 @@ function acquireTargetOwner(spec) {
     coordinatorPid: process.pid, producerPid: null, startedUtc: new Date().toISOString(),
     targetDirectory: physicalTarget, targetIdentity: process.platform === "win32" ? physicalTarget.toLowerCase() : physicalTarget,
     command: spec.command, args: spec.args, cwd: spec.cwd, compilationSignature: compilationSignature(spec),
-    pendingDirectory: spec.env.INSTA_PENDING_DIR || null, status: "running" };
+    pendingDirectory: spec.env.INSTA_PENDING_DIR || null, status: "running", phase: "preparing" };
+  owner.preparingUtc = owner.lastProgressUtc = owner.startedUtc;
   try { fs.mkdirSync(leasePath); }
   catch (error) {
     if (error.code !== "EEXIST") throw error;
@@ -68,22 +74,50 @@ function acquireTargetOwner(spec) {
     try { existing = JSON.parse(fs.readFileSync(ownerPath, "utf8")); } catch { existing = { status: "unknown owner (metadata unavailable)" }; }
     throw new Error(`Cargo target owner conflict at ${leasePath}: ${JSON.stringify({ status: "blocked", requestedCompilationSignature: owner.compilationSignature, targetIdentity: owner.targetIdentity, existingOwner: existing })}. Wait for that owner to complete; unknown/abandoned owners require independent producer-tree verification and explicit recovery. No Cargo process was launched.`);
   }
-  fs.writeFileSync(ownerPath, JSON.stringify(owner, null, 2), { flag: "wx" });
+  const leaseStat = exactStat(leasePath, true);
+  let fd, ownerStat;
+  try {
+    fd = fs.openSync(ownerPath, "wx");
+    const stat = fs.fstatSync(fd, { bigint: true });
+    ownerStat = { dev: String(stat.dev), ino: String(stat.ino), birthtimeNs: String(stat.birthtimeNs) };
+    fs.writeFileSync(fd, JSON.stringify(owner, null, 2));
+  } catch (error) {
+    // Only the file opened exclusively by this invocation may be unlinked.
+    // Failed ordinary removal remains protected and is reported separately.
+    try {
+      if (fd !== undefined) { fs.closeSync(fd); fd = undefined; }
+      if (JSON.stringify(exactStat(leasePath, true)) !== JSON.stringify(leaseStat)) throw Error("Cargo lease identity changed during preparation");
+      if (ownerStat) {
+        if (JSON.stringify(exactStat(ownerPath)) !== JSON.stringify(ownerStat)) throw Error("Cargo owner identity changed during preparation");
+        fs.unlinkSync(ownerPath);
+      }
+      fs.rmdirSync(leasePath);
+    } catch (cleanupError) { error.ownershipErrors = [cleanupError]; }
+    throw error;
+  } finally { if (fd !== undefined) fs.closeSync(fd); }
   return { owner, leasePath, ownerPath };
 }
 
 function finishTargetOwner(lease, result) {
   const { owner, ownerPath, leasePath } = lease;
-  const current = JSON.parse(fs.readFileSync(ownerPath, "utf8"));
-  if (current.token !== owner.token) throw new Error(`Cargo target owner changed; retaining ${leasePath}`);
   // A signal/timeout may leave descendants. A missing executable created no
   // producer; all other errors or indeterminate outcomes retain protection.
-  const neverStarted = result.error && ["ENOENT", "EACCES"].includes(result.error.code) && !result.pid;
+  const neverStarted = !!result.error && !result.pid && !result.signal && !Number.isInteger(result.status) &&
+    (lease.spawnAttempted === false || ((lease.spawnAttempted !== true || lease.spawnReturned === true) &&
+      ["ENOENT", "EACCES"].includes(result.error.code)));
   const ended = Number.isInteger(result.status) && !result.signal && !result.error;
   owner.producerPid = result.pid || null;
-  owner.status = ended ? (result.status === 0 ? "success" : "failed") : neverStarted ? "not-started" : "unknown";
+  owner.status = ended ? (result.status === 0 && !result.sourceVerificationError ? "success" : "failed") : neverStarted ? "not-started" : "unknown";
   owner.exitCode = result.status ?? null;
   owner.signal = result.signal || null;
+  owner.producerStarted = neverStarted ? false : ended ? true : null;
+  owner.lastProgressUtc = owner.resultObservedUtc || new Date().toISOString();
+  if (ended) owner.phase = "observed-terminal";
+  if (result.error) owner.error = { message: result.error.message || String(result.error), code: result.error.code || null };
+  // The in-memory observation also closes this call's independent shared
+  // claim if target metadata is unreadable; it grants no target deletion.
+  const current = JSON.parse(fs.readFileSync(ownerPath, "utf8"));
+  if (current.token !== owner.token) throw new Error(`Cargo target owner changed; retaining ${leasePath}`);
   fs.writeFileSync(ownerPath, JSON.stringify(owner, null, 2));
   recordPending(lease, owner.status === "unknown" ? "pending" : owner.status === "success" ? "complete" : "failed", owner.status !== "unknown");
   if (ended || neverStarted) { fs.unlinkSync(ownerPath); fs.rmdirSync(leasePath); }
@@ -203,6 +237,8 @@ function runManagedCargoSync(spec, hooks = {}) {
   }
   // Pin output aliases before acquiring ownership or allowing a producer.
   spec = { ...spec, env: { ...spec.env, ...(pending ? { INSTA_PENDING_DIR: pending } : {}) } };
+  validateTargetOwner(spec); // Reject unsupported arguments before creating a shared generation.
+  require('./build-resource-admission.cjs').waitForBuildMemorySync({ label: 'Cargo' });
   let shared;
   if (spec.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT) {
     const cache = require("./cargo-shared-cache.cjs");
@@ -214,28 +250,96 @@ function runManagedCargoSync(spec, hooks = {}) {
     if (pathIdentity(physicalPath(spec.env.CARGO_TARGET_DIR)) !== pathIdentity(physicalPath(selection.targetDirectory))) throw Error("Shared Cargo target does not match its selected compatibility identity");
     shared = cache.beginExecution(selection, randomUUID());
   }
-  const lease = acquireTargetOwner(spec);
+  let lease;
+  try { lease = acquireTargetOwner(spec); }
+  catch (error) {
+    if (shared) {
+      try { require("./cargo-shared-cache.cjs").finishExecution(shared, { status: null, error },
+        { status: "not-started", producerStarted: false, phase: "preparing", startedUtc: shared.startedUtc,
+          resultObservedUtc: new Date().toISOString(), error: error.message, errorCode: error.code || null }); }
+      catch (cleanupError) { error.ownershipErrors = [...(error.ownershipErrors || []), cleanupError]; }
+    }
+    throw error;
+  }
   lease.invocationStartedNs = invocationStartedNs;
+  lease.spawnAttempted = false;
   let result;
+  let stableSource;
   try {
     const { command, args, selectedSourceRoot, ...options } = spec;
     recordPending(lease, "pending", false);
     if (spec.env.INSTA_PENDING_DIR) fs.mkdirSync(spec.env.INSTA_PENDING_DIR, { recursive: true });
+    if (spec.env.AZRAEL_CARGO_STABLE_SOURCE === "1" && args[0] === "build") {
+      if (shared) {
+        const leaseIdentity = exactStat(lease.leasePath, true);
+        const assertLease = () => {
+          if (JSON.stringify(exactStat(lease.leasePath, true)) !== JSON.stringify(leaseIdentity) ||
+              JSON.parse(fs.readFileSync(lease.ownerPath, "utf8")).token !== lease.owner.token) throw Error("Cargo target lease changed during stable source preparation");
+        };
+        const explicit = args.indexOf("--target");
+        stableSource = require("./cargo-stable-source.cjs").prepareStableSource({ sourceRoot: spec.selectedSourceRoot || path.dirname(spec.cwd),
+          cacheDirectory: shared.directory, target: explicit >= 0 ? args[explicit + 1] : shared.identity.target,
+          args, env: spec.env, assertLease });
+        // Preserve Cargo path dependency identity for ordinary Win32 cwd.
+        // CreateProcess needs the extended namespace only beyond MAX_PATH.
+        if (stableSource.cwd) options.cwd = process.platform === "win32" && stableSource.cwd.length >= 260
+          ? path.toNamespacedPath(stableSource.cwd) : stableSource.cwd;
+        lease.owner.sourcePreparation = { ...stableSource.diagnostic, cacheKey: shared.key,
+          profile: args.includes("--release") ? "release" : args.includes("--profile") ? args[args.indexOf("--profile") + 1] : "dev" };
+      } else lease.owner.sourcePreparation = { mode: "frozen", reason: "explicit legacy target has no shared source owner" };
+    }
     // Pin the physical cache we leased, rather than following the caller's
     // mutable junction/symlink a second time when Cargo starts.
     const selected = targetArgument(args);
     const executionArgs = [...args];
     if (selected) executionArgs[selected.index] = selected.inline ? `--target-dir=${lease.owner.targetDirectory}` : lease.owner.targetDirectory;
     options.env = { ...options.env, CARGO_TARGET_DIR: lease.owner.targetDirectory };
+    require('./build-resource-admission.cjs').waitForBuildMemorySync({ label: 'Cargo after source preparation' });
+    lease.owner.phase = "spawn-attempted";
+    lease.owner.spawnAttemptedUtc = lease.owner.lastProgressUtc = new Date().toISOString();
+    fs.writeFileSync(lease.ownerPath, JSON.stringify(lease.owner, null, 2));
+    // Once spawnSync is entered, a thrown exception alone proves neither
+    // non-start nor tree termination. Persist the attempt before that boundary.
+    lease.spawnAttempted = true;
     result = require("node:child_process").spawnSync(command, executionArgs, options);
-  } catch (error) { result = { status: null, error }; }
+    lease.spawnReturned = true;
+    if (stableSource?.verify) {
+      const verificationStarted = process.hrtime.bigint();
+      try { stableSource.verify(); }
+      catch (error) {
+        result.observationError = result.sourceVerificationError = error;
+        lease.owner.sourceVerificationError = error.message;
+      }
+      lease.owner.sourcePreparation.verificationDurationMs = Number(process.hrtime.bigint() - verificationStarted) / 1e6;
+    }
+  } catch (error) {
+    if (!lease.spawnAttempted) {
+      lease.owner.phase = "preparing";
+      delete lease.owner.spawnAttemptedUtc;
+    }
+    result = { status: null, error };
+  }
   lease.owner.resultObservedUtc = new Date().toISOString();
-  if (result.status === 0 && !result.error && !result.signal && hooks.onSuccess) {
+  if (result.status === 0 && !result.error && !result.signal && !result.observationError && hooks.onSuccess) {
     try { hooks.onSuccess(result, lease.owner); }
     catch (observationError) { result.observationError = observationError instanceof Error ? observationError : String(observationError); }
   }
-  const owner = finishTargetOwner(lease, result);
-  if (shared) require("./cargo-shared-cache.cjs").finishExecution(shared, result, owner);
+  // Close independent claims even if a prior close or ordinary unlink fails.
+  // Preserve the observed child result and make bookkeeping failure actionable
+  // to every existing caller that checks result.error.
+  const ownershipErrors = [];
+  let owner = lease.owner;
+  try { owner = finishTargetOwner(lease, result); }
+  catch (error) { ownershipErrors.push(require("./cargo-shared-cache.cjs").withOwnershipStage(error, "target-owner-finalization")); }
+  if (shared) {
+    try { require("./cargo-shared-cache.cjs").finishExecution(shared, result, owner); }
+    catch (error) { ownershipErrors.push(require("./cargo-shared-cache.cjs").withOwnershipStage(error, "shared-cache-finalization")); }
+  }
+  if (ownershipErrors.length) {
+    result.ownershipErrors = ownershipErrors;
+    result.error ||= new Error("Cargo ownership finalization failed", { cause: ownershipErrors[0] });
+  }
+  result.error ||= result.sourceVerificationError;
   // Keep Cargo JSON stdout byte-for-byte usable by native artifact discovery.
   process.stderr.write(`[cargo-owner] ${JSON.stringify(owner)}\n`);
   return result;
@@ -270,16 +374,16 @@ function recordPending(lease, state, membershipComplete) {
     return;
   }
   if (!lease.pendingRecord) return;
-  const directory = path.join(projectRoot, "artifacts/maintenance/cargo-terminal");
-  fs.mkdirSync(directory, { recursive: true });
-  const evidence = path.join(directory, `${hash}.json`);
-  fs.writeFileSync(evidence, JSON.stringify(lease.owner, null, 2) + "\n");
-  const record = lifecycle.catalog(projectRoot).find(record => record.id === id);
-  if (!record || record.generation !== lease.owner.token) throw new Error("Cargo pending producer generation changed");
-  lifecycle.closeLifecycle(projectRoot, id, { owner: "cargo-target-owner", expected_revision: record.revision,
-    producer_stopped_verified: true, outcome: state === "complete" ? "success" : "failure", exit_code: lease.owner.exitCode,
-    reason: "Synchronous Cargo producer terminal result", evidence_ref: evidence,
-    evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence)).digest("hex") });
+  let stage = "cargo-pending.terminal-evidence";
+  try {
+    const evidence = require("./cargo-shared-cache.cjs").saveTerminalEvidence(projectRoot, hash, lease.owner.token, lease.owner);
+    stage = "cargo-pending.lifecycle-close";
+    const record = lifecycle.catalog(projectRoot).find(record => record.id === id);
+    if (!record || record.generation !== lease.owner.token) throw new Error("Cargo pending producer generation changed");
+    lifecycle.closeLifecycle(projectRoot, id, { owner: "cargo-target-owner", expected_revision: record.revision,
+      producer_stopped_verified: true, outcome: state === "complete" ? "success" : "failure", exit_code: lease.owner.sourceVerificationError && lease.owner.exitCode === 0 ? null : lease.owner.exitCode,
+      reason: lease.owner.status === "not-started" ? "Cargo preparation failed before producer start" : "Synchronous Cargo producer terminal result", ...evidence });
+  } catch (error) { throw require("./cargo-shared-cache.cjs").withOwnershipStage(error, stage); }
 }
 
 if (require.main === module) {

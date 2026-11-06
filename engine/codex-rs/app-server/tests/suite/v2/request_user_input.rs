@@ -40,7 +40,12 @@ fn create_request_user_input_sse_response(call_id: &str) -> anyhow::Result<Strin
 
     Ok(responses::sse(vec![
         responses::ev_response_created("resp-1"),
-        responses::ev_function_call(call_id, "request_user_input", &tool_call_arguments),
+        responses::ev_function_call_with_namespace(
+            call_id,
+            "legacy_codex_tools",
+            "request_user_input",
+            &tool_call_arguments,
+        ),
         responses::ev_completed("resp-1"),
     ]))
 }

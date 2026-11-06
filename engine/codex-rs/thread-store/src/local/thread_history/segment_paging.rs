@@ -77,6 +77,7 @@ pub(super) async fn page_turn_rows(
     completed_at,
     duration_ms,
     root_resume_wait_json,
+    user_wait_timing_json,
     first_user_item_id,
     final_agent_item_id
 FROM thread_turns

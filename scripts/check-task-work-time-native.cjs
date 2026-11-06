@@ -6,6 +6,11 @@ const { runCargoTest } = require("./cargo-verification.cjs");
 
 const [sourceRoot, scope, ...extra] = process.argv.slice(2);
 const scopes = {
+  "user-wait": [["codex-core", "user_wait"],
+    ["codex-mcp", "elicitation"],
+    ["codex-app-server-protocol", "user_wait"],
+    ["codex-thread-store", "user_wait"],
+    ["codex-app-server", "user_wait"]],
   protocol: [["codex-app-server-protocol", "thread_history"]],
   store: [["codex-thread-store", "recorded_turn_attribution"],
     ["codex-thread-store", "deferred_turn_duration_stays_frozen_after_a_new_turn"]],
@@ -13,7 +18,7 @@ const scopes = {
     ["codex-app-server", "test_emit_turn_deferred_preserves_frozen_timing"]],
 };
 if (!sourceRoot || !path.isAbsolute(sourceRoot) || !Object.hasOwn(scopes, scope) || extra.length) {
-  throw new Error("Usage: check-task-work-time-native.cjs <absolute frozen engine source root> <protocol|store|appserver>");
+  throw new Error("Usage: check-task-work-time-native.cjs <absolute frozen engine source root> <protocol|store|appserver|user-wait>");
 }
 const cwd = path.join(sourceRoot, "codex-rs");
 if (!fs.statSync(path.join(cwd, "Cargo.toml")).isFile()) throw new Error("Selected engine source has no Cargo workspace");

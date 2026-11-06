@@ -234,7 +234,12 @@ async fn dispatch(
         credential,
         account_id,
         _turn_guard,
-    } = accounts::resolve(ctx.config.codex_home.as_path(), existing_binding).await?;
+    } = accounts::resolve(ctx.config.codex_home.as_path(), existing_binding, ctx.agent_profile_account.as_ref()).await?;
+    if let Some(scope) = &ctx.agent_profile_account {
+        if scope.provider_id != "devin" || account_id.as_deref() != Some(scope.account_id.as_str()) {
+            return Err(invalid("task profile selected Devin account changed or is unavailable"));
+        }
+    }
     if let Some(account) = account_id.as_ref() {
         let mut pin = ctx
             .devin_account_pin
@@ -881,6 +886,7 @@ async fn consume(
         response_id: format!("devin-native-{request_id}"),
         token_usage: usage,
         usage_metadata,
+        service_tier: None,
         end_turn: Some(true),
     };
     let result = tokio::select! {
@@ -1071,6 +1077,9 @@ pub(crate) async fn recover_account(
     excluded: &mut HashSet<String>,
     cancellation: &CancellationToken,
 ) -> CodexResult<Option<String>> {
+    if ctx.agent_profile_account.is_some() {
+        return Ok(None);
+    }
     if !enabled() {
         return Ok(None);
     }

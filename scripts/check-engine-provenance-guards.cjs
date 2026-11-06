@@ -11,6 +11,7 @@ const checks = [
     "ImportTests.test_validation_context_retains_file_escape_and_lexical_guards"],
   ["test_engine_provenance.py",
     "ImportedEngineProvenanceTests.test_snapshot_rejects_identical_root_replacement_after_validation",
+    "ImportedEngineProvenanceTests.test_imported_snapshot_long_path_keeps_identity_and_source_guards",
     "EngineProvenanceTests.test_release_reuse_rejects_dev_and_legacy_receipts",
     "EngineProvenanceTests.test_release_profile_keeps_source_binary_and_host_guards",
     "NativeTargetProvenanceTests.test_unix_source_build_binds_target_three_hashes_and_source"],

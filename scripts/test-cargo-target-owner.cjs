@@ -37,6 +37,27 @@ function fixture(name) {
     stdio: "pipe", encoding: "utf8" };
 }
 const leasePath = spec => path.join(spec.env.CARGO_TARGET_DIR, ".azrael-cargo-owner");
+function copiedProject(spec, context) {
+  const previousOwner = process.env.AZRAEL_MAINTENANCE_OWNER;
+  const previousMode = process.env.AZRAEL_MAINTENANCE_OWNER_MODE;
+  const command = require("./maintenance-owner-config.cjs").resolveMaintenanceCommand();
+  process.env.AZRAEL_MAINTENANCE_OWNER = command.executable;
+  process.env.AZRAEL_MAINTENANCE_OWNER_MODE = command.args.length ? "azrael-maintenance" : "standalone";
+  spec.env.AZRAEL_MAINTENANCE_OWNER = process.env.AZRAEL_MAINTENANCE_OWNER;
+  spec.env.AZRAEL_MAINTENANCE_OWNER_MODE = process.env.AZRAEL_MAINTENANCE_OWNER_MODE;
+  context.after(() => {
+    if (previousOwner === undefined) delete process.env.AZRAEL_MAINTENANCE_OWNER;
+    else process.env.AZRAEL_MAINTENANCE_OWNER = previousOwner;
+    if (previousMode === undefined) delete process.env.AZRAEL_MAINTENANCE_OWNER_MODE;
+    else process.env.AZRAEL_MAINTENANCE_OWNER_MODE = previousMode;
+  });
+  const scripts = path.join(spec.cwd, "scripts");
+  fs.mkdirSync(scripts);
+  for (const file of ["cargo-target-owner.cjs", "build-resource-admission.cjs", "cargo-shared-cache.cjs", "cargo-verification.cjs", "artifact-lifecycle.cjs", "artifact-observations.cjs", "maintenance-lock-owner.cjs", "maintenance-lock-worker.cjs", "maintenance-owner-config.cjs", "maintenance-preferences.cjs"]) {
+    fs.copyFileSync(path.join(__dirname, file), path.join(scripts, file));
+  }
+  return scripts;
+}
 
 function recoveryFixture(name) {
   const spec = fixture(name), lease = owner.acquireTargetOwner(spec);
@@ -164,7 +185,12 @@ test("success observer receives exact child result while target ownership is hel
     assert.equal(result, child);
     observedOwner = metadata;
     assert.equal(metadata.status, "running");
+    assert.ok(Number.isFinite(Date.parse(metadata.startedUtc)));
+    assert.ok(Number.isFinite(Date.parse(metadata.lastProgressUtc)));
+    assert.ok(Number.isFinite(Date.parse(metadata.spawnAttemptedUtc)));
     assert.ok(Number.isFinite(Date.parse(metadata.resultObservedUtc)));
+    assert.ok(Date.parse(metadata.startedUtc) <= Date.parse(metadata.spawnAttemptedUtc));
+    assert.ok(Date.parse(metadata.spawnAttemptedUtc) <= Date.parse(metadata.resultObservedUtc));
     assert.equal(JSON.parse(fs.readFileSync(path.join(leasePath(spec), "owner.json"))).token, metadata.token);
     assert.throws(() => owner.acquireTargetOwner(spec), /owner conflict/);
     fs.writeFileSync(path.join(spec.cwd, "prepared-artifact"), result.stdout);
@@ -253,27 +279,32 @@ test("a second real process cannot enter a target via a junction/symlink or Wind
   fs.mkdirSync(target);
   const alias = path.join(spec.cwd, "alias");
   fs.symlinkSync(target, alias, process.platform === "win32" ? "junction" : "dir");
-  spec.args = ["-e", "process.stdout.write('ready\\n'); setTimeout(() => {}, 800)"];
+  const release = path.join(spec.cwd, "release-producer");
+  spec.args = ["-e", `const fs=require('node:fs');process.stdout.write('ready\\n');const poll=setInterval(()=>{if(fs.existsSync(${JSON.stringify(release)})){clearInterval(poll);clearTimeout(deadline);}},20);const deadline=setTimeout(()=>{clearInterval(poll);process.exitCode=2;},60000);`];
   const code = `const o=require(${JSON.stringify(helper)}); const r=o.runManagedCargoSync(${JSON.stringify({ ...spec, stdio: "inherit" })}); process.exitCode=r.status??1;`;
   const first = spawn(process.execPath, ["-e", code], { stdio: ["ignore", "pipe", "pipe"] });
   let diagnostic = "";
   first.stderr.on("data", data => { diagnostic += data; });
   const ended = once(first, "exit");
-  await new Promise((resolve, reject) => {
-    first.once("error", reject);
-    first.stdout.once("data", data => String(data).includes("ready") ? resolve() : reject(new Error("unexpected fake Cargo output")));
-    first.once("exit", exit => { if (exit !== 0) reject(new Error(`owner exited: ${diagnostic}`)); });
-  });
-  const running = JSON.parse(fs.readFileSync(path.join(leasePath(spec), "owner.json"), "utf8"));
-  assert.equal(running.coordinatorPid, first.pid);
-  assert.equal(running.status, "running");
-  for (const spelling of [alias, ...(process.platform === "win32" ? [target.toUpperCase()] : [])]) {
-    const second = spawnSync(process.execPath, ["-e", `const o=require(${JSON.stringify(helper)});o.runManagedCargoSync(${JSON.stringify({ ...spec, env: { ...spec.env, CARGO_TARGET_DIR: spelling } })})`], { encoding: "utf8" });
-    assert.notEqual(second.status, 0);
-    assert.equal(second.stdout, "");
-    assert.match(second.stderr, /owner conflict[\s\S]*No Cargo process was launched/);
+  try {
+    await new Promise((resolve, reject) => {
+      first.once("error", reject);
+      first.stdout.once("data", data => String(data).includes("ready") ? resolve() : reject(new Error("unexpected fake Cargo output")));
+      first.once("exit", exit => { if (exit !== 0) reject(new Error(`owner exited: ${diagnostic}`)); });
+    });
+    const running = JSON.parse(fs.readFileSync(path.join(leasePath(spec), "owner.json"), "utf8"));
+    assert.equal(running.coordinatorPid, first.pid);
+    assert.equal(running.status, "running");
+    for (const spelling of [alias, ...(process.platform === "win32" ? [target.toUpperCase()] : [])]) {
+      const second = spawnSync(process.execPath, ["-e", `const o=require(${JSON.stringify(helper)});o.runManagedCargoSync(${JSON.stringify({ ...spec, env: { ...spec.env, CARGO_TARGET_DIR: spelling } })})`], { encoding: "utf8", timeout: 20000 });
+      assert.notEqual(second.status, 0);
+      assert.equal(second.stdout, "");
+      assert.match(second.stderr, /owner conflict[\s\S]*No Cargo process was launched/);
+    }
+  } finally {
+    fs.writeFileSync(release, "release");
+    assert.deepEqual(await ended, [0, null]);
   }
-  assert.deepEqual(await ended, [0, null]);
   assert.ok(!fs.existsSync(leasePath(spec)));
   assert.equal(owner.runManagedCargoSync({ ...spec, args: ["-e", "process.exitCode=0"] }).status, 0);
 });
@@ -295,8 +326,246 @@ test("missing executable releases a lease only when no producer started", () => 
   const spec = fixture("missing");
   const result = owner.runManagedCargoSync({ ...spec, command: path.join(spec.cwd, "missing-cargo") });
   assert.equal(result.error.code, "ENOENT");
+  assert.equal(result.status, null);
   assert.ok(!fs.existsSync(leasePath(spec)));
 
+});
+
+test("pending mkdir and owner metadata faults release confirmed unstarted leases without spawning", context => {
+  const mkdir = fs.mkdirSync, write = fs.writeFileSync, open = fs.openSync;
+  const descriptors = new Map();
+  context.mock.method(fs, "openSync", (filename, ...args) => {
+    const fd = open(filename, ...args);
+    descriptors.set(fd, filename);
+    return fd;
+  });
+  const mkdirMock = context.mock.method(fs, "mkdirSync", (...args) => mkdir(...args));
+  const writeMock = context.mock.method(fs, "writeFileSync", (...args) => write(...args));
+  const spawnMock = context.mock.method(require("node:child_process"), "spawnSync", () => assert.fail("producer started during preparation"));
+  for (const boundary of ["pending", "owner"]) {
+    const spec = fixture(`prepare-${boundary}`), failure = new Error(`injected ${boundary} fault`);
+    mkdirMock.mock.mockImplementation((filename, ...args) => {
+      if (boundary === "pending" && filename === spec.env.INSTA_PENDING_DIR) throw failure;
+      return mkdir(filename, ...args);
+    });
+    writeMock.mock.mockImplementation((filename, ...args) => {
+      if (boundary === "owner" && (descriptors.get(filename) || filename) === path.join(leasePath(spec), "owner.json")) {
+        write(filename, "partial owner metadata");
+        throw failure;
+      }
+      return write(filename, ...args);
+    });
+    if (boundary === "owner") assert.throws(() => owner.runManagedCargoSync(spec), error => error === failure);
+    else {
+      const result = owner.runManagedCargoSync(spec);
+      assert.equal(result.status, null);
+      assert.equal(result.error, failure);
+    }
+    assert.equal(fs.existsSync(leasePath(spec)), false);
+  }
+  assert.equal(spawnMock.mock.callCount(), 0);
+});
+
+test("exceptions from an attempted spawn remain unknown without relying on absent PID", context => {
+  const spawnMock = context.mock.method(require("node:child_process"), "spawnSync");
+  context.mock.method(process, "kill", () => { throw Object.assign(new Error("absent"), { code: "ESRCH" }); });
+  for (const code of [undefined, "ENOENT", "EACCES"]) {
+    const spec = fixture(`spawn-throws-${code || "generic"}`), failure = new Error("spawn threw without terminal observation");
+    if (code) failure.code = code;
+    spawnMock.mock.mockImplementation(() => { throw failure; });
+    const result = owner.runManagedCargoSync(spec);
+    assert.equal(result.status, null);
+    assert.equal(result.error, failure);
+    const metadata = JSON.parse(fs.readFileSync(path.join(leasePath(spec), "owner.json")));
+    assert.equal(metadata.status, "unknown");
+    assert.equal(metadata.exitCode, null);
+    assert.ok(Number.isFinite(Date.parse(metadata.startedUtc)));
+    assert.ok(Number.isFinite(Date.parse(metadata.lastProgressUtc)));
+    assert.ok(Number.isFinite(Date.parse(metadata.spawnAttemptedUtc)));
+  }
+});
+
+test("pending lifecycle registration failure leaves foreign generation unchanged and releases own lease", context => {
+  const spec = fixture("pending-registration"), scripts = copiedProject(spec, context);
+  const verification = require(path.join(scripts, "cargo-verification.cjs"));
+  const lifecycle = require(path.join(scripts, "artifact-lifecycle.cjs"));
+  const source = path.join(spec.cwd, "engine");
+  fs.mkdirSync(path.join(source, "codex-rs"), { recursive: true });
+  const env = { ...spec.env }; delete env.INSTA_PENDING_DIR;
+  const command = verification.buildCargoTestCommand(source, ["test", "--lib"], { env });
+  const hash = createHash("sha256").update(process.platform === "win32" ? owner.physicalPath(env.CARGO_TARGET_DIR).toLowerCase() : owner.physicalPath(env.CARGO_TARGET_DIR)).digest("hex");
+  const id = `shared:cargo-pending:${hash}`;
+  lifecycle.recordLifecycle(spec.cwd, { id, kind: "work", owner: "cargo-target-owner", state: "pending", generation: "foreign", expected_revision: 0,
+    membership_complete: false, members: [{ role: "pending", path: command.env.INSTA_PENDING_DIR, generated: true, protection_known: true }] });
+  const before = lifecycle.catalog(spec.cwd);
+  const failure = new Error("pending registration failed");
+  context.mock.method(lifecycle, "recordLifecycle", () => { throw failure; });
+  const spawnMock = context.mock.method(require("node:child_process"), "spawnSync", () => assert.fail("unexpected producer"));
+  const result = verification.runManagedCargoSync(command);
+  assert.equal(result.status, null);
+  assert.equal(result.error, failure);
+  assert.equal(spawnMock.mock.callCount(), 0);
+  assert.equal(fs.existsSync(leasePath(spec)), false);
+  assert.deepEqual(lifecycle.catalog(spec.cwd), before);
+});
+
+test("shared lifecycle closes after prelaunch faults and independently of target finish errors", context => {
+  const cache = require("./cargo-shared-cache.cjs"), lifecycle = require("./artifact-lifecycle.cjs");
+  const select = cache.selectCache, mkdir = fs.mkdirSync, write = fs.writeFileSync, open = fs.openSync;
+  const descriptors = new Map();
+  context.mock.method(fs, "openSync", (filename, ...args) => {
+    const fd = open(filename, ...args);
+    descriptors.set(fd, filename);
+    return fd;
+  });
+  const selectMock = context.mock.method(cache, "selectCache", (...args) => select(...args));
+  const mkdirMock = context.mock.method(fs, "mkdirSync", (...args) => mkdir(...args));
+  const writeMock = context.mock.method(fs, "writeFileSync", (...args) => write(...args));
+  const child = { status: 0, stdout: "unchanged output" };
+  const spawnMock = context.mock.method(require("node:child_process"), "spawnSync", () => child);
+  for (const boundary of ["collision", "pending", "owner", "finish"]) {
+    const spec = fixture(`shared-${boundary}`);
+    const sourceRoot = path.join(spec.cwd, "source");
+    fs.mkdirSync(path.join(sourceRoot, "codex-rs"), { recursive: true });
+    fs.writeFileSync(path.join(sourceRoot, "codex-rs", "Cargo.toml"), "[workspace]\n");
+    const selection = select({ projectRoot: spec.cwd, sourceRoot, target: "fixture-target", env: {}, tools: { rustc: "fixture", cargo: "fixture" } });
+    spec.env.CARGO_TARGET_DIR = selection.targetDirectory;
+    spec.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT = spec.cwd;
+    spec.selectedSourceRoot = sourceRoot;
+    selectMock.mock.mockImplementation(() => selection);
+    const failure = new Error(`injected ${boundary} failure`);
+    let foreign;
+    if (boundary === "collision") {
+      // Establish the shared identity before installing another target owner.
+      const previous = cache.beginExecution(selection, "previous");
+      cache.finishExecution(previous, { status: 0 }, { status: "success" });
+      foreign = owner.acquireTargetOwner(spec);
+    }
+    mkdirMock.mock.mockImplementation((filename, ...args) => {
+      if (boundary === "pending" && filename === spec.env.INSTA_PENDING_DIR) throw failure;
+      return mkdir(filename, ...args);
+    });
+    writeMock.mock.mockImplementation((filename, ...args) => {
+      if ((descriptors.get(filename) || filename) === path.join(leasePath(spec), "owner.json")) {
+        if (boundary === "owner") {
+          write(filename, "partial owner metadata");
+          throw failure;
+        }
+        if (boundary === "finish" && JSON.parse(args[0]).status === "success") throw failure;
+      }
+      return write(filename, ...args);
+    });
+    const priorSpawns = spawnMock.mock.callCount();
+    let result;
+    if (boundary === "collision" || boundary === "owner") {
+      assert.throws(() => owner.runManagedCargoSync(spec), error => {
+        if (boundary === "owner") assert.equal(error, failure);
+        else assert.match(error.message, /owner conflict/);
+        return true;
+      });
+    } else result = owner.runManagedCargoSync(spec);
+    const [record] = lifecycle.catalog(spec.cwd);
+    assert.equal(record.producer.status, "stopped");
+    assert.equal(record.membership_complete, true);
+    if (boundary === "finish") {
+      assert.equal(result, child);
+      assert.ok(result.ownershipErrors?.includes(failure));
+      assert.equal(failure.stage, "target-owner-finalization");
+      assert.equal(record.producer.outcome, "success");
+      assert.equal(record.producer.exit_code, 0);
+      assert.equal(spawnMock.mock.callCount(), priorSpawns + 1);
+    } else {
+      if (boundary === "pending") {
+        assert.equal(result.status, null);
+        assert.equal(result.error, failure);
+      }
+      assert.equal(record.producer.outcome, "failure");
+      assert.equal(record.producer.exit_code, null);
+      assert.equal(spawnMock.mock.callCount(), priorSpawns);
+      if (foreign) assert.equal(JSON.parse(fs.readFileSync(foreign.ownerPath)).token, foreign.owner.token);
+      else assert.equal(fs.existsSync(leasePath(spec)), false);
+    }
+  }
+});
+
+// Retained: later terminal-publication edits can omit the bounded acquisition
+// wait or discard its typed cause, while accidentally rerunning successful Cargo.
+test("terminal cache publication waits for real catalog contention without repeating Cargo", context => {
+  const { Worker } = require("node:worker_threads");
+  const cache = require("./cargo-shared-cache.cjs"), lifecycle = require("./artifact-lifecycle.cjs");
+  const config = require("./maintenance-owner-config.cjs"), resolveCommand = config.resolveMaintenanceCommand;
+  // Exercise the five-second failure contract with the real installed command.
+  context.mock.method(config, "resolveMaintenanceCommand", (...args) => ({ ...resolveCommand(...args), maxLockWaitMs: 5000 }));
+  const select = cache.selectCache;
+  const selectMock = context.mock.method(cache, "selectCache", (...args) => select(...args));
+  const spawnMock = context.mock.method(require("node:child_process"), "spawnSync", () => ({ status: 0, stdout: "unchanged Cargo output" }));
+  for (const persistent of [false, true]) {
+    const spec = fixture(persistent ? "catalog-persistent" : "catalog-transient");
+    const sourceRoot = path.join(spec.cwd, "source");
+    fs.mkdirSync(path.join(sourceRoot, "codex-rs"), { recursive: true });
+    fs.writeFileSync(path.join(sourceRoot, "codex-rs/Cargo.toml"), "[workspace]\n");
+    const selection = select({ projectRoot: spec.cwd, sourceRoot, target: "fixture-target", env: {}, tools: { rustc: "fixture", cargo: "fixture" } });
+    selectMock.mock.mockImplementation(() => selection);
+    spec.env.CARGO_TARGET_DIR = selection.targetDirectory;
+    spec.env.AZRAEL_CARGO_CACHE_PROJECT_ROOT = spec.cwd;
+    spec.selectedSourceRoot = sourceRoot;
+    const signal = new Int32Array(new SharedArrayBuffer(8));
+    const lock = path.join(spec.cwd, "artifacts/maintenance/lifecycles/catalog.lock");
+    let holder;
+    const priorSpawns = spawnMock.mock.callCount();
+    let started;
+    const result = owner.runManagedCargoSync(spec, { onSuccess() {
+      holder = new Worker(`
+        const { workerData } = require('node:worker_threads');
+        const signal = new Int32Array(workerData.signal);
+        let lease;
+        try {
+          lease = require(workerData.helper).acquire(workerData.lock, { operation: 'test.terminal-contention' });
+          Atomics.store(signal, 0, 1); Atomics.notify(signal, 0);
+          Atomics.wait(signal, 1, 0, workerData.holdMs);
+          lease.release();
+          Atomics.store(signal, 1, 1); Atomics.notify(signal, 1);
+        } catch {
+          Atomics.store(signal, 0, -1); Atomics.notify(signal, 0);
+          Atomics.store(signal, 1, -1); Atomics.notify(signal, 1);
+        }
+      `, { eval: true, workerData: { helper: require.resolve("./maintenance-lock-owner.cjs"), lock, signal: signal.buffer, holdMs: persistent ? 6500 : 750 } });
+      Atomics.wait(signal, 0, 0, 15000);
+      assert.equal(Atomics.load(signal, 0), 1, "real native contention holder must acquire");
+      started = performance.now();
+    } });
+    try {
+      assert.equal(result.observationError, undefined);
+      assert.equal(result.status, 0);
+      assert.equal(result.stdout, "unchanged Cargo output");
+      assert.equal(spawnMock.mock.callCount(), priorSpawns + 1);
+      const [record] = lifecycle.catalog(spec.cwd);
+      if (persistent) {
+        assert.ok(performance.now() - started >= 4900, "terminal publication must exhaust its five-second wait");
+        const [failure] = result.ownershipErrors;
+        assert.equal(failure.stage, "cargo-shared-cache.lifecycle-close");
+        assert.equal(failure.code, "EEXIST");
+        assert.equal(failure.maintenance_code, "maintenance_busy");
+        assert.equal(failure.lock_path, lock);
+        assert.equal(failure.lease.request_operation, "acquire");
+        assert.equal(result.error.cause, failure);
+        assert.equal(record.state, "pending");
+        assert.equal(record.membership_complete, false);
+        assert.equal(record.producer, undefined);
+      } else {
+        assert.equal(result.error, undefined);
+        assert.equal(result.ownershipErrors, undefined);
+        assert.equal(record.producer.exit_code, 0);
+        assert.equal(record.state, "complete");
+      }
+    } finally {
+      if (holder) {
+        // Wait for actual holder release before fixture teardown; no forced stop.
+        Atomics.wait(signal, 1, 0, 15000);
+        assert.equal(Atomics.load(signal, 1), 1, "native contention holder must release normally");
+      }
+    }
+  }
 });
 
 test("explicit target arguments cannot bypass the lease and aliases are pinned before spawn", context => {
@@ -351,13 +620,9 @@ test("pending output is physically pinned and a retargeted source junction fails
   assert.equal(spawnMock.mock.callCount(), 1);
 });
 
-test("copied-project default pending lifecycle precedes the producer and reconciles physical alias ownership", () => {
+test("copied-project default pending lifecycle precedes the producer and reconciles physical alias ownership", context => {
   const spec = fixture("default-lifecycle");
-  const scripts = path.join(spec.cwd, "scripts");
-  fs.mkdirSync(scripts);
-  for (const file of ["cargo-target-owner.cjs", "cargo-verification.cjs", "cargo-test-preparation.cjs", "artifact-lifecycle.cjs", "artifact-observations.cjs", "maintenance-lock-owner.cjs", "maintenance-lock-worker.cjs", "maintenance-owner-config.cjs"]) {
-    fs.copyFileSync(path.join(__dirname, file), path.join(scripts, file));
-  }
+  const scripts = copiedProject(spec, context);
   const source = path.join(spec.cwd, "engine");
   const physicalOutput = path.join(spec.cwd, "artifacts", "pending-store");
   const outputAlias = path.join(spec.cwd, "artifacts", "verification", "cargo-pending");
@@ -386,6 +651,7 @@ test("copied-project default pending lifecycle precedes the producer and reconci
   assert.equal(path.dirname(records[0].members[0].path), owner.physicalPath(physicalOutput));
   assert.ok(!fs.existsSync(leasePath(spec)));
   const firstGeneration = records[0].generation;
+  const firstEvidence = fs.readFileSync(records[0].producer.evidence_ref);
   const failed = copiedVerification.runManagedCargoSync({ ...command, command: process.execPath, args: ["-e", "process.exitCode=7"], stdio: "pipe", encoding: "utf8" });
   assert.equal(failed.status, 7);
   const [failedRecord] = copiedLifecycle.catalog(spec.cwd);
@@ -395,6 +661,8 @@ test("copied-project default pending lifecycle precedes the producer and reconci
   assert.equal(failedRecord.state, "failed"); assert.equal(failedRecord.membership_complete, true);
   assert.equal(failedRecord.producer.exit_code, 7);
   assert.equal(failedRecord.producer.outcome, "failure");
+  assert.notEqual(failedRecord.producer.evidence_ref, records[0].producer.evidence_ref);
+  assert.deepEqual(fs.readFileSync(records[0].producer.evidence_ref), firstEvidence);
   assert.ok(!failedRecord.producer.evidence_ref.startsWith(failedRecord.members[0].path + path.sep));
 });
 

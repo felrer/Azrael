@@ -50,6 +50,16 @@ function Relative-File([string]$Root, [string]$Name) {
     return $full
 }
 
+function Assert-SharedEngineTemplate($Config, [string]$EngineHash) {
+    foreach ($name in @('sharedEngine', 'sharedEngineProtocol', 'engineSha256')) {
+        if (-not $Config.PSObject.Properties[$name]) { throw "Missing shared engine template metadata: $name" }
+    }
+    if ($Config.sharedEngine -isnot [bool] -or -not $Config.sharedEngine -or
+        ($Config.sharedEngineProtocol -isnot [int] -and $Config.sharedEngineProtocol -isnot [long]) -or $Config.sharedEngineProtocol -ne 2 -or
+        $Config.engineSha256 -isnot [string] -or $Config.engineSha256 -cnotmatch '^[a-f0-9]{64}$' -or $Config.engineSha256 -cne $EngineHash -or
+        $Config.engine -cne 'engine/azrael.exe') { throw 'Invalid shared engine template metadata.' }
+}
+
 $created = $false
 $installationAttempted = $false
 $destination = $null
@@ -63,7 +73,7 @@ try {
         $file = Relative-File $packageRoot $entry.path
         if ($known.ContainsKey($entry.path) -or $entry.sha256 -notmatch '^[a-fA-F0-9]{64}$') { throw "Invalid inventory entry: $($entry.path)" }
         if (-not (Test-Path -LiteralPath $file -PathType Leaf) -or (Get-Item -LiteralPath $file).Length -ne $entry.size -or (Get-Hash $file) -cne $entry.sha256.ToLowerInvariant()) { throw "Package inventory mismatch: $($entry.path)" }
-        $known[$entry.path] = $true
+        $known[$entry.path] = $entry.sha256.ToLowerInvariant()
     }
     foreach ($item in Get-ChildItem -LiteralPath $packageRoot -Recurse -Force) {
         if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Reparse point forbidden: $($item.FullName)" }
@@ -75,6 +85,18 @@ try {
     foreach ($required in @('host-template.vsix', 'runtime/devin-native-build.json', 'runtime/opencodex-accounts-build.json', 'runtime/node/node.exe', 'runtime/engine/azrael.exe', 'runtime/engine/azrael-bridge.exe', 'runtime/engine/azrael-code-mode-host.exe')) {
         if (-not $known.ContainsKey($required)) { throw "Missing package dependency: $required" }
     }
+    if (-not $known.ContainsKey('runtime/build-info.json')) { throw 'Missing package dependency: runtime/build-info.json' }
+    $build = Get-Content -LiteralPath (Join-Path $packageRoot 'runtime/build-info.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    $engineHash = $known['runtime/engine/azrael.exe']
+    if ($build.engineProvenance.binaries.'azrael.exe' -isnot [string] -or $build.engineProvenance.binaries.'azrael.exe'.ToLowerInvariant() -cne $engineHash) { throw 'Shared engine build provenance mismatch.' }
+    $template = [IO.Compression.ZipFile]::OpenRead((Join-Path $packageRoot 'host-template.vsix'))
+    try {
+        $runtimeEntry = $template.GetEntry('extension/out/azrael-runtime.json')
+        if (-not $runtimeEntry) { throw 'Host runtime template missing.' }
+        $reader = [IO.StreamReader]::new($runtimeEntry.Open())
+        try { $templateConfig = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
+        Assert-SharedEngineTemplate $templateConfig $engineHash
+    } finally { $template.Dispose() }
     # Only recipient-owned settings are read here. The public template contains
     # relative payload paths; no build-machine location is used for execution.
     if (-not $PSBoundParameters.ContainsKey('InstallRoot')) {
@@ -134,6 +156,7 @@ try {
         $reader = [IO.StreamReader]::new($packageEntry.Open())
         try { $hostPackage = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
         if ($hostPackage.version -cne $manifest.hostVersion -or $config.schema -ne 1 -or $config.codexHome -cne '@STATE@') { throw 'Host template version/configuration mismatch.' }
+        Assert-SharedEngineTemplate $config $engineHash
         $config.engine = Relative-File $runtimeDirectory $config.engine
         $config.bridge = Relative-File $runtimeDirectory $config.bridge
         $config.codexHome = $state
@@ -150,13 +173,7 @@ try {
         $config.windowControl.directory = Relative-File $runtimeDirectory $config.windowControl.directory
         $config.windowControl.executable = Relative-File $runtimeDirectory $config.windowControl.executable
         $config.windowControl.mcpScript = Relative-File $runtimeDirectory $config.windowControl.mcpScript
-        if ($config.windowControl.PSObject.Properties['childSession']) {
-            foreach ($key in @('executable', 'probeScript', 'logoffScript')) {
-                if ($config.windowControl.childSession.PSObject.Properties[$key]) {
-                    $config.windowControl.childSession.$key = Relative-File $runtimeDirectory $config.windowControl.childSession.$key
-                }
-            }
-        }
+        if ($config.windowControl.PSObject.Properties['childSession']) { throw 'Retired child-session runtime is not permitted.' }
         foreach ($owner in @('computerUse', 'windowControl')) {
             if ((Get-Hash (Join-Path $config.$owner.directory 'manifest.json')) -cne $config.$owner.manifestSha256.ToLowerInvariant()) { throw "Installed manifest integrity mismatch: $owner" }
         }
@@ -176,6 +193,13 @@ try {
     }
     $receiptPath = Join-Path $destination 'installer-receipt.json'
     Write-Json $receiptPath $receipt
+    if (-not $PrepareOnly -and [version]$manifest.releaseVersion -gt [version]'2026.0.14') {
+        $maintenanceOwner = Join-Path $runtimeDirectory 'scripts/maintenance-owner-config.cjs'
+        $maintenance = & $nodePath $maintenanceOwner publish $config.engine $state $manifest.releaseVersion $receiptPath
+        if ($LASTEXITCODE -ne 0) { throw 'Azrael management acceptance or publication failed; inspect the management receipt before retrying.' }
+        $receipt.maintenance = $maintenance | ConvertFrom-Json
+        Write-Json $receiptPath $receipt
+    }
     $receipt | ConvertTo-Json -Depth 30
 } catch {
     if ($created -and -not $installationAttempted -and $destination) {

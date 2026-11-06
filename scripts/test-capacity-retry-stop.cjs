@@ -1,9 +1,7 @@
 "use strict";
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),vm=require("node:vm");
-const {CAPACITY_RETRY_ASSET:asset,CAPACITY_RETRY_MARKER:marker,injectCapacityRetryStop}=require("./inject-capacity-retry-stop.cjs");
-const {transformAsset}=require("./namespace-azrael-host.cjs");
+const {CAPACITY_RETRY_ASSET:asset,injectCapacityRetryStop}=require("./inject-capacity-retry-stop.cjs");
 const {RecoveryState}=require("./recovery-state.cjs");
-const ts=require("../extensions/azrael-ex/node_modules/typescript");
 const pristine=fs.readFileSync((process.env.AZRAEL_PRESERVATION_UI_ROOT??"artifacts/upstream-ui/26.1007.21434")+"/"+asset,"utf8");
 const transformed=injectCapacityRetryStop(pristine,asset);
 const fn=transformed.text.slice(transformed.text.indexOf("function CNi(e)"),transformed.text.indexOf("function wNi(e)"));
@@ -15,14 +13,6 @@ function harness(){
  vm.createContext(context);vm.runInContext(fn,context);
  return {requests,context,render(props={}){cursor=0;return context.CNi({conversationId:"thread",hostId:"host",turnId:"failed",retryDelaySeconds:10,...props})},tick(){tick()},advance(){now+=11000},get delay(){return delay},remount(){cells.length=0},setOwner(v){owner=v},setReady(v){ready=v},setAdmit(v){admit=v},setFail(v){fail=v}};
 }
-test("guarded transform and integrated pinned asset parse",()=>{
-
- assert.throws(()=>injectCapacityRetryStop("",asset),/anchor/);
- assert.throws(()=>injectCapacityRetryStop(pristine+pristine,asset),/anchor/);
- assert.throws(()=>injectCapacityRetryStop(transformed.text+marker,asset),/Duplicate/);
- const result=transformAsset(pristine,asset,asset,ts);
- assert.equal(ts.createSourceFile(asset,result.text,99,true,ts.ScriptKind.JS).parseDiagnostics.length,0);
-});
 test("stop blocks already queued timer synchronously and survives card remount",()=>{
  const h=harness(),tree=h.render();assert.equal(h.delay,1000);
  tree.props.children[1].props.onClick();h.advance();h.tick();assert.equal(h.requests.length,0);

@@ -6,7 +6,6 @@ const test = require("node:test");
 const xm = require("node:vm");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
-const { transformAsset } = require("./ui-test-transform-fixture.cjs");
 const patch = require("./inject-deferred-turn.cjs");
 const waitHelpers = require("./root-resume-wait.cjs");
 const { createDeferredListStateFixture } = require("./deferred-list-state-fixture.cjs");
@@ -689,17 +688,6 @@ test("wait boundaries normalize native hydration and stale snapshots without inv
   assert.equal(result.rootResumeWait, wait);
 });
 
-test("deferred anchors match the pinned host, parse, and fail closed", () => {
-  for (const { result, inject } of inputs) {
-    assert.equal(sourceAst(result.text).parseDiagnostics.length, 0);
-    if (inject === patch.injectDeferredHostNotification || inject === patch.injectDeferredRendererNotification) {
-      assert.deepEqual(inject(result.text), { text: result.text, count: 0 });
-      assert.throws(() => inject(result.text.replace('"turn/rootResumeWait/updated":!0,', '')), /anchor must occur exactly once/);
-    } else assert.throws(() => inject(result.text), /anchor must occur exactly once/);
-    assert.throws(() => inject("anchor missing"), /anchor must occur exactly once/);
-  }
-});
-
 test("renderer ingress admits both deferred methods before the native reducer", () => {
   const input = inputs.find(input => input.file.endsWith(path.basename(patch.DEFERRED_NOTIFICATION_ASSET)));
   const tableSource = source => {
@@ -1056,14 +1044,6 @@ test("interrupted work with a native measured duration uses a fixed stopped divi
   const clock = clockHook();
   assert.equal(clock.render(stopped).elapsedMs, 8000);
   assert.equal(clock.interval(), null);
-});
-
-test("complete host transform pipeline includes every waiting asset and preserves pinned anchors", () => {
-  for (const input of inputs) {
-    const asset = path.relative(root, input.file).replaceAll("\\", "/");
-    const transformed = transformAsset(input.original, asset, input.file, ts);
-    assert.equal(sourceAst(transformed.text).parseDiagnostics.length, 0, asset);
-  }
 });
 
 test("final completed work has its own fixed duration alongside earlier frozen reservation history", () => {

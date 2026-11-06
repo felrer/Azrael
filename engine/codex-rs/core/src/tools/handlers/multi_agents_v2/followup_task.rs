@@ -43,6 +43,7 @@ impl Handler {
             MessageDeliveryMode::TriggerTurn,
             args.target,
             args.message,
+            args.attachments,
             analytics,
         )
         .await

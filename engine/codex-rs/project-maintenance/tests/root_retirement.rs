@@ -333,6 +333,7 @@ fn owner_cli_allows_inventory_but_refuses_execution_relative_and_external_reques
     write_json(&request, &json!({"operation":"inventory"}));
     let invoke = |project: &Path, request: &Path| {
         std::process::Command::new(env!("CARGO_BIN_EXE_maintenance_owner"))
+            .env("AZRAEL_STATE_ROOT", root.path().join("fixture-preferences"))
             .arg("--project-root")
             .arg(project)
             .arg("--request")

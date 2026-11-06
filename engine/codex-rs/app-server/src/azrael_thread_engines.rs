@@ -1,34 +1,24 @@
-//! Home-global admission and authenticated discovery hints across engine releases.
+//! Engine-local session tracking and private shared control-directory initialization.
 
 use codex_protocol::ThreadId;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fs::{File, OpenOptions};
 use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 
-pub(crate) struct ThreadEngineLeases {
+pub(crate) struct ThreadEngineSessions {
     home: PathBuf,
     directory: PathBuf,
     instance: String,
-    // Holding the actual file lock is authority. Neither file contents nor PID
-    // existence can establish whether another engine still owns a conversation.
-    owned: HashMap<ThreadId, File>,
+    tracked: HashSet<ThreadId>,
 }
 
-fn check_metadata(metadata: &std::fs::Metadata, directory: bool) -> io::Result<()> {
-    let mut unsafe_entry = metadata.file_type().is_symlink()
-        || if directory {
-            !metadata.is_dir()
-        } else {
-            !metadata.is_file()
-        };
+fn check_control_directory(metadata: &std::fs::Metadata) -> io::Result<()> {
+    let mut unsafe_entry = metadata.file_type().is_symlink() || !metadata.is_dir();
     #[cfg(unix)]
     {
         use std::os::unix::fs::MetadataExt;
         unsafe_entry |= metadata.uid() != unsafe { libc::geteuid() };
-        if !directory {
-            unsafe_entry |= metadata.nlink() != 1;
-        }
     }
     #[cfg(windows)]
     {
@@ -45,7 +35,28 @@ fn check_metadata(metadata: &std::fs::Metadata, directory: bool) -> io::Result<(
     Ok(())
 }
 
-fn open_record(path: &Path) -> io::Result<File> {
+fn check_hint_file(metadata: &std::fs::Metadata) -> io::Result<()> {
+    let mut unsafe_entry = metadata.file_type().is_symlink() || !metadata.is_file();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        unsafe_entry |= metadata.uid() != unsafe { libc::geteuid() } || metadata.nlink() != 1;
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        unsafe_entry |= metadata.file_attributes() & 0x400 != 0;
+    }
+    if unsafe_entry {
+        return Err(io::Error::new(
+            io::ErrorKind::PermissionDenied,
+            "unsafe conversation discovery hint path",
+        ));
+    }
+    Ok(())
+}
+
+fn open_hint(path: &Path) -> io::Result<File> {
     let mut options = OpenOptions::new();
     options.read(true);
     #[cfg(unix)]
@@ -59,98 +70,55 @@ fn open_record(path: &Path) -> io::Result<File> {
         options.custom_flags(0x00200000); // FILE_FLAG_OPEN_REPARSE_POINT
     }
     let file = options.open(path)?;
-    check_metadata(&file.metadata()?, false)?;
+    check_hint_file(&file.metadata()?)?;
     Ok(file)
 }
 
-impl ThreadEngineLeases {
+impl ThreadEngineSessions {
     pub(crate) async fn new(home: &Path, instance: &str) -> io::Result<Self> {
         codex_app_server_daemon::azrael_window_registry_path(home, instance)
             .map_err(io::Error::other)?;
         let mut directory = home.to_path_buf();
-        check_metadata(&std::fs::symlink_metadata(&directory)?, true)?;
-        // General Azrael application data may already have inherited permissions.
-        // Only this home-global control leaf requires a private-directory ACL.
+        check_control_directory(&std::fs::symlink_metadata(&directory)?)?;
+        // Transfer receipts and account selections still use this private leaf.
+        // General Azrael application data may have inherited permissions.
         directory.push("azrael-thread-engines-v1");
         match std::fs::symlink_metadata(&directory) {
-            Ok(metadata) => check_metadata(&metadata, true)?,
+            Ok(metadata) => check_control_directory(&metadata)?,
             Err(error) if error.kind() == io::ErrorKind::NotFound => {}
             Err(error) => return Err(error),
         }
         codex_uds::prepare_private_socket_directory(&directory).await?;
-        check_metadata(&std::fs::symlink_metadata(&directory)?, true)?;
+        check_control_directory(&std::fs::symlink_metadata(&directory)?)?;
         Ok(Self {
             home: home.into(),
             directory,
             instance: instance.into(),
-            owned: HashMap::new(),
+            tracked: HashSet::new(),
         })
     }
 
-    pub(crate) fn acquire(&mut self, thread: &str) -> io::Result<()> {
+    pub(crate) fn track(&mut self, thread: &str) -> io::Result<()> {
         let thread = ThreadId::from_string(thread)
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid conversation ID"))?;
-        if self.owned.contains_key(&thread) {
-            return Ok(());
-        }
-        // UUID formatting canonicalizes alternate UUID spellings into one lock.
-        let path = self.directory.join(format!("{thread}.lock"));
-        let mut parent = self.directory.as_path();
-        loop {
-            check_metadata(&std::fs::symlink_metadata(parent)?, true)?;
-            if parent == self.home {
-                break;
-            }
-            parent = parent.parent().ok_or_else(|| {
-                io::Error::new(
-                    io::ErrorKind::PermissionDenied,
-                    "conversation control path escaped state home",
-                )
-            })?;
-        }
-        if let Ok(metadata) = std::fs::symlink_metadata(&path) {
-            check_metadata(&metadata, false)?;
-        }
-        let mut options = OpenOptions::new();
-        options.create(true).truncate(false).read(true).write(true);
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::OpenOptionsExt;
-            options.mode(0o600).custom_flags(libc::O_NOFOLLOW);
-        }
-        #[cfg(windows)]
-        {
-            use std::os::windows::fs::OpenOptionsExt;
-            const FILE_FLAG_OPEN_REPARSE_POINT: u32 = 0x00200000;
-            options.custom_flags(FILE_FLAG_OPEN_REPARSE_POINT);
-        }
-        let file = options.open(path)?;
-        check_metadata(&file.metadata()?, false)?;
-        file.try_lock().map_err(|error| match error {
-            std::fs::TryLockError::WouldBlock => io::Error::new(io::ErrorKind::WouldBlock,
-                "This conversation is open in another Azrael engine. Reopen its matching version or close the originating version before retrying."),
-            std::fs::TryLockError::Error(error) => error,
-        })?;
-        self.owned.insert(thread, file);
+        self.tracked.insert(thread);
         Ok(())
     }
 
-    pub(crate) fn owned_threads(&self) -> HashSet<ThreadId> {
-        // Instance is validated once at construction and this keeper is never
-        // transferred to a different engine during its lifetime.
-        debug_assert_eq!(self.instance.len(), 64);
-        self.owned.keys().copied().collect()
+    pub(crate) fn tracked_threads(&self) -> HashSet<ThreadId> {
+        self.tracked.clone()
     }
 
-    /// Publish only while holding the real writer admission lock. Readers must
-    /// still authenticate the advertised peer: this record is a discovery hint.
-    pub(crate) fn publish(
-        &mut self,
+    /// A best-effort discovery hint, never ownership or admission authority.
+    /// Readers must authenticate the peer and verify its live session.
+    pub(crate) fn publish_hint(
+        &self,
         thread: &str,
         descriptor: &serde_json::Value,
     ) -> io::Result<()> {
-        let id = ThreadId::from_string(thread).map_err(io::Error::other)?;
-        if !self.owned.contains_key(&id)
+        let id = ThreadId::from_string(thread)
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid conversation ID"))?;
+        if !self.tracked.contains(&id)
             || descriptor["schema"] != 1
             || descriptor["protocol"] != 1
             || descriptor["threadId"].as_str() != Some(id.to_string().as_str())
@@ -158,23 +126,23 @@ impl ThreadEngineLeases {
         {
             return Err(io::Error::new(
                 io::ErrorKind::PermissionDenied,
-                "unowned conversation discovery record",
+                "invalid conversation discovery hint",
             ));
         }
-        check_metadata(&std::fs::symlink_metadata(&self.home)?, true)?;
-        check_metadata(&std::fs::symlink_metadata(&self.directory)?, true)?;
+        check_control_directory(&std::fs::symlink_metadata(&self.home)?)?;
+        check_control_directory(&std::fs::symlink_metadata(&self.directory)?)?;
         let path = self.directory.join(format!("{id}.engine.json"));
         let bytes = serde_json::to_vec(descriptor)?;
         if bytes.len() > 64 * 1024 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                "conversation discovery record exceeds limit",
+                "conversation discovery hint exceeds limit",
             ));
         }
         match std::fs::symlink_metadata(&path) {
             Ok(metadata) => {
-                check_metadata(&metadata, false)?;
-                let file = open_record(&path)?;
+                check_hint_file(&metadata)?;
+                let file = open_hint(&path)?;
                 let mut existing = Vec::new();
                 file.take(64 * 1024 + 1).read_to_end(&mut existing)?;
                 if existing == bytes {
@@ -190,48 +158,19 @@ impl ThreadEngineLeases {
         temporary.persist(&path).map_err(|error| error.error)?;
         Ok(())
     }
-
-    /// The caller has already stopped the exact runtime and durably recorded
-    /// its transfer. Any metadata failure retains the authoritative lock.
+    /// The caller has already stopped this engine's exact runtime and durably
+    /// recorded its transfer. Releasing tracking does not modify shared files.
+    /// Hints remain for authenticated liveness checks: deleting one could race
+    /// with another engine publishing a replacement for the same session.
     pub(crate) fn release(&mut self, thread: &str) -> io::Result<()> {
-        let id = ThreadId::from_string(thread).map_err(io::Error::other)?;
-        if !self.owned.contains_key(&id) {
+        let id = ThreadId::from_string(thread)
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid conversation ID"))?;
+        if !self.tracked.remove(&id) {
             return Err(io::Error::new(
                 io::ErrorKind::PermissionDenied,
-                "conversation lease is not owned",
+                "conversation session is not tracked by this engine",
             ));
         }
-        check_metadata(&std::fs::symlink_metadata(&self.home)?, true)?;
-        check_metadata(&std::fs::symlink_metadata(&self.directory)?, true)?;
-        let path = self.directory.join(format!("{id}.engine.json"));
-        match std::fs::symlink_metadata(&path) {
-            Ok(metadata) => {
-                check_metadata(&metadata, false)?;
-                let file = open_record(&path)?;
-                let mut bytes = Vec::new();
-                file.take(64 * 1024 + 1).read_to_end(&mut bytes)?;
-                if bytes.len() > 64 * 1024 {
-                    return Err(io::Error::new(
-                        io::ErrorKind::InvalidData,
-                        "conversation discovery record exceeds limit",
-                    ));
-                }
-                let value: serde_json::Value = serde_json::from_slice(&bytes)?;
-                if value["instanceId"].as_str() != Some(self.instance.as_str())
-                    || value["threadId"].as_str() != Some(id.to_string().as_str())
-                {
-                    return Err(io::Error::new(
-                        io::ErrorKind::PermissionDenied,
-                        "conversation discovery owner changed",
-                    ));
-                }
-                std::fs::remove_file(&path)?;
-            }
-            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
-            Err(error) => return Err(error),
-        }
-        // The lock file remains. Its presence never means an engine owns it.
-        self.owned.remove(&id);
         Ok(())
     }
 }
@@ -241,59 +180,218 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn session_release_keeps_other_threads_locked_and_requires_ownership() {
+    async fn independent_engines_track_the_same_session_without_ownership_files() {
         let home = tempfile::tempdir().unwrap();
-        let mut first = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+        let mut first = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
             .await
             .unwrap();
-        let mut second = ThreadEngineLeases::new(home.path(), &"b".repeat(64))
+        let mut second = ThreadEngineSessions::new(home.path(), &"b".repeat(64))
             .await
             .unwrap();
-        let selected = ThreadId::new().to_string();
-        let untouched = ThreadId::new().to_string();
-        let record = serde_json::json!({"schema":1,"protocol":1,"threadId":selected,"instanceId":"a".repeat(64)});
-        assert!(first.publish(&selected, &record).is_err());
-        first.acquire(&selected).unwrap();
-        first.acquire(&untouched).unwrap();
-        first.publish(&selected, &record).unwrap();
-        let descriptor = first.directory.join(format!("{selected}.engine.json"));
-        assert!(descriptor.exists());
-        first.release(&selected).unwrap();
-        assert!(!descriptor.exists());
-        second.acquire(&selected).unwrap();
-        assert_eq!(
-            second.acquire(&untouched).unwrap_err().kind(),
-            io::ErrorKind::WouldBlock
-        );
-        assert!(first.release(&selected).is_err());
-        assert!(first.directory.join(format!("{selected}.lock")).exists());
+        let selected = ThreadId::new();
+        first.track(&selected.to_string()).unwrap();
+        first.track(&selected.to_string().to_uppercase()).unwrap();
+        second.track(&selected.to_string()).unwrap();
+        assert_eq!(first.tracked_threads(), HashSet::from([selected]));
+        assert_eq!(second.tracked_threads(), HashSet::from([selected]));
+        let directory = home.path().join("azrael-thread-engines-v1");
+        assert!(std::fs::read_dir(&directory).unwrap().next().is_none());
+        first.release(&selected.to_string()).unwrap();
+        drop(first);
+        assert_eq!(second.tracked_threads(), HashSet::from([selected]));
+        second.release(&selected.to_string()).unwrap();
+        drop(second);
+        assert!(std::fs::read_dir(&directory).unwrap().next().is_none());
     }
 
     #[tokio::test]
-    async fn changed_discovery_owner_prevents_release() {
+    async fn release_preserves_sibling_tracking_and_rejects_unknown_sessions() {
         let home = tempfile::tempdir().unwrap();
-        let mut first = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+        let mut sessions = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
             .await
             .unwrap();
-        let mut second = ThreadEngineLeases::new(home.path(), &"b".repeat(64))
+        let selected = ThreadId::new();
+        let sibling = ThreadId::new();
+        sessions.track(&selected.to_string()).unwrap();
+        sessions.track(&sibling.to_string()).unwrap();
+        sessions.release(&selected.to_string()).unwrap();
+        assert_eq!(sessions.tracked_threads(), HashSet::from([sibling]));
+        assert_eq!(
+            sessions.release(&selected.to_string()).unwrap_err().kind(),
+            io::ErrorKind::PermissionDenied
+        );
+        assert_eq!(sessions.tracked_threads(), HashSet::from([sibling]));
+        for invalid in ["../escape", "", "not-a-uuid"] {
+            assert_eq!(
+                sessions.track(invalid).unwrap_err().kind(),
+                io::ErrorKind::InvalidInput
+            );
+            assert_eq!(
+                sessions.release(invalid).unwrap_err().kind(),
+                io::ErrorKind::InvalidInput
+            );
+        }
+        assert_eq!(sessions.tracked_threads(), HashSet::from([sibling]));
+    }
+
+    #[tokio::test]
+    async fn legacy_locked_file_and_malformed_descriptor_are_ignored_and_preserved() {
+        let home = tempfile::tempdir().unwrap();
+        let mut first = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
             .await
             .unwrap();
         let selected = ThreadId::new().to_string();
-        first.acquire(&selected).unwrap();
-        let record = serde_json::json!({"schema":1,"protocol":1,"threadId":selected,"instanceId":"b".repeat(64)});
-        assert!(first.publish(&selected, &record).is_err());
-        std::fs::write(
-            first.directory.join(format!("{selected}.engine.json")),
-            serde_json::to_vec(&record).unwrap(),
-        )
-        .unwrap();
-        assert!(first.release(&selected).is_err());
+        let directory = home.path().join("azrael-thread-engines-v1");
+        let lock_path = directory.join(format!("{selected}.lock"));
+        let descriptor = directory.join(format!("{selected}.engine.json"));
+        std::fs::write(&lock_path, b"legacy lock contents").unwrap();
+        let lock = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&lock_path)
+            .unwrap();
+        lock.try_lock().unwrap();
+        std::fs::write(&descriptor, b"{malformed descriptor").unwrap();
+        let mut second = ThreadEngineSessions::new(home.path(), &"b".repeat(64))
+            .await
+            .unwrap();
+        first.track(&selected).unwrap();
+        second.track(&selected).unwrap();
+        first.release(&selected).unwrap();
+        second.release(&selected).unwrap();
+        drop(first);
+        drop(second);
+        // Windows denies reads through a second handle while this legacy lock is held.
+        drop(lock);
+        assert_eq!(std::fs::read(&lock_path).unwrap(), b"legacy lock contents");
         assert_eq!(
-            second.acquire(&selected).unwrap_err().kind(),
-            io::ErrorKind::WouldBlock
+            std::fs::read(&descriptor).unwrap(),
+            b"{malformed descriptor"
+        );
+        assert_eq!(std::fs::read_dir(&directory).unwrap().count(), 2);
+    }
+
+    fn hint(thread: &str, instance: &str) -> serde_json::Value {
+        serde_json::json!({
+            "schema": 1,
+            "protocol": 1,
+            "threadId": thread,
+            "instanceId": instance,
+        })
+    }
+
+    #[tokio::test]
+    async fn explicit_hints_replace_stale_metadata_without_lockfiles_or_release_deletion() {
+        let home = tempfile::tempdir().unwrap();
+        let mut first = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
+            .await
+            .unwrap();
+        let mut second = ThreadEngineSessions::new(home.path(), &"b".repeat(64))
+            .await
+            .unwrap();
+        let thread = ThreadId::new().to_string();
+        first.track(&thread).unwrap();
+        second.track(&thread).unwrap();
+        let path = first.directory.join(format!("{thread}.engine.json"));
+        std::fs::write(&path, b"{stale malformed metadata").unwrap();
+        let first_hint = hint(&thread, &"a".repeat(64));
+        first.publish_hint(&thread, &first_hint).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&std::fs::read(&path).unwrap()).unwrap(),
+            first_hint
+        );
+        let second_hint = hint(&thread, &"b".repeat(64));
+        second.publish_hint(&thread, &second_hint).unwrap();
+        first.release(&thread).unwrap();
+        second.release(&thread).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&std::fs::read(&path).unwrap()).unwrap(),
+            second_hint
+        );
+        assert!(!first.directory.join(format!("{thread}.lock")).exists());
+        assert_eq!(std::fs::read_dir(&first.directory).unwrap().count(), 1);
+    }
+
+    #[tokio::test]
+    async fn publishing_hints_ignores_held_legacy_session_locks() {
+        let home = tempfile::tempdir().unwrap();
+        let mut sessions = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
+            .await
+            .unwrap();
+        let thread = ThreadId::new().to_string();
+        let lock_path = sessions.directory.join(format!("{thread}.lock"));
+        std::fs::write(&lock_path, b"legacy lock contents").unwrap();
+        let lock = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&lock_path)
+            .unwrap();
+        lock.try_lock().unwrap();
+        sessions.track(&thread).unwrap();
+        sessions
+            .publish_hint(&thread, &hint(&thread, &"a".repeat(64)))
+            .unwrap();
+        sessions.release(&thread).unwrap();
+        drop(lock);
+        assert_eq!(std::fs::read(&lock_path).unwrap(), b"legacy lock contents");
+        assert!(
+            sessions
+                .directory
+                .join(format!("{thread}.engine.json"))
+                .is_file()
         );
     }
 
+    #[tokio::test]
+    async fn invalid_or_unwritable_hints_do_not_change_session_tracking() {
+        let home = tempfile::tempdir().unwrap();
+        let mut sessions = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
+            .await
+            .unwrap();
+        let thread = ThreadId::new();
+        let thread_string = thread.to_string();
+        let valid = hint(&thread_string, &"a".repeat(64));
+        assert!(sessions.publish_hint(&thread_string, &valid).is_err());
+        assert!(sessions.tracked_threads().is_empty());
+        sessions.track(&thread_string).unwrap();
+        assert_eq!(
+            sessions
+                .publish_hint("../escape", &valid)
+                .unwrap_err()
+                .kind(),
+            io::ErrorKind::InvalidInput
+        );
+        for field in ["schema", "protocol", "threadId", "instanceId"] {
+            let mut invalid = valid.clone();
+            invalid[field] = serde_json::Value::Null;
+            assert!(sessions.publish_hint(&thread_string, &invalid).is_err());
+            assert_eq!(sessions.tracked_threads(), HashSet::from([thread]));
+        }
+        let mut oversized = valid.clone();
+        oversized["padding"] = serde_json::Value::String("x".repeat(64 * 1024));
+        assert_eq!(
+            sessions
+                .publish_hint(&thread_string, &oversized)
+                .unwrap_err()
+                .kind(),
+            io::ErrorKind::InvalidData
+        );
+        let path = sessions.directory.join(format!("{thread}.engine.json"));
+        // A directory cannot be replaced by a hint file on any target platform.
+        std::fs::create_dir(&path).unwrap();
+        let marker = path.join("preserved");
+        std::fs::write(&marker, b"preserve").unwrap();
+        assert_eq!(
+            sessions
+                .publish_hint(&thread_string, &valid)
+                .unwrap_err()
+                .kind(),
+            io::ErrorKind::PermissionDenied
+        );
+        assert_eq!(std::fs::read(&marker).unwrap(), b"preserve");
+        assert_eq!(sessions.tracked_threads(), HashSet::from([thread]));
+        assert!(!sessions.directory.join(format!("{thread}.lock")).exists());
+    }
     #[cfg(windows)]
     fn inspect_acl(path: &Path) -> Vec<u8> {
         let output = std::process::Command::new("icacls.exe")
@@ -310,7 +408,7 @@ mod tests {
 
     #[cfg(windows)]
     #[tokio::test]
-    async fn lease_preserves_existing_application_data_and_permissions() {
+    async fn sessions_preserve_existing_application_data_and_permissions() {
         let home = tempfile::tempdir().unwrap();
         let application = home.path().join("azrael");
         let window_use = application.join("window-use");
@@ -325,14 +423,11 @@ mod tests {
         ];
         let before = paths.map(inspect_acl);
 
-        let mut keeper = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+        let mut sessions = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
             .await
             .unwrap();
-        keeper.acquire(&ThreadId::new().to_string()).unwrap();
-        assert_eq!(
-            keeper.directory,
-            home.path().join("azrael-thread-engines-v1")
-        );
+        sessions.track(&ThreadId::new().to_string()).unwrap();
+        assert!(home.path().join("azrael-thread-engines-v1").is_dir());
         assert_eq!(std::fs::read(&data).unwrap(), b"preserve window-use data");
         assert_eq!(before, paths.map(inspect_acl));
         assert!(!application.join("runtime").exists());
@@ -345,7 +440,7 @@ mod tests {
         let directory = home.path().join("azrael-thread-engines-v1");
         std::fs::create_dir(&directory).unwrap();
         let before = inspect_acl(&directory);
-        let error = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+        let error = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
             .await
             .err()
             .expect("inherited control directory must be rejected");
@@ -354,54 +449,45 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn engine_lease_reuse_conflict_drop_and_shutdown_filter() {
+    async fn refuses_a_control_directory_that_is_a_file() {
         let home = tempfile::tempdir().unwrap();
-        let mut first = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+        let directory = home.path().join("azrael-thread-engines-v1");
+        std::fs::write(&directory, b"preserve").unwrap();
+        let error = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
             .await
-            .unwrap();
-        let mut second = ThreadEngineLeases::new(home.path(), &"b".repeat(64))
-            .await
-            .unwrap();
-        let owned = ThreadId::new();
-        let stale = ThreadId::new();
-        first.acquire(&owned.to_string()).unwrap();
-        first.acquire(&owned.to_string()).unwrap();
-        assert_eq!(
-            second.acquire(&owned.to_string()).unwrap_err().kind(),
-            io::ErrorKind::WouldBlock
-        );
-        assert_eq!(first.owned_threads(), HashSet::from([owned]));
-        assert!(!first.owned_threads().contains(&stale));
-        assert!(second.owned_threads().is_empty());
-        let path = first.directory.join(format!("{owned}.lock"));
-        drop(first);
-        assert!(path.exists());
-        second.acquire(&owned.to_string()).unwrap();
-        assert!(second.acquire("../escape").is_err());
+            .err()
+            .expect("non-directory control path must be rejected");
+        assert_eq!(error.kind(), io::ErrorKind::PermissionDenied);
+        assert_eq!(std::fs::read(&directory).unwrap(), b"preserve");
     }
 
     #[cfg(unix)]
     #[tokio::test]
-    async fn refuses_linked_lockfiles_and_control_directories() {
+    async fn ignores_linked_legacy_lockfiles_but_refuses_linked_control_directories() {
         use std::os::unix::fs::symlink;
         let home = tempfile::tempdir().unwrap();
-        let mut keeper = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+        let mut sessions = ThreadEngineSessions::new(home.path(), &"a".repeat(64))
             .await
             .unwrap();
+        let directory = home.path().join("azrael-thread-engines-v1");
         let thread = ThreadId::new();
         let target = home.path().join("untouched");
         std::fs::write(&target, b"preserve").unwrap();
-        symlink(&target, keeper.directory.join(format!("{thread}.lock"))).unwrap();
-        assert!(keeper.acquire(&thread.to_string()).is_err());
+        let lock_path = directory.join(format!("{thread}.lock"));
+        symlink(&target, &lock_path).unwrap();
+        sessions.track(&thread.to_string()).unwrap();
+        sessions.release(&thread.to_string()).unwrap();
+        assert!(
+            std::fs::symlink_metadata(&lock_path)
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
         assert_eq!(std::fs::read(&target).unwrap(), b"preserve");
         let other = tempfile::tempdir().unwrap();
-        symlink(
-            &keeper.directory,
-            other.path().join("azrael-thread-engines-v1"),
-        )
-        .unwrap();
+        symlink(&directory, other.path().join("azrael-thread-engines-v1")).unwrap();
         assert!(
-            ThreadEngineLeases::new(other.path(), &"b".repeat(64))
+            ThreadEngineSessions::new(other.path(), &"b".repeat(64))
                 .await
                 .is_err()
         );

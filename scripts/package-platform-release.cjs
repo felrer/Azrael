@@ -35,7 +35,7 @@ function packageRelease(options) {
   const release=shared.inspectPath(shared.absolute(options.release)), host=shared.inspectPath(shared.absolute(options["host-vsix"]));
   const output=shared.inspectPath(shared.absolute(options.output)), version=shared.version(options.version);
   shared.disjoint(release,output); shared.disjoint(host,output);
-  if (fs.existsSync(output)) throw new Error("Output must be a new directory.");
+  if (fs.existsSync(output) && !options.resume) throw new Error("Output must be a new directory.");
   const {build,selected}=shared.verifyBuild(release);
   const hostBytes=fs.readFileSync(host), hostFiles=shared.readZip(hostBytes);
   const config=JSON.parse(hostFiles.get("extension/out/azrael-runtime.json")?.data.toString("utf8") || "null");
@@ -70,7 +70,7 @@ function packageRelease(options) {
     signing={policy:runtimeReceipt.policy,status:"passed"};
   }
   files.set("host-template.vsix",{data:hostBytes,mode:0o644});
-  for (const name of ["install-platform-release.cjs","platform-runtime.cjs","azrael-platforms.json"]) files.set(name,{data:fs.readFileSync(path.join(__dirname,name)),mode:0o644});
+  for (const name of ["install-platform-release.cjs","pipeline-state.cjs","verification-reuse-policy.cjs","platform-runtime.cjs","azrael-platforms.json"]) files.set(name,{data:fs.readFileSync(path.join(__dirname,name)),mode:0o644});
   let bootstrap="node",bootstrapNote="Use a compatible Node runtime to run the installer.";
   if(build.sha256["devin-native-build.json"]) {
     const native=shared.json(shared.fileAt(release,"devin-native-build.json")); platform.validateRuntimePlatform(native.platform);
@@ -92,30 +92,61 @@ function packageRelease(options) {
   shared.verifyBuild(release);
   if (shared.sha(fs.readFileSync(host))!==shared.sha(hostBytes)) throw new Error("Host input changed during packaging.");
   const archive=output+(selected.os==="win32" ? ".zip" : ".tar.gz");
+  const archivePartial=archive+".partial";
   const lifecycleRoot=options["project-root"] || path.resolve(__dirname,"..");
+  const lease=require("./maintenance-lock-owner.cjs").acquire(output+".pipeline.lock",{operation:"portable-package"});
+  try {
+  const stateFile=output+".pipeline.json";
   const records=lifecycle.catalog(lifecycleRoot),parent=records.find(record=>record.id===options["lifecycle-id"]);
   if(options["lifecycle-id"] && (!parent || parent.kind!=="version" || !parent.members.some(member=>member.path===release && member.role==="release"))) throw new Error("Explicit lifecycle does not own selected release.");
   const owners=records.filter(record=>record.kind==="version" && record.members.some(member=>member.path===release && member.role==="release"));
   if(owners.length>1) throw new Error("Conflicting packaging release ownership.");
   const related=parent || owners[0] || importedInputOwner(lifecycleRoot,release,names,records);
-  const lifecycleRecord=parent ? {...parent,members:[{path:output,role:"package"},{path:archive,role:"archive"}]} :
-    {id:`platform-package:${output}`,kind:"run",owner:"package-platform-release",version,members:[{path:output,role:"package"},{path:archive,role:"archive"}],references:[{id:related.id,reason:"packaging-input"}]};
+  const packageMembers=[{path:output,role:"package"},{path:archive,role:"archive"},{path:archivePartial,role:"archive-work"},{path:stateFile,role:"pipeline-state"},{path:stateFile+".update-lock",role:"pipeline-update-lock"},{path:stateFile+".tmp",role:"pipeline-state-work"},{path:output+".pipeline.lock",role:"pipeline-lock"}];
+  const lifecycleRecord=parent ? {...parent,members:packageMembers} :
+    {id:`platform-package:${output}`,kind:"run",owner:"package-platform-release",version,members:packageMembers,references:[{id:related.id,reason:"packaging-input"}]};
+  let pipeline;
   const pending=lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"pending",membership_complete:false,...(parent ? {expected_revision:parent.revision} : {})});
+  let archivePartialOwned=false;
   try {
+  pipeline=require("./pipeline-state.cjs").openPipelineState({file:stateFile,identity:{release,host,output,version,manifestSha256:shared.sha(shared.encode(manifest)),producerSha256:shared.sha(fs.readFileSync(__filename))},resume:!!options.resume,lockHeld:true,reuseDecisionsPath:options['reuse-decisions-path']});
+  if(!pipeline.lookup("package")) {
+  pipeline.start("package");
   fs.mkdirSync(output,{recursive:true});
-  for (const [name,item] of files) { const target=path.join(output,name); fs.mkdirSync(path.dirname(target),{recursive:true}); fs.writeFileSync(target,item.data,{flag:"wx",mode:item.mode}); fs.chmodSync(target,item.mode); }
-  fs.writeFileSync(path.join(output,"release-manifest.json"),shared.encode(manifest),{flag:"wx"});
+  for (const [name,item] of files) { const target=path.join(output,name); fs.mkdirSync(path.dirname(target),{recursive:true}); if(fs.existsSync(target)) { if(!options.resume || shared.sha(fs.readFileSync(target))!==shared.sha(item.data)) throw new Error("Existing package file differs; select a new output: "+name); } else fs.writeFileSync(target,item.data,{flag:"wx",mode:item.mode}); fs.chmodSync(target,item.mode); }
+  const manifestFile=path.join(output,"release-manifest.json"), manifestBytes=shared.encode(manifest);
+  if(fs.existsSync(manifestFile)) { if(!options.resume || shared.sha(fs.readFileSync(manifestFile))!==shared.sha(manifestBytes)) throw new Error("Existing package manifest differs; select a new output."); } else fs.writeFileSync(manifestFile,manifestBytes,{flag:"wx"});
   shared.verifyPackage(output);
+  pipeline.finish("package",{exitCode:0,outputs:[...files.keys(),"release-manifest.json"].map(name=>path.join(output,name))});
+  }
+  shared.verifyPackage(output);
+  if(!pipeline.lookup("archive",{dependencies:["package"]})) {
+  const priorArchive=pipeline.snapshot.stages.archive?.at(-1);
+  const resumablePartial=options.resume && priorArchive?.status==="failed" && priorArchive.data?.partialArchive===archivePartial;
+  pipeline.start("archive",{dependencies:["package"]});
   if (fs.existsSync(archive)) throw new Error("Archive destination already exists.");
-  if (selected.os==="win32") { files.set("release-manifest.json",{data:shared.encode(manifest),mode:0o644}); fs.writeFileSync(archive,shared.writeZip(files),{flag:"wx"}); }
-  else { const result=spawnSync("tar",["-czf",archive,"-C",output,"--",...shared.walk(output)],{encoding:"utf8",shell:false}); if (result.error || result.status!==0) throw new Error("Release archive creation failed."); }
+  shared.inspectPath(archivePartial);
+  if(fs.existsSync(archivePartial) && !resumablePartial) throw new Error("Archive work has no verified stopped producer; recovery required.");
+  const partialFd=fs.openSync(archivePartial,resumablePartial ? "w" : "wx"); archivePartialOwned=true;
+  try {
+    if(selected.os==="win32") { files.set("release-manifest.json",{data:shared.encode(manifest),mode:0o644}); fs.writeFileSync(partialFd,shared.writeZip(files)); }
+  } finally {fs.closeSync(partialFd);}
+  if(selected.os!=="win32") { const result=spawnSync("tar",["-czf",archivePartial,"-C",output,"--",...shared.walk(output)],{encoding:"utf8",shell:false}); if (result.error || result.status!==0) { pipeline.finish("archive",{exitCode:result.status,...(["ENOENT","EACCES"].includes(result.error?.code) ? {outcome:"failed"} : {}),data:{partialArchive:archivePartial},error:result.error?.message || result.stderr}); throw new Error("Release archive creation failed."); } }
+  shared.verifyPackage(output);
+  if(fs.existsSync(archive)) throw new Error("Archive destination already exists.");
+  fs.renameSync(archivePartial,archive); archivePartialOwned=false;
+  pipeline.finish("archive",{exitCode:0,outputs:[archive]});
+  }
+  shared.verifyPackage(output);
   lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:parent ? parent.state : "complete",membership_complete:parent ? parent.membership_complete : true,expected_revision:pending.revision});
   return {output,archive,platform:manifest.platform,version,files:inventory.length};
   } catch(error) {
+    for(const [name,attempts] of Object.entries(pipeline?.snapshot.stages || {})) if(attempts.at(-1).status==="running") pipeline.finish(name,{exitCode:null,outcome:"failed",data:name==="archive" && archivePartialOwned ? {partialArchive:archivePartial} : null,error:error.message});
     try { lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"failed",membership_complete:false,expected_revision:pending.revision}); }
     catch(metadataError) { error.message+=`; lifecycle update failed: ${metadataError.message}`; }
     throw error;
   }
+  } finally { lease.release(); }
 }
 module.exports={packageRelease,verifySigning,isMachO};
-if (require.main===module) { try { console.log(JSON.stringify(packageRelease(shared.args(process.argv.slice(2))))); } catch(error) { console.error(error.message); process.exitCode=1; } }
+if (require.main===module) { try { console.log(JSON.stringify(packageRelease(shared.args(process.argv.slice(2))))); } catch(error) { require('./verification-reuse-policy.cjs').reportCliError(error); } }

@@ -97,6 +97,9 @@ fn item_text(item: &ResponseItem) -> CodexResult<Option<(String, String)>> {
             for part in content {
                 match part {
                     AgentMessageInputContent::InputText { text } => parts.push(text.clone()),
+                    AgentMessageInputContent::InputImage { .. } => {
+                        return Err(invalid("Devin ACP context supports text only"));
+                    }
                     AgentMessageInputContent::EncryptedContent { .. } => {}
                 }
             }

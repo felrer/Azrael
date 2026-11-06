@@ -858,10 +858,8 @@ wait_agent_enabled = {wait_agent_enabled}
         namespace_child_tool(&body, MULTI_AGENT_V2_NAMESPACE, "wait_agent").is_some(),
         wait_agent_enabled
     );
-    assert_eq!(
-        namespace_child_tool(&body, "clock", "sleep").is_some(),
-        sleep_tool_enabled
-    );
+    assert!(namespace_child_tool(&body, "clock", "sleep").is_none());
+    assert!(namespace_child_tool(&body, "legacy_codex_tools", "sleep").is_none());
     assert_eq!(
         request
             .message_input_texts("developer")

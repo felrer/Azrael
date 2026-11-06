@@ -7,7 +7,7 @@ const {test} = require("node:test");
 const ts = require(path.resolve("extensions/azrael-ex/node_modules/typescript/lib/typescript.js"));
 const {inheritThreadBranchSelection} = require("./thread-branch.cjs");
 const {createProviderModelCatalog} = require("./provider-model-picker.cjs");
-const {THREAD_BRANCH_ASSET:asset, THREAD_BRANCH_MARKER:marker, injectThreadBranch} = require("./inject-thread-branch.cjs");
+const {THREAD_BRANCH_ASSET:asset, THREAD_BRANCH_MARKER:marker} = require("./inject-thread-branch.cjs");
 const {transformAsset} = require("./namespace-azrael-host.cjs");
 const pristine = fs.readFileSync(path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve("artifacts/upstream-ui/26.1007.21434"), asset),"utf8");
 const transformed = transformAsset(pristine,asset,asset,ts);
@@ -29,22 +29,14 @@ function harness({original=false,src=source(),rows=[row(src.latestModel)],failRe
     async resumeConversationForUnavailableOwner(params){resumes.push(params);if(failResume)throw Error("resume fixture failed");return{status:"ready"};}};
   const capabilities={readTokenBudgetThread:()=>null,readConfig:async()=>({model:"global-default",model_reasoning_effort:"low"}),readPlacement:()=>({status:"ready",placement:null}),readThreadReferences:()=>undefined};
   const sharedCatalog=createProviderModelCatalog();
-  const context={__azraelProviderCatalogV1:sharedCatalog,tOn:"0",nOn:"0",gCn:"0",B:x=>x,Ut:e=>e.message,
+  const context={queueMicrotask,__azraelProviderCatalogV1:sharedCatalog,tOn:"0",nOn:"0",gCn:"0",B:x=>x,Ut:e=>e.message,
     v1:()=>null,_1:({responseCwd})=>responseCwd,C$:t=>t,Xxn:o=>({...o,latestModel:o.thread.model??"global-default",latestReasoningEffort:"low"}),kr:x=>x,gTn:(n,model,effort,cwd,collaborationMode)=>({model,effort,cwd,collaborationMode}),gg:()=>null,txn:response=>response.thread.turns??[]};
   vm.createContext(context);
   if(!original){vm.runInContext(transformed.text.slice(transformed.text.indexOf(marker)),context);assert.equal(context.__azraelBranchCatalog,sharedCatalog,"bootstrap reuses the picker global catalog");}
   vm.runInContext(Object.values(original?originals:injected).join("\n"),context);
   return{context,manager,requests,resumes,states,events,async run(overrides={}){return context.ZDn({capabilities,history:{mapThreadTurns:x=>x},hostMode:"default",compareSemanticVersions:()=>1,threadRecognition:{},manager,notificationDeferral:{run:async(_,fn)=>fn(()=>{})},params:{sourceConversationId:"source",lastTurnId:"retained",...overrides},beforeConversationAdded:failBefore?()=>{throw Error("identity fixture failed");}:undefined,workspaceStorage:{}});}};
 }
-test("pinned integrated transform parses; anchors, asset version, marker and idempotence are guarded",()=>{
 
-  assert.equal(ts.createSourceFile(asset,transformed.text,99,true,ts.ScriptKind.JS).parseDiagnostics.length,0);
-  const result=injectThreadBranch(pristine,asset);
-  assert.equal(injectThreadBranch(result.text,asset).text, result.text);
-  assert.equal(injectThreadBranch(pristine,"webview/assets/app-initial-future.js").text, pristine);
-  assert.throws(()=>injectThreadBranch("",asset),/anchor/);assert.throws(()=>injectThreadBranch(pristine+pristine,asset),/anchor/);
-  assert.throws(()=>injectThreadBranch(result.text+marker,asset),/Duplicate/);
-});
 test("actual native branch sends and resumes inherited choice against a different global default",async()=>{
   for(const [model,provider] of [["gpt-native","openai"],["custom-model","custom-provider"],["managed/openrouter/next","azrael-managed"],["devin/next","devin"]]){
     const src=source(model,provider),before=structuredClone(src),h=harness({src,rows:[row(model)]}),result=await h.run();

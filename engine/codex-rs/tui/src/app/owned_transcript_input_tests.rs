@@ -79,6 +79,7 @@ async fn configured_ctrl_space_submit_wins_over_transcript_selection() -> Result
                     thread_id: thread_id.to_string(),
                     turn: Turn {
                         root_resume_wait: None,
+                        user_wait_timing: None,
                         id: "turn".into(),
                         root_turn_id: None,
                         parent_turn_id: None,
@@ -189,6 +190,7 @@ fn complete_plan_turn(app: &mut App) {
     let thread_id = ThreadId::new().to_string();
     let turn = Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: "plan-turn".into(),
         root_turn_id: None,

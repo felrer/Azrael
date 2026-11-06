@@ -165,6 +165,7 @@ mod tests {
         ] {
             store
                 .create_thread(CreateThreadParams {
+                    role_profile: None,
                     computer_use_mode: None,
                     creator_user_id: None,
                     creator_account_id: None,
@@ -442,6 +443,7 @@ mod tests {
         history_mode: ThreadHistoryMode,
     ) -> CreateThreadParams {
         CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -578,6 +580,7 @@ impl InMemoryThreadStore {
         let mut state = self.state.lock().await;
         state.calls.create_thread += 1;
         let session_meta = SessionMeta {
+            role_profile: params.role_profile.clone(),
             computer_use_mode: params.computer_use_mode,
             session_id: params.session_id,
             id: params.thread_id,

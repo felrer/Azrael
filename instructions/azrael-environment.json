@@ -380,6 +380,28 @@
       ]
     },
     {
+      "id": "task-memory-root",
+      "title": "Task memory: root",
+      "kind": "instructions",
+      "scope": "home",
+      "default": false,
+      "files": [
+        { "source": "task-memory/shared.md", "target": "skills/task-memory-root/shared.md" },
+        { "source": "task-memory/root.md", "target": "skills/task-memory-root/role.md" }
+      ]
+    },
+    {
+      "id": "task-memory-subagent",
+      "title": "Task memory: subagent",
+      "kind": "instructions",
+      "scope": "home",
+      "default": false,
+      "files": [
+        { "source": "task-memory/shared.md", "target": "skills/task-memory-subagent/shared.md" },
+        { "source": "task-memory/subagent.md", "target": "skills/task-memory-subagent/role.md" }
+      ]
+    },
+    {
       "id": "agent-config",
       "title": "Agent configuration",
       "kind": "config",

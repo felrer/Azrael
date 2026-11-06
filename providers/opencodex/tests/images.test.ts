@@ -23,7 +23,7 @@ const dataUrl = `data:image/png;base64,${PNG}`;
 
 let root = '';
 let originalFetch: typeof fetch;
-afterEach(() => { if (originalFetch) globalThis.fetch = originalFetch; if (root) rmSync(root, { recursive: true, force: true }); });
+afterEach(() => { if (originalFetch) globalThis.fetch = originalFetch; if (root) rmSync(root, { recursive: true }); root = ''; });
 async function setup(providers: Record<string, any>) {
   root = mkdtempSync(join(tmpdir(), 'azrael-managed-images-'));
   process.env.CODEX_HOME = join(root, 'codex');
@@ -54,6 +54,9 @@ test('user and tool-result images project to ordered vendored content parts', ()
 test('Claude subscription wire carries user image blocks and tool_result images', async () => {
   await setup({ anthropic: { adapter: 'anthropic', baseUrl: 'https://api.anthropic.com', authMode: 'oauth', models: ['claude-sonnet-5'] } });
   await store.saveCredential('anthropic', { access: 'claude-access', refresh: 'claude-refresh', expires: Number.MAX_SAFE_INTEGER, accountId: 'claude-user', source: 'oauth' });
+  const profiledInput = input.map(item => item.type === 'function_call' ? { ...item, namespace: 'functions' } : item);
+  const profiledTools = [{ type: 'namespace', name: 'functions', tools },
+    { type: 'namespace', name: 'mcp_fixture', tools: [{ ...tools[0], name: 'lookup' }] }];
   const captured: any[] = [];
   const events = [
     { type: 'message_start', message: { id: 'msg', type: 'message', role: 'assistant', model: 'claude-sonnet-5', content: [], usage: { input_tokens: 5, output_tokens: 0 } } },
@@ -67,7 +70,7 @@ test('Claude subscription wire carries user image blocks and tool_result images'
     captured.push(JSON.parse(init.body));
     const responseEvents = captured.length === 1 ? events : [
       events[0],
-      { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'read-next', name: 'Read', input: {} } },
+      { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'read-next', name: captured.at(-1).tools[0].name, input: {} } },
       { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: '{"path":"a.png"}' } },
       { type: 'content_block_stop', index: 0 },
       { type: 'message_delta', delta: { stop_reason: 'tool_use' }, usage: { output_tokens: 1 } }, events.at(-1),
@@ -75,7 +78,7 @@ test('Claude subscription wire carries user image blocks and tool_result images'
     return new Response(responseEvents.map(event => `event: ${event!.type}\ndata: ${JSON.stringify(event)}\n\n`).join(''), { headers: { 'content-type': 'text/event-stream' } });
   }) as typeof fetch;
   const frames: any[] = [];
-  await infer(request('anthropic', 'claude-sonnet-5'), frame => frames.push(frame), fetcher);
+  await infer(request('anthropic', 'claude-sonnet-5', { input: profiledInput, tools: profiledTools, harness_profile: { id: 'azrael', fingerprint: 'native-v1', tool_profile: 'builtin/azrael-default', prompt_profile: 'builtin/azrael-default', instruction_format: 'native' } }), frame => frames.push(frame), fetcher);
   expect(frames.some(frame => frame.type === 'completed')).toBeTrue();
   const messages = captured[0].messages;
   const userImages = messages[0].content.filter((part: any) => part.type === 'image');
@@ -83,20 +86,21 @@ test('Claude subscription wire carries user image blocks and tool_result images'
   expect(userImages[0].source.type).toBe('base64');
   const toolResult = messages.flatMap((message: any) => Array.isArray(message.content) ? message.content : []).find((part: any) => part.type === 'tool_result');
   expect(toolResult.content.some((part: any) => part.type === 'image' && part.source.type === 'base64')).toBeTrue();
-  const profile = { id: 'builtin/anthropic-default', fingerprint: 'profile-v1', tool_profile: 'builtin/claude-code-core', prompt_profile: 'builtin/claude-lean' };
-  const compatibleInput = input.map(item => item.type === 'function_call' ? { ...item, name: 'Read', namespace: 'functions' } : item);
-  const compatibleTools = [{ type: 'namespace', name: 'functions', tools: [{ ...tools[0], name: 'Read' }] },
-    { type: 'namespace', name: 'mcp_fixture', tools: [{ ...tools[0], name: 'lookup' }] }];
-  const compatibleFrames: any[] = [];
-  await infer(request('anthropic', 'claude-sonnet-5', { harness_profile: profile, input: compatibleInput, tools: compatibleTools }), frame => compatibleFrames.push(frame), fetcher);
-  expect(compatibleFrames.find(frame => frame.item?.type === 'function_call').item).toMatchObject({ type: 'function_call', call_id: 'read-next', namespace: 'functions', name: 'Read' });
-  const compatible = captured[1];
-  expect(compatible.model).toBe('claude-sonnet-5');
-  expect(compatible.tools[0].name).toBe('Read');
-  expect(compatible.tools[1].name).toMatch(/^custom_az_[a-f0-9]{40}$/);
-  expect(compatible.system.map((part: any) => part.text).join('\n')).toBe("You are a Claude agent, built on Anthropic's Claude Agent SDK.\nfixture instructions");
-  expect(compatible.messages.flatMap((message: any) => message.content).find((part: any) => part.type === 'tool_use').name).toBe('Read');
-  expect(compatible.messages.flatMap((message: any) => message.content).find((part: any) => part.type === 'tool_result').content.some((part: any) => part.type === 'image')).toBeTrue();
+  const profile = { id: 'anthropic', fingerprint: 'profile-v1', tool_profile: 'builtin/azrael-default', prompt_profile: 'builtin/anthropic', instruction_format: 'anthropic-xml' };
+  const profiledFrames: any[] = [];
+  await infer(request('anthropic', 'claude-sonnet-5', { harness_profile: profile, input: profiledInput, tools: profiledTools }), frame => profiledFrames.push(frame), fetcher);
+  expect(profiledFrames.find(frame => frame.item?.type === 'function_call').item).toMatchObject({ type: 'function_call', call_id: 'read-next', namespace: 'functions', name: 'view_image' });
+  const profiled = captured[1];
+  expect(profiled.model).toBe('claude-sonnet-5');
+  expect(profiled.tools).toEqual(captured[0].tools);
+  expect(profiled.tools[0].name).toMatch(/^custom_az_[a-f0-9]{40}$/);
+  expect(profiled.tools[1].name).toMatch(/^custom_az_[a-f0-9]{40}$/);
+  const system = profiled.system.map((part: any) => part.text).join('\n');
+  expect(system).toContain('<common_instructions>\n<![CDATA[fixture instructions]]>\n</common_instructions>');
+  expect(system).toContain(profiled.tools[0].name);
+  expect(system).not.toContain('Claude Agent SDK');
+  expect(profiled.messages.flatMap((message: any) => message.content).find((part: any) => part.type === 'tool_use').name).toBe(profiled.tools[0].name);
+  expect(profiled.messages.flatMap((message: any) => message.content).find((part: any) => part.type === 'tool_result').content.some((part: any) => part.type === 'image')).toBeTrue();
 });
 
 test('Antigravity CCA wire carries inline image data and catalog declares configured modalities', async () => {

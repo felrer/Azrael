@@ -58,6 +58,88 @@ mod tests {
         }
     }
 
+    #[test]
+    fn repeated_registration_source_must_have_identical_saved_bindings() {
+        let mut record = json!({"purpose":"registration","source":"catalog-a",
+            "source_fence":"fence-a","source_owner":{"id":"owner"},
+            "registration_sources":[{"source":"catalog-a","source_fence":"fence-a",
+                "source_owner":{"id":"owner"}},{"source":"catalog-b","source_fence":"fence-b",
+                "source_owner":{"id":"owner"}}]});
+        assert_eq!(source_bindings(&record).unwrap().len(), 2);
+        record["registration_sources"][0]["source_owner"]["revision"] = json!(2);
+        assert_eq!(
+            source_bindings(&record).unwrap_err(),
+            "conflicting registration source bindings"
+        );
+        record["registration_sources"][0]["source_owner"] = record["source_owner"].clone();
+        record["registration_sources"][0]["source_fence"] = json!("different");
+        assert_eq!(
+            source_bindings(&record).unwrap_err(),
+            "conflicting registration source bindings"
+        );
+    }
+
+    #[test]
+    fn preintent_abort_releases_exact_unchanged_owner_and_retains_uncertainty() {
+        for guard in ["none", "pending", "source", "consumer"] {
+            let (root, records, _, _) = producer_release_fixture(&["a"]);
+            let source = root.path().join("artifacts/maintenance/lifecycles");
+            let allow = |_: &Path, _: AccessMode| Ok(());
+            let context = crate::Context::new(&allow);
+            let request = json!({"operation":"register"});
+            let catalog =
+                crate::registry::lock_request(root.path(), &request, &State::default(), &context)
+                    .unwrap();
+            let mut set =
+                ReservationSet::acquire_producers(root.path(), &records, &context).unwrap();
+            // Changed sources must be detected across an unlocked boundary;
+            // writers bypassing continuous custody are outside snapshot semantics.
+            drop(catalog);
+            match guard {
+                "pending" => fs::write(
+                    root.path().join("artifacts/maintenance/manifest.pending"),
+                    "unknown publication",
+                )
+                .unwrap(),
+                "source" => {
+                    let mut changed = records[0].clone();
+                    changed["revision"] = json!(2);
+                    fs::write(source.join("a.json"), serde_json::to_vec(&changed).unwrap())
+                        .unwrap();
+                }
+                "consumer" => {
+                    let mut consumer = records[0].clone();
+                    consumer["id"] = json!("consumer");
+                    consumer["references"] = json!([{"id":"a","reason":"new consumer"}]);
+                    fs::write(
+                        source.join("consumer.json"),
+                        serde_json::to_vec(&consumer).unwrap(),
+                    )
+                    .unwrap();
+                }
+                _ => {}
+            }
+            let _catalog =
+                crate::registry::lock_request(root.path(), &request, &State::default(), &context)
+                    .unwrap();
+            let result = set.abort_before_intent(&State::default(), &context);
+            assert_eq!(result.is_ok(), guard == "none", "{guard}: {result:?}");
+            assert_eq!(
+                filename(root.path(), "a").unwrap().exists(),
+                guard != "none",
+                "{guard}"
+            );
+            assert_eq!(
+                fs::read_to_string(Path::new(
+                    records[0]["members"][0]["path"].as_str().unwrap()
+                ))
+                .unwrap(),
+                "payload"
+            );
+            drop(set);
+        }
+    }
+
     fn producer_release_fixture(
         ids: &[&str],
     ) -> (tempfile::TempDir, Vec<Value>, Vec<Value>, Value) {
@@ -89,6 +171,109 @@ mod tests {
         let bytes = serde_json::to_vec(&json!({"outcomes":outcomes})).unwrap();
         fs::write(&path, &bytes).unwrap();
         json!({"evidence_ref":path,"evidence_sha256":format!("{:x}", Sha256::digest(&bytes))})
+    }
+
+    #[test]
+    fn recovered_producer_reservation_rechecks_guards_and_preserves_unknown_removal() {
+        use sha2::{Digest, Sha256};
+        for unknown in [false, true] {
+            for guard in [
+                "none",
+                "unrecovered",
+                "evidence",
+                "stale",
+                "consumer",
+                "incomplete",
+            ] {
+                let (root, mut records, mut outcomes, _) = producer_release_fixture(&["a"]);
+                let source = root.path().join("artifacts/maintenance/lifecycles/a.json");
+                let proof = root.path().join("artifacts/stop-proof.json");
+                let proof_bytes = b"independently verified exact process tree stopped";
+                fs::write(&proof, proof_bytes).unwrap();
+                let proof_hash = format!("{:x}", Sha256::digest(proof_bytes));
+                let producer = if unknown {
+                    json!({"status":"stopped","outcome":"unknown","exit_code":null,
+                        "reason":"historical uncertain outcome","evidence_ref":proof,"evidence_sha256":proof_hash})
+                } else {
+                    Value::Null
+                };
+                let record = &mut records[0];
+                record["state"] = json!("pending");
+                record["revision"] = json!(2);
+                if unknown {
+                    record["producer"] = producer.clone();
+                }
+                let recovery_path = root.path().join("artifacts/cleanup-proof.json");
+                let recovery_bytes = serde_json::to_vec(&json!({"schema":1,"action":"recover-cleanup",
+                    "source":{"id":"a","owner":"producer","kind":"work","version":null,"generation":null,
+                        "revision":1,"state":"pending","membership_complete":false,"producer":producer,"members":record["members"]},
+                    "producer_stopped_verified":true,"membership_complete_verified":true,
+                    "stop_basis":"exact process tree stopped after reboot","membership_basis":"all planned and actual roots reconciled",
+                    "producer_evidence":[{"path":proof,"sha256":proof_hash}]})).unwrap();
+                fs::write(&recovery_path, &recovery_bytes).unwrap();
+                record["cleanup_recovery"] = json!({"schema":1,"id":"a","owner":"producer","kind":"work",
+                    "version":null,"generation":null,"source_revision":1,"original_state":"pending",
+                    "original_membership_complete":false,"original_producer":producer,"members":record["members"],
+                    "evidence_ref":recovery_path,"evidence_sha256":format!("{:x}",Sha256::digest(&recovery_bytes)),
+                    "reason":"verified stop and membership","producer_stopped_verified":true,
+                    "membership_complete_verified":true,"verified_at":"2026-10-29T13:07:08.000Z"});
+                match guard {
+                    "unrecovered" => {
+                        record.as_object_mut().unwrap().remove("cleanup_recovery");
+                    }
+                    "incomplete" => record["membership_complete"] = json!(false),
+                    "evidence" => fs::write(&proof, "mutated proof").unwrap(),
+                    "consumer" => {
+                        let consumer = json!({"schema":1,"id":"consumer","owner":"producer","kind":"work",
+                            "state":"pending","membership_complete":false,
+                            "members":[{"path":root.path().join("artifacts/consumer"),"role":"artifact"}],
+                            "references":[{"id":"a","reason":"active input"}]});
+                        fs::write(
+                            source.with_file_name("consumer.json"),
+                            serde_json::to_vec(&consumer).unwrap(),
+                        )
+                        .unwrap();
+                    }
+                    _ => {}
+                }
+                let mut persisted = record.clone();
+                if guard == "stale" {
+                    persisted["revision"] = json!(3);
+                }
+                fs::write(&source, serde_json::to_vec(&persisted).unwrap()).unwrap();
+                let record = record.clone();
+                let allow = |_: &Path, _: AccessMode| Ok(());
+                let context = crate::Context::new(&allow);
+                let result = ReservationSet::acquire_producers(root.path(), &records, &context);
+                if guard != "none" {
+                    assert!(result.is_err(), "{unknown}/{guard}");
+                    assert!(
+                        !filename(root.path(), "a").unwrap().exists(),
+                        "{unknown}/{guard}"
+                    );
+                    assert!(Path::new(record["members"][0]["path"].as_str().unwrap()).exists());
+                    continue;
+                }
+                let mut reservation = result.unwrap();
+                let payload = Path::new(record["members"][0]["path"].as_str().unwrap());
+                fs::remove_file(payload).unwrap();
+                outcomes[0]["status"] = json!("deleted");
+                outcomes[0]["members"][0]["status"] = json!("deleted");
+                outcomes[0]["members"][0]["remaining"] = json!(false);
+                let evidence = write_release_evidence(root.path(), &outcomes);
+                reservation
+                    .release_producers(&outcomes, &evidence, &context)
+                    .unwrap();
+                assert!(!payload.exists());
+                assert!(!filename(root.path(), "a").unwrap().exists());
+                let after: Value = serde_json::from_slice(&fs::read(&source).unwrap()).unwrap();
+                assert_eq!(after, persisted);
+                if unknown {
+                    assert_eq!(after["producer"]["outcome"], "unknown");
+                    assert!(after["producer"]["exit_code"].is_null());
+                }
+            }
+        }
     }
 
     #[test]
@@ -444,24 +629,45 @@ fn source_bindings(record: &Value) -> Result<Vec<&Value>, String> {
             bindings.push(binding);
         }
     }
-    Ok(bindings)
+    // The active source also occurs in registration_sources. Validate every
+    // binding, but observe an identical source/expected binding only once.
+    let mut unique = BTreeMap::<&str, &Value>::new();
+    for binding in bindings {
+        let source = string(binding, "source")?;
+        if let Some(previous) = unique.insert(source, binding) {
+            if previous["source_fence"] != binding["source_fence"]
+                || (record["purpose"] == "registration"
+                    && previous["source_owner"] != binding["source_owner"])
+            {
+                return Err("conflicting registration source bindings".into());
+            }
+        }
+    }
+    Ok(unique.into_values().collect())
 }
 
 fn verify_sources(root: &Path, record: &Value, auth: Auth<'_>) -> Result<(), String> {
-    let id = string(record, "id")?;
-    for binding in source_bindings(record)? {
-        let source = paths::resolve(root, Path::new(string(binding, "source")?))?;
-        if crate::registry::reservation_fence(root, &source, id, auth)? != binding["source_fence"] {
-            return Err("reserved producer fence changed".into());
+    crate::timing::phase("reservation.verify_sources", Some(root), || {
+        let id = string(record, "id")?;
+        for binding in source_bindings(record)? {
+            let source = paths::resolve(root, Path::new(string(binding, "source")?))?;
+            let (fence, owner) = if record["purpose"] == "registration" {
+                crate::registry::reservation_binding(root, &source, id, auth)?
+            } else {
+                (
+                    crate::registry::reservation_fence(root, &source, id, auth)?,
+                    Value::Null,
+                )
+            };
+            if fence != binding["source_fence"] {
+                return Err("reserved producer fence changed".into());
+            }
+            if record["purpose"] == "registration" && owner != binding["source_owner"] {
+                return Err("reserved registration producer owner changed".into());
+            }
         }
-        if record["purpose"] == "registration"
-            && crate::registry::producer_records(root, &source, id, auth)?.get(id)
-                != Some(&binding["source_owner"])
-        {
-            return Err("reserved registration producer owner changed".into());
-        }
-    }
-    Ok(())
+        Ok(())
+    })
 }
 
 /// Explicit recovery releases only the reservation, never a pending receipt or
@@ -521,27 +727,39 @@ pub(crate) fn recover(root: &Path, request: &Value, auth: Auth<'_>) -> Result<Va
         .filter(|pid| *pid > 0)
         .ok_or("reservation owner PID unavailable")?;
     crate::lock_recovery::owner_absent(pid)?;
-    let _maintenance = crate::lock_recovery::Sentinel::acquire(
-        root,
-        &root.join("artifacts/maintenance/maintenance.lock"),
-        "reservation_recovery",
-        auth,
-    )?;
-    let pending = root.join("artifacts/maintenance/manifest.pending");
-    if paths::checked_metadata(root, &pending, auth)?.is_some() {
-        return Err("pending state requires independent recovery".into());
-    }
     let mut sources = BTreeSet::from([root.join("artifacts/maintenance/lifecycles")]);
     for binding in source_bindings(&before)? {
         sources.insert(paths::resolve(root, Path::new(string(binding, "source")?))?);
     }
-    let mut catalogs = Vec::new();
-    for source in &sources {
-        let catalog = source.join("catalog.lock");
-        let lease =
-            crate::lock_recovery::Sentinel::acquire(root, &catalog, "reservation_recovery", auth)?;
+    let pending = root.join("artifacts/maintenance/manifest.pending");
+    let (_maintenance, catalogs) =
+        crate::lock_recovery::wait_for_lock(auth.lock_wait.get(), || {
+            let maintenance = crate::lock_recovery::Sentinel::acquire(
+                root,
+                &root.join("artifacts/maintenance/maintenance.lock"),
+                "reservation_recovery",
+                auth,
+            )?;
+            if paths::checked_metadata(root, &pending, auth)?.is_some() {
+                return Err("pending state requires independent recovery".into());
+            }
+            let mut catalogs = Vec::new();
+            for source in &sources {
+                let catalog = source.join("catalog.lock");
+                let lease = crate::lock_recovery::Sentinel::acquire(
+                    root,
+                    &catalog,
+                    "reservation_recovery",
+                    auth,
+                )?;
+                catalogs.push((catalog, lease));
+            }
+            Ok((maintenance, catalogs))
+        })?;
+    // Publish request-local markings only after the complete set is acquired.
+    *auth.catalog.borrow_mut() = Default::default();
+    for (catalog, _) in &catalogs {
         auth.catalog_locks.borrow_mut().insert(catalog.clone());
-        catalogs.push((catalog, lease));
     }
     // Always remove request-local markings, including on a failed observation.
     let result = (|| -> Result<Value, String> {
@@ -638,6 +856,7 @@ pub(crate) fn recover(root: &Path, request: &Value, auth: Auth<'_>) -> Result<Va
     for (path, _) in &catalogs {
         auth.catalog_locks.borrow_mut().remove(path);
     }
+    *auth.catalog.borrow_mut() = Default::default();
     result
 }
 
@@ -827,6 +1046,50 @@ pub(crate) fn check_group_member_local(
     Ok(())
 }
 
+/// Capture the selected binding before catalog callbacks run. The source
+/// observation validates it in both passes; all other sources remain fresh here.
+pub(crate) fn observation_fence(
+    root: &Path,
+    id: &str,
+    source: &Path,
+    auth: Auth<'_>,
+) -> Result<Option<Value>, String> {
+    let Some(record) = local_group(root, id, auth)? else {
+        return Ok(None);
+    };
+    let mut selected = None;
+    for binding in source_bindings(&record)? {
+        let reserved_source = paths::resolve(root, Path::new(string(binding, "source")?))?;
+        if reserved_source == source {
+            let expected = json!({"fence":binding["source_fence"],
+                "owner":if record["purpose"] == "registration" {binding["source_owner"].clone()} else {Value::Null}});
+            if selected
+                .as_ref()
+                .is_some_and(|previous| previous != &expected)
+            {
+                return Err("conflicting registration source bindings".into());
+            }
+            selected = Some(expected);
+        } else {
+            let (fence, owner) = if record["purpose"] == "registration" {
+                crate::registry::reservation_binding(root, &reserved_source, id, auth)?
+            } else {
+                (
+                    crate::registry::reservation_fence(root, &reserved_source, id, auth)?,
+                    Value::Null,
+                )
+            };
+            if fence != binding["source_fence"] {
+                return Err("reserved producer fence changed".into());
+            }
+            if record["purpose"] == "registration" && owner != binding["source_owner"] {
+                return Err("reserved registration producer owner changed".into());
+            }
+        }
+    }
+    Ok(selected)
+}
+
 pub(crate) fn check_item(root: &Path, item: &Value, auth: Auth<'_>) -> Result<(), String> {
     if let Some(group) = crate::groups::id(item) {
         check_group(root, group, auth)
@@ -944,7 +1207,9 @@ impl<'a> ReservationSet<'a> {
                 return Err("producer reservation snapshot is stale".into());
             }
             if record["membership_complete"] != true
-                || !(if let Some(producer) = record.get("producer") {
+                // producer_records above fully validates the selected recovery's
+                // evidence and exact bindings before this snapshot is admitted.
+                || !(record.get("cleanup_recovery").is_some() || if let Some(producer) = record.get("producer") {
                     producer["status"] == "stopped"
                         && matches!(producer["outcome"].as_str(), Some("success" | "failure"))
                 } else {
@@ -1317,11 +1582,7 @@ impl<'a> ReservationSet<'a> {
         }
         let mut bindings = Vec::new();
         for source in producer_sources {
-            let fence = crate::registry::reservation_fence(root, &source, &id, auth)?;
-            let owner = crate::registry::producer_records(root, &source, &id, auth)?
-                .get(&id)
-                .cloned()
-                .ok_or("registration producer owner missing")?;
+            let (fence, owner) = crate::registry::reservation_binding(root, &source, &id, auth)?;
             bindings.push(json!({"source":source,"source_fence":fence,"source_owner":owner}));
         }
         group["registration_sources"] = json!(bindings);
@@ -1472,18 +1733,10 @@ impl<'a> ReservationSet<'a> {
             } else {
                 Value::Null
             };
-            let source_fence = if let Some(source) = source.as_str() {
-                crate::registry::reservation_fence(root, Path::new(source), id, auth)?
+            let (source_fence, source_owner) = if let Some(source) = source.as_str() {
+                crate::registry::reservation_binding(root, Path::new(source), id, auth)?
             } else {
-                Value::Null
-            };
-            let source_owner = if let Some(source) = source.as_str() {
-                crate::registry::producer_records(root, Path::new(source), id, auth)?
-                    .get(id)
-                    .cloned()
-                    .ok_or("producer owner missing")?
-            } else {
-                Value::Null
+                (Value::Null, Value::Null)
             };
             let mut record = json!({"schema":1,"id":id,"token":lease.owner()["token"],"lease_owner":lease.owner(),
                 "manifest_revision":state.revision,"group_scope":scope(group),"members":full,

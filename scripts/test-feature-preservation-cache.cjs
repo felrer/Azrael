@@ -13,6 +13,7 @@ const fixtures = path.resolve(process.env.AZRAEL_FEATURE_PRESERVATION_TEST_ROOT 
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const roots = [];
 const evidence = [];
+const attemptsByReceipt = new WeakMap();
 fs.mkdirSync(fixtures, { recursive: true });
 
 function writeTypeScript(write, directory) {
@@ -25,7 +26,7 @@ function setup({ realChecks = [], featureIds = ['alpha', 'beta', 'gamma', 'uncac
   const root = fs.mkdtempSync(path.join(fixtures, 'preservation-cache-')); roots.push(root);
   function write(file, text) { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), text); }
   if (!manifestOnly) {
-    for (const name of ['feature-preservation', 'verification-result-cache', 'directory-state']) write(`scripts/${name}.cjs`, fs.readFileSync(path.join(__dirname, `${name}.cjs`)));
+    for (const name of ['feature-preservation', 'build-resource-admission', 'verification-result-cache', 'verification-reuse-policy', 'directory-state']) write(`scripts/${name}.cjs`, fs.readFileSync(path.join(__dirname, `${name}.cjs`)));
     write('scripts/inject-provider-model-picker.cjs', 'module.exports={PROVIDER_PICKER_ASSET:"picker.js"};');
     write('ui/package.json', '{"version":"1.0.0"}'); write('ui/picker.js', 'pristine');
     write('portable/unrelated.txt', 'unrelated'); writeTypeScript(write, 'runtime/typescript');
@@ -57,18 +58,54 @@ function setup({ realChecks = [], featureIds = ['alpha', 'beta', 'gamma', 'uncac
       fs.writeFileSync(options.logPath, result.stdout || ''); fs.writeFileSync(options.errorPath, result.stderr || '');
       return { exitCode: result.status, signal: result.signal, error: result.error?.message };
     } };
-  return { root, config, write, calls: () => calls, hook: fn => { hook = fn; }, realChecks: ids => { realChecks = ids; }, async run() { calls = []; const receipt = await gate.runPreservation(config); evidence.push({ fixture: path.basename(root), status: receipt.status, cache: receipt.cache, checks: receipt.checks.map(({ checkId, exitCode, reused, cacheKey, logSha256, errorSha256 }) => ({ checkId, exitCode, reused, cacheKey, logSha256, errorSha256 })) }); assert.equal(receipt.status, 'passed', receipt.error); return receipt; } };
+  return { root, config, write, calls: () => calls, hook: fn => { hook = fn; }, realChecks: ids => { realChecks = ids; }, async run() {
+    // Existing invalidation cases explicitly choose rerun. Raw gate calls below
+    // assert the undecided boundary and reviewed reuse separately.
+    const decisions = config.reuseDecisionsPath ? JSON.parse(fs.readFileSync(config.reuseDecisionsPath)).decisions : [];
+    const attempts = [];
+    calls = [];
+    let receipt;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      receipt = await gate.runPreservation(config);
+      attempts.push(receipt);
+      if (receipt.status !== 'review-required') break;
+      decisions.push({ scope: receipt.review.scope, reviewId: receipt.review.reviewId, action: 'rerun', reason: 'Fixture explicitly checks reexecution after this change' });
+      config.reuseDecisionsPath = path.join(config.outputDirectory, 'reuse-decisions.json');
+      fs.writeFileSync(config.reuseDecisionsPath, JSON.stringify({ schema: 1, decisions }));
+    }
+    attemptsByReceipt.set(receipt, attempts);
+    for (const attempt of attempts) evidence.push({ fixture: path.basename(root), receiptPath: attempt.receiptPath, status: attempt.status, cache: attempt.cache, checks: attempt.checks.map(({ checkId, exitCode, reused, cacheKey, logSha256, errorSha256 }) => ({ checkId, exitCode, reused, cacheKey, logSha256, errorSha256 })) });
+    assert.equal(receipt.status, 'passed', receipt.error); return receipt;
+  } };
 }
 function keys(f, id) { const slot = path.join(f.root, 'artifacts/cache/verification-results/v1', sha(`${id}.check`)); return fs.existsSync(slot) ? fs.readdirSync(slot).filter(name => /^[a-f0-9]{64}$/.test(name)) : []; }
 function entry(f, id, receipt) { return path.join(f.root, 'artifacts/cache/verification-results/v1', sha(`${id}.check`), receipt.checks.find(c => c.checkId === `${id}.check`).cacheKey); }
-function counts(receipt, executed, reused) { assert.equal(receipt.cache.executed, executed); assert.equal(receipt.cache.reused, reused); assert.equal(receipt.checks.filter(c => c.reused).length, reused); }
+function counts(receipt, executed, reused) {
+  const attempts = attemptsByReceipt.get(receipt) || [receipt];
+  // Review retries may exactly reuse checks executed by an earlier attempt.
+  // Assert each real receipt independently, then count executions across the
+  // whole requested mutation without relabeling the final receipt's evidence.
+  for (const attempt of attempts) {
+    assert.equal(attempt.cache.executed, attempt.checks.filter(check => !check.reused).length);
+    assert.equal(attempt.cache.reused, attempt.checks.filter(check => check.reused).length);
+  }
+  const executions = attempts.flatMap(attempt => attempt.checks.filter(check => !check.reused));
+  const executedIds = new Set(executions.map(check => check.checkId));
+  assert.equal(executions.length, executedIds.size, 'each affected check executes once across review retries');
+  assert.equal(executions.length, executed);
+  assert.equal(receipt.checks.filter(check => check.reused && !executedIds.has(check.checkId)).length, reused);
+}
 
 async function publishedMutation(f, previous) {
   const receipt = await f.run(); counts(receipt, 5, 0);
   for (const check of receipt.checks.filter(check => check.cacheKey)) {
     const before = previous.checks.find(record => record.checkId === check.checkId);
     assert.notEqual(check.cacheKey, before.cacheKey, `${check.checkId} must bind the mutation`);
-    assert.equal(check.reused, false);
+    const executed = (attemptsByReceipt.get(receipt) || [receipt]).flatMap(attempt => attempt.checks)
+      .find(record => record.checkId === check.checkId && record.cacheKey === check.cacheKey && !record.reused);
+    assert.ok(executed, `${check.checkId} executed under the changed key before any retry reuse`);
+    assert.equal(executed.logSha256, check.logSha256);
+    assert.equal(executed.errorSha256, check.errorSha256);
     const id = check.checkId.replace(/\.check$/, '');
     assert.deepEqual(keys(f, id), [check.cacheKey], 'only newly published proof remains');
     const handle = await verificationCache.begin({ projectRoot: f.root, checkId: check.checkId, key: check.cacheKey,
@@ -169,7 +206,32 @@ test('cold/hit reuse, selective dependencies, unrelated project drift and packag
   fs.writeFileSync(reportPath, JSON.stringify({ assets: [{ alphaEdits: 1, betaEdits: 1, gammaEdits: 1, uncachedEdits: 1 }], transformRules: {}, sourceUi: { version: '1.0.0', packageSha256: sha(fs.readFileSync(path.join(f.root, 'ui/package.json'))), webviewSha256: sha(fs.readFileSync(path.join(f.root, 'ui/picker.js'))) } })); fs.writeFileSync(packagePath, 'package');
   const binding = { ...config, receiptPath: ui.receiptPath, reportPath, packagePath };
   await gate.bindPackage(binding); await gate.verifyPackage(binding);
-  f.write('portable/unrelated.txt', 'full project drift'); await assert.rejects(gate.verifyPackage(binding), /input identity is stale/);
+  f.write('portable/unrelated.txt', 'full project drift'); await assert.rejects(gate.verifyPackage(binding), error => error.code === 'VERIFICATION_REVIEW_REQUIRED');
+});
+
+test('changed cache candidates require a bound decision and reviewed reuse preserves original proof', async () => {
+  const f = setup({ featureIds: ['alpha'] });
+  const first = await f.run();
+  f.write('scripts/owner-alpha.cjs', '// reviewed owner change');
+  const pending = await gate.runPreservation(f.config);
+  assert.equal(pending.status, 'review-required');
+  assert.equal(pending.review.recommendation, 'rerun');
+  assert.equal(pending.checks.length, 0);
+  f.config.reuseDecisionsPath = path.join(f.config.outputDirectory, 'reuse-decisions.json');
+  fs.writeFileSync(f.config.reuseDecisionsPath, JSON.stringify({ schema: 1, decisions: [{
+    scope: pending.review.scope, reviewId: pending.review.reviewId, action: 'reuse', reason: 'Reviewed owner-only change',
+  }] }));
+  const reused = await gate.runPreservation(f.config);
+  assert.equal(reused.status, 'passed', reused.error);
+  assert.equal(reused.checks[0].executionStatus, 'reused');
+  assert.equal(reused.checks[0].reuseReview.mode, 'reviewed');
+  assert.equal(reused.checks[0].originalEvidence.cacheKey, first.checks[0].cacheKey);
+  assert.equal(reused.checks[0].logSha256, first.checks[0].logSha256);
+  assert.deepEqual(keys(f, 'alpha'), [first.checks[0].cacheKey], 'reviewed reuse cannot publish under the changed key');
+  f.write('scripts/owner-alpha.cjs', '// another change');
+  const stale = await gate.runPreservation(f.config);
+  assert.equal(stale.status, 'review-required');
+  assert.notEqual(stale.review.reviewId, pending.review.reviewId);
 });
 
 test('UI, execution environment, runner and declared contract changes invalidate keys', async () => {
@@ -253,12 +315,14 @@ test('final gate still rejects declared input mutation after an earlier check wa
   assert.match(failed.error, /source cache inputs changed/);
 });
 
-test('corrupt cache receipt misses and copied run logs survive invalidation', async () => {
+test('corrupt cache receipt blocks reuse and copied run logs survive invalidation', async () => {
   const f = setup(); const cold = await f.run(); const warm = await f.run();
-  fs.writeFileSync(path.join(entry(f, 'alpha', cold), 'receipt.json'), '{corrupt');
-  const repaired = await f.run(); counts(repaired, 3, 2);
-  assert.equal(repaired.checks.find(check => check.checkId === 'alpha.check').reused, false);
-  assert.deepEqual(f.calls(), ['scripts/alpha.cjs', 'scripts/uncached.cjs', 'scripts/native.cjs']);
+  const receiptPath = path.join(entry(f, 'alpha', cold), 'receipt.json');
+  const original = fs.readFileSync(receiptPath);
+  fs.writeFileSync(receiptPath, '{corrupt');
+  const denied = await gate.runPreservation(f.config);
+  assert.equal(denied.status, 'failed'); assert.match(denied.error, /Invalid verification evidence/);
+  fs.writeFileSync(receiptPath, original);
   f.write('scripts/shared.cjs', '// delete old cached evidence'); await f.run();
   for (const record of warm.checks) { assert.equal(sha(fs.readFileSync(record.logPath)), record.logSha256); assert.equal(sha(fs.readFileSync(record.errorPath)), record.errorSha256); }
   f.config.reuseSourceChecks = false; counts(await f.run(), 5, 0);

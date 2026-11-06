@@ -31,6 +31,7 @@ use crate::tools::handlers::RootResumeHandler;
 use crate::tools::handlers::SendMessageToUserAsyncHandler;
 use crate::tools::handlers::SleepHandler;
 use crate::tools::handlers::TestSyncHandler;
+use crate::tools::handlers::TaskMemoryHandler;
 use crate::tools::handlers::ToolSearchHandlerCache;
 use crate::tools::handlers::ViewImageHandler;
 use crate::tools::handlers::WaitForEnvironmentHandler;
@@ -184,12 +185,6 @@ pub(crate) fn build_tool_router(
         &mut registry,
     );
     append_dynamic_tool_runtimes(&turn_context.dynamic_tools, &mut registry);
-    apply_harness_tool_profile(
-        turn_context,
-        model_info,
-        &mut registry,
-        Some(Arc::clone(&session.claude_file_state)),
-    )?;
     let hosted_specs = hosted_model_tool_specs(
         turn_context,
         model_info,
@@ -292,7 +287,7 @@ fn mcp_tool_exposure(
         exposures = exposures.difference(ToolExposures::DEFERRED | ToolExposures::CODE_MODE);
     }
 
-    exposures = if supports_client_tool_search(turn_context, model_info)
+    exposures = if model_info.supports_search_tool
         && exposures.contains(ToolExposures::DEFERRED)
         && (effective_tool_mode(turn_context, model_info) != ToolMode::CodeModeOnly
             || exposures.contains(ToolExposures::CODE_MODE))
@@ -401,7 +396,6 @@ pub(crate) fn finalize_tool_router(
     mut hosted_specs: Vec<ToolSpec>,
     tool_search_handler_cache: &ToolSearchHandlerCache,
 ) -> CodexResult<ToolRouter> {
-    apply_harness_tool_profile(turn_context, model_info, &mut registry, None)?;
     if model_info.slug.starts_with("api/") {
         // Apply at the registry boundary so descriptions, discovery, nested
         // execution and history promotion all see the same restricted surface.
@@ -440,7 +434,7 @@ pub(crate) fn finalize_tool_router(
         }
     }
     let tool_search_name = ToolName::plain(TOOL_SEARCH_TOOL_NAME);
-    if supports_client_tool_search(turn_context, model_info)
+    if model_info.supports_search_tool
         && registry.entries().any(|tool| {
             tool.runtime.tool_name() != tool_search_name
                 && tool.exposure.is_deferred()
@@ -481,16 +475,6 @@ pub(crate) fn finalize_tool_router(
         );
     }
 
-    if claude_profile(turn_context, model_info) {
-        if let Some(backend) = registry.remove(&ToolName::plain(TOOL_SEARCH_TOOL_NAME)) {
-            registry.add(
-                crate::tools::handlers::claude_controls::ClaudeControlHandler::new(
-                    crate::tools::handlers::claude_controls::ClaudeControlKind::ToolSearch,
-                    backend,
-                ),
-            );
-        }
-    }
     let model_messages = ResolvedModelMessages::from_model(model_info);
     let indirect_prefixes = IndirectNamespacePrefixes::new(
         model_messages.indirect_description_prefixes(),
@@ -1275,7 +1259,15 @@ fn add_shell_tools(context: &CoreToolPlanContext<'_>, registry: &mut ToolRegistr
     // Maintenance execution inherits the command ceiling, including tool-free models.
     // Remote filesystems cannot be accessed through this host-local library.
     add_project_maintenance_tools(
-        context.environments.turn_environments().any(|environment| !environment.environment.is_remote()),
+        context
+            .environments
+            .turn_environments()
+            .any(|environment| !environment.environment.is_remote()),
+        azrael_project_maintenance::preferences::read(
+            context.turn_context.config.codex_home.as_path(),
+        )
+        .ok()
+        .as_ref(),
         options,
         registry,
     );
@@ -1292,13 +1284,23 @@ fn add_shell_tools(context: &CoreToolPlanContext<'_>, registry: &mut ToolRegistr
 
 fn add_project_maintenance_tools(
     has_local_environment: bool,
+    preferences: Option<&azrael_project_maintenance::preferences::Preferences>,
     options: ExecCommandHandlerOptions,
     registry: &mut ToolRegistry,
 ) {
-    if !has_local_environment || !registry.tool_policy.allows(&ToolName::plain("exec_command")) {
+    if !has_local_environment
+        || !registry
+            .tool_policy
+            .allows(&ToolName::plain("exec_command"))
+        || preferences.is_none_or(|p| !p.groups_enabled())
+    {
         return;
     }
     for name in crate::tools::handlers::project_maintenance::TOOL_NAMES {
+        if name.starts_with("project_cleanup_") && preferences.is_none_or(|p| !p.deletion_enabled())
+        {
+            continue;
+        }
         registry.add(ProjectMaintenanceHandler::new(name, options));
     }
 }
@@ -1322,13 +1324,42 @@ mod project_maintenance_registration_tests {
             (None, false, 0),
             (Some(Vec::new()), true, 0),
             (Some(vec![ToolName::plain("project_tests")]), true, 0),
-            (Some(vec![ToolName::plain("exec_command"), ToolName::plain("project_tests")]), true, 1),
+            (
+                Some(vec![
+                    ToolName::plain("exec_command"),
+                    ToolName::plain("project_tests"),
+                ]),
+                true,
+                1,
+            ),
         ] {
-            let mut registry = ToolRegistry::with_tool_policy(Arc::new(codex_extension_api::ToolPolicy {
-                allowed_tools,
+            let mut registry =
+                ToolRegistry::with_tool_policy(Arc::new(codex_extension_api::ToolPolicy {
+                    allowed_tools,
+                    ..Default::default()
+                }));
+            add_project_maintenance_tools(
+                local,
+                Some(&azrael_project_maintenance::preferences::Preferences::default()),
+                options,
+                &mut registry,
+            );
+            assert_eq!(registry.entries().count(), count);
+        }
+        // Future tool additions must also obey persisted feature withdrawal.
+        for (groups, locks, deletion, count) in [
+            (true, true, false, 3),
+            (false, true, true, 0),
+            (true, false, true, 0),
+        ] {
+            let preferences = azrael_project_maintenance::preferences::Preferences {
+                groups,
+                locks,
+                deletion,
                 ..Default::default()
-            }));
-            add_project_maintenance_tools(local, options, &mut registry);
+            };
+            let mut registry = ToolRegistry::with_tool_policy(Arc::new(Default::default()));
+            add_project_maintenance_tools(true, Some(&preferences), options, &mut registry);
             assert_eq!(registry.entries().count(), count);
         }
     }
@@ -1352,6 +1383,35 @@ fn add_mcp_resource_tools(context: &CoreToolPlanContext<'_>, registry: &mut Tool
     }
 }
 
+fn add_task_memory_tool(has_local_environment: bool, registry: &mut ToolRegistry) {
+    if has_local_environment {
+        registry.add(TaskMemoryHandler);
+    }
+}
+
+#[cfg(test)]
+mod task_memory_registration_tests {
+    use super::*;
+
+    #[test]
+    fn task_memory_registration_preserves_local_and_tool_policy_boundaries() {
+        for (allowed_tools, local, count) in [
+            (None, true, 1),
+            (None, false, 0),
+            (Some(Vec::new()), true, 0),
+            (Some(vec![ToolName::plain("exec_command")]), true, 0),
+            (Some(vec![ToolName::plain("task_memory")]), true, 1),
+        ] {
+            let mut registry = ToolRegistry::with_tool_policy(Arc::new(codex_extension_api::ToolPolicy {
+                allowed_tools,
+                ..Default::default()
+            }));
+            add_task_memory_tool(local, &mut registry);
+            assert_eq!(registry.entries().count(), count);
+        }
+    }
+}
+
 #[instrument(level = "trace", skip_all)]
 fn add_core_utility_tools(context: &CoreToolPlanContext<'_>, registry: &mut ToolRegistry) {
     let turn_context = context.turn_context;
@@ -1364,6 +1424,13 @@ fn add_core_utility_tools(context: &CoreToolPlanContext<'_>, registry: &mut Tool
     if advertise_environment_tools {
         registry.add(FindNamesHandler);
     }
+
+    // Local task data uses the caller's filesystem permissions, independently of
+    // shell execution. ToolRegistry still applies the effective tool policy.
+    add_task_memory_tool(
+        context.environments.turn_environments().any(|e| !e.environment.is_remote()),
+        registry,
+    );
 
     if turn_context.config.update_plan_enabled {
         registry.add(PlanHandler);
@@ -1386,24 +1453,29 @@ fn add_core_utility_tools(context: &CoreToolPlanContext<'_>, registry: &mut Tool
             RequestUserInputHandler {
                 available_modes: request_user_input_available_modes(features),
             },
-            ToolExposure::DirectModelOnly,
+            ToolExposure::DeferredModelOnly,
         );
     }
 
-    if !turn_context.session_source.is_non_root_agent()
-        && context
-            .model_info
-            .experimental_supported_tools
-            .iter()
-            // Existing model catalogs still advertise the previous name.
-            .any(|tool| {
-                matches!(
-                    tool.as_str(),
-                    "request_user_input_async" | "send_user_message_async"
-                )
-            })
+    if crate::agent::role_profile::has_user_interaction_authority(
+        &turn_context.config,
+        &turn_context.session_source,
+    ) && context
+        .model_info
+        .experimental_supported_tools
+        .iter()
+        // Existing model catalogs still advertise the previous name.
+        .any(|tool| {
+            matches!(
+                tool.as_str(),
+                "request_user_input_async" | "send_user_message_async"
+            )
+        })
     {
-        registry.add_with_exposure(crate::tools::handlers::WithdrawUserQuestionsHandler, ToolExposure::DirectModelOnly);
+        registry.add_with_exposure(
+            crate::tools::handlers::WithdrawUserQuestionsHandler,
+            ToolExposure::DirectModelOnly,
+        );
         let model_messages = ResolvedModelMessages::from_model(context.model_info);
         registry.add_with_exposure(
             RequestUserInputAsyncHandler {
@@ -1418,13 +1490,15 @@ fn add_core_utility_tools(context: &CoreToolPlanContext<'_>, registry: &mut Tool
         );
     }
 
-    if !turn_context.session_source.is_non_root_agent()
-        && (features.enabled(Feature::SendMessageToUserAsync)
-            || context
-                .model_info
-                .experimental_supported_tools
-                .iter()
-                .any(|tool| tool == "send_message_to_user_async"))
+    if crate::agent::role_profile::has_user_interaction_authority(
+        &turn_context.config,
+        &turn_context.session_source,
+    ) && (features.enabled(Feature::SendMessageToUserAsync)
+        || context
+            .model_info
+            .experimental_supported_tools
+            .iter()
+            .any(|tool| tool == "send_message_to_user_async"))
     {
         registry.add_with_exposure(SendMessageToUserAsyncHandler, ToolExposure::DirectModelOnly);
     }
@@ -1514,6 +1588,7 @@ fn add_core_utility_tools(context: &CoreToolPlanContext<'_>, registry: &mut Tool
 #[instrument(level = "trace", skip_all)]
 fn add_collaboration_tools(context: &CoreToolPlanContext<'_>, registry: &mut ToolRegistry) {
     let turn_context = context.turn_context;
+    let spawn_policy = crate::agent::role_profile::spawn_policy(&turn_context.config);
     if collab_tools_enabled(turn_context, context.model_info) {
         if multi_agent_v2_enabled(turn_context) {
             let model_messages = ResolvedModelMessages::from_model(context.model_info);
@@ -1537,6 +1612,13 @@ fn add_collaboration_tools(context: &CoreToolPlanContext<'_>, registry: &mut Too
                     SpawnAgentHandlerV2::new(
                         SpawnAgentToolOptions {
                             available_models: turn_context.available_models.clone(),
+                            role_profile: spawn_policy
+                                .as_ref()
+                                .ok()
+                                .cloned()
+                                .flatten()
+                                .or_else(|| turn_context.config.role_profile.clone()),
+                            role_profile_error: spawn_policy.as_ref().err().cloned(),
                             multi_agent_version: turn_context.multi_agent_version,
                             model_catalog_in_context: turn_context
                                 .config
@@ -1561,7 +1643,11 @@ fn add_collaboration_tools(context: &CoreToolPlanContext<'_>, registry: &mut Too
                     // Spawn composes the selected description with inheritance and usage guidance.
                     /*description_override*/
                     None,
-                    model_messages.multi_agent_tool_parameters_override("spawn_agent"),
+                    if turn_context.config.role_profile.is_some() {
+                        None
+                    } else {
+                        model_messages.multi_agent_tool_parameters_override("spawn_agent")
+                    },
                 ),
                 exposure,
             );
@@ -1656,6 +1742,13 @@ fn add_collaboration_tools(context: &CoreToolPlanContext<'_>, registry: &mut Too
             registry.add_with_exposure(
                 SpawnAgentHandler::new(SpawnAgentToolOptions {
                     available_models: turn_context.available_models.clone(),
+                    role_profile: spawn_policy
+                        .as_ref()
+                        .ok()
+                        .cloned()
+                        .flatten()
+                        .or_else(|| turn_context.config.role_profile.clone()),
+                    role_profile_error: spawn_policy.as_ref().err().cloned(),
                     multi_agent_version: turn_context.multi_agent_version,
                     model_catalog_in_context: turn_context
                         .config
@@ -1681,7 +1774,10 @@ fn add_collaboration_tools(context: &CoreToolPlanContext<'_>, registry: &mut Too
 fn root_resume_tool_enabled(turn_context: &TurnContext) -> bool {
     root_resume_registration_enabled(
         turn_context.config.multi_agent_v2.tool_namespace.as_deref(),
-        turn_context.session_source.is_non_root_agent(),
+        !crate::agent::role_profile::has_root_authority(
+            &turn_context.config,
+            &turn_context.session_source,
+        ),
         turn_context.provider.info(),
     )
 }
@@ -1738,7 +1834,9 @@ mod parent_request_registration_tests {
             ParentRequestHandler::Await,
             Some(crate::config::AZRAEL_AGENT_TOOL_NAMESPACE),
             Some("Wait for the parent decision"),
-            Some(r#"{"type":"object","properties":{"request_id":{"type":"string"}},"required":["request_id"],"additionalProperties":false}"#),
+            Some(
+                r#"{"type":"object","properties":{"request_id":{"type":"string"}},"required":["request_id"],"additionalProperties":false}"#,
+            ),
         );
         assert!(handler.is_builtin_control_tool());
         assert!(!handler.supports_parallel_tool_calls());
@@ -1984,163 +2082,3 @@ fn code_mode_namespace_name<'a>(
 #[cfg(test)]
 #[path = "spec_plan_tests.rs"]
 mod tests;
-
-fn claude_profile(turn: &TurnContext, model: &ModelInfo) -> bool {
-    turn.config
-        .harness_profiles
-        .resolve(&turn.config.model_provider_id, &model.slug)
-        .is_ok_and(|profile| profile.uses_claude_tools())
-}
-
-// Claude's compatible profile uses native client search even though its wire
-// protocol does not advertise the Responses tool_search capability. Keep MCP
-// exposure and executor registration on the same host-side decision.
-fn supports_client_tool_search(turn: &TurnContext, model: &ModelInfo) -> bool {
-    model.supports_search_tool || claude_profile(turn, model)
-}
-
-/// Apply once before discovery/code-mode planning. Missing entries cannot execute or be discovered.
-fn apply_harness_tool_profile(
-    turn: &TurnContext,
-    model: &ModelInfo,
-    registry: &mut ToolRegistry,
-    file_state: Option<Arc<crate::tools::handlers::claude_files::ClaudeFileState>>,
-) -> CodexResult<()> {
-    use crate::tools::handlers::claude_controls::{ClaudeControlHandler, ClaudeControlKind};
-    use crate::tools::handlers::claude_files::{ClaudeFileHandler, ClaudeFileOperation};
-    use crate::tools::handlers::claude_search::{ClaudeGlobHandler, ClaudeGrepHandler};
-    use crate::tools::handlers::claude_shell::{
-        ClaudeBashHandler, ClaudeTaskOutputHandler, ClaudeTaskStopHandler,
-    };
-    let profile = turn
-        .config
-        .harness_profiles
-        .resolve(&turn.config.model_provider_id, &model.slug)?;
-    if !profile.uses_claude_tools() {
-        for name in [
-            "Read",
-            "Edit",
-            "Write",
-            "Bash",
-            "Grep",
-            "Glob",
-            "Agent",
-            "Skill",
-            "ToolSearch",
-            "AskUserQuestion",
-            "TaskOutput",
-            "TaskStop",
-        ] {
-            registry.remove(&ToolName::plain(name));
-        }
-        return Ok(());
-    }
-    if registry.tool_policy.require_managed_sandbox
-        && !matches!(turn.permission_profile(), PermissionProfile::Managed { .. })
-    {
-        return Ok(());
-    }
-    if registry.tool_exposure(&ToolName::plain("Read")).is_none() {
-        let state = file_state.unwrap_or_default();
-        let multiple = turn
-            .config
-            .features
-            .enabled(Feature::StableEnvironmentTools);
-        registry.add(ClaudeFileHandler::new(
-            ClaudeFileOperation::Read,
-            Arc::clone(&state),
-            multiple,
-        ));
-        if registry.remove(&ToolName::plain("apply_patch")).is_some() {
-            registry.add(ClaudeFileHandler::new(
-                ClaudeFileOperation::Edit,
-                Arc::clone(&state),
-                multiple,
-            ));
-            registry.add(ClaudeFileHandler::new(
-                ClaudeFileOperation::Write,
-                state,
-                multiple,
-            ));
-        }
-        if registry.remove(&ToolName::plain("exec_command")).is_some() {
-            registry.add(ClaudeBashHandler::default());
-            registry.add(ClaudeGrepHandler);
-            registry.add(ClaudeGlobHandler);
-            if registry.remove(&ToolName::plain("write_stdin")).is_some() {
-                registry.add(ClaudeTaskOutputHandler);
-                registry.add(ClaudeTaskStopHandler);
-            }
-        }
-    }
-    for (name, kind) in [
-        (
-            ToolName::new(
-                turn.config.multi_agent_v2.tool_namespace.clone(),
-                "spawn_agent",
-            ),
-            ClaudeControlKind::Agent,
-        ),
-        (
-            ToolName::namespaced("skills", "read"),
-            ClaudeControlKind::Skill,
-        ),
-    ] {
-        let exposure = registry.tool_exposure(&name);
-        if let Some(backend) = registry.remove(&name) {
-            if registry
-                .tool_exposure(&ToolName::plain(match kind {
-                    ClaudeControlKind::Agent => "Agent",
-                    _ => "Skill",
-                }))
-                .is_none()
-            {
-                registry.add_with_exposure(
-                    ClaudeControlHandler::new(kind, backend),
-                    exposure.unwrap_or(ToolExposure::Direct),
-                );
-            }
-        }
-    }
-    registry.remove(&ToolName::namespaced(
-        MULTI_AGENT_V1_NAMESPACE,
-        "spawn_agent",
-    ));
-    let blocking_name = ToolName::plain("request_user_input");
-    let blocking = registry.remove(&blocking_name).map(|_| {
-        Arc::new(RequestUserInputHandler {
-            available_modes: vec![
-                codex_protocol::config_types::ModeKind::Default,
-                codex_protocol::config_types::ModeKind::Plan,
-            ],
-        }) as Arc<dyn crate::tools::registry::CoreToolRuntime>
-    });
-    let asynchronous = registry.remove(&ToolName::plain("request_user_input_async"));
-    if blocking.is_some() || asynchronous.is_none() {
-        registry.remove(&ToolName::plain("withdraw_user_questions"));
-    }
-    if let Some(handler) = ClaudeControlHandler::ask_user_question(
-        blocking.clone(),
-        if blocking.is_some() {
-            None
-        } else {
-            asynchronous
-        },
-    ) {
-        registry.add_with_exposure(handler, ToolExposure::DirectModelOnly);
-    }
-    // Never retain native equivalents, even if replacement is excluded by the tool ceiling.
-    for name in [
-        "apply_patch",
-        "exec_command",
-        "write_stdin",
-        "request_user_input",
-        "request_user_input_async",
-        "read_file",
-        "grep_files",
-        "list_dir",
-    ] {
-        registry.remove(&ToolName::plain(name));
-    }
-    Ok(())
-}

@@ -64,6 +64,7 @@ fn turn_context_item(
     active_permission_profile: Option<ActivePermissionProfile>,
 ) -> RolloutItem {
     RolloutItem::TurnContext(TurnContextItem {
+        agent_profile: None,
         harness_profile: None,
         turn_id: Some(turn_id.to_string()),
         root_turn_id: None,

@@ -3,15 +3,18 @@ const APPROVAL_CLASSIFIER_ASSET = 'webview/assets/app-initial-c014f9ee4429.js';
 const CLASSIFIER_MARKER = '/*azrael-window-native-approval-v1*/';
 const CLASSIFIER_ANCHOR = 'return t===`computer-use`||t.startsWith(`computer-use-`)';
 const CLASSIFIER_PATCH = CLASSIFIER_ANCHOR + '||t===`window-use`' + CLASSIFIER_MARKER;
-const STAGE_SUBTITLE_ANCHOR = 'persistModes:n,riskLevel:e.riskLevel,subtitle:e.subtitle';
-const STAGE_SUBTITLE_PATCH = 'persistModes:n,riskLevel:e.riskLevel,subtitle:t.connector_id===`window-use`&&t.window_use_approval_kind===`stage`?[e.message,e.subtitle,...(Array.isArray(t.tool_params_display)?t.tool_params_display.filter(f=>[`stage`,`location`,`reason`].includes(f?.name)&&typeof f.value===`string`).map(f=>`${typeof f.display_name===`string`?f.display_name:f.name}: ${f.value}`):[])].filter(v=>typeof v===`string`&&v.length).join(`\\n\\n`):e.subtitle';
+const DESKTOP_CAPTION_ANCHOR = 'let r=jbt(t,e);return r==null?null:{appDisplayName:r';
+const DESKTOP_CAPTION_PATCH = 'let r=t.connector_id===`window-use`&&t.tool_params?.permission===`desktop`?`the whole desktop`:jbt(t,e);return r==null?null:{appDisplayName:r';
+const PERMISSION_SUBTITLE_ANCHOR = 'persistModes:n,riskLevel:e.riskLevel,subtitle:e.subtitle';
+const PERMISSION_SUBTITLE_PATCH = 'persistModes:n,riskLevel:e.riskLevel,subtitle:t.connector_id===`window-use`?[e.message,e.subtitle,...(Array.isArray(t.tool_params_display)?t.tool_params_display.filter(f=>[`permission`,`scope`,`location`,`reason`].includes(f?.name)&&typeof f.value===`string`).map(f=>`${typeof f.display_name===`string`?f.display_name:f.name}: ${f.value}`):[])].filter(v=>typeof v===`string`&&v.length).join(`\\n\\n`):e.subtitle';
 function injectWindowApprovalClassifier(text, relativePath) {
   if(relativePath!==APPROVAL_CLASSIFIER_ASSET)return {text,count:0};
   const markers=text.split(CLASSIFIER_MARKER).length-1;
-  if(markers){if(markers!==1||text.split(CLASSIFIER_PATCH).length-1!==1||text.split(STAGE_SUBTITLE_PATCH).length-1!==1)throw Error('Invalid Window Use native approval classifier marker');return {text,count:0};}
+  if(markers){if(markers!==1||text.split(CLASSIFIER_PATCH).length-1!==1||text.split(PERMISSION_SUBTITLE_PATCH).length-1!==1||text.split(DESKTOP_CAPTION_PATCH).length-1!==1)throw Error('Invalid Window Use native approval classifier marker');return {text,count:0};}
   if(text.split(CLASSIFIER_ANCHOR).length-1!==1)throw Error('Pinned Window Use native approval classifier changed');
-  if(text.split(STAGE_SUBTITLE_ANCHOR).length-1!==1)throw Error('Pinned Window Use stage approval subtitle changed');
-  return {text:text.replace(CLASSIFIER_ANCHOR,CLASSIFIER_PATCH).replace(STAGE_SUBTITLE_ANCHOR,STAGE_SUBTITLE_PATCH),count:1};
+  if(text.split(PERMISSION_SUBTITLE_ANCHOR).length-1!==1)throw Error('Pinned Window Use permission approval subtitle changed');
+  if(text.split(DESKTOP_CAPTION_ANCHOR).length-1!==1)throw Error('Pinned Window Use desktop approval caption changed');
+  return {text:text.replace(CLASSIFIER_ANCHOR,CLASSIFIER_PATCH).replace(PERMISSION_SUBTITLE_ANCHOR,PERMISSION_SUBTITLE_PATCH).replace(DESKTOP_CAPTION_ANCHOR,DESKTOP_CAPTION_PATCH),count:1};
 }
 const SETTINGS_ASSET = 'webview/assets/computer-use-settings-a06e6e547020.js';
 const HOST_MARKER = '/*azrael-window-control-bridge-v2*/';
@@ -30,7 +33,7 @@ function createUseSettingsStore(bridge, clientId, timing = globalThis, createReq
   const receive = message => {
     if (disposed || !awaiting || message?.clientId !== clientId || message.requestId !== pendingRequestId) return;
     const s = message.settings;
-    if (!message.error && (!s || s.schema !== 2 || !Number.isSafeInteger(s.revision) || ['windowUseEnabled','stage1Enabled','stage2Enabled','stage3Enabled','stage4Enabled'].some(key => typeof s[key] !== 'boolean') || typeof s.windowUseAllowAll !== 'boolean' || !Array.isArray(message.approvedApps))) return;
+    if (!message.error && (!s || s.schema !== 3 || !Number.isSafeInteger(s.revision) || typeof s.windowUseEnabled !== 'boolean' || !Array.isArray(s.observationBlockedApps) || !Array.isArray(s.controlAllowedApps) || !Number.isSafeInteger(s.windowUseGeneration) || !Array.isArray(message.approvedApps))) return;
     cancel(); awaiting = false; pendingRequestId = undefined; pendingQuiet = false;
     publish({ settings: s || state.settings, approvedApps: Array.isArray(message.approvedApps) ? message.approvedApps : state.approvedApps, loading: false, saving: false, error: typeof message.error === 'string' ? message.error : null });
   };
@@ -50,7 +53,7 @@ function createUseSettingsStore(bridge, clientId, timing = globalThis, createReq
   polling = timing.setInterval(() => { if (!awaiting && !state.error) send('read', {}, true); }, 3000); polling?.unref?.();
   return { getSnapshot: () => state, subscribe: listener => { listeners.add(listener); return () => listeners.delete(listener); },
     update: patch => { if (!state.settings || state.loading || state.saving) return; send('update', { patch, expectedRevision: state.settings.revision }); },
-    addApp: () => send('addApp'), removeApp: (bundleIdentifier, source) => send('removeApp', { bundleIdentifier, source }), open: () => send('open'), retry: () => send('read'),
+    addApp: list => send('addApp', { list }), removeApp: (bundleIdentifier, source) => send('removeApp', { bundleIdentifier, source }), open: () => send('open'), retry: () => send('read'),
     dispose: () => { if (disposed) return; disposed = true; pendingRequestId = undefined; pendingQuiet = false; awaiting = false; cancel(); timing.clearInterval(polling); unsubscribe(); listeners.clear(); } };
 }
 function AzraelWindowControlLauncher() {
@@ -62,24 +65,19 @@ function AzraelWindowControlLauncher() {
   const busy = state.loading || state.saving;
   const button = (label, onClick, props = {}) => (0, $.jsx)(AzraelUseButton, { color: 'secondary', size: 'default', disabled: busy, onClick, ...props, children: label });
   const row = (label, description, control) => (0, $.jsx)(AzraelUseRow, { label, description, control }, label);
+  const appSection = (list, label, description) => {
+    const apps = list === 'controlAllowedApps' ? state.approvedApps : (state.settings?.observationBlockedApps || []).map(key => ({ bundleIdentifier: key, displayName: key.split(/[\\/]/).pop() }));
+    return (0, $.jsxs)(AzraelUseCard, { children: [
+      row(label, description, () => button('실행 중인 앱에서 추가', () => store.addApp(list))),
+      ...apps.map(app => (0, $.jsx)(AzraelUseRow, { label: app.displayName, description: (0, $.jsx)('span', { className: 'break-all', children: app.bundleIdentifier }), control: () => button('제거', () => store.removeApp(app.bundleIdentifier, list), { 'aria-label': app.displayName + ' 제거' }) }, list + ':' + app.bundleIdentifier)),
+      !state.loading && !apps.length ? (0, $.jsx)('p', { className: 'px-4 py-3 text-sm text-secondary', children: '등록된 앱이 없습니다.' }) : null
+    ] });
+  };
   return (0, $.jsxs)('section', { 'data-azrael-window-control': true, className: 'flex flex-col gap-10', 'aria-busy': busy, children: [
-    (0, $.jsx)(AzraelUseCard, { children: row('Window Use 사용', '끄면 모든 단계의 사용을 중지합니다. 단계별 설정은 유지됩니다.', ariaProps => (0, $.jsx)(AzraelUseSwitch, { ...ariaProps, checked: state.settings?.windowUseEnabled ?? true, disabled: busy || !state.settings, onChange: enabled => store.update({ windowUseEnabled: enabled }) })) }),
-    (0, $.jsxs)('section', { className: 'flex flex-col gap-4', 'aria-labelledby': 'azrael-window-use-heading', children: [
-      (0, $.jsx)('h2', { id: 'azrael-window-use-heading', className: 'text-lg font-semibold text-default', children: '단계별 사용' }),
-      (0, $.jsxs)(AzraelUseCard, { children: [
-        ['stage1Enabled', '1단계 · 창 관찰', '모든 창의 상태와 화면을 읽습니다. 앱별 승인은 필요하지 않습니다.'],
-        ['stage2Enabled', '2단계 · 현재 창 제어', '현재 사용자 세션의 선택한 창을 제어합니다. 사용자의 작업과 충돌할 수 있습니다.'],
-        ['stage3Enabled', '3단계 · 격리 실행', '독립된 입력을 사용하는 별도 세션에서 앱을 실행합니다. 환경 지원과 준비가 필요합니다.'],
-        ['stage4Enabled', '4단계 · 데스크톱 전체 제어', '현재 사용자의 전체 데스크톱을 제어합니다.']
-      ].map(([flag, label, description]) => row(label, description, ariaProps => (0, $.jsx)(AzraelUseSwitch, { ...ariaProps, checked: state.settings?.[flag] ?? false, disabled: busy || !state.settings || !state.settings.windowUseEnabled, onChange: enabled => store.update({ [flag]: enabled }) }))) }),
-      (0, $.jsx)(AzraelUseCard, { children: row('모든 앱 허용', '2–4단계에서 앱별 승인을 생략합니다. 단계 사용 설정과 작업 범위 승인은 별도로 적용됩니다.', ariaProps => (0, $.jsx)(AzraelUseSwitch, { ...ariaProps, checked: state.settings?.windowUseAllowAll ?? false, disabled: busy || !state.settings || !state.settings.windowUseEnabled, onChange: enabled => store.update({ windowUseAllowAll: enabled }) })) }),
-      (0, $.jsxs)(AzraelUseCard, { children: [
-        row('항상 허용한 앱', '2–4단계의 앱별 승인에 적용됩니다. 작업 범위 승인은 별도로 필요합니다.', () => button('실행 중인 창에서 추가', store.addApp)),
-        ...state.approvedApps.map(app => (0, $.jsx)(AzraelUseRow, { label: app.displayName, description: (0, $.jsx)('span', { className: 'break-all', children: `${app.source === 'desktop' ? '데스크톱 제어 승인' : '창 제어 승인'} · ${app.bundleIdentifier}` }), control: () => button('삭제', () => store.removeApp(app.bundleIdentifier, app.source), { 'aria-label': `${app.displayName} 허용 삭제` }) }, `${app.source}:${app.bundleIdentifier}`)),
-        !state.loading && !state.approvedApps.length ? (0, $.jsx)('p', { className: 'px-4 py-3 text-sm text-secondary', children: '항상 허용한 앱이 없습니다.' }) : null
-      ] }),
-      (0, $.jsx)('div', { className: 'flex', children: button('Window Use 열기', store.open) })
-    ] }),
+    (0, $.jsx)(AzraelUseCard, { children: row('Window Use 사용', '창 관찰과 앱·데스크톱 제어를 사용합니다.', ariaProps => (0, $.jsx)(AzraelUseSwitch, { ...ariaProps, checked: state.settings?.windowUseEnabled ?? true, disabled: busy || !state.settings, onChange: enabled => store.update({ windowUseEnabled: enabled }) })) }),
+    appSection('observationBlockedApps', '시큐리티 앱', '이 앱은 화면 캡처에서 가려지고 제어가 차단됩니다. 관찰에는 대화별 승인이 필요합니다.'),
+    appSection('controlAllowedApps', '화이트리스트', '이 앱은 개별 앱 제어 승인을 생략합니다. 전체 데스크톱 제어에는 별도 승인이 필요하며 시큐리티 앱 제어는 차단됩니다.'),
+    (0, $.jsx)('div', { className: 'flex', children: button('Window Use 열기', store.open) }),
     busy ? (0, $.jsx)('p', { role: 'status', className: 'text-sm text-secondary', children: state.loading ? '설정을 불러오는 중…' : '저장 중…' }) : null,
     state.error ? (0, $.jsxs)('div', { role: 'alert', className: 'flex items-center gap-3 text-sm text-secondary', children: [(0, $.jsx)('span', { children: state.error }), button('다시 불러오기', store.retry)] }) : null
   ] });

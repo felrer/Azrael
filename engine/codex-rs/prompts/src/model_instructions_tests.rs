@@ -115,7 +115,7 @@ fn custom_instructions_supplement_common_behavior_without_duplication() {
 #[test]
 fn initial_behavior_matches_raw_and_runtime_wrapped_prompts_with_custom_suffixes() {
     let raw = render_model_instructions(&test_model(None));
-    let wrapped = compose_harness_instructions("builtin/azrael-default", None, false, None);
+    let wrapped = compose_harness_instructions("builtin/azrael-default", None, None);
     for initial in [&raw, &wrapped] {
         for current in [&raw, &wrapped] {
             for initial_crlf in [false, true] {
@@ -142,7 +142,7 @@ fn initial_behavior_matches_raw_and_runtime_wrapped_prompts_with_custom_suffixes
     assert!(initial_instructions_contain_behavior(&wrapped, &raw));
     assert_eq!(render_model_instructions(&test_model(None)), raw);
     assert_eq!(
-        compose_harness_instructions("builtin/azrael-default", None, false, None),
+        compose_harness_instructions("builtin/azrael-default", None, None),
         wrapped
     );
 }
@@ -150,11 +150,10 @@ fn initial_behavior_matches_raw_and_runtime_wrapped_prompts_with_custom_suffixes
 #[test]
 fn initial_behavior_comparison_preserves_changed_behavior_and_custom_prefixes() {
     let raw = render_model_instructions(&test_model(None));
-    let wrapped = compose_harness_instructions("builtin/azrael-default", None, false, None);
+    let wrapped = compose_harness_instructions("builtin/azrael-default", None, None);
     for changed in [
-        compose_harness_instructions("builtin/azrael-default", Some("TEAM_BEHAVIOR"), false, None),
-        compose_harness_instructions("builtin/anthropic-default", None, true, None),
-        compose_harness_instructions("builtin/claude-lean", None, true, None),
+        compose_harness_instructions("builtin/azrael-default", Some("TEAM_BEHAVIOR"), None),
+        compose_harness_instructions("builtin/claude-lean", None, None),
     ] {
         assert!(!initial_instructions_contain_behavior(&raw, &changed));
         assert!(!initial_instructions_contain_behavior(&wrapped, &changed));
@@ -176,7 +175,6 @@ fn initial_behavior_matches_after_omitting_update_plan_instructions() {
     let wrapped = crate::without_update_plan_instructions(&compose_harness_instructions(
         "builtin/azrael-default",
         None,
-        false,
         None,
     ));
     assert!(initial_instructions_contain_behavior(&raw, &wrapped));
@@ -219,7 +217,7 @@ fn api_projection_leaves_unmatched_templates_and_normal_composition_unchanged() 
     }
     let custom = "Use functions.exec and Promise.allSettled.";
     assert_eq!(
-        compose_harness_instructions("builtin/azrael-default", None, false, Some(custom)),
+        compose_harness_instructions("builtin/azrael-default", None, Some(custom)),
         format!(
             "{HARNESS_RUNTIME_CORE}\n{}",
             compose_agent_instructions(Some(custom))
@@ -229,50 +227,47 @@ fn api_projection_leaves_unmatched_templates_and_normal_composition_unchanged() 
 }
 
 #[test]
-fn compatible_prompts_replace_native_tool_guidance_and_preserve_runtime() {
-    let legacy = compose_harness_instructions(
-        "builtin/anthropic-default",
-        None,
-        true,
-        Some("CUSTOM_MARKER"),
-    );
-    let lean = compose_harness_instructions("builtin/claude-lean", None, true, None);
-    for prompt in [&legacy, &lean] {
-        assert!(prompt.contains("You are Azrael"));
-        assert!(prompt.contains("AskUserQuestion"));
-        assert!(prompt.contains("Read"));
-        assert!(!prompt.contains("functions.exec"));
-        assert!(!prompt.contains("functions.request_user_input_async"));
-        assert!(!prompt.contains("Promise.allSettled"));
+fn anthropic_preserves_common_behavior_tools_runtime_and_custom_instructions() {
+    for custom in [None, Some("CUSTOM_MARKER")] {
+        let anthropic = compose_harness_instructions("builtin/anthropic", None, custom);
+        let azrael = compose_harness_instructions("builtin/azrael-default", None, custom);
+        assert_eq!(anthropic, azrael);
+        assert!(anthropic.starts_with(&format!(
+            "{HARNESS_RUNTIME_CORE}\n{COMMON_AGENT_INSTRUCTIONS}"
+        )));
+        assert!(anthropic.contains(COMMON_PARALLEL_TOOL_GUIDANCE));
     }
-    assert!(lean.len() < legacy.len());
-    assert!(legacy.contains("CUSTOM_MARKER"));
-    let custom =
-        compose_harness_instructions("builtin/anthropic-default", Some("TEAM_PROMPT"), true, None);
-    assert!(custom.contains("TEAM_PROMPT"));
-    assert!(custom.contains("The runtime owns sandboxing"));
-    assert!(custom.contains("AskUserQuestion"));
-    assert!(!custom.contains("# Personality"));
-    assert_eq!(
-        compose_harness_instructions("builtin/azrael-default", None, false, None),
-        format!("{HARNESS_RUNTIME_CORE}\n{COMMON_AGENT_INSTRUCTIONS}")
-    );
+    let lean = compose_harness_instructions("builtin/claude-lean", None, None);
+    assert!(lean.starts_with(HARNESS_RUNTIME_CORE));
+    assert!(lean.len() < compose_harness_instructions("builtin/anthropic", None, None).len());
+    for variant in [
+        "builtin/azrael-default",
+        "builtin/anthropic",
+        "builtin/claude-lean",
+    ] {
+        assert_eq!(
+            compose_harness_instructions(variant, Some("TEAM_PROMPT"), Some("CUSTOM_MARKER")),
+            format!(
+                "{HARNESS_RUNTIME_CORE}\nTEAM_PROMPT\n<custom_agent_instructions>\nCUSTOM_MARKER\n</custom_agent_instructions>"
+            )
+        );
+    }
 }
 
 #[test]
 fn azrael_default_preserves_runtime_projection_custom_suffix_and_template_replacement() {
     let custom = format!("Use functions.exec.\n{COMMON_PARALLEL_TOOL_GUIDANCE}");
-    let prompt = compose_harness_instructions("builtin/azrael-default", None, false, Some(&custom));
+    let prompt = compose_harness_instructions("builtin/azrael-default", None, Some(&custom));
     assert!(prompt.starts_with(&format!(
         "{HARNESS_RUNTIME_CORE}\n{COMMON_AGENT_INSTRUCTIONS}"
     )));
     assert_eq!(
-        compose_harness_instructions("builtin/azrael-default", None, false, Some(&prompt)),
+        compose_harness_instructions("builtin/azrael-default", None, Some(&prompt)),
         prompt
     );
     let old = compose_agent_instructions(Some(&custom));
     assert_eq!(
-        compose_harness_instructions("builtin/azrael-default", None, false, Some(&old)),
+        compose_harness_instructions("builtin/azrael-default", None, Some(&old)),
         prompt
     );
     let projected = project_api_base_instructions(&prompt);
@@ -280,7 +275,7 @@ fn azrael_default_preserves_runtime_projection_custom_suffix_and_template_replac
     assert!(projected.contains(API_PARALLEL_TOOL_GUIDANCE));
     assert!(projected.ends_with(&format!("{custom}\n</custom_agent_instructions>")));
     let replacement =
-        compose_harness_instructions("builtin/azrael-default", Some("TEAM_BEHAVIOR"), false, None);
+        compose_harness_instructions("builtin/azrael-default", Some("TEAM_BEHAVIOR"), None);
     assert_eq!(
         replacement,
         format!("{HARNESS_RUNTIME_CORE}\nTEAM_BEHAVIOR")

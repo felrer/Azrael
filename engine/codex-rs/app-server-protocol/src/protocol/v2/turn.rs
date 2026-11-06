@@ -5,6 +5,7 @@ use super::Turn;
 use crate::JsonSchema;
 use crate::TS;
 use codex_experimental_api_macros::ExperimentalApi;
+pub use codex_protocol::agent_profile::AgentProfileRef;
 use codex_protocol::config_types::CollaborationMode;
 use codex_protocol::config_types::MultiAgentMode;
 use codex_protocol::config_types::Personality;
@@ -166,6 +167,10 @@ pub struct TurnToolOutput {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct TurnStartParams {
+    /// Immutable profile captured by the host when this request was accepted.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub agent_profile: Option<AgentProfileRef>,
     pub thread_id: String,
     /// Replace this thread's disabled plugin IDs.
     /// Omitted/null preserves the list; [] clears it.

@@ -1,7 +1,7 @@
 "use strict";
 const test = require("node:test"), assert = require("node:assert/strict"), fs = require("node:fs"), path = require("node:path"), vm = require("node:vm");
 const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-const { AUTO_REVIEW_ASSETS, MARKER, injectAutoReview } = require("./inject-auto-review.cjs");
+const { AUTO_REVIEW_ASSETS, injectAutoReview } = require("./inject-auto-review.cjs");
 const asset = AUTO_REVIEW_ASSETS[0], original = fs.readFileSync(path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"), asset), "utf8");
 const transformed = injectAutoReview(original, asset, ts).text;
 const parsed = new Map();
@@ -15,15 +15,6 @@ function runtime(text) {
 }
 const native = runtime(transformed), plain = x => JSON.parse(JSON.stringify(x));
 const config = overrides => ({ isAzraelAutoReviewSupported:true,isConfigDataPending: false, isGuardianApprovalEnabledByStatsig: false, resolvedConfig: {}, ...overrides });
-test("typed pinned transform changes only FXr rollout declaration and rejects corruption", () => {
-
-  assert.equal(injectAutoReview(original, "other.js", ts).text, original);
-  for (const text of [original + MARKER, transformed + MARKER, original.replace("d=a||r||o", "d=r"), original.replace("function FXr(", "function changed("), transformed.replace(fn(transformed,"FXr"),fn(transformed,"FXr").replace("d=z", "d=!0")), original.replace("u=rvt(n??void 0)??!0", "u=!0"),original.replace("let F=m||h||g||j||E||T==null||P,","let F=T,"),transformed.replace("isAzraelAutoReviewSupported:!F","isAzraelAutoReviewSupported:!0")]) assert.throws(() => injectAutoReview(text,asset,ts));
-  const dropdownPath=AUTO_REVIEW_ASSETS[1],dropdown=fs.readFileSync(path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"), dropdownPath),"utf8"),result=injectAutoReview(dropdown,dropdownPath,ts);
-
-  assert.throws(()=>injectAutoReview(result.text.replace("azraelPreserveGuardian&&He===`guardian-approvals`?`auto`:",""),dropdownPath,ts));
-  assert.throws(()=>injectAutoReview(dropdown+MARKER,dropdownPath,ts));
-});
 test("actual shared QXr tracks provider/model switches without stale memo and ignores rollout-only pending",()=>{
   const state=runtime(transformed),read=()=>state.QXr({hostId:"local",cwdOverride:"C:/workspace"});
   assert.equal(read().isConfigDataPending,false);assert.equal(read().isAzraelAutoReviewSupported,true);

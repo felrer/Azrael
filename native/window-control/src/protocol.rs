@@ -95,6 +95,45 @@ pub fn hex(value: &str) -> Result<u64> {
 pub struct Target {
     pub window: Window,
 }
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WindowAtPoint {
+    pub x: i32,
+    pub y: i32,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ActionPoint {
+    pub window: Window,
+    pub observation_id: String,
+    pub element_id: Option<String>,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct DesktopCapture {
+    pub blocked_apps: Vec<String>,
+}
+impl DesktopCapture {
+    pub fn validate(&self) -> Result<()> {
+        if self.blocked_apps.len() > 256 || self.blocked_apps.iter().any(|p| !absolute_exe(p)) {
+            return Err(Error::new("invalid-params", "blockedApps must contain at most 256 normalized absolute Windows EXE paths"));
+        }
+        Ok(())
+    }
+}
+fn absolute_exe(path: &str) -> bool {
+    let bytes = path.as_bytes();
+    let drive = bytes.len() >= 3 && bytes[0].is_ascii_alphabetic() && &bytes[1..3] == b":\\";
+    let unc = path.starts_with("\\\\") && !path.starts_with("\\\\?\\") && !path.starts_with("\\\\.\\");
+    if path.len() > 32768 || !(drive || unc) || !path.to_ascii_lowercase().ends_with(".exe")
+        || path.chars().any(|c| c.is_control() || matches!(c, '/' | '*' | '?' | '"' | '<' | '>' | '|')) {
+        return false;
+    }
+    let tail = if drive { &path[3..] } else { &path[2..] };
+    let components: Vec<_> = tail.split('\\').collect();
+    (!unc || components.len() >= 3) && components.iter().all(|s| !s.is_empty()
+        && *s != "." && *s != ".." && !s.ends_with('.') && !s.ends_with(' ') && !s.contains(':'))
+}
 #[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct NameQuery { pub equals: Option<String>, pub contains: Option<String> }
@@ -283,6 +322,12 @@ pub fn validate_request(request: &Request) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn desktop_blocklist_requires_normalized_absolute_executables() {
+        for path in [r"C:\Apps\blocked.exe", r"\\server\share\blocked.EXE"] { assert!(super::absolute_exe(path)); }
+        for path in [r"blocked.exe", r"C:blocked.exe", r"C:\Apps\..\blocked.exe", r"C:\Apps\blocked.exe:stream", r"C:/Apps/blocked.exe", r"\\?\C:\Apps\blocked.exe"] { assert!(!super::absolute_exe(path)); }
+        assert!(super::params::<super::DesktopCapture>(serde_json::json!({"blockedApps":[],"extra":true})).is_err());
+    }
     use super::*;
     fn inspection(extra: Value) -> Inspect {
         let mut value = serde_json::json!({"window":{"hwnd":"1","pid":1,"processCreated":"2","executable":"fixture","title":"fixture","minimized":false,"widthPx":100,"heightPx":100,"dpi":96}});

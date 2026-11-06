@@ -5,13 +5,17 @@ import type { Personality } from "../Personality";
 import type { ReasoningEffort } from "../ReasoningEffort";
 import type { ReasoningSummary } from "../ReasoningSummary";
 import type { JsonValue } from "../serde_json/JsonValue";
+import type { AgentProfileRef } from "./AgentProfileRef";
 import type { ApprovalsReviewer } from "./ApprovalsReviewer";
 import type { AskForApproval } from "./AskForApproval";
 import type { SandboxPolicy } from "./SandboxPolicy";
 import type { TurnToolOutput } from "./TurnToolOutput";
 import type { UserInput } from "./UserInput";
 
-export type TurnStartParams = {threadId: string, /**
+export type TurnStartParams = {/**
+ * Immutable profile captured by the host when this request was accepted.
+ */
+agentProfile?: AgentProfileRef, threadId: string, /**
  * Replace this thread's disabled plugin IDs.
  * Omitted/null preserves the list; [] clears it.
  */

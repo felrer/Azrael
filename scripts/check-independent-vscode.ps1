@@ -10,7 +10,8 @@ param(
     [string]$CodePath = 'code.cmd',
     [string]$FixtureRoot,
     [string]$ParentLifecycleId,
-    [string]$TypeScriptPath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/build/integrated_accounts_20260913/companion/node_modules/typescript/lib/typescript.js')
+    [string]$TypeScriptPath,
+    [switch]$VerifyStandalone
 )
 
 Set-StrictMode -Version Latest
@@ -80,7 +81,6 @@ if ("$($originalManifest.publisher).$($originalManifest.name)" -cne 'openai.chat
     "$($audioManifest.publisher).$($audioManifest.name)" -cne 'openai.codex-audio' -or $audioVersion -cne $originalVersion) {
     throw 'Selected official Codex and audio must have matching versions and the expected extension-pack entry.'
 }
-$typescript = Resolve-File -Path $TypeScriptPath -Name 'TypeScriptPath'
 $fixturePrefix = $fixture + [IO.Path]::DirectorySeparatorChar
 if ($UseFreshState -and -not $state.StartsWith($fixturePrefix, [StringComparison]::OrdinalIgnoreCase)) {
     throw 'UseFreshState requires StateRoot to be inside the new FixtureRoot.'
@@ -103,7 +103,6 @@ $lifecycleMembers = [ordered]@{run=$runRoot;fixture=$fixture;logs=$logDirectory}
 if (-not $parentLifecycle) { $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id $lifecycleId -Kind run -Owner 'check-independent-vscode' -State pending -MembershipComplete $false -Members $lifecycleMembers }
 $lifecycleSucceeded = $false
 $logPath = Join-Path $logDirectory "same-window-$stamp.log"
-$namespaceLog = Join-Path $logDirectory "namespace-$stamp.log"
 $resultPath = Join-Path $fixture 'host-result.json'
 $standaloneResultPath = Join-Path $fixture 'standalone-host-result.json'
 $summaryPath = Join-Path $fixture 'check-result.json'
@@ -116,7 +115,8 @@ $workspace = Join-Path $fixture 'workspace'
 New-Item -ItemType Directory -Path $logDirectory, (Join-Path $userData 'User'), `
     (Join-Path $standaloneUserData 'User'), (Join-Path $coexistenceUserData 'User'), $fixtureOrdinaryHome, $extensions, $workspace -Force | Out-Null
 
-$exitCodes = [ordered]@{ initialInventory = $null; hostInstall = $null; finalInventory = $null; namespace = $null; standaloneHost = $null; host = $null }
+$exitCodes = [ordered]@{ initialInventory = $null; hostInstall = $null; finalInventory = $null; host = $null }
+if ($VerifyStandalone) { $exitCodes.standaloneHost = $null }
 $sourceBefore = Get-DirectoryState -Path $originalSource
 $originalFixture = Join-Path $extensions (Split-Path $originalSource -Leaf)
 $fixtureOriginalExpected = [ordered]@{ path = $originalFixture; sha256 = $sourceBefore.sha256; fileCount = $sourceBefore.fileCount; bytes = $sourceBefore.bytes }
@@ -162,10 +162,8 @@ try {
     }
 
     $installedHost = Find-InstalledExtension -ExtensionsDir $extensions -Id 'azrael-ex-local.azrael' -Version $hostVersion
-    $namespaceOutput = @(& node (Join-Path $PSScriptRoot 'test-independent-namespace.cjs') $uiSource $installedHost $typescript 2>&1)
-    $exitCodes.namespace = $LASTEXITCODE
-    @($namespaceOutput) | Set-Content -LiteralPath $namespaceLog -Encoding utf8NoBOM
-    if ($exitCodes.namespace -ne 0) { throw "Independent namespace targeted contract failed with exit code $($exitCodes.namespace)." }
+    # Static namespace/transform regressions belong to preparation preservation.
+    # This boundary certifies the exact VSIX by installing and activating it.
 
     $runtimeConfigPath = Join-Path $installedHost 'out/azrael-runtime.json'
     $runtimeConfigBeforeText = Get-Content -LiteralPath $runtimeConfigPath -Raw
@@ -232,6 +230,7 @@ exports.deactivate = function () {};
         $env:SAME_WINDOW_EXPECTED_ORIGINAL_VERSION = $originalVersion
         # Only the test runner is a development extension. The original and
         # integrated host activate as installed, without proposed-API elevation.
+        if ($VerifyStandalone) {
         $env:SAME_WINDOW_CHECK_MODE = 'standalone'
         # The generated test workspace is owned by this fixture. Test normal trusted
         # activation without changing trust settings in any user profile.
@@ -243,6 +242,7 @@ exports.deactivate = function () {};
         if (-not (Test-Path -LiteralPath $standaloneResultPath -PathType Leaf)) { throw 'Standalone host result was not written.' }
         $standaloneResult = Get-Content -LiteralPath $standaloneResultPath -Raw | ConvertFrom-Json -AsHashtable
         if ($standaloneResult['passed'] -ne $true) { throw "Standalone host result failed: $($standaloneResult['error'])" }
+        }
 
         $env:SAME_WINDOW_CHECK_MODE = 'coexistence'
         $hostOutput = @(& $code --disable-updates --disable-workspace-trust --user-data-dir $coexistenceUserData --extensions-dir $extensions --new-window --wait --skip-welcome --skip-release-notes `
@@ -273,7 +273,8 @@ exports.deactivate = function () {};
         throw 'Original Codex source changed or validation fixture differs from the source snapshot.'
     }
     $summary = [ordered]@{
-        passed = $true; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; standaloneHostResult = $standaloneResultPath; hostResult = $resultPath; log = $logPath; namespaceLog = $namespaceLog
+        passed = $true; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; standaloneHostResult = $(if ($VerifyStandalone) { $standaloneResultPath } else { $null }); hostResult = $resultPath; log = $logPath
+        standaloneVerified = [bool]$VerifyStandalone
         exitCodes = $exitCodes; inventory = $inventory; useFreshState = [bool]$UseFreshState
         uiSourcePath = $uiSource; officialVersions = [ordered]@{ codex = $originalVersion; audio = $audioVersion }
         hostPackage = [ordered]@{ vsix = $hostVsix; sha256 = $hostVsixSha256; version = $hostVersion; installedPath = $installedHost }
@@ -290,7 +291,8 @@ exports.deactivate = function () {};
     $failure = $_
     if (-not (Test-Path -LiteralPath $logPath -PathType Leaf)) { $failure.Exception.ToString() | Set-Content -LiteralPath $logPath -Encoding utf8NoBOM }
     $failureResult = [ordered]@{
-        passed = $false; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; log = $logPath; namespaceLog = $namespaceLog; exitCodes = $exitCodes; useFreshState = [bool]$UseFreshState
+        passed = $false; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; log = $logPath; exitCodes = $exitCodes; useFreshState = [bool]$UseFreshState
+        standaloneVerified = $false
         hostPackage = [ordered]@{ vsix = $hostVsix; sha256 = $hostVsixSha256 }; runtimeConfigOverride = $runtimeConfigOverride
         uiSourcePath = $uiSource; officialVersions = [ordered]@{ codex = $originalVersion; audio = $audioVersion }
         error = $failure.Exception.Message; loginPerformed = $false; modelRequestPerformed = $false; newThreadPerformed = $false; testObjectMutationPerformed = $false

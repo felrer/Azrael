@@ -385,6 +385,7 @@ fn turn_items_for_thread_returns_matching_turn_items() {
         turns: vec![
             codex_app_server_protocol::Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
@@ -407,6 +408,7 @@ fn turn_items_for_thread_returns_matching_turn_items() {
             },
             codex_app_server_protocol::Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-2".to_string(),
                 root_turn_id: None,
@@ -447,6 +449,7 @@ fn should_backfill_turn_completed_items_backfills_persisted_summaries_only() {
             thread_id: "thread-1".to_string(),
             turn: codex_app_server_protocol::Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,

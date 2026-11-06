@@ -274,6 +274,7 @@ async fn replayed_turn_completions_do_not_start_live_billing_refreshes() {
             chat.replay_thread_turns(
                 vec![Turn {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     id: "replayed-turn".to_string(),
                     root_turn_id: None,

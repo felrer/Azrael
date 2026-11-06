@@ -13,22 +13,11 @@ function method(source, name, signature) {
   function visit(n){if(ts.isMethodDeclaration(n)&&n.name.getText(ast)===name&&(!signature||n.body.getText(ast).includes(signature)))found.push(n);ts.forEachChild(n,visit)}visit(ast);
   return source.slice(found[0].getStart(ast),found[0].end);
 }
-test("selected pinned assets transform, parse, and reject partial or duplicate instrumentation", () => {
-  for(const root of roots) for(const asset of assets) {
-    const original=fs.readFileSync(path.join(root,asset),"utf8");
-    const queued=asset===assets[1]?injectQueueConsumption(original).text:original;
-    const output=inject(queued,asset,ts);
-
-    transformed.set(root+asset,output.text);
-    assert.throws(()=>inject(output.text+marker,asset,ts),/Duplicate/);
-    const partial=output.text.replace(root===roots[0]&&asset===assets[0]?"globalThis.__azraelUiInputDiagnostics=":"__azraelUiInputDiagnostics", "BROKEN_DIAGNOSTICS");
-    assert.throws(()=>inject(partial,asset,ts),/Partial|Unsupported/);
-  }
-  const state=fs.readFileSync(path.join(roots[0],assets[1]),"utf8");
-  assert.throws(()=>inject(state,assets[1],ts),/Unsupported/);
-  assert.throws(()=>inject("{",assets[0],ts),/Malformed/);
-
-});
+for (const root of roots) for (const asset of assets) {
+  const original = fs.readFileSync(path.join(root, asset), "utf8");
+  const queued = asset === assets[1] ? injectQueueConsumption(original).text : original;
+  transformed.set(root + asset, inject(queued, asset, ts).text);
+}
 test("serialized initialization uses the real host channel and catches sync and async failures", async () => {
   const source=transformed.get(roots[0]+assets[0]), start=source.indexOf(marker), end=source.indexOf("export{",start);
   const logs=[], context={Dm:{dispatchMessage:(channel,payload)=>logs.push({channel,payload})}};

@@ -477,6 +477,7 @@ WHERE thread_id = ?
     assert_eq!(page.turns[0].root_turn_id.as_deref(), Some("root-1"));
     assert_eq!(page.turns[0].status, StoredTurnStatus::Completed);
     assert_eq!(page.turns[0].root_resume_wait, None);
+    assert_eq!(page.turns[0].user_wait_timing, None);
     assert_eq!(
         page.turns[0]
             .items
@@ -819,6 +820,7 @@ async fn paginated_realtime_items_materialize_separately_in_rollout_order() {
     let legacy_thread_id = ThreadId::new();
     store
         .create_thread(CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -3011,6 +3013,7 @@ async fn create_paginated_subagent_thread(
 ) {
     store
         .create_thread(CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -3502,6 +3505,7 @@ async fn recorded_turn_attribution_replays_projection_v4_and_preserves_wait_timi
         let mut item = turn_started_with_root(id, "shared-root");
         if let RolloutItem::EventMsg(EventMsg::TurnStarted(event)) = &mut item {
             event.turn_attribution = Some(codex_protocol::turn_input::TurnAttribution {
+                agent_profile: None,
                 turn_id: id.into(),
                 root_turn_id: Some("shared-root".into()),
                 parent_turn_id: Some("origin".into()),
@@ -3595,10 +3599,7 @@ async fn recorded_turn_attribution_replays_projection_v4_and_preserves_wait_timi
         .upsert_thread(&metadata.build("test-provider"))
         .await
         .unwrap();
-    for items_view in [
-        StoredTurnItemsView::NotLoaded,
-        StoredTurnItemsView::Summary,
-    ] {
+    for items_view in [StoredTurnItemsView::NotLoaded, StoredTurnItemsView::Summary] {
         let page = store
             .list_turns(ListTurnsParams {
                 thread_id,
@@ -3629,5 +3630,144 @@ async fn recorded_turn_attribution_replays_projection_v4_and_preserves_wait_timi
     assert_eq!(
         version,
         super::super::thread_history::CURRENT_PROJECTION_VERSION
+    );
+}
+
+#[tokio::test]
+async fn user_wait_snapshots_survive_paginated_metadata_summary_and_timeline_reads() {
+    use codex_protocol::protocol::TurnAbortReason;
+    use codex_protocol::protocol::TurnAbortedEvent;
+    use codex_protocol::protocol::UserWaitTimingUpdatedEvent;
+    use codex_protocol::user_wait::UserWaitTiming;
+    let home = TempDir::new().expect("temp dir");
+    let config = test_config(home.path());
+    let thread_id = ThreadId::default();
+    let runtime = codex_state::StateRuntime::init(
+        config.sqlite.clone(),
+        config.default_model_provider_id.clone(),
+    )
+    .await
+    .expect("state runtime");
+    let mut builder = codex_state::ThreadMetadataBuilder::new(
+        thread_id,
+        home.path().join("missing-rollout.jsonl"),
+        Utc::now(),
+        SessionSource::Cli,
+    );
+    builder.history_mode = ThreadHistoryMode::Paginated;
+    runtime
+        .upsert_thread(&builder.build(config.default_model_provider_id.as_str()))
+        .await
+        .expect("seed thread metadata");
+    let store = LocalThreadStore::new(config, Some(runtime));
+    create_paginated_thread(&store, thread_id).await;
+    store
+        .persist_thread(thread_id, PersistContext::Standard)
+        .await
+        .expect("persist thread");
+    let waiting = UserWaitTiming {
+        started_at_ms: None,
+        revision: 1,
+        requests: Vec::new(),
+        blocked_intervals: Vec::new(),
+    };
+    let cancelled = UserWaitTiming {
+        started_at_ms: None,
+        revision: 2,
+        requests: Vec::new(),
+        blocked_intervals: Vec::new(),
+    };
+    store
+        .append_items(AppendThreadItemsParams {
+            thread_id,
+            items: vec![
+                turn_started("origin"),
+                RolloutItem::EventMsg(EventMsg::TurnDeferred(TurnDeferredEvent {
+                    root_turn_id: None,
+                    turn_id: "origin".into(),
+                    reservation_id: "reservation".into(),
+                    wait: None,
+                    started_at: Some(10),
+                    deferred_at: Some(12),
+                    duration_ms: Some(2_000),
+                })),
+                RolloutItem::EventMsg(EventMsg::UserWaitTimingUpdated(
+                    UserWaitTimingUpdatedEvent {
+                        turn_id: "origin".into(),
+                        timing: cancelled.clone(),
+                    },
+                )),
+                RolloutItem::EventMsg(EventMsg::TurnAborted(TurnAbortedEvent {
+                    turn_id: Some("origin".into()),
+                    root_turn_id: None,
+                    reason: TurnAbortReason::Interrupted,
+                    error: None,
+                    started_at: Some(10),
+                    completed_at: Some(12),
+                    duration_ms: Some(2_000),
+                })),
+                RolloutItem::EventMsg(EventMsg::UserWaitTimingUpdated(
+                    UserWaitTimingUpdatedEvent {
+                        turn_id: "origin".into(),
+                        timing: waiting,
+                    },
+                )),
+            ],
+        })
+        .await
+        .expect("append durable wait lifecycle");
+    let turns = store
+        .list_turns(ListTurnsParams {
+            thread_id,
+            include_archived: false,
+            cursor: None,
+            page_size: 10,
+            sort_direction: SortDirection::Asc,
+            items_view: StoredTurnItemsView::NotLoaded,
+        })
+        .await
+        .expect("read paginated turn headers");
+    assert_eq!(turns.turns.len(), 1);
+    assert_eq!(turns.turns[0].user_wait_timing, Some(cancelled.clone()));
+    assert_eq!(turns.turns[0].status, StoredTurnStatus::Interrupted);
+    assert_eq!(turns.turns[0].duration_ms, Some(2_000));
+    let full = store
+        .list_turns(ListTurnsParams {
+            thread_id,
+            include_archived: false,
+            cursor: None,
+            page_size: 10,
+            sort_direction: SortDirection::Asc,
+            items_view: StoredTurnItemsView::Summary,
+        })
+        .await
+        .expect("read summary turns");
+    assert_eq!(full.turns[0].user_wait_timing, Some(cancelled.clone()));
+    let timeline = store
+        .list_timeline(crate::ListTimelineParams {
+            thread_id,
+            cursor: None,
+            page_size: 10,
+        })
+        .await
+        .expect("read canonical timeline");
+    let terminal = timeline
+        .items
+        .iter()
+        .find_map(|entry| match entry {
+            codex_app_server_protocol::ThreadTimelineEntry::TurnCompleted {
+                user_wait_timing,
+                status,
+                ..
+            } => Some((user_wait_timing.clone(), status.clone())),
+            _ => None,
+        })
+        .expect("terminal timeline boundary");
+    assert_eq!(
+        terminal,
+        (
+            Some(cancelled),
+            codex_app_server_protocol::TurnStatus::Interrupted
+        )
     );
 }

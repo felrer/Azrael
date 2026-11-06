@@ -145,6 +145,7 @@ impl PreparedTurnInputSettings {
             initiating_agent_path,
             root_turn_id,
             cyber_access_program,
+            agent_profile,
         } = self.start_options;
         let emit_thread_settings_applied = self.thread_settings_update.is_some();
         let _settings_guard = if emit_thread_settings_applied {
@@ -156,6 +157,8 @@ impl PreparedTurnInputSettings {
         updates.service_tier_for_turn = service_tier;
 
         let options = NewTurnContextOptions {
+                    provider_account: None,
+            agent_profile,
             final_output_json_schema,
             cyber_access_program,
         };
@@ -260,6 +263,7 @@ pub(super) async fn handle(
             ));
         };
         session.validate_queued_question_reply(content)?;
+        request.start.agent_profile = session.queued_question_reply_profile(content)?;
     }
     if let Some((turn_id, root_turn_id)) = session
         .accepted_input_retry_with_root(&mut request.input, &request.additional_context, origin)
@@ -918,7 +922,7 @@ impl Session {
         Ok(())
     }
 
-    pub(super) async fn clear_reserved_idle_turn(
+    pub(crate) async fn clear_reserved_idle_turn(
         &self,
         turn_state: &Arc<tokio::sync::Mutex<TurnState>>,
     ) {

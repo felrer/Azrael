@@ -23,6 +23,8 @@ fn hex(value: &str, minimum: usize) -> bool {
 pub(crate) struct Attach {
     pub schema: u32,
     pub protocol: u32,
+    #[serde(default)]
+    pub read_only: bool,
     pub thread_id: String,
     pub workspace_id: String,
     pub owner_id: String,
@@ -354,6 +356,13 @@ pub(crate) fn scoped_request(method: &str, params: Option<&Value>, thread: &str)
         && params.get("threadId").and_then(Value::as_str) == Some(thread)
 }
 
+/// Read-only preview never grants subscriptions, mutation or callback authority.
+pub(crate) fn read_only_scoped_request(method: &str, params: Option<&Value>, thread: &str) -> bool {
+    method == "initialize"
+        || (method == "thread/read"
+            && params.and_then(|params| params.get("threadId")).and_then(Value::as_str) == Some(thread))
+}
+
 /// Opening a source session observes its existing runtime. A new UI's defaults cannot
 /// trigger generic resume's replacement-runtime path or replace source history/settings.
 pub(crate) fn retain_scoped_resume_presentation(params: &mut Value) {
@@ -478,6 +487,7 @@ mod tests {
         let mut attach = Attach {
             schema: 1,
             protocol: 1,
+            read_only: false,
             thread_id: ThreadId::new().to_string(),
             workspace_id: "a".repeat(64),
             owner_id: "b".repeat(32),
@@ -525,6 +535,12 @@ mod tests {
         assert!(!scoped_request("turn/start", Some(&params), "two"));
         assert!(!scoped_request("account/login/start", Some(&params), "one"));
         assert!(!scoped_request("thread/fork", Some(&params), "one"));
+        assert!(read_only_scoped_request("initialize", None, "one"));
+        assert!(read_only_scoped_request("thread/read", Some(&params), "one"));
+        assert!(!read_only_scoped_request("thread/read", Some(&params), "two"));
+        for method in ["thread/resume", "turn/start", "thread/name/set", "account/read", "config/read", "azrael/session/handoff"] {
+            assert!(!read_only_scoped_request(method, Some(&params), "one"), "{method}");
+        }
         assert_eq!(
             message_thread(&serde_json::json!({"params":{"thread":{"id":"one"}}})),
             Some("one")

@@ -288,6 +288,16 @@ pub struct ExternalAuthRefreshContext {
 ///
 /// Implementations own the current auth value and any source-specific refresh mechanism.
 pub trait ExternalAuth: Send + Sync {
+    /// Whether this source depends on the host connection that supplied it.
+    /// Daemon-owned providers may opt out without changing credential admission.
+    fn requires_original_host_connection(&self) -> bool {
+        true
+    }
+
+    /// Stable, credential-free Azrael profile identity, when this source owns one.
+    fn azrael_profile_id(&self) -> Option<&str> {
+        None
+    }
     /// Synchronous source admission check; cached credentials never override retirement.
     fn is_available(&self) -> bool {
         true
@@ -2967,6 +2977,18 @@ impl AuthManager {
         self.external_auth_provider().is_some()
     }
 
+    pub fn requires_original_host_connection(&self) -> bool {
+        self.external_auth_provider()
+            .is_some_and(|provider| provider.requires_original_host_connection())
+            || self.is_external_chatgpt_auth_active()
+    }
+
+    pub fn azrael_profile_id(&self) -> Option<String> {
+        self.external_auth_provider().and_then(|provider| {
+            provider.is_available().then(|| provider.azrael_profile_id().map(str::to_owned)).flatten()
+        })
+    }
+
     pub fn is_workload_identity_selected(&self) -> bool {
         self.workload_identity_selected
     }
@@ -3063,6 +3085,10 @@ impl AuthManager {
     ) -> std::io::Result<Arc<Self>> {
         struct UnselectedProjectAuth;
         impl ExternalAuth for UnselectedProjectAuth {
+            fn requires_original_host_connection(&self) -> bool {
+                false
+            }
+
             fn is_available(&self) -> bool {
                 false
             }

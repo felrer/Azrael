@@ -20,15 +20,15 @@ async function main() {
   } };
   const owner = createWindowOwner({ backend, authorize: async () => approved, codexHome: home });
   try {
-    let target = await owner.bind('thread', current); const args = { targetId: target.targetId };
-    assert.equal((await owner.call('thread', 'status', {})).targetId, target.targetId);
-    await assert.rejects(owner.call('thread', 'status', { targetId: 'forged' }), /forged/);
-    assert.equal((await owner.call('unbound', 'status', {})).state, 'unbound');
+    let target = await owner.bind('thread', current); const args = { windowId: target.windowId };
+    assert.equal((await owner.call('thread', 'status', args)).windowId, target.windowId);
+    await assert.rejects(owner.call('thread', 'status', { windowId: 'forged' }), /forged/);
+    await assert.rejects(owner.call('unbound', 'status', {}), /Invalid arguments/);
     await assert.rejects(owner.call('thread', 'capture', {}), /Invalid arguments/);
     assert.equal((await owner.listWindows()).length, 1);
     await assert.rejects(owner.call('thread', 'capture', { ...args, hwnd: '999' }), /Invalid arguments/);
     await assert.rejects(owner.call('thread', 'bind', args), /Unsupported/);
-    await assert.rejects(owner.call('thread', 'capture', { targetId: 'forged' }), /forged/);
+    await assert.rejects(owner.call('thread', 'capture', { windowId: 'forged' }), /forged/);
     frameOverride = { widthPx: 784, heightPx: 562 };
     const distinctGeometry = await owner.call('thread', 'capture', args);
     assert.equal(distinctGeometry.widthPx, 784); assert.equal(distinctGeometry.heightPx, 562);
@@ -75,7 +75,7 @@ async function main() {
     const queuedRejection = assert.rejects(queuedCapture, /cancelled/);
     await assert.rejects(failedAction, error => error === providerFailure); await queuedRejection;
     onRequest = null;
-    assert.equal((await owner.call('thread', 'status', {})).state, 'paused');
+    assert.equal((await owner.call('thread', 'status', args)).state, 'paused');
     const callsWhilePaused = calls.length;
     await assert.rejects(owner.call('thread', 'capture', args), /paused/);
     await assert.rejects(owner.call('thread', 'invoke', { ...args, observationId: beforeFailure.observationId, elementId: 'e' }), /paused/);
@@ -88,7 +88,7 @@ async function main() {
     await owner.resume('thread'); assert.equal(restores, 1);
     current.minimized = true; await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'window_minimized'); assert.equal(restores, 1);
     owner.clear('thread'); current = { ...window(), minimized: true };
-    target = await owner.bind('thread', current); args.targetId = target.targetId;
+    target = await owner.bind('thread', current); args.windowId = target.windowId;
     assert.equal(target.pauseReason, 'minimized'); assert.equal(target.restoreAllowed, true);
     await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'window_minimized');
     await owner.call('thread', 'restore_window', args);
@@ -100,7 +100,7 @@ async function main() {
     const revoked = owner.call('thread', 'capture', args); await began2; approved = false; release2(); await assert.rejects(revoked, /revoked/); approved = true; pending = null; onRequest = null;
     await owner.resume('thread'); current.pid++;
     await assert.rejects(owner.call('thread', 'capture', args), /identity changed/);
-    owner.clear('thread'); current = window(); target = await owner.bind('thread', current); args.targetId = target.targetId;
+    owner.clear('thread'); current = window(); target = await owner.bind('thread', current); args.windowId = target.windowId;
     await owner.saveMacro({ id: 'two', name: 'Two sizes', steps: [{ widthDip: 700, heightDip: 500 }, { widthDip: 900, heightDip: 600 }] });
     assert.throws(() => owner.saveMacro({ id: 'invalid', name: 'Invalid', steps: [{ widthDip: 0, heightDip: 500 }] }), /Size/);
     assert.equal((await owner.getMacros()).length, 1);
@@ -133,7 +133,7 @@ async function geometryRecoveryChecks(home) {
     Object.assign(new Error(nativeCode), { code, nativeCode, ...(mutationOutcome ? { mutationOutcome } : {}) });
   async function reset() {
     owner.clear('geometry'); current = window(); approved = true; hook = null; calls.length = 0;
-    return { targetId: (await owner.bind('geometry', current)).targetId };
+    return { windowId: (await owner.bind('geometry', current)).windowId };
   }
   const methods = () => calls.map(call => call.method);
   async function stale(args, observation) {
@@ -150,7 +150,7 @@ async function geometryRecoveryChecks(home) {
           current.widthPx += 20; current.heightPx += 10; current.dpi += 24; throw nativeError();
         } };
         const recovered = await owner.call('geometry', tool, args);
-        assert.equal(attempts, failures + 1); assert.equal(recovered.state, 'ready'); assert.equal(recovered.targetId, args.targetId);
+        assert.equal(attempts, failures + 1); assert.equal(recovered.state, 'ready'); assert.equal(recovered.windowId, args.windowId);
         assert.equal(recovered.window.dpi, current.dpi);
         if (tool === 'capture') { assert.equal(recovered.widthPx, current.widthPx); assert.equal(recovered.dpi, current.dpi); }
         assert.deepEqual(methods(), ['status', ...Array.from({ length: failures }, () => [method, 'status']).flat(), method]);
@@ -162,7 +162,7 @@ async function geometryRecoveryChecks(home) {
         const churn = nativeError(); hook = requested => { if (requested === method) throw churn; };
         const failed = owner.call('geometry', tool, args);
         // A queued call keeps its original generation; recovery must not cancel it.
-        const queued = owner.call('geometry', 'status', {});
+        const queued = owner.call('geometry', 'status', args);
         await assert.rejects(failed, error => error === churn);
         assert.equal((await queued).state, 'ready');
         assert.equal(methods().filter(requested => requested === method).length, 3);
@@ -174,7 +174,7 @@ async function geometryRecoveryChecks(home) {
         hook = requested => { if (requested === method) throw failure; };
         await assert.rejects(owner.call('geometry', tool, args), error => error === failure);
         assert.equal(methods().filter(requested => requested === method).length, 1);
-        hook = null; assert.equal((await owner.call('geometry', 'status', {})).state, 'paused');
+        hook = null; assert.equal((await owner.call('geometry', 'status', args)).state, 'paused');
         const count = calls.length; await assert.rejects(owner.call('geometry', tool, args), /paused/); assert.equal(calls.length, count);
       }
       for (const interrupt of ['stop', 'revoke', 'minimize', 'identity']) {
@@ -191,7 +191,7 @@ async function geometryRecoveryChecks(home) {
         assert.equal(methods().includes('restore'), false, 'Recovery must not restore a minimized window');
         hook = null; approved = true;
         if (interrupt === 'identity') current.pid--;
-        assert.equal((await owner.call('geometry', 'status', {})).state, 'paused');
+        assert.equal((await owner.call('geometry', 'status', args)).state, 'paused');
       }
     }
     for (const [code, nativeCode] of [['unsupported_action', 'not-resizable'], ['invalid_request', 'resize-bounds']]) {
@@ -200,7 +200,7 @@ async function geometryRecoveryChecks(home) {
       const failed = owner.call('geometry', 'resize', { ...args, widthDip: 900, heightDip: 700 });
       const queued = owner.call('geometry', 'capture', args);
       await assert.rejects(failed, error => error === rejection && error.mutationOutcome === undefined);
-      const fresh = await queued; assert.equal(fresh.state, 'ready'); assert.equal(fresh.targetId, args.targetId);
+      const fresh = await queued; assert.equal(fresh.state, 'ready'); assert.equal(fresh.windowId, args.windowId);
       assert.equal(methods().filter(method => method === 'resize').length, 1, 'Rejected resize must not be replayed');
       hook = null; await stale(args, old);
       await owner.call('geometry', 'invoke', { ...args, observationId: fresh.observationId, elementId: 'e' });
@@ -208,7 +208,7 @@ async function geometryRecoveryChecks(home) {
         const next = await reset(); await owner.call('geometry', 'capture', next); calls.length = 0;
         hook = method => { if (method === 'resize') throw failure; };
         await assert.rejects(owner.call('geometry', 'resize', { ...next, widthDip: 900, heightDip: 700 }), error => error === failure);
-        hook = null; assert.equal((await owner.call('geometry', 'status', {})).state, 'paused');
+        hook = null; assert.equal((await owner.call('geometry', 'status', next)).state, 'paused');
         assert.equal(methods().filter(method => method === 'resize').length, 1);
       }
     }

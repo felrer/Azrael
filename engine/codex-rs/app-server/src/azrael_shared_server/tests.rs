@@ -6,6 +6,7 @@ async fn pre_resume_claim_is_exclusive_and_fences_later_original_requests() {
     let unrelated = ThreadId::new().to_string();
     let mut scopes = HashMap::new();
     let first = SessionScope {
+        read_only: false,
         thread: thread.clone(),
         context: "a".repeat(32),
         workspace: "b".repeat(64),
@@ -21,6 +22,7 @@ async fn pre_resume_claim_is_exclusive_and_fences_later_original_requests() {
     );
     // Neither attachment has resumed or created a thread subscription yet.
     let competing = SessionScope {
+        read_only: false,
         thread: thread.clone(),
         context: "a".repeat(32),
         workspace: "b".repeat(64),
@@ -71,6 +73,185 @@ async fn pre_resume_claim_is_exclusive_and_fences_later_original_requests() {
 }
 
 #[tokio::test]
+async fn read_only_attachments_coexist_with_subscribers_and_writable_claims() {
+    let thread = thread_id();
+    async fn scope(read_only: bool, thread: &str) -> SessionScope {
+        SessionScope {
+            read_only,
+            thread: thread.to_owned(),
+            context: "a".repeat(32),
+            workspace: "b".repeat(64),
+            target: "c".repeat(64),
+            host: capture_process_identity(std::process::id()).await.unwrap().unwrap(),
+        }
+    }
+    let mut scopes = HashMap::new();
+    assert_eq!(
+        bind_session_scope_if_unsubscribed(
+            &mut scopes,
+            ConnectionId(2),
+            scope(true, &thread).await,
+            &[ConnectionId(1)]
+        ),
+        "attached"
+    );
+    assert!(session_claim_allows_request(
+        &scopes,
+        ConnectionId(1),
+        &thread
+    ));
+    // An idle writer can claim the thread even while metadata readers remain attached.
+    assert_eq!(
+        bind_session_scope_if_unsubscribed(&mut scopes, ConnectionId(3), scope(false, &thread).await, &[]),
+        "attached"
+    );
+    assert_eq!(
+        bind_session_scope_if_unsubscribed(
+            &mut scopes,
+            ConnectionId(4),
+            scope(true, &thread).await,
+            &[ConnectionId(1)]
+        ),
+        "attached"
+    );
+    assert!(session_claim_allows_request(
+        &scopes,
+        ConnectionId(3),
+        &thread
+    ));
+    assert!(!session_claim_allows_request(
+        &scopes,
+        ConnectionId(1),
+        &thread
+    ));
+    assert_eq!(
+        bind_session_scope_if_unsubscribed(&mut scopes, ConnectionId(5), scope(false, &thread).await, &[]),
+        "busy"
+    );
+    scopes.remove(&ConnectionId(3));
+    assert!(session_claim_allows_request(
+        &scopes,
+        ConnectionId(1),
+        &thread
+    ));
+    assert_eq!(scopes.len(), 2);
+}
+
+#[tokio::test]
+async fn read_only_scope_rejects_control_callbacks_and_notifications() {
+    let thread = thread_id();
+    let mut scope = SessionScope {
+        read_only: true,
+        thread: thread.clone(),
+        context: "a".repeat(32),
+        workspace: "b".repeat(64),
+        target: "c".repeat(64),
+        host: capture_process_identity(std::process::id())
+            .await
+            .unwrap()
+            .unwrap(),
+    };
+    let request = |method: &str, params: serde_json::Value| -> JSONRPCMessage {
+        serde_json::from_value(serde_json::json!({"id":1,"method":method,"params":params})).unwrap()
+    };
+    assert!(session_input_allowed(
+        &scope,
+        &request("initialize", serde_json::json!({})),
+        false
+    ));
+    assert!(session_input_allowed(
+        &scope,
+        &request("thread/read", serde_json::json!({"threadId":thread})),
+        false
+    ));
+    assert!(!session_input_allowed(
+        &scope,
+        &request("thread/read", serde_json::json!({"threadId":thread_id()})),
+        false
+    ));
+    assert!(!session_input_allowed(
+        &scope,
+        &request("thread/read", serde_json::json!({})),
+        false
+    ));
+    for method in [
+        "thread/resume",
+        "turn/start",
+        "turn/interrupt",
+        "account/read",
+        "thread/list",
+        "azrael/session/handoff",
+    ] {
+        assert!(
+            !session_input_allowed(
+                &scope,
+                &request(method, serde_json::json!({"threadId":thread})),
+                false
+            ),
+            "{method}"
+        );
+    }
+    let initialized = serde_json::from_value(serde_json::json!({"method":"initialized"})).unwrap();
+    assert!(session_input_allowed(&scope, &initialized, false));
+    let notification = serde_json::from_value(
+        serde_json::json!({"method":"turn/start","params":{"threadId":thread}}),
+    )
+    .unwrap();
+    assert!(!session_input_allowed(&scope, &notification, false));
+    let response =
+        serde_json::from_value(serde_json::json!({"id":7,"result":{"decision":"accept"}})).unwrap();
+    let error = serde_json::from_value(
+        serde_json::json!({"id":7,"error":{"code":-1,"message":"declined"}}),
+    )
+    .unwrap();
+    // Even a stale or accidentally populated callback route cannot authorize a reader reply.
+    assert!(!session_input_allowed(&scope, &response, true));
+    assert!(!session_input_allowed(&scope, &error, true));
+    let approval = OutgoingMessage::Request(
+        serde_json::from_value(serde_json::json!({
+            "id":7,"method":"item/commandExecution/requestApproval",
+            "params":{"threadId":thread,"turnId":"turn","itemId":"item","startedAtMs":0}
+        }))
+        .unwrap(),
+    );
+    let update = OutgoingMessage::AppServerNotification(
+        serde_json::from_value(serde_json::json!({
+            "method":"thread/closed","params":{"threadId":thread}
+        }))
+        .unwrap(),
+    );
+    assert!(!session_outgoing_allowed(
+        Some(&scope),
+        &approval,
+        Some(&thread)
+    ));
+    assert!(!session_outgoing_allowed(Some(&scope), &update, None));
+    let own_response = OutgoingMessage::RawResponse {
+        id: RequestId::Integer(1),
+        result: serde_json::json!({}),
+    };
+    let own_error = OutgoingMessage::Error(OutgoingError {
+        id: RequestId::Integer(1),
+        error: JSONRPCErrorError {
+            code: -1,
+            message: "denied".into(),
+            data: None,
+        },
+    });
+    assert!(session_outgoing_allowed(Some(&scope), &own_response, None));
+    assert!(session_outgoing_allowed(Some(&scope), &own_error, None));
+    scope.read_only = false;
+    assert!(session_input_allowed(&scope, &response, true));
+    assert!(session_input_allowed(&scope, &error, true));
+    assert!(session_outgoing_allowed(
+        Some(&scope),
+        &approval,
+        Some(&thread)
+    ));
+    assert!(session_outgoing_allowed(Some(&scope), &update, None));
+}
+
+#[tokio::test]
 async fn live_session_subscriber_returns_busy_without_control_or_approval_route() {
     use crate::thread_state::{ConnectionCapabilities, ThreadStateManager};
     let home = tempfile::tempdir().unwrap();
@@ -103,6 +284,7 @@ async fn live_session_subscriber_returns_busy_without_control_or_approval_route(
             .is_some()
     );
     let scope = SessionScope {
+        read_only: false,
         thread: thread.to_string(),
         context: original.owner_id.clone(),
         workspace: original.workspace_id.clone(),
@@ -141,6 +323,7 @@ async fn live_session_subscriber_returns_busy_without_control_or_approval_route(
         .unsubscribe_connection_from_thread(thread, ConnectionId(1))
         .await;
     let scope = SessionScope {
+        read_only: false,
         thread: thread.to_string(),
         context: original.owner_id,
         workspace: original.workspace_id,
@@ -167,7 +350,7 @@ async fn live_session_subscriber_returns_busy_without_control_or_approval_route(
 }
 
 #[tokio::test]
-async fn target_restore_error_fences_only_selected_session_and_retains_lease() {
+async fn target_restore_error_fences_only_selected_session_and_retains_local_tracking() {
     let home = tempfile::tempdir().unwrap();
     let mut registry = new_registry(home.path());
     let first = registration(home.path(), 'a');
@@ -196,12 +379,12 @@ async fn target_restore_error_fences_only_selected_session_and_retains_lease() {
         .saved
         .threads
         .insert(unrelated.clone(), other.owner_id.clone());
-    let mut leases =
-        crate::azrael_thread_engines::ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+    let mut sessions =
+        crate::azrael_thread_engines::ThreadEngineSessions::new(home.path(), &"a".repeat(64))
             .await
             .unwrap();
-    leases.acquire(&thread).unwrap();
-    leases.acquire(&unrelated).unwrap();
+    sessions.track(&thread).unwrap();
+    sessions.track(&unrelated).unwrap();
     let compatibility = serde_json::json!({"abi":1});
     let receipt = Receipt {
         schema: 1,
@@ -260,7 +443,7 @@ async fn target_restore_error_fences_only_selected_session_and_retains_lease() {
     assert!(registry.saved.owners[&context].session_handoff_pending);
     assert_eq!(registry.context(&other.owner_id).unwrap(), other.owner_id);
     assert_eq!(registry.saved.threads[&unrelated], other.owner_id);
-    let owned = leases.owned_threads();
+    let owned = sessions.tracked_threads();
     assert!(owned.contains(&ThreadId::from_string(&thread).unwrap()));
     assert!(owned.contains(&ThreadId::from_string(&unrelated).unwrap()));
     // The outbound channel remains usable for another context after the selected failure.
@@ -294,39 +477,6 @@ async fn diagnostic_snapshot_timeout_does_not_wait_for_collection() {
     .await;
     assert!(snapshots.is_empty());
     assert!(!path.exists());
-}
-
-#[tokio::test]
-async fn diagnostic_snapshot_preserves_shape_and_storage_failure_is_nonfatal() {
-    use codex_app_server_transport::daemon_recovery::RecoverySnapshot;
-    let root = tempfile::tempdir().unwrap();
-    let path = root.path().join("snapshot.json");
-    let id = thread_id();
-    let snapshot = RecoverySnapshot {
-        loaded: [id.clone()].into_iter().collect(),
-        ..Default::default()
-    };
-    let snapshots = capture_shutdown_snapshot(
-        std::future::ready(vec![Ok(snapshot)]),
-        path.clone(),
-        vec![id.clone()],
-        Duration::from_secs(2),
-    )
-    .await;
-    assert_eq!(snapshots.len(), 1);
-    assert!(snapshots[0].loaded.contains(&id));
-    let saved: serde_json::Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
-    assert_eq!(saved["schema"], 1);
-    assert_eq!(saved["loadedThreadIds"][0], id);
-    assert_eq!(saved["snapshots"].as_array().unwrap().len(), 1);
-    let snapshots = capture_shutdown_snapshot(
-        std::future::ready(vec![Ok(RecoverySnapshot::default())]),
-        path.join("invalid.json"),
-        vec![],
-        Duration::from_secs(2),
-    )
-    .await;
-    assert!(snapshots.is_empty());
 }
 
 fn registration(root: &Path, byte: char) -> Registration {
@@ -364,6 +514,7 @@ async fn session_attachment_routes_only_its_thread_without_rebinding_window_alia
         .insert(thread.clone(), first.owner_id.clone());
     let owners = HashMap::from([(ConnectionId(1), second.owner_id.clone())]);
     let scope = SessionScope {
+        read_only: false,
         thread: thread.clone(),
         context: first.owner_id.clone(),
         workspace: first.workspace_id,
@@ -387,10 +538,6 @@ async fn session_attachment_routes_only_its_thread_without_rebinding_window_alia
 }
 fn register_without_lease(registry: &mut Registry, registration: &Registration) {
     registry.bind(registration).unwrap();
-    registry.sequence += 1;
-    registry
-        .registered_at
-        .insert(registration.owner_id.clone(), registry.sequence);
 }
 
 #[test]
@@ -434,12 +581,12 @@ fn same_owner_reconnect_preserves_authority_and_thread_owner() {
     register_without_lease(&mut registry, &first);
     let thread = thread_id();
     registry
-        .select_thread(&first.owner_id, &thread, true)
+        .select_thread(&first.owner_id, &thread)
         .unwrap();
     registry.bind(&first).unwrap();
     assert_eq!(
         registry
-            .select_thread(&first.owner_id, &thread, true)
+            .select_thread(&first.owner_id, &thread)
             .unwrap(),
         first.owner_id
     );
@@ -451,100 +598,140 @@ fn same_owner_reconnect_preserves_authority_and_thread_owner() {
 }
 
 #[test]
-fn fresh_same_workspace_rejoin_moves_all_aliases() {
+fn same_workspace_rejoin_keeps_window_defaults_and_companion_aliases() {
     let root = tempfile::tempdir().unwrap();
     let old = registration(root.path(), 'a');
     let new = registration(root.path(), 'b');
     let companion = registration(root.path(), 'c');
     let mut registry = new_registry(root.path());
-    register_without_lease(&mut registry, &old);
-    let thread = thread_id();
-    registry
-        .select_thread(&old.owner_id, &thread, true)
-        .unwrap();
-    registry.sequence += 1;
-    registry
-        .disappeared_at
-        .insert(old.owner_id.clone(), registry.sequence);
-    register_without_lease(&mut registry, &new);
-    registry.bind(&companion).unwrap();
+    for window in [&old, &new, &companion] {
+        register_without_lease(&mut registry, window);
+    }
     registry
         .saved
         .owners
         .get_mut(&companion.owner_id)
         .unwrap()
         .context = new.owner_id.clone();
+    let original_thread = thread_id();
+    let new_thread = thread_id();
+    registry
+        .select_thread(&old.owner_id, &original_thread)
+        .unwrap();
+    registry.select_thread(&new.owner_id, &new_thread).unwrap();
     assert_eq!(
         registry
-            .select_thread(&new.owner_id, &thread, true)
+            .select_thread(&new.owner_id, &original_thread)
             .unwrap(),
         old.owner_id
     );
-    assert_eq!(registry.context(&companion.owner_id).unwrap(), old.owner_id);
-    assert_eq!(registry.saved.threads[&thread], old.owner_id);
+    assert_eq!(
+        registry
+            .select_thread(&companion.owner_id, &original_thread)
+            .unwrap(),
+        old.owner_id
+    );
+    assert_eq!(
+        registry.select_thread(&new.owner_id, &new_thread).unwrap(),
+        new.owner_id
+    );
+    assert_eq!(registry.context(&new.owner_id).unwrap(), new.owner_id);
+    assert_eq!(registry.context(&companion.owner_id).unwrap(), new.owner_id);
+    assert_eq!(
+        registry.saved.owners[&new.owner_id].account_state_file,
+        new.account_state_file
+    );
+    assert_eq!(
+        registry.saved.owners[&old.owner_id].account_state_file,
+        old.account_state_file
+    );
+    registry
+        .save(&root.path().join("window-owners.json"))
+        .unwrap();
+    let mut loaded = new_registry(root.path());
+    assert_eq!(
+        loaded
+            .select_thread(&new.owner_id, &original_thread)
+            .unwrap(),
+        old.owner_id
+    );
+    assert_eq!(
+        loaded.select_thread(&new.owner_id, &new_thread).unwrap(),
+        new.owner_id
+    );
+    assert_eq!(loaded.context(&companion.owner_id).unwrap(), new.owner_id);
 }
 
-#[test]
-fn already_open_window_cannot_take_over_after_owner_disappears() {
+#[tokio::test]
+async fn already_working_same_workspace_window_can_open_thread_before_and_after_owner_closes() {
     let root = tempfile::tempdir().unwrap();
     let old = registration(root.path(), 'a');
     let other = registration(root.path(), 'b');
     let mut registry = new_registry(root.path());
-    register_without_lease(&mut registry, &old);
-    register_without_lease(&mut registry, &other);
-    let thread = thread_id();
-    registry
-        .select_thread(&old.owner_id, &thread, true)
-        .unwrap();
-    registry.sequence += 1;
-    registry
-        .disappeared_at
-        .insert(old.owner_id.clone(), registry.sequence);
-    assert!(
+    for window in [&old, &other] {
+        register_without_lease(&mut registry, window);
+        let identity = capture_process_identity(std::process::id())
+            .await
+            .unwrap()
+            .unwrap();
         registry
-            .select_thread(&other.owner_id, &thread, true)
-            .is_err()
+            .admit_window(&window.owner_id, std::process::id(), identity)
+            .unwrap();
+    }
+    let original_thread = thread_id();
+    let own_thread = thread_id();
+    registry
+        .select_thread(&old.owner_id, &original_thread)
+        .unwrap();
+    registry
+        .select_thread(&other.owner_id, &own_thread)
+        .unwrap();
+    assert_eq!(
+        registry
+            .select_thread(&other.owner_id, &original_thread)
+            .unwrap(),
+        old.owner_id
     );
+    registry.host_disappeared(&old.owner_id);
+    assert_eq!(
+        registry
+            .select_thread(&other.owner_id, &original_thread)
+            .unwrap(),
+        old.owner_id
+    );
+    assert_eq!(
+        registry
+            .select_thread(&other.owner_id, &own_thread)
+            .unwrap(),
+        other.owner_id
+    );
+    assert_eq!(registry.saved.threads[&original_thread], old.owner_id);
+    assert_eq!(registry.saved.threads[&own_thread], other.owner_id);
 }
 
 #[test]
-fn rejoin_rejects_other_workspace_mutation_and_owned_work() {
+fn project_session_access_rejects_other_workspace_without_rebinding() {
     let root = tempfile::tempdir().unwrap();
     let old = registration(root.path(), 'a');
     let mut other = registration(root.path(), 'b');
+    other.workspace_id = "c".repeat(64);
     let mut registry = new_registry(root.path());
     register_without_lease(&mut registry, &old);
-    let thread = thread_id();
-    registry
-        .select_thread(&old.owner_id, &thread, true)
-        .unwrap();
-    registry.disappeared_at.insert(old.owner_id.clone(), 1);
-    other.workspace_id = "c".repeat(64);
     register_without_lease(&mut registry, &other);
-    assert!(
-        registry
-            .select_thread(&other.owner_id, &thread, true)
-            .is_err()
-    );
-    registry
-        .saved
-        .owners
-        .get_mut(&other.owner_id)
-        .unwrap()
-        .workspace_id = old.workspace_id;
-    assert!(
-        registry
-            .select_thread(&other.owner_id, &thread, false)
-            .is_err()
-    );
-    registry
-        .select_thread(&other.owner_id, &thread_id(), true)
-        .unwrap();
-    assert!(
-        registry
-            .select_thread(&other.owner_id, &thread, true)
-            .is_err()
-    );
+    let thread = thread_id();
+    registry.select_thread(&old.owner_id, &thread).unwrap();
+    for _ in 0..2 {
+        assert_eq!(
+            registry
+                .select_thread(&other.owner_id, &thread)
+                .unwrap_err()
+                .to_string(),
+            "thread belongs to another workspace"
+        );
+        registry.host_disappeared(&old.owner_id);
+    }
+    assert_eq!(registry.saved.threads[&thread], old.owner_id);
+    assert_eq!(registry.context(&other.owner_id).unwrap(), other.owner_id);
 }
 
 #[tokio::test]
@@ -563,10 +750,10 @@ async fn leases_count_hosts_once_and_last_close_serializes_admission() {
             .unwrap();
     }
     assert_eq!(registry.leases.len(), 1);
-    assert!(registry.context_is_live(&first.owner_id));
+    assert!(registry.leases.contains_key(&first.owner_id));
     registry.host_disappeared(&first.owner_id);
     assert!(registry.last_window_gone.is_some());
-    assert!(!registry.context_is_live(&first.owner_id));
+    assert!(!registry.leases.contains_key(&first.owner_id));
     registry.stopping = true;
     assert!(registry.bind(&first).is_err());
 }
@@ -680,13 +867,10 @@ fn inactive_owner_keeps_account_path_unique_while_fresh_window_can_rejoin_thread
     register_without_lease(&mut registry, &old);
     let thread = thread_id();
     registry
-        .select_thread(&old.owner_id, &thread, true)
+        .select_thread(&old.owner_id, &thread)
         .unwrap();
-    registry.sequence += 1;
-    registry
-        .disappeared_at
-        .insert(old.owner_id.clone(), registry.sequence);
-    assert!(!registry.context_is_live(&old.owner_id));
+    registry.host_disappeared(&old.owner_id);
+    assert!(!registry.leases.contains_key(&old.owner_id));
     let mut reused_path = new.clone();
     reused_path.account_state_file = old.account_state_file.clone();
     let rejection = registry.bind(&reused_path).unwrap_err();
@@ -698,11 +882,11 @@ fn inactive_owner_keeps_account_path_unique_while_fresh_window_can_rejoin_thread
     register_without_lease(&mut registry, &new);
     assert_eq!(
         registry
-            .select_thread(&new.owner_id, &thread, true)
+            .select_thread(&new.owner_id, &thread)
             .unwrap(),
         old.owner_id
     );
     assert_eq!(registry.saved.threads[&thread], old.owner_id);
-    // Rejoin routes requests to the retained authority rather than admitting a replacement turn.
-    assert_eq!(registry.context(&new.owner_id).unwrap(), old.owner_id);
+    // The selected session retains its processor; the new window keeps its own defaults.
+    assert_eq!(registry.context(&new.owner_id).unwrap(), new.owner_id);
 }

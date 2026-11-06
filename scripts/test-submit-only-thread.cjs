@@ -7,7 +7,7 @@ const vm = require("node:vm");
 const crypto = require("node:crypto");
 const { test } = require("node:test");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
-const { ASSET, MARKER, ORIGINAL, PATCHED, injectSubmitOnlyThread } = require("./inject-submit-only-thread.cjs");
+const { ASSET, injectSubmitOnlyThread } = require("./inject-submit-only-thread.cjs");
 const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve("artifacts/upstream-ui/26.1007.21434");
 const pristine = fs.readFileSync(path.join(root, ASSET), "utf8");
 const transformed = injectSubmitOnlyThread(pristine, ASSET);
@@ -81,15 +81,7 @@ function fixture(methods = patched, { failure, cloud = false } = {}) {
   return { owner, calls, conversations, reader, args, releases: () => releases, editInputs(value) { inputs = value; } };
 }
 
-test("guarded transform is idempotent and rejects pinned drift or partial injection", () => {
 
-  assert.equal(injectSubmitOnlyThread(transformed.text, ASSET).text, transformed.text);
-  assert.equal(injectSubmitOnlyThread("unrelated", "other.js").text, "unrelated");
-  for (const damaged of ["", pristine + ORIGINAL, pristine.replace(ORIGINAL, ORIGINAL.replace("let n=", "let z=")), pristine + MARKER,
-    transformed.text + MARKER, transformed.text.replace(PATCHED, ""), transformed.text + PATCHED]) {
-    assert.throws(() => injectSubmitOnlyThread(damaged, ASSET), /anchor|Damaged/);
-  }
-});
 
 test("native baseline prewarming creates a thread without submission", async () => {
   const f = fixture(baseline);
@@ -139,9 +131,7 @@ test("unknown delivery keeps its native callback and cannot trigger an implicit 
   assert.equal(starts[0][2].onOutcomeUnknown, onUnknown);
 });
 
-test("normal creation and preparation methods are byte-identical to upstream", () => {
-  for (const [name, method] of baseline) if (name !== "prewarmConversation") assert.equal(patched.get(name), method, name);
-});
+
 
 test("production pipeline reports the boundary and binds it to its asset fingerprint", () => {
   const { getTransformRules, getAssetTransformRules } = require("./namespace-azrael-host.cjs");

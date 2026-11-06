@@ -129,8 +129,9 @@ async fn record_answer(
         server,
         vec![
             sse(vec![
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     call_id,
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({"questions": [{
                         "id": "publish", "header": "Publish", "question": question,
@@ -461,8 +462,9 @@ async fn retained_instructions_keep_identity_across_compaction_and_resume(
         .iter()
         .map(|(call_id, question, _)| {
             let mut events = vec![
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     call_id,
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({"questions": [{
                         "id": "publish", "header": "Publish", "question": question,

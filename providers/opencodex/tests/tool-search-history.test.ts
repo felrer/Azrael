@@ -24,7 +24,7 @@ const nested = { type: 'namespace', name: 'nested', tools: [schema('helper', 'NE
 const search = { type: 'tool_search', execution: 'client', parameters: { type: 'object' } };
 const discovered = { type: 'namespace', name: 'mcp__fixture', tools: [selected] };
 
-test('Claude resolved profile prepares the same compact search wire used for generation', async () => {
+test('Resolved profile prepares the same bounded native search wire used for generation', async () => {
   root = mkdtempSync(join(tmpdir(), 'azrael-claude-search-wire-'));
   process.env.CODEX_HOME = join(root, 'codex');
   process.env.OPENCODEX_HOME = join(root, 'codex', 'azrael', 'providers', 'opencodex');
@@ -35,14 +35,14 @@ test('Claude resolved profile prepares the same compact search wire used for gen
   await store.saveCredential('anthropic', { access: 'fixture-access', refresh: 'fixture-refresh', expires: Number.MAX_SAFE_INTEGER, accountId: 'fixture' });
   const definitions = { type: 'namespace', name: 'mcp__fixture', tools: Array.from({ length: 11 }, (_, i) => schema('lookup' + i, 'CURRENT_SCHEMA_' + i + '_' + 'x'.repeat(1000))) };
   const native: any = { ...request('anthropic'), instructions: 'Azrael policy',
-    harness_profile: { id: 'custom/team', fingerprint: 'resolved-fixture', tool_profile: 'builtin/claude-code-core', prompt_profile: 'builtin/claude-lean' },
-    tools: [{ type: 'namespace', name: 'functions', tools: [schema('ToolSearch', 'Search live tools')] }, definitions],
+    harness_profile: { id: 'custom/team', fingerprint: 'resolved-fixture', tool_profile: 'builtin/azrael-default', prompt_profile: 'builtin/anthropic', instruction_format: 'native' },
+    tools: [search, definitions],
     input: Array.from({ length: 10 }, (_, i) => [
-      { type: 'function_call', namespace: 'functions', name: 'ToolSearch', call_id: 'search' + i, arguments: '{"query":"lookup"}' },
+      { type: 'tool_search_call', execution: 'client', call_id: 'search' + i, arguments: { query: 'lookup' } },
       { type: 'tool_search_output', execution: 'client', call_id: 'search' + i, status: 'completed', tools: [definitions, definitions, nested] },
     ]).flat(),
   };
-  const ordinaryOutput = projectRequest(native, 'fixture', 'anthropic-xml', 'anthropic').compiled.messages.find((message: any) => message.role === 'tool').content;
+  const ordinaryOutput = projectRequest(native, 'fixture').compiled.messages.find((message: any) => message.role === 'tool').content;
   native.input.push(
     { type: 'function_call', namespace: 'mcp__fixture', name: 'lookup0', call_id: 'ordinary', arguments: '{}' },
     { type: 'function_call_output', call_id: 'ordinary', output: ordinaryOutput },
@@ -54,17 +54,18 @@ test('Claude resolved profile prepares the same compact search wire used for gen
     captured++;
     const body = JSON.parse(init.body), text = JSON.stringify(body);
     expect(body.tools).toHaveLength(12);
-    expect(body.tools[0].name).toBe('ToolSearch');
+    expect(body.tools[0].name).toMatch(/^custom_az_[a-f0-9]{40}$/);
     expect(text.split('CURRENT_SCHEMA_').length - 1).toBe(11);
-    expect(text).not.toContain('NESTED_SCHEMA_');
+    expect(text).toContain('NESTED_SCHEMA_');
     const calls = body.messages.flatMap((message: any) => message.content.filter((part: any) => part.type === 'tool_use'));
     const results = body.messages.flatMap((message: any) => message.content.filter((part: any) => part.type === 'tool_result'));
     expect(calls).toHaveLength(11); expect(results).toHaveLength(11);
     for (let i = 0; i < 10; i++) {
-      expect(calls[i]).toMatchObject({ id: 'search' + i, name: 'ToolSearch', input: { query: 'lookup' } });
+      expect(calls[i]).toMatchObject({ id: 'search' + i, name: body.tools[0].name, input: { query: 'lookup' } });
       expect(results[i].tool_use_id).toBe(calls[i].id);
       const result = JSON.parse(results[i].content);
-      expect(result.tools.map((tool: any) => tool.name)).toEqual(body.tools.slice(1).map((tool: any) => tool.name));
+      expect(result.tools[0].tools.map((tool: any) => tool.name)).toEqual(body.tools.slice(1).map((tool: any) => tool.name.slice('custom_'.length)));
+      expect(result.tools[2].tools[0].schema_reference ?? result.tools[2].tools[0].description).toBe(i === 9 ? nested.tools[0].description : 'latest_search_result');
     }
     expect(results[10].tool_use_id).toBe('ordinary');
     expect(results[10].content).toBe(ordinaryOutput);

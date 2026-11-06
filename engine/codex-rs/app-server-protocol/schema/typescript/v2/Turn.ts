@@ -6,12 +6,13 @@ import type { ThreadItem } from "./ThreadItem";
 import type { TurnError } from "./TurnError";
 import type { TurnItemsView } from "./TurnItemsView";
 import type { TurnStatus } from "./TurnStatus";
+import type { UserWaitTiming } from "./UserWaitTiming";
 
 export type Turn = {
 /**
  * Durable wait metadata owned by the engine; absent for turns that never deferred.
  */
-rootResumeWait?: RootResumeWait | null,
+rootResumeWait?: RootResumeWait | null, userWaitTiming?: UserWaitTiming | null,
 /**
  * Identifier for this turn. Codex-generated turn IDs are UUIDv7.
  */

@@ -1,6 +1,56 @@
 {
   "schema": 1,
+  "engineVerificationProfiles": {
+    "cache-lifetime": {
+      "nativeCheckIds": [
+        "tool.project-maintenance.library",
+        "tool.project-maintenance.core",
+        "tool.project-maintenance.windows-cleanup",
+        "engine.shared-engine.stable-source"
+      ]
+    }
+  },
   "features": [
+    {
+      "id": "agent.image-attachments",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/core/src/image_attachments.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_v2/message_tool.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_v2/send_message.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_v2/followup_task.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_v2.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_spec.rs",
+        "engine/codex-rs/core/src/agent/control/delivery.rs",
+        "engine/codex-rs/core/src/agent/control/api.rs",
+        "engine/codex-rs/core/src/image_preparation.rs",
+        "engine/codex-rs/core/src/session/mod.rs",
+        "engine/codex-rs/protocol/src/models.rs",
+        "engine/codex-rs/protocol/src/protocol.rs",
+        "engine/codex-rs/thread-store/src/local/delete_thread.rs",
+        "providers/opencodex/inference-mapping.mjs",
+        "providers/devin/mapping.mjs",
+        "scripts/check-agent-image-attachments.cjs"
+      ],
+      "contract": "docs/architecture/root-coordination.md",
+      "checks": [
+        {
+          "id": "agent.image-attachments.mapping",
+          "executable": "node",
+          "args": ["--test", "providers/opencodex/tests/harness-mapping.test.mjs", "providers/devin/tests/mapping.test.mjs"],
+          "level": "source"
+        },
+        {
+          "id": "agent.image-attachments.native",
+          "executable": "node",
+          "args": ["scripts/check-agent-image-attachments.cjs"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        }
+      ],
+      "reportFields": []
+    },
     {
       "id": "tool.find-names",
       "area": "engine",
@@ -75,49 +125,115 @@
       "reportFields": []
     },
     {
-      "id": "ui.request-preparation",
-      "area": "ui",
+      "id": "tool.task-memory",
+      "area": "engine",
       "owners": [
-        "scripts/inject-request-preparation.cjs",
-        "scripts/inject-request-state.cjs",
-        "scripts/namespace-cache-owner.cjs",
-        "scripts/test-namespace-cache-owner.cjs"
+        "engine/codex-rs/task-memory/Cargo.toml",
+        "engine/codex-rs/task-memory/src/lib.rs",
+        "engine/codex-rs/core/src/tools/handlers/task_memory.rs",
+        "engine/codex-rs/core/src/tools/handlers/mod.rs",
+        "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "instructions/task-memory/shared.md",
+        "instructions/task-memory/root.md",
+        "instructions/task-memory/subagent.md",
+        "instructions/azrael-environment.json",
+        "scripts/import-instructions.py",
+        "scripts/tests/task-memory-profiles.test.cjs",
+        "scripts/check-task-memory.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/task-memory.md",
       "checks": [
         {
-          "id": "ui.request-preparation.behavior",
+          "id": "tool.task-memory.profiles",
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-request-preparation.cjs",
-            "scripts/test-request-state.cjs"
+            "scripts/tests/task-memory-profiles.test.cjs"
           ],
           "level": "source"
         },
         {
-          "id": "ui.request-preparation.account-admission",
+          "id": "tool.task-memory.install",
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-account-switch-queue.cjs",
-            "scripts/test-submit-only-thread.cjs"
+            "--test-name-pattern=task-memory role resources",
+            "scripts/tests/instruction-package.test.cjs"
           ],
           "level": "source"
         },
         {
-          "id": "ui.request-preparation.namespace-cache-owner",
+          "id": "tool.task-memory.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-task-memory.cjs"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "tool.multi-pointer",
+      "area": "engine",
+      "owners": [
+        "native/multi-pointer/CMakeLists.txt",
+        "native/multi-pointer/main.cpp",
+        "native/multi-pointer/platform.hpp",
+        "native/multi-pointer/overlay.hpp",
+        "native/multi-pointer/cursor-assets.hpp",
+        "native/multi-pointer/cursor-presentation.hpp",
+        "native/multi-pointer/cursor-renderer.hpp",
+        "native/multi-pointer/cursor-render-selftest.hpp",
+        "native/multi-pointer/CURSOR-NOTICES.md",
+        "native/multi-pointer/system-cursor.hpp",
+        "native/multi-pointer/mouse-routing.hpp",
+        "native/multi-pointer/raw-origin.hpp",
+        "native/multi-pointer/raw-origin-selftest.cpp",
+        "native/multi-pointer/operations.hpp",
+        "native/multi-pointer/broker.hpp",
+        "native/multi-pointer/README.md",
+        "scripts/multi-pointer-mcp.cjs",
+        "scripts/test-multi-pointer-mcp.cjs",
+        "scripts/window-switched-input.cjs",
+        "scripts/test-window-switched-input.cjs",
+        "scripts/check-multi-pointer-native.cjs"
+      ],
+      "contract": "docs/architecture/multi-pointer.md",
+      "checks": [
+        {
+          "id": "tool.multi-pointer.mcp-boundary",
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-namespace-cache-owner.cjs"
+            "scripts/test-multi-pointer-mcp.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "tool.multi-pointer.cursor-native",
+          "executable": "node",
+          "args": [
+            "scripts/check-multi-pointer-native.cjs",
+            "--render-only"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "tool.multi-pointer.host-boundary",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-window-switched-input.cjs",
+            "scripts/test-window-virtual-policy.cjs",
+            "scripts/test-window-control-runtime.cjs"
           ],
           "level": "source"
         }
       ],
       "reportFields": [
-        "requestPreparationEdits",
-        "requestStateEdits"
+        "multiPointerEdits"
       ]
     },
     {
@@ -144,7 +260,9 @@
         "apps/azrael-desktop/check.cjs",
         "apps/azrael-desktop/verify.cjs",
         "apps/azrael-desktop/fixture-backend.cjs",
-        "apps/azrael-desktop/verification.cjs"
+        "apps/azrael-desktop/verification.cjs",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
       ],
       "contract": "docs/architecture/standalone-app.md",
       "reportFields": [
@@ -154,7 +272,18 @@
         {
           "id": "ui.standalone-app.source",
           "executable": "node",
-          "args": ["apps/azrael-desktop/check.cjs"],
+          "args": [
+            "apps/azrael-desktop/check.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.standalone-app.namespace-cache-owner",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-namespace-cache-owner.cjs"
+          ],
           "level": "source"
         }
       ]
@@ -178,19 +307,28 @@
         {
           "id": "build.shared-ui-cache.retention",
           "executable": "node",
-          "args": ["--test", "scripts/test-asset-transform-cache-retention.cjs"],
+          "args": [
+            "--test",
+            "scripts/test-asset-transform-cache-retention.cjs"
+          ],
           "level": "source"
         },
         {
           "id": "build.shared-ui-cache.owner",
           "executable": "node",
-          "args": ["--test", "scripts/test-namespace-cache-owner.cjs"],
+          "args": [
+            "--test",
+            "scripts/test-namespace-cache-owner.cjs"
+          ],
           "level": "source"
         },
         {
           "id": "build.shared-ui-cache.forwarding",
           "executable": "node",
-          "args": ["--test", "scripts/test-build-platform.cjs"],
+          "args": [
+            "--test",
+            "scripts/test-build-platform.cjs"
+          ],
           "level": "source"
         }
       ]
@@ -211,15 +349,20 @@
         {
           "id": "runtime.deletion-approval.host",
           "executable": "node",
-          "args": ["scripts/check-deletion-approval-host.cjs"],
+          "args": [
+            "scripts/check-deletion-approval-host.cjs"
+          ],
           "level": "source"
         },
         {
           "id": "runtime.deletion-approval.native",
           "executable": "node",
-          "args": ["scripts/check-deletion-approval-native.cjs", "{engineSourceRoot}"],
+          "args": [
+            "scripts/check-deletion-approval-native.cjs",
+            "{engineSourceRoot}"
+          ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ]
     },
@@ -281,7 +424,6 @@
         "engine/codex-rs/core/src/session/accepted_user_inputs_tests.rs",
         "engine/codex-rs/core/src/session/turn_input.rs",
         "engine/codex-rs/core/src/session/compact_input.rs",
-        "engine/codex-rs/core/src/tools/handlers/claude_controls.rs",
         "engine/codex-rs/core/src/tools/spec_plan.rs",
         "engine/codex-rs/history/src/lib.rs",
         "engine/codex-rs/history/src/heartbeat.rs",
@@ -340,7 +482,7 @@
             "all"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "ui.question-withdrawal.sdk",
@@ -419,10 +561,12 @@
         "scripts/test-ordinary-runtime-node.cjs",
         "scripts/test-integrated-entry.cjs",
         "scripts/cargo-target-owner.cjs",
+        "scripts/cargo-stable-source.cjs",
+        "scripts/test-cargo-stable-source.cjs",
         "scripts/cargo-shared-cache.cjs",
+        "scripts/cargo-owner-audit.cjs",
+        "scripts/test-cargo-owner-audit.cjs",
         "scripts/test-cargo-shared-cache.cjs",
-        "scripts/cargo-test-preparation.cjs",
-        "scripts/test-cargo-test-preparation.cjs",
         "scripts/test-cargo-target-owner.cjs",
         "scripts/test-cargo-scheduling.cjs",
         "engine/codex-rs/app-server/Cargo.toml",
@@ -435,6 +579,8 @@
         "scripts/build-platform.cjs",
         "scripts/cargo-verification.cjs",
         "scripts/pipeline-preflight.cjs",
+        "scripts/source-test-fixtures.cjs",
+        "scripts/test-source-test-fixtures.cjs",
         "scripts/test-pipeline-preflight.cjs",
         "scripts/cargo-preflight-recipes.cjs",
         "scripts/test-cargo-preflight-recipes.cjs",
@@ -442,6 +588,7 @@
         "scripts/test-deployment-input-snapshot.cjs",
         "scripts/feature-preservation.cjs",
         "scripts/verification-result-cache.cjs",
+        "scripts/verification-reuse-policy.cjs",
         "scripts/test-verification-result-cache.cjs",
         "scripts/test-feature-preservation-cache.cjs",
         "scripts/cargo-verification-cache.cjs",
@@ -467,8 +614,12 @@
         "engine/codex-rs/app-server-transport/src/transport/unix_socket_tests.rs",
         "scripts/verification-state.ps1",
         "scripts/test-verification-state.ps1",
-        "scripts/cargo-owner-audit.cjs",
-        "scripts/test-cargo-owner-audit.cjs",
+        "scripts/package-app-release.py",
+        "scripts/install-app-release.ps1",
+        "scripts/tests/test_app_release.py",
+        "scripts/independent-vscode-host-check.cjs",
+        "scripts/check-build-engine-compatibility.mjs",
+        "scripts/test-build-engine-compatibility.mjs",
         "engine/codex-rs/login/src/auth/manager.rs",
         "engine/codex-rs/login/src/auth/profiles.rs",
         "engine/codex-rs/app-server/src/request_processors/account_processor/retirement.rs",
@@ -485,21 +636,24 @@
           "args": [
             "--test",
             "scripts/test-check-shared-engine.mjs",
-            "scripts/test-check-shared-engine-resources.mjs",
+            "scripts/test-build-engine-compatibility.mjs",
             "scripts/test-cargo-verification.cjs",
-            "scripts/test-pipeline-preflight.cjs",
-            "scripts/test-cargo-preflight-recipes.cjs",
-            "scripts/test-cargo-target-owner.cjs",
             "scripts/test-cargo-shared-cache.cjs",
-            "scripts/test-cargo-test-preparation.cjs",
-            "scripts/test-cargo-scheduling.cjs",
-            "scripts/test-cargo-verification-cache.cjs",
-            "scripts/test-verification-result-cache.cjs",
-            "scripts/test-feature-preservation-cache.cjs",
-            "scripts/test-compile-scope.cjs",
+            "scripts/test-cargo-target-owner.cjs",
+            "scripts/test-pipeline-preflight.cjs",
+            "scripts/test-source-test-fixtures.cjs",
             "scripts/test-cargo-owner-audit.cjs"
           ],
           "level": "source"
+        },
+        {
+          "id": "engine.shared-engine.stable-source",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-cargo-stable-source.cjs"
+          ],
+          "level": "native"
         },
         {
           "id": "engine.shared-engine.host",
@@ -524,7 +678,7 @@
             "appserver"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.shared-engine.session-handoff",
@@ -535,7 +689,7 @@
             "handoff"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.shared-engine.manifest-policy",
@@ -555,7 +709,7 @@
             "accounts"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ]
     },
@@ -582,7 +736,7 @@
             "manual"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ]
     },
@@ -607,7 +761,7 @@
             "{engineSourceRoot}"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ]
     },
@@ -638,7 +792,7 @@
             "bridge"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ]
     },
@@ -646,6 +800,9 @@
       "id": "engine.source-provenance",
       "area": "engine",
       "owners": [
+        "scripts/pipeline-state.cjs",
+        "scripts/verification-reuse-policy.cjs",
+        "scripts/test-pipeline-state.cjs",
         "scripts/import-engine-source.py",
         "scripts/record-engine-local-changes.py",
         "scripts/tests/test_record_engine_local_changes.py",
@@ -663,6 +820,9 @@
         "scripts/build-platform.cjs",
         "scripts/test-build-metrics.ps1",
         "engine/codex-rs/app-server/src/bin/azrael.rs",
+        "scripts/deploy-azrael.ps1",
+        "scripts/check-shared-engine.mjs",
+        "scripts/test-check-shared-engine.mjs",
         "scripts/package-local-host.cjs",
         "scripts/test-package-local-host.cjs"
       ],
@@ -674,6 +834,25 @@
           "executable": "node",
           "args": [
             "scripts/check-engine-provenance-guards.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "engine.source-provenance.pipeline-state",
+          "executable": "node",
+          "args": [
+            "scripts/check-artifact-lifecycle.cjs",
+            "--stage",
+            "pipeline"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "engine.source-provenance.host-ipc",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-check-shared-engine.mjs"
           ],
           "level": "source"
         },
@@ -740,7 +919,7 @@
             "{engineSourceRoot}"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.parent-requests.guidance",
@@ -778,7 +957,7 @@
             "prompts"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.api-context.skills",
@@ -789,7 +968,7 @@
             "skills"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.api-context.core",
@@ -801,7 +980,7 @@
           ],
           "level": "native",
           "cargoScheduleGroup": "core-lib",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
@@ -826,7 +1005,7 @@
             "{engineSourceRoot}"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
@@ -835,12 +1014,53 @@
       "id": "engine.model-harness-profiles",
       "area": "engine",
       "owners": [
+        "engine/codex-rs/tools/src/tool_spec.rs",
+        "engine/codex-rs/tools/src/lib.rs",
+        "engine/codex-rs/ext/goal/src/spec.rs",
+        "engine/codex-rs/ext/goal/src/tool.rs",
+        "engine/codex-rs/ext/goal/src/extension.rs",
+        "engine/codex-rs/ext/goal/tests/goal_extension_backend.rs",
+        "engine/codex-rs/core/src/tools/handlers/extension_tools.rs",
+        "engine/codex-rs/core/src/tools/handlers/request_user_input.rs",
+        "engine/codex-rs/core/src/tools/handlers/request_user_input_spec.rs",
+        "engine/codex-rs/core/src/tools/handlers/request_user_input_spec_tests.rs",
+        "engine/codex-rs/core/src/tools/handlers/sleep.rs",
+        "engine/codex-rs/core/src/tools/handlers/request_user_input_tests.rs",
+        "engine/codex-rs/core/tests/suite/spawn_agent_description.rs",
+        "engine/codex-rs/core/tests/suite/request_user_input.rs",
+        "engine/codex-rs/core/tests/suite/agents_md_refresh.rs",
+        "engine/codex-rs/core/tests/suite/agents_md.rs",
+        "engine/codex-rs/core/tests/suite/current_time_reminder.rs",
+        "engine/codex-rs/core/tests/suite/guardian_authorization.rs",
+        "engine/codex-rs/core/tests/suite/guardian_checkpoint_migration_tests.rs",
+        "engine/codex-rs/core/tests/suite/guardian_history.rs",
+        "engine/codex-rs/core/tests/suite/guardian_retained_context.rs",
+        "engine/codex-rs/core/tests/suite/guardian_subagent_authorization.rs",
+        "engine/codex-rs/core/tests/suite/hooks.rs",
+        "engine/codex-rs/core/tests/suite/mcp_tool_exposure.rs",
+        "engine/codex-rs/core/tests/suite/mcp_turn_metadata.rs",
+        "engine/codex-rs/core/tests/suite/pending_input.rs",
+        "engine/codex-rs/core/tests/suite/remote_env.rs",
+        "engine/codex-rs/core/tests/suite/rmcp_client.rs",
+        "engine/codex-rs/core/tests/suite/step_settings.rs",
+        "engine/codex-rs/core/tests/suite/step_settings_snapshots.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/request_user_input.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/analytics.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/turn_settings_update.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/sleep.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/thread_goal_empty_responses.rs",
+        "engine/codex-rs/app-server/tests/suite/v2/thread_resume.rs",
         "instructions/instructions/agent-behavior.md",
         "engine/codex-rs/prompts/templates/agent_behavior.md",
         "engine/codex-rs/config/src/harness_profiles.rs",
         "engine/codex-rs/protocol/src/protocol.rs",
         "engine/codex-rs/prompts/src/model_instructions.rs",
         "engine/codex-rs/prompts/src/model_instructions_tests.rs",
+        "engine/codex-rs/prompts/src/multi_agent_instructions.rs",
+        "engine/codex-rs/prompts/src/multi_agent_instructions_tests.rs",
+        "engine/codex-rs/core/src/session/multi_agents.rs",
+        "scripts/record-engine-local-changes.py",
+        "scripts/tests/test_record_engine_local_changes.py",
         "engine/codex-rs/core/src/tools/mod.rs",
         "engine/codex-rs/core/src/tools/spec_plan_tests.rs",
         "engine/codex-rs/core/src/tools/router_tests.rs",
@@ -848,10 +1068,6 @@
         "engine/codex-rs/core/src/tools/spec_plan.rs",
         "engine/codex-rs/core/src/tools/router.rs",
         "engine/codex-rs/core/src/session/turn.rs",
-        "engine/codex-rs/core/src/tools/handlers/claude_files.rs",
-        "engine/codex-rs/core/src/tools/handlers/claude_shell.rs",
-        "engine/codex-rs/core/src/tools/handlers/claude_search.rs",
-        "engine/codex-rs/core/src/tools/handlers/claude_controls.rs",
         "engine/codex-rs/core/src/session/step_context.rs",
         "engine/codex-rs/core/src/context/world_state/model.rs",
         "engine/codex-rs/core/src/session/world_state.rs",
@@ -864,7 +1080,16 @@
         "scripts/check-model-harness-profiles.cjs",
         "engine/codex-rs/core/src/managed_runtime.rs",
         "providers/opencodex/inference-mapping.mjs",
-        "providers/opencodex/inference.ts"
+        "providers/opencodex/inference.ts",
+        "providers/opencodex/vendor/src/adapters/anthropic.ts",
+        "providers/opencodex/vendor/src/oauth/anthropic.ts",
+        "providers/opencodex/vendor/src/web-search/anthropic-executor.ts",
+        "providers/opencodex/vendor/src/vision/anthropic-describe.ts",
+        "providers/opencodex/tests/inference.test.ts",
+        "providers/opencodex/tests/profile-account-scope.test.ts",
+        "providers/opencodex/helper.ts",
+        "providers/opencodex/tests/images.test.ts",
+        "scripts/check-anthropic-oauth-identity.cjs"
       ],
       "contract": "docs/architecture/model-harness-profiles.md",
       "checks": [
@@ -878,6 +1103,14 @@
           "level": "source"
         },
         {
+          "id": "engine.model-harness-profiles.oauth-identity",
+          "executable": "node",
+          "args": [
+            "scripts/check-anthropic-oauth-identity.cjs"
+          ],
+          "level": "source"
+        },
+        {
           "id": "engine.model-harness-profiles.config",
           "executable": "node",
           "args": [
@@ -886,7 +1119,7 @@
             "config"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.model-harness-profiles.context",
@@ -897,7 +1130,7 @@
             "context"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.model-harness-profiles.tools",
@@ -909,7 +1142,7 @@
           ],
           "level": "native",
           "cargoScheduleGroup": "core-lib",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.model-harness-profiles.guidance",
@@ -922,6 +1155,52 @@
         }
       ],
       "reportFields": []
+    },
+    {
+      "id": "ui.request-preparation",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-request-preparation.cjs",
+        "scripts/inject-request-state.cjs",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.request-preparation.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-request-preparation.cjs",
+            "scripts/test-request-state.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.request-preparation.account-admission",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-account-switch-queue.cjs",
+            "scripts/test-submit-only-thread.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.request-preparation.namespace-cache-owner",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "requestPreparationEdits",
+        "requestStateEdits"
+      ]
     },
     {
       "id": "ui.submit-only-thread",
@@ -1069,7 +1348,27 @@
         "engine/codex-rs/thread-store/src/local/thread_history/read.rs",
         "engine/codex-rs/thread-store/src/local/thread_history/segment_paging.rs",
         "engine/codex-rs/state/thread_history_migrations/0011_turn_attribution.sql",
-        "engine/codex-rs/tui/src/chatwidget/replay.rs"
+        "engine/codex-rs/tui/src/chatwidget/replay.rs",
+        "engine/codex-rs/core/src/user_wait_timing.rs",
+        "engine/codex-rs/core/src/user_wait_runtime.rs",
+        "engine/codex-rs/core/src/turn_timing.rs",
+        "engine/codex-rs/core/src/session/mod.rs",
+        "engine/codex-rs/core/src/session/mcp.rs",
+        "engine/codex-rs/core/src/tools/parallel.rs",
+        "engine/codex-rs/protocol/src/user_wait.rs",
+        "engine/codex-rs/protocol/src/protocol.rs",
+        "engine/codex-rs/rollout/src/policy.rs",
+        "engine/codex-rs/state/thread_history_migrations/0012_user_wait_timing.sql",
+        "engine/codex-rs/core/src/tasks/mod.rs",
+        "engine/codex-rs/core/src/session/session.rs",
+        "engine/codex-rs/core/src/tools/router.rs",
+        "engine/codex-rs/core/src/tools/code_mode/delegate.rs",
+        "engine/codex-rs/core/src/tools/code_mode/execute_handler.rs",
+        "engine/codex-rs/core/src/unified_exec/async_watcher.rs",
+        "engine/codex-rs/core/src/unified_exec/process_manager.rs",
+        "engine/codex-rs/core/src/agent/api.rs",
+        "engine/codex-rs/core/src/agent/control/api.rs",
+        "engine/codex-rs/codex-mcp/src/elicitation.rs"
       ],
       "contract": "docs/architecture/task-work-time.md",
       "checks": [
@@ -1083,7 +1382,7 @@
           ],
           "level": "native",
           "cargoScheduleGroup": "appserver-protocol-lib-isolated",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.task-work-time.store",
@@ -1094,7 +1393,7 @@
             "store"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.task-work-time.appserver",
@@ -1105,7 +1404,18 @@
             "appserver"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.task-work-time.user-wait",
+          "executable": "node",
+          "args": [
+            "scripts/check-task-work-time-native.cjs",
+            "{engineSourceRoot}",
+            "user-wait"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
@@ -1135,7 +1445,10 @@
         "scripts/ui-test-transform-fixture.cjs",
         "scripts/test-ui-test-transform-fixture.cjs",
         "scripts/namespace-cache-owner.cjs",
-        "scripts/test-namespace-cache-owner.cjs"
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/inject-user-wait-time.cjs",
+        "scripts/test-user-wait-time.cjs",
+        "scripts/verify-user-wait-time-render.mjs"
       ],
       "contract": "docs/architecture/task-work-time.md",
       "checks": [
@@ -1173,7 +1486,8 @@
               "scripts/ui-test-transform-fixture.cjs",
               "scripts/test-ui-test-transform-fixture.cjs",
               "scripts/namespace-cache-owner.cjs",
-              "scripts/test-namespace-cache-owner.cjs"
+              "scripts/test-namespace-cache-owner.cjs",
+              "scripts/inject-user-wait-time.cjs"
             ]
           }
         },
@@ -1210,7 +1524,8 @@
               "scripts/ui-test-transform-fixture.cjs",
               "scripts/test-ui-test-transform-fixture.cjs",
               "scripts/namespace-cache-owner.cjs",
-              "scripts/test-namespace-cache-owner.cjs"
+              "scripts/test-namespace-cache-owner.cjs",
+              "scripts/inject-user-wait-time.cjs"
             ]
           }
         },
@@ -1231,10 +1546,20 @@
             "scripts/test-namespace-cache-owner.cjs"
           ],
           "level": "source"
+        },
+        {
+          "id": "ui.task-work-time.user-wait",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-user-wait-time.cjs"
+          ],
+          "level": "source"
         }
       ],
       "reportFields": [
-        "taskWorkTimeEdits"
+        "taskWorkTimeEdits",
+        "userWaitTimeEdits"
       ]
     },
     {
@@ -1486,6 +1811,19 @@
       "id": "ui.instruction-settings",
       "area": "ui",
       "owners": [
+        "scripts/instruction-workbench.cjs",
+        "scripts/instruction-workbench-options.cjs",
+        "scripts/instruction-workbench-resources.cjs",
+        "scripts/tests/instruction-workbench-resources.test.cjs",
+        "scripts/instruction-workbench-view.cjs",
+        "scripts/instruction-workbench-runtime.cjs",
+        "extensions/azrael-ex/src/instructionWorkbenchService.ts",
+        "extensions/azrael-ex/src/instructionWorkbenchView.ts",
+        "scripts/tests/instruction-workbench-host.test.cjs",
+        "scripts/serve-instruction-workbench.cjs",
+        "scripts/check-instruction-workbench.cjs",
+        "scripts/tests/instruction-workbench.test.cjs",
+        "scripts/tests/instruction-workbench-server.test.cjs",
         "scripts/inject-instruction-settings.cjs",
         "extensions/azrael-ex/src/instructionProtocol.ts",
         "extensions/azrael-ex/src/instructionService.ts",
@@ -1571,6 +1909,17 @@
           "args": [
             "--test",
             "scripts/test-instruction-settings.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.instruction-settings.workbench",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/tests/instruction-workbench.test.cjs",
+            "scripts/tests/instruction-workbench-server.test.cjs",
+            "scripts/tests/instruction-workbench-host.test.cjs"
           ],
           "level": "source"
         },
@@ -1757,17 +2106,39 @@
     {
       "id": "host.persisted-atoms",
       "area": "ui",
-      "owners": ["scripts/persisted-atoms.cjs", "scripts/inject-persisted-atoms.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/prepare-independent-vscode.ps1"],
+      "owners": [
+        "scripts/persisted-atoms.cjs",
+        "scripts/inject-persisted-atoms.cjs",
+        "scripts/integrated-azrael-entry.cjs",
+        "scripts/prepare-independent-vscode.ps1",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
+      ],
       "contract": "docs/architecture/azrael-ex.md",
       "checks": [
         {
           "id": "host.persisted-atoms.behavior",
           "executable": "node",
-          "args": ["--test", "scripts/test-persisted-atoms.cjs", "scripts/test-persisted-atoms-host.cjs"],
+          "args": [
+            "--test",
+            "scripts/test-persisted-atoms.cjs",
+            "scripts/test-persisted-atoms-host.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "host.persisted-atoms.namespace-cache-owner",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-namespace-cache-owner.cjs"
+          ],
           "level": "source"
         }
       ],
-      "reportFields": ["persistedAtomEdits"]
+      "reportFields": [
+        "persistedAtomEdits"
+      ]
     },
     {
       "id": "ui.fetch-response",
@@ -1850,7 +2221,6 @@
         "scripts/inject-computer-use.cjs",
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs",
-        "scripts/sky-control-policy.mjs",
         "scripts/computer-use-runtime.cjs",
         "scripts/sync-codex-environment.cjs",
         "scripts/lib/codex-environment-engine.cjs",
@@ -1859,10 +2229,7 @@
         "scripts/tests/codex-environment-engine.test.cjs",
         "scripts/prepare-independent-vscode.ps1",
         "scripts/prepare-platform-host.cjs",
-        "scripts/test-independent-namespace.cjs",
-        "scripts/window-desktop-authority.cjs",
-        "scripts/sky-controlled-service.mjs",
-        "scripts/inject-sky-control-policy.cjs"
+        "scripts/test-independent-namespace.cjs"
       ],
       "contract": "docs/architecture/computer-use.md",
       "checks": [
@@ -1872,10 +2239,7 @@
           "args": [
             "--test",
             "scripts/test-computer-use-injection.cjs",
-            "scripts/test-computer-use-approvals.cjs",
-            "scripts/test-computer-use-runtime.cjs",
-            "scripts/test-window-desktop-authority.cjs",
-            "scripts/test-sky-control-policy.cjs"
+            "scripts/test-computer-use-runtime.cjs"
           ],
           "level": "source"
         },
@@ -1966,7 +2330,7 @@
             "all"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
@@ -2009,33 +2373,32 @@
         "scripts/window-control-mcp.cjs",
         "scripts/window-control-errors.cjs",
         "scripts/use-control-settings.cjs",
-        "scripts/window-use-resources.cjs",
-        "scripts/window-child-session.cjs",
-        "scripts/window-child-session-cleanup.cjs",
-        "scripts/check-window-child-logoff.cjs",
-        "scripts/test-window-child-explicit-logoff.cjs",
-        "scripts/request-window-child-logoff.ps1",
         "native/window-control/src/uia.rs",
-        "native/windows-child-session/ChildSession.cs",
-        "native/windows-child-session/probe.ps1",
-        "native/windows-child-session/prepare-test.ps1",
-        "native/windows-child-session/test-machine-setup.ps1",
-        "native/windows-child-session/test-bootstrap.ps1",
-        "scripts/request-window-child-recovery.ps1",
-        "scripts/window-use-isolation.cjs",
-        "scripts/window-desktop-authority.cjs",
         "scripts/use-settings-host.cjs",
         "scripts/window-control-runtime.cjs",
         "scripts/prepare-ordinary-vscode.ps1",
         "scripts/package-app-release.py",
         "scripts/install-app-release.ps1",
-        "instructions/computer-use-selected-window.md",
-        "instructions/window-use/stage-3.md",
         "instructions/window-use/common.md",
         "native/window-control/src/overlay.rs",
-        "scripts/test-window-child-reconnect.cjs",
-        "scripts/test-window-child-reconnect-integration.cjs",
-        "native/windows-child-session/test-reconnect.ps1"
+        "scripts/window-use-approvals.cjs",
+        "scripts/window-switched-input.cjs",
+        "native/window-control/src/desktop_capture.rs",
+        "scripts/feature-preservation.cjs",
+        "native/window-control/src/protocol.rs",
+        "native/window-control/src/windows_backend.rs",
+        "native/multi-pointer/broker.hpp",
+        "native/multi-pointer/platform.hpp",
+        "native/multi-pointer/overlay.hpp",
+        "scripts/multi-pointer-mcp.cjs",
+        "scripts/test-window-switched-input.cjs",
+        "scripts/inject-computer-use.cjs",
+        "scripts/team-approval-routing.cjs",
+        "scripts/namespace-azrael-host.cjs",
+        "scripts/test-computer-use-injection.cjs",
+        "scripts/window-control-occupancy.cjs",
+        "scripts/test-window-control-occupancy.cjs",
+        "scripts/test-window-request-targets.cjs"
       ],
       "contract": "docs/architecture/window-use.md",
       "checks": [
@@ -2061,14 +2424,6 @@
           "level": "source"
         },
         {
-          "id": "ui.window-control.explicit-logoff",
-          "executable": "node",
-          "args": [
-            "scripts/check-window-child-logoff.cjs"
-          ],
-          "level": "source"
-        },
-        {
           "id": "ui.window-control.behavior",
           "executable": "node",
           "args": [
@@ -2078,28 +2433,16 @@
             "scripts/test-window-async-approval-host.cjs",
             "scripts/test-window-approval-notifications.cjs",
             "scripts/test-window-control-policy.cjs",
-            "scripts/test-window-virtual-policy.cjs",
-            "scripts/test-window-virtual-input.cjs",
             "scripts/test-window-control-runtime.cjs",
             "scripts/test-window-control-mcp.cjs",
-            "scripts/test-window-permission-preparation.cjs",
+            "scripts/test-window-use-host.cjs",
             "scripts/test-use-control-settings.cjs",
-            "scripts/test-use-settings-integration.cjs",
-            "scripts/test-window-use-resources.cjs",
-            "scripts/test-window-child-session.cjs",
-            "scripts/test-window-child-logoff.cjs",
-            "scripts/test-window-child-recovery.cjs",
-            "scripts/test-window-installed-application.cjs",
-            "scripts/test-window-installed-launch.cjs",
-            "scripts/test-window-use-staging.cjs",
-            "scripts/test-window-use-isolation.cjs",
-            "scripts/test-window-input-revalidation.cjs",
-            "scripts/test-window-child-viewer.cjs",
-            "scripts/test-window-use-stage-authority.cjs",
             "scripts/test-use-settings-host.cjs",
             "scripts/test-use-settings-ui.cjs",
-            "scripts/test-window-child-reconnect.cjs",
-            "scripts/test-window-child-reconnect-integration.cjs"
+            "scripts/test-window-switched-input.cjs",
+            "scripts/test-window-virtual-policy.cjs",
+            "scripts/test-window-control-occupancy.cjs",
+            "scripts/test-window-request-targets.cjs"
           ],
           "level": "source"
         },
@@ -2680,7 +3023,9 @@
         {
           "id": "ui.deferred-turn.management-recovery",
           "executable": "node",
-          "args": ["scripts/check-management-recovery.cjs"],
+          "args": [
+            "scripts/check-management-recovery.cjs"
+          ],
           "level": "source"
         },
         {
@@ -3308,6 +3653,11 @@
       "id": "engine.response-tps",
       "area": "engine",
       "owners": [
+        "engine/codex-rs/core/src/client.rs",
+        "engine/codex-rs/core/src/client_tests.rs",
+        "engine/codex-rs/codex-api/src/common.rs",
+        "engine/codex-rs/codex-api/src/sse/responses.rs",
+        "engine/codex-rs/codex-api/tests/sse_end_to_end.rs",
         "engine/codex-rs/protocol/src/response_performance.rs",
         "engine/codex-rs/protocol/src/protocol.rs",
         "engine/codex-rs/core/src/turn_timing.rs",
@@ -3335,7 +3685,7 @@
             "protocol"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.response-tps.core",
@@ -3347,7 +3697,7 @@
           ],
           "level": "native",
           "cargoScheduleGroup": "core-lib-isolated",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.response-tps.appserver",
@@ -3359,7 +3709,18 @@
           ],
           "level": "native",
           "cargoScheduleGroup": "appserver-protocol-lib-isolated",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
+        },
+        {
+          "id": "engine.response-tps.api",
+          "executable": "node",
+          "args": [
+            "scripts/check-response-tps-native.cjs",
+            "{engineSourceRoot}",
+            "api"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
@@ -3411,7 +3772,7 @@
             "lib"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.provider-context.input-budget-helper",
@@ -3477,7 +3838,7 @@
             "integration"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ]
     },
@@ -3504,7 +3865,7 @@
           ],
           "level": "native",
           "cargoScheduleGroup": "core-lib-isolated",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
@@ -3541,7 +3902,7 @@
             "{engineSourceRoot}"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.recovery.native",
@@ -3619,7 +3980,7 @@
             "{engineSourceRoot}"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
@@ -3752,9 +4113,136 @@
       ]
     },
     {
+      "id": "ui.role-profiles",
+      "area": "ui",
+      "owners": [
+        "scripts/role-profile-store.cjs",
+        "scripts/role-profile-defaults.cjs",
+        "scripts/role-profile-runtime.cjs",
+        "scripts/instruction-workbench.cjs",
+        "scripts/instruction-workbench-view.cjs",
+        "extensions/azrael-ex/src/instructionWorkbenchService.ts",
+        "extensions/azrael-ex/src/extension.ts",
+        "scripts/inject-task-profile.cjs",
+        "scripts/inject-team-runtime.cjs",
+        "scripts/team-approval-routing.cjs",
+        "scripts/inject-team-approvals.cjs",
+        "scripts/team-runtime-host.cjs",
+        "scripts/window-control-host.cjs",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
+      ],
+      "contract": "docs/architecture/instructions.md",
+      "checks": [
+        {
+          "id": "ui.role-profiles.store-runtime-approval",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/tests/role-profile-store.test.cjs",
+            "scripts/tests/role-profile-runtime.test.cjs",
+            "scripts/tests/instruction-workbench.test.cjs",
+            "scripts/tests/team-approval-routing.test.cjs",
+            "scripts/tests/instruction-workbench-host.test.cjs",
+            "scripts/tests/instruction-workbench-server.test.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.role-profiles.team-host",
+          "executable": "node",
+          "args": [
+            "scripts/test-team-runtime-host.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.role-profiles.namespace-cache-owner",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "teamApprovalEdits"
+      ]
+    },
+    {
+      "id": "engine.role-profiles",
+      "area": "engine",
+      "owners": [
+        "scripts/check-role-profiles-native.cjs",
+        "engine/codex-rs/core/Cargo.toml",
+        "engine/codex-rs/protocol/src/protocol.rs",
+        "engine/codex-rs/config/src/config_toml.rs",
+        "engine/codex-rs/config/src/state.rs",
+        "engine/codex-rs/core/src/agent/role_profile.rs",
+        "engine/codex-rs/core/src/agent/child_config.rs",
+        "engine/codex-rs/core/src/agent/control/spawn.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents/spawn.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs",
+        "engine/codex-rs/core/src/session/session.rs",
+        "engine/codex-rs/core/src/session/mod.rs",
+        "engine/codex-rs/core/src/session/root_resume.rs",
+        "engine/codex-rs/core/src/session/multi_agents.rs",
+        "engine/codex-rs/core/src/session/world_state.rs",
+        "engine/codex-rs/core/src/config/mod.rs",
+        "engine/codex-rs/core/src/codex_thread.rs",
+        "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_spec.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_tests.rs",
+        "engine/codex-rs/core/src/tools/handlers/request_plugin_install.rs",
+        "engine/codex-rs/core/src/tools/handlers/request_user_input.rs",
+        "engine/codex-rs/core/src/tools/handlers/unified_exec/exec_command.rs",
+        "engine/codex-rs/core/src/tools/handlers/work_completion.rs",
+        "engine/codex-rs/rollout/src/recorder.rs",
+        "engine/codex-rs/state/src/extract.rs",
+        "engine/codex-rs/state/src/runtime/threads.rs",
+        "engine/codex-rs/thread-store/src/in_memory.rs",
+        "engine/codex-rs/thread-store/src/local/create_thread.rs",
+        "engine/codex-rs/thread-store/src/local/mod.rs",
+        "engine/codex-rs/thread-store/src/thread_metadata_sync.rs",
+        "engine/codex-rs/thread-store/src/types.rs",
+        "engine/codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst",
+        "engine/codex-rs/core/config.schema.json",
+        "engine/codex-rs/protocol/src/agent_profile.rs",
+        "engine/codex-rs/core/src/session/agent_profile.rs",
+        "engine/codex-rs/core/src/session/turn_context.rs",
+        "engine/codex-rs/app-server/src/request_processors/thread_processor.rs",
+        "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs"
+      ],
+      "contract": "docs/architecture/work-orchestration.md",
+      "checks": [
+        {
+          "id": "engine.role-profiles.admission-and-isolation",
+          "executable": "node",
+          "args": [
+            "scripts/check-role-profiles-native.cjs",
+            "{engineSourceRoot}"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "engine.task-profile-skills",
       "area": "engine",
       "owners": [
+        "scripts/check-task-profile-skills.cjs",
+        "engine/codex-rs/protocol/src/agent_profile.rs",
+        "engine/codex-rs/protocol/src/turn_input.rs",
+        "engine/codex-rs/core/src/session/agent_profile.rs",
+        "engine/codex-rs/core/src/session/turn_input.rs",
+        "engine/codex-rs/core/src/session/turn_context.rs",
+        "engine/codex-rs/config/src/state.rs",
+        "engine/codex-rs/config/src/harness_profiles.rs",
+        "engine/codex-rs/ext/queue/src/service.rs",
+        "engine/codex-rs/ext/queue/tests/queue_service.rs",
         "engine/codex-rs/config/src/skills_config.rs",
         "engine/codex-rs/ext/skills/src/host_roots.rs",
         "engine/codex-rs/ext/skills/src/host_roots_tests.rs",
@@ -3772,7 +4260,7 @@
             "{engineSourceRoot}"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
@@ -3783,24 +4271,22 @@
       "owners": [
         "engine/codex-rs/project-maintenance/examples/maintenance_dispatch.rs",
         "engine/codex-rs/project-maintenance/src/apply.rs",
+        "engine/codex-rs/project-maintenance/src/lib.rs",
         "engine/codex-rs/project-maintenance/src/admission.rs",
-        "engine/codex-rs/project-maintenance/src/cli.rs",
         "engine/codex-rs/project-maintenance/src/coordination.rs",
         "engine/codex-rs/project-maintenance/src/disk_budget.rs",
-        "engine/codex-rs/project-maintenance/src/lock_wait.rs",
-        "engine/codex-rs/project-maintenance/src/preferences.rs",
-        "engine/codex-rs/project-maintenance/src/review_relations.rs",
-        "engine/codex-rs/project-maintenance/src/review_reuse.rs",
         "engine/codex-rs/project-maintenance/src/run_measurement.rs",
-        "engine/codex-rs/project-maintenance/src/timing.rs",
         "engine/codex-rs/project-maintenance/tests/run_measurement.rs",
-        "engine/codex-rs/project-maintenance/src/lib.rs",
         "engine/codex-rs/project-maintenance/src/windows_delete.rs",
         "engine/codex-rs/project-maintenance/src/io_priority.rs",
+        "engine/codex-rs/project-maintenance/src/unix_delete.rs",
         "engine/codex-rs/project-maintenance/src/retirement.rs",
         "engine/codex-rs/project-maintenance/src/nested_retirement.rs",
+        "engine/codex-rs/project-maintenance/src/duplicate_claims.rs",
+        "engine/codex-rs/project-maintenance/tests/duplicate_claims.rs",
         "engine/codex-rs/project-maintenance/tests/nested_retirement.rs",
         "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+        "engine/codex-rs/project-maintenance/src/cli.rs",
         "engine/codex-rs/project-maintenance/tests/root_retirement.rs",
         "engine/codex-rs/project-maintenance/tests/absent_adoption.rs",
         "engine/codex-rs/project-maintenance/tests/verified_junctions.rs",
@@ -3812,6 +4298,12 @@
         "engine/codex-rs/project-maintenance/src/lease.rs",
         "engine/codex-rs/project-maintenance/src/reservations.rs",
         "engine/codex-rs/project-maintenance/src/registration.rs",
+        "engine/codex-rs/project-maintenance/src/timing.rs",
+        "engine/codex-rs/project-maintenance/src/lock_wait.rs",
+        "engine/codex-rs/project-maintenance/src/partitioned_storage.rs",
+        "engine/codex-rs/project-maintenance/tests/contention.rs",
+        "engine/codex-rs/project-maintenance/tests/partitioned.rs",
+        "scripts/test-maintenance-contention.cjs",
         "engine/codex-rs/project-maintenance/tests/lock_recovery.rs",
         "scripts/maintenance-lock-owner.cjs",
         "scripts/maintenance-lock-worker.cjs",
@@ -3838,12 +4330,19 @@
         "engine/codex-rs/prompts/src/lib.rs",
         "scripts/test-project-maintenance.cjs",
         "engine/codex-rs/project-maintenance/src/groups.rs",
+        "engine/codex-rs/project-maintenance/src/review_relations.rs",
+        "engine/codex-rs/project-maintenance/src/review_reuse.rs",
         "engine/codex-rs/project-maintenance/tests/groups.rs",
         "scripts/artifact-lifecycle.cjs",
         "scripts/artifact-observations.cjs",
         "scripts/artifact-lifecycle.ps1",
         "scripts/test-artifact-lifecycle.cjs",
         "scripts/build-module-cache.ps1",
+        "scripts/module-cache-consumers.cjs",
+        "scripts/window-control-cache.ps1",
+        "scripts/build-window-control.ps1",
+        "scripts/preparation-state.cjs",
+        "scripts/test-preparation-state.cjs",
         "scripts/manage-module-cache-projects.ps1",
         "scripts/build-module-companion-recipe.ps1",
         "scripts/build-module-providers-recipe.ps1",
@@ -3928,6 +4427,8 @@
         "scripts/check-devin-native-engine.mjs",
         "scripts/check-devin-native-helper.mjs",
         "scripts/check-independent-vscode.ps1",
+        "scripts/verify-app-release.ps1",
+        "scripts/independent-vscode-host-check.cjs",
         "scripts/check-managed-native-engine.mjs",
         "scripts/check-management.mjs",
         "scripts/check-multiwindow-accounts.mjs",
@@ -3941,12 +4442,30 @@
         "scripts/capture-project-inputs.cjs",
         "scripts/test-capture-project-inputs.cjs",
         "scripts/deployment-workspace.cjs",
+        "scripts/test-deployment-workspace.cjs",
         "scripts/deployment-control-retirement.cjs",
-        "scripts/lifecycle-empty-publication-recovery.cjs",
         "scripts/deployment-control-retirement-native.cjs",
         "scripts/test-deployment-control-retirement.cjs",
+        "scripts/packaging-workspace.cjs",
+        "scripts/test-packaging-workspace.cjs",
+        "scripts/prepare-app-release.ps1",
+        "engine/codex-rs/app-server/src/main.rs",
+        "scripts/test-maintenance-owner-config.cjs",
+        "scripts/install-app-release.ps1",
+        "scripts/package-app-release.py",
+        "engine/codex-rs/app-server/Cargo.toml",
+        "scripts/tests/test_app_release.py",
+        "engine/codex-rs/project-maintenance/src/preferences.rs",
         "scripts/maintenance-preferences.cjs",
-        "scripts/test-deployment-workspace.cjs",
+        "scripts/maintenance-preferences-host.cjs",
+        "scripts/inject-maintenance-preferences.cjs",
+        "scripts/test-maintenance-preferences.cjs",
+        "scripts/verify-maintenance-preferences-render.mjs",
+        "extensions/azrael-ex/src/maintenancePreferencesView.ts",
+        "extensions/azrael-ex/src/extension.ts",
+        "scripts/namespace-azrael-host.cjs",
+        "scripts/build-resource-admission.cjs",
+        "scripts/test-build-resource-admission.cjs",
         "scripts/source-check-selection.cjs",
         "scripts/test-source-check-selection.cjs"
       ],
@@ -3959,6 +4478,7 @@
             "--test",
             "scripts/test-project-maintenance.cjs",
             "scripts/test-maintenance-lock-owner.cjs",
+            "scripts/test-maintenance-owner-config.cjs",
             "scripts/test-project-fail-fast.cjs",
             "scripts/test-project-selection.cjs",
             "scripts/test-source-test-policy.cjs",
@@ -3972,6 +4492,7 @@
             "files": [
               "scripts/test-project-maintenance.cjs",
               "scripts/test-maintenance-lock-owner.cjs",
+              "scripts/test-maintenance-owner-config.cjs",
               "scripts/test-project-fail-fast.cjs",
               "scripts/test-project-selection.cjs",
               "scripts/test-source-test-policy.cjs",
@@ -3992,7 +4513,7 @@
             "library"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "tool.project-maintenance.prompts",
@@ -4004,7 +4525,7 @@
             "prompts"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "tool.project-maintenance.core",
@@ -4016,7 +4537,7 @@
             "core"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "tool.project-maintenance.lifecycle-source",
@@ -4046,15 +4567,6 @@
           "level": "native"
         },
         {
-          "id": "tool.project-maintenance.ao-layout",
-          "executable": "node",
-          "args": [
-            "scripts/verify-composer-emoticon-render.mjs",
-            "--describe-paths"
-          ],
-          "level": "source"
-        },
-        {
           "id": "tool.project-maintenance.guidance",
           "executable": "node",
           "args": [
@@ -4076,6 +4588,7 @@
             "files": [
               "scripts/test-artifact-run.cjs",
               "scripts/test-deployment-workspace.cjs",
+              "scripts/test-packaging-workspace.cjs",
               "scripts/test-artifact-check-ownership.cjs",
               "scripts/test-artifact-render-ownership.cjs",
               "scripts/tests/instruction-package.test.cjs"
@@ -4091,6 +4604,24 @@
             "scripts/test-verification-schedule.cjs",
             "scripts/test-cargo-scheduling.cjs"
           ]
+        },
+        {
+          "id": "tool.project-maintenance.preferences",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-maintenance-preferences.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "tool.project-maintenance.memory-admission",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-build-resource-admission.cjs"
+          ],
+          "level": "source"
         }
       ],
       "reportFields": []
@@ -4158,7 +4689,7 @@
             "{engineSourceRoot}"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ]
     },
@@ -4256,7 +4787,7 @@
             "{engineSourceRoot}"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.mcp-lazy-startup.wrapper",
@@ -4293,7 +4824,7 @@
             "default"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.mcp-oauth-store-identity.preserve-order",
@@ -4305,7 +4836,7 @@
             "preserve-order"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
@@ -4324,6 +4855,12 @@
         "engine/codex-rs/protocol/src/error.rs",
         "engine/codex-rs/protocol/src/error_tests.rs",
         "engine/codex-rs/core/tests/suite/remote_models.rs",
+        "engine/codex-rs/core/tests/suite/models_cache_auth.rs",
+        "engine/codex-rs/core/tests/suite/personality.rs",
+        "engine/codex-rs/models-manager/src/model_info_tests.rs",
+        "engine/codex-rs/core/src/session/step_settings_tests.rs",
+        "engine/codex-rs/analytics/Cargo.toml",
+        "engine/codex-rs/analytics/src/tests/suite/threads_tests.rs",
         "engine/codex-rs/analytics/src/reducer.rs",
         "engine/codex-rs/analytics/src/tests/suite/approvals_tests.rs",
         "engine/codex-rs/analytics/src/tests/suite/reducer_ordering_tests.rs",
@@ -4438,50 +4975,78 @@
         {
           "id": "engine.selected-upstream.review-ledger",
           "executable": "node",
-          "args": ["--test", "scripts/test-codex-upstream-review.cjs"],
+          "args": [
+            "--test",
+            "scripts/test-codex-upstream-review.cjs"
+          ],
           "level": "source"
         },
         {
           "id": "engine.selected-upstream.catalog-retention",
           "executable": "node",
-          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "catalog-retention"],
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "catalog-retention"
+          ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.analytics-bound",
           "executable": "node",
-          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "analytics-bound"],
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "analytics-bound"
+          ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.code-mode-trace",
           "executable": "node",
-          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "code-mode-trace", "{engineDirectory}"],
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "code-mode-trace",
+            "{engineDirectory}"
+          ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.catalog-retention-integration",
           "executable": "node",
-          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "catalog-retention-integration"],
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "catalog-retention-integration"
+          ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.catalog-refresh",
           "executable": "node",
-          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "catalog-refresh"],
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "catalog-refresh"
+          ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.catalog-refresh-integration",
           "executable": "node",
-          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "catalog-refresh-integration"],
+          "args": [
+            "scripts/check-selected-upstream-native.cjs",
+            "{engineSourceRoot}",
+            "catalog-refresh-integration"
+          ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.network",
@@ -4492,7 +5057,7 @@
             "network"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.protocol",
@@ -4503,7 +5068,7 @@
             "protocol"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.sandbox",
@@ -4514,7 +5079,7 @@
             "sandbox"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.thread-store",
@@ -4525,7 +5090,7 @@
             "thread-store"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.core-lib",
@@ -4536,7 +5101,7 @@
             "core-lib"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.core-integration",
@@ -4548,7 +5113,7 @@
             "{engineDirectory}"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.app-server-lib",
@@ -4559,7 +5124,7 @@
             "app-server-lib"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.app-server",
@@ -4570,7 +5135,7 @@
             "app-server"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.tui",
@@ -4581,10 +5146,80 @@
             "tui"
           ],
           "level": "native",
-          "cargoPreflight": "selected-tests-v1"
+          "cargoPreflight": "selected-tests-v2"
         }
       ],
       "reportFields": []
+    },
+    {
+      "id": "engine.executor-completion",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/core/src/session/work_completion.rs",
+        "engine/codex-rs/core/src/session/work_completion_tests.rs",
+        "engine/codex-rs/core/src/unified_exec/mod.rs",
+        "engine/codex-rs/core/src/unified_exec/process.rs",
+        "engine/codex-rs/core/src/unified_exec/process_tests.rs",
+        "engine/codex-rs/core/src/unified_exec/process_manager.rs",
+        "engine/codex-rs/core/src/unified_exec/process_manager_tests.rs",
+        "engine/codex-rs/core/src/unified_exec/oneshot.rs",
+        "engine/codex-rs/core/src/tools/handlers/unified_exec/exec_command.rs",
+        "engine/codex-rs/core/src/tools/handlers/shell_spec.rs",
+        "engine/codex-rs/core/src/tools/handlers/work_completion.rs",
+        "engine/codex-rs/core/src/tools/handlers/multi_agents_spec.rs",
+        "scripts/check-executor-completion.cjs"
+      ],
+      "contract": "docs/architecture/root-resume.md",
+      "checks": [
+        {
+          "id": "engine.executor-completion.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-executor-completion.cjs",
+            "{engineSourceRoot}"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "ui.maintenance-preferences",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-maintenance-preferences.cjs",
+        "scripts/maintenance-preferences-host.cjs",
+        "scripts/maintenance-preferences.cjs",
+        "extensions/azrael-ex/src/maintenancePreferencesView.ts",
+        "scripts/test-maintenance-preferences.cjs",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
+      ],
+      "contract": "docs/architecture/project-maintenance.md",
+      "checks": [
+        {
+          "id": "ui.maintenance-preferences.host-transform",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-maintenance-preferences.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.maintenance-preferences.namespace-cache-owner",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "maintenancePreferencesEdits"
+      ]
     }
   ],
   "verificationSchedule": {

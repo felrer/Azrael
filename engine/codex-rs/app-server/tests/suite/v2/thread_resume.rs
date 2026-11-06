@@ -1512,7 +1512,7 @@ async fn thread_resume_preserves_acknowledged_model_effort_and_approvals_reviewe
                 include_turns: false,
             })
             .await?;
-        let ThreadReadResponse { thread: read } =
+        let ThreadReadResponse { thread: read, .. } =
             timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(read_id)).await??;
         assert_eq!(read.cwd.as_path(), persisted_cwd);
 
@@ -3147,8 +3147,9 @@ async fn thread_resume_keeps_tool_paused_goal_paused() -> Result<()> {
     let server = create_mock_responses_server_sequence(vec![
         responses::sse(vec![
             responses::ev_response_created("create-goal"),
-            responses::ev_function_call(
+            core_test_support::responses::ev_function_call_with_namespace(
                 "create-goal-call",
+                "legacy_codex_tools",
                 "create_goal",
                 r#"{"objective":"keep polishing"}"#,
             ),
@@ -3156,7 +3157,7 @@ async fn thread_resume_keeps_tool_paused_goal_paused() -> Result<()> {
         ]),
         responses::sse(vec![
             responses::ev_response_created("pause-goal"),
-            responses::ev_function_call("pause-goal-call", "update_goal", r#"{"status":"paused"}"#),
+            responses::ev_function_call_with_namespace("pause-goal-call", "legacy_codex_tools", "update_goal", r#"{"status":"paused"}"#),
             responses::ev_completed("pause-goal"),
         ]),
         create_final_assistant_message_sse_response("The goal is paused.")?,
@@ -3610,8 +3611,9 @@ async fn thread_goal_keeps_original_root_until_external_objective_edit() -> Resu
     let (server, _response_completions) = start_streaming_sse_server(vec![
         ungated_goal_response(responses::sse(vec![
             responses::ev_response_created("create-original-goal"),
-            responses::ev_function_call(
+            core_test_support::responses::ev_function_call_with_namespace(
                 "create-original-goal-call",
+                "legacy_codex_tools",
                 "create_goal",
                 r#"{"objective":"keep its original owner","token_budget":100}"#,
             ),
@@ -4619,6 +4621,7 @@ async fn thread_resume_prefers_persisted_git_metadata_for_local_threads() -> Res
     let rollout_dir = rollout_path.parent().expect("rollout parent directory");
     std::fs::create_dir_all(rollout_dir)?;
     let session_meta = SessionMeta {
+        role_profile: None,
         computer_use_mode: None,
         creator_user_id: None,
         creator_account_id: None,

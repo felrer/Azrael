@@ -4,7 +4,7 @@ import { signalWithTimeout, cancelBodyOnAbort } from "../lib/abort";
 import { sidecarEnter } from "../lib/sidecar-tracker";
 import { applyUpstreamRecoveryInit, fetchWithResetRetry } from "../lib/upstream-retry";
 import { getValidAccessToken, publicOAuthAuthenticationErrorMessage } from "../oauth";
-import { ANTHROPIC_OAUTH_BETA, CLAUDE_CODE_SYSTEM_INSTRUCTION } from "../oauth/anthropic";
+import { ANTHROPIC_OAUTH_BETA } from "../oauth/anthropic";
 import type { DescribeOutcome, VisionSettings } from "./describe";
 
 const ANTHROPIC_VISION_MAX_TOKENS = 1024;
@@ -183,7 +183,6 @@ export async function describeImageAnthropic(
     max_tokens: ANTHROPIC_VISION_MAX_TOKENS,
     thinking: { type: "disabled" },
     system: [
-      { type: "text", text: CLAUDE_CODE_SYSTEM_INSTRUCTION },
       { type: "text", text: DESCRIBE_INSTRUCTION },
     ],
     messages: [{ role: "user", content }],

@@ -16,6 +16,7 @@ const SAFE_ERRORS: Record<string, string> = {
   reauth: "Provider account must be reauthenticated",
   login: "Provider login failed",
   quota: "Provider quota query failed",
+  profileAccount: "Provider account does not match the captured Agent profile",
 };
 
 function containsPath(base: string, target: string): boolean {
@@ -273,6 +274,30 @@ export async function handleRequest(request: Request, io: Io, injected?: Awaited
     }
     case "credential": {
       if (providerId !== "devin" || !activeOAuthProvider(m, providerId)) throw new Error(SAFE_ERRORS.unsupported);
+      if (request.providerAccount !== undefined) {
+        const scope = request.providerAccount as any;
+        if (!scope || typeof scope !== 'object' || Array.isArray(scope)
+            || Object.keys(scope).some(key => !['providerId', 'accountId'].includes(key))
+            || scope.providerId !== providerId || typeof scope.accountId !== 'string'
+            || !/^(?:[a-f0-9]{8}|[a-f0-9]{32})$/.test(scope.accountId)
+            || accountId !== undefined && accountId !== scope.accountId
+            || request.requireAutoSwitch === true) throw new Error(SAFE_ERRORS.profileAccount);
+        const captured = { providerId: scope.providerId, accountId: scope.accountId };
+        // The selected account and returned credential are one synchronous
+        // observation under the same owner used by selection commits.
+        return withAutoSwitchPolicyMutation(m, () => {
+          let set;
+          try { set = m.store.readAuthStoreForRetirement ? m.store.readAuthStoreForRetirement()[providerId] : m.store.getAccountSet(providerId); }
+          catch { throw new Error(SAFE_ERRORS.profileAccount); }
+          if (set?.activeAccountId !== captured.accountId || !Array.isArray(set?.accounts)) throw new Error(SAFE_ERRORS.profileAccount);
+          const resolvedId = accountId ?? set.activeAccountId;
+          const account = set.accounts.find((item: any) => item.id === resolvedId);
+          if (resolvedId !== captured.accountId || !account || account.needsReauth) throw new Error(SAFE_ERRORS.profileAccount);
+          const url = m.devinBase.validateDevinApiBaseUrl(account.credential?.apiBaseUrl);
+          if (!url || typeof account.credential?.access !== 'string' || !account.credential.access) throw new Error(SAFE_ERRORS.profileAccount);
+          return { api_key: account.credential.access, api_server_url: url, account_id: resolvedId };
+        });
+      }
       if (request.requireAutoSwitch === true) {
         if (!accountId) throw new Error(SAFE_ERRORS.invalid);
         // This private snapshot is recovery admission. Consent changes after it

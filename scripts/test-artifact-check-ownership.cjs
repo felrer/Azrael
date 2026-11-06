@@ -11,9 +11,34 @@ const passed = [];
 // contained fake project. The mock confirms close on both success and failure.
 const scriptRoot = path.join(fixture, 'scripts');
 fs.mkdirSync(path.join(scriptRoot, 'lib'), {recursive:true});
-for(const source of ['check-management.mjs','artifact-run.cjs','artifact-lifecycle.cjs','artifact-observations.cjs','maintenance-lock-owner.cjs','maintenance-lock-worker.cjs','maintenance-owner-config.cjs','lib/azrael-rpc-check.mjs']) {
+for(const source of ['check-management.mjs','artifact-run.cjs','artifact-lifecycle.cjs','artifact-observations.cjs','maintenance-lock-owner.cjs','maintenance-preferences.cjs','maintenance-lock-worker.cjs','maintenance-owner-config.cjs','lib/azrael-rpc-check.mjs']) {
   fs.copyFileSync(path.join(__dirname,source),path.join(scriptRoot,source));
 }
+function bootstrapFixtureMaintenance(destinationRoot) {
+  const sourceRoot = path.resolve(__dirname, ".."), config = require("./maintenance-owner-config.cjs");
+  const selected = config.resolveMaintenanceCommand(sourceRoot);
+  if (!selected.args.length && !process.env.AZRAEL_MAINTENANCE_OWNER) {
+    const relative = "artifacts/maintenance/owner-installation.json";
+    const pin = JSON.parse(fs.readFileSync(path.join(sourceRoot, relative), "utf8"));
+    const versionRoot = path.dirname(path.dirname(pin.executable));
+    const executable = path.join(destinationRoot, "m.exe");
+    assert.ok(process.platform !== "win32" || executable.length < 260, "Fixture executable must fit Windows launch paths");
+    assert.equal(fs.existsSync(executable), false, "Fresh fixture executable required");
+    require("./freeze-platform-inputs.cjs").copyTree(path.join(sourceRoot, pin.executable), executable);
+    const files = [relative, ...["performance.json", "native-acceptance.json"].map(name => path.join(versionRoot, "verification", name)).filter(name => fs.existsSync(path.join(sourceRoot, name)))];
+    for (const name of files) {
+      const target = path.join(destinationRoot, name);
+      assert.equal(fs.existsSync(target), false, "Fresh standalone fixture metadata required");
+      require("./freeze-platform-inputs.cjs").copyTree(path.join(sourceRoot, name), target);
+    }
+    fs.writeFileSync(path.join(destinationRoot, relative), JSON.stringify({ ...pin, executable: "m.exe" }, null, 2) + "\n");
+  }
+  const actual = config.resolveMaintenanceCommand(destinationRoot);
+  assert.deepEqual(actual.args, selected.args);
+  assert.equal(actual.maxLockWaitMs, selected.maxLockWaitMs, "Fixture must preserve the installed queue capability");
+  return actual;
+}
+bootstrapFixtureMaintenance(fixture);
 const { spawnSync } = require('node:child_process');
 const { pathToFileURL } = require('node:url');
 for(const scenario of ['empty','nonempty']) {

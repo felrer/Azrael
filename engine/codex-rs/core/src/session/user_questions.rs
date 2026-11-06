@@ -12,6 +12,7 @@ use std::collections::{BTreeMap, HashSet};
 #[derive(Default)]
 pub(crate) struct UserQuestions {
     messages: BTreeMap<String, (String, AgentMessageItem)>,
+    turn_profiles: BTreeMap<String, codex_protocol::agent_profile::AgentProfileRef>,
     answered: HashSet<String>,
     // Accepted inputs can outlive their withdrawal events after a failed write.
     superseded: HashSet<String>,
@@ -157,6 +158,14 @@ impl UserQuestions {
 
     fn observe(&mut self, event: &EventMsg) {
         match event {
+            EventMsg::TurnStarted(event) => {
+                if let Some(attribution) = &event.turn_attribution
+                    && attribution.turn_id == event.turn_id
+                    && let Some(profile) = &attribution.agent_profile
+                {
+                    self.turn_profiles.insert(event.turn_id.clone(), profile.clone());
+                }
+            }
             EventMsg::ItemCompleted(event) => match &event.item {
                 TurnItem::AgentMessage(item) if item.questions.is_some() => {
                     self.messages
@@ -166,6 +175,20 @@ impl UserQuestions {
             },
             _ => {}
         }
+    }
+
+    fn reply_profile(&self, ids: &[String]) -> Result<Option<codex_protocol::agent_profile::AgentProfileRef>> {
+        let mut captured = None;
+        for id in ids {
+            let (item, _) = self.find(id).ok_or_else(|| CodexErr::InvalidRequest(format!("unknown question ID: {id}")))?;
+            let (turn_id, _) = &self.messages[&item.id];
+            let profile = self.turn_profiles.get(turn_id).cloned();
+            if captured.as_ref().is_some_and(|previous| previous != &profile) {
+                return Err(CodexErr::InvalidRequest("question reply combines different task profiles".into()));
+            }
+            captured = Some(profile);
+        }
+        Ok(captured.flatten())
     }
 
     pub(crate) fn answer_content(&mut self, content: &[UserInput]) -> bool {
@@ -185,6 +208,17 @@ impl UserQuestions {
         for item in history {
             match item {
                 RolloutItem::EventMsg(event) => state.observe(event),
+                RolloutItem::TurnContext(context) => {
+                    if let (Some(turn_id), Some(profile)) = (&context.turn_id, &context.agent_profile) {
+                        state.turn_profiles.insert(turn_id.clone(), profile.clone());
+                    }
+                }
+                RolloutItem::Compacted(compacted) => {
+                    if let Some(attribution) = compacted.resume_metadata.as_ref().and_then(|m| m.turn_attribution.as_ref())
+                        && let Some(profile) = &attribution.agent_profile {
+                        state.turn_profiles.insert(attribution.turn_id.clone(), profile.clone());
+                    }
+                }
                 RolloutItem::ResponseItem(item) => {
                     if let Some(metadata) = &item.metadata {
                         state
@@ -265,6 +299,11 @@ impl Session {
     pub(super) fn validate_queued_question_reply(&self, content: &[UserInput]) -> Result<()> {
         let ids = queued_reply_ids(content)?;
         self.user_questions.lock().unwrap().validate(&ids)
+    }
+
+    pub(super) fn queued_question_reply_profile(&self, content: &[UserInput]) -> Result<Option<codex_protocol::agent_profile::AgentProfileRef>> {
+        let ids = queued_reply_ids(content)?;
+        self.user_questions.lock().unwrap().reply_profile(&ids)
     }
 
     pub(super) async fn accept_question_replies(&self, content: &[UserInput]) {
@@ -433,6 +472,27 @@ mod tests {
             text: text.into(),
             text_elements: vec![],
         }]
+    }
+
+    #[test]
+    fn queued_reply_retains_original_profile_after_newer_turn_metadata() {
+        let profile = |digest: &str| codex_protocol::agent_profile::AgentProfileRef {
+            digest: digest.repeat(64), project_id: Some("original-project".into()), revision: Some(1),
+        };
+        let started = |turn: &str, profile| RolloutItem::EventMsg(EventMsg::TurnStarted(
+            serde_json::from_value(serde_json::json!({
+                "turn_id": turn,
+                "turn_attribution": {"turn_id": turn, "agent_profile": profile},
+            })).unwrap(),
+        ));
+        let original = profile("a");
+        let history = vec![
+            started("original-turn", original.clone()),
+            RolloutItem::EventMsg(questions(codex_protocol::ThreadId::new())),
+            started("later-turn", profile("b")),
+        ];
+        let restored = UserQuestions::from_history(&history);
+        assert_eq!(restored.reply_profile(&[question_id("questions", 0)]).unwrap(), Some(original));
     }
 
     #[tokio::test]

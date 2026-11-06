@@ -449,6 +449,24 @@ fn terminate_process_on_network_denial(
 }
 
 impl UnifiedExecProcessManager {
+    pub(crate) async fn track_user_wait_runtime(
+        &self,
+        runtime: &Arc<crate::user_wait_runtime::UserWaitRuntime>,
+    ) {
+        let store = self.process_store.lock().await;
+        for (process_id, entry) in &store.processes {
+            if entry.process.has_exited() {
+                continue;
+            }
+            let activity = runtime.activity(format!("process:{process_id}"), None);
+            let exited = entry.process.cancellation_token();
+            tokio::spawn(async move {
+                exited.cancelled().await;
+                drop(activity);
+            });
+        }
+    }
+
     pub(crate) async fn allocate_process_id(&self) -> i32 {
         loop {
             let mut store = self.process_store.lock().await;
@@ -535,6 +553,15 @@ impl UnifiedExecProcessManager {
         let (attempt, mut deferred_network_approval) = match process {
             Ok((attempt, deferred_network_approval)) => (attempt, deferred_network_approval),
             Err(err) => {
+                if let Some(completion) = &context.work_completion
+                    && let Err(error) = completion.complete(
+                        crate::session::work_completion::WorkCompletionState::Unknown,
+                        None,
+                        "Execution startup did not produce a final process handle; termination is unconfirmed",
+                    )
+                {
+                    tracing::error!(error = %error, "failed to publish execution startup completion");
+                }
                 self.release_process_id(request.process_id).await;
                 return Err(err);
             }
@@ -545,6 +572,9 @@ impl UnifiedExecProcessManager {
             permissions,
         } = attempt;
         let process = Arc::new(process);
+        if let Some(work_completion) = &context.work_completion {
+            process.attach_work_completion(work_completion.clone());
+        }
         if let Some(completion) = completion.as_ref() {
             let _ = completion.process.set(Arc::clone(&process));
         }

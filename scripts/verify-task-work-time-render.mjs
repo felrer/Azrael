@@ -30,7 +30,7 @@ ${fixtureHelper}
 const T=O,n=r;
 ${MESSAGE_HELPER.replace("export {azraelTaskTimeMessageContext,azraelTaskTimeMessageSummary};","")}
 window.fixtureNow=20000;Date.now=()=>fixtureNow;window.fixtureQueries=[];window.fixtureFailure=false;window.fixtureHost='local';window.fixtureChat='chat';window.fixtureLocale='ko';
-window.fixtureMakeChain=(prefix,count,duration=5000)=>Array.from({length:count},(_,i)=>({turnId:prefix+i,rootTurnId:prefix+'0',parentTurnId:i?prefix+(i-1):null,turnTrigger:i?'root_resume':'user',turnStartedAtMs:i*200000,durationMs:duration,status:'completed',rootResumeWait:i<3?{reservationId:prefix+'wait'+i,revision:1,state:'resumed',waitStartedAtMs:i*200000+duration,waitEndedAtMs:i*200000+duration}:null}));
+window.fixtureMakeChain=(prefix,count,duration=5000)=>Array.from({length:count},(_,i)=>({turnId:prefix+i,rootTurnId:prefix+'0',parentTurnId:i?prefix+(i-1):null,turnTrigger:i?'root_resume':'user',turnStartedAtMs:i*200000,durationMs:duration,userWaitTiming:{revision:1,startedAtMs:i*200000,requests:[],blockedIntervals:[]},status:'completed',rootResumeWait:i<3?{reservationId:prefix+'wait'+i,revision:1,state:'resumed',waitStartedAtMs:i*200000+duration,waitEndedAtMs:i*200000+duration}:null}));
 window.fixtureTurns=fixtureMakeChain('a',6);window.fixtureVisible=null;window.fixtureHistory=null;
 const manager={listThreadTurns:async(id,options)=>{fixtureQueries.push({id,options});if(fixtureFailure)throw Error('fixture failure');return {response:{data:(fixtureHistory??fixtureTurns).map(t=>({...t,id:t.turnId,startedAt:t.turnStartedAtMs/1000})),nextCursor:null}}}};
 const React=O(),jsx=r();

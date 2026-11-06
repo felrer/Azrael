@@ -9,6 +9,39 @@ const { execFileSync } = require('node:child_process');
 const { createTeamRuntimeHost, addTeamTools, isTeamRequest, TOOL, GUIDE } = require('./team-runtime-host.cjs');
 const { createTeamChangeService } = require('./team-change-service.cjs');
 async function main() {
+  // Retained: approval routing must use native ancestry independently of Git and
+  // service state, and must never project another host or an unresolved chain.
+  const approvalThreads = new Map([
+    ['direct', { id: 'direct' }],
+    ['direct-child', { id: 'direct-child', parentThreadId: 'direct' }],
+    ['direct-nested', { id: 'direct-nested', parentThreadId: 'direct-child' }],
+    ['team-lead', { id: 'team-lead' }],
+    ['team-root', { id: 'team-root', parentThreadId: 'team-lead' }],
+    ['team-child', { id: 'team-child', parentThreadId: 'team-root' }],
+    ['cycle-a', { id: 'cycle-a', parentThreadId: 'cycle-b' }],
+    ['cycle-b', { id: 'cycle-b', parentThreadId: 'cycle-a' }],
+    ['orphan', { id: 'orphan', parentThreadId: 'missing' }],
+    ['member', { id: 'member' }],
+  ]);
+  let approvalRegistry = { version: 1, teams: [{ hostId: 'local', leadId: 'team-lead', memberIds: ['member'] }] };
+  const approvalHost = createTeamRuntimeHost({ readRegistry: async () => approvalRegistry, readThread: async id => ({ thread: approvalThreads.get(id) }), createService: () => { throw Error('Approval routing must not open a Git service'); } });
+  assert.equal(await approvalHost.resolveApprovalOwner('direct-nested'), 'direct');
+  assert.equal(await approvalHost.resolveApprovalOwner('team-root'), 'team-lead');
+  assert.equal(await approvalHost.resolveApprovalOwner('team-child'), 'team-lead');
+  assert.equal(await approvalHost.resolveApprovalOwner('member'), 'team-lead');
+  assert.equal(await approvalHost.resolveApprovalOwner('team-child', 'remote'), null);
+  assert.equal(await approvalHost.resolveApprovalOwner(null), null);
+  assert.equal(await approvalHost.resolveApprovalOwner('missing'), null);
+  assert.equal(await approvalHost.resolveApprovalOwner('orphan'), null);
+  assert.equal(await approvalHost.resolveApprovalOwner('cycle-a'), null);
+  approvalThreads.delete('team-lead');
+  assert.equal(await approvalHost.resolveApprovalOwner('member'), null);
+  approvalThreads.set('team-lead', { id: 'team-lead' });
+  approvalRegistry.teams[0].hostId = 'remote';
+  assert.equal(await approvalHost.resolveApprovalOwner('member'), 'member');
+  approvalRegistry = { version: 2, teams: [] };
+  assert.equal(await approvalHost.resolveApprovalOwner('direct'), null);
+  console.log('PASS approval owner: Direct root, Team Lead, host isolation, missing ancestry/Lead, cycles and invalid registry without Git resources');
   const root = path.resolve(__dirname, '../artifacts/tasks/BQ-01/runs/host/temporary', crypto.randomUUID());
   await fs.mkdir(root, { recursive: true });
   const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', windowsHide: true }).trim();
@@ -119,7 +152,8 @@ async function main() {
   const transformed = injector.injectTeamRuntime(await fs.readFile(pinned, 'utf8'), injector.HOST_ASSET).text;
   const helper = transformed.slice(transformed.lastIndexOf(injector.MARKER) + injector.MARKER.length);
   const methods = transformed.slice(transformed.indexOf('async azraelPrepareTeamRequest('), transformed.indexOf('async deliverMcpResponseToOrigin(e){try{e=await this.azraelFinishTeamRequest(e)}'));
-  const context = vm.createContext({ require, process, Buffer, structuredClone, console, setTimeout, clearTimeout, URLSearchParams });
+  let approvalResolver, resolverRegistrations = 0;
+  const context = vm.createContext({ require: name => name === './window-control-host.cjs' ? { setApprovalOwnerResolver: resolver => { approvalResolver = resolver; resolverRegistrations++; } } : require(name), process, Buffer, structuredClone, console, setTimeout, clearTimeout, URLSearchParams });
   vm.runInContext(helper + `\nglobalThis.NativeHost=class{${methods}}`, context);
   const native = new context.NativeHost();
   native.readPersistedAtomState = async () => ({ [injector.REGISTRY_KEY]: registry });
@@ -137,6 +171,11 @@ async function main() {
   const nativeResponse = await delivered;
   assert.equal(nativeResponse.id, 'native-call-id'); assert.equal(nativeResponse.result.success, true);
   assert.equal(JSON.parse(nativeResponse.result.contentItems[0].text).state.teamId, teamId);
+  if (process.platform === 'win32') {
+    assert.equal(await approvalResolver({ threadId: 'grandchild', hostId: 'local' }), leadId);
+    assert.equal(await approvalResolver({ threadId: 'grandchild', hostId: 'remote' }), null);
+    native.azraelGetTeamHost(); assert.equal(resolverRegistrations, 1);
+  }
   assert(transformed.includes('onRequest:F=>{if(this.azraelHandleTeamTool(F))return;'));
   assert(transformed.includes('onRawNotification:F=>{this.azraelObserveTeamNotification(F);'));
   console.log('PASS native Team ancestry/identity, task ownership, Lead acceptance/ref reopen, failed evidence, tool preservation/collision, native timing/cumulative usage, collector health and text exclusion');

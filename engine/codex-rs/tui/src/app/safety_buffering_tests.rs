@@ -4,6 +4,7 @@ use codex_app_server_protocol::TurnItemsView;
 fn turn(id: &str, status: TurnStatus) -> Turn {
     Turn {
         root_resume_wait: None,
+        user_wait_timing: None,
 
         id: id.to_string(),
         root_turn_id: None,

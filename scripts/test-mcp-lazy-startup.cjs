@@ -25,7 +25,7 @@ test("MCP preservation requires the managed nonzero test preflight", () => {
   const check = { id: "engine.mcp-lazy-startup.native", level: "native", executable: "node",
     args: ["scripts/check-mcp-lazy-startup.cjs", "{engineSourceRoot}"] };
   assert.throws(() => validateCargoPreflight(check), /preflight/);
-  assert.doesNotThrow(() => validateCargoPreflight({ ...check, cargoPreflight: "selected-tests-v1" }));
+  assert.doesNotThrow(() => validateCargoPreflight({ ...check, cargoPreflight: "selected-tests-v2" }));
   for (const args of [[], ["relative"], [path.resolve("engine"), "extra"]]) {
     assert.throws(() => commands(args), /Usage/);
   }

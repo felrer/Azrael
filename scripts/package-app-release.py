@@ -189,7 +189,15 @@ def main():
         source_file = Path(config[key])
         if digest(safe_file(source_file.parent, source_file.name).read_bytes()) != build["engineProvenance"]["binaries"][name].lower():
             raise ValueError(f"Host {key} does not match selected build")
-    portable = {"schema": 1, "engine": "engine/azrael.exe", "bridge": "engine/azrael-bridge.exe", "engineVersion": config["engineVersion"], "codexHome": "@STATE@"}
+    engine_hash = build["engineProvenance"]["binaries"]["azrael.exe"].lower()
+    if "sharedEngineProtocol" in config and (type(config["sharedEngineProtocol"]) is not int or config["sharedEngineProtocol"] != 2):
+        raise ValueError("Host shared engine protocol does not match selected build")
+    if "engineSha256" in config and (not isinstance(config["engineSha256"], str) or config["engineSha256"].lower() != engine_hash):
+        raise ValueError("Host shared engine hash does not match selected build")
+    if "sharedEngine" in config and type(config["sharedEngine"]) is not bool:
+        raise ValueError("Invalid host shared engine setting")
+    portable = {"schema": 1, "engine": "engine/azrael.exe", "bridge": "engine/azrael-bridge.exe", "engineVersion": config["engineVersion"], "codexHome": "@STATE@",
+                "sharedEngine": True, "sharedEngineProtocol": 2, "engineSha256": engine_hash}
     if config.get("findNamesHelper"):
         helper = "tools/find-names/helper.cjs"
         if Path(config["findNamesHelper"]).resolve() != (release / helper).resolve() or "runtime/" + helper not in files:
@@ -211,18 +219,14 @@ def main():
             raise ValueError(f"Host {key} manifest does not match selected build")
         portable[key] = {"directory": owner, "manifestSha256": expected}
     portable["windowControl"].update(executable="window-control/azrael-window-control.exe", mcpScript="window-control/window-control-mcp.cjs")
-    child_session = json.loads(files["runtime/window-control/manifest.json"]).get("childSession")
-    if child_session:
-        portable["windowControl"]["childSession"] = {
-            "executable": "window-control/" + child_session["executable"],
-            "sha256": child_session["sha256"],
-            "probeScript": "window-control/" + child_session["probeScript"],
-        }
-        if child_session.get("logoffCleanupVersion") == 1:
-            portable["windowControl"]["childSession"]["logoffScript"] = "window-control/request-window-child-logoff.ps1"
+    if json.loads(files["runtime/window-control/manifest.json"]).get("childSession"):
+        raise ValueError("Retired child-session runtime is not permitted")
     host[runtime_key] = encoded(portable)
     files["host-template.vsix"] = zip_bytes(host)
     files["install.ps1"] = safe_file(root, "scripts/install-app-release.ps1").read_bytes()
+    files["runtime/scripts/maintenance-owner-config.cjs"] = safe_file(root, "scripts/maintenance-owner-config.cjs").read_bytes()
+    for helper in ("maintenance-lock-owner.cjs", "maintenance-lock-worker.cjs"):
+        files[f"runtime/scripts/{helper}"] = safe_file(root, f"scripts/{helper}").read_bytes()
     for name, target in (("LICENSE", "LICENSE"), ("engine/LICENSE", "licenses/engine-LICENSE"), ("engine/NOTICE", "licenses/engine-NOTICE")):
         files[target] = safe_file(root, name).read_bytes()
     for owner in ("devin", "opencodex"):

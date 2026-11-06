@@ -243,13 +243,16 @@ fn parent_request_direct_sources_preserve_namespace_encryption_and_log_boundarie
         for namespace in ["azrael_agents", "collaboration", "other"] {
             for metadata in [None, Some(Vec::new()), Some(vec!["opaque".to_string()])] {
                 let old_message = matches!(name, "spawn_agent" | "send_message" | "followup_task");
-                let expected_plaintext = (namespace == "azrael_agents" && name != "wait_agent"
+                let expected_plaintext = (namespace == "azrael_agents"
+                    && name != "wait_agent"
                     && metadata.as_ref().is_none_or(Vec::is_empty))
-                    || (namespace == "collaboration" && old_message
+                    || (namespace == "collaboration"
+                        && old_message
                         && metadata.as_ref().is_some_and(Vec::is_empty));
                 let payload = ToolPayload::Function {
-                    arguments: json!({"question": "private question", "decision": "private answer"})
-                        .to_string(),
+                    arguments:
+                        json!({"question": "private question", "decision": "private answer"})
+                            .to_string(),
                 };
                 let source = ToolCall {
                     tool_name: ToolName::namespaced(namespace, name),
@@ -398,7 +401,10 @@ async fn anthropic_azrael_tools_patch_read_and_execute() -> anyhow::Result<()> {
         },
     );
     let step = StepContext::for_test(turn);
-    assert!(!step.harness_profile.uses_claude_tools());
+    assert_eq!(
+        step.harness_profile.tool_profile,
+        codex_config::harness_profiles::AZRAEL_TOOLS
+    );
     let router = test_tool_router(&step, Vec::new(), Vec::new(), &[]);
     let tracker = Arc::new(tokio::sync::Mutex::new(TurnDiffTracker::new()));
     let calls = [
@@ -441,19 +447,13 @@ async fn anthropic_azrael_tools_patch_read_and_execute() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn claude_tool_search_loads_and_dispatches_a_deferred_tool() -> anyhow::Result<()> {
+async fn anthropic_common_discovery_loads_and_dispatches_a_deferred_tool() -> anyhow::Result<()> {
     let (session, mut turn) = make_session_and_context().await;
     Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
-    let filesystem = turn.initial_environments.primary_filesystem().expect("test filesystem");
-    Arc::make_mut(&mut turn.config).harness_profiles =
-        codex_config::harness_profiles::HarnessProfiles::load(
-            toml::from_str("[providers.anthropic]\nprofile = 'anthropic-default'").unwrap(),
-            filesystem.as_ref(),
-        ).await?;
     crate::session::tests::update_turn_settings_for_test(&mut turn, |settings| {
         let model = Arc::make_mut(&mut settings.model_info);
         model.slug = "managed/anthropic/future-model".to_string();
-        model.supports_search_tool = false;
+        model.supports_search_tool = true;
     });
     let step = StepContext::for_test(Arc::new(turn));
     let router = test_tool_router(
@@ -471,12 +471,9 @@ async fn claude_tool_search_loads_and_dispatches_a_deferred_tool() -> anyhow::Re
             .iter()
             .any(|spec| spec.name() == "extension/")
     );
-    assert!(
-        router
-            .model_visible_specs()
-            .iter()
-            .any(|spec| spec.name() == "ToolSearch")
-    );
+    assert!(router.model_visible_specs().iter().any(
+        |spec| matches!(spec, ToolSpec::ToolSearch { execution, .. } if execution == "client")
+    ));
     let session = Arc::new(session);
     let diff = Arc::new(tokio::sync::Mutex::new(TurnDiffTracker::new()));
     let call = |name: &str, namespace: Option<&str>, id: &str, arguments| {
@@ -498,12 +495,13 @@ async fn claude_tool_search_loads_and_dispatches_a_deferred_tool() -> anyhow::Re
             Arc::clone(&step),
             CancellationToken::new(),
             Arc::clone(&diff),
-            call(
-                "ToolSearch",
-                None,
-                "search-echo",
-                json!({"query":"echo", "max_results":1}).to_string(),
-            ),
+            ToolRouter::build_tool_call(serde_json::from_value(json!({
+                "type": "tool_search_call",
+                "call_id": "search-echo",
+                "execution": "client",
+                "arguments": {"query": "echo", "limit": 1},
+            }))?)?
+            .expect("native search call should route"),
             ToolCallSource::Direct,
         )
         .await?
@@ -1507,4 +1505,26 @@ fn namespace_function_names(specs: &[ToolSpec], namespace_name: &str) -> Vec<Str
             | ToolSpec::Namespace(_) => None,
         })
         .unwrap_or_default()
+}
+
+#[test]
+fn user_wait_only_builtin_agent_wait_tools_are_passive() {
+    assert!(super::user_wait_passive_tool(&ToolName::plain(
+        "wait_agent"
+    )));
+    assert!(super::user_wait_passive_tool(&ToolName::namespaced(
+        crate::tools::handlers::multi_agents_spec::MULTI_AGENT_V1_NAMESPACE,
+        "wait_agent",
+    )));
+    assert!(!super::user_wait_passive_tool(&ToolName::namespaced(
+        "mcp__server",
+        "wait_agent"
+    )));
+    assert!(!super::user_wait_passive_tool(&ToolName::plain(
+        "exec_command"
+    )));
+    assert!(!super::user_wait_passive_tool(&ToolName::namespaced(
+        crate::tools::handlers::multi_agents_spec::MULTI_AGENT_V1_NAMESPACE,
+        "send_input",
+    )));
 }

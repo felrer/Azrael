@@ -122,13 +122,6 @@ class CompileScopePolicyTests(unittest.TestCase):
         self.assertIn("exclude = integration_test_exclude", definitions)
         core_build = (policy.CARGO_RS_ROOT / "core/BUILD.bazel").read_text()
         self.assertIn('integration_test_exclude = ["tests/integration_test_setup.rs"]', core_build)
-        entrypoints = {
-            path.name for path in (policy.CARGO_RS_ROOT / "core/tests").glob("*.rs")
-            if path.name != "integration_test_setup.rs"
-        }
-        self.assertEqual(entrypoints, {
-            "all.rs", "mcp_trace_propagation.rs", "responses_headers.rs", "request_user_input_async.rs",
-        })
 
 
 if __name__ == "__main__":

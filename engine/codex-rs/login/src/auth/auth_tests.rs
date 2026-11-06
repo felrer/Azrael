@@ -1576,6 +1576,41 @@ async fn external_header_auth_rejects_a_disallowed_workspace_on_refresh() {
 }
 
 #[tokio::test]
+async fn project_auth_attachment_does_not_require_the_original_host() {
+    let codex_home = tempdir().expect("tempdir");
+    let config = test_auth_manager_config(codex_home.path());
+    let manager = AuthManager::shared_for_azrael_project(&config, None)
+        .await
+        .expect("project auth manager");
+
+    assert!(manager.has_external_auth());
+    assert!(manager.auth_cached().is_none());
+    assert!(!manager.requires_original_host_connection());
+
+    // Host-supplied credentials remain bound to their original connection.
+    let manager = AuthManager::from_optional_auth_for_testing(None);
+    assert!(!manager.requires_original_host_connection());
+    manager
+        .set_external_auth(Arc::new(StaticExternalAuth(CodexAuth::from_api_key("test"))))
+        .await
+        .expect("external auth");
+    assert!(manager.requires_original_host_connection());
+
+    // The cached external-token restriction also applies without a provider.
+    let token = fake_jwt_for_auth_file_params(&AuthFileParams {
+        openai_api_key: None,
+        chatgpt_plan_type: Some("enterprise".to_string()),
+        chatgpt_account_id: Some("workspace-one".to_string()),
+    })
+    .expect("fake access token");
+    let auth = CodexAuth::from_external_chatgpt_tokens(&token, "workspace-one", Some("enterprise"))
+        .expect("external ChatGPT auth");
+    let manager = AuthManager::from_optional_auth_for_testing(Some(auth));
+    assert!(!manager.has_external_auth());
+    assert!(manager.requires_original_host_connection());
+}
+
+#[tokio::test]
 async fn workload_identity_auth_is_immutable_and_process_local() {
     let codex_home = tempdir().expect("tempdir");
     let mut manager = AuthManager::from_auth_for_testing_with_home(

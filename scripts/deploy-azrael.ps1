@@ -7,12 +7,16 @@ param(
     [string]$EngineTargetDirectory,
     [string]$CargoCacheProjectRoot,
     [string]$ModuleCacheProjectRoot,
+    [string]$DeploymentWorkspaceManifest,
+    [string]$DeploymentWorkspaceSha256,
     [string]$CargoVerificationCacheProjectRoot,
     [string]$NamespaceCacheProjectRoot,
     [string[]]$PreflightToolDirectory,
     [long]$RequiredFreeBytes = 0,
     [long]$EstimatedCompilerGrowthBytes = 0,
     [string]$WindowControlTargetDirectory,
+    [string]$VirtualInputRuntimeDirectory,
+    [string]$MultiPointerRuntimeDirectory,
     [switch]$SkipEngineBuild,
     [string]$EngineDirectory,
     [string]$CodeModeHostPath,
@@ -31,10 +35,15 @@ param(
     [string]$UserDataDir,
     [string]$VerificationFixtureRoot,
     [switch]$VerifyOnly,
+    [switch]$Resume,
+    [string]$ReuseDecisionsPath,
+    [switch]$VerifyStandaloneHost,
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$FullRegression,
+    [ValidateSet('cache-lifetime')][string]$EngineVerificationProfile,
     [switch]$ExhaustiveRegression,
     [ValidateRange(1,16)][int]$SourceTestConcurrency = 4,
+    [ValidateRange(1,4)][int]$SourceCheckConcurrency = 4,
     [string]$SourcePreflightReceipt,
     [switch]$ForceNativeVerification,
     [string[]]$ChangedPath,
@@ -44,11 +53,30 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+if ($ReuseDecisionsPath) {
+    & node -e 'require(process.argv[1]).loadDecisions(process.argv[2])' (Join-Path $PSScriptRoot 'verification-reuse-policy.cjs') $ReuseDecisionsPath
+    if ($LASTEXITCODE -ne 0) { throw 'Invalid ReuseDecisionsPath; supply an absolute regular schema-1 decision file.' }
+}
 if ($ExhaustiveRegression) { $FullRegression = $true }
 $UiSourcePath = [IO.Path]::GetFullPath($UiSourcePath)
 $project = [IO.Path]::GetFullPath((Split-Path $PSScriptRoot -Parent))
+function Resolve-DeploymentModuleCacheOwner([string]$Project, [string]$ManifestPath, [string]$ManifestSha256, [string]$ExplicitOwner) {
+    if (-not $ManifestPath -and -not $ManifestSha256) { return $ExplicitOwner }
+    if (-not $ManifestPath -or -not $ManifestSha256) { throw 'DeploymentWorkspaceManifest and DeploymentWorkspaceSha256 must be supplied together.' }
+    $selection = & node (Join-Path $Project 'scripts/deployment-workspace.cjs') --module-cache-owner $ManifestPath $ManifestSha256 $Project
+    if ($LASTEXITCODE -ne 0) { throw 'Deployment workspace cache owner verification failed.' }
+    $selectedOwner = [string](($selection | ConvertFrom-Json).moduleCacheProjectRoot)
+    if (-not $selectedOwner -or -not [IO.Path]::IsPathFullyQualified($selectedOwner)) { throw 'Verified deployment module cache owner missing.' }
+    if ($ExplicitOwner -and [IO.Path]::GetFullPath($ExplicitOwner) -ine [IO.Path]::GetFullPath($selectedOwner)) { throw 'Explicit ModuleCacheProjectRoot conflicts with deployment workspace owner.' }
+    return $selectedOwner
+}
+$ModuleCacheProjectRoot = Resolve-DeploymentModuleCacheOwner $project $DeploymentWorkspaceManifest $DeploymentWorkspaceSha256 $ModuleCacheProjectRoot
 $run = "deploy-$ReleaseName"
 $logs = Join-Path $project "artifacts/logs/$run"
+$pipelineRoot = $logs
+$pipelineFile = Join-Path $pipelineRoot 'pipeline-state.json'
+$attemptId = [guid]::NewGuid().ToString('N')
+$pipelineLease = $null
 $release = Join-Path $project "artifacts/releases/$ReleaseName"
 $package = Join-Path $project "artifacts/deployments/$run/package"
 $fixture = Join-Path $project "artifacts/verification/$run"
@@ -59,35 +87,44 @@ if ($VerificationFixtureRoot) {
         throw 'VerificationFixtureRoot must be a fresh immediate artifacts/v or artifacts/v-<name> directory.'
     }
 }
+if ($Resume -and -not $VerificationFixtureRoot) { $fixture = "$fixture-$($attemptId.Substring(0,8))" }
+if ($Resume -and $VerificationFixtureRoot -and (Test-Path -LiteralPath $fixture)) {
+    throw 'Resume requires a fresh explicit VerificationFixtureRoot; existing fixtures remain protected.'
+}
 $fixtureStateRoot = Join-Path $fixture $(if ($VerificationFixtureRoot) { 's' } else { 'state' })
-$accountControlsState = Join-Path $project "artifacts/verification/account-controls-$ReleaseName"
+$accountControlsState = Join-Path $project "artifacts/verification/account-controls-$ReleaseName$(if ($Resume) {'-' + $attemptId.Substring(0,8)})"
 . (Join-Path $PSScriptRoot 'verification-state.ps1')
 Assert-AzraelVerificationStatePath -StateRoot $StateRoot
 Assert-AzraelVerificationStatePath -StateRoot $fixtureStateRoot
 $runPaths = @($logs, $release, (Join-Path $project "artifacts/logs/$ReleaseName"), (Split-Path $package -Parent), $fixture)
 if ($VerifyAccountControls) { $runPaths += $accountControlsState }
 foreach ($path in $runPaths) {
-    if (Test-Path -LiteralPath $path) { throw "Run path already exists: $path. Use a new ReleaseName." }
+    if (-not $Resume -and (Test-Path -LiteralPath $path)) { throw "Run path already exists: $path. Use a new ReleaseName or explicit -Resume." }
 }
+if ($Resume -and -not (Test-Path -LiteralPath $pipelineFile -PathType Leaf)) { throw 'Resume requires durable pipeline state for this ReleaseName.' }
 if ($CompanionVsixPath -and -not $TypeScriptPath) { throw 'CompanionVsixPath requires the explicit TypeScriptPath from its pinned build staging.' }
 if ($EngineDirectory -and -not $SkipEngineBuild) { throw 'EngineDirectory requires SkipEngineBuild.' }
 if ($SkipEngineBuild -and (-not $EngineDirectory -or $CodeModeHostPath)) { throw 'SkipEngineBuild requires EngineDirectory and cannot select CodeModeHostPath.' }
-if (-not $SkipEngineBuild -and -not $CodeModeHostPath) { throw 'A full build requires CodeModeHostPath.' }
 if ($EngineTargetDirectory -and $SkipEngineBuild) { throw 'EngineTargetDirectory requires a full engine build.' }
 if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTargetDirectory)) { throw 'EngineTargetDirectory must be an absolute cache path.' }
 if ($WindowControlTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($WindowControlTargetDirectory)) { throw 'WindowControlTargetDirectory must be an absolute cache path.' }
+if ($VirtualInputRuntimeDirectory -and -not [IO.Path]::IsPathFullyQualified($VirtualInputRuntimeDirectory)) { throw 'VirtualInputRuntimeDirectory must be an absolute verified runtime path.' }
+if ($MultiPointerRuntimeDirectory -and -not [IO.Path]::IsPathFullyQualified($MultiPointerRuntimeDirectory)) { throw 'MultiPointerRuntimeDirectory must be an absolute verified runtime path.' }
 if ($CargoVerificationCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($CargoVerificationCacheProjectRoot)) { throw 'CargoVerificationCacheProjectRoot must be an absolute cache owner path.' }
 if ($NamespaceCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($NamespaceCacheProjectRoot)) { throw 'NamespaceCacheProjectRoot must be an absolute cache owner path.' }
 if ($SourcePreflightReceipt -and -not [IO.Path]::IsPathFullyQualified($SourcePreflightReceipt)) { throw 'SourcePreflightReceipt must be an absolute receipt path.' }
 if ($FullRegression -and $ChangedPath) { throw 'ChangedPath cannot be combined with FullRegression.' }
 if ($FullRegression -and $PSBoundParameters.ContainsKey('EngineFeatureId')) { throw 'EngineFeatureId cannot be combined with FullRegression.' }
+if ($EngineVerificationProfile -and ($FullRegression -or $PSBoundParameters.ContainsKey('EngineFeatureId'))) { throw 'EngineVerificationProfile cannot be combined with FullRegression or EngineFeatureId.' }
+New-Item -ItemType Directory -Path $pipelineRoot -Force | Out-Null
+try { $pipelineLease = [IO.File]::Open((Join-Path $pipelineRoot 'pipeline.lock'), [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None) } catch { throw 'Another deployment owns this ReleaseName; wait for its terminal outcome before resuming.' }
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
 $lifecycleMembers = Get-VersionLifecycleMembers $project $ReleaseName
 $null = Register-ArtifactLifecycle -ProjectRoot $project -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $lifecycleMembers
-$fixtureLifecycleId = "run:verification:$ReleaseName"
+$fixtureLifecycleId = "run:verification:$ReleaseName$(if ($Resume) {'-' + $attemptId.Substring(0,8)})"
 $fixtureLifecycleMembers = [ordered]@{fixture=$fixture}
 $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $fixtureLifecycleId -Kind run -Owner 'azrael-release' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $fixtureLifecycleMembers
-$accountLifecycleId = "run:account-controls:$ReleaseName"
+$accountLifecycleId = "run:account-controls:$ReleaseName$(if ($Resume) {'-' + $attemptId.Substring(0,8)})"
 $accountLifecycleMembers = [ordered]@{fixture=$accountControlsState}
 if ($VerifyAccountControls) { $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $accountLifecycleId -Kind run -Owner 'azrael-release' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $accountLifecycleMembers }
 $lifecycleSucceeded = $false
@@ -95,12 +132,13 @@ $temporaryLifecycleId = $null
 $temporaryLifecycleMembers = $null
 $temporaryConsumerReason = 'Deployment temporary inputs'
 try {
-New-Item -ItemType Directory -Path $logs | Out-Null
+if ($Resume) { $logs = Join-Path $pipelineRoot "attempts/$attemptId"; New-Item -ItemType Directory -Path $logs | Out-Null }
 $timer = [Diagnostics.Stopwatch]::StartNew()
 $children = [Collections.Generic.List[object]]::new()
 $script:environmentPatch = @{}
+$script:toolIdentities = @{}
 $metrics = [ordered]@{ schema = 1; releaseName = $ReleaseName; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'running'; verifyOnly = [bool]$VerifyOnly; releaseDirectory = $release; packageDirectory = $package; fixtureRoot = $fixture; stages = @(); inputChecks = @(); engineTargetDirectory = $EngineTargetDirectory; wallTimeMs = 0
-    verificationPolicy = [ordered]@{ scope = $(if ($FullRegression) { 'full' } else { 'changed' }); sourceReuse = $true; nativeReuse = -not [bool]$ForceNativeVerification; forceNativeVerification = [bool]$ForceNativeVerification; cargoVerificationCacheProjectRoot = $(if ($CargoVerificationCacheProjectRoot) { $CargoVerificationCacheProjectRoot } else { $project }) }
+    verificationPolicy = [ordered]@{ scope = $(if ($FullRegression) { 'full' } else { 'changed' }); engineVerificationProfile = $EngineVerificationProfile; sourceReuse = $true; nativeReuse = -not [bool]$ForceNativeVerification; forceNativeVerification = [bool]$ForceNativeVerification; cargoVerificationCacheProjectRoot = $(if ($CargoVerificationCacheProjectRoot) { $CargoVerificationCacheProjectRoot } else { $project }) }
     verificationResults = [ordered]@{}
 }
 $pwsh = (Get-Process -Id $PID).Path
@@ -164,9 +202,135 @@ function Assert-DeploymentCapacity {
         throw "Deployment capacity guard: project volume $($drive.Name) has $available available bytes; RequiredFreeBytes is $RequiredFreeBytes. Stop owned stages before reviewing safe cleanup and retry only after capacity recovers."
     }
 }
+function Invoke-PipelineState {
+    param([string]$Action, [string]$Name, $Options = @{})
+    if (-not $pipelineLease -or $pipelineLease.SafeFileHandle.IsClosed) { throw 'Pipeline operation requires its exclusive deployment lease.' }
+    $request = Join-Path $logs 'pipeline-request.json'
+    @{file=$pipelineFile; identity=@{project=$project; platform='windows-x64'; releaseName=$ReleaseName; sourceSnapshot=$script:inputSnapshot}; resume=[bool](Test-Path -LiteralPath $pipelineFile); lockHeld=$true; reuseDecisionsPath=$ReuseDecisionsPath; action=$Action; name=$Name; options=$Options} | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath $request -Encoding utf8NoBOM
+    $errorPath=Join-Path $logs 'pipeline-review-error.json'
+    $result = & node (Join-Path $PSScriptRoot 'pipeline-state.cjs') $request 2> $errorPath
+    if ($LASTEXITCODE -ne 0) {
+        $failure=[Exception]::new("Pipeline state $Action failed for $Name. $(Get-Content -LiteralPath $errorPath -Raw)")
+        $failure.Data['exitCode']=$LASTEXITCODE
+        throw $failure
+    }
+    return ($result | ConvertFrom-Json)
+}
+function Get-StageDependencies([string]$Name) {
+    switch ($Name) {
+        'engine-source-preflight' { @('verification-dependencies') }
+        'build' { @('engine-source-preflight') }
+        'source-tests' { @('engine-source-preflight') }
+        'engine-preservation' { @('build', 'engine-source-preflight') }
+        'prepare' { @('build', 'engine-source-preflight') }
+        'acceptance' { @('prepare', 'engine-preservation', 'source-tests') }
+        'install' { @('acceptance', 'engine-preservation-recheck') }
+        default { @() }
+    }
+}
+function ConvertTo-StageInput($Value) {
+    if ($Value -is [System.Collections.IDictionary]) {
+        $normalized = @{}
+        foreach ($entry in $Value.GetEnumerator()) {
+            if ($entry.Key -notin @('outputDirectory','temporaryDirectory','logDirectory','reuseDecisionsPath')) { $normalized[$entry.Key] = ConvertTo-StageInput $entry.Value }
+        }
+        return $normalized
+    }
+    if ($Value -is [array]) { return ,@($Value | ForEach-Object { ConvertTo-StageInput $_ }) }
+    if ($Value -is [string]) {
+        return ($Value.Replace($logs, '<attempt-logs>').Replace($pipelineRoot, '<attempt-logs>'))
+    }
+    return $Value
+}
+function Get-StageInputs([string]$Executable, [string[]]$Arguments) {
+    if (-not $script:toolIdentities.ContainsKey($Executable)) { $script:toolIdentities[$Executable]=(Get-FileHash -LiteralPath $Executable -Algorithm SHA256).Hash.ToLowerInvariant() }
+    $logical = [Collections.Generic.List[object]]::new()
+    for ($index=0; $index -lt $Arguments.Count; $index++) {
+        $argument = $Arguments[$index]
+        if ($argument -eq '-Resume') { continue }
+        if ($argument -eq '-ReuseDecisionsPath') { $index++; continue }
+        if ($argument -eq '--args-sha256') { $index++; continue }
+        if ($argument -like '*.json' -and (Test-Path -LiteralPath $argument -PathType Leaf)) {
+            try { $logical.Add((ConvertTo-StageInput (Get-Content -LiteralPath $argument -Raw | ConvertFrom-Json -AsHashtable))); continue } catch { }
+        }
+        $logical.Add((ConvertTo-StageInput $argument))
+    }
+    $effectiveEnvironment = @{}
+    foreach ($entry in [Environment]::GetEnvironmentVariables().GetEnumerator()) { $effectiveEnvironment[$entry.Key]=[string]$entry.Value }
+    foreach ($entry in $script:environmentPatch.GetEnumerator()) { $effectiveEnvironment[$entry.Key]=[string]$entry.Value }
+    $orderedEnvironment=[ordered]@{}
+    foreach ($key in @($effectiveEnvironment.Keys | Sort-Object)) { $orderedEnvironment[$key]=$effectiveEnvironment[$key] }
+    $environmentJson=ConvertTo-Json -InputObject $orderedEnvironment -Compress -Depth 5
+    $environmentSha256=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($environmentJson))).ToLowerInvariant()
+    $toolFiles=@($Executable)
+    # Resolve only actual executable files in the effective child PATH. Asking
+    # PowerShell to discover absent commands can trigger unrelated module scans.
+    foreach ($tool in @('node.exe','python.exe','cargo.exe','rustc.exe','npm.cmd')) {
+        foreach ($directory in @(([string]$effectiveEnvironment.PATH).Split([IO.Path]::PathSeparator))) {
+            if (-not $directory) { continue }
+            $candidate=Join-Path $directory.Trim('"') $tool
+            if ([IO.File]::Exists($candidate)) { $toolFiles += [IO.Path]::GetFullPath($candidate); break }
+        }
+    }
+    foreach ($name in @('AZRAEL_PYTHON','AZRAEL_PYTHON_SDK')) { if ($effectiveEnvironment.ContainsKey($name) -and (Test-Path -LiteralPath $effectiveEnvironment[$name] -PathType Leaf)) { $toolFiles += $effectiveEnvironment[$name] } }
+    $toolHashes=@{}
+    foreach ($tool in @($toolFiles | Select-Object -Unique)) {
+        if (-not $script:toolIdentities.ContainsKey($tool)) { $script:toolIdentities[$tool]=(Get-FileHash -LiteralPath $tool -Algorithm SHA256).Hash.ToLowerInvariant() }
+        $toolHashes[$tool]=$script:toolIdentities[$tool]
+    }
+    return @{executable=$Executable; tools=$toolHashes; arguments=@($logical); source=$script:inputSnapshot; environmentSha256=$environmentSha256}
+}
+function Get-StageOutputs([string]$Name, $Record) {
+    $files = @($Record.stdout, $Record.stderr)
+    if ($Name -eq 'build') {
+        $files += Join-Path $release 'build-info.json'
+        foreach ($member in @('azrael.exe','azrael-bridge.exe','azrael-code-mode-host.exe','azrael-engine-build.json')) {
+            $candidate = Join-Path $release "engine/$member"
+            if (Test-Path -LiteralPath $candidate -PathType Leaf) { $files += $candidate }
+        }
+        $manifest=Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
+        if ($manifest.PSObject.Properties['sha256']) {
+            foreach ($entry in $manifest.sha256.PSObject.Properties) {
+                $candidate=[IO.Path]::GetFullPath((Join-Path $release $entry.Name))
+                if (-not $candidate.StartsWith($release+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Build manifest output is outside its release.' }
+                $files += $candidate
+            }
+        }
+    }
+    if ($Name -eq 'prepare') {
+        $files += (Join-Path $package 'independent-prepared.json'), (Join-Path $package 'azrael-host.vsix')
+        $metadata=Get-Content -LiteralPath (Join-Path $package 'independent-prepared.json') -Raw | ConvertFrom-Json
+        foreach ($field in @('PreservationReceipt','PreservationReport','PreservationBinding')) { if ($metadata.PSObject.Properties[$field]) { $files += [string]$metadata.$field } }
+    }
+    if ($Name -in @('engine-source-preflight','engine-preservation')) {
+        $result=Get-Content -LiteralPath $Record.stdout -Raw | ConvertFrom-Json
+        if ($result.PSObject.Properties['receiptPath']) { $files += [string]$result.receiptPath }
+    }
+    return @($files | Select-Object -Unique)
+}
 function Start-OwnedCommand {
-    param([string]$Name, [string]$Executable, [string[]]$Arguments)
+    param([string]$Name, [string]$Executable, [string[]]$Arguments, $ReviewedRerun = $null)
     Assert-DeploymentCapacity
+    $stageInputs = Get-StageInputs $Executable $Arguments
+    $stageDependencies = @(Get-StageDependencies $Name)
+    $prior = $null
+    if ($null -ne $ReviewedRerun) {
+        if ($ReviewedRerun.action -cne 'rerun' -or $ReviewedRerun.decision.action -cne 'rerun' -or
+            [string]::IsNullOrWhiteSpace([string]$ReviewedRerun.decision.reason) -or
+            $ReviewedRerun.decision.reviewId -cne $ReviewedRerun.review.reviewId) { throw 'A validated, candidate-bound rerun decision is required.' }
+    } else { $prior = Invoke-PipelineState 'lookup' $Name @{inputs=$stageInputs; dependencies=$stageDependencies} }
+    # Installation always re-enters its owner: a prior exit is insufficient to
+    # establish the current installed receipt and selected package identity.
+    if ($prior -and $Name -ne 'install') {
+        $record = $prior.data.record
+        $record | Add-Member -NotePropertyName reused -NotePropertyValue $true -Force
+        $metrics.stages += $record
+        return [pscustomobject]@{Record=$record; Completed=$true; Reused=$true}
+    }
+    & node (Join-Path $PSScriptRoot 'build-resource-admission.cjs') $Name
+    if ($LASTEXITCODE -ne 0) { throw "Memory admission failed for $Name; command was not started." }
+    Assert-DeploymentCapacity
+    $null = Invoke-PipelineState 'start' $Name @{inputs=$stageInputs; dependencies=$stageDependencies}
     $info = [Diagnostics.ProcessStartInfo]::new($Executable)
     $info.WorkingDirectory = $project
     $info.UseShellExecute = $false
@@ -178,11 +342,15 @@ function Start-OwnedCommand {
         $info.Environment[$entry.Key] = [string]$entry.Value
     }
     foreach ($arg in $Arguments) { $info.ArgumentList.Add($arg) }
-    $record = [ordered]@{ name = $Name; executable = $Executable; arguments = $Arguments; startedUtc = [DateTime]::UtcNow.ToString('o'); durationMs = 0; exitCode = $null; terminated = $false; completedUtc = $null; stdout = (Join-Path $logs "$Name.stdout.log"); stderr = (Join-Path $logs "$Name.stderr.log") }
+    $logName = if ($null -ne $ReviewedRerun) { "$Name-reviewed-rerun" } else { $Name }
+    $record = [ordered]@{ name = $Name; executable = $Executable; arguments = $Arguments; startedUtc = [DateTime]::UtcNow.ToString('o'); durationMs = 0; exitCode = $null; terminated = $false; completedUtc = $null; stdout = (Join-Path $logs "$logName.stdout.log"); stderr = (Join-Path $logs "$logName.stderr.log") }
+    if ($null -ne $ReviewedRerun) { $record.reuseDecision = $ReviewedRerun.decision }
     $metrics.stages += $record
     $out = [IO.File]::Create($record.stdout)
     $err = [IO.File]::Create($record.stderr)
-    try { $proc = [Diagnostics.Process]::Start($info) } catch { $out.Dispose(); $err.Dispose(); $record.startError = $_.Exception.Message; throw }
+    try { $proc = [Diagnostics.Process]::Start($info) } catch { $out.Dispose(); $err.Dispose(); $record.startError = $_.Exception.Message; $null=Invoke-PipelineState 'finish' $Name @{exitCode=$null; outcome='failed'; error=$record.startError}; throw }
+    $record.processId=$proc.Id
+    $record.processStartedUtc=$proc.StartTime.ToUniversalTime().ToString('o')
     $child = [pscustomobject]@{ Process = $proc; Record = $record; Timer = [Diagnostics.Stopwatch]::StartNew(); Out = $out; Err = $err; OutTask = $proc.StandardOutput.BaseStream.CopyToAsync($out); ErrTask = $proc.StandardError.BaseStream.CopyToAsync($err); Completed = $false }
     $children.Add($child)
     Write-DeploymentMetrics
@@ -197,6 +365,8 @@ function Complete-OwnedCommand {
     $Child.Record.durationMs = $Child.Timer.Elapsed.TotalMilliseconds
     $Child.Completed = $true
     $Child.Record.completedUtc = [DateTime]::UtcNow.ToString('o')
+    $stageOutputs = @(if ($Child.Record.exitCode -eq 0) { Get-StageOutputs $Child.Record.name $Child.Record } else { @($Child.Record.stdout, $Child.Record.stderr) })
+    $null = Invoke-PipelineState 'finish' $Child.Record.name @{exitCode=$Child.Record.exitCode; outputs=$stageOutputs; data=@{record=$Child.Record}}
     Write-DeploymentMetrics
 }
 function Wait-OwnedCommands {
@@ -212,7 +382,11 @@ function Wait-OwnedCommands {
         foreach ($child in @($Commands) + @($MonitoredCommands)) {
             if (-not $child.Completed -and $child.Process.HasExited) {
                 Complete-OwnedCommand $child
-                if ($child.Record.exitCode -ne 0) { throw "$($child.Record.name) failed with exit code $($child.Record.exitCode). See $($child.Record.stderr) and $($child.Record.stdout)." }
+                if ($child.Record.exitCode -ne 0) {
+                    $failure = [Exception]::new("$($child.Record.name) failed with exit code $($child.Record.exitCode). See $($child.Record.stderr) and $($child.Record.stdout).")
+                    $failure.Data['exitCode'] = $child.Record.exitCode
+                    throw $failure
+                }
             }
         }
         if (@($Commands | Where-Object { -not $_.Completed }).Count) { Start-Sleep -Milliseconds 100 }
@@ -223,11 +397,32 @@ function Invoke-Stage {
     $child = Start-OwnedCommand $Name $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot $Script)) + $Arguments)
     Wait-OwnedCommands @($child)
 }
+function Wait-BuildEngineReady($Build) {
+    # The build publishes this stage only after provenance and real engine/host
+    # IPC pass. Heavy source regression can then overlap packaging without
+    # competing with engine startup, including automatic engine reuse.
+    while (-not $Build.Completed) {
+        if ($Build.Process.HasExited) {
+            Complete-OwnedCommand $Build
+            if ($Build.Record.exitCode -ne 0) { throw "Build failed with exit code $($Build.Record.exitCode). See $($Build.Record.stderr)." }
+            return
+        }
+        $checkpoint=Get-Content -LiteralPath $pipelineFile -Raw | ConvertFrom-Json
+        if ($checkpoint.stages.PSObject.Properties['build.engine-ready']) {
+            $ready=@($checkpoint.stages.'build.engine-ready')[-1]
+            if ($ready.status -eq 'succeeded' -and $ready.data.processId -eq $Build.Process.Id) { return }
+        }
+        Assert-DeploymentCapacity
+        Start-Sleep -Milliseconds 100
+    }
+}
 function Assert-Package {
     if ((Get-FileHash -LiteralPath $preparedPath).Hash -cne $script:preparedHash) { throw 'Prepared package metadata changed after preparation.' }
     if ((Get-FileHash -LiteralPath $prepared.HostVsix).Hash -ine $prepared.HostSha256) { throw 'Prepared package SHA-256 mismatch.' }
+    if ($script:packageFullyVerified) { return }
     $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $preservationConfig = [ordered]@{
+        reuseDecisionsPath = $ReuseDecisionsPath
         projectRoot = $project; uiRoot = $UiSourcePath; engineSourceRoot = [string]$preservationBuild.engineSourceRoot
         engineDirectory = (Join-Path $release 'engine'); area = 'ui'; typeScriptPath = $TypeScriptPath
         outputDirectory = (Join-Path $logs 'package-preservation')
@@ -252,11 +447,12 @@ function Assert-Package {
         try { $manifest = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
         if ([string]$manifest.version -cne [string]$prepared.HostVersion) { throw 'Prepared package version mismatch.' }
     } finally { $archive.Dispose() }
+    $script:packageFullyVerified = $true
 }
 
 function Get-FocusedEngineFeatureIds {
     param([string[]]$PolicyPaths, [string]$EngineSourceRoot,
-        [AllowEmptyCollection()][string[]]$EngineFeatureId, [switch]$ExplicitSelection)
+        [AllowEmptyCollection()][string[]]$EngineFeatureId, [switch]$ExplicitSelection, [switch]$ProfileSelection)
     $selected = @()
     $inventoryPath = Join-Path $project 'scripts/azrael-feature-contracts.json'
     $engineFeatures = @((Get-Content -LiteralPath $inventoryPath -Raw | ConvertFrom-Json).features | Where-Object area -eq 'engine')
@@ -277,12 +473,15 @@ function Get-FocusedEngineFeatureIds {
         }
     }
     if ($unmappedNative.Count) {
-        throw "Unmapped engine verification scope: $($unmappedNative -join ', '). Select EngineFeatureId explicitly (an empty array is allowed), or use FullRegression."
+        if ($ProfileSelection) { $script:profileUnmappedNativePaths = @($unmappedNative) }
+        else { throw "Unmapped engine verification scope: $($unmappedNative -join ', '). Select EngineFeatureId explicitly (an empty array is allowed), or use FullRegression." }
     }
     return @($selected | Select-Object -Unique)
 }
 try {
     $script:inputSnapshot = Get-ProjectSnapshot 'initial'
+    $pipelineSnapshot = Invoke-PipelineState 'snapshot' ''
+    $script:packageFullyVerified = $false
     $metrics.projectInputSha256 = $inputSnapshot
     # Read NUL-delimited git output without shell quoting or line-based path decoding.
     $policyPaths = @($ChangedPath)
@@ -315,16 +514,28 @@ try {
     } | Sort-Object -Unique)
     $sourceTestPolicyPath = Join-Path $logs 'source-test-policy-inputs.json'
     @{changedPaths = @($policyPaths); exhaustive = [bool]$ExhaustiveRegression} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceTestPolicyPath -Encoding utf8NoBOM
-    $focusedEngineFeatureIds = @(if (-not $FullRegression) { Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot -EngineFeatureId $EngineFeatureId -ExplicitSelection:($PSBoundParameters.ContainsKey('EngineFeatureId')) })
+    $script:profileUnmappedNativePaths = @()
+    $focusedEngineFeatureIds = @(if (-not $FullRegression) { Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot -EngineFeatureId $EngineFeatureId -ExplicitSelection:($PSBoundParameters.ContainsKey('EngineFeatureId')) -ProfileSelection:([bool]$EngineVerificationProfile) })
+    . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
+    $preflightModuleCache = Open-BuildModuleCache $project $ModuleCacheProjectRoot
+    try {
+        $ModuleCacheProjectRoot = $preflightModuleCache.Owner
+        $metrics.moduleCachePreflight = [ordered]@{ owner = $preflightModuleCache.Owner; root = $preflightModuleCache.Root; registeredProjects = @(Get-BuildCacheProjects $preflightModuleCache) }
+    } finally { $preflightModuleCache.Lease.Dispose() }
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot, '-LifecycleParentActive')
     # Fresh even on Resume: no handoff from an earlier deployment attempt is accepted.
     $sourceHandoffToken = [guid]::NewGuid().ToString('N')
     $sourceHandoffPath = Join-Path $logs "engine-source-handoff-$sourceHandoffToken.json"
     $sourceHandoffHelper = Join-Path $PSScriptRoot 'engine-source-handoff.cjs'
     $buildArgs += @('-SourceStateHandoffPath', $sourceHandoffPath, '-SourceStateHandoffToken', $sourceHandoffToken)
+    if ($ReuseDecisionsPath) { $buildArgs += @('-ReuseDecisionsPath', $ReuseDecisionsPath) }
+    $pipelineContextPath=Join-Path $logs 'pipeline-context.json'
+    @{file=$pipelineFile;identity=@{project=$project;platform='windows-x64';releaseName=$ReleaseName;sourceSnapshot=$script:inputSnapshot}} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $pipelineContextPath -Encoding utf8NoBOM
+    $buildArgs += @('-PipelineContextPath',$pipelineContextPath)
+    if ($Resume) { $buildArgs += '-Resume' }
     if ($RetainedSourceRoot) { $buildArgs += @('-RetainedSourceRoot', $RetainedSourceRoot) }
     if ((-not $SkipEngineBuild -and -not $EngineTargetDirectory) -or $CargoCacheProjectRoot) {
-        $cacheOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } else { $project }
+        $cacheOwner = if ($CargoCacheProjectRoot) { $CargoCacheProjectRoot } elseif ($ModuleCacheProjectRoot) { $ModuleCacheProjectRoot } else { $project }
         $selection = & node (Join-Path $PSScriptRoot 'cargo-shared-cache.cjs') --project-root $cacheOwner --source-root $SourceRoot --target x86_64-pc-windows-msvc
         if ($LASTEXITCODE -ne 0) { throw 'Shared Cargo cache selection failed.' }
         $sharedCargoCache = $selection | ConvertFrom-Json
@@ -336,10 +547,13 @@ try {
     if ($EngineTargetDirectory -and -not $SkipEngineBuild) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($CargoCacheProjectRoot -and -not $SkipEngineBuild) { $buildArgs += @('-CargoCacheProjectRoot', $CargoCacheProjectRoot) }
     if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
+    if ($FullRegression -or $ForceNativeVerification) { $buildArgs += '-ForceEngineCompatibility' }
     if ($WindowControlTargetDirectory) { $buildArgs += @('-WindowControlTargetDirectory', $WindowControlTargetDirectory) }
+    if ($VirtualInputRuntimeDirectory) { $buildArgs += @('-VirtualInputRuntimeDirectory', $VirtualInputRuntimeDirectory) }
+    if ($MultiPointerRuntimeDirectory) { $buildArgs += @('-MultiPointerRuntimeDirectory', $MultiPointerRuntimeDirectory) }
     if ($ComputerUseRuntimeDirectory) { $buildArgs += @('-ComputerUseRuntimeDirectory', $ComputerUseRuntimeDirectory) }
     if ($ComputerUsePluginDirectory) { $buildArgs += @('-ComputerUsePluginDirectory', $ComputerUsePluginDirectory) }
-    if ($SkipEngineBuild) { $buildArgs += @('-SkipEngineBuild', '-EngineDirectory', $EngineDirectory) } else { $buildArgs += @('-CodeModeHostPath', $CodeModeHostPath) }
+    if ($SkipEngineBuild) { $buildArgs += @('-SkipEngineBuild', '-EngineDirectory', $EngineDirectory) } elseif ($CodeModeHostPath) { $buildArgs += @('-CodeModeHostPath', $CodeModeHostPath) }
     if ($CompanionVsixPath) { $buildArgs += @('-CompanionVsixPath', $CompanionVsixPath) }
     $sourceTestArgs = @((Join-Path $PSScriptRoot 'test-project.cjs'))
     $sourceTestArgs += @('--test-concurrency', [string]$SourceTestConcurrency)
@@ -350,6 +564,22 @@ try {
     foreach ($path in $policyPaths) { $sourceTestArgs += @('--changed', $path) }
     if ($ExhaustiveRegression) { $sourceTestArgs += '--exhaustive' }
     $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))
+    # The version's owned log root contains fresh per-attempt test fixtures.
+    # Never reuse a caller's persistent fixture parent across deployment attempts.
+    $sourceFixtureRoot = Join-Path $pipelineRoot 'source-fixtures'
+    if ($Resume -and $pipelineSnapshot.stages.PSObject.Properties['source-tests'] -and @($pipelineSnapshot.stages.'source-tests')[-1].status -ne 'succeeded') { $sourceFixtureRoot=Join-Path $logs 'source-fixtures' }
+    if (-not (Test-Path -LiteralPath $sourceFixtureRoot)) { New-Item -ItemType Directory -Path $sourceFixtureRoot | Out-Null }
+    foreach ($selection in @(
+        @{ key = 'AZRAEL_INSTRUCTION_TEST_ROOT'; name = 'instructions' },
+        @{ key = 'AZRAEL_CATALOG_TEST_ROOT'; name = 'catalog' },
+        @{ key = 'AZRAEL_MIGRATION_TEST_ROOT'; name = 'migration' },
+        @{ key = 'AZRAEL_WORKBENCH_TEST_ROOT'; name = 'workbench' }
+    )) {
+        $parent = Join-Path $sourceFixtureRoot $selection.name
+        if (-not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Path $parent | Out-Null }
+        $script:environmentPatch[$selection.key] = $parent
+    }
+    $metrics.sourceFixtureRoot = $sourceFixtureRoot
     # Resolve selected tests' external fixtures before any expensive producer.
     $fixtureArgsPath = Join-Path $logs 'source-fixture-arguments.json'
     $fixtureLogicalArgs = @($sourceTestArgs | Select-Object -Skip 1) + @('--check-fixtures')
@@ -361,7 +591,10 @@ try {
     $metrics.forceNativeVerification = [bool]$ForceNativeVerification
     $metrics.changedPaths = @($ChangedPath)
     $sourceConfig = [ordered]@{
+        reuseDecisionsPath = $ReuseDecisionsPath
         projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)
+        sourceTestConcurrency = $SourceTestConcurrency
+        sourceConcurrency = $SourceCheckConcurrency
         uiRoot = $UiSourcePath
         outputDirectory = (Join-Path $logs 'engine-source-preflight'); area = 'engine'; checkPhase = 'source'
         reuseNativeChecks = -not [bool]$ForceNativeVerification
@@ -376,7 +609,11 @@ try {
     if ($EngineTargetDirectory) { $sourceConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if ($CargoCacheProjectRoot) { $sourceConfig.cargoCacheProjectRoot = $CargoCacheProjectRoot }
     if ($CargoVerificationCacheProjectRoot) { $sourceConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
-    if (-not $FullRegression) { $sourceConfig.featureIds = $focusedEngineFeatureIds }
+    if ($EngineVerificationProfile) {
+        $sourceConfig.engineVerificationProfile = $EngineVerificationProfile
+        $sourceConfig.sourceFeatureIds = $focusedEngineFeatureIds
+        $sourceConfig.unmappedNativePaths = @($script:profileUnmappedNativePaths)
+    } elseif (-not $FullRegression) { $sourceConfig.featureIds = $focusedEngineFeatureIds }
     $sourceConfigPath = Join-Path $logs 'engine-source-preflight-inputs.json'
     if (-not $FullRegression -and -not $PSBoundParameters.ContainsKey('EngineFeatureId')) {
         $sourceConfig.sourceCheckPaths = @($policyPaths)
@@ -393,11 +630,6 @@ try {
     foreach ($entry in $environmentResult.environmentPatch.PSObject.Properties) { $script:environmentPatch[$entry.Name] = [string]$entry.Value }
     $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $temporaryLifecycleId -Kind work -Owner 'azrael-deployment-temporary' -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members $temporaryLifecycleMembers
     $metrics.environmentPreflight = [ordered]@{ report = $environmentPreflight.Record.stdout; required = $environmentResult.required }
-    . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
-    $preflightModuleCache = Open-BuildModuleCache $project $ModuleCacheProjectRoot
-    try {
-        $metrics.moduleCachePreflight = [ordered]@{ owner = $preflightModuleCache.Owner; root = $preflightModuleCache.Root; registeredProjects = @(Get-BuildCacheProjects $preflightModuleCache -RequireExisting) }
-    } finally { $preflightModuleCache.Lease.Dispose() }
     $dependencies = Start-OwnedCommand 'verification-dependencies' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), $sourceConfigPath)
     Wait-OwnedCommands @($dependencies)
     $sourceAction = 'run'
@@ -409,9 +641,19 @@ try {
     $sourcePreflight = Start-OwnedCommand 'engine-source-preflight' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), $sourceAction, '--config', $sourceConfigPath)
     Wait-OwnedCommands @($sourcePreflight)
     $sourcePreflightResult = Get-Content -LiteralPath $sourcePreflight.Record.stdout -Raw | ConvertFrom-Json
+    $sourceDisposition = if ($SourcePreflightReceipt) { 'reused' } else { 'executed' }
+    if ($sourcePreflightResult.status -ceq 'rerun-required') {
+        $sourceConfig.Remove('receiptPath')
+        $sourceConfig.reuseSourceChecks = $false
+        $sourceConfig | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
+        $sourcePreflight = Start-OwnedCommand 'engine-source-preflight' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'run', '--config', $sourceConfigPath) -ReviewedRerun $sourcePreflightResult.reuseReview
+        Wait-OwnedCommands @($sourcePreflight)
+        $sourcePreflightResult = Get-Content -LiteralPath $sourcePreflight.Record.stdout -Raw | ConvertFrom-Json
+        $sourceDisposition = 'reviewed-rerun'
+    }
     if (-not $sourcePreflightResult.receiptPath) { throw 'Source preflight receipt missing.' }
     if (-not $sourcePreflightResult.sourceExecution) { throw 'Source preflight execution environment evidence missing.' }
-    $metrics.sourcePreflight = [ordered]@{ disposition = $(if ($SourcePreflightReceipt) { 'reused' } else { 'executed' }); receiptPath = [string]$sourcePreflightResult.receiptPath; report = $sourcePreflight.Record.stdout }
+    $metrics.sourcePreflight = [ordered]@{ disposition = $sourceDisposition; receiptPath = [string]$sourcePreflightResult.receiptPath; report = $sourcePreflight.Record.stdout }
     $sourceConfig.receiptPath = [string]$sourcePreflightResult.receiptPath
     $sourceConfig | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
     $sourceTestArgs += @('--source-preflight-config', $sourceConfigPath)
@@ -420,8 +662,9 @@ try {
     $sourceLogicalArgs = @($sourceTestArgs | Select-Object -Skip 1)
     ConvertTo-Json -InputObject $sourceLogicalArgs -Depth 5 | Set-Content -LiteralPath $sourceTestArgsPath -Encoding utf8NoBOM
     $metrics.sourceTestArguments = [ordered]@{ path = $sourceTestArgsPath; sha256 = (Get-FileHash -LiteralPath $sourceTestArgsPath -Algorithm SHA256).Hash.ToLowerInvariant(); count = $sourceLogicalArgs.Count; characterCount = ($sourceLogicalArgs | Measure-Object -Property Length -Sum).Sum }
-    $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source @($sourceTestArgs[0], '--args-file', $sourceTestArgsPath, '--args-sha256', $metrics.sourceTestArguments.sha256)
     $build = Start-OwnedCommand 'build' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'build-azrael.ps1')) + $buildArgs)
+    Wait-BuildEngineReady $build
+    $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source @($sourceTestArgs[0], '--args-file', $sourceTestArgsPath, '--args-sha256', $metrics.sourceTestArguments.sha256)
     # Build completion releases binary consumers; source failures still cancel owned work.
     Wait-OwnedCommands @($build) -MonitoredCommands @($sourceTests)
     # Only a successfully terminated build can seed consumers. Each owns a writable copy.
@@ -433,10 +676,13 @@ try {
         $sourceHandoff[$consumer] = $handoffJson | ConvertFrom-Json
     }
     $metrics.sourceObservationHandoff = $sourceHandoff
-    Assert-ProjectSnapshot 'post-build'
+    # Entry/resume validates the frozen inputs; pre-install validates them again.
     $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $enginePreservationConfig = [ordered]@{
+        reuseDecisionsPath = $ReuseDecisionsPath
         projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)
+        sourceTestConcurrency = $SourceTestConcurrency
+        sourceConcurrency = $SourceCheckConcurrency
         uiRoot = $UiSourcePath
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $logs 'engine-preservation'); area = 'engine'
         reuseNativeChecks = -not [bool]$ForceNativeVerification
@@ -449,7 +695,11 @@ try {
     if ($EngineTargetDirectory) { $enginePreservationConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if ($CargoCacheProjectRoot) { $enginePreservationConfig.cargoCacheProjectRoot = $CargoCacheProjectRoot }
     if ($CargoVerificationCacheProjectRoot) { $enginePreservationConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
-    if (-not $FullRegression) {
+    if ($EngineVerificationProfile) {
+        $enginePreservationConfig.engineVerificationProfile = $EngineVerificationProfile
+        $enginePreservationConfig.sourceFeatureIds = $focusedEngineFeatureIds
+        $enginePreservationConfig.unmappedNativePaths = @($script:profileUnmappedNativePaths)
+    } elseif (-not $FullRegression) {
         $enginePreservationConfig.featureIds = $focusedEngineFeatureIds
     }
     $enginePreservationConfigPath = Join-Path $logs 'engine-preservation-inputs.json'
@@ -471,6 +721,8 @@ try {
         $prepareArgs += @('-SourceStatePath', $sourceHandoff['prepare'].sourceStatePath, '-SourceGeneration', $sourceHandoff['prepare'].sourceGeneration)
     }
     if ($HostVersion) { $prepareArgs += @('-HostVersion', $HostVersion) }
+    if ($ReuseDecisionsPath) { $prepareArgs += @('-ReuseDecisionsPath', $ReuseDecisionsPath) }
+    if ($Resume -and (Test-Path -LiteralPath (Join-Path $package 'preparation-state.json'))) { $prepareArgs += '-Resume' }
     if ($NamespaceCacheProjectRoot) { $prepareArgs += @('-NamespaceCacheProjectRoot', $NamespaceCacheProjectRoot) }
     if ($SkipCodexEnvironmentSnapshot) { $prepareArgs += '-SkipCodexEnvironmentSnapshot' }
     if (-not $FullRegression) { $prepareArgs += '-ChangedOnlyTests' }
@@ -510,11 +762,17 @@ try {
     if ([IO.Path]::GetFullPath($prepared.ReleaseDirectory) -ine $release -or [IO.Path]::GetFullPath($prepared.HostVsix) -ine (Join-Path $package 'azrael-host.vsix')) { throw 'Preparation returned a different release or package path.' }
     $script:preparedHash = (Get-FileHash -LiteralPath $preparedPath).Hash
     Assert-Package
-    Invoke-Stage 'acceptance' 'check-independent-vscode.ps1' @('-HostVsixPath', $prepared.HostVsix, '-FixtureRoot', $fixture, '-StateRoot', $fixtureStateRoot, '-UseFreshState', '-ParentLifecycleId', $fixtureLifecycleId, '-TypeScriptPath', $TypeScriptPath, '-UiSourcePath', $UiSourcePath, '-OriginalExtensionPath', $OriginalExtensionPath, '-OriginalAudioPath', $OriginalAudioPath, '-CodePath', $CodePath)
+    # Unknown impact and exhaustive runs retain both activation modes.
+    $standaloneOwners = @('scripts/integrated-azrael-entry.cjs','scripts/namespace-azrael-host.cjs','scripts/prepare-independent-vscode.ps1','scripts/check-independent-vscode.ps1','scripts/independent-vscode-host-check.cjs','scripts/install-app-release.ps1','scripts/install-azrael.ps1','scripts/package-app-release.py','scripts/ordinary-runtime.cjs','scripts/shared-engine-host.cjs','scripts/devin-native-host.cjs','scripts/provider-accounts-host.cjs','scripts/platform-runtime.cjs','scripts/azrael-platforms.json','scripts/azrael-app-release.json')
+    $standaloneRequired = $VerifyStandaloneHost -or $FullRegression -or $ExhaustiveRegression -or -not $ChangedPath -or @($ChangedPath | Where-Object { $p = $_ -replace '\\','/'; $p -in $standaloneOwners -or $p.StartsWith('extensions/azrael-ex/', [StringComparison]::Ordinal) }).Count -gt 0
+    $acceptanceArgs = @('-HostVsixPath', $prepared.HostVsix, '-FixtureRoot', $fixture, '-StateRoot', $fixtureStateRoot, '-UseFreshState', '-ParentLifecycleId', $fixtureLifecycleId, '-OriginalExtensionPath', $OriginalExtensionPath, '-OriginalAudioPath', $OriginalAudioPath, '-CodePath', $CodePath)
+    if ($standaloneRequired) { $acceptanceArgs += '-VerifyStandalone' }
+    Invoke-Stage 'acceptance' 'check-independent-vscode.ps1' $acceptanceArgs
     $acceptancePath = Join-Path $fixture 'check-result.json'
     $acceptance = Get-Content -LiteralPath $acceptancePath -Raw | ConvertFrom-Json
-    $stages = @('initialInventory', 'hostInstall', 'finalInventory', 'namespace', 'standaloneHost', 'host')
-    if ($acceptance.passed -isnot [bool] -or $acceptance.passed -cne $true -or @($acceptance.exitCodes.PSObject.Properties).Count -ne 6) { throw 'Host acceptance did not pass all six stages.' }
+    $stages = @('initialInventory', 'hostInstall', 'finalInventory', 'host')
+    if ($standaloneRequired) { $stages += 'standaloneHost' }
+    if ($acceptance.passed -isnot [bool] -or $acceptance.passed -cne $true -or @($acceptance.exitCodes.PSObject.Properties).Count -ne $stages.Count -or $acceptance.standaloneVerified -isnot [bool] -or $acceptance.standaloneVerified -ne [bool]$standaloneRequired) { throw 'Host acceptance did not pass the selected stages.' }
     foreach ($stage in $stages) {
         $value = $acceptance.exitCodes.PSObject.Properties[$stage]
         if ($null -eq $value -or $null -eq $value.Value -or $value.Value -isnot [long] -and $value.Value -isnot [int] -or $value.Value -ne 0) { throw "Host acceptance stage failed or missing: $stage" }
@@ -575,7 +833,7 @@ if ($installExitCode -ne 0) {
     $metrics.status = if ($VerifyOnly) { 'verified' } else { 'installed' }
 } catch {
     if ($metrics.Contains('accountControls') -and $metrics.accountControls.status -cne 'passed') { $metrics.accountControls.status = 'failed' }
-    $metrics.status = if ($metrics.Contains('installation')) { $metrics.installation.status = 'failed'; 'installation-failed' } else { 'failed' }
+    $metrics.status = if ($_.Exception.Data['exitCode'] -eq 3) { 'review-required' } elseif ($metrics.Contains('installation')) { $metrics.installation.status = 'failed'; 'installation-failed' } else { 'failed' }
     $metrics.error = $_.Exception.Message
     throw
 } finally {
@@ -613,9 +871,9 @@ if ($installExitCode -ne 0) {
                 $metrics.accountLifecycle = Register-ArtifactLifecycle -ProjectRoot $project -Id $accountLifecycleId -Kind run -Owner 'azrael-release' -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members $accountLifecycleMembers
             }
             $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Encoding utf8NoBOM
-            $metrics.verificationCleanup = & (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -ProjectRoot $project -FixtureRoot $fixture -Apply -ReportPath (Join-Path $logs 'verification-cleanup.json')
+            $metrics.verificationCleanup = & (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -ProjectRoot $project -FixtureRoot $fixture -Apply -ReportPath (Join-Path $logs 'verification-cleanup.json') -ReportLifecycleId "version:$ReleaseName"
             if ($VerifyAccountControls) {
-                $metrics.accountControlsCleanup = & (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -ProjectRoot $project -FixtureRoot $accountControlsState -Apply -ReportPath (Join-Path $logs 'account-controls-cleanup.json')
+                $metrics.accountControlsCleanup = & (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -ProjectRoot $project -FixtureRoot $accountControlsState -Apply -ReportPath (Join-Path $logs 'account-controls-cleanup.json') -ReportLifecycleId "version:$ReleaseName"
             }
         } catch { $metrics.verificationCleanup = @{ status = 'blocked'; reason = $_.Exception.Message; fixtureRoot = $fixture } }
         $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Encoding utf8NoBOM
@@ -623,7 +881,11 @@ if ($installExitCode -ne 0) {
 }
 $lifecycleSucceeded = $metrics.status -in @('verified','installed')
 [pscustomobject]@{ Status = $metrics.status; ReleaseDirectory = $release; PreparedPackageDirectory = $package; AcceptanceResult = $acceptancePath; Metrics = (Join-Path $logs 'deployment-metrics.json') }
+} catch {
+    if ($_.Exception.Data['exitCode'] -eq 3) { [Console]::Error.WriteLine($_.Exception.Message); $global:LASTEXITCODE = 3; exit 3 }
+    throw
 } finally {
+    if ($pipelineLease) { $pipelineLease.Dispose() }
     if ($lifecycleSucceeded) { $null = Register-ArtifactLifecycle -ProjectRoot $project -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members $lifecycleMembers }
     else { try {
         $null = Register-ArtifactLifecycle -ProjectRoot $project -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -Generated -ProtectionKnown -State failed -MembershipComplete $false -Members $lifecycleMembers

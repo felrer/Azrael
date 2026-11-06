@@ -375,6 +375,7 @@ pub(crate) fn tool_runtime_trace_event(event: &EventMsg) -> Option<ToolRuntimeTr
         | EventMsg::TurnComplete(_)
         | EventMsg::TurnDeferred(_)
         | EventMsg::RootResumeWaitUpdated(_)
+        | EventMsg::UserWaitTimingUpdated(_)
         | EventMsg::TokenCount(_)
         | EventMsg::AgentMessage(_)
         | EventMsg::UserMessage(_)
@@ -435,6 +436,7 @@ pub(crate) fn wrapped_protocol_event_type(event: &EventMsg) -> Option<&'static s
         EventMsg::TurnComplete(_) => Some("turn_complete"),
         EventMsg::TurnDeferred(_) => Some("turn_deferred"),
         EventMsg::RootResumeWaitUpdated(_) => Some("root_resume_wait_updated"),
+        EventMsg::UserWaitTimingUpdated(_) => Some("user_wait_timing_updated"),
         EventMsg::TurnAborted(_) => Some("turn_aborted"),
         EventMsg::ThreadRolledBack(_) => Some("thread_rolled_back"),
         EventMsg::Error(_) => Some("error"),

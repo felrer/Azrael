@@ -4,12 +4,11 @@ const path = require("node:path");
 const fs = require("node:fs");
 const { createHash } = require("node:crypto");
 const { physicalPath, runManagedCargoSync } = require("./cargo-target-owner.cjs");
-const { preparationContext } = require("./cargo-test-preparation.cjs");
 
 // Pure command construction is shared by execution and verification identity.
 // Cargo owns compilation reuse; every requested test filter still executes.
-const PREFLIGHT = Object.freeze({ schema: 1, typeCheck: "selected-tests", testSelection: "nonzero" });
-const PREFLIGHT_ID = "selected-tests-v1";
+const PREFLIGHT = Object.freeze({ schema: 2, compilation: "cargo-test", testExecution: "nonzero-passed" });
+const PREFLIGHT_ID = "selected-tests-v2";
 const guardedCargoWrappers = new Set([
   "check-selected-upstream-native",
   "check-mcp-oauth-store",
@@ -19,7 +18,8 @@ const guardedCargoWrappers = new Set([
   "check-task-work-time-native", "check-response-tps-native", "check-thread-auto-compaction",
   "check-capacity-recovery", "check-task-profile-skills", "check-project-maintenance", "check-error-classification-native",
   "check-task-recovery-native", "check-usage-window",
-  "check-deletion-approval-native", "check-find-names",
+  "check-deletion-approval-native",
+  "check-executor-completion", "check-role-profiles-native", "check-task-memory", "check-find-names", "check-agent-image-attachments",
 ].map(name => `scripts/${name}.cjs`));
 
 function validateCargoPreflight(check) {
@@ -28,6 +28,39 @@ function validateCargoPreflight(check) {
     throw new Error(`Missing or invalid Cargo preflight declaration: ${check.id}`);
   }
 }
+// Coordinator options are separate from application runtime state. Restore
+// only this validated set after host-environment isolation.
+function cargoManagementEnvironment(env, pathImpl = path) {
+  const selected = {};
+  for (const name of ["AZRAEL_CARGO_CACHE_PROJECT_ROOT", "AZRAEL_CARGO_CACHE_SCOPE", "AZRAEL_CARGO_RUN_ID", "AZRAEL_CARGO_STABLE_SOURCE", "AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH"]) {
+    const value = env[name];
+    if (value === undefined) continue;
+    if (typeof value !== "string" || !value || /[\x00-\x1f\x7f]/.test(value)) throw new Error(`Invalid Cargo management option: ${name}`);
+    if (["AZRAEL_CARGO_CACHE_PROJECT_ROOT", "AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH"].includes(name) && (!pathImpl.isAbsolute(value) || value.split(/[\\/]/).includes(".."))) {
+      throw new Error("Cargo cache project root must be an absolute plain path");
+    }
+    if (name === "AZRAEL_CARGO_RUN_ID" && value.length > 256) throw new Error("Cargo run identity exceeds 256 characters");
+    if (name === "AZRAEL_CARGO_CACHE_SCOPE" && !/^[a-z0-9][a-z0-9-]{0,63}$/.test(value)) throw new Error("Invalid Cargo cache scope");
+    if (name === "AZRAEL_CARGO_STABLE_SOURCE" && !["0", "1"].includes(value)) throw new Error("Cargo stable source option must be 0 or 1");
+    selected[name] = value;
+  }
+  return selected;
+}
+
+function cargoErrorDetails(error, seen = new Set(), depth = 0) {
+  if (error == null) return null;
+  if (depth >= 6 || seen.has(error)) return { message: "Additional error context omitted" };
+  if (typeof error !== "object") return { message: String(error) };
+  seen.add(error);
+  const details = { message: String(error.message || error) };
+  for (const key of ["name", "stage", "code", "maintenance_code", "retryable", "lock_path", "lease"]) {
+    if (error[key] !== undefined) details[key] = error[key];
+  }
+  if (error.cause) details.cause = cargoErrorDetails(error.cause, seen, depth + 1);
+  if (error.release_error) details.release_error = cargoErrorDetails(error.release_error, seen, depth + 1);
+  return details;
+}
+
 function buildCargoTestCommand(sourceRoot, cargoArgs, {
   env = process.env, pathImpl = path, isolateHostEnvironment = false,
 } = {}) {
@@ -49,9 +82,11 @@ function buildCargoTestCommand(sourceRoot, cargoArgs, {
   args.splice(separator < 0 ? args.length : separator, 0, ...options);
   const cargoEnv = { ...env };
   if (isolateHostEnvironment) {
+    const management = cargoManagementEnvironment(env, pathImpl);
     for (const key of Object.keys(cargoEnv)) {
       if (/^(AZRAEL_|CODEX_)/i.test(key)) delete cargoEnv[key];
     }
+    Object.assign(cargoEnv, management);
   }
   cargoEnv.CARGO_TARGET_DIR = pathImpl.normalize(targetDirectory);
   cargoEnv.RUST_MIN_STACK ||= "33554432";
@@ -70,13 +105,20 @@ function buildCargoTestCommand(sourceRoot, cargoArgs, {
   return { command: "cargo", args, cwd, selectedSourceRoot: physical(sourceRoot), env: cargoEnv, stdio: "inherit", windowsHide: true };
 }
 
-function preflightCommands(spec) {
+function assertExecutableTestRequest(spec) {
   const separator = spec.args.indexOf("--");
   const cargo = spec.args.slice(0, separator < 0 ? undefined : separator);
   const runtime = separator < 0 ? [] : spec.args.slice(separator + 1);
   if (cargo.includes("--no-run") || cargo.includes("--doc") || runtime.some(arg => /^(--list|--help|--format)(=|$)/.test(arg))) {
     throw new Error("Cargo verification requires executable libtest checks; declare compile-only preparation separately");
   }
+  return { cargo, runtime };
+}
+
+// Explicit preparation callers retain the older command construction. The
+// default verification path below never invokes these preliminary commands.
+function preflightCommands(spec) {
+  const { cargo, runtime } = assertExecutableTestRequest(spec);
   // Retain every compilation option and its value. TESTNAME is a positional
   // runtime filter; it must not become a cargo-check positional argument.
   const values = new Set(["-p", "--package", "--features", "-F", "--target", "--profile", "--test", "--bin", "--bench", "--example", "--manifest-path", "--target-dir", "--message-format", "--jobs", "-j", "--config", "--exclude", "--color"]);
@@ -97,61 +139,54 @@ function preflightCommands(spec) {
   };
 }
 
+function actualTestCounts(stdout) {
+  const text = String(stdout || "").replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, "");
+  const summaries = [];
+  for (const match of text.matchAll(/^test result: (ok|FAILED)\. (\d+) passed; (\d+) failed; (\d+) ignored; (\d+) measured; (\d+) filtered out;(?: finished in [^\r\n]*)?\r?$/gm)) {
+    const [passed, failed, ignored, measured, filteredOut] = match.slice(2).map(Number);
+    if (![passed, failed, ignored, measured, filteredOut].every(Number.isSafeInteger)) return null;
+    summaries.push({ status: match[1], passed, failed, ignored, measured, filteredOut });
+  }
+  const counts = { summaries, passed: 0, failed: 0, ignored: 0, measured: 0, filteredOut: 0, executed: 0 };
+  for (const summary of summaries) for (const key of ["passed", "failed", "ignored", "measured", "filteredOut"]) counts[key] += summary[key];
+  counts.executed = counts.passed + counts.failed;
+  return [counts.passed, counts.failed, counts.ignored, counts.measured, counts.filteredOut, counts.executed].every(Number.isSafeInteger) ? counts : null;
+}
+
 function runCargoTest(sourceRoot, cargoArgs, options) {
   const spec = { ...buildCargoTestCommand(sourceRoot, cargoArgs, options),
-    ...(options?.capture ? { stdio: "pipe", encoding: "utf8", maxBuffer: 64 * 1024 * 1024 } : {}) };
-  const commands = preflightCommands(spec);
-  const evidence = { ...PREFLIGHT, phases: [] };
-  const environment = options?.env || process.env;
-  const configuration = options?.preparation || (environment.AZRAEL_CARGO_PREPARATION_DIR ? {
-    directory: environment.AZRAEL_CARGO_PREPARATION_DIR,
-    sourceIdentity: environment.AZRAEL_CARGO_PREPARATION_SOURCE_IDENTITY,
-    runtimeIdentity: environment.AZRAEL_CARGO_PREPARATION_RUNTIME_IDENTITY,
-    mode: environment.AZRAEL_CARGO_PREPARATION_MODE,
-  } : undefined);
-  let preparation;
-  if (configuration) {
-    try { preparation = preparationContext(spec, configuration); }
-    catch (error) { preparation = { report: { recommendation: "reuse-caution", action: "prepare", reason: error.message } }; }
-    evidence.preparation = preparation.report;
-    process.stderr.write(`[cargo-preparation] ${JSON.stringify(preparation.report)}\n`);
-  }
-  for (const [phase, command] of Object.entries(commands)) {
-    if (phase === "typeCheck" && preparation?.skipTypeCheck) continue;
-    const started = Date.now();
-    const result = runManagedCargoSync(command, { onSuccess(observed) {
-      if (phase === "selection") preparation?.save?.([...evidence.phases, { phase,
-        exitCode: observed.status, signal: observed.signal, durationMs: Date.now() - started,
-        selectedTests: (String(observed.stdout || "").match(/^.+: test\r?$/gm) || []).length }]);
-    } });
-    if (result.observationError && preparation) {
-      evidence.preparation.saveWarning = String(result.observationError);
-      process.stderr.write(`[cargo-preparation] ${JSON.stringify(evidence.preparation)}\n`);
-    }
-    const count = phase === "selection" ? (String(result.stdout || "").match(/^.+: test\r?$/gm) || []).length : undefined;
-    evidence.phases.push({ phase, args: command.args, startedUtc: new Date(started).toISOString(),
-      durationMs: Date.now() - started, exitCode: result.status ?? null, signal: result.signal ?? null,
-      ...(count === undefined ? {} : { selectedTests: count }) });
+    stdio: "pipe", encoding: "utf8", maxBuffer: 64 * 1024 * 1024 };
+  assertExecutableTestRequest(spec);
+  const started = Date.now();
+  // The shared owner still owns the one actual Cargo compilation/execution.
+  // Preparation receipts cannot replace this invocation or its observed counts.
+  const result = runManagedCargoSync(spec);
+  const counts = actualTestCounts(result.stdout);
+  const accepted = result.status === 0 && !result.error && !result.signal && !result.sourceVerificationError &&
+    counts && counts.summaries.length > 0 && counts.summaries.every(summary => summary.status === "ok") &&
+    counts.executed > 0 && counts.passed > 0 && counts.failed === 0;
+  const evidence = { ...PREFLIGHT, contract: PREFLIGHT_ID, cargoInvocations: 1, accepted: Boolean(accepted),
+    actualCounts: counts, phases: [{ phase: "compilation-and-execution", args: spec.args,
+      startedUtc: new Date(started).toISOString(), durationMs: Date.now() - started,
+      exitCode: result.status ?? null, signal: result.signal ?? null }],
+    ...(result.error ? { error: cargoErrorDetails(result.error) } : {}),
+    ...(result.sourceVerificationError ? { sourceVerificationError: cargoErrorDetails(result.sourceVerificationError) } : {}),
+    ...(result.ownershipErrors?.length ? { ownershipErrors: result.ownershipErrors.map(error => cargoErrorDetails(error)) } : {}) };
+  if (!options?.capture) {
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);
-    process.stderr.write(`[cargo-preflight] ${JSON.stringify(evidence)}\n`);
-    if (result.error || result.signal || result.status !== 0 || count === 0) {
-      try { preparation?.invalidate?.(); }
-      catch (error) { evidence.preparation.invalidateWarning = error.message; }
-      return { ...result, status: count === 0 || result.status === 0 ? 1 : result.status,
-        ...(count === 0 ? { error: new Error("Cargo preflight selected zero tests; refusing test execution") } : {}), preflight: evidence };
-    }
   }
-  const executionStarted = Date.now();
-  const result = runManagedCargoSync(spec);
-  evidence.phases.push({ phase: "execution", args: spec.args, startedUtc: new Date(executionStarted).toISOString(),
-    durationMs: Date.now() - executionStarted, exitCode: result.status ?? null, signal: result.signal ?? null });
   process.stderr.write(`[cargo-preflight] ${JSON.stringify(evidence)}\n`);
-  return { ...result, preflight: evidence };
+  if (accepted) return { ...result, preflight: evidence };
+  if (result.status !== 0 || result.error || result.signal || result.sourceVerificationError) {
+    return { ...result, status: result.status === 0 ? 1 : result.status, preflight: evidence };
+  }
+  return { ...result, status: 1,
+    error: new Error("Cargo test did not report a nonzero successful actual libtest execution"), preflight: evidence };
 }
 
 // Preparation is an early scheduling boundary. It is never test evidence and
-// deliberately leaves runCargoTest's type/selection/execution gates intact.
+// never substitutes for runCargoTest's actual nonzero execution gate.
 function prepareCargoTests(sourceRoot, cargoArgs, options = {}) {
   const spec = preflightCommands(buildCargoTestCommand(sourceRoot, cargoArgs, options)).typeCheck;
   if (options.logDirectory) {

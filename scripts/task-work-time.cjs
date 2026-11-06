@@ -42,7 +42,7 @@ function azraelTaskTimeGroups(turns, nowMs) {
       roots?.has(turn.rootTurnId);
     if (!group || !continuation) {
       finish();
-      group = { id: turn.turnId, turnIds: [], durationMs: 0, partial: false, active: false, turns: [] };
+      group = { id: turn.turnId, turnIds: [], durationMs: 0, partial: false, userWaitUnmeasured: false, active: false, turns: [] };
       intervals = [];
       occupiedEnd = 0;
       measuredFloor = 0;
@@ -55,6 +55,15 @@ function azraelTaskTimeGroups(turns, nowMs) {
     owners.set(turn.turnId, group);
     roots.add(turn.rootTurnId || turn.turnId);
     if (turn.metadataPartial) group.partial = true;
+    const timing = turn.userWaitTiming;
+    const measured = timing != null && Number.isSafeInteger(timing.revision) && timing.revision >= 0 &&
+      Array.isArray(timing.requests) && Array.isArray(timing.blockedIntervals);
+    const workStartedAtMs = measured && validMs(timing.startedAtMs) ? timing.startedAtMs : turn.turnStartedAtMs;
+    const workPrecisionMs = measured && validMs(timing.startedAtMs) ? 0 : turn.turnStartedAtPrecisionMs;
+    if (!measured) {
+      group.userWaitUnmeasured = true;
+      if (timing != null) group.partial = true;
+    }
     const registration = turn.rootResumeWait;
     if (registration && typeof registration.reservationId === "string" && registration.reservationId.trim() &&
         validMs(registration.waitStartedAtMs) && ["waiting", "claimed", "resumed", "cancelled", "blocked"].includes(registration.state)) {
@@ -68,6 +77,33 @@ function azraelTaskTimeGroups(turns, nowMs) {
       }
       else group.partial = true;
     };
+    // Subtract only blocked work; automatic resume waits remain counted.
+    const addWork = (start, end) => {
+      if (!validMs(start) || !validMs(end)) { group.partial = true; return 0; }
+      const stop = Math.max(start, end);
+      const blocks = [];
+      if (measured) for (const block of timing.blockedIntervals) {
+        if (!block || !validMs(block.startedAtMs) ||
+            block.endedAtMs != null && (!validMs(block.endedAtMs) || block.endedAtMs < block.startedAtMs)) {
+          group.partial = true;
+          continue;
+        }
+        const left = Math.max(start, block.startedAtMs);
+        const right = Math.min(stop, block.endedAtMs ?? stop);
+        if (right > left) blocks.push([left, right]);
+      }
+      blocks.sort((a, b) => a[0] - b[0]);
+      let cursor = start, excluded = 0;
+      for (const [left, right] of blocks) {
+        if (left > cursor) addInterval(cursor, left);
+        excluded += Math.max(0, right - Math.max(cursor, left));
+        cursor = Math.max(cursor, right);
+      }
+      if (cursor < stop) addInterval(cursor, stop);
+      // Coarse placement uses elapsed boundaries even when fully blocked.
+      occupiedEnd = Math.max(occupiedEnd, stop);
+      return excluded;
+    };
     const wait = turn.rootResumeWait;
     const openWait = wait && (wait.state === "waiting" || wait.state === "claimed");
     const waitBoundary = openWait || (wait && validMs(wait.waitStartedAtMs));
@@ -75,15 +111,12 @@ function azraelTaskTimeGroups(turns, nowMs) {
     const liveWork = !terminal && !waitBoundary && ["inProgress", "in_progress"].includes(turn.status);
     if (liveWork) {
       group.active = true;
-      addInterval(turn.turnStartedAtMs, nowMs);
+      addWork(workStartedAtMs, nowMs);
     } else if (terminal || turn.status === "deferred" || waitBoundary) {
-      if (validMs(turn.turnStartedAtMs) && validMs(turn.durationMs)) {
-        let start = turn.turnStartedAtMs;
-        const precision = turn.turnStartedAtPrecisionMs;
+      if (validMs(workStartedAtMs) && validMs(turn.durationMs)) {
+        let start = workStartedAtMs;
+        const precision = workPrecisionMs;
         if (validMs(precision) && precision > 0) {
-          const floor = measuredFloor + turn.durationMs;
-          measuredFloor = Number.isFinite(floor) ? floor : Number.MAX_VALUE;
-          if (!Number.isFinite(floor)) group.partial = true;
           const limit = start + precision;
           const fits = candidate => validMs(candidate) && candidate >= start && candidate < limit && candidate >= occupiedEnd;
           // Exact wait starts can locate preceding work inside its coarse bucket.
@@ -96,7 +129,12 @@ function azraelTaskTimeGroups(turns, nowMs) {
           }
           if (wait && validMs(wait.waitStartedAtMs) && start + turn.durationMs > wait.waitStartedAtMs) group.partial = true;
         }
-        addInterval(start, start + turn.durationMs);
+        const excluded = addWork(start, start + turn.durationMs);
+        if (validMs(precision) && precision > 0) {
+          const floor = measuredFloor + Math.max(0, turn.durationMs - excluded);
+          measuredFloor = Number.isFinite(floor) ? floor : Number.MAX_VALUE;
+          if (!Number.isFinite(floor)) group.partial = true;
+        }
       } else group.partial = true;
     } else group.partial = true;
     if (wait) {
@@ -126,4 +164,38 @@ function azraelTaskTimeLabel(durationMs, locale = "ko") {
   return parts.join(" ");
 }
 
-module.exports = { azraelTaskTimeGroups, azraelTaskTimeLabel };
+// Self-contained for serialization into the native per-turn Worked renderer.
+// Unlike group accounting this takes work elapsed time only, never resume waits.
+function azraelUserWaitDuration(durationMs, startedAtMs, timing) {
+  const validMs = value => typeof value === "number" && Number.isFinite(value) && value >= 0;
+  const measured = timing != null && Number.isSafeInteger(timing.revision) && timing.revision >= 0 &&
+    Array.isArray(timing.requests) && Array.isArray(timing.blockedIntervals);
+  const result = { durationMs: validMs(durationMs) ? durationMs : null,
+    userWaitUnmeasured: !measured, partial: !validMs(durationMs) || timing != null && !measured };
+  if (result.durationMs == null || !measured || !timing.blockedIntervals.length) return result;
+  if (validMs(timing.startedAtMs)) startedAtMs = timing.startedAtMs;
+  if (!validMs(startedAtMs)) return { ...result, durationMs: null, partial: true };
+  const end = startedAtMs + durationMs;
+  if (!validMs(end)) return { ...result, durationMs: null, partial: true };
+  const blocks = [];
+  for (const block of timing.blockedIntervals) {
+    if (!block || !validMs(block.startedAtMs) ||
+        block.endedAtMs != null && (!validMs(block.endedAtMs) || block.endedAtMs < block.startedAtMs)) {
+      result.partial = true;
+      continue;
+    }
+    const left = Math.max(startedAtMs, block.startedAtMs);
+    const right = Math.min(end, block.endedAtMs ?? end);
+    if (right > left) blocks.push([left, right]);
+  }
+  blocks.sort((a, b) => a[0] - b[0]);
+  let cursor = startedAtMs, excluded = 0;
+  for (const [left, right] of blocks) {
+    excluded += Math.max(0, right - Math.max(cursor, left));
+    cursor = Math.max(cursor, right);
+  }
+  result.durationMs = Math.max(0, durationMs - excluded);
+  return result;
+}
+
+module.exports = { azraelTaskTimeGroups, azraelTaskTimeLabel, azraelUserWaitDuration };

@@ -11,16 +11,19 @@ if (!sourceRoot || !path.isAbsolute(sourceRoot) || !["config", "tools", "context
 const cwd = path.join(sourceRoot, "codex-rs");
 if (!fs.statSync(path.join(cwd, "Cargo.toml")).isFile()) throw new Error("Selected engine source has no Cargo workspace");
 const checks = scope === "config"
-  ? [["codex-config", "harness"], ["codex-prompts", "model_instructions"]]
+  ? [["codex-config", "harness"], ["codex-prompts", "model_instructions"], ["codex-prompts", "multi_agent_instructions"]]
   : scope === "context" ? [
       ["codex-core", "context::world_state::model::tests"],
+      ["codex-core", "context::world_state::multi_agent_mode::tests"],
       ["codex-core", "session::provider_handoff::tests"],
       ["codex-core", "instruction_state_projection"],
     ] : [
-      ["codex-core", "claude"],
+      ["codex-core", "anthropic_shared_tools"],
+      ["codex-core", "anthropic_common_discovery"],
       ["codex-core", "anthropic_azrael_tools_patch_read_and_execute"],
       ["codex-core", "tools::router::tests::chat_discovery"],
       ["codex-core", "mcp_and_tool_search_follow_direct_and_deferred_tool_exposure"],
+      ["codex-core", "retired_model_harness_is_rejected_during_config_load"],
     ];
 for (const [crate, filter] of checks) {
   const result = runCargoTest(sourceRoot, ["test", "-p", crate, "--lib", filter, "--locked", "--offline", "--", "--test-threads=1"]);

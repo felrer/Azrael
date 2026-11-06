@@ -27,7 +27,7 @@ test("native provider mappings preserve common behavior and V2 guidance", async 
 
 
 test("profile runtime and tool guidance copies match maintained sources", () => {
-  for (const name of ["harness-runtime-core", "claude-tool-environment", "claude-lean-behavior"]) {
+  for (const name of ["harness-runtime-core", "claude-lean-behavior"]) {
     assert.equal(fs.readFileSync(path.join(root, `instructions/instructions/${name}.md`), "utf8"),
       fs.readFileSync(path.join(root, `engine/codex-rs/prompts/templates/${name}.md`), "utf8"));
   }

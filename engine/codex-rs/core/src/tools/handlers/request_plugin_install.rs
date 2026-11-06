@@ -114,7 +114,10 @@ impl RequestPluginInstallHandler {
             }
         };
 
-        if turn.session_source.is_non_root_agent() {
+        if !crate::agent::role_profile::has_user_interaction_authority(
+            &turn.config,
+            &turn.session_source,
+        ) {
             return Err(FunctionCallError::RespondToModel(
                 "request_plugin_install can only be used by the root thread".to_string(),
             ));

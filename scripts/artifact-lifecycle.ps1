@@ -279,19 +279,60 @@ function Get-ArtifactRemovalSnapshot {
     $items.ToArray()
 }
 function New-ArtifactRemovalContext {
-    param([string[]]$GroupPaths, [bool]$OwnershipVerified, [Collections.IDictionary]$VerifiedJunctions = @{})
-    $snapshot = @(Get-ArtifactRemovalSnapshot -GroupPaths $GroupPaths -OwnershipVerified $OwnershipVerified -VerifiedJunctions $VerifiedJunctions)
-    $roots = @{}
+    param([string[]]$GroupPaths, [bool]$OwnershipVerified, [Collections.IDictionary]$VerifiedJunctions = @{},
+        [string[]]$InspectionPaths = $GroupPaths)
+    Initialize-ArtifactWindowsIdentity
+    $explicitInspection = $PSBoundParameters.ContainsKey('InspectionPaths')
+    if ($explicitInspection -and -not $OwnershipVerified) { throw 'Inspection subtrees require verified group ownership and protection.' }
+    if (-not $InspectionPaths.Count) { throw 'At least one inspection root is required.' }
+    foreach ($root in $InspectionPaths) {
+        if ($explicitInspection -and ($root.StartsWith('\\?\') -or $root.StartsWith('\\.\') -or
+            $root.Substring([IO.Path]::GetPathRoot($root).Length) -match '[:]|[. ]([\\/]|$)')) { throw 'Inspection path must use a plain canonical path.' }
+        if (-not [IO.Path]::IsPathFullyQualified($root) -or $root -ine [IO.Path]::GetFullPath($root) -or
+            -not @($GroupPaths | Where-Object { Test-ArtifactRemovalContained $root $_ }).Count) { throw 'Inspection path is not a canonical selected group subtree.' }
+    }
+    [string[]]$orderedInspectionPaths = @($InspectionPaths | ForEach-Object { $_.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar })
+    [Array]::Sort($orderedInspectionPaths, [StringComparer]::OrdinalIgnoreCase)
+    for ($index = 1; $index -lt $orderedInspectionPaths.Count; $index++) {
+        if ($orderedInspectionPaths[$index].StartsWith($orderedInspectionPaths[$index - 1], [StringComparison]::OrdinalIgnoreCase)) { throw 'Inspection roots must be disjoint.' }
+    }
+    $authorities = @{}
     foreach ($root in $GroupPaths) {
         $full = [IO.Path]::GetFullPath($root)
-        $entry = $snapshot | Where-Object path -EQ $full | Select-Object -First 1
-        if ($entry) { $roots[$full] = ($entry.identity.Split(':')[0..2] -join ':') }
+        $authorities[$full] = $null
+        if (Test-Path -LiteralPath $full) {
+            Assert-ArtifactRemovalAncestors $full
+            if ([ArtifactRemovalNative]::Attributes($full) -band [IO.FileAttributes]::System) { throw "System authority root cannot be removed: $full" }
+            $authorities[$full] = ([ArtifactRemovalNative]::Identity($full).Split(':')[0..2] -join ':')
+        }
     }
-    [pscustomobject]@{PSTypeName='ArtifactRemovalContext';GroupPaths=$GroupPaths;OwnershipVerified=$OwnershipVerified;VerifiedJunctions=$VerifiedJunctions;Roots=$roots}
+    foreach ($root in $InspectionPaths) {
+        if ($explicitInspection -and -not @($authorities.Keys | Where-Object { $null -ne $authorities[$_] -and (Test-ArtifactRemovalContained $root $_) }).Count) { throw 'Inspection path has no current authority root.' }
+    }
+    $snapshot = @(Get-ArtifactRemovalSnapshot -GroupPaths $GroupPaths -OwnershipVerified $OwnershipVerified -VerifiedJunctions $VerifiedJunctions -InspectionPaths $InspectionPaths)
+    $roots = @{}
+    $selected = @{}
+    foreach ($root in $InspectionPaths) { $selected[[IO.Path]::GetFullPath($root)] = $true }
+    foreach ($entry in $snapshot) {
+        if ($selected.ContainsKey($entry.path)) { $roots[$entry.path] = ($entry.identity.Split(':')[0..2] -join ':') }
+    }
+    [pscustomobject]@{PSTypeName='ArtifactRemovalContext';GroupPaths=$GroupPaths;InspectionPaths=$InspectionPaths;OwnershipVerified=$OwnershipVerified;VerifiedJunctions=$VerifiedJunctions;Roots=$roots;Authorities=$authorities}
 }
 function Assert-ArtifactRemovalContext($Context, [string]$Path) {
     if ($Context.PSObject.TypeNames -notcontains 'ArtifactRemovalContext' -or -not $Context.Roots.ContainsKey([IO.Path]::GetFullPath($Path))) { throw 'Removal path has no group preflight context.' }
-    foreach ($root in $Context.Roots.Keys) {
+    foreach ($root in $Context.Authorities.Keys) {
+        if ($null -eq $Context.Authorities[$root]) {
+            if (Test-Path -LiteralPath $root) { throw "Absent deletion authority reappeared: $root" }
+            continue
+        }
+        if (-not (Test-Path -LiteralPath $root)) { continue }
+        Assert-ArtifactRemovalAncestors $root
+        if ([ArtifactRemovalNative]::Attributes($root) -band [IO.FileAttributes]::System) { throw "System authority root cannot be removed: $root" }
+        if (([ArtifactRemovalNative]::Identity($root).Split(':')[0..2] -join ':') -cne $Context.Authorities[$root]) { throw "Deletion authority root identity changed: $root" }
+    }
+    # Authority roots are few; work chunks can pin thousands of exact file roots.
+    # Each inspection root is rechecked when it is selected for mutation.
+    foreach ($root in @([IO.Path]::GetFullPath($Path))) {
         if (-not (Test-Path -LiteralPath $root)) { continue }
         Assert-ArtifactRemovalAncestors $root
         if (([ArtifactRemovalNative]::Identity($root).Split(':')[0..2] -join ':') -cne $Context.Roots[$root]) { throw "Deletion group root identity changed: $root" }
@@ -305,12 +346,14 @@ function Set-ArtifactRemovalAttributes {
     $mask = [IO.FileAttributes]::Hidden -bor [IO.FileAttributes]::ReadOnly
     # GroupPaths is an authority boundary: callers verify all selected roots belong exclusively
     # to this deletion group, with current ownership/protection and references checked.
-    if (-not @($GroupPaths | Where-Object { [IO.Path]::GetFullPath($_) -ieq [IO.Path]::GetFullPath($Path) }).Count) { throw 'Removal path is not a selected group root.' }
     if ($RemovalContext) {
         Assert-ArtifactRemovalContext $RemovalContext $Path
         $GroupPaths = $RemovalContext.GroupPaths; $OwnershipVerified = $RemovalContext.OwnershipVerified; $VerifiedJunctions = $RemovalContext.VerifiedJunctions
         $items = @(Get-ArtifactRemovalSnapshot -GroupPaths $GroupPaths -OwnershipVerified $OwnershipVerified -VerifiedJunctions $VerifiedJunctions -InspectionPaths @($Path))
-    } else { $items = @(Get-ArtifactRemovalSnapshot -GroupPaths $GroupPaths -OwnershipVerified $OwnershipVerified -VerifiedJunctions $VerifiedJunctions) }
+    } else {
+        if (-not @($GroupPaths | Where-Object { [IO.Path]::GetFullPath($_) -ieq [IO.Path]::GetFullPath($Path) }).Count) { throw 'Removal path is not a selected group root.' }
+        $items = @(Get-ArtifactRemovalSnapshot -GroupPaths $GroupPaths -OwnershipVerified $OwnershipVerified -VerifiedJunctions $VerifiedJunctions)
+    }
     $normalized = @{}
     foreach ($item in $items) {
         if (-not ($item.attributes -band $mask) -or -not (Test-ArtifactRemovalContained $item.path $Path) -or $item.junction) { continue }
@@ -359,10 +402,11 @@ function Remove-ArtifactLifecycleMember {
             } catch { $change.status='failed';$change.reason=$_.Exception.Message;throw }
         }
         # Rescan without an allowlist: recursion is permitted only after every link is absent.
-        $null = Get-ArtifactRemovalSnapshot -GroupPaths @($Path) -OwnershipVerified $OwnershipVerified
+        $null = Get-ArtifactRemovalSnapshot -GroupPaths $RemovalContext.GroupPaths -InspectionPaths @($Path) -OwnershipVerified $OwnershipVerified
         if ([ArtifactRemovalNative]::Identity($Path) -cne $rootIdentity) { throw "Removal root identity changed: $Path" }
     }
-    Remove-Item -LiteralPath $Path -Recurse -ErrorAction Stop
+    try { Remove-Item -LiteralPath $Path -Recurse -ErrorAction Stop }
+    catch { $_.Exception.Data['ArtifactPhysicalRemovalFailure'] = $true; throw }
 }
 function Receive-ArtifactMaintenanceResponse {
     param($Client, [ValidateRange(1,75000)][int]$TimeoutMilliseconds = 15000)
@@ -440,7 +484,7 @@ function Add-ArtifactCleanupFailure {
 function Invoke-ArtifactLifecycleCleanup {
     param([string]$ProjectRoot, [Alias('Candidate')][string]$CandidatePath, [string[]]$ProtectedPaths = @(), [string]$ReportPath,
         [bool]$Apply, [scriptblock]$CheckMember, [scriptblock]$BeforeDelete, [scriptblock]$RemoveMember,
-        [Collections.IDictionary]$VerifiedJunctions = @{})
+        [Collections.IDictionary]$VerifiedJunctions = @{}, [switch]$ContinueOnMemberFailure)
     $plan = Get-ArtifactLifecyclePlan -ProjectRoot $ProjectRoot -Candidates @($CandidatePath) -ProtectedPaths $ProtectedPaths -ReportPath $ReportPath
     $result = [ordered]@{status='selected';reason=$null;groups=@($plan.groups | ForEach-Object id);members=@();finalization=@();errors=@()}
     $blockers = @($plan.blockers) + @($plan.groups | ForEach-Object { $_.blockers })
@@ -512,7 +556,14 @@ function Invoke-ArtifactLifecycleCleanup {
             }
             if (Test-Path -LiteralPath $member.path) { throw "Lifecycle member remains: $($member.path)" }
             $member.status='deleted'
-        } catch { $member.status='failed';$member.reason=$_.Exception.Message;$result.status='partial';Add-ArtifactCleanupFailure $result 'member-removal' $_.Exception.Message;break }
+        } catch {
+            $member.status='failed';$member.reason=$_.Exception.Message;$result.status='partial';Add-ArtifactCleanupFailure $result 'member-removal' $_.Exception.Message
+            $cancelled = $false
+            for ($failure = $_.Exception; $null -ne $failure; $failure = $failure.InnerException) {
+                if ($failure -is [System.Management.Automation.PipelineStoppedException] -or $failure -is [OperationCanceledException]) { $cancelled = $true }
+            }
+            if (-not $ContinueOnMemberFailure -or $cancelled -or $_.Exception.Data['ArtifactPhysicalRemovalFailure'] -ne $true) { break }
+        }
     }
     } catch { $result.status=if ($physicalWorkStarted) {'partial'} else {'blocked'};Add-ArtifactCleanupFailure $result 'cleanup' $_.Exception.Message }
     finally {

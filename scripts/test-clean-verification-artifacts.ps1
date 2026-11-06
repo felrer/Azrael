@@ -1,6 +1,6 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param([string]$FixtureRoot, [switch]$InternalJunctionOnly)
+param([string]$FixtureRoot, [switch]$SubtreeOnly, [switch]$InternalJunctionOnly)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
 $testRoot = Join-Path $project ('artifacts/logs/storage-cleanup-20261006/verification-fixtures-' + [guid]::NewGuid().ToString('N'))
@@ -47,6 +47,109 @@ function Start-Reference([string]$Reference) {
     foreach ($arg in @('-NoProfile','-File',$sleeper,'-Reference',$Reference)) { $info.ArgumentList.Add($arg) }
     [Diagnostics.Process]::Start($info)
 }
+function Test-SubtreeCleanup {
+    if (-not [OperatingSystem]::IsWindows()) { throw 'Subtree cleanup verification requires Windows.' }
+    $authority = Join-Path $testRoot 'subtree-owner'
+    $selected = Join-Path $authority 'selected'
+    $sibling = Join-Path $authority 'sibling'
+    $original = Join-Path $selected 'original.txt'
+    Write-Json $original @{owned=$true}
+    Write-Json (Join-Path $sibling 'unrelated.txt') @{preserve=$true}
+    $alias = Join-Path $sibling 'alias.txt'
+    New-Item -ItemType HardLink -Path $alias -Target $original | Out-Null
+    [IO.File]::SetAttributes($original, [IO.FileAttributes]::ReadOnly)
+    $unrelated = Join-Path $sibling 'unrelated.txt'
+    [IO.File]::SetAttributes($unrelated, [IO.FileAttributes]::ReadOnly)
+    $absent = Join-Path $testRoot 'absent-authority'
+    $context = New-ArtifactRemovalContext -GroupPaths @($authority,$absent) -InspectionPaths @($selected) -OwnershipVerified $true
+    Assert ($context.InspectionPaths.Count -eq 1 -and $context.InspectionPaths[0] -eq $selected) 'Context inspection scope differs.'
+    $audit = [Collections.Generic.List[object]]::new()
+    $refused = $false
+    try { Set-ArtifactRemovalAttributes -Path $sibling -Audit $audit -RemovalContext $context } catch { $refused=$true }
+    Assert ($refused -and $audit.Count -eq 0) 'Context accepted an unselected sibling.'
+    $refused = $false
+    try { Set-ArtifactRemovalAttributes -Path $original -Audit $audit -RemovalContext $context } catch { $refused=$true }
+    Assert ($refused -and $audit.Count -eq 0) 'Context accepted an arbitrary selected-root descendant.'
+    foreach ($invalid in @($testRoot, (Join-Path $authority '../escape'), ($selected+'.'), ($original+':stream'))) {
+        $refused=$false
+        try { $null=New-ArtifactRemovalContext -GroupPaths @($authority) -InspectionPaths @($invalid) -OwnershipVerified $true } catch { $refused=$true }
+        Assert $refused 'Context accepted an ancestor or escaping inspection root.'
+    }
+    $junction = Join-Path $authority 'unverified-link'
+    New-Item -ItemType Junction -Path $junction -Target $sibling | Out-Null
+    try {
+        $refused=$false
+        try { $null=New-ArtifactRemovalContext -GroupPaths @($authority) -InspectionPaths @($junction) -OwnershipVerified $true } catch { $refused=$true }
+        Assert ($refused -and ([IO.File]::GetAttributes($unrelated) -band [IO.FileAttributes]::ReadOnly)) 'Unverified inspection reparse root was accepted.'
+    } finally { Remove-Item -LiteralPath $junction }
+    [IO.File]::SetAttributes($selected, [IO.FileAttributes]::System)
+    try {
+        $refused=$false
+        try { $null=New-ArtifactRemovalContext -GroupPaths @($authority) -InspectionPaths @($selected) -OwnershipVerified $true } catch { $refused=$true }
+        Assert ($refused -and ([IO.File]::GetAttributes($original) -band [IO.FileAttributes]::ReadOnly)) 'System inspection root was normalized.'
+    } finally { [IO.File]::SetAttributes($selected, [IO.FileAttributes]::Directory) }
+    $outside = Join-Path $testRoot 'outside-alias.txt'
+    New-Item -ItemType HardLink -Path $outside -Target $original | Out-Null
+    $refused=$false
+    try { $null=New-ArtifactRemovalContext -GroupPaths @($authority) -InspectionPaths @($selected) -OwnershipVerified $true } catch { $refused=$true }
+    Assert ($refused -and ([IO.File]::GetAttributes($original) -band [IO.FileAttributes]::ReadOnly)) 'Outside-authority alias was normalized.'
+    [IO.File]::SetAttributes($original, [IO.FileAttributes]::Normal)
+    Remove-Item -LiteralPath $outside -ErrorAction Stop
+    [IO.File]::SetAttributes($original, [IO.FileAttributes]::ReadOnly)
+    New-Item -ItemType Directory -Path $absent | Out-Null
+    $refused=$false
+    try { Set-ArtifactRemovalAttributes -Path $selected -Audit $audit -RemovalContext $context } catch { $refused=$true }
+    Assert ($refused -and $audit.Count -eq 0) 'Reappearing absent authority was accepted.'
+    Remove-Item -LiteralPath $absent
+    $moved = Join-Path $testRoot 'moved-owner'
+    Move-Item -LiteralPath $authority -Destination $moved
+    New-Item -ItemType Directory -Path $selected | Out-Null
+    $refused=$false
+    try { Set-ArtifactRemovalAttributes -Path $selected -Audit $audit -RemovalContext $context } catch { $refused=$true }
+    Assert ($refused -and $audit.Count -eq 0) 'Replaced authority root was accepted.'
+    Remove-Item -LiteralPath $authority -Recurse
+    Move-Item -LiteralPath $moved -Destination $authority
+    $context = New-ArtifactRemovalContext -GroupPaths @($authority) -InspectionPaths @($selected) -OwnershipVerified $true
+    Remove-ArtifactLifecycleMember -Path $selected -Audit $audit -RemovalContext $context
+    Assert (-not (Test-Path -LiteralPath $selected) -and (Test-Path -LiteralPath $alias) -and ([IO.File]::GetAttributes($unrelated) -band [IO.FileAttributes]::ReadOnly)) 'Selected subtree removal mutated an unrelated subtree.'
+    $manyRoot = Join-Path $testRoot 'many-inspection-roots'
+    $null = New-Item -ItemType Directory -Path $manyRoot
+    $many = @(for ($index=0; $index -lt 1024; $index++) {
+        $file = Join-Path $manyRoot ("file-{0:D4}.txt" -f $index)
+        [IO.File]::WriteAllText($file, 'owned')
+        $file
+    })
+    $manyContext = New-ArtifactRemovalContext -GroupPaths @($manyRoot) -InspectionPaths $many -OwnershipVerified $true
+    Remove-ArtifactLifecycleMember -Path $many[0] -Audit $audit -RemovalContext $manyContext
+    Remove-ArtifactLifecycleMember -Path $many[-1] -Audit $audit -RemovalContext $manyContext
+    Assert ($manyContext.Roots.Count -eq 1024 -and -not (Test-Path -LiteralPath $many[0]) -and -not (Test-Path -LiteralPath $many[-1]) -and (Test-Path -LiteralPath $many[1])) 'Large inspection-root selection removed an unselected work unit.'
+    $refused=$false
+    try { $null=New-ArtifactRemovalContext -GroupPaths @($manyRoot) -InspectionPaths @($many[1],$many[1]) -OwnershipVerified $true } catch { $refused=$true }
+    Assert $refused 'Duplicate inspection roots were accepted.'
+    $refused=$false
+    try { $null=New-ArtifactRemovalContext -GroupPaths @($testRoot) -InspectionPaths @($manyRoot,($manyRoot+'-sibling'),$many[1]) -OwnershipVerified $true } catch { $refused=$true }
+    Assert $refused 'Overlapping inspection roots were accepted.'
+    foreach ($continue in @($false,$true)) {
+        $name = 'member-failure-' + $continue
+        $first = Join-Path $testRoot "artifacts/$name/payload"
+        $later = Join-Path $testRoot "artifacts/$name/logs"
+        $locked = Join-Path $first 'locked.txt'
+        Write-Json $locked @{owned=$true}
+        Write-Json (Join-Path $later 'later.txt') @{owned=$true}
+        $null = Register-ArtifactLifecycle -ProjectRoot $testRoot -Id "run:$name" -Kind run -Owner fixture -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members @{payload=$first;logs=$later}
+        $handle = [IO.File]::Open($locked, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+        try { $report = Invoke-ArtifactLifecycleCleanup -ProjectRoot $testRoot -CandidatePath $first -Apply $true -CheckMember {} -ContinueOnMemberFailure:$continue }
+        finally { $handle.Dispose() }
+        $failed = @($report.members | Where-Object path -EQ $first)[0]
+        $following = @($report.members | Where-Object path -EQ $later)[0]
+        Assert ($report.status -eq 'partial' -and $failed.status -eq 'failed' -and (Test-Path -LiteralPath $locked)) 'Removal failure lost actual partial state.'
+        Assert (($continue -and $following.status -eq 'deleted' -and -not (Test-Path -LiteralPath $later)) -or (-not $continue -and $following.status -eq 'cancelled' -and (Test-Path -LiteralPath $later))) 'Physical member failure continuation differs from selected policy.'
+        $outcomes = Get-Content -LiteralPath $report.evidence.path -Raw | ConvertFrom-Json -AsHashtable
+        Assert (@($outcomes.outcomes.members | Where-Object { $_.path -eq $first -and $_.remaining -eq $true -and $_.status -eq 'failed' }).Count -eq 1) 'Failure evidence omitted the remaining member.'
+        $retry = Invoke-ArtifactLifecycleCleanup -ProjectRoot $testRoot -CandidatePath $first -Apply $true -CheckMember {}
+        Assert ($retry.status -eq 'deleted' -and -not (Test-Path -LiteralPath $first) -and -not (Test-Path -LiteralPath $later)) 'Owner cleanup did not remove unlocked fixture leftovers.'
+    }
+}
 function Test-InternalJunctionRemoval {
     if (-not [OperatingSystem]::IsWindows()) { throw 'Internal junction verification requires Windows.' }
     $boundary = Join-Path $testRoot 'internal-junction'
@@ -73,7 +176,9 @@ function Test-InternalJunctionRemoval {
 }
 try {
     if ($InternalJunctionOnly) { Test-InternalJunctionRemoval; [pscustomobject]@{Passed=$passed;Failed=0;Selection='InternalJunctionOnly'}; return }
-    Test-InternalJunctionRemoval
+    if (-not $SubtreeOnly) { Test-InternalJunctionRemoval }
+    Test-SubtreeCleanup
+    if ($SubtreeOnly) { [pscustomobject]@{Passed=$passed;Failed=0;Selection='SubtreeOnly'}; return }
     foreach ($case in @('ok','unregistered','wrong-owner','pending','incomplete','referenced','protected')) {
         $short = Join-Path $testRoot "artifacts/v-$case"
         Write-Json (Join-Path $short 'check-result.json') @{passed=$true;exitCodes=@{initialInventory=0;hostInstall=0;finalInventory=0;namespace=0;standaloneHost=0;host=0}}
@@ -108,6 +213,20 @@ try {
     Assert ((Test-Path -LiteralPath (Join-Path $archive 'check-result.json')) -and (Test-Path -LiteralPath (Join-Path $archive 'host-result.json')) -and (Test-Path -LiteralPath (Join-Path $archive 'report.json'))) 'Compact evidence missing.'
     Assert (@(Get-ChildItem -LiteralPath $archive -Recurse -File).Count -eq 3) 'Private or payload data archived.'
     Assert (-not (Test-Path -LiteralPath (Join-Path $testRoot 'artifacts/logs/fixture-completed spaces 한글'))) 'Associated fixture log was orphaned.'
+    foreach($mode in @('coexistence','standalone','incomplete','invalid-mode')){
+        $selectedFixture=New-Fixture "selected-$mode"
+        $codes=@{initialInventory=0;hostInstall=0;finalInventory=0;host=0}
+        $standalone=$mode -eq 'standalone'
+        if($standalone){$codes.standaloneHost=0}
+        if($mode -eq 'incomplete'){$codes.Remove('host')}
+        $proof=@{passed=$true;exitCodes=$codes;standaloneVerified=$standalone}
+        if($mode -eq 'invalid-mode'){$proof.standaloneVerified='false'}
+        Write-Json (Join-Path $selectedFixture 'check-result.json') $proof
+        $selectedReport=Run-Clean $selectedFixture
+        if($mode -in @('coexistence','standalone')){
+            Assert ($selectedReport.candidates[0].status -eq 'deleted' -and -not(Test-Path -LiteralPath $selectedFixture)) "Selected mode cleanup failed: $mode"
+        }else{Assert ($selectedReport.candidates[0].status -eq 'retained' -and (Test-Path -LiteralPath $selectedFixture)) "Invalid selected mode must remain protected: $mode"}
+    }
     $fixture = New-Fixture 'deleted-group-owner'
     $report = Invoke-ArtifactLifecycleCleanup -ProjectRoot $testRoot -CandidatePath $fixture -Apply $true -CheckMember {
         param($memberPath)

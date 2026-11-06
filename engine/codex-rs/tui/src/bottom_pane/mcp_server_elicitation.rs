@@ -1735,6 +1735,7 @@ mod tests {
         meta: Option<Value>,
     ) -> McpServerElicitationRequestParams {
         McpServerElicitationRequestParams {
+            user_wait_request_id: None,
             thread_id: "thread-1".to_string(),
             turn_id: Some("turn-1".to_string()),
             server_name: "server-1".to_string(),
@@ -2578,6 +2579,7 @@ mod tests {
                 thread_id,
                 request_id("request-2"),
                 &McpServerElicitationRequestParams {
+                    user_wait_request_id: None,
                     thread_id: "thread-1".to_string(),
                     turn_id: Some("turn-2".to_string()),
                     server_name: "server-1".to_string(),

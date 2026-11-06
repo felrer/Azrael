@@ -7,6 +7,7 @@ const { SESSION_LINK_ASSETS, injectSessionLinks } = require("./inject-session-li
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { injectTeamApprovals, TEAM_APPROVAL_ASSETS } = require("./inject-team-approvals.cjs");
 const { selectAssetCacheFactory } = require("./namespace-cache-owner.cjs");
 const { readAssetsInOrder } = require("./ordered-asset-reader.cjs");
 const { injectRecovery } = require("./inject-recovery.cjs");
@@ -31,12 +32,14 @@ const { injectScrollFade } = require("./inject-scroll-fade.cjs");
 const { ASSETS: COMMAND_DRAG_ASSETS, injectCommandDragBlock } = require("./inject-command-drag-block.cjs");
 const { getContentFontRules, copyContentFontAssets } = require("./content-fonts.cjs");
 const { CONTEXT_ASSET, SETTINGS_ASSET, injectProviderContextControls } = require("./inject-provider-context.cjs");
+const { MAINTENANCE_PREFERENCES_ASSETS, injectMaintenancePreferences } = require("./inject-maintenance-preferences.cjs");
 const { runProviderContext } = require("./provider-context-labels.cjs");
 const { DEFERRED_HEADER_ASSET, injectDeferredHeader, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET,
   injectDeferredTurn, injectDeferredPresentation, injectDeferredWaitRenderer, injectDeferredThread, injectDeferredTurnView, injectDeferredCollapsed, injectDeferredHostNotification, injectDeferredRendererNotification } = require("./inject-deferred-turn.cjs");
 const { ASSETS: PARENT_REQUEST_ACTIVITY_ASSETS, EXPECTED_TOTAL: PARENT_REQUEST_ACTIVITY_TOTAL, injectParentRequestActivity } = require("./inject-parent-request-activity.cjs");
 const { WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET, injectWorkSegmentFolding, injectWorkSegmentWaiting } = require("./inject-work-segment-folding.cjs");
 const { ASSET: TASK_WORK_TIME_ASSET, TURN_ASSET: TASK_TIME_MESSAGE_ASSET, injectTaskWorkTime } = require("./inject-task-work-time.cjs");
+const { injectUserWaitTime, PENDING: USER_WAIT_PENDING_ASSET } = require("./inject-user-wait-time.cjs");
 const { COMPACTION_PROGRESS_REDUCER_ASSET, injectCompactionProgress } = require("./inject-compaction-progress.cjs");
 const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
 const { ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
@@ -354,7 +357,7 @@ function transformAsset(source, relativePath, filename, ts) {
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
   const isTeamAsset = relativePath === TEAM_UI_ASSET || TEAM_RUNTIME_ASSETS.includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && !isTeamAsset && ![TASK_TIME_MESSAGE_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !BTW_ASSETS.includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !IMAGE_SKETCH_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && !isTeamAsset && ![USER_WAIT_PENDING_ASSET, TASK_TIME_MESSAGE_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !BTW_ASSETS.includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !IMAGE_SKETCH_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = relativePath === CONTENT_FONT_CSS_ASSET ? { text: source, count: 0 } : rewriteJavaScript(source, filename, ts);
   const accountSettings = injectAccountSettings(namespaced.text, relativePath);
   const instructionSettings = injectInstructionSettings(accountSettings.text, relativePath);
@@ -377,8 +380,9 @@ function transformAsset(source, relativePath, filename, ts) {
     relativePath === WORK_SEGMENT_FOLDING_ACTIVITY_ASSET ? injectWorkSegmentWaiting(deferred.text) : { text: deferred.text, count: 0 };
   const parentRequestActivity = injectParentRequestActivity(workSegmentFolding.text, relativePath);
   const taskWorkTime = injectTaskWorkTime(parentRequestActivity.text, relativePath);
+  const userWaitTime = injectUserWaitTime(taskWorkTime.text, relativePath);
   const compactionProgress = relativePath === COMPACTION_PROGRESS_REDUCER_ASSET ?
-    injectCompactionProgress(taskWorkTime.text) : { text: taskWorkTime.text, count: 0 };
+    injectCompactionProgress(userWaitTime.text) : { text: userWaitTime.text, count: 0 };
   const queueRefresh = relativePath === QUEUE_REFRESH_ASSET ?
     injectQueueRefresh(compactionProgress.text) : { text: compactionProgress.text, count: 0 };
   const queuedCompaction = relativePath === QUEUED_COMPACTION_HOST_ASSET ? injectQueuedCompactionHost(queueRefresh.text) :
@@ -419,7 +423,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const btw = injectBtw(composerDraft.text, relativePath);
   const providerContext = runProviderContext(btw.text, relativePath,
     [CONTEXT_ASSET, SETTINGS_ASSET].includes(relativePath) ? injectProviderContextControls : undefined);
-  const imageSketch = injectImageSketch(providerContext.text, relativePath);
+  const maintenancePreferences = injectMaintenancePreferences(providerContext.text, relativePath);
+  const imageSketch = injectImageSketch(maintenancePreferences.text, relativePath);
   const uiCleanup = injectUiCleanup(imageSketch.text, relativePath, ts);
   const autoReview = injectAutoReview(uiCleanup.text, relativePath, ts);
   const petsCleanup = injectPetsCleanup(autoReview.text, relativePath, ts);
@@ -431,7 +436,8 @@ function transformAsset(source, relativePath, filename, ts) {
   // Role admission must preserve request hooks already added by approvals and recovery.
   const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
   const taskProfile = injectTaskProfile(teamRuntime.text, relativePath);
-  if (commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || questionWithdrawal.count || questionQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || requestPreparation.count || requestState.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+  const teamApprovals = injectTeamApprovals(taskProfile.text, relativePath);
+  if (commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || userWaitTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || questionWithdrawal.count || questionQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || requestPreparation.count || requestState.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || teamApprovals.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || maintenancePreferences.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     const asset = {
       path: relativePath,
       edits: 0,
@@ -448,6 +454,7 @@ function transformAsset(source, relativePath, filename, ts) {
       workSegmentFoldingEdits: workSegmentFolding.count,
       parentRequestActivityEdits: parentRequestActivity.count,
       taskWorkTimeEdits: taskWorkTime.count,
+      userWaitTimeEdits: userWaitTime.count,
       deferredNativeTimingChecks: deferred.nativeTimingChecks ?? 0,
       compactionProgressEdits: compactionProgress.count,
       queueRefreshEdits: queueRefresh.count,
@@ -467,6 +474,7 @@ function transformAsset(source, relativePath, filename, ts) {
       teamUIEdits: teamUI.count,
       teamRuntimeEdits: teamRuntime.count,
       taskProfileEdits: taskProfile.count,
+      teamApprovalEdits: teamApprovals.count,
       webviewIdleEdits: webviewIdle.count,
       immediateStopEdits: immediateStop.count,
       queuedCompactionEdits: queuedCompaction.count,
@@ -488,6 +496,7 @@ function transformAsset(source, relativePath, filename, ts) {
       localFileDropEdits: localFileDrop.count,
       composerDraftEdits: composerDraft.count,
       providerContextEdits: providerContext.count,
+      maintenancePreferencesEdits: maintenancePreferences.count,
       imageSketchEdits: imageSketch.count,
       uiCleanupEdits: uiCleanup.count,
       autoReviewEdits: autoReview.count,
@@ -498,27 +507,27 @@ function transformAsset(source, relativePath, filename, ts) {
       uiInputDiagnosticsEdits: uiInputDiagnostics.count,
       sessionLinkEdits: sessionLinks.count,
       sourceSha256: sha(source),
-      sha256: sha(taskProfile.text),
+      sha256: sha(teamApprovals.text),
     };
     asset.edits = Object.entries(asset).filter(([name]) => name.endsWith("Edits")).reduce((total, [, count]) => total + count, 0);
-    return { text: taskProfile.text, asset };
+    return { text: teamApprovals.text, asset };
   }
-  return { text: taskProfile.text, asset: null };
+  return { text: teamApprovals.text, asset: null };
 }
 
 function getTransformRules() {
   const transformSources = [
     "inject-persisted-atoms.cjs", "persisted-atoms.cjs",
     "inject-window-control.cjs", "window-control-host.cjs", "window-use-async-approvals.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
-    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "namespace-cache-owner.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-project-drafts.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
+    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "namespace-cache-owner.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-project-drafts.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "window-use-approvals.cjs", "use-control-settings.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "inject-work-segment-folding.cjs", "inject-parent-request-activity.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
-    "inject-task-work-time.cjs", "task-work-time.cjs", "task-work-time-history.cjs",
+    "inject-task-work-time.cjs", "inject-user-wait-time.cjs", "task-work-time.cjs", "task-work-time-history.cjs",
     "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs", "ui-health-runtime.cjs", "optional-diagnostics.cjs",
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs", "inject-question-withdrawal.cjs", "inject-question-queue.cjs",
     "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "astra-speed-toggle.cjs", "inject-account-settings.cjs", "inject-instruction-settings.cjs",
     "inject-max-reasoning.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json",
     "inject-student-design.cjs", "student-avatar-assets.cjs",
-    "inject-provider-context.cjs", "provider-context-labels.cjs", "inject-ui-cleanup.cjs", "inject-image-sketch.cjs", "inject-auto-review.cjs", "inject-pets-cleanup.cjs",
+    "inject-maintenance-preferences.cjs", "inject-provider-context.cjs", "provider-context-labels.cjs", "inject-ui-cleanup.cjs", "inject-image-sketch.cjs", "inject-auto-review.cjs", "inject-pets-cleanup.cjs",
     "inject-content-fonts.cjs", "content-fonts.cjs", "inject-scroll-fade.cjs", "scroll-fade.cjs",
     "inject-command-drag-block.cjs", "command-drag-policy.cjs",
     "inject-thread-branch.cjs", "thread-branch.cjs",
@@ -526,7 +535,7 @@ function getTransformRules() {
     "inject-btw.cjs", "btw-conversation.cjs",
     "inject-session-links.cjs", "session-links.cjs",
     "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-submit-only-thread.cjs", "inject-request-preparation.cjs", "inject-request-state.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
-    "inject-session-flags.cjs", "inject-team-ui.cjs", "inject-team-runtime.cjs", "team-runtime-host.cjs", "team-change-service.cjs", "team-observability.cjs", "inject-task-profile.cjs", "task-profile-runtime.cjs", "instruction-library.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
+    "inject-session-flags.cjs", "inject-team-ui.cjs", "inject-team-runtime.cjs", "team-runtime-host.cjs", "team-change-service.cjs", "team-observability.cjs", "inject-task-profile.cjs", "inject-team-approvals.cjs", "team-approval-routing.cjs", "task-profile-runtime.cjs", "role-profile-runtime.cjs", "role-profile-store.cjs", "role-profile-defaults.cjs", "instruction-workbench-runtime.cjs", "instruction-workbench-view.cjs", "instruction-library.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
   ];
   return { ...Object.fromEntries(transformSources.map((name) =>
     [name, sha(fs.readFileSync(path.join(__dirname, name)))])), ...getContentFontRules(),
@@ -580,7 +589,8 @@ const ASSET_RULE_PATHS = {
   "inject-work-segment-folding.cjs": [WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET],
   "inject-parent-request-activity.cjs": PARENT_REQUEST_ACTIVITY_ASSETS,
   "inject-task-work-time.cjs": [TASK_WORK_TIME_ASSET, TASK_TIME_MESSAGE_ASSET],
-  "task-work-time.cjs": [TASK_WORK_TIME_ASSET],
+  "inject-user-wait-time.cjs": ["out/extension.js", DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_NOTIFICATION_ASSET, DEFERRED_TURN_ASSET, USER_WAIT_PENDING_ASSET],
+  "task-work-time.cjs": [TASK_WORK_TIME_ASSET, DEFERRED_PRESENTATION_ASSET],
   "task-work-time-history.cjs": [TASK_WORK_TIME_ASSET],
   "inject-compaction-progress.cjs": [COMPACTION_PROGRESS_REDUCER_ASSET],
   "inject-queue-refresh.cjs": [QUEUE_REFRESH_ASSET],
@@ -598,6 +608,8 @@ const ASSET_RULE_PATHS = {
   "inject-max-reasoning.cjs": MAX_REASONING_ASSETS,
   "inject-account-settings.cjs": ["out/extension.js", ACCOUNT_SETTINGS_ASSET],
   "inject-instruction-settings.cjs": ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS],
+  "instruction-workbench-view.cjs": ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS],
+  "inject-maintenance-preferences.cjs": MAINTENANCE_PREFERENCES_ASSETS,
   "inject-provider-context.cjs": [CONTEXT_ASSET, SETTINGS_ASSET],
   "inject-thread-branch.cjs": [THREAD_BRANCH_ASSET],
   "inject-capacity-retry-stop.cjs": [CAPACITY_RETRY_ASSET],
@@ -612,6 +624,12 @@ const ASSET_RULE_PATHS = {
   "team-observability.cjs": ["out/extension.js"],
   "inject-task-profile.cjs": TASK_PROFILE_ASSETS,
   "task-profile-runtime.cjs": TASK_PROFILE_ASSETS,
+  "inject-team-approvals.cjs": TEAM_APPROVAL_ASSETS,
+  "team-approval-routing.cjs": [...TEAM_APPROVAL_ASSETS, COMPUTER_USE_APPROVAL_CARD_ASSET],
+  "role-profile-runtime.cjs": TASK_PROFILE_ASSETS,
+  "role-profile-store.cjs": TASK_PROFILE_ASSETS,
+  "role-profile-defaults.cjs": TASK_PROFILE_ASSETS,
+  "instruction-workbench-runtime.cjs": TASK_PROFILE_ASSETS,
   "instruction-library.cjs": TASK_PROFILE_ASSETS,
   "team-design-collaboration": TEAM_RUNTIME_ASSETS,
   "team-lead-guidance": TEAM_RUNTIME_ASSETS,

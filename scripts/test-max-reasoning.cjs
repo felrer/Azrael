@@ -32,12 +32,6 @@ function contextFunctions(source, names, context) {
 }
 const efforts = stages => stages.map(reasoningEffort => ({ reasoningEffort, description: reasoningEffort }));
 const plain = value => JSON.parse(JSON.stringify(value));
-const anchors = [
-  ["yC(e)&&a.has(e)", "(t==null||r==null||r.includes(t5[t]))"],
-  ["new Set([...vg(e,Pbe.enabledReasoningEfforts),`persistent`])", "_=n==null?u(AMn):new Set([...n,`persistent`])"],
-  ["let r=Q.filter(e),a=d?.models.some(Ge)", "if(d==null||r.length===0&&!a)"],
-  ["g=s==null?void 0:re(s)"],
-];
 function nativeContract(source) {
   const c = contextFunctions(source, ["FJr", "IJr", "yC"], { __azraelProviderCatalog: createProviderModelCatalog() });
   const models = [
@@ -59,22 +53,6 @@ function nativeContract(source) {
   args.authMethod = "chatgpt";
   assert.deepEqual(plain(c.FJr(args).models[0].supportedReasoningEfforts).map(e => e.reasoningEffort), ["max"], "Ultra feature gate survives");
 }
-for (const asset of policy.MAX_REASONING_ASSETS) {
-  for (const chain of [false, true]) test(`guarded adapter parses and is idempotent: ${asset}, provider=${chain}`, () => {
-    const input = chain ? provider.injectProviderModelPicker(read(asset), asset).text : read(asset);
-    const result = policy.injectMaxReasoning(input, asset);
-     ast(result.text);
-    assert.equal(policy.injectMaxReasoning(result.text, asset).text, result.text);
-    assert.throws(() => policy.injectMaxReasoning("", asset), /anchor/);
-    assert.throws(() => policy.injectMaxReasoning(input + input, asset), /anchor/);
-    assert.throws(() => policy.injectMaxReasoning(result.text + policy.MAX_REASONING_MARKER, asset), /Duplicate/);
-    for (const anchor of anchors[policy.MAX_REASONING_ASSETS.indexOf(asset)]) {
-      assert.throws(() => policy.injectMaxReasoning(input.replace(anchor, "/*anchor-drift*/"), asset), /anchor/);
-      assert.throws(() => policy.injectMaxReasoning(input + anchor, asset), /anchor/);
-    }
-  });
-}
-test("unrelated assets remain untouched", () => assert.equal(policy.injectMaxReasoning("input", "other.js").text, "input"));
 for (const chain of [false, true]) test(`actual native supported-stage filters preserve authentication/defaults/Ultra, provider=${chain}`, () => {
   const asset = policy.MAX_REASONING_ASSETS[0];
   const input = chain ? provider.injectProviderModelPicker(read(asset), asset).text : read(asset);

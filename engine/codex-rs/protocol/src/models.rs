@@ -906,8 +906,19 @@ pub enum ImageReference {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema, TS)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum AgentMessageInputContent {
-    InputText { text: String },
-    EncryptedContent { encrypted_content: String },
+    InputText {
+        text: String,
+    },
+    InputImage {
+        #[serde(flatten)]
+        image: ImageReference,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        detail: Option<ImageDetail>,
+    },
+    EncryptedContent {
+        encrypted_content: String,
+    },
 }
 
 /// Returns the locally readable text when an agent message is entirely plaintext.
@@ -916,7 +927,8 @@ pub fn plaintext_agent_message_content(content: &[AgentMessageInputContent]) -> 
     for part in content {
         match part {
             AgentMessageInputContent::InputText { text } => text_parts.push(text.as_str()),
-            AgentMessageInputContent::EncryptedContent { .. } => return None,
+            AgentMessageInputContent::EncryptedContent { .. }
+            | AgentMessageInputContent::InputImage { .. } => return None,
         }
     }
 

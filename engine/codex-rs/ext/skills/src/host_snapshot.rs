@@ -8,12 +8,20 @@ use codex_skills::SkillMetadata;
 #[derive(Debug, Clone)]
 pub struct HostSkillsSnapshot {
     outcome: Arc<SkillLoadOutcome>,
+    selected_only: bool,
 }
 
 impl HostSkillsSnapshot {
     pub fn new(outcome: Arc<SkillLoadOutcome>) -> Self {
-        Self { outcome }
+        Self { outcome, selected_only: false }
     }
+
+    pub fn with_selected_only(mut self, selected_only: bool) -> Self {
+        self.selected_only = selected_only;
+        self
+    }
+
+    pub fn selected_only(&self) -> bool { self.selected_only }
 
     pub fn outcome(&self) -> &SkillLoadOutcome {
         self.outcome.as_ref()

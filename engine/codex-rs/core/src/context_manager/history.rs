@@ -1263,6 +1263,9 @@ fn estimate_response_item_model_visible_bytes(item: &ResponseItem) -> i64 {
             .iter()
             .map(|part| match part {
                 AgentMessageInputContent::InputText { text } => text_bytes(text),
+                AgentMessageInputContent::InputImage { image, detail } => {
+                    estimate_image_reference_bytes(image, *detail)
+                }
                 AgentMessageInputContent::EncryptedContent { encrypted_content } => i64::try_from(
                     estimate_encrypted_function_output_length(encrypted_content.len()),
                 )

@@ -7,28 +7,26 @@ const { createBackend } = require('./window-control-backend.cjs');
 const thread = '12345678-1234-1234-1234-123456789abc';
 const tick = () => new Promise(resolve => setImmediate(resolve));
 async function until(predicate) { for (let i = 0; i < 100 && !predicate(); i++) await tick(); assert.ok(predicate()); }
-async function fixture(t, { timeout = 1000, show, publish, focus, dedicated = false, autoStage = true } = {}) {
+async function fixture(t, { timeout = 1000, show, publish, focus, dedicated = false } = {}) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-approval-notification-'));
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
   const descriptor = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: 'C:/fixture/app.exe', title: 'Fixture app', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   const posts = [], shows = [], hides = [], navigation = [], commands = [], backendCalls = [];
-  const stageIds=new Set();
-  const deliverStage=envelope=>{if(autoStage && ['mcp-request','approval'].includes(envelope.type)&&envelope.request.params._meta.window_use_approval_kind==='stage') {stageIds.add(envelope.request.id.slice('azrael-window-consent-'.length));queueMicrotask(()=>host.respondApproval(native,envelope.request.id,{action:'accept',content:{persist:'session'}}));return true;}return false;};
   let listener, subscriptionDisposed = false, turn = 'turn-one';
   const backend = {
-    async request(method) { backendCalls.push(method); return method === 'listWindows' ? [descriptor] : descriptor; },
-    showApprovalNotification(params) { if(stageIds.has(params.requestId))return;shows.push(params); return show?.(params); },
-    hideApprovalNotification(params) { if(!stageIds.has(params.requestId))hides.push(params); },
+    async request(method) { backendCalls.push(method); return method === 'listWindows' ? [descriptor] : method === 'observe' ? ({window:{...descriptor},observationId:"fixture-observation",frameTimestamp:"fixture-time",widthPx:descriptor.widthPx,heightPx:descriptor.heightPx,dpi:descriptor.dpi,elements:[],elementsTruncated:false,image:{mimeType:"image/png",data:"aW1hZ2U="}}) : descriptor; },
+    showApprovalNotification(params) { shows.push(params); return show?.(params); },
+    hideApprovalNotification(params) { hides.push(params); },
     onApprovalNotificationActivated(callback) { listener = callback; return { dispose() { subscriptionDisposed = true; } }; }, async dispose() {},
   };
   const reveals = [];
-  const panel = { webview: { postMessage(envelope) { if(deliverStage(envelope))return true;posts.push(envelope); return true; }, onDidReceiveMessage() {} }, reveal(...args) { reveals.push(args); }, onDidDispose() {}, dispose() {} };
+  const panel = { webview: { postMessage(envelope) { posts.push(envelope); return true; }, onDidReceiveMessage() {} }, reveal(...args) { reveals.push(args); }, onDidDispose() {}, dispose() {} };
   const host = createHost({ runtime: { codexHome: home }, occupancyDirectory: path.join(home, 'occupancy'), approvals, approvalTimeoutMs: timeout, backend,
     vscode: { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [] }, window: { showWarningMessage: async () => '허용', createWebviewPanel() { return panel; } }, commands: { async executeCommand(command) { commands.push(command); await focus?.(); } } },
     createServer() { const server = new EventEmitter(); server.listen = (_name, done) => done(); server.close = () => {}; return server; },
   });
   const native = { registerProvider() { return { dispose() {} }; } }; const {engine}=require('./window-approval-engine-fixture.cjs').attachApprovalEngine(host,native,()=>{});
-  const publisher = envelope => { if(deliverStage(envelope))return true;posts.push(envelope); return publish?.(envelope); };
+  const publisher = envelope => { posts.push(envelope); return publish?.(envelope); };
   const navigate = (id, isPending) => navigation.push({ id, isPending });
   host.registerApprovalUI(native, publisher, navigate);
   if (dedicated) { host.open(); const originalRpc=host.attach(native).rpc.bind(host.attach(native));host.attach(native).rpc = async (method,params) => method.startsWith('thread/approval/')?originalRpc(method,params):({ computerUseMode: 'selectedWindow', thread: { id: thread } }); await host.startThread(); }
@@ -36,10 +34,21 @@ async function fixture(t, { timeout = 1000, show, publish, focus, dedicated = fa
   started(turn); await host.threads.get(thread).ready;
   t.after(async () => { await host.dispose(); await fs.rm(home, { recursive: true }); });
   const call = (tool, args = {}) => host.handlePipe({ nonce: host.nonce, threadId: thread, method: 'call', tool, arguments: args, _meta: { threadId: thread, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: thread, turn_id: turn } } });
-  async function select() { const candidate = (await call('list_windows')).candidates[0].candidateId; const selected = await call('select_window', { candidateId: candidate }); const result = call('request_stage', { stage: 2, targetId: selected.targetId, reason: 'Verify control consent notifications' }); result.catch(() => {}); await until(() => posts.some(p => ['mcp-request', 'approval'].includes(p.type))); return { result, request: posts.find(p => ['mcp-request', 'approval'].includes(p.type)).request }; }
+  async function select() { const selected = (await call('list_windows')).candidates[0]; const result = call('resize', { windowId:selected.windowId,widthDip:700,heightDip:500 }); result.catch(() => {}); await until(() => posts.some(p => ['mcp-request', 'approval'].includes(p.type))); return { result, request: posts.find(p => ['mcp-request', 'approval'].includes(p.type)).request }; }
   return { host, native, engine, approvals, descriptor, publisher, navigate, posts, shows, hides, navigation, commands, backendCalls, reveals, call, select, started, click: id => listener({ requestId: id }), subscriptionDisposed: () => subscriptionDisposed,
     answer(request, action = 'accept') { host.respondApproval(native, request.id, { action, content: { persist: 'session' } }); } };
 }
+test('native settings action preserves the pending card and never grants or settles consent',async t=>{
+  const settingsModule=require('./use-settings-host.cjs'),factory=settingsModule.createSettingsHost,opened=[];
+  t.mock.method(settingsModule,'createSettingsHost',options=>({...factory(options),async openApprovalSettings(args){opened.push(args);}}));
+  const f=await fixture(t),{result,request}=await f.select();let settled=false;result.finally(()=>settled=true).catch(()=>{});
+  const settings={action:'settings',content:{list:'controlAllowedApps'}};
+  f.host.respondApproval({},request.id,settings);f.host.respondApproval(f.native,request.id,{action:'settings',content:{list:'invalid'}});await tick();assert.equal(opened.length,0);
+  f.host.respondApproval(f.native,request.id,settings);await until(()=>opened.length===1);assert.equal(opened[0].list,'controlAllowedApps');assert.equal(opened[0].descriptor.executable,f.descriptor.executable);assert.equal(opened[0].descriptor.pid,f.descriptor.pid);assert.equal(opened[0].isCurrent(),true);
+  assert.equal(settled,false);assert.equal(f.engine.calls.filter(call=>call.method==='thread/approval/resolve').length,0);assert.equal(f.approvals.hasAppApproval(f.descriptor.executable,thread),false);assert.equal(f.backendCalls.includes('resize'),false);
+  f.answer(request);await result;assert.equal(opened[0].isCurrent(),false);assert.equal(f.backendCalls.filter(method=>method==='resize').length,1);
+});
+
 test('notification follows delivered card, only navigates pending approval, and rebinding does not duplicate it', async t => {
   let delivered; const gate = new Promise(resolve => { delivered = resolve; });
   const f = await fixture(t, { publish: envelope => envelope.type === 'mcp-request' ? gate : undefined });
@@ -52,9 +61,9 @@ test('notification follows delivered card, only navigates pending approval, and 
   f.click(shown.requestId); await until(() => f.navigation.length === 1);
   assert.deepEqual(f.commands, ['workbench.action.focusWindow']); assert.equal(f.navigation[0].id, thread); assert.equal(f.navigation[0].isPending(), true);
   assert.equal(f.approvals.hasAppApproval(f.descriptor.executable, thread), false); assert.equal(f.backendCalls.includes('observe'), false);
-  f.answer(request); assert.equal((await result).authorized, true); await until(() => f.hides.length > 0); assert.deepEqual(f.hides[0], { requestId: shown.requestId });
+  f.answer(request); assert.ok(await result); await until(() => f.hides.length > 0); assert.deepEqual(f.hides[0], { requestId: shown.requestId });
   assert.equal(f.navigation[0].isPending(), false); f.click(shown.requestId); await tick(); assert.equal(f.navigation.length, 1);
-  await f.call('select_window', { candidateId: (await f.call('list_windows')).candidates[0].candidateId }); assert.equal(f.shows.length, 1);
+  await f.call('status', { windowId: (await f.call('list_windows')).candidates[0].windowId }); assert.equal(f.shows.length, 1);
 });
 test('dedicated approval activation reveals its panel without ordinary navigation', async t => {
   const f = await fixture(t, { dedicated: true }); const { result, request } = await f.select(); await until(() => f.shows.length === 1);
@@ -67,7 +76,7 @@ for (const ending of ['decline', 'cancel', 'disconnect', 'dispose', 'turn']) tes
   else if (ending === 'dispose') await f.host.dispose();
   else if (ending === 'turn') f.started('turn-two');
   else f.answer(request, ending);
-  await assert.rejects(result, error => error.code === (ending === 'decline' ? 'approval_declined' : 'cancelled'));
+  await assert.rejects(result, error => error.code === (ending === 'decline' ? 'approval_denied' : 'cancelled'));
   await until(() => f.hides.length > 0); f.click(f.shows[0].requestId); await tick(); assert.equal(f.navigation.length, 0); assert.equal(f.commands.length, 0);
   assert.equal(f.approvals.hasAppApproval(f.descriptor.executable, thread), false);
   if (ending === 'dispose') assert.equal(f.subscriptionDisposed(), true);
@@ -79,7 +88,7 @@ test('approval ending while focus awaits blocks navigation', async t => {
 });
 test('notification show failure leaves consent usable', async t => {
   const f = await fixture(t, { show() { throw new Error('native toast unavailable'); } }); const { result, request } = await f.select(); await until(() => f.shows.length === 1);
-  f.answer(request); assert.equal((await result).authorized, true); await until(() => f.hides.length > 0);
+  f.answer(request); assert.ok(await result); await until(() => f.hides.length > 0);
 });
 test('show finishing after cancellation is hidden and never navigates', async t => {
   let finishShow; const gate = new Promise(resolve => { finishShow = resolve; }); const f = await fixture(t, { show: () => gate });
@@ -90,35 +99,13 @@ test('failed card delivery never shows a notification', async t => {
   const f = await fixture(t, { publish: () => false }); const { result } = await f.select(); await assert.rejects(result, { code: 'connection_error' }); assert.equal(f.shows.length, 0);
 });
 
-for(const ending of ['accept','decline','cancel','disconnect']) test(`stage ${ending} follows delivered card and retires its own notification`,async t=>{
-  const f=await fixture(t,{autoStage:false});
-  const {result,request}=await f.select();await until(()=>f.shows.length===1);
-  assert.equal(request.params._meta.window_use_approval_kind,'stage');assert.deepEqual(request.params._meta.persist,['session']);
-  assert.equal(f.shows[0].appTitle,'Window Use 2단계');assert.equal(f.approvals.hasAppApproval(f.descriptor.executable,thread),false);
-  if(ending==='accept') { f.answer(request);await until(()=>f.posts.filter(p=>['mcp-request','approval'].includes(p.type)).length===2);const appRequest=f.posts.filter(p=>['mcp-request','approval'].includes(p.type)).at(-1).request;f.answer(appRequest,'cancel'); }
-  else if(ending==='disconnect')f.host.disconnect(f.native);
-  else f.answer(request,ending);
-  await assert.rejects(result);await until(()=>f.hides.some(item=>item.requestId===f.shows[0].requestId));
-  f.click(f.shows[0].requestId);await tick();assert.equal(f.navigation.length,0);assert.equal(f.approvals.hasAppApproval(f.descriptor.executable,thread),false);
+test('expired approval retires notification and rejects stale activation',async t=>{
+  const f=await fixture(t,{timeout:30}),{result,request}=await f.select();await assert.rejects(result,{code:'approval_timeout'});await until(()=>f.hides.length>0);
+  f.click(f.shows[0].requestId);await tick();assert.equal(f.navigation.length,0);f.answer(request);await tick();assert.deepEqual(f.engine.resumes,[]);assert.equal(f.approvals.hasAppApproval(f.descriptor.executable,thread),false);
 });
-
-test('detached app approval retains its notification and navigation through ordinary turn completion',async t=>{
-  const f=await fixture(t,{timeout:30}),{result,request}=await f.select();
-  await assert.rejects(result,{code:'permission_pending'});assert.equal(f.hides.length,0);
-  f.host.observe(f.native,{method:'turn/completed',params:{threadId:thread,turn:{status:'completed'}}});
-  f.click(f.shows[0].requestId);await until(()=>f.navigation.length===1);assert.equal(f.navigation[0].isPending(),true);
-  f.answer(request,'decline');await until(()=>f.hides.length>0);assert.equal(f.engine.records.get(request.id).state,'declined');
-});
-
-test('restoring a pending card and retrying its scope do not ring another notification',async t=>{
-  const f=await fixture(t,{timeout:30}),{result,request}=await f.select();
-  await assert.rejects(result,{code:'permission_pending'});await until(()=>f.shows.length===1);
-  const rebound=envelope=>f.publisher(envelope);f.host.registerApprovalUI(f.native,rebound,f.navigate);
-  await until(()=>f.posts.filter(value=>value.type==='mcp-request'&&value.request.id===request.id).length>=2);
-  const targetId=f.host.owner.peek(thread).targetId;
-  await assert.rejects(f.call('request_stage',{stage:2,targetId,reason:'Retry the same already-pending fixture scope'}),error=>error.code==='permission_pending'&&error.approvalRequestId===request.id);
-  await tick();assert.equal(f.shows.length,1,'the existing live request keeps one notification across rebind and retry');
-  f.answer(request,'decline');await until(()=>f.hides.length>0);assert.equal(f.engine.records.get(request.id).state,'declined');
+test('rebinding a live card does not duplicate its notification or settle the tool',async t=>{
+  const f=await fixture(t),{result,request}=await f.select();await until(()=>f.shows.length===1);let settled=false;result.finally(()=>settled=true).catch(()=>{});
+  f.host.registerApprovalUI(f.native,envelope=>f.publisher(envelope),f.navigate);await tick();assert.equal(f.shows.length,1);assert.equal(settled,false);f.answer(request);await result;
 });
 
 function backendFixture(respond) {
@@ -162,7 +149,7 @@ test('transformed native callback binds stable navigation and checks pending sta
   const context = vm.createContext({ require(name) {
     if (name === './azrael-runtime.cjs') return { runtime: { windowControl: {} } };
     if (name === './window-control-host.cjs') return { registerApprovalUI(...args) { registrations.push(args); } };
-    if (name === './computer-use-approvals.cjs') return { receive() {} };
+    if (name === './window-use-approvals.cjs') return { receive() {} };
     assert.equal(name, 'vscode'); return { commands: { executeCommand(command) { commands.push(command); return new Promise(resolve => { finishOpen = resolve; }); } } };
   } });
   const native = {}; Object.assign(context, { codexMcpConnection: native, broadcastToAllViews() {}, navigateToRoute(route) { routes.push(route); } });

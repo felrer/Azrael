@@ -23,7 +23,10 @@ fn default_available_modes() -> Vec<ModeKind> {
 fn request_user_input_tool_includes_questions_schema() {
     assert_eq!(
         create_request_user_input_tool("Ask the user to choose.".to_string()),
-        ToolSpec::Function(ResponsesApiTool {
+        ToolSpec::Namespace(codex_tools::ResponsesApiNamespace {
+            name: "legacy_codex_tools".to_string(),
+            description: "Legacy Codex tools.".to_string(),
+            tools: vec![codex_tools::ResponsesApiNamespaceTool::Function(ResponsesApiTool {
             name: "request_user_input".to_string(),
             description: "Ask the user to choose.".to_string(),
             strict: false,
@@ -104,6 +107,7 @@ fn request_user_input_tool_includes_questions_schema() {
             Some(vec!["questions".to_string()]),
             Some(false.into())),
             output_schema: None,
+        })],
         })
     );
 }

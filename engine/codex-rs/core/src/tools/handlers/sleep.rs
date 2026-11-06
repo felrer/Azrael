@@ -12,18 +12,17 @@ use codex_extension_items::sleep::SleepItem;
 use codex_features::Feature;
 use codex_protocol::items::TurnItem;
 use codex_tools::JsonSchema;
-use codex_tools::ResponsesApiNamespace;
-use codex_tools::ResponsesApiNamespaceTool;
+use codex_tools::LEGACY_CODEX_TOOLS_NAMESPACE;
 use codex_tools::ResponsesApiTool;
 use codex_tools::ToolExposure;
 use codex_tools::ToolName;
 use codex_tools::ToolSpec;
+use codex_tools::legacy_codex_tool;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 use std::time::Duration;
 use std::time::Instant;
 
-const NAMESPACE: &str = "clock";
 const TOOL_NAME: &str = "sleep";
 const MAX_SLEEP_DURATION_MS: u64 = 12 * 60 * 60 * 1000;
 
@@ -43,28 +42,24 @@ fn create_sleep_tool() -> ToolSpec {
         ))),
     )]);
 
-    ToolSpec::Namespace(ResponsesApiNamespace {
-        name: NAMESPACE.to_string(),
-        description: "Tools for reading and waiting on time.".to_string(),
-        tools: vec![ResponsesApiNamespaceTool::Function(ResponsesApiTool {
-            name: TOOL_NAME.to_string(),
-            description: "Pause execution for a specified duration. The sleep ends early when new input arrives for the active turn. Returns the elapsed wall-clock time."
-                .to_string(),
-            strict: false,
-            defer_loading: None,
-            parameters: JsonSchema::object(
-                properties,
-                Some(vec!["duration_ms".to_string()]),
-                /*additional_properties*/ Some(false.into()),
-            ),
-            output_schema: None,
-        })],
+    legacy_codex_tool(ResponsesApiTool {
+        name: TOOL_NAME.to_string(),
+        description: "Pause execution for a specified duration. The sleep ends early when new input arrives for the active turn. Returns the elapsed wall-clock time."
+            .to_string(),
+        strict: false,
+        defer_loading: None,
+        parameters: JsonSchema::object(
+            properties,
+            Some(vec!["duration_ms".to_string()]),
+            /*additional_properties*/ Some(false.into()),
+        ),
+        output_schema: None,
     })
 }
 
 impl ToolExecutor<ToolInvocation> for SleepHandler {
     fn tool_name(&self) -> ToolName {
-        ToolName::namespaced(NAMESPACE, TOOL_NAME)
+        ToolName::namespaced(LEGACY_CODEX_TOOLS_NAMESPACE, TOOL_NAME)
     }
 
     fn spec(&self) -> ToolSpec {
@@ -72,7 +67,7 @@ impl ToolExecutor<ToolInvocation> for SleepHandler {
     }
 
     fn exposure(&self) -> ToolExposure {
-        ToolExposure::DirectModelOnly
+        ToolExposure::DeferredModelOnly
     }
 
     fn handle<'a>(&'a self, invocation: ToolInvocation) -> codex_tools::ToolExecutorFuture<'a>

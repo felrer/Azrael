@@ -41,7 +41,6 @@ use codex_protocol::user_input::UserInput;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
 use core_test_support::responses::ev_image_generation_call;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::mount_models_once;
@@ -462,8 +461,9 @@ async fn settings_update_during_active_turn_applies_to_next_turn_only() -> Resul
         vec![
             sse(vec![
                 ev_response_created("resp-1"),
-                ev_function_call(
+                core_test_support::responses::ev_function_call_with_namespace(
                     "pause-turn",
+                    "legacy_codex_tools",
                     "request_user_input",
                     &json!({
                         "questions": [{

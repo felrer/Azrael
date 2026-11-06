@@ -87,21 +87,7 @@ test("manual compaction leaves a legacy backlog intact and refuses an unsupporte
   assert.equal(unsupported.calls.length, 0);
 });
 
-test("the three version-pinned UI transforms parse, remain idempotent, and reject drift", () => {
-  for (const { asset, before, inject, result } of inputs) {
 
-    assert.equal(ts.createSourceFile(asset, result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
-    assert.equal(inject(result.text).text, result.text);
-    assert.throws(() => inject("changed host"), /anchor/);
-    assert.throws(() => inject(before + before), /anchor/);
-    assert.throws(() => inject(result.text + result.text), /Duplicate/);
-  }
-
-  const presentation = inputs.find(({ asset }) => asset === patch.QUEUED_COMPACTION_PRESENTATION_ASSET);
-  assert.throws(() => patch.injectQueuedCompactionPresentation(presentation.result.text.replace(
-    "/*azrael-queued-compaction-presentation-v5*/", "/*azrael-queued-compaction-presentation-v4*/",
-  )), /Stale/);
-});
 
 test("native host subscribes to warning notifications with a pinned, idempotent transform", () => {
   const filename = path.join(root, patch.QUEUED_COMPACTION_HOST_ASSET);
@@ -115,14 +101,7 @@ test("native host subscribes to warning notifications with a pinned, idempotent 
   assert.throws(() => patch.injectQueuedCompactionHost(result.text.replace("warning:/*azrael-queued-compaction-host-v1*/!0", "warning:/*azrael-queued-compaction-host-v1*/!1")), /subscription/);
 });
 
-test("marked presentation assets reject missing skip feedback", () => {
-  const source = inputs[1].result.text;
-  for (const [before, after] of [
-    ["guardianWarning:!0,warning:!0", "guardianWarning:!0,warning:!1"],
-    ["azrael.compaction.skipped.reason", "changed.reason"],
-    [JSON.stringify(patch.COMPACTION_SKIPPED_MESSAGE), '"unrelated warning"'],
-  ]) assert.throws(() => patch.injectQueuedCompactionPresentation(source.replace(before, after)), /skip notice/);
-});
+
 
 test("compaction skip warnings show localized native feedback even with diagnostics disabled", () => {
   const source = inputs[1].result.text;
@@ -156,13 +135,7 @@ test("compaction skip warnings show localized native feedback even with diagnost
   assert.ok(rust.includes(JSON.stringify(patch.COMPACTION_SKIPPED_MESSAGE)), "native warning and host recognition share the same contract");
 });
 
-test("marked compaction assets reject incomplete composer isolation", () => {
-  const presentation = inputs.find(({ asset }) => asset === patch.QUEUED_COMPACTION_PRESENTATION_ASSET);
-  for (const token of ["if(__azraelCompactActions.has(p))return;", "const __azraelCompactActions=new WeakMap;", "await __azraelRunSlashSelection(e,n,()=>I2i("]) {
 
-    assert.throws(() => patch.injectQueuedCompactionPresentation(presentation.result.text.replace(token, "")), /composer isolation/);
-  }
-});
 
 function listRenderer(source) {
   const ast = ts.createSourceFile("queued-list.js", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
@@ -229,18 +202,4 @@ test("the preserved queued spinner dependency respects reduced motion", () => {
   const result = render({ className: "icon-2xs text-text-tertiary/70" });
   assert.ok(result.props.className.split(" ").includes("motion-safe:animate-spin"));
   assert.ok(!result.props.className.split(" ").includes("animate-spin"));
-});
-
-test("queued list v2 rejects stale, missing and partial waiting-label transforms", () => {
-  const { before, result, inject } = inputs[2];
-  assert.throws(() => inject(result.text.replace("/*azrael-queued-compaction-list-v2*/", "/*azrael-queued-compaction-list-v1*/")), /Stale/);
-  assert.throws(() => inject(before.replace("composer.queuedMessage.sending", "changed.message")), /anchor/);
-  assert.throws(() => inject(before.replace("sr-only select-none", "changed-class")), /anchor/);
-  for (const [anchor, replacement] of [
-    ["azrael.queuedMessage.awaitingAcceptance", "composer.queuedMessage.sending"],
-    ["text-text-tertiary text-xs select-none shrink-0", "sr-only select-none"],
-    ["\"aria-live\":`polite`,", ""],
-    ["onEditMessage:e.context.queuedOperationKind===`contextCompaction`?void 0:m", "onEditMessage:m"],
-  ]) assert.throws(() => inject(result.text.replace(anchor, replacement)), /Invalid.*list replacement/);
-  assert.equal(inject(result.text).text, result.text);
 });

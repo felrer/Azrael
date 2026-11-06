@@ -56,6 +56,9 @@ pub struct TurnInputRequest {
 /// Attribution retained across recovery, sleep, and model-context compaction.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 pub struct TurnAttribution {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub agent_profile: Option<crate::agent_profile::AgentProfileRef>,
     pub turn_id: String,
     pub turn_trigger: Option<String>,
     pub parent_turn_id: Option<String>,
@@ -67,6 +70,7 @@ impl TurnAttribution {
     /// Restores provenance without changing the thread's execution settings.
     pub fn start_options(&self) -> TurnStartOptions {
         TurnStartOptions {
+            agent_profile: self.agent_profile.clone(),
             turn_trigger: self.turn_trigger.clone(),
             parent_turn_id: self.parent_turn_id.clone(),
             initiating_agent_path: self.initiating_agent_path.clone(),
@@ -185,6 +189,8 @@ pub enum CyberAccessProgram {
 /// child input, Core also compares root lineage to detect ambiguity.
 #[derive(Clone, Debug, Default)]
 pub struct TurnStartOptions {
+    /// Captured at admission; applies only if this input starts a new turn.
+    pub agent_profile: Option<crate::agent_profile::AgentProfileRef>,
     /// Source classification for this request. Recorded on new turns and captured
     /// as input provenance when steering, without changing the active turn's trigger.
     pub turn_trigger: Option<String>,

@@ -6,7 +6,11 @@ import { infer, catalog } from '../providers/opencodex/inference.ts';
 import { handleRequest } from '../providers/opencodex/helper.ts';
 import { loadConfig, saveConfig } from '../providers/opencodex/vendor/src/config.ts';
 import { getAccountSet, replaceProviderAccountSet, saveCredential } from '../providers/opencodex/vendor/src/oauth/store.ts';
-import { CLAUDE_CODE_SYSTEM_INSTRUCTION } from '../providers/opencodex/vendor/src/oauth/anthropic.ts';
+import { createHash } from 'node:crypto';
+import { SEARCH_HISTORY_GUIDANCE } from '../providers/devin/tool-search-history.mjs';
+
+const section = (tag: string, text: string) => `<${tag}>\n<![CDATA[${text.replaceAll(']]>', ']]]]><![CDATA[>')}]]>\n</${tag}>`;
+const wireName = (namespace: string, name: string, kind = 'function') => 'custom_az_' + createHash('sha256').update(JSON.stringify([namespace, name, kind])).digest('hex').slice(0, 40);
 
 const fixtureParentPath = () => resolve(process.env.AZRAEL_CLAUDE_TEST_ROOT || join(tmpdir(), 'azrael-claude-fixtures'));
 
@@ -39,11 +43,11 @@ test('managed Claude uses pinned OAuth, native prompt and tool frames', async ()
       expect(init.headers.Authorization).toBe('Bearer fixture-oauth-access');
       expect(init.headers['x-api-key']).toBeUndefined();
       const body = JSON.parse(init.body);
-      expect(body.system[0].text).toBe(CLAUDE_CODE_SYSTEM_INSTRUCTION);
-      expect(body.system.some((part: any) => part.text.includes(`<common_instructions>\n<![CDATA[${request.instructions}]]>\n</common_instructions>`))).toBeTrue();
-      expect(body.system.some((part: any) => part.text.includes('<runtime_instructions>'))).toBeTrue();
+      expect(JSON.stringify(body.system)).not.toContain('Claude Agent SDK');
+      expect(body.system.some((part: any) => part.text.includes(request.instructions))).toBeTrue();
+      expect(JSON.stringify(body.system)).not.toContain('<runtime_instructions>');
       expect(body.system.some((part: any) => part.text.includes('<multi_agent_role>Use V2 tools.</multi_agent_role>'))).toBeTrue();
-      expect(body.messages[0]).toEqual({ role: 'user', content: '<current_task>\n<![CDATA[Use the fixture tool]]>\n</current_task>' });
+      expect(body.messages[0]).toEqual({ role: 'user', content: 'Use the fixture tool' });
       expect(body.tools).toHaveLength(1);
       const tool = body.tools[0].name;
       const events = [
@@ -75,7 +79,7 @@ test('managed Claude uses pinned OAuth, native prompt and tool frames', async ()
       const blocks = body.messages.flatMap((message: any) => typeof message.content === 'string' ? [] : message.content);
       expect(blocks.filter((block: any) => block.type === 'tool_use' && block.id === call.call_id)).toHaveLength(1);
       expect(blocks.filter((block: any) => block.type === 'tool_result' && block.tool_use_id === call.call_id)).toHaveLength(1);
-      expect(blocks.find((block: any) => block.type === 'tool_result').content).toBe('<tool_result>\n<![CDATA[fixture tool result]]>\n</tool_result>');
+      expect(blocks.find((block: any) => block.type === 'tool_result').content).toBe('fixture tool result');
       const events = [
         { type: 'message_start', message: { usage: { input_tokens: 4 } } },
         { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
@@ -125,7 +129,7 @@ test('managed Claude uses pinned OAuth, native prompt and tool frames', async ()
   }
 }, 15_000);
 
-test('compatible Claude preserves OAuth system prefix, native policy and cached tool replay', async () => {
+test('Anthropic XML profile preserves native policy, common tools and cached tool replay', async () => {
   const fixtureParent = fixtureParentPath();
   mkdirSync(fixtureParent, { recursive: true });
   const fixtureRoot = mkdtempSync(join(fixtureParent, 'profile-'));
@@ -147,17 +151,17 @@ test('compatible Claude preserves OAuth system prefix, native policy and cached 
     const request = {
       type: 'request', protocol_version: 1, request_id: 'profile-wire', thread_id: 'profile-wire-thread', turn_id: 'profile-wire-turn',
       provider_id: 'anthropic', model: 'claude-sonnet-4-6', instructions: nativeBlocks[0],
-      harness_profile: { id: 'anthropic', fingerprint: 'profile-wire-v1', tool_profile: 'builtin/claude-code-core', prompt_profile: 'builtin/anthropic-default' },
+      harness_profile: { id: 'anthropic', fingerprint: 'profile-wire-v1', tool_profile: 'builtin/azrael-default', prompt_profile: 'builtin/anthropic', instruction_format: 'anthropic-xml' },
       input: [
         { type: 'message', role: 'system', content: [{ type: 'input_text', text: nativeBlocks[1] }] },
         { type: 'message', role: 'developer', content: [{ type: 'input_text', text: nativeBlocks[2] }] },
         { type: 'message', role: 'user', content: [{ type: 'input_text', text: 'Earlier request' }] },
         { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: 'Earlier answer' }] },
-        { type: 'function_call', namespace: 'functions', name: 'ToolSearch', call_id: 'profile-search', arguments: '{"query":"lookup"}' },
+        { type: 'tool_search_call', call_id: 'profile-search', execution: 'client', arguments: { query: 'lookup' } },
         { type: 'tool_search_output', execution: 'client', call_id: 'profile-search', status: 'completed', tools: [{ type: 'namespace', name: 'mcp__fixture', tools: [fn('lookup')] }] },
-        { type: 'message', role: 'user', content: [{ type: 'input_text', text: 'Call Read' }] },
+        { type: 'message', role: 'user', content: [{ type: 'input_text', text: 'Call exec_command' }] },
       ],
-      tools: [{ type: 'namespace', name: 'functions', tools: ['Read', 'Bash', 'ToolSearch'].map(fn) }, { type: 'namespace', name: 'mcp__fixture', tools: [fn('lookup')] }],
+      tools: [{ type: 'namespace', name: 'functions', tools: ['exec_command', 'spawn_agent'].map(fn) }, { type: 'tool_search', execution: 'client', parameters: { type: 'object' } }, { type: 'namespace', name: 'mcp__fixture', tools: [fn('lookup')] }],
       parallel_tool_calls: true,
     };
     const stream = (events: any[]) => new Response(events.map(event => `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`).join(''), { headers: { 'content-type': 'text/event-stream' } });
@@ -167,13 +171,13 @@ test('compatible Claude preserves OAuth system prefix, native policy and cached 
       expect(new Headers(init.headers).get('authorization')).toBe('Bearer profile-fixture-access');
       const body = JSON.parse(init.body);
       captured.push(body);
-      expect(body.system).toEqual([
-        { type: 'text', text: CLAUDE_CODE_SYSTEM_INSTRUCTION },
-        ...nativeBlocks.map((text, index) => ({ type: 'text', text, ...(index === nativeBlocks.length - 1 ? { cache_control: { type: 'ephemeral' } } : {}) })),
-      ]);
-      // Exact system equality also rejects vendor catalog/escaping instructions.
-      expect(body.tools.slice(0, 3).map((tool: any) => tool.name)).toEqual(['Read', 'Bash', 'ToolSearch']);
-      expect(body.tools[3].name).toMatch(/^custom_az_[a-f0-9]{40}$/);
+      const system = body.system.map((part: any) => part.text).join('\n');
+      for (const [index, text] of nativeBlocks.entries()) expect(system).toContain(section(index === 0 ? 'common_instructions' : 'runtime_instructions', text));
+      expect(system.indexOf(nativeBlocks[0])).toBeLessThan(system.indexOf(nativeBlocks[1]));
+      expect(system.indexOf(nativeBlocks[1])).toBeLessThan(system.indexOf(nativeBlocks[2]));
+      expect(system).not.toContain('Claude Agent SDK');
+      expect(body.system.at(-1).cache_control).toEqual({ type: 'ephemeral' });
+      expect(body.tools.map((tool: any) => tool.name)).toEqual([wireName('functions', 'exec_command'), wireName('functions', 'spawn_agent'), wireName('', 'tool_search', 'tool_search'), wireName('mcp__fixture', 'lookup')]);
       expect(body.tools.at(-1).cache_control).toEqual({ type: 'ephemeral' });
       expect(body.cache_control).toEqual({ type: 'ephemeral' });
       const blocks = [...body.tools, ...body.system, ...body.messages.flatMap((message: any) => Array.isArray(message.content) ? message.content : [])];
@@ -183,15 +187,15 @@ test('compatible Claude preserves OAuth system prefix, native policy and cached 
       expect(Array.isArray(cachedMessage.content)).toBeTrue();
       expect(cachedMessage.content.filter((block: any) => block.cache_control).map((block: any) => block.cache_control)).toEqual([{ type: 'ephemeral' }]);
       const searchResult = blocks.find((block: any) => block.type === 'tool_result' && block.tool_use_id === 'profile-search');
-      expect(JSON.parse(searchResult.content)).toEqual({ status: 'completed', tools: [{ name: body.tools[3].name }], guidance: 'Call only names in the current tools catalog. Search again for other tools.' });
+      expect(searchResult.content).toBe(section('tool_result', JSON.stringify({ status: 'completed', tools: [{ type: 'namespace', name: 'mcp__fixture', tools: [{ name: body.tools[3].name.slice('custom_'.length) }] }], guidance: SEARCH_HISTORY_GUIDANCE })));
       return body;
     };
     const frames: any[] = [];
     await infer(request, frame => frames.push(frame), (async (_url: any, init: any) => {
-      assertWire(init);
+      const body = assertWire(init);
       return stream([
         { type: 'message_start', message: { usage: { input_tokens: 2 } } },
-        { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'toolu_profile_read', name: 'Read', input: {} } },
+        { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'toolu_profile_read', name: body.tools[0].name, input: {} } },
         { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: '{"value":"fixture"}' } },
         { type: 'content_block_stop', index: 0 }, ...finish('tool_use'),
       ]);
@@ -199,23 +203,23 @@ test('compatible Claude preserves OAuth system prefix, native policy and cached 
     const completed = frames.filter(frame => frame.type === 'item_done').map(frame => frame.item);
     const calls = completed.filter(item => item.type === 'function_call');
     expect(calls).toHaveLength(1);
-    expect(calls[0]).toMatchObject({ namespace: 'functions', name: 'Read', call_id: 'toolu_profile_read', arguments: '{"value":"fixture"}' });
+    expect(calls[0]).toMatchObject({ namespace: 'functions', name: 'exec_command', call_id: 'toolu_profile_read', arguments: '{"value":"fixture"}' });
     expect(frames.at(-1).type).toBe('completed');
     const nextFrames: any[] = [];
     await infer({ ...request, input: [...request.input, ...completed, { type: 'function_call_output', call_id: calls[0].call_id, output: 'Native result verbatim' }] }, frame => nextFrames.push(frame), (async (_url: any, init: any) => {
       const body = assertWire(init);
       const blocks = body.messages.flatMap((message: any) => Array.isArray(message.content) ? message.content : []);
-      expect(blocks.filter((block: any) => block.type === 'tool_use' && block.id === calls[0].call_id)).toEqual([{ type: 'tool_use', id: calls[0].call_id, name: 'Read', input: { value: 'fixture' } }]);
-      expect(blocks.filter((block: any) => block.type === 'tool_result' && block.tool_use_id === calls[0].call_id)).toEqual([{ type: 'tool_result', tool_use_id: calls[0].call_id, content: 'Native result verbatim' }]);
+      expect(blocks.filter((block: any) => block.type === 'tool_use' && block.id === calls[0].call_id)).toEqual([{ type: 'tool_use', id: calls[0].call_id, name: body.tools[0].name, input: { value: 'fixture' } }]);
+      expect(blocks.filter((block: any) => block.type === 'tool_result' && block.tool_use_id === calls[0].call_id)).toEqual([{ type: 'tool_result', tool_use_id: calls[0].call_id, content: section('tool_result', 'Native result verbatim') }]);
       return stream([
         { type: 'message_start', message: { usage: { input_tokens: 4 } } },
         { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
-        { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Read result accepted' } },
+        { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'exec_command result accepted' } },
         { type: 'content_block_stop', index: 0 }, ...finish('end_turn'),
       ]);
     }) as typeof fetch);
     expect(captured).toHaveLength(2);
-    expect(nextFrames.some(frame => frame.type === 'text_delta' && frame.delta === 'Read result accepted')).toBeTrue();
+    expect(nextFrames.some(frame => frame.type === 'text_delta' && frame.delta === 'exec_command result accepted')).toBeTrue();
     expect(nextFrames.some(frame => frame.item?.type === 'function_call')).toBeFalse();
     expect(nextFrames.at(-1).type).toBe('completed');
   } finally {

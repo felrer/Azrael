@@ -405,6 +405,18 @@ pub(crate) fn strip_images_when_unsupported(
                 }
                 let _ = set_annotated_content(&mut envelope.item, content);
             }
+            ResponseItem::AgentMessage { content, .. } => {
+                for part in content {
+                    if matches!(
+                        part,
+                        codex_protocol::models::AgentMessageInputContent::InputImage { .. }
+                    ) {
+                        *part = codex_protocol::models::AgentMessageInputContent::InputText {
+                            text: UnsupportedMedia::IMAGE.render(),
+                        };
+                    }
+                }
+            }
             ResponseItem::FunctionCallOutput { output, .. }
             | ResponseItem::CustomToolCallOutput { output, .. } => {
                 if let Some(content_items) = output.content_items_mut() {

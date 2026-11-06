@@ -10,6 +10,16 @@ The instruction body is maintained with the native prompt implementation, rather
 
 Workers receive their assigned outcome, owned scope, settled contracts, authority limits, prerequisites, completion criteria and reporting requirements. Shared change-preservation and evidence rules still apply to all agents. Common implementation and verification decisions remain in `implementation`; project commands, environments and required checks remain in their owning playbooks.
 
+## Image attachments between agents
+
+Status: `partial`: implemented and verified by scoped source/native tests; installed-runtime and live-provider acceptance remain unverified. Preservation feature: `agent.image-attachments`.
+
+`spawn_agent`, `send_message` and `followup_task` accept an optional image-only `attachments` array. Each entry selects exactly one local `path` or an `attachment_id` accessible to the sender. Local files are read through the caller's selected filesystem environment and effective sandbox, validated as images and copied into an immutable snapshot automatically. Chat images expose reusable attachment IDs. There is no separate registration tool, general file attachment or automatic URL download in this interface.
+
+Attachment IDs do not grant authority. Existing sender/recipient addressing rules and image access checks remain applicable to root and lead agents. Invalid sources, unsupported images and recipients without image-input capability fail explicitly. Selected images reach the recipient as image input even without parent-history inheritance. Plaintext/encrypted message custody, sender attribution and queue-only versus triggering behavior remain unchanged.
+
+Durable communications carry image snapshots so queued delivery and resumed recipients do not depend on the original download path. Sender-owned snapshots support ID reuse and follow the conversation lifecycle; local persistence holds the existing live-writer lock and rejects writes after shutdown or discard, so a late write cannot recreate deleted data; ephemeral conversations must not create durable image copies. The [attachment-copy contract](azrael-ex.md#chat-content-handling) owns project bulk cleanup and in-use protection. Independent project sharing and remote path transport are outside this local interface.
+
 ## Scheduling behavior
 
 The root identifies prerequisites, owners, inputs, outputs, downstream consumers, exclusive writes and shared resources only as far as execution needs. It starts ready work on the path that controls total completion time and runs independent work alongside it. Small relevant preflight checks reduce avoidable rebuilds without creating a mandatory serial barrier for unrelated components. Completion of one assignment can release its dependent work before every other assignment finishes. Unresolved contracts block only the work that depends on them; work based on settled contracts continues. A confirmed API shape alone is insufficient if required behavior remains unresolved, and invented defaults or empty implementations must not substitute for that behavior. Existing work records may briefly identify the current prerequisite, ready independent work and next handoff output.

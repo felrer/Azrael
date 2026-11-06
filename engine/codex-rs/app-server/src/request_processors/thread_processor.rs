@@ -603,8 +603,7 @@ impl ThreadRequestProcessor {
     }
 
     pub(crate) fn session_attach_supported(&self) -> bool {
-        !self.auth_manager.has_external_auth()
-            && !self.auth_manager.is_external_chatgpt_auth_active()
+        !self.auth_manager.requires_original_host_connection()
     }
 
     pub(crate) async fn session_handoff_account_guard(
@@ -3152,7 +3151,17 @@ impl ThreadRequestProcessor {
             .read_thread_view(thread_uuid, include_turns)
             .await
             .map_err(thread_read_view_error)?;
-        Ok(ThreadReadResponse { thread })
+        let agent_profile_mode = if let Ok(loaded) = self.thread_manager.get_thread(thread_uuid).await {
+            let snapshot = loaded.config_snapshot().await;
+            Some(codex_protocol::agent_profile::execution_mode(snapshot.role_profile.as_ref(), &snapshot.session_source))
+        } else if let Some(path) = thread.path.as_deref() {
+            let metadata = codex_rollout::read_session_meta_line(path).await.map_err(|_| internal_error("failed to read thread profile identity".to_string()))?;
+            if metadata.meta.id != thread_uuid { return Err(internal_error("thread profile identity mismatch".to_string())); }
+            Some(codex_protocol::agent_profile::execution_mode(metadata.meta.role_profile.as_ref(), &metadata.meta.source))
+        } else {
+            None
+        };
+        Ok(ThreadReadResponse { thread, agent_profile_mode })
     }
 
     /// Builds the API view for `thread/read` from persisted metadata plus optional live state.
@@ -6523,6 +6532,7 @@ fn stored_turn_to_api_turn(
         .collect::<Result<Vec<_>, _>>()?;
     Ok(Turn {
         root_resume_wait: turn.root_resume_wait.clone(),
+        user_wait_timing: turn.user_wait_timing.clone(),
 
         id: turn.turn_id,
         root_turn_id: turn.root_turn_id,

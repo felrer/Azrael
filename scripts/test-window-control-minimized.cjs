@@ -8,7 +8,7 @@ const { windowError, errorPayload } = require('./window-control-errors.cjs');
 const descriptor = () => ({ hwnd: '101', pid: 4, processCreated: '123', executable: 'test.exe', title: 'Selected', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 });
 async function main() {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'window-minimized-policy-'));
-  let current, approved, hook, restoreOverride, sequence = 0;
+  let current, approved, hook, restoreOverride, args, sequence = 0;
   const calls = [];
   const backend = { async request(method, args) {
     calls.push({ method, args });
@@ -30,10 +30,10 @@ async function main() {
   const methods = () => calls.map(call => call.method);
   async function reset(minimized = false) {
     owner.clear('thread'); current = { ...descriptor(), minimized }; approved = true; hook = null; restoreOverride = null; calls.length = 0;
-    return { targetId: (await owner.bind('thread', current)).targetId };
+    return { windowId: (await owner.bind('thread', current)).windowId };
   }
   function paused(reason, allowed) {
-    const view = owner.peek('thread');
+    const view = owner.peek('thread', args.windowId);
     assert.equal(view.state, 'paused'); assert.equal(view.pauseReason, reason); assert.equal(view.restoreAllowed, allowed);
   }
   const minimizedFailure = error => {
@@ -50,7 +50,7 @@ async function main() {
   }
   try {
     assert(TOOLS.includes('restore_window'));
-    let args = await reset(true); paused('minimized', true);
+    args = await reset(true); paused('minimized', true);
     for (const tool of ['capture', 'inspect', 'resize', 'run_size_macro']) {
       const extra = tool === 'resize' ? { widthDip: 900, heightDip: 700 } : tool === 'run_size_macro' ? { macroId: 'unused' } : {};
       await assert.rejects(owner.call('thread', tool, { ...args, ...extra }), minimizedFailure);
@@ -70,13 +70,13 @@ async function main() {
     for (const forged of [{ ...args, hwnd: '999' }, { ...args, window: descriptor() }, { ...args, candidateId: '999' }]) {
       await assert.rejects(owner.call('thread', 'restore_window', forged), /Invalid arguments/);
     }
-    await assert.rejects(owner.call('thread', 'restore_window', { targetId: '999' }), /forged/);
+    await assert.rejects(owner.call('thread', 'restore_window', { windowId: '999' }), /forged/);
 
     // Initial discovery binds the approved exact target without restoring or replacing it.
     owner.clear('thread'); current.minimized = true;
     const listed = await owner.call('thread', 'list_windows', {});
-    const selected = await owner.call('thread', 'select_window', { candidateId: listed.candidates[0].candidateId });
-    args = { targetId: selected.targetId }; paused('minimized', true);
+    const selected = await owner.call('thread', 'status', { windowId: listed.candidates[0].windowId });
+    args = { windowId: selected.windowId }; paused('minimized', true);
     await owner.call('thread', 'restore_window', args);
 
     for (const tool of ['capture', 'inspect', 'invoke', 'resize']) {
@@ -99,11 +99,12 @@ async function main() {
         hook = method => { if (method === 'observe') { current.minimized = true; throw unclassified; } };
         await assert.rejects(owner.call('thread', 'capture', args), error => error === unclassified && error.code === 'unclassified'); hook = null;
       }
-      current.minimized = true; await owner.call('thread', 'status', {}); paused(reason, false);
+      current.minimized = true; await owner.call('thread', 'status', args); paused(reason, false);
       const before = calls.length;
-      await assert.rejects(owner.call('thread', 'restore_window', args), /paused/); assert.equal(calls.length, before);
-      current.minimized = false; await owner.call('thread', 'status', {}); paused(reason, false);
-      await assert.rejects(owner.call('thread', 'restore_window', args), /paused/);
+      const protectedPause = error => error.code === 'state_changed' && (reason === 'user_stopped' ? error.pauseReason === 'user_stopped' && error.recovery === 'user_resume' : /paused/.test(error.message));
+      await assert.rejects(owner.call('thread', 'restore_window', args), protectedPause); assert.equal(calls.length, before);
+      current.minimized = false; await owner.call('thread', 'status', args); paused(reason, false);
+      await assert.rejects(owner.call('thread', 'restore_window', args), protectedPause);
       await owner.resume('thread'); assert.equal(owner.peek('thread').state, 'ready');
     }
 

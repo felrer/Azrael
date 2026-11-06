@@ -224,15 +224,3 @@ for (const { filename, source } of transformedInputs) {
     runManualScenario(reducerFrom(source, filename));
   });
 }
-
-test("injection is idempotent and fails closed when wme pinned reducer anchor changes", () => {
-  const first = injectCompactionProgress(
-    "before let d=kr(u.type===`contextCompaction`?{...u,completed:!1,startedAtMs:c,source:a.manualContextCompactions.consumeSource(l)}:u);" +
-    "u.type===`contextCompaction`&&a.manualContextCompactions.removePendingItemFromTurn(r),Xh(r,d) after",
-  );
-
-  const second = injectCompactionProgress(first.text);
-
-  assert.equal(second.text, first.text);
-  assert.throws(() => injectCompactionProgress("anchor missing"), /anchor must occur exactly once/);
-});

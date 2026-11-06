@@ -53,6 +53,12 @@ struct CellDispatchGate {
     // no origin is attached; Some retains the original item and window across
     // waits, even if the best-effort item lookup found no ID.
     originating_call: Option<ToolCallOrigin>,
+    timing_activity: Option<(
+        String,
+        Weak<crate::user_wait_runtime::UserWaitRuntime>,
+        crate::user_wait_runtime::UserWaitGuard,
+    )>,
+    timing_mirrors: Vec<tokio_util::task::AbortOnDropHandle<()>>,
 }
 
 impl CodeModeDispatchBroker {
@@ -82,11 +88,67 @@ impl CodeModeDispatchBroker {
                 .or_insert_with(|| CellDispatchGate {
                     ready: watch::channel(false).0,
                     originating_call: None,
+                    timing_activity: None,
+                    timing_mirrors: Vec::new(),
                 });
             gate.originating_call = originating_call;
             gate.ready.clone()
         };
         ready.send_replace(true);
+    }
+
+    pub(super) fn set_timing_activity(
+        &self,
+        cell_id: &CellId,
+        call_id: &str,
+        runtime: &Arc<crate::user_wait_runtime::UserWaitRuntime>,
+    ) {
+        let id = format!("cell:{call_id}");
+        let mut gates = self
+            .dispatch_gates
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let gate = gates
+            .entry(cell_id.clone())
+            .or_insert_with(|| CellDispatchGate {
+                ready: watch::channel(false).0,
+                originating_call: None,
+                timing_activity: None,
+                timing_mirrors: Vec::new(),
+            });
+        gate.timing_activity = Some((
+            id.clone(),
+            Arc::downgrade(runtime),
+            runtime.activity(id, Some(call_id.to_owned())),
+        ));
+    }
+    pub(super) fn track_existing_cell_activity(
+        &self,
+        runtime: &Arc<crate::user_wait_runtime::UserWaitRuntime>,
+    ) {
+        let mut gates = self
+            .dispatch_gates
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        for gate in gates.values_mut() {
+            gate.timing_mirrors.retain(|mirror| !mirror.is_finished());
+            if let Some((id, source, _)) = &gate.timing_activity
+                && let Some(source) = source.upgrade()
+            {
+                gate.timing_mirrors.push(runtime.mirror_activity(
+                    format!("background:{id}"),
+                    &source,
+                    id.clone(),
+                ));
+            }
+        }
+    }
+    pub(super) fn cell_timing_activity(&self, cell_id: &CellId) -> Option<String> {
+        self.dispatch_gates
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .get(cell_id)
+            .and_then(|gate| gate.timing_activity.as_ref().map(|(id, _, _)| id.clone()))
     }
 
     pub(super) fn cell_originating_call(&self, cell_id: &CellId) -> Option<ToolCallOrigin> {
@@ -261,6 +323,8 @@ fn dispatch_gate(
         .or_insert_with(|| CellDispatchGate {
             ready: watch::channel(false).0,
             originating_call: None,
+            timing_activity: None,
+            timing_mirrors: Vec::new(),
         })
         .ready
         .clone()

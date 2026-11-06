@@ -752,6 +752,7 @@ pub enum Op {
     /// Request compaction without replacing active work.
     CompactIfIdle {
         explicit: bool,
+        agent_profile: Option<crate::agent_profile::AgentProfileRef>,
         reply: oneshot::Sender<CodexResult<CompactIfIdleSubmission>>,
     },
 
@@ -834,6 +835,12 @@ impl FromStr for ThreadHistoryMode {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema, TS)]
+pub struct ImageAttachment {
+    pub attachment_id: String,
+    pub image_url: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, JsonSchema, TS)]
 pub struct InterAgentCommunication {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
@@ -846,6 +853,8 @@ pub struct InterAgentCommunication {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
     pub encrypted_content: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub attachments: Vec<ImageAttachment>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
     pub internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,
@@ -867,6 +876,7 @@ impl InterAgentCommunication {
             other_recipients,
             content,
             encrypted_content: None,
+            attachments: Vec::new(),
             internal_chat_message_metadata_passthrough: None,
             trigger_turn,
         }
@@ -886,6 +896,7 @@ impl InterAgentCommunication {
             other_recipients,
             content: String::new(),
             encrypted_content: Some(encrypted_content),
+            attachments: Vec::new(),
             internal_chat_message_metadata_passthrough: None,
             trigger_turn,
         }
@@ -912,7 +923,7 @@ impl InterAgentCommunication {
     }
 
     pub fn to_model_input_item(&self) -> ResponseItem {
-        let content = match &self.encrypted_content {
+        let mut content = match &self.encrypted_content {
             Some(encrypted_content) => {
                 let message_type = if self.trigger_turn {
                     "NEW_TASK"
@@ -935,6 +946,17 @@ impl InterAgentCommunication {
                 text: self.content.clone(),
             }],
         };
+        for attachment in &self.attachments {
+            content.push(AgentMessageInputContent::InputText {
+                text: format!("Image attachment ID: {}", attachment.attachment_id),
+            });
+            content.push(AgentMessageInputContent::InputImage {
+                image: crate::models::ImageReference::Inline {
+                    image_url: attachment.image_url.clone(),
+                },
+                detail: None,
+            });
+        }
         ResponseItem::AgentMessage {
             id: self.id.clone(),
             author: self.author.to_string(),
@@ -1453,6 +1475,9 @@ pub enum EventMsg {
     /// The current sampling turn was parked for a scheduled root resume.
     TurnDeferred(TurnDeferredEvent),
     RootResumeWaitUpdated(RootResumeWaitUpdatedEvent),
+
+    /// Revisioned per-turn user response wait measurements.
+    UserWaitTimingUpdated(UserWaitTimingUpdatedEvent),
 
     /// Usage update for the current session, including totals and last turn.
     /// Optional means unknown — UIs should not display when `None`.
@@ -2223,6 +2248,12 @@ pub struct TurnCompleteEvent {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(type = "number | null", optional)]
     pub time_to_first_token_ms: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema, TS)]
+pub struct UserWaitTimingUpdatedEvent {
+    pub turn_id: String,
+    pub timing: crate::user_wait::UserWaitTiming,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema, TS)]
@@ -3230,6 +3261,8 @@ pub struct HistoryPosition {
 /// and should be used when there is no config override.
 #[derive(Serialize, Deserialize, Clone, Debug, JsonSchema, TS)]
 pub struct SessionMeta {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub role_profile: Option<RoleProfilePolicy>,
     /// Immutable selected-window startup tool ceiling.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub computer_use_mode: Option<ComputerUseMode>,
@@ -3309,6 +3342,110 @@ pub struct SessionMeta {
     pub context_window: Option<SessionContextWindow>,
 }
 
+/// Frozen Team/Direct role-profile policy. It grants no execution permissions.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "snake_case")]
+pub enum AgentProfileRole {
+    Lead,
+    Root,
+    Subagent,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema, TS)]
+#[serde(deny_unknown_fields)]
+pub struct AgentRoleProfile {
+    pub id: String,
+    pub name: String,
+    pub allowed_roles: Vec<AgentProfileRole>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    pub provider: Option<String>,
+    pub reasoning_effort: Option<crate::openai_models::ReasoningEffort>,
+    pub instructions: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub profile_extension: Option<crate::agent_profile::RoleProfileExtension>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema, TS)]
+#[serde(deny_unknown_fields)]
+pub struct RoleProfilePolicy {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub configuration_path: Option<String>,
+    pub role: AgentProfileRole,
+    pub profile_id: String,
+    pub profiles: Vec<AgentRoleProfile>,
+    pub root_profile_ids: Vec<String>,
+    pub subagent_profile_ids: Vec<String>,
+    pub base_developer_instructions: Option<String>,
+}
+
+impl RoleProfilePolicy {
+    pub fn child_profile_ids(&self) -> &[String] {
+        match self.role {
+            AgentProfileRole::Lead => &self.root_profile_ids,
+            AgentProfileRole::Root | AgentProfileRole::Subagent => &self.subagent_profile_ids,
+        }
+    }
+
+    pub fn selected_profile(&self) -> Result<&AgentRoleProfile, String> {
+        let mut ids = std::collections::HashSet::new();
+        for profile in &self.profiles {
+            if profile.id.trim().is_empty() || !ids.insert(&profile.id) {
+                return Err("role_profile contains empty or duplicate profile IDs".to_string());
+            }
+            if profile
+                .model
+                .as_ref()
+                .is_some_and(|model| model.trim().is_empty())
+                || profile.allowed_roles.is_empty()
+            {
+                return Err(format!(
+                    "role profile `{}` requires a model and allowed role",
+                    profile.id
+                ));
+            }
+        }
+        for (ids, role) in [
+            (&self.root_profile_ids, AgentProfileRole::Root),
+            (&self.subagent_profile_ids, AgentProfileRole::Subagent),
+        ] {
+            for id in ids {
+                if !self
+                    .profiles
+                    .iter()
+                    .any(|p| &p.id == id && p.allowed_roles.contains(&role))
+                {
+                    return Err(format!(
+                        "role profile `{id}` is missing or incompatible with {role:?}"
+                    ));
+                }
+            }
+        }
+        self.profiles
+            .iter()
+            .find(|p| p.id == self.profile_id && p.allowed_roles.contains(&self.role))
+            .ok_or_else(|| {
+                format!(
+                    "role profile `{}` is missing or incompatible with {:?}",
+                    self.profile_id, self.role
+                )
+            })
+    }
+
+    pub fn developer_instructions(&self) -> Result<String, String> {
+        Ok([
+            self.base_developer_instructions
+                .as_deref()
+                .unwrap_or_default(),
+            self.selected_profile()?.instructions.as_str(),
+        ]
+        .into_iter()
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n\n"))
+    }
+}
+
 /// Persisted Computer Use tool mode; unknown values fail deserialization.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
@@ -3321,6 +3458,7 @@ impl Default for SessionMeta {
     fn default() -> Self {
         let id = ThreadId::default();
         SessionMeta {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -3423,6 +3561,10 @@ pub struct HarnessProfileContext {
 /// latest durable baseline.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema, TS)]
 pub struct TurnContextItem {
+    /// Immutable profile captured for this turn, retained for recovery only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub agent_profile: Option<crate::agent_profile::AgentProfileRef>,
     /// Absent from older histories, which have no recorded harness fingerprint.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
@@ -4831,6 +4973,7 @@ mod tests {
             recipient: AgentPath::root().join("reviewer").expect("recipient path"),
             other_recipients: vec![AgentPath::root().join("worker").expect("recipient path")],
             content: "review the diff".to_string(),
+            attachments: Vec::new(),
             encrypted_content: None,
             internal_chat_message_metadata_passthrough: None,
             trigger_turn: true,
@@ -4851,6 +4994,59 @@ mod tests {
                 phase: Some(MessagePhase::Commentary),
             }
         );
+    }
+
+    // Future protocol changes must preserve image payloads alongside opaque content.
+    #[test]
+    fn inter_agent_images_round_trip_and_preserve_encrypted_content() {
+        for encrypted in [false, true] {
+            let mut communication = if encrypted {
+                InterAgentCommunication::new_encrypted(
+                    AgentPath::root(),
+                    AgentPath::root(),
+                    Vec::new(),
+                    "opaque".to_string(),
+                    false,
+                )
+            } else {
+                InterAgentCommunication::new(
+                    AgentPath::root(),
+                    AgentPath::root(),
+                    Vec::new(),
+                    "look".to_string(),
+                    false,
+                )
+            };
+            let legacy = serde_json::to_value(&communication).expect("serialize legacy message");
+            assert!(legacy.get("attachments").is_none());
+            assert!(
+                serde_json::from_value::<InterAgentCommunication>(legacy)
+                    .expect("legacy message")
+                    .attachments
+                    .is_empty()
+            );
+            communication.attachments.push(ImageAttachment {
+                attachment_id: "img_fixture".to_string(),
+                image_url: "data:image/png;base64,AAAA".to_string(),
+            });
+            let restored: InterAgentCommunication = serde_json::from_value(
+                serde_json::to_value(&communication).expect("serialize image message"),
+            )
+            .expect("restore image message");
+            assert_eq!(restored, communication);
+            let ResponseItem::AgentMessage { content, .. } = restored.to_model_input_item() else {
+                panic!("expected agent message")
+            };
+            assert!(
+                matches!(content.last(), Some(AgentMessageInputContent::InputImage { image: crate::models::ImageReference::Inline { image_url }, .. }) if image_url == "data:image/png;base64,AAAA")
+            );
+            assert!(content.iter().any(|part| matches!(part, AgentMessageInputContent::InputText { text } if text.contains("img_fixture"))));
+            assert_eq!(content.iter().any(|part| matches!(part, AgentMessageInputContent::EncryptedContent { encrypted_content } if encrypted_content == "opaque")), encrypted);
+            assert_eq!(
+                crate::models::plaintext_agent_message_content(&content),
+                None
+            );
+        }
     }
 
     #[test]
@@ -6362,6 +6558,7 @@ mod tests {
     #[test]
     fn turn_context_item_serializes_split_policy_and_summary() -> Result<()> {
         let item = TurnContextItem {
+            agent_profile: None,
             harness_profile: None,
             turn_id: None,
             root_turn_id: None,

@@ -13,10 +13,9 @@ use std::collections::BTreeSet;
 use std::io;
 
 pub const AZRAEL_PROMPT: &str = "builtin/azrael-default";
-pub const ANTHROPIC_PROMPT: &str = "builtin/anthropic-default";
+pub const ANTHROPIC_PROMPT: &str = "builtin/anthropic";
 pub const CLAUDE_LEAN_PROMPT: &str = "builtin/claude-lean";
 pub const AZRAEL_TOOLS: &str = "builtin/azrael-default";
-pub const CLAUDE_TOOLS: &str = "builtin/claude-code-core";
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -34,10 +33,19 @@ pub struct HarnessProfilesToml {
     pub models: BTreeMap<String, HarnessBindingToml>,
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub enum InstructionFormat {
+    #[default]
+    Native,
+    AnthropicXml,
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct PromptProfileToml {
     pub extends: Option<String>,
+    pub instruction_format: Option<InstructionFormat>,
     /// Replaces the inherited optional behavior template; runtime guidance stays authoritative.
     /// Relative paths are anchored by the existing configuration layer path resolver.
     pub behavior_template_file: Option<AbsolutePathBuf>,
@@ -62,6 +70,7 @@ pub struct HarnessBindingToml {
 #[derive(Clone, Debug, PartialEq)]
 struct PromptProfile {
     variant: String,
+    instruction_format: InstructionFormat,
     template: Option<String>,
 }
 
@@ -72,15 +81,10 @@ pub struct ResolvedHarnessProfile {
     pub id: String,
     pub prompt_profile: String,
     pub prompt_variant: String,
+    pub instruction_format: InstructionFormat,
     pub tool_profile: String,
     pub behavior_template: Option<String>,
     pub fingerprint: String,
-}
-
-impl ResolvedHarnessProfile {
-    pub fn uses_claude_tools(&self) -> bool {
-        self.tool_profile == CLAUDE_TOOLS
-    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -119,6 +123,28 @@ impl Default for HarnessProfiles {
 }
 
 impl HarnessProfiles {
+    /// Overlays one model binding without re-reading captured prompt templates.
+    pub fn with_model_binding(
+        &self,
+        provider: &str,
+        model: &str,
+        binding: HarnessBindingToml,
+    ) -> io::Result<Self> {
+        let mut profiles = self.clone();
+        let target = profiles.config.models.entry(model.to_owned()).or_default();
+        if binding.profile.is_some() {
+            target.profile = binding.profile;
+        }
+        if binding.prompt_profile.is_some() {
+            target.prompt_profile = binding.prompt_profile;
+        }
+        if binding.tool_profile.is_some() {
+            target.tool_profile = binding.tool_profile;
+        }
+        profiles.resolve(provider, model)?;
+        Ok(profiles)
+    }
+
     pub async fn load(
         config: HarnessProfilesToml,
         fs: &dyn ExecutorFileSystem,
@@ -168,13 +194,18 @@ impl HarnessProfiles {
                 id.into(),
                 PromptProfile {
                     variant: id.into(),
+                    instruction_format: if id == ANTHROPIC_PROMPT {
+                        InstructionFormat::AnthropicXml
+                    } else {
+                        InstructionFormat::Native
+                    },
                     template: None,
                 },
             );
         }
         for (id, prompt, tools) in [
             ("azrael-default", AZRAEL_PROMPT, AZRAEL_TOOLS),
-            ("anthropic-default", ANTHROPIC_PROMPT, CLAUDE_TOOLS),
+            ("anthropic", ANTHROPIC_PROMPT, AZRAEL_TOOLS),
         ] {
             result.profiles.insert(
                 id.into(),
@@ -260,6 +291,9 @@ impl HarnessProfiles {
             templates,
             visiting,
         )?;
+        if let Some(format) = config.instruction_format {
+            prompt.instruction_format = format;
+        }
         if config.behavior_template_file.is_some() {
             prompt.template = templates.get(id).cloned();
         }
@@ -319,7 +353,7 @@ impl HarnessProfiles {
             }
         }
         if let Some(id) = &binding.tool_profile {
-            if id != AZRAEL_TOOLS && id != CLAUDE_TOOLS {
+            if id != AZRAEL_TOOLS {
                 return Err(invalid(format!("unknown harness tool profile {id}")));
             }
         }
@@ -344,7 +378,12 @@ impl HarnessProfiles {
     }
 
     pub fn resolve(&self, provider: &str, model: &str) -> io::Result<ResolvedHarnessProfile> {
-        let mut binding = self.profile("azrael-default")?.clone();
+        let default = if is_anthropic_provider(provider, model) {
+            "anthropic"
+        } else {
+            "azrael-default"
+        };
+        let mut binding = self.profile(default)?.clone();
         if let Some(id) = &self.config.default_profile {
             self.apply(&mut binding, self.profile(id)?)?;
         }
@@ -375,17 +414,13 @@ impl HarnessProfiles {
             id: format!("{prompt_profile}+{tool_profile}"),
             prompt_profile,
             prompt_variant: prompt.variant.clone(),
+            instruction_format: prompt.instruction_format,
             tool_profile,
             behavior_template: prompt.template.clone(),
             fingerprint: String::new(),
         };
         // Version the semantic contract separately from configuration schema syntax.
-        let tool_revision = if resolved.uses_claude_tools() {
-            "tool-contract-v2"
-        } else {
-            "tool-contract-v1"
-        };
-        let bytes = serde_json::to_vec(&("harness-content-v1", tool_revision, &resolved))
+        let bytes = serde_json::to_vec(&("harness-content-v2", "tool-contract-v1", &resolved))
             .map_err(io::Error::other)?;
         resolved.fingerprint = format!("{:x}", Sha256::digest(bytes));
         Ok(resolved)
@@ -402,23 +437,29 @@ mod tests {
     }
 
     #[test]
-    fn defaults_use_azrael_for_every_provider_and_future_models() {
+    fn defaults_use_actual_provider_identity_for_future_models() {
         let profiles = HarnessProfiles::default();
-        for provider in ["managed", "azrael-managed", "anthropic"] {
-            let profile = profiles
-                .resolve(provider, "managed/anthropic/future-model")
-                .unwrap();
+        for (provider, model) in [
+            ("anthropic", "future-model"),
+            ("managed/anthropic", "future-model"),
+            ("managed", "managed/anthropic/future-model"),
+            ("azrael-managed", "managed/anthropic/future-model"),
+        ] {
+            let profile = profiles.resolve(provider, model).unwrap();
             assert_eq!(profile.tool_profile, AZRAEL_TOOLS);
-            assert_eq!(profile.prompt_variant, AZRAEL_PROMPT);
+            assert_eq!(profile.prompt_variant, ANTHROPIC_PROMPT);
+            assert_eq!(profile.instruction_format, InstructionFormat::AnthropicXml);
         }
         for (provider, model) in [
             ("openai", "claude-opus"),
             ("google-antigravity", "managed/anthropic/claude-opus"),
             ("azrael-managed", "managed/google-antigravity/claude-opus"),
+            ("managed", "managed/openai/future-model"),
         ] {
             let profile = profiles.resolve(provider, model).unwrap();
             assert_eq!(profile.tool_profile, AZRAEL_TOOLS);
             assert_eq!(profile.prompt_variant, AZRAEL_PROMPT);
+            assert_eq!(profile.instruction_format, InstructionFormat::Native);
         }
     }
 
@@ -427,53 +468,72 @@ mod tests {
         let profiles = parse(
             r#"
             [prompt_profiles.team]
-            extends = "builtin/anthropic-default"
+            extends = "builtin/anthropic"
             [profiles.team]
-            extends = "anthropic-default"
+            extends = "anthropic"
             prompt_profile = "team"
+            [providers.managed]
+            prompt_profile = "builtin/claude-lean"
             [providers.anthropic]
             profile = "team"
             [models."managed/anthropic/exact"]
-            tool_profile = "builtin/claude-code-core"
+            tool_profile = "builtin/azrael-default"
             [models."managed/anthropic/lean"]
             prompt_profile = "builtin/claude-lean"
         "#,
         )
         .unwrap();
-        for slug in [
-            "managed/anthropic/exact",
-            "managed/anthropic/new",
-            "managed/anthropic/sibling",
-        ] {
-            let profile = profiles.resolve("azrael-managed", slug).unwrap();
-            assert_eq!(profile.prompt_profile, "team");
-            assert_eq!(profile.prompt_variant, ANTHROPIC_PROMPT);
+        for provider in ["managed", "azrael-managed"] {
+            for slug in [
+                "managed/anthropic/exact",
+                "managed/anthropic/new",
+                "managed/anthropic/sibling",
+            ] {
+                let profile = profiles.resolve(provider, slug).unwrap();
+                assert_eq!(profile.prompt_profile, "team");
+                assert_eq!(profile.prompt_variant, ANTHROPIC_PROMPT);
+                assert_eq!(profile.instruction_format, InstructionFormat::AnthropicXml);
+                assert_eq!(profile.tool_profile, AZRAEL_TOOLS);
+            }
+            let lean = profiles
+                .resolve(provider, "managed/anthropic/lean")
+                .unwrap();
+            assert_eq!(lean.prompt_profile, CLAUDE_LEAN_PROMPT);
+            assert_eq!(lean.instruction_format, InstructionFormat::Native);
         }
-        assert_eq!(
-            profiles
-                .resolve("azrael-managed", "managed/anthropic/lean")
-                .unwrap()
-                .prompt_profile,
-            CLAUDE_LEAN_PROMPT
-        );
         assert_eq!(
             profiles.resolve("openai", "new").unwrap().prompt_profile,
             AZRAEL_PROMPT
         );
+        assert_eq!(
+            profiles
+                .resolve("managed", "managed/openai/new")
+                .unwrap()
+                .prompt_profile,
+            CLAUDE_LEAN_PROMPT
+        );
     }
 
     #[test]
-    fn configured_inheritance_cycles_and_unknown_references_are_errors() {
+    fn invalid_graphs_and_retired_ids_are_errors() {
         for text in [
             "schemaVersion = 2",
             "default_profile = 'missing'",
+            "default_profile = 'anthropic-default'",
+            "[profiles.a]\nextends = 'anthropic-default'",
+            "[providers.anthropic]\nprofile = 'anthropic-default'",
+            "[providers.anthropic]\nprompt_profile = 'builtin/anthropic-default'",
+            "[prompt_profiles.a]\nextends = 'builtin/anthropic-default'",
+            "[models.exact]\ntool_profile = 'builtin/claude-code-core'",
             "[profiles.a]\nextends = 'b'\n[profiles.b]\nextends = 'a'",
             "[prompt_profiles.a]\nextends = 'b'\n[prompt_profiles.b]\nextends = 'a'",
             "[profiles.a]\nprompt_profile = 'missing'",
             "[providers.openai]\ntool_profile = 'missing'",
             "[models.unknown]\nprofile = 'missing'",
             "[profiles.azrael-default]\nprompt_profile = 'builtin/claude-lean'",
+            "[profiles.anthropic]\nprompt_profile = 'builtin/claude-lean'",
             "[prompt_profiles.'builtin/claude-lean']",
+            "[prompt_profiles.a]\ninstruction_format = 'unknown'",
         ] {
             assert!(
                 parse(text).is_err(),
@@ -484,32 +544,81 @@ mod tests {
 
     #[test]
     fn explicit_profiles_override_defaults_without_provider_restrictions() {
-        let profiles = parse("default_profile = 'anthropic-default'\n[providers.anthropic]\nprofile = 'azrael-default'\n[models.exact]\nprompt_profile = 'builtin/claude-lean'").unwrap();
-        assert!(
-            profiles
-                .resolve("openai", "future")
-                .unwrap()
-                .uses_claude_tools()
-        );
+        let profiles = parse("default_profile = 'anthropic'\n[providers.anthropic]\nprofile = 'azrael-default'\n[models.exact]\nprompt_profile = 'builtin/claude-lean'").unwrap();
+        let global = profiles.resolve("openai", "future").unwrap();
+        assert_eq!(global.prompt_variant, ANTHROPIC_PROMPT);
+        assert_eq!(global.instruction_format, InstructionFormat::AnthropicXml);
         let provider = profiles.resolve("anthropic", "future").unwrap();
         assert_eq!(provider.tool_profile, AZRAEL_TOOLS);
         assert_eq!(provider.prompt_variant, AZRAEL_PROMPT);
+        assert_eq!(provider.instruction_format, InstructionFormat::Native);
         let model = profiles.resolve("anthropic", "exact").unwrap();
         assert_eq!(model.tool_profile, AZRAEL_TOOLS);
         assert_eq!(model.prompt_variant, CLAUDE_LEAN_PROMPT);
-        let profiles = parse("[models.direct]\nprofile = 'anthropic-default'").unwrap();
-        assert!(
+        let profiles = parse("[models.direct]\nprofile = 'anthropic'").unwrap();
+        for provider in ["openai", "anthropic"] {
+            assert_eq!(
+                profiles
+                    .resolve(provider, "direct")
+                    .unwrap()
+                    .instruction_format,
+                InstructionFormat::AnthropicXml
+            );
+        }
+        let profiles = parse("default_profile = 'azrael-default'").unwrap();
+        assert_eq!(
             profiles
-                .resolve("openai", "direct")
+                .resolve("anthropic", "future")
                 .unwrap()
-                .uses_claude_tools()
+                .instruction_format,
+            InstructionFormat::Native
         );
-        assert!(
-            profiles
-                .resolve("anthropic", "direct")
-                .unwrap()
-                .uses_claude_tools()
+    }
+
+    #[test]
+    fn instruction_format_inherits_overrides_serializes_and_changes_fingerprint() {
+        let profiles = parse(
+            r#"
+            [prompt_profiles.parent]
+            extends = "builtin/anthropic"
+            [prompt_profiles.child]
+            extends = "parent"
+            instruction_format = "native"
+            [models.inherited]
+            prompt_profile = "parent"
+            [models.overridden]
+            prompt_profile = "child"
+        "#,
+        )
+        .unwrap();
+        let inherited = profiles.resolve("anthropic", "inherited").unwrap();
+        let overridden = profiles.resolve("anthropic", "overridden").unwrap();
+        assert_eq!(
+            inherited.instruction_format,
+            InstructionFormat::AnthropicXml
         );
+        assert_eq!(overridden.instruction_format, InstructionFormat::Native);
+        assert_eq!(overridden.prompt_variant, ANTHROPIC_PROMPT);
+        assert_eq!(
+            serde_json::to_string(&InstructionFormat::AnthropicXml).unwrap(),
+            "\"anthropic-xml\""
+        );
+        assert_eq!(
+            serde_json::to_string(&InstructionFormat::Native).unwrap(),
+            "\"native\""
+        );
+        let mut config = profiles.config.clone();
+        config
+            .prompt_profiles
+            .get_mut("child")
+            .unwrap()
+            .instruction_format = Some(InstructionFormat::AnthropicXml);
+        let changed = HarnessProfiles::from_templates(config, &BTreeMap::new())
+            .unwrap()
+            .resolve("anthropic", "overridden")
+            .unwrap();
+        assert_eq!(changed.id, overridden.id);
+        assert_ne!(changed.fingerprint, overridden.fingerprint);
     }
 
     #[test]
@@ -523,6 +632,7 @@ mod tests {
             "parent".into(),
             PromptProfileToml {
                 extends: Some(ANTHROPIC_PROMPT.into()),
+                instruction_format: None,
                 behavior_template_file: Some(parent_path),
             },
         );
@@ -530,6 +640,7 @@ mod tests {
             "child".into(),
             PromptProfileToml {
                 extends: Some("parent".into()),
+                instruction_format: None,
                 behavior_template_file: None,
             },
         );

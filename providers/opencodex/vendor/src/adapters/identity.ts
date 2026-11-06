@@ -10,9 +10,8 @@
  *
  * The replacement keeps the necessary instruction (don't misreport as GPT-5/OpenAI), names the
  * model id that is actually sent on the wire when it is safe to interpolate, and names no proxy.
- * Provider-native identity blocks (e.g. the anthropic OAuth "You are a Claude agent..." prefix)
- * are layered on TOP of this by the individual adapters; this module never claims to be a specific
- * first-party client.
+ * This module never claims to be a specific first-party client. The Anthropic adapter does not
+ * add an OAuth identity system block.
  */
 
 /** Historical exact identity line Codex injected for every model. */

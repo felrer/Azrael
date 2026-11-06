@@ -19,6 +19,7 @@ use codex_history::VerifiedQuestionAnswer;
 use codex_protocol::config_types::ModeKind;
 use codex_protocol::request_user_input::RequestUserInputArgs;
 use codex_tools::ToolName;
+use codex_tools::LEGACY_CODEX_TOOLS_NAMESPACE;
 use codex_tools::ToolSpec;
 
 pub struct RequestUserInputHandler {
@@ -27,7 +28,7 @@ pub struct RequestUserInputHandler {
 
 impl ToolExecutor<ToolInvocation> for RequestUserInputHandler {
     fn tool_name(&self) -> ToolName {
-        ToolName::plain(REQUEST_USER_INPUT_TOOL_NAME)
+        ToolName::namespaced(LEGACY_CODEX_TOOLS_NAMESPACE, REQUEST_USER_INPUT_TOOL_NAME)
     }
 
     fn spec(&self) -> ToolSpec {
@@ -64,7 +65,10 @@ impl RequestUserInputHandler {
             }
         };
 
-        if turn.session_source.is_non_root_agent() {
+        if !crate::agent::role_profile::has_user_interaction_authority(
+            &turn.config,
+            &turn.session_source,
+        ) {
             return Err(FunctionCallError::RespondToModel(
                 "request_user_input can only be used by the root thread".to_string(),
             ));

@@ -163,7 +163,8 @@ fn content_digest(
     expected_length: u64,
     auth: Auth<'_>,
 ) -> Result<(String, u64), String> {
-    let mut file = fs::File::open(path).map_err(|e| e.to_string())?;
+    let mut file =
+        fs::File::open(path).map_err(|e| format!("payload.read: {}: {e}", path.display()))?;
     // Small files cost less to hash than to establish a strong cache version.
     // Keep their original read path with no extra metadata or pathname opens.
     if expected_length < CONTENT_CACHE_MIN_BYTES {
@@ -203,7 +204,8 @@ fn content_digest(
     let after = file_version(&file);
     // A reopened path detects replacement while the original handle was open.
     // No handles are retained in the operation cache.
-    let current = fs::File::open(path).map_err(|e| e.to_string())?;
+    let current =
+        fs::File::open(path).map_err(|e| format!("payload.read: {}: {e}", path.display()))?;
     if before != after || after != file_version(&current) {
         return Err("input changed while measuring".into());
     }
@@ -232,7 +234,9 @@ fn hash_content(path: &Path, file: &mut fs::File, auth: Auth<'_>) -> Result<(Str
     let mut buffer = [0u8; 65536];
     loop {
         auth(path, AccessMode::Read)?;
-        let count = file.read(&mut buffer).map_err(|e| e.to_string())?;
+        let count = file
+            .read(&mut buffer)
+            .map_err(|e| format!("payload.read: {}: {e}", path.display()))?;
         if count == 0 {
             break;
         }
@@ -625,6 +629,7 @@ pub(crate) fn checked_metadata(
     path: &Path,
     auth: Auth<'_>,
 ) -> Result<Option<fs::Metadata>, String> {
+    let _detail = crate::timing::detail("metadata.total");
     if !within(path, root) {
         return Err("path escapes root".into());
     }
@@ -633,7 +638,15 @@ pub(crate) fn checked_metadata(
     ancestors.reverse();
     let mut leaf = None;
     for p in ancestors {
-        auth(p, AccessMode::Read)?;
+        {
+            let _detail = crate::timing::detail("metadata.authorize");
+            auth(p, AccessMode::Read)?;
+        }
+        let _detail = crate::timing::detail(if p == path {
+            "metadata.leaf"
+        } else {
+            "metadata.ancestor"
+        });
         #[cfg(windows)]
         if p != path {
             if let Some(attributes) = fresh_ancestor_attributes(p) {
@@ -659,7 +672,7 @@ pub(crate) fn checked_metadata(
                 }
             }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
-            Err(e) => return Err(e.to_string()),
+            Err(e) => return Err(format!("path.metadata: {}: {e}", p.display())),
         }
     }
     Ok(leaf)
@@ -677,7 +690,10 @@ pub(crate) fn registered_observation(
     if reparse(&metadata) || metadata.file_type().is_symlink() {
         return Err("junction member root rejected".into());
     }
-    validate_nested_junctions(root, path, auth)?;
+    {
+        let _detail = crate::timing::detail("observation.nested_junctions");
+        validate_nested_junctions(root, path, auth)?;
+    }
     let kind = if metadata.is_dir() {
         "directory"
     } else if metadata.is_file() {
@@ -685,7 +701,10 @@ pub(crate) fn registered_observation(
     } else {
         return Err("special file rejected".into());
     };
-    let identity = registered_identity(path, &metadata)?;
+    let identity = {
+        let _detail = crate::timing::detail("observation.identity");
+        registered_identity(path, &metadata)?
+    };
     Ok(json!({"presence":"present","kind":kind,"identity":identity}))
 }
 
@@ -731,7 +750,7 @@ fn registered_handle_information(
         .access_mode(FILE_READ_ATTRIBUTES)
         .custom_flags(FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT)
         .open(path)
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("registered_root.open: {}: {e}", path.display()))?;
     let mut basic = FILE_BASIC_INFO::default();
     let mut id = FILE_ID_INFO::default();
     let mut standard = FILE_STANDARD_INFO::default();
@@ -757,7 +776,11 @@ fn registered_handle_information(
                 std::mem::size_of_val(&standard) as u32,
             ) == 0
         {
-            return Err(std::io::Error::last_os_error().to_string());
+            return Err(format!(
+                "registered_root.identity: {}: {}",
+                path.display(),
+                std::io::Error::last_os_error()
+            ));
         }
     }
     if basic.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT != 0
@@ -782,6 +805,142 @@ mod registered_observation_tests {
 
     fn allow(_: &Path, _: AccessMode) -> Result<(), String> {
         Ok(())
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn ancestor_attribute_lookup_is_bounded_to_plain_local_paths() {
+        assert!(short_local_ancestor_path(Path::new(r"C:\plain\ancestor")).is_some());
+        assert!(short_local_ancestor_path(Path::new(r"C:/plain/ancestor")).is_some());
+        for path in [
+            r"relative\ancestor",
+            r"C:relative",
+            r"\rooted",
+            r"\\server\share\ancestor",
+            r"\\?\C:\ancestor",
+            r"\\.\C:\ancestor",
+            r"C:\ancestor.",
+            r"C:\ancestor ",
+            r"C:\NUL\ancestor",
+            r"C:\COM1.txt\ancestor",
+            r"C:\CON .txt\ancestor",
+            r"C:\path:stream\ancestor",
+            "C:\\plain\\\0ancestor",
+        ] {
+            assert!(
+                short_local_ancestor_path(Path::new(path)).is_none(),
+                "{path:?}"
+            );
+        }
+        let at_limit = format!("C:\\{}", "a".repeat(245));
+        assert_eq!(at_limit.encode_utf16().count(), 248);
+        assert!(short_local_ancestor_path(Path::new(&at_limit)).is_none());
+        let below_limit = format!("C:\\{}", "a".repeat(244));
+        assert!(short_local_ancestor_path(Path::new(&below_limit)).is_some());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn fresh_ancestor_attributes_preserve_normal_missing_and_authorization_order() {
+        use std::cell::RefCell;
+        let root = tempfile::tempdir().unwrap();
+        let existing = root.path().join("ancestor");
+        fs::create_dir(&existing).unwrap();
+        let leaf = existing.join("leaf");
+        fs::write(&leaf, "payload").unwrap();
+        assert!(fresh_ancestor_attributes(&existing).is_some());
+        let missing = root.path().join("missing").join("leaf");
+        assert!(fresh_ancestor_attributes(missing.parent().unwrap()).is_none());
+        for (path, present) in [(&leaf, true), (&missing, false)] {
+            let trace = RefCell::new(Vec::new());
+            let authorize = |path: &Path, mode| {
+                trace.borrow_mut().push((path.to_owned(), mode));
+                Ok(())
+            };
+            let context = Context::new(&authorize);
+            assert_eq!(
+                checked_metadata(root.path(), path, &context)
+                    .unwrap()
+                    .is_some(),
+                present
+            );
+            let mut expected = path
+                .ancestors()
+                .map(|path| (path.to_owned(), AccessMode::Read))
+                .collect::<Vec<_>>();
+            expected.reverse();
+            assert_eq!(*trace.borrow(), expected);
+        }
+        let trace = RefCell::new(Vec::new());
+        let deny = |path: &Path, mode| {
+            trace.borrow_mut().push((path.to_owned(), mode));
+            if path == existing {
+                Err("ancestor denied".into())
+            } else {
+                Ok(())
+            }
+        };
+        let context = Context::new(&deny);
+        assert_eq!(
+            checked_metadata(root.path(), &leaf, &context).unwrap_err(),
+            "ancestor denied"
+        );
+        assert!(!trace.borrow().iter().any(|(path, _)| path == &leaf));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn ancestor_replacement_in_authorization_is_rechecked_before_descendants() {
+        use std::cell::{Cell, RefCell};
+        let root = tempfile::tempdir().unwrap();
+        let ancestor = root.path().join("ancestor");
+        let target = root.path().join("target");
+        fs::create_dir(&ancestor).unwrap();
+        fs::create_dir(&target).unwrap();
+        fs::write(ancestor.join("leaf"), "original").unwrap();
+        fs::write(target.join("leaf"), "redirected").unwrap();
+        let leaf = ancestor.join("leaf");
+        let enabled = Cell::new(false);
+        let replaced = Cell::new(false);
+        let trace = RefCell::new(Vec::new());
+        let authorize = |path: &Path, _: AccessMode| {
+            trace.borrow_mut().push(path.to_owned());
+            if path == ancestor && enabled.get() && !replaced.replace(true) {
+                fs::rename(&ancestor, root.path().join("original")).unwrap();
+                let output = codex_utils_process::background_command("cmd.exe")
+                    .args(["/D", "/C", "mklink", "/J"])
+                    .arg(&ancestor)
+                    .arg(&target)
+                    .output()
+                    .unwrap();
+                assert!(
+                    output.status.success(),
+                    "{}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
+            Ok(())
+        };
+        let context = Context::new(&authorize);
+        assert!(
+            checked_metadata(root.path(), &leaf, &context)
+                .unwrap()
+                .is_some()
+        );
+        trace.borrow_mut().clear();
+        enabled.set(true);
+        assert!(
+            checked_metadata(root.path(), &leaf, &context)
+                .unwrap_err()
+                .contains("link/reparse")
+        );
+        assert!(replaced.get());
+        assert!(!trace.borrow().iter().any(|path| path == &leaf));
+        assert_eq!(
+            fs::read_to_string(target.join("leaf")).unwrap(),
+            "redirected"
+        );
+        fs::remove_dir(&ancestor).unwrap();
     }
 
     #[test]
@@ -921,7 +1080,7 @@ pub(crate) fn entries(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<Pa
         if metadata.is_dir() && !reparse(&metadata) {
             auth(&current, AccessMode::Read)?;
             let mut children = fs::read_dir(&current)
-                .map_err(|e| e.to_string())?
+                .map_err(|e| format!("payload.enumerate: {}: {e}", current.display()))?
                 .map(|e| e.map(|v| v.path()).map_err(|e| e.to_string()))
                 .collect::<Result<Vec<_>, _>>()?;
             children.sort();
@@ -987,7 +1146,8 @@ pub(crate) fn measure(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Value,
     let mut bytes = 0u64;
     for p in entries(root, path, auth)? {
         auth(&p, AccessMode::Read)?;
-        let before = fs::symlink_metadata(&p).map_err(|e| e.to_string())?;
+        let before = fs::symlink_metadata(&p)
+            .map_err(|e| format!("payload.measure: {}: {e}", p.display()))?;
         let content = if reparse(&before) {
             validate_junction(root, &p, auth)?;
             hash(&auth.junctions.borrow()[&p])?
@@ -998,7 +1158,8 @@ pub(crate) fn measure(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Value,
         } else {
             String::new()
         };
-        let after = fs::symlink_metadata(&p).map_err(|e| e.to_string())?;
+        let after = fs::symlink_metadata(&p)
+            .map_err(|e| format!("payload.measure: {}: {e}", p.display()))?;
         if before.len() != after.len()
             || before.modified().ok() != after.modified().ok()
             || platform_identity(&before) != platform_identity(&after)
@@ -1246,22 +1407,6 @@ pub(crate) fn reserved(root: &Path, path: &Path) -> bool {
     path.strip_prefix(root).map_or(true,|p|p.components().any(|c|matches!(c,Component::Normal(s) if [".git",".azrael-ex",".codex",".ssh",".config"].iter().any(|n|s.to_string_lossy().eq_ignore_ascii_case(n))))) || within(path,&root.join("artifacts/maintenance")) || within(&root.join("artifacts/maintenance"),path) || within(path,&root.join("project-maintenance.json"))
 }
 
-#[cfg(not(windows))]
-pub(crate) fn delete(path: &Path, _entries: &[PathBuf]) -> Result<Value, String> {
-    let result = if path.is_dir() {
-        fs::remove_dir_all(path)
-    } else {
-        fs::remove_file(path)
-    };
-    result.map_err(|e| e.to_string())?;
-    if fs::symlink_metadata(path).is_ok() {
-        return Err("deletion left target present".into());
-    }
-    Ok(
-        json!({"status":"deleted","attributes":[],"remaining":false,"physical_bytes_reclaimed":null}),
-    )
-}
-
 pub(crate) fn delete_verified(
     root: &Path,
     path: &Path,
@@ -1288,9 +1433,14 @@ pub(crate) fn delete_verified(
         }
         result
     }
-    #[cfg(not(windows))]
+    #[cfg(unix)]
     {
-        delete(path, entries)
+        crate::unix_delete::delete(root, path, entries)
+    }
+    #[cfg(not(any(windows, unix)))]
+    {
+        let _ = (root, path, entries);
+        Err("verified deletion is unsupported on this platform".into())
     }
 }
 
@@ -1311,13 +1461,12 @@ pub(crate) fn normalization_preflight(approved: &[PathBuf]) -> Result<(), String
             }
         }
         if files.iter().any(|(_, normalize)| *normalize) {
-            let mut counts = std::collections::BTreeMap::<String, u32>::new();
+            let mut counts = std::collections::BTreeMap::<(u64, [u8; 16]), u32>::new();
             let mut changing = Vec::new();
             for (entry, normalize) in files {
                 let (_, id, standard) = registered_handle_information(&entry)?;
-                let identity =
-                    hash(&json!({"volume":id.VolumeSerialNumber,"file_id":id.FileId.Identifier}))?;
-                *counts.entry(identity.clone()).or_default() += 1;
+                let identity = (id.VolumeSerialNumber, id.FileId.Identifier);
+                *counts.entry(identity).or_default() += 1;
                 if normalize {
                     changing.push((entry, identity, standard.NumberOfLinks));
                 }
@@ -1328,9 +1477,7 @@ pub(crate) fn normalization_preflight(approved: &[PathBuf]) -> Result<(), String
                 }
                 let (_, current_id, current) = registered_handle_information(&entry)?;
                 if current.NumberOfLinks != links
-                    || hash(
-                        &json!({"volume":current_id.VolumeSerialNumber,"file_id":current_id.FileId.Identifier}),
-                    )? != identity
+                    || (current_id.VolumeSerialNumber, current_id.FileId.Identifier) != identity
                 {
                     return Err("normalization file identity or link count changed".into());
                 }

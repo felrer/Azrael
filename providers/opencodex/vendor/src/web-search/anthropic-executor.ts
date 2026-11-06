@@ -1,6 +1,6 @@
 import type { OcxProviderConfig } from "../types";
 import { getValidAccessToken, publicOAuthAuthenticationErrorMessage } from "../oauth";
-import { ANTHROPIC_OAUTH_BETA, CLAUDE_CODE_SYSTEM_INSTRUCTION } from "../oauth/anthropic";
+import { ANTHROPIC_OAUTH_BETA } from "../oauth/anthropic";
 import { CLAUDE_CODE_HEADERS, claudeCodeSessionId } from "../adapters/client-fingerprint";
 import { signalWithTimeout, cancelBodyOnAbort } from "../lib/abort";
 import { sidecarEnter } from "../lib/sidecar-tracker";
@@ -153,8 +153,8 @@ export async function parseAnthropicSidecarSSE(res: Response): Promise<SidecarOu
 /**
  * Execute ONE web search via a Claude sidecar through the STORED anthropic OAuth credential — the
  * Anthropic-backed analog of runWebSearch. Authenticates with getValidAccessToken (refresh handled)
- * and reproduces the Claude Code OAuth fingerprint (identity system block first, oauth beta, client
- * headers, stable session id) so the request is first-party-shaped. Never throws — returns `{error}`
+ * and retains the OAuth beta, client headers and stable session id without adding an identity
+ * system block. Never throws — returns `{error}`
  * so the caller injects a graceful tool result.
  */
 export async function runAnthropicWebSearch(
@@ -191,9 +191,7 @@ export async function runAnthropicWebSearch(
     max_tokens: ANTHROPIC_MAX_TOKENS,
     // sonnet-5 defaults to adaptive thinking when omitted; keep the sidecar fast/cheap (audit F2).
     thinking: { type: "disabled" },
-    // OAuth fingerprint requires the Claude Code identity as the FIRST system block (audit F6/anthropic.ts).
     system: [
-      { type: "text", text: CLAUDE_CODE_SYSTEM_INSTRUCTION },
       { type: "text", text: instruction },
     ],
     messages: [{ role: "user", content: [{ type: "text", text: query }] }],

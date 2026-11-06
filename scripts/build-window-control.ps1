@@ -3,15 +3,23 @@ param(
     [switch]$Test,
     [switch]$Rebuild,
     [string]$TargetDirectory,
+    [string]$CacheProjectRoot,
     [string]$LogDirectory
 )
 $ErrorActionPreference = 'Stop'
+if ($PSBoundParameters.ContainsKey('CacheProjectRoot') -and $PSBoundParameters.ContainsKey('TargetDirectory')) { throw 'CacheProjectRoot and TargetDirectory cannot be supplied together.' }
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $manifestPath = Join-Path $projectRoot 'native/window-control/Cargo.toml'
 $sourceDirectory = Join-Path $projectRoot 'native/window-control'
 $fingerprintCli = Join-Path $PSScriptRoot 'window-control-runtime.cjs'
 $windowNativeLogs = if ($LogDirectory) { [System.IO.Path]::GetFullPath($LogDirectory) } else { Join-Path $projectRoot 'artifacts/logs/window-control-native' }
-$windowNativeTarget = if ($TargetDirectory) { [System.IO.Path]::GetFullPath($TargetDirectory) } else { Join-Path $projectRoot 'artifacts/build/window-control-native/target' }
+$windowCache = $null
+try {
+if ($PSBoundParameters.ContainsKey('CacheProjectRoot')) {
+    . (Join-Path $PSScriptRoot 'window-control-cache.ps1')
+    $windowCache = Open-WindowControlSharedCache $projectRoot $CacheProjectRoot
+}
+$windowNativeTarget = if ($windowCache) { $windowCache.Target } elseif ($TargetDirectory) { [System.IO.Path]::GetFullPath($TargetDirectory) } else { Join-Path $projectRoot 'artifacts/build/window-control-native/target' }
 New-Item -ItemType Directory -Force -Path $windowNativeLogs | Out-Null
 $operation = if ($Test) { 'test' } else { 'build' }
 $logPath = Join-Path $windowNativeLogs "$operation-$(Get-Date -Format 'yyyyMMdd-HHmmss-fff').log"
@@ -24,15 +32,20 @@ if ($sourceBefore -notmatch '^[a-fA-F0-9]{64}$') { throw 'Native source fingerpr
 $cacheInputs = @((Get-FileHash -LiteralPath $PSCommandPath).Hash, (& rustc --version), $Configuration, $env:RUSTFLAGS, $env:CARGO_ENCODED_RUSTFLAGS, $env:RUSTC_WRAPPER, $env:RUSTUP_TOOLCHAIN) -join "|"
 $executablePath = Join-Path $windowNativeTarget "$Configuration/azrael-window-control.exe"
 $receiptPath = Join-Path $windowNativeTarget "$Configuration/azrael-window-control-build.json"
-if (-not $Test -and -not $Rebuild -and (Test-Path $receiptPath) -and (Test-Path $executablePath)) {
+if (-not $Test -and -not $Rebuild -and (-not $windowCache -or $windowCache.CanReuse) -and (Test-Path $receiptPath) -and (Test-Path $executablePath)) {
+    $cacheHit = $false
     try {
         $cached=Get-Content $receiptPath -Raw|ConvertFrom-Json
         if ($cached.sourceSha256 -ceq $sourceBefore -and $cached.buildInputs -ceq $cacheInputs -and $cached.executableSha256 -ieq (Get-FileHash $executablePath).Hash) {
-            Write-Output "Window-control reused verified executable: $executablePath"
-            $global:LASTEXITCODE=0
-            return
+            $cacheHit = $true
         }
     } catch { }
+    if ($cacheHit) {
+        if ($windowCache) { Complete-WindowControlSharedCache $windowCache }
+        Write-Output "Window-control reused verified executable: $executablePath"
+        $global:LASTEXITCODE=0
+        return
+    }
 }
 & cargo @cargoArguments *> $logPath
 $buildExit = $LASTEXITCODE
@@ -51,4 +64,14 @@ if (-not $Test) {
     $receipt = [ordered]@{ schema = 1; buildInputs = $cacheInputs; sourceSha256 = $sourceAfter; executableSha256 = (Get-FileHash -LiteralPath $executablePath -Algorithm SHA256).Hash.ToLowerInvariant() }
     [System.IO.File]::WriteAllText($receiptPath, ($receipt | ConvertTo-Json), [System.Text.UTF8Encoding]::new($false))
     Write-Output $executablePath
+}
+if ($windowCache) { Complete-WindowControlSharedCache $windowCache }
+} catch {
+    if ($windowCache -and -not $windowCache.Closed) {
+        try { Fail-WindowControlSharedCache $windowCache }
+        catch { Write-Warning "Window-control cache remains protected pending: $($_.Exception.Message)" }
+    }
+    throw
+} finally {
+    if ($windowCache -and $windowCache.Lease) { $windowCache.Lease.Dispose() }
 }

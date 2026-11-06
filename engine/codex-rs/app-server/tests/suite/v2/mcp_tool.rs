@@ -724,9 +724,11 @@ async fn mcp_server_tool_call_round_trips_elicitation_for_thread(
             .build()
             .map_err(anyhow::Error::msg)?,
     )?)?;
+    assert!(params.user_wait_request_id.as_deref().is_some_and(|id| id.starts_with(&format!("mcp:{}:", params.server_name))));
     assert_eq!(
         params,
         McpServerElicitationRequestParams {
+            user_wait_request_id: params.user_wait_request_id.clone(),
             thread_id: thread.id,
             turn_id: None,
             server_name: TEST_SERVER_NAME.to_string(),
@@ -956,9 +958,11 @@ async fn mcp_server_tool_call_forwards_url_elicitation() -> Result<()> {
     let ServerRequest::McpServerElicitationRequest { request_id, params } = server_req else {
         panic!("expected McpServerElicitationRequest request, got: {server_req:?}");
     };
+    assert!(params.user_wait_request_id.as_deref().is_some_and(|id| id.starts_with(&format!("mcp:{}:", params.server_name))));
     assert_eq!(
         params,
         McpServerElicitationRequestParams {
+            user_wait_request_id: params.user_wait_request_id.clone(),
             thread_id: thread.id,
             turn_id: None,
             server_name: TEST_SERVER_NAME.to_string(),

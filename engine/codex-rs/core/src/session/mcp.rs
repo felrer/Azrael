@@ -146,10 +146,11 @@ impl Session {
                     executor_capability_discovery.as_deref(),
                 )
                 .await;
-        let mcp_config = self
+        let mut mcp_config = self
             .project_selected_environment_mcp_servers(config, &environments, mcp_projection)
             .await
             .config;
+        config.filter_profile_mcp_config(&mut mcp_config);
         let runtime_context = self.mcp_runtime_context(&environments, &host_fallback_cwd);
         (mcp_config, runtime_context)
     }
@@ -599,7 +600,39 @@ impl Session {
         self.mcp_elicitation_lifecycle_handle
             .get_or_init(|| {
                 let elicitations = self.services.elicitations.clone();
+                let metadata = Arc::clone(&self.mcp_tool_approval_metadata);
                 codex_mcp::ElicitationLifecycle::new(move || elicitations.register())
+                    .with_interaction(move |server, id, request| {
+                        let meta = match request {
+                            ElicitationRequest::Form { meta, .. }
+                            | ElicitationRequest::OpenAiForm { meta, .. }
+                            | ElicitationRequest::OpenAiElicitationForm { meta, .. }
+                            | ElicitationRequest::Url { meta, .. }
+                            | ElicitationRequest::UserVerification { meta, .. } => meta.as_ref(),
+                        }?;
+                        let call_id = match server {
+                            CODEX_APPS_MCP_SERVER_NAME => {
+                                meta.get(MCP_TOOL_CODEX_APPS_META_KEY)?.get("call_id")
+                            }
+                            _ => meta.get("callId"),
+                        }?
+                        .as_str()?;
+                        // Only a live issuing invocation may attribute this request. In particular,
+                        // never substitute the current turn for an older background invocation.
+                        let context = metadata
+                            .lock()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner)
+                            .get(&(server.to_owned(), call_id.to_owned()))?
+                            .upgrade()?;
+                        let runtime = context
+                            .review_context
+                            .turn()
+                            .turn_timing_state
+                            .user_wait()?;
+                        let request_id =
+                            format!("mcp:{server}:{}", serde_json::to_string(id).ok()?);
+                        Some(runtime.wait(request_id, call_id.to_owned(), "elicitation"))
+                    })
             })
             .clone()
     }
@@ -647,6 +680,17 @@ impl Session {
                 "Overwriting existing pending elicitation for server_name: {server_name}, request_id: {request_id}"
             );
         }
+        let timing_request_id = format!(
+            "mcp:{server_name}:{}",
+            serde_json::to_string(&request_id).unwrap_or_default()
+        );
+        let timing_call_id = crate::user_wait_runtime::TOOL_CALL_ID
+            .try_with(Clone::clone)
+            .unwrap_or_else(|_| timing_request_id.clone());
+        let _user_wait = turn_context
+            .turn_timing_state
+            .user_wait()
+            .map(|runtime| runtime.wait(timing_request_id, timing_call_id, "elicitation"));
         let id = match request_id {
             rmcp::model::NumberOrString::String(value) => {
                 codex_protocol::mcp::RequestId::String(value.to_string())

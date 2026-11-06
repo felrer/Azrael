@@ -109,6 +109,12 @@ impl CodeModeExecuteHandler {
             .services
             .executed_tool_calls
             .start_cell(&cell_id, &call_id);
+        if let Some(runtime) = exec.turn.turn_timing_state.user_wait() {
+            exec.session
+                .services
+                .code_mode_service
+                .set_cell_timing_activity(&cell_id, &call_id, &runtime);
+        }
         let runtime_cell_id = cell_id.to_string();
         let code_cell_trace = exec
             .session

@@ -1133,6 +1133,7 @@ pub(super) fn app_server_turn(
 ) -> AppServerTurn {
     AppServerTurn {
         root_resume_wait: None,
+        user_wait_timing: None,
         id: turn_id.to_string(),
         root_turn_id: None,
         parent_turn_id: None,

@@ -77,6 +77,7 @@ pub(super) async fn delete_thread(
     if let Some(cleanup) = &store.thread_data_cleanup {
         cleanup(vec![thread_id]).await?;
     }
+    delete_image_snapshots(store.config.codex_home.as_path(), thread_id)?;
     let found_rollout =
         match delete_thread_after_reference_check(store, thread_rollouts, &mut writer_guards).await
         {
@@ -124,6 +125,9 @@ pub(super) async fn delete_threads(
     if let Some(cleanup) = &store.thread_data_cleanup {
         cleanup(thread_ids.clone()).await?;
     }
+    for &thread_id in &thread_ids {
+        delete_image_snapshots(store.config.codex_home.as_path(), thread_id)?;
+    }
     for thread_rollouts in thread_rollouts {
         match delete_thread_after_reference_check(store, thread_rollouts, &mut writer_guards).await
         {
@@ -134,6 +138,126 @@ pub(super) async fn delete_threads(
     // Retain the complete retry graph until every rollout has been removed.
     delete_state_rows(store, &thread_ids).await?;
     Ok(())
+}
+
+/// Image snapshots are conversation data, owned solely by this thread directory.
+/// Validate every entry before deleting any; never traverse links or unknown directories.
+fn delete_image_snapshots(
+    home: &Path,
+    thread_id: codex_protocol::ThreadId,
+) -> ThreadStoreResult<()> {
+    let fail = |message: String| ThreadStoreError::Internal { message };
+    let canonical_home = std::fs::canonicalize(home)
+        .map_err(|err| fail(format!("failed to resolve image attachment home: {err}")))?;
+    let root = canonical_home.join("image_attachments");
+    let directory = root.join(thread_id.to_string());
+    for path in [&root, &directory] {
+        let metadata = match std::fs::symlink_metadata(path) {
+            Ok(metadata) => metadata,
+            Err(err) if err.kind() == ErrorKind::NotFound => return Ok(()),
+            Err(err) => {
+                return Err(fail(format!(
+                    "failed to inspect image attachment directory: {err}"
+                )));
+            }
+        };
+        if image_snapshot_link(&metadata)
+            || !metadata.is_dir()
+            || std::fs::canonicalize(path).map_err(|err| fail(err.to_string()))? != *path
+        {
+            return Err(fail(format!(
+                "unsafe image attachment directory `{}`",
+                path.display()
+            )));
+        }
+    }
+    let mut files = Vec::new();
+    for entry in std::fs::read_dir(&directory)
+        .map_err(|err| fail(format!("failed to enumerate image attachments: {err}")))?
+    {
+        let entry = entry.map_err(|err| fail(err.to_string()))?;
+        let path = entry.path();
+        let name = entry.file_name();
+        let name = name.to_str().unwrap_or_default();
+        let snapshot = name
+            .strip_prefix("img_")
+            .and_then(|name| name.strip_suffix(".json"))
+            .is_some_and(|hash| {
+                hash.len() == 64
+                    && hash
+                        .bytes()
+                        .all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c))
+            });
+        // NamedTempFile can survive abrupt process termination before atomic publication.
+        let pending = name.strip_prefix(".image-").is_some_and(|suffix| {
+            suffix.len() == 6 && suffix.bytes().all(|c| c.is_ascii_alphanumeric())
+        });
+        let metadata = std::fs::symlink_metadata(&path).map_err(|err| fail(err.to_string()))?;
+        if (!snapshot && !pending)
+            || !metadata.is_file()
+            || image_snapshot_link(&metadata)
+            || std::fs::canonicalize(&path)
+                .map_err(|err| fail(err.to_string()))?
+                .parent()
+                != Some(directory.as_path())
+        {
+            return Err(fail(format!(
+                "unsafe or unknown image attachment entry `{}`",
+                path.display()
+            )));
+        }
+        files.push(path);
+    }
+    for path in files {
+        // Recheck the entry at deletion time; ordinary remove_file never traverses a directory.
+        let metadata = std::fs::symlink_metadata(&path).map_err(|err| fail(err.to_string()))?;
+        if !metadata.is_file() || image_snapshot_link(&metadata) {
+            return Err(fail(format!(
+                "image attachment changed before deletion `{}`",
+                path.display()
+            )));
+        }
+        std::fs::remove_file(&path).map_err(|err| {
+            fail(format!(
+                "failed to delete image attachment `{}`: {err}",
+                path.display()
+            ))
+        })?;
+        if path.try_exists().map_err(|err| fail(err.to_string()))? {
+            return Err(fail(format!(
+                "image attachment remains after deletion `{}`",
+                path.display()
+            )));
+        }
+    }
+    std::fs::remove_dir(&directory).map_err(|err| {
+        fail(format!(
+            "failed to remove image attachment directory: {err}"
+        ))
+    })?;
+    if directory
+        .try_exists()
+        .map_err(|err| fail(err.to_string()))?
+    {
+        return Err(fail(
+            "image attachment directory remains after deletion".to_owned(),
+        ));
+    }
+    Ok(())
+}
+
+fn image_snapshot_link(metadata: &std::fs::Metadata) -> bool {
+    if metadata.file_type().is_symlink() {
+        return true;
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        if metadata.file_attributes() & 0x400 != 0 {
+            return true;
+        }
+    }
+    false
 }
 
 async fn delete_state_rows(
@@ -331,6 +455,28 @@ mod tests {
     use crate::local::test_support::write_session_file;
     use crate::local::test_support::write_session_file_with;
     use crate::local::test_support::write_session_file_with_history_mode;
+
+    #[test]
+    fn image_snapshot_cleanup_validates_all_entries_before_deleting() {
+        let home = TempDir::new().expect("temporary home");
+        let thread = ThreadId::new();
+        let directory = home
+            .path()
+            .join("image_attachments")
+            .join(thread.to_string());
+        std::fs::create_dir_all(&directory).expect("snapshot directory");
+        let snapshot = directory.join(format!("img_{}.json", "a".repeat(64)));
+        std::fs::write(&snapshot, b"snapshot").expect("snapshot");
+        let unknown = directory.join("unknown.json");
+        std::fs::write(&unknown, b"not owned").expect("unknown entry");
+        assert!(delete_image_snapshots(home.path(), thread).is_err());
+        assert!(snapshot.exists());
+        assert!(unknown.exists());
+        std::fs::remove_file(unknown).expect("remove test unknown entry");
+        delete_image_snapshots(home.path(), thread).expect("delete owned snapshot");
+        assert!(!directory.exists());
+        home.close().expect("remove temporary home");
+    }
 
     #[tokio::test]
     async fn delete_thread_removes_active_and_archived_rollouts() {

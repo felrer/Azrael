@@ -79,6 +79,7 @@ async fn queued_compaction_can_be_reordered_and_cancelled_without_interrupting_w
     let compact = queue_item(
         &mut app,
         ThreadQueueAddParams {
+            agent_profile: None,
             thread_id: thread_id.clone(),
             kind: Some(QueuedSubmissionKind::ContextCompaction),
             input: vec![],
@@ -241,6 +242,7 @@ async fn queue_crud_preserves_identity_order_and_notifications() -> Result<()> {
     let first = queue_item(
         &mut app,
         ThreadQueueAddParams {
+            agent_profile: None,
             client_user_message_id: "first-client-message".to_string(),
             ..submission(&thread_id, "first")
         },
@@ -377,6 +379,7 @@ async fn queue_list_returns_ordered_pages_and_lightweight_notifications() -> Res
     let queued = queue_item(
         &mut app,
         ThreadQueueAddParams {
+            agent_profile: None,
             thread_id: thread_id.clone(),
             kind: None,
             input: vec![text(&"x".repeat(64 * 1024))],
@@ -482,6 +485,7 @@ async fn idle_queue_dispatch_preserves_client_id() -> Result<()> {
         .thread
         .id;
     let queued_submission = ThreadQueueAddParams {
+            agent_profile: None,
         thread_id: thread_id.clone(),
         kind: None,
         input: vec![text("durable queued message")],
@@ -583,6 +587,7 @@ async fn cold_thread_resume_dispatches_a_persisted_queued_submission() -> Result
     let queued = queue_item(
         &mut resumed,
         ThreadQueueAddParams {
+            agent_profile: None,
             client_user_message_id: "cold-resumed-queue-item".to_string(),
             ..submission(&thread_id, "dispatch this after a cold thread resume")
         },
@@ -690,6 +695,7 @@ async fn interrupt_preserves_queue_and_queue_start_can_resume_a_non_head_item() 
     let second = queue_item(
         &mut app,
         ThreadQueueAddParams {
+            agent_profile: None,
             client_user_message_id: "second-queued-client-id".to_string(),
             ..submission(&thread_id, "second queued message")
         },
@@ -828,6 +834,7 @@ async fn queue_start_while_active_returns_busy_and_preserves_the_queue() -> Resu
     let queued = queue_item(
         &mut app,
         ThreadQueueAddParams {
+            agent_profile: None,
             client_user_message_id: "active-queued-client-id".to_string(),
             ..submission(&thread_id, "send this queued message now")
         },
@@ -997,6 +1004,7 @@ async fn a_new_turn_preserves_queued_messages_until_it_completes() -> Result<()>
     let first = queue_item(
         &mut app,
         ThreadQueueAddParams {
+            agent_profile: None,
             client_user_message_id: "first-queued-client-id".to_string(),
             ..submission(&thread_id, "first queued message")
         },
@@ -1005,6 +1013,7 @@ async fn a_new_turn_preserves_queued_messages_until_it_completes() -> Result<()>
     let second = queue_item(
         &mut app,
         ThreadQueueAddParams {
+            agent_profile: None,
             client_user_message_id: "second-queued-client-id".to_string(),
             ..submission(&thread_id, "second queued message")
         },
@@ -1170,6 +1179,7 @@ async fn decline_approval(app: &mut TestAppServer, request_id: RequestId) -> Res
 
 fn submission(thread_id: &str, value: &str) -> ThreadQueueAddParams {
     ThreadQueueAddParams {
+            agent_profile: None,
         thread_id: thread_id.to_string(),
         kind: None,
         input: vec![text(value)],

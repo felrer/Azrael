@@ -16,6 +16,8 @@ The Windows x64 ZIP contains the integrated host template, runtime dependency cl
 
 The installer accepts `-PrepareOnly`, `-InstallRoot`, `-ReleasesRoot`, `-StateRoot`, `-CodePath` and `-DevinExecutable`. It resolves paths from the recipient's environment and saves the resolved locations in the installed configuration and receipt. The public host template retains relative runtime paths and the `@STATE@` placeholder; build-machine paths in provenance are historical evidence, not runtime locations to resolve on the recipient's PC.
 
+New Windows packages default to the shared-engine protocol 2 runtime. Packaging carries `sharedEngine: true`, `sharedEngineProtocol: 2` and `engineSha256` from the verified build into the portable template; relocation preserves that identity and installation rejects inconsistent metadata or engine bytes. Final host acceptance checks this mode explicitly as well as actual activation and coexistence. Existing state homes and an explicitly selected recipient Devin CLI remain installation settings. Windows x64 package and installation acceptance passed in the [current work](../../work/EC-01-unused-file-archive/04-plan.md); already-open windows keep their current runtime until normally reloaded or reopened.
+
 | Setting | Explicit option | User environment variable | Default |
 | --- | --- | --- | --- |
 | Parent of versioned runtime installations | `-ReleasesRoot` | `AZRAEL_RELEASES_ROOT` | `%LOCALAPPDATA%/azrael-ex/releases` |
@@ -34,6 +36,10 @@ $env:AZRAEL_STATE_ROOT = Join-Path $env:USERPROFILE '.azrael-ex'
 ```
 
 Existing installation destinations are refused. Runtime, extracted package and state directories must be separate, and ordinary `.codex` state is prohibited. A preparation failure removes only the newly created destination; a failed VS Code installation retains runtime paths because the extension may already reference them. Preserve those paths until the partial installation has been assessed. Installation preserves existing authentication and state and does not close or reload active windows. Changing the state path does not migrate existing accounts or conversations.
+
+Windows releases after `2026.0.14` must expose `azrael.exe maintenance capabilities`, request-file commands and the lease protocol. After host installation, the bundled Node helper checks capabilities, a real lease and isolated register/review/apply with verified removal. Only a successful check publishes `<StateRoot>/maintenance-installation.json` under an OS lease. `-PrepareOnly` and legacy releases do not publish it. A failed check preserves the previous selection and the installed runtime; inspect any reported retained check fixture before retrying. New product-binary acceptance remains a release requirement, separate from shared-core or probe-binary tests. Other OS installers keep their existing selection until native maintenance acceptance.
+
+Project-local Node/PowerShell callers resolve that receipt, verify its platform and executable hash, and carry the `maintenance` argument prefix. `AZRAEL_STATE_ROOT` selects a custom state root for local callers; `AZRAEL_MAINTENANCE_INSTALLATION` explicitly selects an absolute receipt. If no installed receipt exists, the project-pinned standalone supports `2026.0.14`. An invalid receipt fails closed. Explicit `AZRAEL_MAINTENANCE_OWNER` overrides also carry `AZRAEL_MAINTENANCE_OWNER_MODE=azrael-maintenance` for app executables; standalone overrides omit the mode or use `standalone`.
 
 ## Local publication flow
 

@@ -43,7 +43,6 @@ fn api_direct_tool_guidance_requires_typed_developer_provenance() {
         max_concurrency: 2,
         wait_agent_enabled: true,
         expose_model_overrides: true,
-        claude_tools: false,
     };
     let text = role.body();
     assert!(text.contains("functions.exec"));

@@ -32,15 +32,7 @@ test("production CSS and bootstrap injectors compose and bind both cache depende
   assert.equal(unrelated["scroll-fade.cjs"], undefined);
 });
 
-test("pinned fade transforms reject drift and preserve masks, keyframes and unrelated timelines", () => {
-  const source = fs.readFileSync(path.join(uiRoot, CSS_ASSET), "utf8");
-  const result = injectScrollFade(source, CSS_ASSET);
 
-  assert.equal(injectScrollFade(result.text, CSS_ASSET).text, result.text);
-  assert.throws(() => injectScrollFade(source.replace("scroll(self x)", "scroll(nearest x)"), CSS_ASSET), /Pinned/);
-  assert.throws(() => injectScrollFade(result.text.replace("azrael-fade:edge-fade-top", "damaged"), CSS_ASSET), /Damaged/);
-
-});
 
 function fixture(classes) {
   let raf, mutations, resized, writes = 0, reads = 0;

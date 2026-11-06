@@ -43,6 +43,23 @@ def cleanup_long_fixture(root, allocated_root):
 
 
 class ImportTests(unittest.TestCase):
+    def test_reviewed_crate_readme_addition_keeps_manifest_boundary(self):
+        # Retain the exact crate-level boundary when adding reviewed support docs.
+        for crate in ("task-memory", "crate_2", "Core"):
+            with self.subTest(crate=crate):
+                self.assertTrue(importer.is_reviewed_source_addition(
+                    f"codex-rs/{crate}/README.md"))
+                self.assertTrue(importer.is_reviewed_source_addition(
+                    f"codex-rs/{crate}/Cargo.toml"))
+        for name in ("codex-rs/README.md", "README.md",
+                     "codex-rs/task-memory/docs/README.md",
+                     "codex-rs/task-memory/guide.md",
+                     "codex-rs/task-memory/readme.md",
+                     "codex-rs/.hidden/README.md",
+                     "codex-rs/../README.md"):
+            with self.subTest(name=name):
+                self.assertFalse(importer.is_reviewed_source_addition(name))
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

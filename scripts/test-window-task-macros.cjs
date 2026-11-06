@@ -12,7 +12,7 @@ const condition = (property,equals,sel=selector) => ({selector:sel,property,equa
 const task = steps => ({schema:1,steps});
 async function main() {
  const home = await fs.mkdtemp(path.join(os.tmpdir(),'window-task-'));
- let granted=true, approvals=0, n=0, actions=[], captures=0, inspectCount=0, value='', duplicate=false, missing=false, unsupported=false, throwing=false, elementsTruncated=false, onInspect, pendingApproval;
+ let granted=true, approvals=0, n=0, actions=[], captures=0, inspectCount=0, value='', duplicate=false, missing=false, unsupported=false, throwing=false, elementsTruncated=false, onInspect, pendingApproval, onApprove;
  let current={...w};
  const backend={async request(method,p) {
   if(method === 'listWindows') return [current];
@@ -26,23 +26,23 @@ async function main() {
   if(method === 'act') {actions.push({...p});if(throwing) throw new Error('native failed with SECRET'); if(p.action === 'setValue') value=p.value; if(p.action === 'pressKey') value='submitted';}
   return {window:{...current}};
  }};
- const owner=createWindowOwner({backend,authorize:async(_window,_thread,context)=>context?.stage===1||granted,approve:async()=>{approvals++;if(pendingApproval) await pendingApproval;granted=true;return true;},codexHome:home,workspacePath:home});
+ const owner=createWindowOwner({backend,authorize:async(_window,_thread,context)=>context?.stage===1||granted,approve:async()=>{approvals++;onApprove?.();if(pendingApproval) await pendingApproval;granted=true;return true;},codexHome:home,workspacePath:home});
  async function bind(){return owner.bind('t',current);}
- async function run(def,extra={}) {const target=owner.peek('t');return owner.call('t','run_task_macro',{targetId:target.targetId,definition:def,...extra});}
+ async function run(def,extra={}) {const target=owner.peek('t');return owner.call('t','run_task_macro',{windowId:target.windowId,definition:def,...extra});}
  try {
-  assert.equal((await owner.call('t','status',{})).state,'unbound');
+  await assert.rejects(owner.call('t','status',{}), /Invalid arguments/);
   const first=(await owner.call('t','list_windows',{})).candidates[0];
-  assert.deepEqual(Object.keys(first).sort(),['appName','candidateId','minimized','occupancy','title']);
-  await assert.rejects(owner.call('other','select_window',{candidateId:first.candidateId}),/Stale/);
+  assert.deepEqual(Object.keys(first).sort(),['appName','minimized','occupancy','title','windowId']);
+  await assert.rejects(owner.call('other','status',{windowId:first.windowId}),/forged|Stale/);
   const second=(await owner.call('t','list_windows',{})).candidates[0];
-  await assert.rejects(owner.call('t','select_window',{candidateId:first.candidateId}),/Stale/);
-  granted=false;const selected=await owner.call('t','select_window',{candidateId:second.candidateId});assert.equal(approvals,0);assert.equal(selected.state,'selected');granted=true;
+  assert.equal(first.windowId,second.windowId);
+  granted=false;const selected=await owner.call('t','status',{windowId:second.windowId});assert.equal(selected.windowId,first.windowId);granted=true;
   const stale=(await owner.call('t','list_windows',{})).candidates[0];current.processCreated='changed';
-  await assert.rejects(owner.call('t','select_window',{candidateId:stale.candidateId}),/identity changed/);current={...w};
+  await assert.rejects(owner.call('t','status',{windowId:stale.windowId}),/identity changed/);current={...w};
   await bind();
-  const inspected=await owner.call('t','inspect',{targetId:owner.peek('t').targetId});assert.equal(inspected.image,undefined);assert.equal(inspected.elements[1].automationId,'query');
-  const keyResult=await owner.call('t','press_key',{targetId:owner.peek('t').targetId,observationId:inspected.observationId,elementId:inspected.elements[1].id,key:'Tab'});assert.equal(keyResult.delivery,'windowMessage');assert.equal(keyResult.verified,false);
-  await assert.rejects(owner.call('t','press_key',{targetId:owner.peek('t').targetId,observationId:inspected.observationId,elementId:inspected.elements[1].id,key:'Ctrl+A'}),/Unsupported key/);
+  const inspected=await owner.call('t','inspect',{windowId:owner.peek('t').windowId});assert.equal(inspected.image,undefined);assert.equal(inspected.elements[1].automationId,'query');
+  const keyResult=await owner.call('t','press_key',{windowId:owner.peek('t').windowId,observationId:inspected.observationId,elementId:inspected.elements[1].id,key:'Tab'});assert.equal(keyResult.delivery,'windowMessage');assert.equal(keyResult.verified,false);
+  await assert.rejects(owner.call('t','press_key',{windowId:owner.peek('t').windowId,observationId:inspected.observationId,elementId:inspected.elements[1].id,key:'Ctrl+A'}),/Unsupported key/);
   const pre=actions.length;
   const def={schema:1,id:'search',name:'Search',parameters:['query'],steps:[{action:'set_value',selector,value:{parameter:'query'},postcondition:condition('value',{parameter:'query'})},{action:'assert',condition:condition('value',{parameter:'query'})},{action:'press_key',selector,key:'Return',postcondition:condition('value','submitted')}]};
   const result=await run(def,{parameters:{query:'SECRET'}});assert.equal(result.status,'completed');assert.equal(result.steps.length,3);assert.equal(actions.length-pre,2);assert.notEqual(actions.at(-1).elementId,actions.at(-2).elementId);assert.equal(actions.at(-1).action,'pressKey');
@@ -51,7 +51,7 @@ async function main() {
   const updated=await owner.call('t','save_task_macro',{definition:{...def,name:'Updated'}});assert.equal(updated.revision,2);
   assert.equal((await owner.call('t','list_task_macros',{})).macros.length,1);
   const raw=await fs.readFile(tasks.createStore(home,home).file,'utf8');assert.ok(!raw.includes('SECRET'));
-  const reused=await owner.call('t','run_task_macro',{targetId:owner.peek('t').targetId,macroId:'search',parameters:{query:'again'}});assert.equal(reused.status,'completed');assert.equal(reused.revision,2);
+  const reused=await owner.call('t','run_task_macro',{windowId:owner.peek('t').windowId,macroId:'search',parameters:{query:'again'}});assert.equal(reused.status,'completed');assert.equal(reused.revision,2);
   assert.equal((await owner.call('other-thread','list_task_macros',{})).macros[0].name,'Updated');
   assert.equal(tasks.createStore(home,path.join(home,'.')+path.sep).file,tasks.createStore(home,home).file);
   if(process.platform==='win32') assert.equal(tasks.createStore(home,home.toUpperCase()).file,tasks.createStore(home,home).file);
@@ -62,12 +62,12 @@ async function main() {
   try {
    assert.deepEqual((await otherOwner.call('other','list_task_macros',{})).macros,[]);
    const otherTarget=await otherOwner.bind('other',current);
-   await assert.rejects(otherOwner.call('other','run_task_macro',{targetId:otherTarget.targetId,macroId:'search',parameters:{query:'x'}}),/Unknown task macro/);
+   await assert.rejects(otherOwner.call('other','run_task_macro',{windowId:otherTarget.windowId,macroId:'search',parameters:{query:'x'}}),/Unknown task macro/);
    await otherOwner.call('other','save_task_macro',{definition:{...def,name:'Other project'}});
    assert.equal((await owner.call('t','list_task_macros',{})).macros[0].name,'Updated');
    assert.equal((await otherOwner.call('other','list_task_macros',{})).macros[0].name,'Other project');
    const refreshedOtherTarget=await otherOwner.bind('other',current);
-   const otherRun=await otherOwner.call('other','run_task_macro',{targetId:refreshedOtherTarget.targetId,macroId:'search',parameters:{query:'other'}});
+   const otherRun=await otherOwner.call('other','run_task_macro',{windowId:refreshedOtherTarget.windowId,macroId:'search',parameters:{query:'other'}});
    assert.equal(otherRun.status,'completed');assert.equal(otherRun.revision,1);
    assert.equal(await fs.readFile(legacyFile,'utf8'),legacyRaw);
   } finally {otherOwner.dispose();}
@@ -76,8 +76,8 @@ async function main() {
    await assert.rejects(unscoped.call('empty','list_task_macros',{}),e=>e.code==='invalid_request' && /open workspace/.test(e.message));
    await assert.rejects(unscoped.call('empty','save_task_macro',{definition:def}),/open workspace/);
    const target=await unscoped.bind('empty',current);
-   assert.equal((await unscoped.call('empty','run_task_macro',{targetId:target.targetId,definition:task([{action:'capture'}])})).status,'completed');
-   await assert.rejects(unscoped.call('empty','run_task_macro',{targetId:target.targetId,macroId:'search'}),e=>e.code==='invalid_request' && /open workspace/.test(e.message));
+   assert.equal((await unscoped.call('empty','run_task_macro',{windowId:target.windowId,definition:task([{action:'capture'}])})).status,'completed');
+   await assert.rejects(unscoped.call('empty','run_task_macro',{windowId:target.windowId,macroId:'search'}),e=>e.code==='invalid_request' && /open workspace/.test(e.message));
   } finally {unscoped.dispose();}
   await assert.rejects(run(def,{parameters:{query:'x',extra:'x'}}),/Invalid task/);
   assert.throws(()=>tasks.definition(task([{action:'press_key',selector,key:'Return'}])),/postcondition/);
@@ -116,9 +116,9 @@ async function main() {
   const cancelled=run(task([{action:'wait_for',condition:condition('value','never'),timeoutMs:1000},{action:'invoke',selector}]));await started;owner.stop('t');const cancellation=await cancelled;assert.equal(cancellation.status,'failed');assert.match(cancellation.error.message,/cancelled/);onInspect=null;
   await bind();onInspect=()=>{granted=false;};const revoked=await run(task([{action:'wait_for',condition:condition('value','never'),timeoutMs:1000},{action:'invoke',selector}]));assert.match(revoked.error.message,/revoked/);onInspect=null;granted=true;
   await bind();throwing=true;const beforeFailure=actions.length;const failed=await run(task([{action:'set_value',selector,value:'SECRET'},{action:'invoke',selector}]));assert.equal(actions.length-beforeFailure,1);assert.equal(failed.status,'failed');assert.ok(!JSON.stringify(failed).includes('SECRET'));assert.equal(owner.peek('t').state,'paused');throwing=false;
-  await bind();let release;pendingApproval=new Promise(r=>release=r);let approveSignal;const reached=new Promise(r=>approveSignal=r);const previous=backend.request;backend.request=async(method,p)=>{if(method==='listWindows' && pendingApproval) approveSignal();return previous(method,p);};
-  const candidate=(await owner.call('t','list_windows',{})).candidates[0];const selecting=owner.call('t','select_window',{candidateId:candidate.candidateId});await reached;owner.stop('t');release();await assert.rejects(selecting,/cancelled|Stale/);pendingApproval=null;
-  const noApproval=createWindowOwner({backend,authorize:async()=>false,codexHome:home});const denied=(await noApproval.call('n','list_windows',{})).candidates[0];await assert.rejects(noApproval.call('n','select_window',{candidateId:denied.candidateId}),/revoked/);noApproval.dispose();
+  await bind();let release;pendingApproval=new Promise(r=>release=r);let approveSignal;const reached=new Promise(r=>approveSignal=r);onApprove=()=>approveSignal();
+  const candidate=(await owner.call('t','list_windows',{})).candidates[0];const selecting=owner.call('t','status',{windowId:candidate.windowId});await reached;owner.stop('t');release();await assert.rejects(selecting,/cancelled|Stale/);pendingApproval=null;onApprove=null;
+  const noApproval=createWindowOwner({backend,authorize:async()=>false,codexHome:home});const denied=(await noApproval.call('n','list_windows',{})).candidates[0];await assert.rejects(noApproval.call('n','capture',{windowId:denied.windowId}),/revoked/);noApproval.dispose();
   for (const property of ['exists','enabled','selected']) {
     assert.throws(() => tasks.definition({schema:1,parameters:['state'],steps:[{action:'assert',condition:condition(property,{parameter:'state'})}]}), /literal booleans/);
   }
@@ -149,6 +149,6 @@ async function main() {
   const realNow=Date.now;let clock=realNow();let cancelCount=0,deadlineActions=0,advanced=false;
   try {Date.now=()=>clock;const deadlineResult=await tasks.run(task([{action:'invoke',selector}]),{}, {guard:async()=>{if(cancelCount) throw new Error('Operation cancelled');if(!advanced){clock+=19995;advanced=true;}},inspect:async()=>new Promise(()=>{}),capture:async()=>new Promise(()=>{}),act:async()=>{deadlineActions++;},cancel:()=>{cancelCount++;}});assert.equal(deadlineResult.status,'failed');assert.match(deadlineResult.error.message,/time limit/);assert.ok(cancelCount>0);assert.equal(deadlineActions,0);} finally {Date.now=realNow;}
   console.log('Window task macros: discovery, exact identity, selector/state, snapshots/revisions, privacy, waits, cancellation/revocation and no-replay checks passed');
- } finally {owner.dispose();await fs.rm(home,{recursive:true,force:true});}
+ } finally {owner.dispose();await fs.rm(home,{recursive:true});}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

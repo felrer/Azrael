@@ -212,6 +212,9 @@ fn normalize_agent_message_item(
         .into_iter()
         .map(|content| match content {
             AgentMessageInputContent::InputText { text } => ConversationPart::Text { text },
+            AgentMessageInputContent::InputImage { .. } => {
+                payload_ref_part("input_image", raw_payload)
+            }
             AgentMessageInputContent::EncryptedContent { encrypted_content } => {
                 ConversationPart::Encoded {
                     label: "encrypted_content".to_string(),

@@ -91,9 +91,19 @@ fn normalize_image_details(items: &mut [ResponseItem], model_info: &ModelInfo) {
                     }
                 }
             }
+            ResponseItem::AgentMessage { content, .. } => {
+                for part in content {
+                    if let codex_protocol::models::AgentMessageInputContent::InputImage {
+                        detail,
+                        ..
+                    } = part
+                    {
+                        normalize_image_detail(detail, model_info);
+                    }
+                }
+            }
             ResponseItem::AdditionalTools { .. }
             | ResponseItem::Reasoning { .. }
-            | ResponseItem::AgentMessage { .. }
             | ResponseItem::LocalShellCall { .. }
             | ResponseItem::FunctionCall { .. }
             | ResponseItem::ToolSearchCall { .. }

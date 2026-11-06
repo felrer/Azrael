@@ -841,6 +841,7 @@ mod tests {
             thread_id: "thread".to_string(),
             turn: codex_app_server_protocol::Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn".to_string(),
                 root_turn_id: None,

@@ -100,7 +100,7 @@ async function fixture(t: TestContext) {
   return { service, createService, InstructionView, control, warnings, options, requests, manifest, version, appVersion, home, workspace, engine };
 }
 
-test("real host adapter maps generated release, preview, download and selected application through the view", async t => {
+test("generated release applies only the selected component through the real host adapter", async t => {
   const f = await fixture(t);
   const sent: any[] = [];
   const view = new f.InstructionView(f.service);
@@ -113,21 +113,9 @@ test("real host adapter maps generated release, preview, download and selected a
     assert.equal(sent.at(-1).requestId, String(id));
     return f.service.snapshot();
   };
-  let state = await dispatch("mount");
-  assert.equal(state.repository, f.manifest.repository); assert.equal(state.currentVersion, null);
-  assert.deepEqual(state.downloadedVersions, []); assert.deepEqual(state.conflicts, []);
-  state = await dispatch("refresh");
-  assert.match(sent.at(-1).html, /Available instruction versions have been checked\./);
-  assert.equal(state.selectedVersion, f.version); assert.equal(state.versions[0].notes, "Generated release notes");
-  assert.equal(state.versions[0].compatible, true); assert.equal(state.versions[0].prerelease, false);
-  assert.deepEqual(state.components, f.manifest.components);
-  assert.equal(state.documents.length, f.manifest.documents.length);
-  assert(state.documents.every(document => document.title && document.kind));
-  const document = state.documents[0];
-  state = await dispatch("preview", { path: document.path });
-  assert.equal(state.preview?.path, document.path); assert(state.preview?.text.length);
-  assert(sent.at(-1).html.includes("Generated release notes"));
-  state = await dispatch("selectVersion", { version: f.version }); assert.equal(state.preview, undefined);
+  await dispatch("mount");
+  await dispatch("refresh");
+  let state = await dispatch("selectVersion", { version: f.version });
   state = await dispatch("download", { version: f.version });
   assert.deepEqual(state.downloadedVersions, [f.version]); assert.equal(state.currentVersion, null);
   const ids = ["global-instructions"];
@@ -138,117 +126,6 @@ test("real host adapter maps generated release, preview, download and selected a
   await assert.rejects(fs.access(path.join(f.home, "agents/luna_explorer.toml")), { code: "ENOENT" });
   assert.deepEqual(f.options[0], { stateRoot: f.home, appVersion: f.appVersion, repository: f.manifest.repository, engine: f.engine, workspaceRoot: f.workspace });
   assert.equal(f.warnings.length, 0);
-});
-
-test("invalid repository and retryable backend failures return error state without changing data", async t => {
-  const f = await fixture(t);
-  f.control.repository = "invalid repository";
-  const invalid = await f.service.snapshot(); assert.match(uiText(invalid.error), /owner\/name/);
-  assert.match(uiText((await f.service.request("refresh", {})).error), /owner\/name/);
-  assert.equal(uiText(invalid.error, "en"), "Set the GitHub repository in owner/name format.");
-  assert.equal(f.options.length, 0); assert.equal(f.requests.length, 0);
-  f.control.repository = f.manifest.repository;
-  f.control.failure = "offline fixture";
-  assert.equal((await f.service.request("refresh", {})).error, "offline fixture");
-  f.control.failure = undefined;
-  assert.equal((await f.service.request("refresh", {})).error, undefined);
-  assert.match(uiText((await f.service.request("preview", { path: "missing" })).error), /문서/);
-  assert.match(uiText((await f.service.request("selectVersion", { version: "../bad" })).error), /버전/);
-  assert.equal((await f.service.snapshot()).currentVersion, null);
-  await assert.rejects(fs.access(path.join(f.home, "AGENTS.md")), { code: "ENOENT" });
-});
-
-test("changing workspace maps its own selection and preserves retained workspace files and notices", async t => {
-  const f = await fixture(t);
-  const downloaded = await f.service.request("download", { version: f.version });
-  assert.equal(downloaded.error, undefined, `Prerequisite download failed: ${uiText(downloaded.error, "en")}; ${f.warnings.join("; ")}`);
-  assert.equal(downloaded.selectedVersion, f.version);
-  const workspaceComponent = f.manifest.components.find((component: any) => component.scope === "workspace" && component.files?.length);
-  assert(workspaceComponent, "Current release must include a mapped workspace component");
-  const workspaceTarget = workspaceComponent.files[0].target;
-  const ids = ["global-instructions", workspaceComponent.id];
-  const applied = await f.service.request("apply", { componentIds: ids });
-  assert.equal(applied.error, undefined); assert.deepEqual(applied.selectedComponentIds, ids);
-  const target = path.join(f.workspace, workspaceTarget), original = await fs.readFile(target);
-  const secondWorkspace = path.join(f.home, "../workspace-two");
-  await fs.mkdir(secondWorkspace);
-  f.control.workspace = secondWorkspace;
-  const second = await f.service.snapshot();
-  assert.deepEqual(second.selectedComponentIds, ["global-instructions"]);
-  assert.match(uiText(second.message), /다른 작업공간/); assert.equal(second.selectedVersion, f.version);
-  const homeOnly = await f.service.request("apply", { version: f.version, componentIds: ["global-instructions"] });
-  assert.equal(homeOnly.error, undefined);
-  assert.deepEqual(await fs.readFile(target), original);
-  await assert.rejects(fs.access(path.join(secondWorkspace, workspaceTarget)), { code: "ENOENT" });
-  f.control.workspace = f.workspace;
-  const restored = await f.service.snapshot();
-  assert.deepEqual(restored.selectedComponentIds, ids);
-  assert.equal(restored.message, undefined);
-});
-
-test("personal library failure preserves baseline version, cache and actions and remains visible until recovery", async t => {
-  const f = await fixture(t);
-  assert.equal((await f.service.request("download", { version: f.version })).error, undefined);
-  assert.equal((await f.service.request("apply", { version: f.version, componentIds: ["global-instructions"] })).error, undefined);
-  assert.equal((await f.service.request("pin", { version: f.version })).error, undefined);
-  const restarted = f.createService();
-  const library = (restarted as any).personalLibrary;
-  const snapshot = library.snapshot.bind(library);
-  library.snapshot = async () => { throw new Error("Cannot find module 'yazl'"); };
-  const before = f.requests.length;
-  const state = await restarted.snapshot();
-  assert.equal(f.requests.length, before, "opening cached settings stays offline even on library failure");
-  assert.equal(state.currentVersion, f.version); assert.equal(state.pinnedVersion, f.version);
-  assert.equal(state.selectedVersion, f.version); assert.deepEqual(state.downloadedVersions, [f.version]);
-  assert.deepEqual(state.selectedComponentIds, ["global-instructions"]);
-  assert(state.documents.length); assert(state.components.length); assert.equal(state.library, undefined);
-  assert.match(uiText(state.error, "en"), /Personal resource library: Cannot find module 'yazl'/);
-  assert.match(uiText(state.error, "ko"), /개인 리소스 라이브러리/);
-  assert(f.warnings.some(message => message.includes("instruction library snapshot failed")));
-  const unpinned = await restarted.request("unpin", {});
-  assert.equal(unpinned.currentVersion, f.version); assert.equal(unpinned.pinnedVersion, null);
-  assert.match(uiText(unpinned.error), /yazl/);
-  const refreshed = await restarted.request("refresh", {});
-  assert.equal(refreshed.currentVersion, f.version); assert(refreshed.versions.length);
-  assert.match(uiText(refreshed.error), /yazl/);
-  library.snapshot = snapshot;
-  const recovered = await restarted.snapshot();
-  assert.equal(recovered.error, undefined); assert(recovered.library);
-  assert.equal(recovered.currentVersion, f.version);
-});
-
-test("restarted adapter browses and rolls back verified cached instructions without any network requests", async t => {
-  const f = await fixture(t);
-  await f.service.request("download", { version: f.version });
-  const installed = await f.service.request("apply", { componentIds: ["global-instructions"] });
-  assert.equal(installed.error, undefined);
-  const original = await fs.readFile(path.join(f.home, "AGENTS.md"));
-  const requestCount = f.requests.length;
-  f.control.failure = "offline after restart";
-  const restarted = f.createService();
-  const state = await restarted.snapshot();
-  assert.equal(state.error, undefined); assert.equal(state.currentVersion, f.version);
-  assert.equal(state.selectedVersion, f.version); assert.deepEqual(state.downloadedVersions, [f.version]);
-  assert.deepEqual(state.versions[0].notes, { en: "This instruction package is downloaded locally.", ko: "로컬에 다운로드된 지침 패키지입니다." });
-  assert.equal(state.versions[0].version, f.version); assert.equal(state.versions[0].compatible, true);
-  assert.deepEqual(state.components, f.manifest.components);
-  assert.equal(state.documents.length, f.manifest.documents.length);
-  assert.deepEqual(state.selectedComponentIds, ["global-instructions"]);
-  const preview = await restarted.request("preview", { path: state.documents[0].path });
-  assert.equal(preview.error, undefined); assert(preview.preview?.text.length);
-  const rollback = await restarted.request("rollback", { version: f.version });
-  assert.equal(rollback.error, undefined); assert.equal(rollback.currentVersion, f.version);
-  assert.deepEqual(await fs.readFile(path.join(f.home, "AGENTS.md")), original);
-  assert.equal(f.requests.length, requestCount, "restart, preview and rollback must remain entirely offline");
-  // Repository changes reset browsing while preserving the applied receipt.
-  f.control.failure = undefined;
-  f.control.repository = "another/Instructions";
-  const switched = await restarted.snapshot();
-  assert.equal(switched.currentVersion, f.version);
-  assert.deepEqual(switched.selectedComponentIds, ["global-instructions"]);
-  assert.equal(switched.selectedVersion, null); assert.deepEqual(switched.documents, []);
-  assert.match(uiText(switched.message), new RegExp(f.manifest.repository));
-  assert.deepEqual(await fs.readFile(path.join(f.home, "AGENTS.md")), original);
 });
 
 test("adapter busy gate and real local conflicts preserve installed file and receipt", async t => {

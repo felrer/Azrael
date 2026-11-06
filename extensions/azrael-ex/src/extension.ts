@@ -21,8 +21,11 @@ import { ChatSession } from "./chatSession";
 import { ChatView } from "./chatView";
 import { InstructionService } from "./instructionService";
 import { InstructionView } from "./instructionView";
+import { InstructionWorkbenchService } from "./instructionWorkbenchService";
+import { InstructionWorkbenchView } from "./instructionWorkbenchView";
 import { StudentDesignService } from "./studentDesign";
 import { CustomApiService } from "./customApiService";
+import { MaintenancePreferencesView } from "./maintenancePreferencesView";
 import { CustomApiManagement } from "./customApiManagement";
 
 let service: AccountService | undefined;
@@ -35,9 +38,10 @@ let fallbackWindowSessionId: string | undefined;
 export async function activate(context: vscode.ExtensionContext, runtime?: HostRuntime): Promise<void> {
   const standalone = runtime === undefined;
   let instructions: InstructionView | undefined;
+  let workbenchView: InstructionWorkbenchView | undefined;
   const register = (command: string, action: () => unknown) => context.subscriptions.push(vscode.commands.registerCommand(command, action));
   register("azrael.openCodex", () => guarded(() => standalone ? vscode.commands.executeCommand("azrael.openSidebar") : openAzraelSidebar(vscode)));
-  register("azrael.openCodexSettings", () => guarded(() => standalone ? instructions?.show() : openAzraelSettings(vscode)));
+  register("azrael.openCodexSettings", () => guarded(() => standalone ? workbenchView?.show() : openAzraelSettings(vscode)));
 
   if (!runtime && context.extensionPath) {
     try { runtime = buildHostRuntime(context.extensionPath); }
@@ -92,11 +96,14 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
   const sharedEnvLog = vscode.window.createOutputChannel("Azrael shared environment", { log: true });
   context.subscriptions.push(sharedEnvLog);
   const sharedEnvRuntime = { engine, codexHome, env: runtimeEnv };
+  const maintenancePreferences = new MaintenancePreferencesView({codexHome, env:runtimeEnv});
+  context.subscriptions.push(vscode.commands.registerCommand("azrael.maintenancePreferencesEmbedded",
+    (webview: vscode.Webview, request: unknown) => maintenancePreferences.handleEmbedded(webview, request)));
   register("azrael.syncSharedEnvironment", () => guarded(() => syncSharedEnvironment(context, sharedEnvRuntime, sharedEnvLog)));
   register("azrael.fetchSharedPlaybook", () => guarded(() => fetchSharedPlaybook(context, sharedEnvRuntime, sharedEnvLog)));
   instructions = new InstructionView(new InstructionService(context, sharedEnvRuntime, sharedEnvLog));
   context.subscriptions.push(instructions);
-  register("azrael.instructions", () => instructions!.show());
+  register("azrael.instructionsLegacy", () => instructions!.show());
   context.subscriptions.push(vscode.commands.registerCommand("azrael.instructionsEmbedded",
     (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => instructions!.handleEmbedded(webview, request, panel)));
   const studentDesign = new StudentDesignService(context);
@@ -130,6 +137,24 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
     prompt: async (prompt, password) => vscode.window.showInputBox({ prompt, password, ignoreFocusOut: true }),
     log: event => providerLog.info(JSON.stringify(event)),
   });
+  const workbenchService = new InstructionWorkbenchService(context, sharedEnvRuntime, async account => {
+    if (account.providerId === "openai") {
+      const state = await accountService.refresh();
+      return !state.isSwitching && state.activeProfileId === account.accountId;
+    }
+    const state = await providerAccounts.refresh();
+    return state.providers.some(provider => provider.id === account.providerId && provider.inferenceConnected && provider.accounts.some(candidate => candidate.id === account.accountId && candidate.selected && !candidate.needsReauth));
+  });
+  workbenchView = new InstructionWorkbenchView(workbenchService);
+  context.subscriptions.push(workbenchService, workbenchView,
+    vscode.commands.registerCommand("azrael.workbenchEmbedded", (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => workbenchView!.handleEmbedded(webview, request, panel)),
+    vscode.commands.registerCommand("azrael.captureWorkbenchProfile", (input: unknown) => workbenchService.capture(input)),
+    vscode.commands.registerCommand("azrael.captureRoleProfile", (input: { mode: "team" | "direct"; presetId?: string }) => workbenchService.roleProfiles().capture(input.mode, input.presetId)),
+    vscode.commands.registerCommand("azrael.roleProfileSettings", () => workbenchService.roleProfiles().snapshot()),
+    vscode.commands.registerCommand("azrael.prepareTeamProfile", (capture: unknown, common?: string) => workbenchService.roleProfiles().createTeamConfiguration(capture, common)),
+    vscode.commands.registerCommand("azrael.discardTeamProfile", (configurationPath: string) => workbenchService.roleProfiles().discardTeamConfiguration(configurationPath)),
+    vscode.commands.registerCommand("azrael.attachTeamProfile", (configurationPath: string, leadThreadId: string) => workbenchService.roleProfiles().attachTeamConfiguration(configurationPath, leadThreadId)));
+  register("azrael.instructions", () => guarded(() => workbenchView!.show()));
   const usageWindows = new UsageWindowService(service);
   const contentFontRoot = standalone
     ? vscode.Uri.joinPath(context.extensionUri, "media", "fonts")

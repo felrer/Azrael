@@ -63,7 +63,7 @@ test('real pinned targets: independent uncached/cold output and metadata equalit
   const f = fixture(t), owner = f.owner('owner'), namespace = require('./namespace-azrael-host.cjs');
   const entry = require.resolve('../extensions/azrael-ex/node_modules/typescript'), ts = require(entry);
   const targets = require('./inject-task-work-time.cjs'), assets = [targets.ASSET, targets.TURN_ASSET].map(relative => {
-    const fullPath = path.join(root, 'artifacts/upstream-ui/26.1007.21434', relative);
+    const fullPath = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(root, 'artifacts/upstream-ui/26.1007.21434'), relative);
     return { relative, fullPath, source: fs.readFileSync(fullPath, 'utf8') }; });
   const expected = assets.map(a => namespace.transformAsset(a.source, a.relative, a.fullPath, ts));
   const rules = namespace.getTransformRules(); assert.ok(rules['namespace-cache-owner.cjs']);

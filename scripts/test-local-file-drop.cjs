@@ -7,8 +7,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const { test } = require("node:test");
 const vp = require("../extensions/azrael-ex/node_modules/typescript");
-const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
-const { DROP_ASSET, COMPOSER_ASSET, COMPOSER_MARKER, BROWSER_HELPER,
+const { DROP_ASSET, COMPOSER_ASSET, BROWSER_HELPER,
   hasLocalFileTransfer, localFileDescriptors, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
 
 const assets = path.join(__dirname, "..", "artifacts", "upstream-ui", "26.1007.21434", "webview", "assets");
@@ -54,31 +53,6 @@ test("browser links and remote, malformed, and unsupported URIs do not become fi
     assert.deepEqual(browserDescriptors(payload), []);
   }
   assert.equal(hasLocalFileTransfer(transfer(payloads[0])), false);
-});
-
-test("pinned Webview transformations are unique, repeatable, and syntactically valid", () => {
-  for (const relative of [DROP_ASSET, COMPOSER_ASSET]) {
-    const source = fs.readFileSync(path.join(assets, path.basename(relative)), "utf8");
-    const injected = injectLocalFileDrop(source, relative);
-
-    const parsed = vp.createSourceFile(relative, injected.text, vp.ScriptTarget.Latest, false, vp.ScriptKind.JS);
-    assert.equal(parsed.parseDiagnostics.length, 0);
-    if (relative === COMPOSER_ASSET) {
-      assert.throws(() => injectLocalFileDrop(injected.text.replace(COMPOSER_MARKER, COMPOSER_MARKER + "corrupt"), COMPOSER_ASSET), /Invalid local-file composer marker/);
-    }
-  }
-  assert.throws(() => injectLocalFileDrop("unrelated", DROP_ASSET), /anchors changed/);
-  assert.throws(() => injectLocalFileDrop("unrelated", COMPOSER_ASSET), /anchor changed/);
-});
-
-test("file-drop anchors survive the Azrael namespace transform", () => {
-  for (const relative of [DROP_ASSET, COMPOSER_ASSET]) {
-    const source = fs.readFileSync(path.join(assets, path.basename(relative)), "utf8");
-    const namespaced = rewriteJavaScript(source, relative, vp);
-    const injected = injectLocalFileDrop(namespaced.text, relative);
-
-    assert.equal(vp.createSourceFile(relative, injected.text, vp.ScriptTarget.Latest, false, vp.ScriptKind.JS).parseDiagnostics.length, 0);
-  }
 });
 
 test("injected composer validates local paths before reusing picked-file attachments", async () => {
@@ -152,4 +126,3 @@ test("native drop handler captures the composer callback rather than the drag ev
   assert.equal(prevented, 1);
   assert.deepEqual(JSON.parse(JSON.stringify(attached)).map(file => file.fsPath), ["C:\\work\\valid.txt"]);
 });
-

@@ -4417,6 +4417,7 @@ async fn record_initial_history_forked_hydrates_previous_turn_settings() {
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "forked-rollout-model";
     let previous_context_item = TurnContextItem {
+        agent_profile: None,
         harness_profile: None,
         turn_id: Some(turn_context.sub_id.clone()),
         root_turn_id: None,
@@ -4972,6 +4973,7 @@ async fn open_thread_persistence(session: &mut Session) -> PathBuf {
     let live_thread = LiveThread::create(
         Arc::clone(&session.services.thread_store),
         CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -6279,6 +6281,7 @@ async fn compaction_persists_resume_metadata_and_companion_records() {
         multi_agent_version: Some(MultiAgentVersion::V2),
         last_started_turn_id: Some(turn_context.sub_id.clone()),
         turn_attribution: Some(codex_history::TurnAttribution {
+            agent_profile: None,
             turn_id: turn_context.sub_id.clone(),
             turn_trigger: Some("automation".to_string()),
             parent_turn_id: Some("parent-turn".to_string()),
@@ -7190,7 +7193,6 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
 
         isolation: codex_extension_api::SessionIsolation::Inherit,
         tool_policy: Arc::default(),
-        claude_file_state: Arc::default(),
         computer_use_mode: None,
         windows_sandbox_proxy_settings_mode:
             codex_sandboxing::WindowsSandboxProxySettingsMode::Reconcile,
@@ -8949,6 +8951,7 @@ async fn shutdown_complete_does_not_append_to_thread_store_after_shutdown() {
     let live_thread = LiveThread::create(
         Arc::clone(&thread_store),
         CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -9070,6 +9073,7 @@ async fn submission_loop_channel_close_runs_full_thread_teardown() {
     let live_thread = LiveThread::create(
         Arc::clone(&thread_store),
         CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
@@ -9565,7 +9569,6 @@ where
 
         isolation: codex_extension_api::SessionIsolation::Inherit,
         tool_policy: Arc::default(),
-        claude_file_state: Arc::default(),
         computer_use_mode: None,
         windows_sandbox_proxy_settings_mode:
             codex_sandboxing::WindowsSandboxProxySettingsMode::Reconcile,
@@ -11992,6 +11995,7 @@ pub(crate) async fn attach_in_memory_thread_store(
     let live_thread = LiveThread::create(
         Arc::clone(&thread_store),
         CreateThreadParams {
+            role_profile: None,
             computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,

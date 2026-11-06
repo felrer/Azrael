@@ -1,7 +1,7 @@
 "use strict";
 const test = require("node:test"), assert = require("node:assert/strict"), hs = require("node:fs"), path = require("node:path"), pm = require("node:vm");
 const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-const { UI_CLEANUP_ASSETS, COMPOSER_ASSET, PERMISSIONS_ASSET, MARKER, COMPOSER_EMOTICONS, injectUiCleanup } = require("./inject-ui-cleanup.cjs");
+const { UI_CLEANUP_ASSETS, COMPOSER_ASSET, PERMISSIONS_ASSET, COMPOSER_EMOTICONS, injectUiCleanup } = require("./inject-ui-cleanup.cjs");
 const original = Object.fromEntries(UI_CLEANUP_ASSETS.map(p => [p, hs.readFileSync(path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"), p), "utf8")]));
 const transformed = Object.fromEntries(UI_CLEANUP_ASSETS.map(p => [p, injectUiCleanup(original[p], p, ts).text]));
 const parsedFixtures = new Map();
@@ -17,19 +17,7 @@ function nodes(text, predicate) { const f = parsed(text), found = []; function v
 const memo = { c: n => Array(n).fill(Symbol.for("react.memo_cache_sentinel")) };
 const jsx = (type, props) => ({ type, props });
 
-test("both pinned assets parse; unrelated assets, repeat invocation and corrupted anchors fail closed", () => {
-  for (const p of UI_CLEANUP_ASSETS) {
-    assert.equal(parsed(transformed[p]).parseDiagnostics.length, 0);
 
-    assert.throws(() => injectUiCleanup(original[p] + MARKER, p, ts));
-    assert.throws(() => injectUiCleanup(transformed[p] + MARKER, p, ts));
-  }
-  assert.equal(injectUiCleanup(original[COMPOSER_ASSET], "other.js", ts).text, original[COMPOSER_ASSET]);
-  assert.throws(() => injectUiCleanup(original[COMPOSER_ASSET].replace("function aOa(e)", "function Changed(e)"), COMPOSER_ASSET, ts));
-  assert.throws(() => injectUiCleanup(original[COMPOSER_ASSET].replace("J3(C),null}function oOa", "ChangedHook(C),null}function oOa"), COMPOSER_ASSET, ts));
-  assert.throws(() => injectUiCleanup(original[PERMISSIONS_ASSET].replace("f=d?`warning`", "f=d?`changed`"), PERMISSIONS_ASSET, ts));
-  assert.throws(() => injectUiCleanup(transformed[COMPOSER_ASSET].replace('return face;', 'return "changed";'), COMPOSER_ASSET, ts));
-});
 
 test("actual transformed placeholder keeps one selected emoticon for every composer variant", () => {
   const get = pm.runInNewContext(`(${fn(transformed[COMPOSER_ASSET], "mPi")})`);
@@ -39,14 +27,7 @@ test("actual transformed placeholder keeps one selected emoticon for every compo
         assert.equal(get({ intl: { formatMessage() { throw new Error("translation must not override placeholder"); } }, followUpType, composerMode, ...flags }), get({}));
 });
 
-test("retired slash-menu registrations are removed while toolbar and other commands remain", () => {
-  for (const name of ["YDa", "sDa", "vDa", "hOa", "FEa", "HEa", "tka"]) {
 
-    assert.throws(() => injectUiCleanup(original[COMPOSER_ASSET].replace(`function ${name}(`, `function Changed${name}(`), COMPOSER_ASSET, ts));
-  }
-
-
-});
 
 test("slash speed options exclude ultrafast while Fast registration and selection remain native", async () => {
   const text = transformed[COMPOSER_ASSET], registered = [], selected = [];

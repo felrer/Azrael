@@ -89,6 +89,7 @@ static LIVE_THREADS: Gauge = Gauge::new("core.threads.live");
 
 #[derive(Clone, Debug)]
 pub struct ThreadConfigSnapshot {
+    pub role_profile: Option<codex_protocol::protocol::RoleProfilePolicy>,
     pub auto_compaction_enabled: bool,
     pub computer_use_mode: Option<codex_protocol::protocol::ComputerUseMode>,
     /// Host data inherited by future turns; not included in persisted settings.
@@ -478,22 +479,27 @@ impl CodexThread {
 
     /// Starts compaction only when idle, skipping known usage strictly below 15%.
     pub async fn compact_if_idle(&self) -> CodexResult<CompactIfIdleSubmission> {
-        self.compact_if_idle_with_authority(false).await
+        self.compact_if_idle_with_profile(false, None).await
     }
 
     pub async fn compact_if_idle_explicit(&self) -> CodexResult<CompactIfIdleSubmission> {
-        self.compact_if_idle_with_authority(true).await
+        self.compact_if_idle_with_profile(true, None).await
     }
 
-    async fn compact_if_idle_with_authority(
+    pub async fn compact_if_idle_with_profile(
         &self,
         explicit: bool,
+        agent_profile: Option<codex_protocol::agent_profile::AgentProfileRef>,
     ) -> CodexResult<CompactIfIdleSubmission> {
         self.ensure_execution_capacity_for_turn_start(self.session.services.agent_control.as_ref())
             .await?;
         let (reply, result) = oneshot::channel();
         self.io
-            .submit(Op::CompactIfIdle { explicit, reply })
+            .submit(Op::CompactIfIdle {
+                explicit,
+                agent_profile,
+                reply,
+            })
             .await?;
         result.await.unwrap_or(Err(CodexErr::InternalAgentDied))
     }

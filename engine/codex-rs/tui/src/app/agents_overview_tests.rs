@@ -2361,6 +2361,7 @@ async fn resume_picker_round_trip_preserves_each_threads_input() -> Result<()> {
                         thread_id: target.thread_id.to_string(),
                         turn: codex_app_server_protocol::Turn {
                             root_resume_wait: None,
+                            user_wait_timing: None,
 
                             id: "turn-with-follow-up".to_string(),
                             root_turn_id: None,

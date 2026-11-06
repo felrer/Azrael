@@ -62,6 +62,7 @@ fn projects_turn_lifecycle_without_prior_builder_state() {
         ThreadHistoryChangeSet {
             changed_turns: vec![ThreadHistoryTurnMetadata {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 turn_id: "turn-1".to_string(),
                 root_turn_id: Some("root-turn".into()),
@@ -104,6 +105,7 @@ fn projects_failed_turn_completion_as_snapshot() {
         ThreadHistoryChangeSet {
             changed_turns: vec![ThreadHistoryTurnMetadata {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 turn_id: "turn-1".to_string(),
                 root_turn_id: None,
@@ -264,6 +266,7 @@ fn projects_identified_turn_aborts() {
         ThreadHistoryChangeSet {
             changed_turns: vec![ThreadHistoryTurnMetadata {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 turn_id: "turn-1".to_string(),
                 root_turn_id: Some("root-turn".into()),
@@ -300,6 +303,7 @@ fn projects_deferred_turn_as_a_frozen_noncompleted_boundary() {
         ThreadHistoryChangeSet {
             changed_turns: vec![ThreadHistoryTurnMetadata {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 turn_id: "turn-1".to_string(),
                 root_turn_id: None,
@@ -372,6 +376,7 @@ fn projects_recorded_user_and_root_resume_attribution_without_inference() {
                 root_turn_id: Some("same-root".into()),
                 turn_attribution: trigger.map(|trigger| {
                     codex_protocol::turn_input::TurnAttribution {
+                        agent_profile: None,
                         turn_id: "turn-1".into(),
                         root_turn_id: Some("same-root".into()),
                         parent_turn_id: Some("parent".into()),
@@ -393,4 +398,27 @@ fn projects_recorded_user_and_root_resume_attribution_without_inference() {
             crate::protocol::v2::TurnItemsView::NotLoaded
         );
     }
+}
+
+#[test]
+fn user_wait_updates_project_independently_without_lifecycle_changes() {
+    let update = codex_protocol::protocol::UserWaitTimingUpdatedEvent {
+        turn_id: "origin".into(),
+        timing: codex_protocol::user_wait::UserWaitTiming {
+            started_at_ms: None,
+            revision: 1,
+            requests: Vec::new(),
+            blocked_intervals: Vec::new(),
+        },
+    };
+    let changes = project(RolloutItem::EventMsg(EventMsg::UserWaitTimingUpdated(
+        update.clone(),
+    )));
+    assert_eq!(
+        changes,
+        ThreadHistoryChangeSet {
+            user_wait_timing_updates: vec![update],
+            ..Default::default()
+        }
+    );
 }

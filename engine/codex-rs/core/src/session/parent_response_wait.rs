@@ -659,6 +659,7 @@ impl Session {
 
     fn parent_response_wait_settings(turn: &TurnContext) -> CodexResult<ParentResponseWaitSettings> {
         Ok(ParentResponseWaitSettings {
+            agent_profile: turn.agent_profile.clone(),
             model: turn.capture_current_model_info().slug.clone(),
             provider_id: turn.config.model_provider_id.clone(),
             reasoning_effort: turn.next_step_settings.load().effective_reasoning_effort(),
@@ -1074,11 +1075,13 @@ impl Session {
             let mut configuration = self.state.lock().await.session_configuration.clone();
             Arc::make_mut(&mut configuration.step_settings).collaboration_mode.settings.reasoning_effort = settings.reasoning_effort.clone();
             let environments = self.activate_turn_environments(&configuration).await;
-            let turn = self.new_turn_from_configuration(wait.child_task_id.clone(), configuration, environments,
+            let turn = self.new_profiled_turn_from_configuration(wait.child_task_id.clone(), configuration, environments,
                 NewTurnContextOptions {
+                    provider_account: None,
+                    agent_profile: settings.agent_profile.clone(),
                     final_output_json_schema: settings.final_output_json_schema.clone(),
                     cyber_access_program: self.reference_context_item().await.and_then(|c| c.cyber_access_program),
-                }).await;
+                }).await?;
             let current = Self::parent_response_wait_settings(&turn)?;
             if !super::parent_request::parent_request_tools_enabled(&turn)
                 || current.model != settings.model || current.provider_id != settings.provider_id

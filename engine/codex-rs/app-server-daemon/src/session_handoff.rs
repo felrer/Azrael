@@ -270,7 +270,16 @@ async fn exchange(socket: &mut Socket, request: Value) -> Result<Value> {
                     );
                     ensure!(
                         reply.get("error").is_none() && reply.get("result").is_some(),
-                        "private session handshake rejected"
+                        "private session handshake rejected: method={}, code={}, reason={}",
+                        request["method"].as_str().unwrap_or("unknown"),
+                        reply["error"]["code"].as_i64().unwrap_or(-32001),
+                        match reply["error"]["message"].as_str() {
+                            Some("session workspace or authoritative lease mismatch") => "source_lease_mismatch",
+                            Some("source does not own this session") => "source_not_owner",
+                            Some("session attachment identity or storage compatibility mismatch") => "identity_or_storage_mismatch",
+                            Some("externally managed authentication requires its original host connection") => "external_auth_requires_original_host",
+                            _ => "rpc_rejected",
+                        }
                     );
                     return Ok(reply["result"].clone());
                 }
@@ -313,7 +322,30 @@ async fn attach(
     selected: &AzraelDaemonEndpoint,
     registration: &Value,
     initialize: &Value,
-) -> Result<Socket> {
+    preview: bool,
+) -> Result<(Socket, bool)> {
+    // Discovery hints can outlive their session or point to a restarted engine.
+    // Authenticate the source before consulting its stored compatibility hint.
+    // Attach remains the first request on its own, separate connection.
+    let mut source_probe = source_socket(&d.socket_path).await?;
+    let source_status = exchange(
+        &mut source_probe,
+        json!({"id":format!("{PRIVATE}source-status"),"method":"azrael/engine/status","params":{"threadId":d.thread_id}}),
+    )
+    .await?;
+    if source_status["instanceId"].as_str() != Some(d.instance_id.as_str())
+        || source_status["engineIdentity"].as_str() != Some(d.engine_identity.as_str())
+        || source_status["engineVersion"].as_str() != Some(d.engine_version.as_str())
+        || source_status["sessionTracked"] == false
+    {
+        return Err(SourceUnavailable(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "source no longer tracks the advertised session identity",
+        ))
+        .into());
+    }
+    let read_only = preview && source_status["sessionHandoff"]["readOnlyAttach"] == true;
+    drop(source_probe);
     let mut selected_probe = private_socket(&selected.socket_path).await?;
     let status = exchange(
         &mut selected_probe,
@@ -345,13 +377,17 @@ async fn attach(
             private_socket(&d.socket_path).await?
         };
         first = false;
-        let result = exchange(&mut socket, json!({"id":format!("{PRIVATE}attach"),"method":"azrael/session/attach","params":{
+        let mut request = json!({"id":format!("{PRIVATE}attach"),"method":"azrael/session/attach","params":{
             "schema":1,"protocol":1,"threadId":d.thread_id,"workspaceId":registration["workspaceId"],
             "ownerId":registration["ownerId"],"hostPid":registration["hostPid"],
             "targetInstanceId":selected.instance_id,"sourceInstanceId":d.instance_id,
             "sourceIdentity":d.engine_identity,"storageCompatibility":d.storage_compatibility
-        }})).await?;
+        }});
+        // Omit the additive field for older peers which do not advertise it.
+        if read_only { request["params"]["readOnly"] = json!(true); }
+        let result = exchange(&mut socket, request).await?;
         verify_attach(&result, d)?;
+        if read_only { ensure!(result["readOnly"] == true, "source did not bind read-only attachment"); }
         if result["state"] == "busy" {
             socket.close(None).await?;
             drop(socket);
@@ -363,7 +399,7 @@ async fn attach(
         initialize["id"] = json!(format!("{PRIVATE}initialize"));
         exchange(&mut socket, initialize).await?;
         send(&mut socket, &json!({"method":"initialized"})).await?;
-        return Ok(socket);
+        return Ok((socket, read_only));
     }
 }
 
@@ -379,7 +415,8 @@ enum Phase {
 
 struct Route {
     phase: Phase,
-    resume: Value,
+    preview: bool,
+    resume: Option<Value>,
     pending: HashMap<String, Value>,
     queue: VecDeque<Value>,
     queue_bytes: usize,
@@ -391,13 +428,20 @@ impl Route {
     fn new(resume: Value) -> Self {
         Self {
             phase: Phase::Source,
-            resume,
+            preview: false,
+            resume: (resume["method"] == "thread/resume").then_some(resume),
             pending: HashMap::new(),
             queue: VecDeque::new(),
             queue_bytes: 0,
             next_poll: Instant::now() + Duration::from_secs(2),
             backoff: Duration::from_secs(2),
         }
+    }
+    fn needs_full_attachment(&self, value: &Value, has_callbacks: bool) -> Result<bool> {
+        if !self.preview || value["method"] == "thread/read" { return Ok(false); }
+        ensure!(value["method"] == "thread/resume", "explicit resume required before changing a read-only session");
+        ensure!(self.pending.is_empty() && !has_callbacks, "read-only requests are still pending; retry explicit resume after they complete");
+        Ok(true)
     }
     fn queue(&mut self, value: Value) -> Result<()> {
         let bytes = value.to_string().len();
@@ -437,7 +481,7 @@ impl Route {
             self.pending.insert(id.to_string(), id.clone());
         }
         if value["method"] == "thread/resume" {
-            self.resume = value.clone();
+            self.resume = Some(value.clone());
         }
         Ok(())
     }
@@ -677,7 +721,32 @@ async fn run_with_io<R: AsyncBufRead + Unpin, W: AsyncWrite + Unpin>(
                     initialize = Some(value.clone());
                 }
                 let thread = thread_of(&value).map(str::to_owned);
+                // An explicit resume may establish a fresh route; failed work is
+                // never replayed. Outstanding source callbacks require a new
+                // transport so their replies cannot reach a replacement scope.
                 if value["method"] == "thread/resume"
+                    && let Some(thread) = thread.as_deref()
+                    && routes
+                        .get(thread)
+                        .is_some_and(|route| route.phase == Phase::Failed)
+                    && !callbacks.has_thread(thread)
+                {
+                    sockets.remove(thread);
+                    routes.remove(thread);
+                }
+                // Preview has no writer authority. Re-authenticate and obtain normal
+                // admission only on explicit resume, after all preview replies drained.
+                if value.get("method").is_some()
+                    && let Some(thread) = thread.as_deref()
+                    && let Some(route) = routes.get(thread)
+                {
+                    match route.needs_full_attachment(&value, callbacks.has_thread(thread)) {
+                        Ok(true) => { sockets.remove(thread); routes.remove(thread); },
+                        Ok(false) => {},
+                        Err(error) => { reject(&mut stdout, &value, &error.to_string()).await?; continue; },
+                    }
+                }
+                if value.get("method").is_some()
                     && let Some(thread) = thread.as_deref()
                     && !routes.contains_key(thread)
                 {
@@ -687,7 +756,7 @@ async fn run_with_io<R: AsyncBufRead + Unpin, W: AsyncWrite + Unpin>(
                             let connection = if let Some(initialize) = initialize.as_ref() {
                                 tokio::time::timeout(
                                     CONTROL_TIMEOUT * 3,
-                                    attach(&d, &endpoint, &registration, initialize),
+                                    attach(&d, &endpoint, &registration, initialize, value["method"] == "thread/read"),
                                 )
                                 .await
                                 .context("source attach timed out")
@@ -699,7 +768,8 @@ async fn run_with_io<R: AsyncBufRead + Unpin, W: AsyncWrite + Unpin>(
                             };
                             let mut route = Route::new(value.clone());
                             match connection {
-                                Ok(socket) => {
+                                Ok((socket, read_only)) => {
+                                    route.preview = read_only;
                                     sockets.insert(thread.to_owned(), socket);
                                 }
                                 Err(error)
@@ -925,7 +995,10 @@ async fn run_with_io<R: AsyncBufRead + Unpin, W: AsyncWrite + Unpin>(
                                             .checked_add(1)
                                             .context("handoff ID exhausted")?;
                                         let id = format!("{PRIVATE}resume/{sequence}");
-                                        let mut resume = route.resume.clone();
+                                        let mut resume = route
+                                            .resume
+                                            .clone()
+                                            .context("handoff requires an explicit resume")?;
                                         resume["id"] = json!(id);
                                         route.phase = Phase::Rehydrating {
                                             id,
@@ -989,7 +1062,8 @@ async fn run_with_io<R: AsyncBufRead + Unpin, W: AsyncWrite + Unpin>(
                             fail_route(route, &mut stdout).await?;
                         }
                         Phase::Source
-                            if route.pending.is_empty()
+                            if route.resume.is_some()
+                                && route.pending.is_empty()
                                 && !callbacks.has_thread(thread)
                                 && Instant::now() >= route.next_poll =>
                         {
@@ -1102,11 +1176,12 @@ mod tests {
         assert_eq!(route.pending.len(), 1);
         assert_eq!(route.drain(), vec![mutation]);
         assert!(route.drain().is_empty());
-        assert_eq!(route.resume, resume);
+        assert_eq!(route.resume, Some(resume.clone()));
         assert!(route.sent(&resume).is_err());
         let independent = Route::new(json!({"id":3}));
         assert_eq!(independent.phase, Phase::Source);
         assert!(independent.pending.is_empty());
+        assert!(independent.resume.is_none());
     }
 
     #[test]
@@ -1231,6 +1306,32 @@ mod tests {
         })
     }
 
+    async fn fixture_source_status(
+        listener: &mut codex_uds::UnixListener,
+        descriptor: &Descriptor,
+        tracked: Option<bool>,
+    ) {
+        let mut socket = fixture_accept(listener).await;
+        let status = fixture_receive(&mut socket).await.unwrap();
+        assert_eq!(status["method"], "azrael/engine/status");
+        assert_eq!(status["params"]["threadId"], descriptor.thread_id);
+        let mut result = json!({
+            "instanceId":descriptor.instance_id,"engineIdentity":descriptor.engine_identity,
+            "engineVersion":descriptor.engine_version
+        });
+        if let Some(tracked) = tracked {
+            result["sessionTracked"] = json!(tracked);
+        }
+        send(&mut socket, &json!({"id":status["id"],"result":result}))
+            .await
+            .unwrap();
+        // A probe connection must never receive attach or business traffic.
+        match socket.next().await {
+            None | Some(Err(_)) | Some(Ok(Message::Close(_))) => {}
+            other => panic!("unexpected source probe traffic: {other:?}"),
+        }
+    }
+
     fn fixture_source(
         mut listener: codex_uds::UnixListener,
         descriptor: Descriptor,
@@ -1240,6 +1341,8 @@ mod tests {
         release: bool,
     ) -> tokio::task::JoinHandle<()> {
         tokio::spawn(async move {
+            // Exercise both modern tracking status and older status replies.
+            fixture_source_status(&mut listener, &descriptor, release.then_some(true)).await;
             let mut socket = fixture_accept(&mut listener).await;
             let attach = fixture_receive(&mut socket).await.unwrap();
             assert_eq!(attach["method"], "azrael/session/attach");
@@ -1266,6 +1369,14 @@ mod tests {
                     .unwrap()
                     .push((descriptor.thread_id.clone(), value.clone()));
                 match value["method"].as_str() {
+                    Some("thread/read") => {
+                        send(
+                            &mut socket,
+                            &json!({"id":value["id"],"result":{"source":descriptor.thread_id}}),
+                        )
+                        .await
+                        .unwrap();
+                    }
                     Some("thread/resume") => {
                         send(
                             &mut socket,
@@ -1376,19 +1487,29 @@ mod tests {
             });
             fixture_ui_send(&mut ui_write,json!({"id":1,"method":"initialize","params":{"clientInfo":{"name":"fixture","version":"1"}}})).await;
             fixture_ui_send(&mut ui_write,json!({"method":"initialized"})).await;
-            fixture_ui_send(&mut ui_write,json!({"id":2,"method":"thread/resume","params":{"threadId":THREAD}})).await;
-            fixture_ui_send(&mut ui_write,json!({"id":3,"method":"thread/resume","params":{"threadId":OTHER}})).await;
+            fixture_ui_send(&mut ui_write,json!({"id":10,"method":"thread/read","params":{"threadId":THREAD}})).await;
             let mut initialized = false;
+            let mut metadata_read = false;
+            let mut resumes_sent = false;
             let mut resumed = 0;
             let mut callback_ids = Vec::new();
-            while !initialized || resumed < 2 || callback_ids.len() < 3 {
+            while !initialized || !metadata_read || resumed < 2 || callback_ids.len() < 3 {
                 let value = fixture_ui_read(&mut ui_read).await;
                 if value["method"] == "approval/request" {
                     callback_ids.push(value["id"].clone());
                     fixture_ui_send(&mut ui_write,json!({"id":value["id"],"result":{"approved":true}})).await;
                 } else if value["id"] == 1 { initialized = true; }
+                else if value["id"] == 10 { assert_eq!(value["result"]["source"],THREAD); metadata_read = true; }
                 else if value["id"] == 2 || value["id"] == 3 { resumed += 1; }
                 else { panic!("unexpected initial UI output: {value}"); }
+                if initialized && metadata_read && !resumes_sent {
+                    // The source poll normally starts after two seconds. A
+                    // metadata-only attachment must not release its writer.
+                    assert!(tokio::time::timeout(Duration::from_millis(2500), phase_rx.recv()).await.is_err());
+                    fixture_ui_send(&mut ui_write,json!({"id":2,"method":"thread/resume","params":{"threadId":THREAD}})).await;
+                    fixture_ui_send(&mut ui_write,json!({"id":3,"method":"thread/resume","params":{"threadId":OTHER}})).await;
+                    resumes_sent = true;
+                }
             }
             assert!(callback_ids.contains(&json!(7)));
             assert_ne!(callback_ids[0],callback_ids[1]);
@@ -1429,7 +1550,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn dead_locator_uses_selected_acquisition_once_and_keeps_denial_failed() {
+    async fn stale_live_locator_and_dead_source_use_authoritative_acquisition_without_replay() {
         tokio::time::timeout(Duration::from_secs(10), async {
             const DENIED: &str = "21234567-89ab-cdef-0123-456789abcdef";
             let home = tempfile::tempdir().unwrap();
@@ -1440,14 +1561,16 @@ mod tests {
             let endpoint = AzraelDaemonEndpoint {schema:2,instance_id:"d".repeat(64),socket_path:path,
                 engine_version:"selected".into(),engine_identity:"e".repeat(64)};
             let (client,server) = tokio::join!(private_socket(&endpoint.socket_path),fixture_accept(&mut listener));
-            let status_task = fixture_status(listener,endpoint.clone(),2);
+            // Stale discovery must be rejected before any selected compatibility probe.
             let records: Recorded = Default::default();
             let observed = records.clone();
             let selected_task = tokio::spawn(async move {
                 let mut socket = server;
+                let mut denied_once = false;
                 while let Some(value) = fixture_receive(&mut socket).await {
                     observed.lock().unwrap().push(("selected".into(),value.clone()));
-                    let result = if value["method"] == "thread/resume" && value["params"]["threadId"] == DENIED {
+                    let result = if value["method"] == "thread/resume" && value["params"]["threadId"] == DENIED && !denied_once {
+                        denied_once = true;
                         json!({"id":value["id"],"error":{"code":-32001,"message":"storage lease is still held"}})
                     } else {json!({"id":value["id"],"result":{"selected":true}})};
                     send(&mut socket,&result).await.unwrap();
@@ -1455,8 +1578,18 @@ mod tests {
             });
             let directory = home.path().join("azrael-thread-engines-v1");
             std::fs::create_dir(&directory).unwrap();
+            let mut stale_listener = codex_uds::UnixListener::bind(private.join("stale")).await.unwrap();
+            let mut stale = descriptor(); stale.socket_path = private.join("stale");
+            let stale_task = tokio::spawn(async move {
+                fixture_source_status(&mut stale_listener, &stale, Some(false)).await;
+                stale_listener
+            });
             for thread in [THREAD,DENIED] {
                 let mut d = descriptor(); d.thread_id = thread.into(); d.socket_path = private.join("missing");
+                if thread == THREAD { d.socket_path = private.join("stale"); }
+                // Neither dead transport nor an explicitly untracked session may
+                // be rejected because of an obsolete stored storage manifest.
+                d.storage_compatibility = "incompatible-obsolete-schema".into();
                 std::fs::write(directory.join(format!("{thread}.engine.json")),serde_json::to_vec(&d).unwrap()).unwrap();
             }
             let (ui,transport) = tokio::io::duplex(1 << 20);
@@ -1470,6 +1603,9 @@ mod tests {
             });
             fixture_ui_send(&mut ui_write,json!({"id":1,"method":"initialize"})).await;
             assert_eq!(fixture_ui_read(&mut ui_read).await["id"],1);
+            fixture_ui_send(&mut ui_write,json!({"id":10,"method":"thread/read","params":{"threadId":THREAD}})).await;
+            let metadata = fixture_ui_read(&mut ui_read).await;
+            assert_eq!(metadata["id"],10); assert_eq!(metadata["result"]["selected"],true);
             fixture_ui_send(&mut ui_write,json!({"id":2,"method":"thread/resume","params":{"threadId":THREAD}})).await;
             fixture_ui_send(&mut ui_write,json!({"id":3,"method":"turn/start","params":{"threadId":THREAD}})).await;
             assert_eq!(fixture_ui_read(&mut ui_read).await["id"],2);
@@ -1480,14 +1616,130 @@ mod tests {
             fixture_ui_send(&mut ui_write,json!({"id":5,"method":"turn/start","params":{"threadId":DENIED}})).await;
             let rejected = fixture_ui_read(&mut ui_read).await;
             assert_eq!(rejected["id"],5); assert!(rejected.get("error").is_some());
+            fixture_ui_send(&mut ui_write,json!({"id":6,"method":"thread/resume","params":{"threadId":DENIED}})).await;
+            let resumed = fixture_ui_read(&mut ui_read).await;
+            assert_eq!(resumed["id"],6); assert_eq!(resumed["result"]["selected"],true);
             ui_write.shutdown().await.unwrap();
-            proxy.await.unwrap().unwrap(); selected_task.await.unwrap(); status_task.await.unwrap();
+            proxy.await.unwrap().unwrap(); selected_task.await.unwrap();
+            let mut stale_listener = stale_task.await.unwrap();
             let records = records.lock().unwrap();
-            assert_eq!(records.iter().filter(|(_,v)| v["method"] == "thread/resume").count(),2);
+            assert_eq!(records.iter().filter(|(_,v)| v["method"] == "thread/resume").count(),3);
             assert_eq!(records.iter().filter(|(_,v)| v["method"] == "turn/start").count(),1);
             assert!(directory.join(format!("{THREAD}.engine.json")).is_file());
             assert!(directory.join(format!("{DENIED}.engine.json")).is_file());
+            assert!(tokio::time::timeout(Duration::from_millis(100), stale_listener.accept()).await.is_err());
+            assert!(tokio::time::timeout(Duration::from_millis(100), listener.accept()).await.is_err());
         }).await.expect("dead-source acquisition fixture timed out");
+    }
+
+    #[tokio::test]
+    async fn restarted_source_identity_falls_back_before_selected_compatibility() {
+        tokio::time::timeout(Duration::from_secs(10), async {
+            let home = tempfile::tempdir().unwrap();
+            let private = home.path().join("s");
+            codex_uds::prepare_private_socket_directory(&private)
+                .await
+                .unwrap();
+            let selected = AzraelDaemonEndpoint {
+                schema: 2,
+                instance_id: "d".repeat(64),
+                socket_path: private.join("selected"),
+                engine_version: "selected".into(),
+                engine_identity: "e".repeat(64),
+            };
+            for field in ["instanceId", "engineIdentity", "engineVersion"] {
+                let mut d = descriptor();
+                d.socket_path = private.join(field);
+                d.storage_compatibility = "incompatible-obsolete-schema".into();
+                let mut listener = codex_uds::UnixListener::bind(&d.socket_path).await.unwrap();
+                let mut restarted = d.clone();
+                match field {
+                    "instanceId" => restarted.instance_id = "f".repeat(64),
+                    "engineIdentity" => restarted.engine_identity = "f".repeat(64),
+                    "engineVersion" => restarted.engine_version = "restarted".into(),
+                    _ => unreachable!(),
+                }
+                let source = tokio::spawn(async move {
+                    fixture_source_status(&mut listener, &restarted, Some(true)).await;
+                    assert!(
+                        tokio::time::timeout(Duration::from_millis(100), listener.accept())
+                            .await
+                            .is_err()
+                    );
+                });
+                let error = attach(
+                    &d,
+                    &selected,
+                    &json!({}),
+                    &json!({"id":1,"method":"initialize"}),
+                    false,
+                )
+                .await
+                .err()
+                .expect("attachment must fail");
+                assert!(
+                    error.downcast_ref::<SourceUnavailable>().is_some(),
+                    "{field}: {error:#}"
+                );
+                source.await.unwrap();
+            }
+        })
+        .await
+        .expect("restarted-source fixture timed out");
+    }
+
+    #[tokio::test]
+    async fn live_source_still_requires_selected_storage_compatibility() {
+        tokio::time::timeout(Duration::from_secs(10), async {
+            let home = tempfile::tempdir().unwrap();
+            let private = home.path().join("s");
+            codex_uds::prepare_private_socket_directory(&private)
+                .await
+                .unwrap();
+            let selected_path = private.join("selected");
+            let selected_listener = codex_uds::UnixListener::bind(&selected_path).await.unwrap();
+            let selected = AzraelDaemonEndpoint {
+                schema: 2,
+                instance_id: "d".repeat(64),
+                socket_path: selected_path,
+                engine_version: "selected".into(),
+                engine_identity: "e".repeat(64),
+            };
+            let selected_status = fixture_status(selected_listener, selected.clone(), 1);
+            let mut d = descriptor();
+            d.socket_path = private.join("source");
+            d.storage_compatibility = "incompatible-live-schema".into();
+            let mut listener = codex_uds::UnixListener::bind(&d.socket_path).await.unwrap();
+            let live = d.clone();
+            let source = tokio::spawn(async move {
+                fixture_source_status(&mut listener, &live, Some(true)).await;
+                assert!(
+                    tokio::time::timeout(Duration::from_millis(100), listener.accept())
+                        .await
+                        .is_err()
+                );
+            });
+            let error = attach(
+                &d,
+                &selected,
+                &json!({}),
+                &json!({"id":1,"method":"initialize"}),
+                    false,
+            )
+            .await
+            .err()
+            .expect("attachment must fail");
+            assert!(error.downcast_ref::<SourceUnavailable>().is_none());
+            assert!(
+                error
+                    .to_string()
+                    .contains("session storage protocols are incompatible")
+            );
+            source.await.unwrap();
+            selected_status.await.unwrap();
+        })
+        .await
+        .expect("live-source compatibility fixture timed out");
     }
 
     #[tokio::test]
@@ -1518,6 +1770,7 @@ mod tests {
             let (released_tx,mut released_rx) = tokio::sync::mpsc::unbounded_channel();
             let descriptor = d.clone();
             let source_task = tokio::spawn(async move {
+                fixture_source_status(&mut listener, &descriptor, Some(true)).await;
                 let mut busy = fixture_accept(&mut listener).await;
                 let request = fixture_receive(&mut busy).await.unwrap();
                 assert_eq!(request["method"],"azrael/session/attach");
@@ -1547,7 +1800,7 @@ mod tests {
             let attach_task = tokio::spawn(async move {
                 tokio::time::timeout(CONTROL_TIMEOUT * 3,attach(&d,&selected,
                     &json!({"workspaceId":"a".repeat(64),"ownerId":"a".repeat(32),"hostPid":std::process::id()}),
-                    &json!({"id":1,"method":"initialize"}))).await.unwrap()
+                    &json!({"id":1,"method":"initialize"}), false)).await.unwrap()
             });
             busy_rx.recv().await.unwrap();
             send(&mut original,&json!({"id":77,"method":"turn/start","params":{"threadId":THREAD}})).await.unwrap();
@@ -1556,11 +1809,125 @@ mod tests {
             original.close(None).await.unwrap();
             drop(original); original_task.await.unwrap();
             released_tx.send(()).unwrap();
-            let mut attached = attach_task.await.unwrap().unwrap();
+            let (mut attached, read_only) = attach_task.await.unwrap().unwrap();
+            assert!(!read_only);
             send(&mut attached,&json!({"id":88,"method":"thread/resume","params":{"threadId":THREAD}})).await.unwrap();
             assert_eq!(fixture_receive(&mut attached).await.unwrap()["id"],88);
             attached.close(None).await.unwrap(); drop(attached);
             source_task.await.unwrap(); status_task.await.unwrap();
         }).await.expect("busy admission fixture timed out");
     }
+
+
+    #[test]
+    fn preview_upgrade_requires_explicit_resume_and_drained_reads() {
+        let mut route = Route::new(json!({"method":"thread/read"}));
+        route.preview = true;
+        assert!(!route.needs_full_attachment(&json!({"method":"thread/read"}), false).unwrap());
+        assert!(route.needs_full_attachment(&json!({"method":"turn/start"}), false).is_err());
+        route.sent(&json!({"id":10,"method":"thread/read"})).unwrap();
+        assert!(route.needs_full_attachment(&json!({"method":"thread/resume"}), false).is_err());
+        route.pending.clear();
+        assert!(route.needs_full_attachment(&json!({"method":"thread/resume"}), true).is_err());
+        assert!(route.needs_full_attachment(&json!({"method":"thread/resume"}), false).unwrap());
+    }
+
+    #[tokio::test]
+    async fn read_only_preview_reads_source_then_reauthenticates_before_resume() {
+        tokio::time::timeout(Duration::from_secs(25), async {
+            let home = tempfile::tempdir().unwrap();
+            let private = home.path().join("s");
+            codex_uds::prepare_private_socket_directory(&private).await.unwrap();
+            let selected_path = private.join("selected");
+            let mut selected_listener = codex_uds::UnixListener::bind(&selected_path).await.unwrap();
+            let endpoint = AzraelDaemonEndpoint { schema:2, instance_id:"d".repeat(64), socket_path:selected_path,
+                engine_version:"selected".into(), engine_identity:"e".repeat(64) };
+            let (client, server) = tokio::join!(private_socket(&endpoint.socket_path), fixture_accept(&mut selected_listener));
+            let selected_task = tokio::spawn(async move {
+                let mut socket = server;
+                while let Some(value) = fixture_receive(&mut socket).await {
+                    match value["method"].as_str() {
+                        Some("initialize") => send(&mut socket,&json!({"id":value["id"],"result":{}})).await.unwrap(),
+                        Some("initialized") => {},
+                        method => panic!("preview must stay on original source: {method:?}"),
+                    }
+                }
+            });
+            let status_task = fixture_status(selected_listener, endpoint.clone(), 2);
+            let directory = home.path().join("azrael-thread-engines-v1");
+            std::fs::create_dir(&directory).unwrap();
+            let mut d = descriptor(); d.socket_path = private.join("source");
+            std::fs::write(directory.join(format!("{THREAD}.engine.json")),serde_json::to_vec(&d).unwrap()).unwrap();
+            let mut source_listener = codex_uds::UnixListener::bind(&d.socket_path).await.unwrap();
+            let (read_tx, read_rx) = tokio::sync::oneshot::channel::<()>();
+            let source_task = tokio::spawn(async move {
+                let mut read_rx = Some(read_rx);
+                for read_only in [true, false] {
+                    let mut probe = fixture_accept(&mut source_listener).await;
+                    let status = fixture_receive(&mut probe).await.unwrap();
+                    assert_eq!(status["method"],"azrael/engine/status");
+                    send(&mut probe,&json!({"id":status["id"],"result":{
+                        "instanceId":d.instance_id,"engineIdentity":d.engine_identity,"engineVersion":d.engine_version,
+                        "sessionTracked":true,"sessionHandoff":{"readOnlyAttach":true}
+                    }})).await.unwrap();
+                    match probe.next().await {
+                        None | Some(Err(_)) | Some(Ok(Message::Close(_))) => {}
+                        other => panic!("unexpected traffic after connection close: {other:?}"),
+                    }
+                    let mut socket = fixture_accept(&mut source_listener).await;
+                    let attach = fixture_receive(&mut socket).await.unwrap();
+                    assert_eq!(attach["method"],"azrael/session/attach");
+                    assert_eq!(attach["params"]["readOnly"].as_bool().unwrap_or(false),read_only);
+                    send(&mut socket,&json!({"id":attach["id"],"result":{
+                        "schema":1,"protocol":1,"state":"attached","threadId":d.thread_id,"instanceId":d.instance_id,
+                        "engineIdentity":d.engine_identity,"engineVersion":d.engine_version,
+                        "storageCompatibility":d.storage_compatibility,"readOnly":read_only
+                    }})).await.unwrap();
+                    let initialize = fixture_receive(&mut socket).await.unwrap();
+                    assert_eq!(initialize["method"],"initialize");
+                    send(&mut socket,&json!({"id":initialize["id"],"result":{}})).await.unwrap();
+                    assert_eq!(fixture_receive(&mut socket).await.unwrap()["method"],"initialized");
+                    let request = fixture_receive(&mut socket).await.unwrap();
+                    if read_only {
+                        assert_eq!(request["method"],"thread/read");
+                        read_rx.take().unwrap().await.unwrap();
+                    } else {
+                        assert_eq!(request["method"],"thread/resume");
+                    }
+                    send(&mut socket,&json!({"id":request["id"],"result":{"source":true,"readOnly":read_only}})).await.unwrap();
+                    match socket.next().await {
+                        None | Some(Err(_)) | Some(Ok(Message::Close(_))) => {}
+                        other => panic!("unexpected traffic after connection close: {other:?}"),
+                    }
+                }
+            });
+            let (ui, transport) = tokio::io::duplex(1 << 20);
+            let (ui_read, mut ui_write) = tokio::io::split(ui);
+            let (transport_read, transport_write) = tokio::io::split(transport);
+            let mut ui_read = BufReader::new(ui_read);
+            let home_path = home.path().to_path_buf();
+            let proxy = tokio::spawn(async move { run_with_io(client.unwrap(),endpoint,
+                json!({"workspaceId":"a".repeat(64),"ownerId":"a".repeat(32),"hostPid":std::process::id()}),
+                &home_path,BufReader::new(transport_read),transport_write).await });
+            fixture_ui_send(&mut ui_write,json!({"id":1,"method":"initialize"})).await;
+            fixture_ui_send(&mut ui_write,json!({"method":"initialized"})).await;
+            assert_eq!(fixture_ui_read(&mut ui_read).await["id"],1);
+            fixture_ui_send(&mut ui_write,json!({"id":10,"method":"thread/read","params":{"threadId":THREAD,"includeTurns":true}})).await;
+            fixture_ui_send(&mut ui_write,json!({"id":11,"method":"thread/resume","params":{"threadId":THREAD}})).await;
+            let pending = fixture_ui_read(&mut ui_read).await;
+            assert_eq!(pending["id"],11); assert!(pending["error"]["message"].as_str().unwrap().contains("still pending"));
+            read_tx.send(()).unwrap();
+            let read = fixture_ui_read(&mut ui_read).await;
+            assert_eq!(read["id"],10); assert_eq!(read["result"]["source"],true); assert_eq!(read["result"]["readOnly"],true);
+            fixture_ui_send(&mut ui_write,json!({"id":12,"method":"turn/start","params":{"threadId":THREAD}})).await;
+            let denied = fixture_ui_read(&mut ui_read).await;
+            assert_eq!(denied["id"],12); assert!(denied["error"]["message"].as_str().unwrap().contains("explicit resume"));
+            fixture_ui_send(&mut ui_write,json!({"id":13,"method":"thread/resume","params":{"threadId":THREAD}})).await;
+            let resumed = fixture_ui_read(&mut ui_read).await;
+            assert_eq!(resumed["id"],13); assert_eq!(resumed["result"]["source"],true); assert_eq!(resumed["result"]["readOnly"],false);
+            ui_write.shutdown().await.unwrap(); proxy.await.unwrap().unwrap();
+            selected_task.await.unwrap(); status_task.await.unwrap(); source_task.await.unwrap();
+        }).await.expect("read-only preview fixture timed out");
+    }
+
 }

@@ -26,7 +26,7 @@ async function fixture(t) {
   } };
   const owner = createWindowOwner({ backend, authorize: async () => approved, codexHome: home });
   t.after(async () => { owner.dispose(); await fs.rm(home, { recursive: true, force: true }); });
-  const args = { targetId: (await owner.bind('thread', current)).targetId };
+  const args = { windowId: (await owner.bind('thread', current)).windowId };
   return { owner, args, current, calls, setHook(value) { hook = value; }, revoke() { approved = false; } };
 }
 const readFailures = ['stale-element', 'uia-value-limit', 'capture-timeout', 'provider-timeout', 'backend-timeout',
@@ -51,8 +51,8 @@ for (const [tool, method] of [['capture', 'observe'], ['inspect', 'inspect']]) {
       return true;
     });
     assert.equal(attempts, 1, 'The agent receives the failure without an automatic retry');
-    const status = await f.owner.call('thread', 'status', {});
-    assert.equal(status.state, 'ready'); assert.equal(status.targetId, f.args.targetId); assert.equal(status.observationRequired, true);
+    const status = await f.owner.call('thread', 'status', f.args);
+    assert.equal(status.state, 'ready'); assert.equal(status.windowId, f.args.windowId); assert.equal(status.observationRequired, true);
     await assert.rejects(f.owner.call('thread', tool, f.args), error => error.recovery === 'observe_again');
     assert.equal(attempts, 2, 'Persistent failure remains a failure rather than locking selection');
     f.setHook(null);
@@ -118,7 +118,7 @@ for (const expected of [failure('stale-element', { mutationOutcome: 'unknown' })
     f.setHook(method => { if (method === 'observe') throw expected; });
     await assert.rejects(f.owner.call('thread', 'capture', f.args), error => error.recovery !== 'observe_again');
     f.setHook(null);
-    assert.equal((await f.owner.call('thread', 'status', {})).state, 'paused');
+    assert.equal((await f.owner.call('thread', 'status', f.args)).state, 'paused');
     await assert.rejects(f.owner.call('thread', 'capture', f.args), /paused/);
   });
 }
@@ -136,7 +136,7 @@ test('macro retains completed steps and confirmed rejection without uncertainty 
   assert.equal(result.status, 'failed'); assert.equal(acts, 2);
   assert.deepEqual(result.steps.map(s => s.status), ['completed', 'failed']);
   assert.equal(result.error.actionExecuted, false); assert.equal(result.error.recovery, 'observe_again'); assert.equal(result.error.mutationOutcome, undefined);
-  assert.equal((await f.owner.call('thread', 'status', {})).state, 'ready');
+  assert.equal((await f.owner.call('thread', 'status', f.args)).state, 'ready');
   assert.equal(callResult(result).isError, true);
 });
 
@@ -160,7 +160,7 @@ test('an explicitly uncertain rejected input still pauses', async t => {
   const f = await fixture(t), old = await f.owner.call('thread', 'capture', f.args);
   f.setHook(method => { if (method === 'act') throw windowError('unsupported_action', 'Uncertain input', { nativeCode: 'readonly-element', mutationOutcome: 'unknown' }); });
   await assert.rejects(f.owner.call('thread', 'invoke', { ...f.args, observationId: old.observationId, elementId: 'button' }), error => error.mutationOutcome === 'unknown' && error.recovery !== 'observe_again');
-  assert.equal((await f.owner.call('thread', 'status', {})).state, 'paused');
+  assert.equal((await f.owner.call('thread', 'status', f.args)).state, 'paused');
   await assert.rejects(f.owner.call('thread', 'capture', f.args), /paused/);
 });
 

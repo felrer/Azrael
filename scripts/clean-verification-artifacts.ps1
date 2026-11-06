@@ -6,7 +6,8 @@ param(
     [string]$FixtureRoot,
     [switch]$IncludeDiagnosedFixtures,
     [switch]$Apply,
-    [string]$ReportPath
+    [string]$ReportPath,
+    [string]$ReportLifecycleId
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
@@ -52,7 +53,9 @@ function Add-References($Data) {
 function Archive-Evidence([string]$Path) {
     $destination = Join-Path $evidence ([IO.Path]::GetFileName($Path))
     Assert-Unlinked $destination
-    $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $cleanupOperation -Kind work -Owner 'artifact-cleanup' -State pending -MembershipComplete $false -Members @{('evidence-' + [guid]::NewGuid().ToString('N'))=$destination}
+    if (-not $ReportLifecycleId) {
+        $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $cleanupOperation -Kind work -Owner 'artifact-cleanup' -State pending -MembershipComplete $false -Members @{('evidence-' + [guid]::NewGuid().ToString('N'))=$destination}
+    }
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
     $saved = @()
     # Only top-level result/receipt/report files are evidence. Never walk state,
@@ -83,6 +86,7 @@ try {
     $root = Join-Path $project 'artifacts/verification'
     $cleanupWorkRoot = Join-Path $project ('artifacts/logs/verification-cleanup/' + [guid]::NewGuid().ToString('N'))
     $evidence = Join-Path $cleanupWorkRoot 'evidence'
+    if ($ReportLifecycleId -and $ReportPath) { $evidence = Join-Path (Split-Path $ReportPath -Parent) 'cleanup-evidence' }
     if (-not $ReportPath) { $ReportPath = Join-Path $cleanupWorkRoot 'report.json' }
     $report.projectRoot = $project
     Assert-Unlinked $root
@@ -120,8 +124,15 @@ try {
     $targets = if ($FixtureRoot) { @(Normalize-Path $FixtureRoot) } elseif (Test-Path -LiteralPath $root) { @(Get-ChildItem -LiteralPath $root -Directory -Force | ForEach-Object FullName) } else { @() }
     Assert-ArtifactReportOutside -ProjectRoot $project -Candidates $targets -ReportPath $ReportPath
     $cleanupMetadataReportPath = $ReportPath
-    $cleanupOperation = Start-ArtifactCleanupOperation $project $ReportPath
-    if (-not $cleanupOperation) {
+    $cleanupOperation = $null
+    if ($ReportLifecycleId) {
+        if (-not $ReportPath) { throw 'Parent-owned cleanup requires an explicit report path.' }
+        $guard = 'const path=require("node:path"),l=require(process.argv[1]);const r=l.catalog(process.argv[2]).find(r=>r.id===process.argv[3]);if(!r||r.kind!=="version"||r.owner!=="azrael-release"||!["pending","complete"].includes(r.state)||!JSON.parse(process.argv[4]).every(p=>r.members.some(m=>{const x=path.relative(m.path,path.resolve(p));return !path.isAbsolute(x)&&x!==".."&&!x.startsWith(".."+path.sep)})))throw Error("Exact parent release must own cleanup report and evidence");'
+        $ownedOutputs = @($ReportPath) + @($targets | ForEach-Object { Join-Path $evidence ([IO.Path]::GetFileName($_)) })
+        & node -e $guard (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') $project $ReportLifecycleId (ConvertTo-Json -InputObject $ownedOutputs -Compress)
+        if ($LASTEXITCODE -ne 0) { throw 'Cleanup report lifecycle ownership rejected.' }
+    } else { $cleanupOperation = Start-ArtifactCleanupOperation $project $ReportPath }
+    if (-not $cleanupOperation -and -not $ReportLifecycleId) {
         $cleanupMetadataReportPath = Join-Path $cleanupWorkRoot 'report.json'
         $cleanupOperation = Start-ArtifactCleanupOperation $project $cleanupMetadataReportPath
     }
@@ -160,7 +171,12 @@ try {
             if (Test-Path -LiteralPath $resultPath) {
                 $result = Read-Json $resultPath
                 $stages = @('initialInventory','hostInstall','finalInventory','namespace','standaloneHost','host')
-                if (-not $IncludeDiagnosedFixtures -and ($result.passed -isnot [bool] -or -not $result.passed -or -not $result.exitCodes -or @($stages | Where-Object { -not $result.exitCodes.ContainsKey($_) -or $result.exitCodes[$_] -isnot [long] -and $result.exitCodes[$_] -isnot [int] -or $result.exitCodes[$_] -ne 0 }).Count -or $result.exitCodes.Count -ne 6)) { throw 'Failed or incomplete host fixture; retain until diagnosis.' }
+                if ($result.ContainsKey('standaloneVerified')) {
+                    if ($result.standaloneVerified -isnot [bool]) { throw 'Invalid host mode evidence.' }
+                    $stages = @('initialInventory','hostInstall','finalInventory','host')
+                    if ($result.standaloneVerified) { $stages += 'standaloneHost' }
+                }
+                if (-not $IncludeDiagnosedFixtures -and ($result.passed -isnot [bool] -or -not $result.passed -or -not $result.exitCodes -or @($stages | Where-Object { -not $result.exitCodes.ContainsKey($_) -or $result.exitCodes[$_] -isnot [long] -and $result.exitCodes[$_] -isnot [int] -or $result.exitCodes[$_] -ne 0 }).Count -or $result.exitCodes.Count -ne $stages.Count)) { throw 'Failed or incomplete host fixture; retain until diagnosis.' }
             } elseif (Test-Path -LiteralPath $accountPath) {
                 $result = Read-Json $accountPath
                 if (-not $IncludeDiagnosedFixtures -and ($result.status -cne 'passed' -or $result.route -cne 'account-controls' -or $result.modelRequests -ne 0 -or $result.usageCreditConsumeRequests -ne 0)) { throw 'Failed or incomplete account fixture; retain until diagnosis.' }
@@ -191,6 +207,6 @@ if ($ReportPath -and $report.status -ne 'blocked') {
     Assert-Unlinked $reportFile
     New-Item -ItemType Directory -Path (Split-Path $reportFile -Parent) -Force | Out-Null
     $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $reportFile -Encoding utf8NoBOM
-    Complete-ArtifactCleanupOperation $project $cleanupOperation $cleanupMetadataReportPath
+    if (-not $ReportLifecycleId) { Complete-ArtifactCleanupOperation $project $cleanupOperation $cleanupMetadataReportPath }
 }
 [pscustomobject]$report

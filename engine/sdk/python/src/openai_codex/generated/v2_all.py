@@ -159,6 +159,22 @@ class AgentPath(RootModel[str]):
     root: str
 
 
+class AgentProfileExecutionMode(Enum):
+    direct = "direct"
+    team = "team"
+    role = "role"
+
+
+class AgentProfileRef(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    digest: str
+    project_id: Annotated[str | None, Field(alias="projectId")] = None
+    revision: Annotated[int | None, Field(ge=0)] = None
+
+
 class AllowDenyRequirement(Enum):
     allow = "allow"
     deny = "deny"
@@ -4335,44 +4351,6 @@ class ResponseSpeedMode(Enum):
     ultrafast = "ultrafast"
 
 
-class ResponseMinuteSample(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    minute: Annotated[int, Field(ge=0)]
-    mode: ResponseSpeedMode | None = None
-    output_tokens: Annotated[int, Field(alias="outputTokens", ge=0)]
-    request_duration_ms: Annotated[int, Field(alias="requestDurationMs", ge=0)]
-
-
-class ResponsePerformanceTurn(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    minute_samples: Annotated[list[ResponseMinuteSample], Field(alias="minuteSamples")]
-    started_at_unix_ms: Annotated[int, Field(alias="startedAtUnixMs")]
-    turn_id: Annotated[str, Field(alias="turnId")]
-
-
-class ResponsePerformance(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    completed_requests: Annotated[int, Field(alias="completedRequests", ge=0)]
-    graph_estimated: Annotated[bool | None, Field(alias="graphEstimated")] = False
-    history: list[ResponsePerformanceTurn] | None = []
-    minute_samples: Annotated[
-        list[ResponseMinuteSample] | None, Field(alias="minuteSamples")
-    ] = []
-    observed_at_unix_ms: Annotated[int | None, Field(alias="observedAtUnixMs")] = None
-    output_tokens: Annotated[int, Field(alias="outputTokens", ge=0)]
-    request_duration_ms: Annotated[int, Field(alias="requestDurationMs", ge=0)]
-    started_at_unix_ms: Annotated[int | None, Field(alias="startedAtUnixMs")] = None
-    truncated_minutes: Annotated[bool | None, Field(alias="truncatedMinutes")] = False
-    turn_id: Annotated[str, Field(alias="turnId")]
-    unmeasured_requests: Annotated[int, Field(alias="unmeasuredRequests", ge=0)]
-
-
 class ResponseUsageMetadata(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -4524,6 +4502,13 @@ class RootResumeReasoningSettings(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    agent_profile: Annotated[
+        AgentProfileRef | None,
+        Field(
+            alias="agentProfile",
+            description="Profile of the deferred request, independent of current project selection.",
+        ),
+    ] = None
     effort: ReasoningEffort | None = None
 
 
@@ -6946,6 +6931,51 @@ class UserInput(
         | SkillUserInput
         | MentionUserInput
     )
+
+
+class UserWaitInterval(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    ended_at_ms: Annotated[int | None, Field(alias="endedAtMs")] = None
+    started_at_ms: Annotated[int, Field(alias="startedAtMs")]
+
+
+class UserWaitRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    call_id: Annotated[str, Field(alias="callId")]
+    duration_ms: Annotated[int | None, Field(alias="durationMs")] = None
+    ended_at_ms: Annotated[int | None, Field(alias="endedAtMs")] = None
+    kind: str
+    request_id: Annotated[str, Field(alias="requestId")]
+    started_at_ms: Annotated[int, Field(alias="startedAtMs")]
+
+
+class UserWaitTiming(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    blocked_intervals: Annotated[list[UserWaitInterval], Field(alias="blockedIntervals")]
+    requests: list[UserWaitRequest]
+    revision: Annotated[int, Field(ge=0)]
+    started_at_ms: Annotated[
+        int | None,
+        Field(
+            alias="startedAtMs",
+            description="Exact turn origin for subtracting millisecond intervals from coarse history timestamps.",
+        ),
+    ] = None
+
+
+class UserWaitTimingUpdatedNotification(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    thread_id: Annotated[str, Field(alias="threadId")]
+    timing: UserWaitTiming
+    turn_id: Annotated[str, Field(alias="turnId")]
 
 
 class Verbosity(Enum):
@@ -9626,6 +9656,13 @@ class QueuedSubmission(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    agent_profile: Annotated[
+        AgentProfileRef | None,
+        Field(
+            alias="agentProfile",
+            description="Immutable profile captured by the host when this request was accepted.",
+        ),
+    ] = None
     client_user_message_id: Annotated[str, Field(alias="clientUserMessageId")]
     id: str
     input: list[UserInput]
@@ -9753,6 +9790,25 @@ class ConfigurationUpdateResponseItem(BaseModel):
     type: Annotated[
         Literal["configuration_update"], Field(title="ConfigurationUpdateResponseItemType")
     ]
+
+
+class ResponseMinuteSample(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    actual_mode: Annotated[ResponseSpeedMode | None, Field(alias="actualMode")] = None
+    minute: Annotated[int, Field(ge=0)]
+    output_tokens: Annotated[int, Field(alias="outputTokens", ge=0)]
+    request_duration_ms: Annotated[int, Field(alias="requestDurationMs", ge=0)]
+
+
+class ResponsePerformanceTurn(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    minute_samples: Annotated[list[ResponseMinuteSample], Field(alias="minuteSamples")]
+    started_at_unix_ms: Annotated[int, Field(alias="startedAtUnixMs")]
+    turn_id: Annotated[str, Field(alias="turnId")]
 
 
 class ReviewStartParams(BaseModel):
@@ -10062,6 +10118,24 @@ class ThreadProjectUpdatedServerNotification(BaseModel):
         Literal["thread/project/updated"], Field(title="Thread/project/updatedNotificationMethod")
     ]
     params: ThreadProjectUpdatedNotification
+
+
+class TurnUserWaitTimingUpdatedServerNotification(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    emitted_at_ms: Annotated[
+        int | None,
+        Field(
+            alias="emittedAtMs",
+            description="Unix timestamp (in milliseconds) when app-server emitted this notification.",
+        ),
+    ] = None
+    method: Annotated[
+        Literal["turn/userWaitTiming/updated"],
+        Field(title="Turn/userWaitTiming/updatedNotificationMethod"),
+    ]
+    params: UserWaitTimingUpdatedNotification
 
 
 class HookStartedServerNotification(BaseModel):
@@ -12048,6 +12122,23 @@ class ResponseItem(
     )
 
 
+class ResponsePerformance(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    completed_requests: Annotated[int, Field(alias="completedRequests", ge=0)]
+    graph_estimated: Annotated[bool | None, Field(alias="graphEstimated")] = False
+    history: list[ResponsePerformanceTurn] | None = []
+    minute_samples: Annotated[list[ResponseMinuteSample] | None, Field(alias="minuteSamples")] = []
+    observed_at_unix_ms: Annotated[int | None, Field(alias="observedAtUnixMs")] = None
+    output_tokens: Annotated[int, Field(alias="outputTokens", ge=0)]
+    request_duration_ms: Annotated[int, Field(alias="requestDurationMs", ge=0)]
+    started_at_unix_ms: Annotated[int | None, Field(alias="startedAtUnixMs")] = None
+    truncated_minutes: Annotated[bool | None, Field(alias="truncatedMinutes")] = False
+    turn_id: Annotated[str, Field(alias="turnId")]
+    unmeasured_requests: Annotated[int, Field(alias="unmeasuredRequests", ge=0)]
+
+
 class ErrorServerNotification(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -12413,6 +12504,7 @@ class TurnCompletedThreadTimelineEntry(BaseModel):
     status: TurnStatus
     turn_id: str
     type: Annotated[Literal["turnCompleted"], Field(title="TurnCompletedThreadTimelineEntryType")]
+    user_wait_timing: UserWaitTiming | None = None
 
 
 class ThreadTimelineEntry(
@@ -12520,6 +12612,7 @@ class Turn(BaseModel):
             description="Recorded trigger such as `user` or `root_resume`; absent in older history.",
         ),
     ] = None
+    user_wait_timing: Annotated[UserWaitTiming | None, Field(alias="userWaitTiming")] = None
 
 
 class TurnCompletedNotification(BaseModel):
@@ -13247,6 +13340,13 @@ class ThreadReadResponse(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    agent_profile_mode: Annotated[
+        AgentProfileExecutionMode | None,
+        Field(
+            alias="agentProfileMode",
+            description="Trusted execution mode; only ordinary roots accept project profile snapshots.",
+        ),
+    ] = None
     thread: Thread
 
 
@@ -13426,6 +13526,13 @@ class TurnStartParams(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    agent_profile: Annotated[
+        AgentProfileRef | None,
+        Field(
+            alias="agentProfile",
+            description="Immutable profile captured by the host when this request was accepted.",
+        ),
+    ] = None
     approval_policy: Annotated[
         AskForApproval | None,
         Field(
@@ -13991,6 +14098,7 @@ class ServerNotification(
         | ThreadSettingsUpdatedServerNotification
         | ThreadTokenUsageUpdatedServerNotification
         | TurnStartedServerNotification
+        | TurnUserWaitTimingUpdatedServerNotification
         | TurnRootResumeWaitUpdatedServerNotification
         | TurnDeferredServerNotification
         | HookStartedServerNotification
@@ -14084,6 +14192,7 @@ class ServerNotification(
         | ThreadSettingsUpdatedServerNotification
         | ThreadTokenUsageUpdatedServerNotification
         | TurnStartedServerNotification
+        | TurnUserWaitTimingUpdatedServerNotification
         | TurnRootResumeWaitUpdatedServerNotification
         | TurnDeferredServerNotification
         | HookStartedServerNotification

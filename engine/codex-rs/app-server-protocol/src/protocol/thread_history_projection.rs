@@ -23,6 +23,7 @@ pub fn project_rollout_line(line: &RolloutLine) -> ThreadHistoryChangeSet {
         RolloutItem::EventMsg(EventMsg::TurnStarted(event)) => ThreadHistoryChangeSet {
             changed_turns: vec![ThreadHistoryTurnMetadata {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 turn_id: event.turn_id.clone(),
                 root_turn_id: event.root_turn_id.clone(),
@@ -45,6 +46,7 @@ pub fn project_rollout_line(line: &RolloutLine) -> ThreadHistoryChangeSet {
         RolloutItem::EventMsg(EventMsg::TurnComplete(event)) => ThreadHistoryChangeSet {
             changed_turns: vec![ThreadHistoryTurnMetadata {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 turn_id: event.turn_id.clone(),
                 root_turn_id: event.root_turn_id.clone(),
@@ -74,6 +76,7 @@ pub fn project_rollout_line(line: &RolloutLine) -> ThreadHistoryChangeSet {
             ThreadHistoryChangeSet {
                 changed_turns: vec![ThreadHistoryTurnMetadata {
                     root_resume_wait: None,
+                    user_wait_timing: None,
 
                     turn_id: turn_id.clone(),
                     root_turn_id: event.root_turn_id.clone(),
@@ -93,6 +96,10 @@ pub fn project_rollout_line(line: &RolloutLine) -> ThreadHistoryChangeSet {
                 ..Default::default()
             }
         }
+        RolloutItem::EventMsg(EventMsg::UserWaitTimingUpdated(event)) => ThreadHistoryChangeSet {
+            user_wait_timing_updates: vec![event.clone()],
+            ..Default::default()
+        },
         RolloutItem::EventMsg(EventMsg::RootResumeWaitUpdated(event)) => ThreadHistoryChangeSet {
             root_resume_wait_updates: vec![event.clone()],
             ..Default::default()
@@ -109,6 +116,7 @@ pub fn project_rollout_line(line: &RolloutLine) -> ThreadHistoryChangeSet {
                 completed_at: None,
                 duration_ms: event.duration_ms,
                 root_resume_wait: event.wait.clone(),
+                user_wait_timing: None,
             }],
             ..Default::default()
         },

@@ -61,6 +61,7 @@ pub(super) struct StoredTurnRow {
     pub completed_at: Option<i64>,
     pub duration_ms: Option<i64>,
     pub root_resume_wait: Option<codex_protocol::root_resume::RootResumeWait>,
+    pub user_wait_timing: Option<codex_protocol::user_wait::UserWaitTiming>,
     pub first_user_item_id: Option<String>,
     pub final_agent_item_id: Option<String>,
     pub summary_items: Vec<StoredThreadItem>,
@@ -145,6 +146,7 @@ pub(in crate::local) async fn list_turns(
         };
         turns.push(StoredTurn {
             root_resume_wait: turn.root_resume_wait.clone(),
+            user_wait_timing: turn.user_wait_timing.clone(),
 
             turn_id: turn.turn_id,
             root_turn_id: turn.root_turn_id,
@@ -330,6 +332,12 @@ pub(super) fn stored_turn_row(row: sqlx::sqlite::SqliteRow) -> ThreadStoreResult
         started_at: row.try_get("started_at")?,
         completed_at: row.try_get("completed_at")?,
         duration_ms: row.try_get("duration_ms")?,
+        user_wait_timing: row
+            .try_get::<Option<String>, _>("user_wait_timing_json")?
+            .as_deref()
+            .map(serde_json::from_str)
+            .transpose()
+            .map_err(super::thread_history_error)?,
         root_resume_wait: row
             .try_get::<Option<String>, _>("root_resume_wait_json")?
             .as_deref()

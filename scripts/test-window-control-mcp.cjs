@@ -4,9 +4,10 @@ const { Readable, Writable } = require('node:stream');
 const { EventEmitter } = require('node:events');
 const fs = require('node:fs');
 const vm = require('node:vm');
-function loadMcp(platform) {
+function loadMcp(platform, optionalModuleAvailable=true) {
   const module = { exports: {} };
-  vm.compileFunction(fs.readFileSync(require.resolve('./window-control-mcp.cjs'), 'utf8'), ['require', 'module', 'exports', 'process'])(require, module, module.exports, { platform, env: process.env });
+  const loader=id=>id==='node:fs'&&!optionalModuleAvailable?{...fs,existsSync:file=>String(file).endsWith('window-switched-input.cjs')?false:fs.existsSync(file)}:require(id);
+  vm.compileFunction(fs.readFileSync(require.resolve('./window-control-mcp.cjs'), 'utf8'), ['require', 'module', 'exports', 'process','__dirname'])(loader, module, module.exports, { platform, env: process.env },__dirname);
   return module.exports;
 }
 // Exercise the retained Windows protocol on every test host.
@@ -22,13 +23,26 @@ function fragmentedConnection(chunks) {
   };
 }
 async function main() {
+  const ordinaryTools=loadMcp('win32',false).toolDefinitions();assert.ok(ordinaryTools.some(t=>t.name==='capture'));assert.ok(!ordinaryTools.some(t=>['switched_input','release_switched_input'].includes(t.name)));
+  const projectedCoop=JSON.parse(callResult({inputBackends:{switchedInput:true,private:'omit'},inputResult:{operationId:7,targets:[{pid:123,executable:'private'}],recovery:{rounds:2,activeRecoveryMs:123,budgetExhausted:false,message:'private'},collaboration:{enabled:true,phase:'ready',user:{x:10,y:-20},rawPackets:4,private:'omit',deviceDiagnostics:{mouseSnapshotReady:true,snapshotMouseCount:1,ignoredOwnRawPackets:2,path:'private',lastDeviceChange:{change:'arrival',deviceHandle:'private',deviceType:'mouse',knownAtEnable:true,infoVerified:true,reason:'initial_known_mouse_arrival'},lastRaw:{deviceHandle:'private',deviceType:'mouse',mouseFlags:3,buttonFlags:0,absolute:true,ownExtraInfoLow32:true,ownReceiptMatched:false,eventTime:42,reason:'unmatched_synthetic_raw',extraInfo:'private'}}},text:'private'}}).content[0].text);
+  assert.deepEqual(projectedCoop.inputBackends,{switchedInput:true});assert.equal(projectedCoop.inputResult.operationId,7);assert.equal(projectedCoop.inputResult.collaboration.phase,'ready');assert.equal(projectedCoop.inputResult.recovery.rounds,2);assert.ok(!JSON.stringify(projectedCoop).includes('private'));assert.equal(projectedCoop.inputResult.targets,undefined);
+  const device=projectedCoop.inputResult.collaboration.deviceDiagnostics;
+  assert.equal(device.ignoredOwnRawPackets,2);assert.equal(device.lastDeviceChange.reason,'initial_known_mouse_arrival');
+  assert.equal(device.lastRaw.ownReceiptMatched,false);assert.equal(device.lastRaw.mouseFlags,3);assert.equal(device.lastRaw.eventTime,42);
+  const errors=require('./window-control-errors.cjs');
+  assert.deepEqual(errors.switchedMetadata({collaboration:{systemCursor:{visibilityCommands:1,handle:'private'}}}).collaboration.systemCursor,{visibilityCommands:1});
+  assert.deepEqual(errors.switchedMetadata({collaboration:{systemCursor:{supported:true,hidden:false,restorePending:false,guardReady:true,lastError:'none',processId:123,handle:'private'}}}).collaboration.systemCursor,{supported:true,hidden:false,restorePending:false,guardReady:true,lastError:'none'});
+  assert.deepEqual(errors.switchedMetadata({collaboration:{systemCursor:{hidden:'yes',lastError:'private/path'}}}).collaboration.systemCursor,{});
+  assert.deepEqual(errors.switchedMetadata({collaboration:{deviceDiagnostics:{preparationWaitReason:'held_modifier',deviceHandle:'private'}}}).collaboration.deviceDiagnostics,{preparationWaitReason:'held_modifier'});
+  const projectedFailure=errors.fromPayload(errors.errorPayload(errors.windowError('state_changed','Routing stopped',{switchedInputDetails:{collaboration:{failed:true,deviceDiagnostics:{snapshotMouseCount:-1,ignoredOwnRawPackets:NaN,lastRaw:{mouseFlags:Infinity,ownReceiptMatched:false,deviceHandle:'private',reason:'private/path'}}}}})));
+  assert.deepEqual(projectedFailure.switchedInputDetails.collaboration.deviceDiagnostics,{lastRaw:{ownReceiptMatched:false}});
   for (const platform of ['linux', 'darwin']) {
     const mcp = loadMcp(platform);
     assert.deepEqual(mcp.toolDefinitions(), []);
     let relayed = false;
     const protocol = mcp.createProtocol({ relay: async () => { relayed = true; } });
     assert.deepEqual((await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/list' })).result.tools, []);
-    for (const name of ['capture', 'context', 'launch_isolated', 'ui_operation','virtual_input','release_virtual_input']) {
+    for (const name of ['capture', 'context', 'capture_desktop', 'desktop_input', 'ui_operation']) {
       const denied = await protocol({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name, arguments: {} } });
       assert.equal(denied.result.isError, true);
       const error = JSON.parse(denied.result.content[0].text);
@@ -37,8 +51,8 @@ async function main() {
     }
     assert.equal(relayed, false);
   }
-  const virtualResult=JSON.parse(callResult({targetId:'opaque',delivery:'virtualInput',verified:false,delivered:true,detached:true,pid:123,dllPath:'secret'}).content[0].text);
-  assert.equal(virtualResult.delivery,'virtualInput');assert.equal(virtualResult.verified,false);assert.equal(virtualResult.detached,true);assert.equal(virtualResult.pid,undefined);assert.equal(virtualResult.dllPath,undefined);
+  const virtualResult=JSON.parse(callResult({windowId:'opaque',targetId:'private',delivery:'virtualInput',verified:false,delivered:true,detached:true,pid:123,dllPath:'secret'}).content[0].text);
+  assert.equal(virtualResult.windowId,'opaque');assert.equal(virtualResult.targetId,undefined);assert.equal(virtualResult.delivery,'virtualInput');assert.equal(virtualResult.verified,false);assert.equal(virtualResult.detached,true);assert.equal(virtualResult.pid,undefined);assert.equal(virtualResult.dllPath,undefined);
   const threadId = '12345678-1234-1234-1234-123456789abc';
   const proof = { 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } } };
   assert.equal(parseThreadMetadata({ 'x-codex-turn-metadata': { thread_id: threadId }, threadId }), threadId);
@@ -53,32 +67,23 @@ async function main() {
   assert.throws(() => parseThreadMetadata({ codexTurnMetadata: { threadId } }), /metadata/);
   let received, receivedOptions;
   const fixturePipe = process.platform === 'win32' ? '\\\\.\\pipe\\azrael-window-1234567890123456' : '/tmp/azw-ABC123/w.sock';
-  const relay = createRelay({ codexHome: 'C:/fake', readFile: async file => { assert.ok(file.endsWith(threadId + '.json')); return JSON.stringify({ schema: 1, pipe: fixturePipe, nonce: 'n'.repeat(32) }); }, request: async (pipe, message, options) => { received = message; receivedOptions = options; return { targetId: 'opaque', state: 'ready', window: { title: 'Selected', executable: 'secret' } }; } });
+  const relay = createRelay({ codexHome: 'C:/fake', readFile: async file => { assert.ok(file.endsWith(threadId + '.json')); return JSON.stringify({ schema: 1, pipe: fixturePipe, nonce: 'n'.repeat(32) }); }, request: async (pipe, message, options) => { received = message; receivedOptions = options; return { windowId: 'opaque', state: 'ready', window: { title: 'Selected', executable: 'secret' } }; } });
   const protocol = createProtocol({ relay });
   const call = args => protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'capture', arguments: args, _meta: { ...proof, 'x-codex-turn-metadata': { thread_id: threadId } } } });
-  assert.equal((await call({ targetId: 'opaque' })).result.isError, false); assert.equal(received.threadId, threadId); assert.equal(received.method, 'call');
+  assert.equal((await call({ windowId: 'opaque' })).result.isError, false); assert.equal(received.threadId, threadId); assert.equal(received.method, 'call');
   assert.equal(received._meta['x-codex-turn-metadata'].sandbox_mode, undefined);
   const nativeMeta = { threadId, unrelated: 'omit', 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' }, profileId: 'omit', sandboxPolicy: 'omit' }, 'x-codex-turn-metadata': JSON.stringify({ thread_id: threadId, turn_id: 'turn1', sandbox_mode: 'danger-full-access', unrelated: 'omit' }) };
-  const nativeDiagnostic = {code:'native_child_error',hresult:-2146233088,cleanupUnconfirmed:true,phase:'start',message:"'ChildSession.Host'에 'Guard'에 대한 정의가 없습니다."};
-  const diagnosticProtocol = createProtocol({relay:async()=>({authorized:false,missingPrerequisite:'native_child_error',diagnostic:{...nativeDiagnostic,stack:'must not escape'}})});
-  const diagnosticReply = await diagnosticProtocol({jsonrpc:'2.0',id:13,method:'tools/call',params:{name:'request_stage',arguments:{stage:3,reason:'Verify bounded failure diagnostics'},_meta:nativeMeta}});
-  const projectedDiagnostic = JSON.parse(diagnosticReply.result.content[0].text);
-  assert.equal(projectedDiagnostic.authorized,false);
-  assert.deepEqual(projectedDiagnostic.diagnostic,nativeDiagnostic);
-  assert.equal(JSON.stringify(projectedDiagnostic).includes('must not escape'),false);
-  const sensitiveDiagnostic = JSON.parse(callResult({diagnostic:{...nativeDiagnostic,message:'password=private-value'}}).content[0].text).diagnostic;
-  assert.equal(sensitiveDiagnostic.message,'[redacted diagnostic message]');
-  assert.equal(sensitiveDiagnostic.hresult,nativeDiagnostic.hresult);
-  await relay(threadId, 'request_stage', { stage: 3, reason: 'fixture' }, nativeMeta);
-  assert.deepEqual(receivedOptions, { timeoutMs: 360000 });
-  await relay(threadId, 'request_stage', { stage: 2, reason: 'fixture' }, nativeMeta);
-  assert.equal(receivedOptions, undefined);
-  await relay(threadId, 'capture', { targetId: 'opaque' }, nativeMeta);
+  for(const retired of ['virtual_input','release_virtual_input','request_stage','launch_isolated','capture_isolated','input_isolated','logoff_isolated','resource_status']){
+    const denied=await protocol({jsonrpc:'2.0',id:13,method:'tools/call',params:{name:retired,arguments:{},_meta:nativeMeta}});assert.equal(denied.result.isError,true);
+  }
+  await relay(threadId,'capture_desktop',{},nativeMeta);assert.equal(receivedOptions,undefined);
+  const masked=callResult({redacted:true,originX:-1920,originY:0,maskedWindowCount:2,widthPx:3840,heightPx:1080,image:{mimeType:'image/png',data:'YQ=='}});assert.equal(masked.content[1].type,'image');assert.deepEqual(JSON.parse(masked.content[0].text),{widthPx:3840,heightPx:1080,originX:-1920,originY:0,redacted:true,maskedWindowCount:2});
+  await relay(threadId, 'capture', { windowId: 'opaque' }, nativeMeta);
   assert.deepEqual(received._meta, { ...proof, threadId, 'x-codex-turn-metadata': { thread_id: threadId, turn_id: 'turn1' } });
-  const forwarded = await protocol({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'capture', arguments: { targetId: 'opaque' }, _meta: nativeMeta } });
+  const forwarded = await protocol({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'capture', arguments: { windowId: 'opaque' }, _meta: nativeMeta } });
   assert.equal(forwarded.result.isError, false);
   assert.deepEqual(received._meta, { ...proof, threadId, 'x-codex-turn-metadata': { thread_id: threadId, turn_id: 'turn1' } });
-  await protocol({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'status', arguments: { targetId: 'opaque' }, _meta: { ...proof, threadId } } });
+  await protocol({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'status', arguments: { windowId: 'opaque' }, _meta: { ...proof, threadId } } });
   assert.deepEqual(received._meta, { ...proof, threadId });
   assert.deepEqual(relayMetadata({ ...proof, threadId }), { ...proof, threadId });
   assert.throws(() => relayMetadata(undefined), /metadata/);
@@ -89,28 +94,43 @@ async function main() {
     const invalidMeta = { threadId, 'x-codex-turn-metadata': { thread_id: threadId, sandbox_mode: 'danger-full-access' }, 'codex/sandbox-state-meta': invalid };
     assert.throws(() => relayMetadata(invalidMeta), e => e.code === 'permission_denied' && e.message === 'Native Disabled permission profile required' && e.stage === 'permission' && e.nativePermissionReason === reason && e.actionExecuted === false);
     const previousReceived = received;
-    const denied = await protocol({ jsonrpc: '2.0', id: 6, method: 'tools/call', params: { name: 'capture', arguments: { targetId: 'opaque' }, _meta: invalidMeta } });
+    const denied = await protocol({ jsonrpc: '2.0', id: 6, method: 'tools/call', params: { name: 'capture', arguments: { windowId: 'opaque' }, _meta: invalidMeta } });
     assert.equal(denied.result.isError, true); assert.equal(received, previousReceived);
     assert.deepEqual(JSON.parse(denied.result.content[0].text), { code: 'permission_denied', message: 'Native Disabled permission profile required', stage: 'permission', actionExecuted: false, nativePermissionReason: reason });
   }
-  assert.equal((await call({ targetId: 'opaque', threadId })).result.isError, true);
-  assert.equal((await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'capture', arguments: { targetId: 'opaque' } } })).result.isError, true);
+  assert.equal((await call({ windowId: 'opaque', threadId })).result.isError, true);
+  assert.equal((await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'capture', arguments: { windowId: 'opaque' } } })).result.isError, true);
   assert.equal((await protocol({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2024-11-05' } })).result.capabilities.tools.constructor, Object);
   assert.deepEqual((await protocol({ jsonrpc: '2.0', id: 1, method: 'initialize' })).result.capabilities.experimental, { 'codex/sandbox-state-meta': {} });
   const listed = (await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/list' })).result.tools;
-  assert.match(listed.find(t => t.name === 'select_window').description, /read-only observation.*Does not request or grant app control/);
-  const installedLaunch = listed.find(t => t.name === 'launch_isolated');
-  assert.deepEqual(installedLaunch.inputSchema.required, []);
-  assert.deepEqual(installedLaunch.inputSchema.oneOf.map(branch => branch.required), [['targetId'], ['packageName']]);
-  assert.equal(installedLaunch.inputSchema.properties.packageName.pattern, '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$');
-  assert.match(installedLaunch.description, /No parent app window is required/);
+  assert.ok(!listed.some(t => t.name === 'select_window'));
+  const previousSelection = received;
+  const removedSelection = await protocol({ jsonrpc:'2.0', id:20, method:'tools/call', params:{name:'select_window',arguments:{candidateId:'opaque'},_meta:{...proof,threadId}} });
+  assert.equal(removedSelection.result.isError,true); assert.equal(received,previousSelection);
+  assert.ok(!listed.some(t=>['request_stage','launch_isolated','input_isolated','capture_isolated','logoff_isolated'].includes(t.name)));
+  assert.ok(!listed.some(t=>['request_permission','prepare_permissions'].includes(t.name)));
+  for(const name of ['request_permission','prepare_permissions']){const rejected=await protocol({jsonrpc:'2.0',id:19,method:'tools/call',params:{name,arguments:{permission:'desktop',reason:'removed'},_meta:proof}});assert.equal(rejected.result.isError,true);}
+  const desktop=listed.find(t=>t.name==='desktop_input').inputSchema;
+  assert.deepEqual(desktop.required,['observationId','input']);assert.equal(desktop.properties.windowId,undefined);
+  const drag=desktop.properties.input.oneOf.find(s=>s.properties.action.enum[0]==='drag');
+  assert.ok(drag.required.includes('fromX')&&drag.required.includes('fromY'));
+  assert.deepEqual(listed.find(t=>t.name==='release_desktop_input').inputSchema.required,[]);
+  assert.deepEqual(listed.find(t=>t.name==='capture_desktop').inputSchema.required,[]);
   const hiddenUi = listed.find(t => t.name === 'ui_operation');
   assert.deepEqual(hiddenUi._meta, { ui: { visibility: ['app'] } });
   assert.deepEqual(hiddenUi.inputSchema.required, ['requestToken']); assert.equal(hiddenUi.inputSchema.additionalProperties, false);
 
-  assert.equal(listed.find(t=>t.name==='prepare_permissions').inputSchema.properties.candidateIds.maxItems,8);
-  for (const name of ['prepare_permissions','list_windows','select_window','list_task_macros','save_task_macro']) assert.ok(!listed.find(t => t.name === name).inputSchema.required.includes('targetId'));
-  for (const name of ['inspect','press_key','run_task_macro']) assert.ok(listed.find(t => t.name === name).inputSchema.required.includes('targetId'));
+  for (const name of ['context','list_windows','list_task_macros','save_task_macro','capture_desktop','desktop_input','release_desktop_input']) assert.ok(!listed.find(t => t.name === name).inputSchema.required.includes('windowId'));
+  const windowTools = listed.filter(t => !['context','list_windows','list_task_macros','save_task_macro','capture_desktop','desktop_input','release_desktop_input','ui_operation'].includes(t.name));
+  for (const tool of windowTools) {
+    assert.ok(tool.inputSchema.required.includes('windowId'),tool.name);
+    assert.equal(tool.inputSchema.properties.targetId,undefined);
+    for (const args of [{}, {targetId:'opaque'}, {windowId:''}, {windowId:42}]) {
+      const previous = received;
+      const rejected = await protocol({jsonrpc:'2.0',id:21,method:'tools/call',params:{name:tool.name,arguments:args,_meta:{...proof,threadId}}});
+      assert.equal(rejected.result.isError,true,tool.name); assert.equal(received,previous);
+    }
+  }
   const uiCall = (args, meta) => protocol({ jsonrpc: '2.0', id: 7, method: 'tools/call', params: { name: 'ui_operation', arguments: args, _meta: meta } });
   const requestToken = 'a1'.repeat(32);
   const acceptedUi = await uiCall({ requestToken }, { ...proof, threadId, sessionId: threadId });
@@ -123,16 +143,16 @@ async function main() {
     const previousReceived = received; assert.equal((await uiCall({ requestToken }, noAuthority)).result.isError, true); assert.equal(received, previousReceived);
   }
   assert.equal((await uiCall({ requestToken }, { ...proof, threadId, 'x-codex-turn-metadata': null })).result.isError, true);
-  assert.deepEqual(listed.find(t => t.name === 'status').inputSchema.required, []);
-  assert.ok(listed.find(t => t.name === 'capture').inputSchema.required.includes('targetId'));
+  assert.deepEqual(listed.find(t => t.name === 'status').inputSchema.required, ['windowId']);
+  assert.ok(listed.find(t => t.name === 'capture').inputSchema.required.includes('windowId'));
   const restore = listed.find(t => t.name === 'restore_window');
-  assert.deepEqual(restore.inputSchema.required, ['targetId']);
-  assert.deepEqual(Object.keys(restore.inputSchema.properties), ['targetId']);
+  assert.deepEqual(restore.inputSchema.required, ['windowId']);
+  assert.deepEqual(Object.keys(restore.inputSchema.properties), ['windowId']);
   assert.equal(restore.inputSchema.additionalProperties, false);
   assert.match(restore.description, /Never resumes a user stop/);
   assert.deepEqual(JSON.parse(callResult({state:'paused',pauseReason:'minimized',restoreAllowed:true,restored:false,window:{minimized:true}}).content[0].text), {state:'paused',window:{minimized:true},pauseReason:'minimized',restoreAllowed:true,restored:false});
   const initialStatus = await protocol({ jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'status', arguments: {}, _meta: { ...proof, threadId } } });
-  assert.equal(initialStatus.result.isError, false); assert.deepEqual(received.arguments, {});
+  assert.equal(initialStatus.result.isError, true);
   assert.equal((await call({})).result.isError, true);
   assert.ok(!listed.some(t => ['bind', 'resume', 'listWindows'].includes(t.name)));
   const sanitized = callResult({ window: { title: 'selected', hwnd: 'secret' }, unrelated: 'secret', image: { mimeType: 'image/png', data: 'YQ==' } });
@@ -157,7 +177,7 @@ async function main() {
 main().catch(e => { console.error(e); process.exitCode = 1; });
 
 const publicOccupancy = {status:'occupied',sessions:[{sessionId:'other',workspaceName:'Workspace',state:'paused',isCurrentSession:false,updatedAt:123,nonce:'private',pipe:'private'}]};
-const projectedOccupancy = JSON.parse(callResult({occupancy:publicOccupancy,candidates:[{candidateId:'opaque',appName:'app',title:'title',minimized:false,hwnd:'private',occupancy:publicOccupancy}]}).content[0].text);
+const projectedOccupancy = JSON.parse(callResult({occupancy:publicOccupancy,candidates:[{windowId:'opaque',candidateId:'private',appName:'app',title:'title',minimized:false,hwnd:'private',occupancy:publicOccupancy}]}).content[0].text);
 assert.deepEqual(Object.keys(projectedOccupancy.occupancy.sessions[0]).sort(),['isCurrentSession','sessionId','state','updatedAt','workspaceName']);
-assert.equal(projectedOccupancy.candidates[0].occupancy.status,'occupied'); assert.equal(projectedOccupancy.candidates[0].hwnd,undefined);
+assert.equal(projectedOccupancy.candidates[0].windowId,'opaque');assert.equal(projectedOccupancy.candidates[0].candidateId,undefined);assert.equal(projectedOccupancy.candidates[0].occupancy.status,'occupied'); assert.equal(projectedOccupancy.candidates[0].hwnd,undefined);
 assert.throws(()=>callResult({occupancy:{status:'available',sessions:publicOccupancy.sessions}}),/Invalid occupancy/);

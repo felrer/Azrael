@@ -1,8 +1,54 @@
-"use strict";
-const path = require("node:path");
-const shared = require("./computer-use-approvals.cjs");
-function createOwner(home) { return shared.createOwner(home, { mode: "window" }); }
-const registry = globalThis[Symbol.for("azrael.window-use.approval-owners.v1")] ??= new Map();
-function owner() { const home = require("./azrael-runtime.cjs").runtime.codexHome, key = process.platform === "win32" ? path.resolve(home).toLowerCase() : path.resolve(home); if (!registry.has(key)) registry.set(key, createOwner(home)); return registry.get(key); }
-module.exports = { createOwner };
-for (const method of ["receive", "response", "stop", "reset", "outgoing", "notification", "getAppApprovals", "hasAppApproval", "removeAppApproval", "getPersistentAppApprovals", "addAppApproval"]) module.exports[method] = (...args) => owner()[method](...args);
+﻿"use strict";
+const fs=require("node:fs"),path=require("node:path"),crypto=require("node:crypto");
+const {normalizeExecutable,createSettingsOwner}=require("./use-control-settings.cjs");
+const permissionKey=value=>{if(!["observation","control","desktop"].includes(value))throw new Error("Invalid Window Use permission");return value;};
+function createOwner(home){
+ const settings=createSettingsOwner(home),file=path.join(home,"azrael","window-use","app-approvals.json"),pending=new Map(),sessions=new Map();
+ function read(){let state;try{state=JSON.parse(fs.readFileSync(file,"utf8"));}catch(e){if(e.code==="ENOENT")return {schema:1,revocations:{},apps:[]};throw e;}
+  if(state.schema!==1||!state.revocations||typeof state.revocations!=="object"||Array.isArray(state.revocations)||!Array.isArray(state.apps))throw new Error("Invalid Window Use approval store");
+  const seen=new Set(); for(const app of state.apps){if(!app||normalizeExecutable(app.bundleIdentifier)!==app.bundleIdentifier||typeof app.displayName!=="string"||!app.displayName||/[\x00-\x1f\x7f]/.test(app.displayName)||seen.has(app.bundleIdentifier))throw new Error("Invalid approval entry");seen.add(app.bundleIdentifier);}
+  for(const [key,n]of Object.entries(state.revocations))if(normalizeExecutable(key)!==key||!Number.isSafeInteger(n)||n<0)throw new Error("Invalid revocation");return state;
+ }
+ const epoch=(state,key)=>state.revocations[key]??0;
+ const fingerprint=policy=>JSON.stringify(policy);
+ function fresh(){try{const state=read(),policy=settings.getSettings(),fp=fingerprint(policy);for(const grants of sessions.values())for(const [id,g]of grants)if(g.fingerprint!==fp||g.generation!==epoch(state,g.key))grants.delete(id);for(const p of pending.values())if(p.fingerprint!==fp||p.generation!==epoch(state,p.key))p.cancelCode="permission_denied";return {state,policy,fp};}catch(e){reset();throw e;}}
+ function write(change){fs.mkdirSync(path.dirname(file),{recursive:true});const lock=file+".lock",fd=fs.openSync(lock,"wx",0o600);let temp;try{const state=read();change(state);temp=file+"."+crypto.randomBytes(8).toString("hex")+".tmp";const out=fs.openSync(temp,"wx",0o600);try{fs.writeFileSync(out,JSON.stringify(state)+"\n");fs.fsyncSync(out);}finally{fs.closeSync(out);}fs.renameSync(temp,file);temp=undefined;}finally{if(temp)fs.unlinkSync(temp);fs.closeSync(fd);fs.unlinkSync(lock);}}
+ const grantId=(key,permission)=>JSON.stringify([permission,key]);
+ const sessionHas=(threadId,key,permission)=>!!sessions.get(threadId)?.has(grantId(key,permission));
+ function desktopAllowed(threadId,{policy}){return policy.windowUseEnabled&&sessionHas(threadId,null,"desktop");}
+ function desktopAppAllowed(key,threadId,current){return desktopAllowed(threadId,current)&&!current.policy.observationBlockedApps.includes(key);}
+ function allowed(key,threadId,permission,current){const {state,policy}=current;if(!policy.windowUseEnabled)return false;if(permission==="desktop")return desktopAllowed(threadId,current);if(permission==="control"&&policy.observationBlockedApps.includes(key))return false;if(permission==="observation"&&!policy.observationBlockedApps.includes(key))return true;if(permission==="control"&&desktopAllowed(threadId,current))return desktopAppAllowed(key,threadId,current);if(permission==="control"&&(policy.controlAllowedApps.includes(key)||state.apps.some(a=>a.bundleIdentifier===key)))return true;return sessionHas(threadId,key,permission);}
+ function hasDesktopApproval(threadId){return desktopAllowed(threadId,fresh());}
+ function hasDesktopAppApproval(app,threadId){return desktopAppAllowed(normalizeExecutable(app),threadId,fresh());}
+ function hasAppApproval(app,threadId,permission="control"){return allowed(normalizeExecutable(app),threadId,permissionKey(permission),fresh());}
+ const cancelled=(code="cancelled")=>({action:"cancel",content:{windowError:{code,message:code==="permission_denied"?"Application authorization revoked":"Application approval cancelled"}}});
+ function receive(request,send,broadcast){const params=request.params,meta=params?._meta;if(request.method!=="mcpServer/elicitation/request"||params?.serverName!=="azrael_window"||meta?.connector_id!=="window-use")return broadcast(request);
+  let key,permission,current;try{if(!((typeof request.id==="string"&&request.id)||(typeof request.id==="number"&&Number.isSafeInteger(request.id))))throw new Error("Invalid approval id");permission=permissionKey(meta.tool_params?.permission??"control");key=permission==="desktop"?null:normalizeExecutable(meta.tool_params?.app??meta.tool_params?.executable);current=fresh();if(!current.policy.windowUseEnabled)throw new Error("Window Use disabled");}catch{return send(request.id,cancelled("permission_denied"));}
+  const threadId=typeof params.threadId==="string"&&params.threadId?params.threadId:null;
+  if(permission==="control"&&current.policy.observationBlockedApps.includes(key))return send(request.id,{action:"cancel",content:{windowError:{code:"security_app_blocked",message:"Security App control is blocked"}}});
+  if(allowed(key,threadId,permission,current))return send(request.id,{action:"accept",content:{source:"window-use-approved-state",permission}});
+  const offered=Array.isArray(meta.persist)?permission==="desktop"?meta.persist.some(p=>p==="session"||p==="always")?["session"]:[]:meta.persist.filter(p=>p==="session"||(p==="always"&&permission==="control")):[];
+  // Observation and desktop authority are session-only even for outdated callers.
+  const display=meta.tool_params_display?.find?.(p=>p.name==="app")?.value;
+  pending.set(JSON.stringify(request.id),{key,permission,threadId,offered,displayName:typeof display==="string"&&display&&!/[\x00-\x1f\x7f]/.test(display)?display:key===null?"Desktop":path.win32.basename(key),fingerprint:current.fp,generation:epoch(current.state,key)});
+  if(permission!=="control")request={...request,params:{...params,_meta:{...meta,persist:offered}}};return broadcast(request);
+ }
+ function response(id,result){const token=JSON.stringify(id),p=pending.get(token);if(!p)return result;try{fresh();}catch{pending.delete(token);return cancelled("unclassified");}pending.delete(token);if(p.cancelCode)return cancelled(p.cancelCode);if(p.permission==="control"&&settings.getSettings().observationBlockedApps.includes(p.key))return {action:"cancel",content:{windowError:{code:"security_app_blocked",message:"Security App control is blocked"}}};if(result?.action!=="accept")return result;
+  const persist=result.content?.persist??result._meta?.persist;if(!p.offered.includes(persist))return cancelled("permission_denied");
+  try{if(persist==="always")write(state=>{if(fingerprint(settings.getSettings())!==p.fingerprint||epoch(state,p.key)!==p.generation)throw new Error("Stale approval");state.apps=state.apps.filter(a=>a.bundleIdentifier!==p.key);state.apps.push({bundleIdentifier:p.key,displayName:p.displayName});});
+   if(persist==="session"){if(!p.threadId)return cancelled("permission_denied");if(!sessions.has(p.threadId))sessions.set(p.threadId,new Map());sessions.get(p.threadId).set(grantId(p.key,p.permission),p);}
+  }catch{reset();return cancelled("unclassified");}return result;
+ }
+ function stop(threadId){sessions.delete(threadId);for(const p of pending.values())if(p.threadId===threadId)p.cancelCode="cancelled";}
+ function revokeDesktopApproval(threadId){const grants=sessions.get(threadId);if(grants)for(const [id,g]of grants)if(g.permission==="desktop")grants.delete(id);for(const p of pending.values())if(p.threadId===threadId&&(p.permission==="desktop"))p.cancelCode="permission_denied";}
+ function reset(){sessions.clear();for(const p of pending.values())p.cancelCode="cancelled";}
+ function outgoing(method,params){if(["turn/interrupt","thread/unsubscribe","thread/archive","thread/delete","thread/end"].includes(method))stop(params?.threadId);}
+ function notification(method,params){if(["thread/closed","thread/archived","thread/deleted","thread/ended"].includes(method))stop(params?.threadId);}
+ function getPersistentAppApprovals(){const {state,policy}=fresh(),apps=new Map(state.apps.map(a=>[a.bundleIdentifier,{...a,permission:"control"}]));for(const key of policy.controlAllowedApps)if(!apps.has(key))apps.set(key,{bundleIdentifier:key,displayName:path.win32.basename(key),permission:"control"});return {approvedApps:[...apps.values()]};}
+ function getAppApprovals(){const apps=new Map(getPersistentAppApprovals().approvedApps.map(a=>[grantId(a.bundleIdentifier,a.permission),a]));for(const grants of sessions.values())for(const [id,g]of grants)if(g.permission!=="desktop"&&!apps.has(id))apps.set(id,{bundleIdentifier:g.key,displayName:g.displayName,permission:g.permission});return {approvedApps:[...apps.values()]};}
+ function addAppApproval(executable,displayName){const key=normalizeExecutable(executable);if(typeof displayName!=="string"||!displayName||displayName.length>512||/[\x00-\x1f\x7f]/.test(displayName))throw new Error("Invalid app display name");const policy=settings.getSettings();settings.updateSettings({controlAllowedApps:[...policy.controlAllowedApps,key]},policy.revision);return getPersistentAppApprovals();}
+ function removeAppApproval(executable,permission="control",expectedRevision){const key=normalizeExecutable(executable);permissionKey(permission);const initial=settings.getSettings();if(expectedRevision!==undefined){if(!Number.isSafeInteger(expectedRevision)||expectedRevision<0)throw new Error("Invalid expected settings revision");if(initial.revision!==expectedRevision){const e=new Error("Settings revision conflict");e.code="REVISION_CONFLICT";throw e;}}write(state=>{if(permission==="control")state.apps=state.apps.filter(a=>a.bundleIdentifier!==key);const next=epoch(state,key)+1;if(!Number.isSafeInteger(next))throw new Error("Revocation exhausted");state.revocations[key]=next;});if(permission==="control"){const policy=expectedRevision===undefined?settings.getSettings():initial;if(policy.controlAllowedApps.includes(key)||expectedRevision!==undefined)settings.updateSettings({controlAllowedApps:policy.controlAllowedApps.filter(a=>a!==key)},expectedRevision??policy.revision);}return getAppApprovals();}
+ return {receive,response,stop,reset,outgoing,notification,getAppApprovals,hasAppApproval,hasDesktopApproval,hasDesktopAppApproval,revokeDesktopApproval,removeAppApproval,getPersistentAppApprovals,addAppApproval};
+}
+const registry=globalThis[Symbol.for("azrael.window-use.approval-owners.v3")]??=new Map();function owner(){const home=require("./azrael-runtime.cjs").runtime.codexHome,key=process.platform==="win32"?path.resolve(home).toLowerCase():path.resolve(home);if(!registry.has(key))registry.set(key,createOwner(home));return registry.get(key);}
+module.exports={createOwner,normalizeExecutable};for(const method of ["receive","response","stop","reset","outgoing","notification","getAppApprovals","hasAppApproval","hasDesktopApproval","hasDesktopAppApproval","revokeDesktopApproval","removeAppApproval","getPersistentAppApprovals","addAppApproval"])module.exports[method]=(...args)=>owner()[method](...args);

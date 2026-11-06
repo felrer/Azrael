@@ -335,6 +335,7 @@ mod tests {
                 "required": ["answer"]
             })),
             reasoning_settings: Some(codex_protocol::root_resume::RootResumeReasoningSettings {
+                agent_profile: None,
                 effort: Some(codex_protocol::openai_models::ReasoningEffort::High),
             }),
             wake_reason: None,

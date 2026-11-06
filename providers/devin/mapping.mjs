@@ -65,6 +65,12 @@ function multimodal(content, budget) {
   });
 }
 
+function agentContent(item, budget) {
+  const header = `Agent message from ${bounded(item.author)} to ${bounded(item.recipient)}:\n`;
+  const content = multimodal(item.content, budget);
+  return typeof content === 'string' ? header + content : [{ type: 'text', text: header }, ...content];
+}
+
 // The model-facing alias is request-scoped; the digest keeps history stable as
 // lazy tools are added. Only exact declared aliases are accepted on return.
 export function compileRequest(request) {
@@ -134,10 +140,11 @@ export function compileRequest(request) {
         }
         break;
       }
-      case 'agent_message':
+      case 'agent_message': {
         assistant = undefined;
-        messages.push({ role: 'user', content: `Agent message from ${bounded(item.author)} to ${bounded(item.recipient)}:\n${plainText(item.content)}` });
+        messages.push({ role: 'user', content: agentContent(item, images) });
         break;
+      }
       case 'function_call':
       case 'custom_tool_call':
       case 'tool_search_call': {

@@ -9,12 +9,12 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
  const home=await fs.mkdtemp(path.join(os.tmpdir(),'azrael-window-native-integration-'));
  let host;
  try{
-  const approvals=require('./window-use-approvals.cjs').createOwner(home),computer=require('./computer-use-approvals.cjs').createOwner(home),shown=[],engine=[],backendCalls=[];
+  const approvals=require('./window-use-approvals.cjs').createOwner(home),shown=[],engine=[],backendCalls=[];
   const native={registerProvider(){return {dispose(){}}},sendRequest(...args){engine.push({request:args})},sendResponse(id,result){engine.push({id,result})}};
-  host=createHost({runtime:{codexHome:home},approvalTimeoutMs:30,occupancyDirectory:path.join(home,'occupancy'),approvals,vscode:{window:{showWarningMessage(){assert.fail('External stage approval modal');}},workspace:{workspaceFolders:[]}},backend:{async request(method){backendCalls.push(method);return method==='listWindows'?[descriptor]:descriptor},async dispose(){}},createServer(){return require('node:net').createServer()}});
+  host=createHost({runtime:{codexHome:home},approvalTimeoutMs:30,occupancyDirectory:path.join(home,'occupancy'),approvals,vscode:{window:{showWarningMessage(){assert.fail('External app approval modal');}},workspace:{workspaceFolders:[]}},backend:{async request(method){backendCalls.push(method);return method==='listWindows'?[descriptor]:method==='observe'?({window:{...descriptor},observationId:"fixture-observation",frameTimestamp:"fixture-time",widthPx:descriptor.widthPx,heightPx:descriptor.heightPx,dpi:descriptor.dpi,elements:[],elementsTruncated:false,image:{mimeType:"image/png",data:"aW1hZ2U="}}):descriptor},async dispose(){}},createServer(){return require('node:net').createServer()}});
   const {engine:ledger}=require('./window-approval-engine-fixture.cjs').attachApprovalEngine(host,native);
-  const context=vm.createContext({require(name){if(name==='./azrael-runtime.cjs')return {runtime:{windowControl:true}};if(name==='./window-control-host.cjs')return host;if(name==='./computer-use-approvals.cjs')return computer;throw Error(name)},IR:'native-provider'});
-  context.host={codexMcpConnection:native,broadcastToAllViews(envelope){if(envelope.type==='mcp-request'&&envelope.request.params._meta?.window_use_approval_kind==='stage'){queueMicrotask(()=>context.host.respond({type:'mcp-response',response:{id:envelope.request.id,result:{action:'accept',content:{persist:'session'}}}}));return;}shown.push(envelope)},pendingMcpRequests:new Map()};
+  const context=vm.createContext({require(name){if(name==='./azrael-runtime.cjs')return {runtime:{windowControl:true}};if(name==='./window-control-host.cjs')return host;if(name==='./window-use-approvals.cjs')return approvals;throw Error(name)},IR:'native-provider'});
+  context.host={codexMcpConnection:native,broadcastToAllViews(envelope){shown.push(envelope)},pendingMcpRequests:new Map()};
   vm.runInContext(`host.outgoing=function(r,e){switch(r.type){case'mcp-request':{${replacements[2][1]}}}};host.respond=function(r){switch(r.type){${replacements[1][1]}}};host.receive=function(){return ({${replacements[0][1]}}).onRequest}.call(host);`,context);
   context.host.outgoing({type:'mcp-request',request:{id:'normal-request',method:'thread/read',params:{threadId:thread}}},{});
   assert.equal(engine.length,1);
@@ -24,19 +24,16 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
   await assert.rejects(call('list_windows',{},false),{code:'permission_denied'});assert.equal(backendCalls.length,0);
   for(const persist of ['session','always']){
    const list=await call('list_windows',{}),before=shown.filter(e=>e.type==='mcp-request').length;
-   const selected=await call('select_window',{candidateId:list.candidates[0].candidateId});const selecting=call('request_stage',{stage:2,targetId:selected.targetId,reason:'Verify transformed native control consent'});const request=await nextRequest(before);
+   const selected=list.candidates[0];const selecting=call('resize', {windowId:selected.windowId,widthDip:700,heightDip:500});const request=await nextRequest(before);
    assert.equal(request.params._meta.connector_name,'Window Use');assert.equal(request.params._meta.codex_approval_kind,'mcp_tool_call');
    context.host.receive({id:'unrelated',method:'unrelated',params:{}}); // Rebinding must preserve the pending approval.
    context.host.respond({type:'mcp-response',response:{id:request.id,result:{action:'accept',content:{},_meta:{persist}}}});
-   assert.equal((await selecting).authorized,true);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),true);assert.equal(approvals.hasAppApproval(descriptor.executable,'other-thread'),persist==='always');assert.equal(engine.length,1,'local response never reaches engine');
+   assert.ok(await selecting);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),true);assert.equal(approvals.hasAppApproval(descriptor.executable,'other-thread'),persist==='always');assert.equal(engine.length,1,'local response never reaches engine');
    assert(shown.some(e=>e.notification?.method==='serverRequest/resolved'&&e.notification.params.requestId===request.id));approvals.removeAppApproval(descriptor.executable);host.observe(native,{method:'turn/started',params:{threadId:thread,turn:{id:'native-turn'}}});
   }
   const list=await call('list_windows',{}),before=shown.filter(e=>e.type==='mcp-request').length;
-  const selected=await call('select_window',{candidateId:list.candidates[0].candidateId});const detached=call('request_stage',{stage:2,targetId:selected.targetId,reason:'Verify durable pending control consent'});const rejected=assert.rejects(detached,{code:'permission_pending',approvalState:'pending',userResponded:false,actionExecuted:false});const request=await nextRequest(before);await rejected;
-  assert.equal(shown.some(e=>e.notification?.method==='serverRequest/resolved'&&e.notification.params.threadId===thread&&e.notification.params.requestId===request.id),false,'pending card remains available');
-  context.host.respond({type:'mcp-response',response:{id:request.id,result:{action:'accept',content:{},_meta:{persist:'always'}}}});assert.equal(engine.length,1);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),false);
-  for(let i=0;i<100&&!ledger.resumes.length;i++)await new Promise(resolve=>setImmediate(resolve));assert.equal(ledger.resumes.length,1);
-  assert.equal((await call('request_stage',{stage:2,targetId:selected.targetId,reason:'Apply the authorized pending receipt'})).authorized,true);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),true);
+  const selected=list.candidates[0];const expired=call('resize',{windowId:selected.windowId,widthDip:700,heightDip:500});const rejected=assert.rejects(expired,{code:'approval_timeout',approvalState:'expired',userResponded:false,actionExecuted:false});const request=await nextRequest(before);await rejected;
+  context.host.respond({type:'mcp-response',response:{id:request.id,result:{action:'accept',content:{},_meta:{persist:'always'}}}});assert.equal(engine.length,1);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),false);assert.deepEqual(ledger.resumes,[]);
   context.host.respond({type:'mcp-response',response:{id:'ordinary',result:{action:'accept'}}});assert.equal(engine.at(-1).id,'ordinary');
  }finally{await host?.dispose();await fs.rm(home,{recursive:true})}
 });

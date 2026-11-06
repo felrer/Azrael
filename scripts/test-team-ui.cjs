@@ -9,3 +9,24 @@ assert.deepEqual(grouped.map(g=>g.kind),['team','row','row']);assert.deepEqual(g
 let callback,delay,opens=0,clears=0;const gesture=ui.azraelCreateLeadGesture(()=>opens++,{setTimeout(fn,ms){callback=fn;delay=ms;return 1},clearTimeout(){callback=null;clears++}});const event={button:0,clientX:2,clientY:3,preventDefault(){this.prevented=true},stopPropagation(){this.stopped=true}};
 gesture.pointerDown(event);assert.equal(delay,550);callback();gesture.pointerUp();gesture.click(event);assert.equal(opens,1);assert.ok(event.prevented&&event.stopped);event.prevented=false;gesture.click(event);assert.equal(event.prevented,false);gesture.pointerDown(event);gesture.pointerMove({...event,clientX:20});assert.equal(callback,null);gesture.pointerDown(event);gesture.pointerCancel();assert.equal(callback,null);gesture.pointerDown(event);gesture.dispose();assert.equal(callback,null);gesture.contextMenu(event);gesture.keyDown({...event,key:'F10',shiftKey:true});assert.equal(opens,3);gesture.keyDown({...event,key:'Escape'});gesture.keyDown({...event,key:'Enter'});const ordinary={preventDefault(){this.prevented=true},stopPropagation(){this.stopped=true}};gesture.click(ordinary);assert.equal(ordinary.prevented,undefined);assert.ok(clears>=3);
 console.log('Team UI: frozen anchors, idempotence, host isolation, filtered grouping/order, and gesture cancellation/suppression passed');
+// Retained: menu edits must forward the selected preset identity and ordinary
+// Direct creation must discard a previously selected Team draft.
+async function checkProfileMenu(){
+ const vm=require('node:vm'),state=[],effects=[],calls=[];let slot=0;
+ const jsx=(type,props,key)=>({type,props,key});
+ const context={i:()=>({locale:'en'}),st:()=>options=>calls.push(['newChat',options]),azraelCreateLeadGesture:ui.azraelCreateLeadGesture,
+  wn:{useState(initial){const index=slot++;if(!(index in state))state[index]=initial;return[state[index],value=>{state[index]=value}]},useMemo:fn=>fn(),useEffect:fn=>effects.push(fn)},
+  Z:{jsx,jsxs:jsx,Fragment:'fragment'},le:'popover',ee:'button',W:{Section:'section'},ke:'native-new-chat',
+  globalThis:{__azraelRoleProfileSettings:async()=>({teamPresets:[{id:'saved-team',name:'Saved Team'}]}),__azraelBeginTeamLeadDraft:async id=>calls.push(['team',id]),__azraelCancelTeamLeadDraft:async()=>calls.push(['cancel'])}};
+ vm.runInNewContext(ui.HELPER.slice(ui.HELPER.indexOf('function azraelNewLeadButton(')),context);
+ const render=()=>{slot=0;effects.length=0;return context.azraelNewLeadButton({selectChat:true})};
+ let tree=render();tree.props.children[0].props.triggerButton.props.onContextMenuCapture({preventDefault(){}});
+ tree=render();for(const effect of effects)effect();await new Promise(resolve=>setImmediate(resolve));tree=render();
+ let items=tree.props.children[0].props.children.props.children;
+ assert.equal(items[0].props.children,'New Direct');assert.equal(items[1].props.children,'Team · Saved Team');
+ await items[1].props.onClick();assert.deepEqual(JSON.parse(JSON.stringify(calls)),[['team','saved-team'],['newChat',{selectChat:true}]]);
+ calls.length=0;tree=render();await tree.props.children[0].props.children.props.children[0].props.onClick();
+ assert.deepEqual(JSON.parse(JSON.stringify(calls)),[['cancel'],['newChat',{selectChat:true}]]);
+ console.log('Team UI: profile menu selects the saved Team preset and clears Team selection for Direct passed');
+}
+checkProfileMenu().catch(error=>{console.error(error);process.exitCode=1});

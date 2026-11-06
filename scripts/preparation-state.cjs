@@ -21,12 +21,12 @@ function writeJson(file, value) {
 async function inputs(config, uiSourceObservation) {
   const scripts = [
     "persisted-atoms.cjs",
-    "preparation-state.cjs", "directory-state.cjs", "ui-source-state.cjs", "project-source-state.cjs", "source-observation.cjs", "engine-source-metadata.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
+    "preparation-state.cjs", "module-cache-consumers.cjs", "directory-state.cjs", "ui-source-state.cjs", "project-source-state.cjs", "source-observation.cjs", "engine-source-metadata.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
     "prepare-ordinary-vscode.ps1", "prepare-official-ui.ps1", "engine-provenance.py",
     "ordinary-runtime.cjs", "shared-engine-host.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
     "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs", "computer-use-runtime.cjs",
-    "azrael-recovery.cjs", "recovery-state.cjs", "optional-diagnostics.cjs", "package-local-host.cjs", "computer-use-approvals.cjs",
-    "use-control-settings.cjs", "window-use-approvals.cjs", "use-settings-host.cjs", "sky-control-policy.mjs", "sky-controlled-service.mjs", "inject-sky-control-policy.cjs", "computer-use-branding.cjs", "window-control-runtime.cjs",
+    "azrael-recovery.cjs", "recovery-state.cjs", "optional-diagnostics.cjs", "package-local-host.cjs",
+    "use-control-settings.cjs", "window-use-approvals.cjs", "use-settings-host.cjs", "window-control-runtime.cjs",
     "feature-preservation.cjs", "azrael-feature-contracts.json",
   ];
   const { getTransformRules } = require("./namespace-azrael-host.cjs");
@@ -96,13 +96,61 @@ async function load(output, stage) {
   } else throw new Error("Unknown preparation stage.");
   return { found: true, data: entry.data };
 }
-module.exports = { initialize, save, load, inputs };
+async function releaseTools(output, projectRoot, { cacheInvalidation } = {}) {
+  const checkpoint = checkpointFile(output);
+  const state = readJson(checkpoint);
+  const completed = await load(output, "complete");
+  if (!completed.found) throw new Error("Completed package required before releasing preparation tools.");
+  const config = state.inputs.config;
+  if (path.resolve(completed.data.ReleaseDirectory) !== path.resolve(config.release)) throw new Error("Prepared release identity changed.");
+  const key = path.basename(config.toolDirectory);
+  if (!/^[a-f0-9]{64}$/.test(key)) return { released: 0 };
+  const lifecycle = require("./artifact-lifecycle.cjs");
+  const id = `version:${path.basename(config.release)}`;
+  const record = lifecycle.catalog(projectRoot).find(record => record.id === id);
+  if (!record) return { released: 0 };
+  if (record.owner !== "azrael-release" || record.kind !== "version" ||
+      record.members.filter(member => member.role === "release").length !== 1 ||
+      !record.members.some(member => member.role === "release" && path.resolve(member.path) === path.resolve(config.release))) {
+    throw new Error("Exact prepared release lifecycle owner required.");
+  }
+  const build = readJson(path.join(config.release, "build-info.json"));
+  const consumers = require("./module-cache-consumers.cjs");
+  const legacyInvalidation = cacheInvalidation && build.moduleBuild?.cacheOwner === undefined;
+  const cacheOwner = legacyInvalidation ? consumers.legacyToolOwner(projectRoot, config, cacheInvalidation) :
+    build.moduleBuild?.cacheOwner ?? path.resolve(projectRoot);
+  if (typeof cacheOwner !== "string" || !path.isAbsolute(cacheOwner) ||
+      cacheInvalidation && path.resolve(config.toolDirectory) !== path.join(path.resolve(cacheOwner), "artifacts/cache/modules/companion", key)) throw new Error("Invalid module cache owner or tool path.");
+  const invalidation = consumers.toolInvalidation(projectRoot, output, { ...config, cacheOwner }, id, cacheInvalidation);
+  if (!invalidation && (record.state === "failed" || record.producer && record.producer.outcome !== "success")) {
+    throw new Error("Failed or unresolved release retains preparation tools.");
+  }
+  const references = record.references.filter(reference => reference.id === `run:module-cache:companion:${key}` &&
+    reference.reason === "companion-tool" && reference.kind === "dependency" &&
+    reference.member_paths === undefined && reference.target_revision === undefined && reference.target_version === undefined);
+  const proxyRequired = legacyInvalidation ? consumers.hasConsumer(cacheOwner, projectRoot, id, "companion", key) : build.moduleBuild?.cacheOwner !== undefined;
+  if (references.length) lifecycle.releaseReferences(projectRoot, id, {
+    owner: record.owner, expected_revision: record.revision,
+    reference_ids: references.map(reference => digest(JSON.stringify([reference.id, reference.reason, reference.kind]))),
+    reason: invalidation?.reason || "Verified package is complete; preparation tools can be recreated for subsequent checks.",
+    evidence_ref: checkpoint, evidence_sha256: digest(fs.readFileSync(checkpoint)),
+  });
+  if (proxyRequired) {
+    if (typeof cacheOwner !== "string" || !path.isAbsolute(cacheOwner)) throw new Error("Invalid module cache owner.");
+    require("./module-cache-consumers.cjs").release(cacheOwner, projectRoot, id, "companion", key,
+      checkpoint, digest(fs.readFileSync(checkpoint)), cacheInvalidation);
+  }
+  return { released: references.length, ...(legacyInvalidation ? { legacySourceOnly: !proxyRequired, cacheOwner,
+    authority: { evidence_ref: invalidation.evidence_ref, evidence_sha256: invalidation.evidence_sha256 } } : {}) };
+}
+module.exports = { initialize, save, load, inputs, releaseTools };
 if (require.main === module) {
   const [command, output, argument, extra, statePath, generation] = process.argv.slice(2);
   (async () => {
     if (command === "init") await initialize(output, readJson(argument), extra === "true", statePath && generation ? { statePath, generation } : undefined);
     else if (command === "save") await save(output, argument, readJson(extra));
     else if (command === "load") console.log(JSON.stringify(await load(output, argument)));
+    else if (command === "release-tools") console.log(JSON.stringify(await releaseTools(output, argument, extra ? readJson(extra) : undefined)));
     else throw new Error("Unknown preparation checkpoint command.");
   })().catch(error => { console.error(error.message); process.exitCode = 1; });
 }

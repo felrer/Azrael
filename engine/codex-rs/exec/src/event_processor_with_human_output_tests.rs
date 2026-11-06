@@ -320,6 +320,7 @@ fn turn_completed_recovers_final_message_from_turn_items() {
             thread_id: "thread-1".to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
@@ -375,6 +376,7 @@ fn turn_completed_overwrites_stale_final_message_from_turn_items() {
             thread_id: "thread-1".to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
@@ -431,6 +433,7 @@ fn turn_completed_preserves_streamed_final_message_when_turn_items_are_empty() {
             thread_id: "thread-1".to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
@@ -480,6 +483,7 @@ fn turn_failed_clears_stale_final_message() {
             thread_id: "thread-1".to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
@@ -530,6 +534,7 @@ fn turn_interrupted_clears_stale_final_message() {
             thread_id: "thread-1".to_string(),
             turn: Turn {
                 root_resume_wait: None,
+                user_wait_timing: None,
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,

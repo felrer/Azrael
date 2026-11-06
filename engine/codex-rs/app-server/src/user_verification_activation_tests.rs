@@ -74,6 +74,7 @@ async fn user_verification_initialize_owns_advertisement_and_eligibility() -> Re
                 Some(&[ConnectionId(1)]),
                 rpc::ServerRequestPayload::McpServerElicitationRequest(
                     rpc::McpServerElicitationRequestParams {
+                        user_wait_request_id: None,
                         thread_id: thread_id.to_string(),
                         turn_id: None,
                         server_name: "codex_apps".into(),

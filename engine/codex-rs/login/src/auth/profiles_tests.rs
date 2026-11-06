@@ -174,6 +174,12 @@ async fn profiles_allow_independent_stores_to_share_usage_and_reuse_local_manage
     let first_store = AzraelProfileStore::new_ephemeral(accounts.clone());
     let second_store = AzraelProfileStore::new_ephemeral(accounts);
     let first = finalized_profile(&first_store, &template, "workspace-1", "user-1").await;
+    assert!(!first.requires_original_host_connection());
+    let project = self::template(root.path()).await;
+    project.set_external_auth(first.clone()).await.unwrap();
+    assert!(project.has_external_auth());
+    assert!(!project.requires_original_host_connection());
+    drop(project);
 
     let reused = first_store
         .open(first.id(), &template)
@@ -289,6 +295,7 @@ async fn profile_reload_does_not_revoke_the_shared_application_policy() {
 async fn profiles_remove_retires_every_cross_store_owner_even_with_active_usage() {
     let root = tempdir().expect("tempdir");
     let template = template(root.path()).await;
+    assert_eq!(template.azrael_profile_id(), None);
     let accounts = root.path().join("accounts");
     let owning_store = AzraelProfileStore::new_ephemeral(accounts.clone());
     let removing_store = AzraelProfileStore::new_ephemeral(accounts);
@@ -307,11 +314,13 @@ async fn profiles_remove_retires_every_cross_store_owner_even_with_active_usage(
         .set_external_auth(external)
         .await
         .expect("bind root manager");
+    assert_eq!(template.azrael_profile_id().as_deref(), Some(id.as_str()));
     assert!(template.auth_cached().is_some());
     removing_store
         .remove(&id)
         .await
         .expect("retirement overrides active usage");
+    assert_eq!(template.azrael_profile_id(), None);
     assert!(
         removing_store
             .list()
