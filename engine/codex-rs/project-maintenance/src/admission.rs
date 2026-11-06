@@ -185,7 +185,8 @@ pub(crate) fn scopes(
             }
             let group = request
                 .get("group")
-                .or_else(|| request.get("refresh_group"));
+                .or_else(|| request.get("refresh_group"))
+                .or_else(|| request.get("retire_group_source"));
             if let Some(group) = group {
                 let id = string(group, "id")?;
                 add(&mut scopes, group_scope(root, id)?, true);
@@ -198,6 +199,13 @@ pub(crate) fn scopes(
                 }
                 for item in group["members"].as_array().into_iter().flatten() {
                     item_scopes(root, item, true, &mut scopes, auth)?;
+                }
+                if let Some(retirement) = request.get("retire_group_source") {
+                    let evidence =
+                        paths::resolve(root, Path::new(string(retirement, "evidence_ref")?))?;
+                    paths::check(root, &evidence, auth)?;
+                    auth(&evidence, AccessMode::Read)?;
+                    add(&mut scopes, evidence, false);
                 }
                 // Native inventory reference strings are protection labels,
                 // not authority to acquire another producer's queue scope.

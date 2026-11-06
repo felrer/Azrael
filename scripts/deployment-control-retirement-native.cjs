@@ -89,15 +89,44 @@ module.exports.createNativeGuard = ({ checked, identity, absent, sha, inside, ov
     identity(document, "file");
     return document;
   }
-  function referencePaths(root, object, depth = 0, output = []) {
-    if (depth > 32 || output.length > 10000) throw Error("Unbounded native provenance metadata");
-    if (typeof object === "string") { if (path.isAbsolute(object)) output.push(nativePath(root, object)); }
-    else if (Array.isArray(object)) for (const value of object) referencePaths(root, value, depth + 1, output);
-    else if (object && typeof object === "object") for (const [key, value] of Object.entries(object)) {
-      if (/(?:^|_)(?:path|root|ref|source|destination)$/.test(key) && typeof value === "string" && value) output.push(metadataPath(root, value, key));
-      else referencePaths(root, value, depth + 1, output);
+  function hasReferencePath(root, object, predicate) {
+    let visited = 0;
+    const count = depth => {
+      if (++visited > 2000000 || depth > 32) throw Error("Unbounded native provenance metadata");
+    };
+    const visit = (value, depth) => {
+      count(depth);
+      if (typeof value === "string") return path.isAbsolute(value) && predicate(nativePath(root, value));
+      if (Array.isArray(value)) {
+        for (const item of value) if (visit(item, depth + 1)) return true;
+      } else if (value && typeof value === "object") {
+        // Iterate own fields without retaining an entries or path array.
+        for (const key in value) {
+          if (!Object.hasOwn(value, key)) continue;
+          const item = value[key];
+          if (/(?:^|_)(?:path|root|ref|source|destination)$/.test(key) && typeof item === "string" && item) {
+            // Legacy reference fields are interpreted at their container depth.
+            count(depth);
+            if (predicate(metadataPath(root, item, key))) return true;
+          } else if (visit(item, depth + 1)) return true;
+        }
+      }
+      return false;
+    };
+    return visit(object, 0);
+  }
+  function registrySourcePaths(root, group) {
+    if (group.membership_source_format !== "producer_registry_v1") return null;
+    const source = group.membership_source, catalog = path.join(root, "artifacts/maintenance/lifecycles");
+    if (typeof source !== "string" || !path.isAbsolute(source) || source.split(/[\\/]/).some(part => part === "." || part === "..") ||
+        (process.platform === "win32" ? source.replaceAll("/", path.sep) : source) !== catalog ||
+        typeof group.id !== "string" || !group.id.trim() || typeof group.owner !== "string" || !group.owner.trim() ||
+        typeof group.membership_complete !== "boolean" || typeof group.membership_source_identity !== "string" || !/^[a-f0-9]{64}$/.test(group.membership_source_identity)) {
+      return null; // Unsupported bindings retain ordinary physical path protection.
     }
-    return output;
+    // The catalog is a namespace; this group's own publication remains protected.
+    const stem = sha(group.id);
+    return [path.join(catalog, stem + ".json"), path.join(catalog, stem + ".pending")];
   }
   function decisionScope(root, target, decisions, items, groups) {
     const byItem = new Map(items.map(item => [item.id, item]));
@@ -138,7 +167,13 @@ module.exports.createNativeGuard = ({ checked, identity, absent, sha, inside, ov
       }
       const paths = explicitPaths(decision);
       for (const member of members) explicitPaths(member, paths);
-      if (group) explicitPaths(group, paths);
+      if (group) {
+        const sourcePaths = registrySourcePaths(root, group);
+        if (sourcePaths) {
+          paths.push(...sourcePaths);
+          explicitPaths({ ...group, membership_source: null }, paths);
+        } else explicitPaths(group, paths);
+      }
       if (paths.some(value => overlaps(value, target))) throw Error(`Pending/unknown native decision protects retirement scope: ${decision.id}`);
       disjoint.push({ id: decision.id, decision_id: decision.decision_id ?? null, status: decision.status,
         lifecycle_group_id: item.lifecycle_group_id ?? null, paths_checked: paths.length, sha256: sha(JSON.stringify(decision)) });
@@ -179,20 +214,23 @@ module.exports.createNativeGuard = ({ checked, identity, absent, sha, inside, ov
     const byGroup = new Map(groups.map(group => [group.id, group]));
     const tombstones = [];
     for (const group of groups) {
+      const sourcePaths = registrySourcePaths(root, group);
+      if (sourcePaths?.some(filename => overlaps(filename, target))) throw Error(`Native group publication protects workspace: ${group.id}`);
       for (const field of ["membership_source", "provenance_ref"]) {
+        if (field === "membership_source" && sourcePaths) continue;
         if (group[field] != null && typeof group[field] !== "string") throw Error("Invalid native group provenance path");
         if (group[field] && overlaps(metadataPath(root, group[field], field), target)) throw Error(`Native group evidence protects workspace: ${group.id}`);
       }
     }
     for (const item of items) {
       if (typeof item.path !== "string" || !path.isAbsolute(item.path) || !Array.isArray(item.references)) throw Error("Complete native item path/reference metadata required");
-      const references = referencePaths(root, item.provenance);
+      let referenced = hasReferencePath(root, item.provenance, value => overlaps(value, target));
       for (const field of ["source_path", "provenance_ref"]) {
         if (item[field] != null && typeof item[field] !== "string") throw Error("Invalid native item source/provenance path");
-        if (item[field]) references.push(metadataPath(root, item[field], field));
+        if (item[field] && overlaps(metadataPath(root, item[field], field), target)) referenced = true;
       }
       const itemPath = nativePath(root, item.path);
-      if (!overlaps(itemPath, target) && !references.some(value => overlaps(value, target))) continue;
+      if (!overlaps(itemPath, target) && !referenced) continue;
       const group = item.lifecycle_group_id ? byGroup.get(item.lifecycle_group_id) : null;
       if (item.lifecycle_group_id && !group) throw Error("Native item group missing from complete inventory");
       if (item.cleanup_status !== "deleted" || item.remaining !== false || item.generated !== true || item.protection_known !== true ||
@@ -204,8 +242,28 @@ module.exports.createNativeGuard = ({ checked, identity, absent, sha, inside, ov
     }
     return tombstones;
   }
-  async function capture(root, target, audit = () => {}) {
-    const before = controls(root), owner = command(), projectId = configScope(root, target), queries = [];
+  function publicationAssociations(entries, objects) {
+    const stems = new Set(entries.map(entry => path.basename(entry.path, ".pending")));
+    let visited = 0;
+    function visit(value, depth) {
+      if (++visited > 2000000 || depth > 32) throw Error("Unbounded publication ownership metadata");
+      if (typeof value === "string") {
+        if (stems.has(value) || stems.has(sha(value))) throw Error("Existing native publication owner association");
+      } else if (Array.isArray(value)) for (const child of value) visit(child, depth + 1);
+      else if (value && typeof value === "object") for (const child of Object.values(value)) visit(child, depth + 1);
+    }
+    for (const value of objects) visit(value, 0);
+  }
+  function publicationCatalog(root, entries, records) {
+    publicationAssociations(entries, records);
+    const targets = entries.flatMap(entry => [entry.path, entry.path.slice(0, -8) + ".json"]);
+    for (const record of records) {
+      if (hasReferencePath(root, record, value => targets.some(target => overlaps(value, target)))) throw Error("Existing lifecycle publication ownership or reference");
+    }
+  }
+  async function captureMany(root, targets, audit = () => {}, publications = null) {
+    const before = controls(root), owner = command(), projectId = configScope(root, targets[0]), queries = [];
+    for (const target of targets.slice(1)) same(configScope(root, target), projectId, "Native project binding changed");
     const observe = value => { queries.push(value); audit(value); };
     const capabilities = await query(owner, root, null, observe);
     validateControlCapabilities(capabilities);
@@ -232,8 +290,9 @@ module.exports.createNativeGuard = ({ checked, identity, absent, sha, inside, ov
     }
     // Validate complete inventory/projection bindings before the expensive run
     // readers. Native inventory intentionally omits group member IDs.
-    const disjointPendingDecisions = inventoryDecisionScope(root, target, before.manifest, decisions, items, groups);
-    const tombstones = claims(root, target, items, groups);
+    if (publications) publicationAssociations(publications, [...items, ...groups, ...decisions]);
+    const disjointPendingDecisions = targets.flatMap(target => inventoryDecisionScope(root, target, before.manifest, decisions, items, groups));
+    const tombstones = targets.flatMap(target => claims(root, target, items, groups));
     for (const [id, summary] of runs) {
       let total = null;
       for (let offset = 0;; offset += 200) {
@@ -247,9 +306,9 @@ module.exports.createNativeGuard = ({ checked, identity, absent, sha, inside, ov
           if (!Array.isArray(step.inputs) || !["passed", "failed", "interrupted", "unknown", "not_run"].includes(step.status)) throw Error("Unknown native run custody shape");
           for (const input of step.inputs) {
             if (typeof input.path !== "string" || !path.isAbsolute(input.path)) throw Error("Native run input path missing");
-            if (active && overlaps(input.path, target)) throw Error(`Active or unresolved native run input protects workspace: ${id}`);
+            if (active && targets.some(target => overlaps(input.path, target))) throw Error(`Active or unresolved native run input protects workspace: ${id}`);
           }
-          if (active && items.some(item => overlaps(item.path, target) && (item.run_id === id || item.provenance?.run_id === id))) throw Error("Active native item producer protects workspace");
+          if (active && items.some(item => targets.some(target => overlaps(item.path, target)) && (item.run_id === id || item.provenance?.run_id === id))) throw Error("Active native item producer protects workspace");
         }
         same(controls(root), before, "Native metadata changed during reader query");
         if (offset + 200 >= total) break;
@@ -259,27 +318,197 @@ module.exports.createNativeGuard = ({ checked, identity, absent, sha, inside, ov
     same(command(), owner, "Installed native owner changed during metadata queries");
     return { controls: before, command: owner, capabilities, totals, tombstones, disjointPendingDecisions, queries };
   }
-  function quiescent(root, observers = []) {
-    for (const filename of [path.join(root, "artifacts/maintenance/manifest.pending")]) if (!absent(filename)) throw Error("Pending native state requires existing explicit recovery");
-    const catalog = checked(root, path.join(root, "artifacts/maintenance/lifecycles"));
-    identity(catalog, "directory");
-    if (fs.readdirSync(catalog).some(name => name.endsWith(".pending"))) throw Error("Pending lifecycle publication requires existing explicit recovery");
-    const directory = path.join(root, "artifacts/maintenance/lifecycles/reservations");
-    checked(root, directory);
-    if (absent(directory)) { if (observers.length) throw Error("Owned reservation directory disappeared"); return; }
-    identity(directory, "directory");
+  function capture(root, target, audit) { return captureMany(root, [target], audit); }
+  function captureEmptyPublications(root, entries, audit) {
+    if (!Array.isArray(entries) || entries.length !== 2 || new Set(entries.map(entry => entry.path)).size !== 2 ||
+        entries.some(entry => path.dirname(entry.path) !== path.join(root, "artifacts/maintenance/lifecycles") || !/^[a-f0-9]{64}\.pending$/.test(path.basename(entry.path)))) throw Error("Exact two empty publication paths required");
+    // Canonical siblings are protected by the same complete metadata snapshot.
+    return captureMany(root, entries.flatMap(entry => [entry.path, entry.path.slice(0, -8) + ".json"]), audit, entries);
+  }
+  // Only dedicated owners construct this scope from their already checked
+  // selections. Omitting it preserves the strict foreign-reservation refusal.
+  function reservationScope(root, scope) {
+    if (!scope || Object.keys(scope).sort().join(",") !== "ids,paths,pendingStems" ||
+        !Array.isArray(scope.paths) || !scope.paths.length || !Array.isArray(scope.ids) || !scope.ids.length ||
+        !Array.isArray(scope.pendingStems) || scope.pendingStems.some(value => !/^[a-f0-9]{64}$/.test(value))) throw Error("Exact owner-derived reservation scope required");
+    for (const filename of scope.paths) {
+      if (typeof filename !== "string" || !path.isAbsolute(filename) || path.normalize(filename) !== filename) throw Error("Absolute normalized reservation scope required");
+      checked(root, filename);
+    }
+    if (scope.ids.some(value => typeof value !== "string" || !value.trim())) throw Error("Exact logical reservation scope required");
+    return scope;
+  }
+  function known(value, fields, label, nested = []) {
+    if (!value || typeof value !== "object" || Array.isArray(value) || Object.keys(value).some(key => !fields.includes(key) || value[key] !== null && typeof value[key] === "object" && !nested.includes(key))) throw Error("Unclear " + label + " reservation fields");
+  }
+  function foreignReservation(root, value, scope) {
+    const nonempty = value => typeof value === "string" && value.trim().length > 0;
+    const hex = value => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+    const catalog = path.join(root, "artifacts/maintenance/lifecycles");
+    const catalogSource = filename => typeof filename === "string" && path.isAbsolute(filename) &&
+      !filename.split(/[\\/]/).some(part => part === "." || part === "..") &&
+      (process.platform === "win32" ? filename.replaceAll("/", path.sep) : filename) === catalog;
+    known(value, ["schema", "status", "id", "token", "members", "lease_owner", "manifest_revision", "group_scope", "source", "source_fence", "source_owner", "purpose", "registration_sources"], "foreign", ["members", "lease_owner", "group_scope", "source_owner", "registration_sources"]);
+    if (value.schema !== 1 || value.status !== "active" || !nonempty(value.id) || !nonempty(value.token) || !Array.isArray(value.members) ||
+        Object.hasOwn(value, "purpose") && value.purpose !== "registration") throw Error("Unsupported active foreign reservation");
+    known(value.group_scope, ["id", "owner", "kind", "version", "members", "membership_source", "membership_source_identity"], "group scope", ["members"]);
+    if (value.group_scope.id !== value.id || !nonempty(value.group_scope.owner) || !Array.isArray(value.group_scope.members) ||
+        value.group_scope.members.some(id => !nonempty(id)) || value.group_scope.members.length !== value.members.length ||
+        new Set(value.group_scope.members).size !== value.group_scope.members.length ||
+        value.members.some(member => !value.group_scope.members.includes(member?.id)) ||
+        !catalogSource(value.group_scope.membership_source) || value.group_scope.membership_source_identity !== null && !hex(value.group_scope.membership_source_identity)) throw Error("Unclear foreign group scope");
+    known(value.lease_owner, ["schema", "pid", "token", "operation", "acquired_at_ms"], "lease owner");
+    if (value.lease_owner.schema !== 2 || !Number.isSafeInteger(value.lease_owner.pid) || value.lease_owner.pid <= 0 ||
+        !nonempty(value.lease_owner.token) || !nonempty(value.lease_owner.operation) || !Number.isSafeInteger(value.lease_owner.acquired_at_ms) ||
+        !Number.isSafeInteger(value.manifest_revision) || value.manifest_revision < 0) throw Error("Unclear foreign lease metadata");
+    const plainPath = filename => {
+      if (!nonempty(filename) || !path.isAbsolute(filename) || path.normalize(filename) !== filename || nativePath(root, filename) !== filename) throw Error("Absolute normalized foreign member path required");
+    };
+    const references = values => {
+      if (!Array.isArray(values)) throw Error("Unclear foreign references");
+      for (const ref of values) {
+        known(ref, ["id", "kind", "member_paths", "reason", "reference_id"], "reference", ["member_paths"]);
+        if (!nonempty(ref.id) || ref.member_paths != null && !Array.isArray(ref.member_paths)) throw Error("Unclear foreign reference binding");
+        for (const filename of ref.member_paths || []) plainPath(filename);
+      }
+    };
+    for (const member of value.members) {
+      known(member, ["cache_schema", "cleanup_status", "created_at_ms", "generated", "id", "identity", "kind", "lifecycle_group_id", "lifecycle_role", "logical_bytes", "measured_at_ms", "owner", "path", "presence", "protection_known", "protection_revision", "provenance", "provenance_ref", "references", "registered_at_ms", "remaining", "role", "source_path", "tool", "version"], "member", ["references"]);
+      if (!nonempty(member.id) || !nonempty(member.owner) || Object.hasOwn(member, "lifecycle_group_id") && member.lifecycle_group_id !== value.id || member.owner !== value.group_scope.owner) throw Error("Unclear foreign member ownership");
+      plainPath(member.path);
+      if (Object.hasOwn(member, "references")) references(member.references);
+      if (member.provenance != null && typeof member.provenance !== "string") throw Error("Unsupported foreign provenance shape");
+    }
+    const binding = item => {
+      if (!catalogSource(item.source) || !hex(item.source_fence)) throw Error("Foreign reservation source namespace or fence unsupported");
+      const owner = item.source_owner;
+      known(owner, ["schema", "id", "owner", "kind", "version", "generation", "state", "revision", "created_at", "updated_at", "members", "membership_complete", "owned_root", "ownership_scope", "producer", "references", "close_receipt", "release_receipt", "cleanup_recovery", "recover_receipt"], "source owner", ["members", "references", "producer", "close_receipt", "release_receipt", "cleanup_recovery", "recover_receipt"]);
+      if (owner.schema !== 1 || owner.id !== value.id || owner.owner !== value.group_scope.owner || !Array.isArray(owner.members) ||
+          !nonempty(owner.state) || !Number.isSafeInteger(owner.revision) || owner.revision < 1) throw Error("Foreign reservation source owner mismatch");
+      if (owner.generation != null && !nonempty(owner.generation)) throw Error("Unclear foreign generation");
+      if (!["run", "work", "version"].includes(owner.kind) || owner.kind !== value.group_scope.kind ||
+          owner.version != null && !nonempty(owner.version)) throw Error("Unclear foreign source owner kind/version");
+      references(owner.references);
+      for (const member of owner.members) {
+        known(member, ["path", "role", "generated", "protection_known"], "source owner member");
+        plainPath(member.path);
+      }
+      if (owner.producer != null) known(owner.producer, ["status", "outcome", "exit_code", "reason", "evidence_ref", "evidence_sha256"], "source producer");
+      for (const receipt of [owner.close_receipt, owner.release_receipt]) if (receipt != null) known(receipt, ["reason", "evidence_ref", "evidence_sha256", "request_sha256"], "source receipt");
+      // Classify existing recovery metadata, never authenticate an external
+      // stop claim or grant deletion/release authority from these flags. The
+      // complete object stays in the subsequent path and logical-ID walk.
+      if (Object.hasOwn(owner, "cleanup_recovery")) {
+        const recovery = owner.cleanup_recovery;
+        known(recovery, ["schema", "id", "kind", "owner", "version", "generation", "source_revision", "original_state", "original_producer", "original_membership_complete", "members", "evidence_ref", "evidence_sha256", "reason", "producer_stopped_verified", "membership_complete_verified", "verified_at"], "cleanup recovery", ["original_producer", "members"]);
+        if (recovery.schema !== 1 || recovery.id !== owner.id || recovery.kind !== owner.kind || recovery.owner !== owner.owner ||
+            recovery.version !== (owner.version ?? null) || recovery.generation !== (owner.generation ?? null) ||
+            !Number.isSafeInteger(recovery.source_revision) || recovery.source_revision < 1 || recovery.original_state !== owner.state || owner.state !== "pending" ||
+            typeof recovery.original_membership_complete !== "boolean" || owner.membership_complete !== true ||
+            recovery.producer_stopped_verified !== true || recovery.membership_complete_verified !== true ||
+            !nonempty(recovery.reason) || !nonempty(recovery.verified_at) || !Number.isFinite(Date.parse(recovery.verified_at)) ||
+            !hex(recovery.evidence_sha256)) throw Error("Unclear foreign cleanup recovery binding");
+        plainPath(recovery.evidence_ref);
+        same(recovery.original_producer, owner.producer ?? null, "Foreign cleanup original producer binding changed");
+        same(recovery.members, owner.members, "Foreign cleanup member binding changed");
+        if (owner.producer && (owner.producer.status !== "stopped" || owner.producer.outcome !== "unknown" || owner.producer.exit_code !== null) ||
+            owner.members.some(member => member.generated !== true || member.protection_known !== true)) throw Error("Unsupported foreign cleanup recovery shape");
+      }
+      if (Object.hasOwn(owner, "recover_receipt")) {
+        const receipt = owner.recover_receipt;
+        known(receipt, ["reason", "evidence_ref", "evidence_sha256", "request_sha256"], "recover receipt");
+        if (!nonempty(receipt.reason) || !hex(receipt.evidence_sha256) || !hex(receipt.request_sha256)) throw Error("Unclear foreign recover receipt");
+        plainPath(receipt.evidence_ref);
+      }
+    };
+    binding(value);
+    const foreign = structuredClone(value);
+    // These exact, validated fields name the source catalog namespace. Every
+    // source-owner payload, reference and evidence field remains in the walk.
+    delete foreign.source; delete foreign.group_scope.membership_source;
+    if (value.purpose === "registration") {
+      if (!Array.isArray(value.registration_sources) || !value.registration_sources.length) throw Error("Foreign registration source bindings required");
+      for (let index = 0; index < value.registration_sources.length; index++) {
+        const item = value.registration_sources[index];
+        known(item, ["source", "source_fence", "source_owner"], "registration binding", ["source_owner"]);
+        if (Object.keys(item).sort().join(",") !== "source,source_fence,source_owner") throw Error("Exact foreign registration binding required");
+        binding(item); delete foreign.registration_sources[index].source;
+      }
+    } else if (Object.hasOwn(value, "registration_sources")) throw Error("Unexpected foreign registration binding");
+    if (hasReferencePath(root, foreign, filename => scope.paths.some(target => overlaps(filename, target)))) throw Error("Related foreign reservation path protects metadata custody");
+    const associations = new Set([...scope.pendingStems, ...scope.ids.flatMap(id => [id, sha(id), sha(JSON.stringify(id))])]);
+    let visited = 0;
+    function visit(item, depth = 0) {
+      if (++visited > 2000000 || depth > 32) throw Error("Unbounded foreign reservation associations");
+      if (typeof item === "string") {
+        if (associations.has(item) || associations.has(sha(item)) || associations.has(sha(JSON.stringify(item)))) throw Error("Related foreign reservation logical association protects metadata custody");
+      } else if (Array.isArray(item)) for (const child of item) visit(child, depth + 1);
+      else if (item && typeof item === "object") for (const child of Object.values(item)) visit(child, depth + 1);
+    }
+    visit(foreign);
+  }
+  function validateReservations(root, records, observers = [], scope = null) {
+    if (!Array.isArray(records) || !Array.isArray(observers) || observers.some(value => typeof value?.id !== "string" || !value.fence) ||
+        new Set(observers.map(value => value.id)).size !== observers.length) throw Error("Exact native reservation observers required");
+    if (scope !== null) reservationScope(root, scope);
     const seen = new Set();
-    for (const name of fs.readdirSync(directory)) {
-      if (!name.endsWith(".json")) continue;
-      const filename = checked(root, path.join(directory, name));
-      const before = identity(filename, "file"), bytes = fs.readFileSync(filename);
-      same(identity(filename, "file"), before, "Active reservation changed while observing custody");
-      const fence = JSON.parse(bytes), expected = observers.find(value => value.id === fence.id);
-      if (!expected || name !== sha(JSON.stringify(fence.id)) + ".json") throw Error("Foreign active/suspended native writer or cleanup reservation protects metadata custody");
-      same(fence, expected.fence, "Owned reservation fence changed during maintenance custody");
+    for (const record of records) {
+      const fence = record.value, expected = observers.find(value => value.id === fence?.id);
+      if (typeof fence?.id !== "string" || !fence.id.trim() || record.name !== sha(JSON.stringify(fence.id)) + ".json" || seen.has(fence.id)) throw Error("Active reservation identity/path mismatch");
+      if (expected) same(fence, expected.fence, "Owned reservation fence changed during maintenance custody");
+      else {
+        if (scope === null) throw Error("Foreign active/suspended native writer or cleanup reservation protects metadata custody");
+        foreignReservation(root, fence, scope);
+      }
       seen.add(fence.id);
     }
     if (observers.some(value => !seen.has(value.id))) throw Error("Owned reservation disappeared during metadata custody");
   }
-  return { capture, verify, quiescent, validateDecisionScope: decisionScope, validateInventoryDecisionScope: inventoryDecisionScope, validateInventoryClaims: claims };
+  function reservationRecords(root, observers = [], scope = null) {
+    const directory = checked(root, path.join(root, "artifacts/maintenance/lifecycles/reservations"));
+    if (absent(directory)) {
+      if (observers.length) throw Error("Owned reservation directory disappeared");
+      if (!absent(directory)) throw Error("Reservation directory appeared during observation");
+      return;
+    }
+    const observe = () => {
+      const before = identity(directory, "directory"), names = fs.readdirSync(directory).sort();
+      if (names.length > 10000) throw Error("Unbounded reservation directory membership");
+      const records = [];
+      let rawBytes = 0n;
+      for (const name of names) {
+        if (!/\.json$/i.test(name)) continue;
+        const filename = checked(root, path.join(directory, name)), before = identity(filename, "file");
+        const size = BigInt(before.size);
+        if (size < 0n || size > 64n * 1024n * 1024n) throw Error("Bounded plain reservation required");
+        rawBytes += size;
+        if (rawBytes > 64n * 1024n * 1024n) throw Error("Aggregate reservation bytes exceed 64 MiB bound");
+        const fd = fs.openSync(filename, "r"), buffer = Buffer.alloc(Number(size) + 1);
+        let length = 0;
+        try {
+          while (length < buffer.length) { const count = fs.readSync(fd, buffer, length, buffer.length - length, null); if (!count) break; length += count; }
+        } finally { fs.closeSync(fd); }
+        if (length !== Number(size)) throw Error("Reservation size changed during bounded read");
+        const bytes = buffer.subarray(0, length);
+        same(identity(filename, "file"), before, "Active reservation changed while observing custody");
+        records.push({ name, identity: before, sha256: sha(bytes), value: JSON.parse(bytes) });
+      }
+      same(fs.readdirSync(directory).sort(), names, "Reservation directory membership changed");
+      same(identity(directory, "directory"), before, "Reservation directory identity changed");
+      return { identity: before, names, records };
+    };
+    const first = observe();
+    validateReservations(root, first.records, observers, scope);
+    const second = observe();
+    same(second, first, "Reservation identity, bytes, parsed content or membership changed during custody observation");
+    validateReservations(root, second.records, observers, scope);
+  }
+  function quiescent(root, observers = [], scope = null) {
+    for (const filename of [path.join(root, "artifacts/maintenance/manifest.pending")]) if (!absent(filename)) throw Error("Pending native state requires existing explicit recovery");
+    const catalog = checked(root, path.join(root, "artifacts/maintenance/lifecycles"));
+    identity(catalog, "directory");
+    if (fs.readdirSync(catalog).some(name => name.endsWith(".pending"))) throw Error("Pending lifecycle publication requires existing explicit recovery");
+    reservationRecords(root, observers, scope);
+  }
+  return { capture, captureEmptyPublications, verify, quiescent, reservationRecords, validateReservations, validateDecisionScope: decisionScope, validateInventoryDecisionScope: inventoryDecisionScope, validateInventoryClaims: claims, validatePublicationAssociations: publicationAssociations, validatePublicationCatalog: publicationCatalog };
 };

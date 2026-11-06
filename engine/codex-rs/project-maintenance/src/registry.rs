@@ -438,6 +438,38 @@ pub(crate) fn producer_records(
     catalog(root, source, id, auth)
 }
 
+/// Retirement cannot interpret an unreadable or invalid record as no consumer.
+/// Ordinary catalog observation intentionally retains its existing lenient policy.
+pub(crate) fn retirement_records(
+    root: &Path,
+    source: &Path,
+    auth: Auth<'_>,
+) -> Result<BTreeMap<String, Value>, String> {
+    check_lock(root, source, auth)?;
+    let before = names(root, source, auth)?;
+    let mut records = BTreeMap::new();
+    for path in &before {
+        let bytes = read(root, path, auth)
+            .map_err(|_| "retirement catalog record unavailable or changed")?;
+        let record: Value = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
+        validate(root, &record)?;
+        if read(root, path, auth).map_err(|_| "retirement catalog record unavailable or changed")?
+            != bytes
+        {
+            return Err("retirement catalog record changed".into());
+        }
+        let id = string(&record, "id")?.to_owned();
+        if records.insert(id, record).is_some() {
+            return Err("duplicate producer id".into());
+        }
+    }
+    if names(root, source, auth)? != before {
+        return Err("retirement catalog membership changed".into());
+    }
+    check_lock(root, source, auth)?;
+    Ok(records)
+}
+
 #[cfg(test)]
 mod catalog_tests {
     use super::*;
