@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 95970951,
+  "byteCount": 96004068,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -11014,8 +11014,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "255453a8f799139a658a1df1b1ffd7976c5ec64c06fd9fefed9fcba6ebdb5670",
-      "size": 86122
+      "sha256": "f42f9a2e5b59ddc3e94c237b36a5c82431d8ca99898fac2c25280e51f5913672",
+      "size": 87442
     },
     "codex-rs/app-server/src/azrael_shared_server/tests.rs": {
       "gitMode": "100644",
@@ -11112,8 +11112,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "1070da6cbc8fef13979a022828c22b2c8e548c70e855cb93adff4db5b636efcc",
-      "size": 32031
+      "sha256": "b8d600aeb3878cb718bfac578c0501e72f67cb931a7dc7ee44417754a90f766b",
+      "size": 36264
     },
     "codex-rs/app-server/src/config_manager_provider_tests.rs": {
       "gitMode": "100644",
@@ -11287,8 +11287,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "f79ffe2867e2dfee00d75806ee7ddfffb1fc70748bc6f6080f2d42536b79393d",
-      "size": 49439
+      "sha256": "7cd8e74359330d00d44b56a9216020be0173a48e1285701df1b0f404ea562678",
+      "size": 49486
     },
     "codex-rs/app-server/src/in_process_bootstrap.rs": {
       "gitMode": "100644",
@@ -11322,8 +11322,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "a69b21afa4a5afd9e9f88fe148bf3acc9944270f0fd75e4b6bf09de676b9f5c2",
-      "size": 72419
+      "sha256": "3c3a71172f5f38e3b02dd7effdf2922d88d8df50d2be066f7d57b29d67306917",
+      "size": 72461
     },
     "codex-rs/app-server/src/log_write_warning.rs": {
       "gitMode": "100644",
@@ -11371,8 +11371,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "cd89477e3a42a63f75b01cf57443a8c1c4bbbbb51d10c377bed5150cc1f35246",
-      "size": 96308
+      "sha256": "a3508d52c8c6277f7bfd86a56c1172cba1d897e284edc82729fee73ef0f52bd2",
+      "size": 96593
     },
     "codex-rs/app-server/src/message_processor_gateway_oauth_tests.rs": {
       "gitMode": "100644",
@@ -11399,8 +11399,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "8a4b55befbfa2f27e8b9a0aa12efe919258adc6b60bc3c664d6c3e159ceee7eb",
-      "size": 26652
+      "sha256": "4b847c2bd129b2ceae5e3f5fd4ff0cfa538ba686731ef7bf34b9ba5368887597",
+      "size": 26691
     },
     "codex-rs/app-server/src/model_catalog.rs": {
       "gitMode": "100644",
@@ -11469,36 +11469,36 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "8b604388d1206bc0e17ef43050d784f7ad7e8c4a12e5644b14fc6dea972cb605",
-      "size": 81241
+      "sha256": "4d503abf03740fb5d6fd0148b1742cc41c71efe5176e01ec66d2d8633822f92d",
+      "size": 83536
     },
     "codex-rs/app-server/src/request_processors/account_processor/azrael.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "1654bebe591efddd83660ba36b82c720d36535c2a9ff72aafe64dff8289b79fd",
-      "size": 40173
+      "sha256": "d38f7ca082e33e11598c4feb16247ffd6543a03389efe475ea0beaa56620a6ff",
+      "size": 44207
     },
     "codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "0239228ffb00796a01c875ea62c238994d566cb5544dd56d48c1166b170edc9d",
-      "size": 7729
+      "sha256": "682b68342d081498ca3f82b731795b8e6a32bf1069f919e2ea9755c3c7bd8c63",
+      "size": 7838
     },
     "codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "d5a48007af87b77b495d0493ffcefe743556b357a3cdb3a5a5aab77788b1af6c",
-      "size": 20678
+      "sha256": "6fe6f545f686e7a8ece725352dfc2ed193ddd2048b76efb1bda0254122a4558d",
+      "size": 23086
     },
     "codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "f15fe3180db4e773918d95630b2a79363b3fab591e1c821fab40250a97b69a57",
-      "size": 16590
+      "sha256": "3f714ec7f364908534061312b1acf716595f8086e312edee8cf1fc8de06dc3aa",
+      "size": 22754
     },
     "codex-rs/app-server/src/request_processors/account_processor/bedrock_gov_cloud.rs": {
       "gitMode": "100644",
@@ -11560,8 +11560,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "5776fbe1ab696d3e05e1e8a0c23c631812f90aa5a62d47ac666e6bdcf476634a",
-      "size": 16126
+      "sha256": "ceb6f71ae2188c02fa36003c892f97e9cf1d79247b516a9b9a97de61cf241220",
+      "size": 16472
     },
     "codex-rs/app-server/src/request_processors/account_processor/usage_identity_tests.rs": {
       "gitMode": "100644",
@@ -12169,8 +12169,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "12d0481f346805b77baa6a74631f9ad0c1b78dc8626e539e12c330b435579c0f",
-      "size": 10500
+      "sha256": "bf80d43e1e396da8a38543d3e4853189be90c211bddaf8f23ad69654456ffbd5",
+      "size": 10511
     },
     "codex-rs/app-server/src/user_verification_activation_tests.rs": {
       "gitMode": "100644",
@@ -12253,8 +12253,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "3458f9e74fd439e18a704fccfd87856f57b8d9dd35606a2224753d876b9ab6b8",
-      "size": 11291
+      "sha256": "2aef64e4e2a8d70b28204b38c67edf9cce363253ebe137af4947ea02f1db35c0",
+      "size": 11333
     },
     "codex-rs/app-server/src/user_verification_tests.rs": {
       "gitMode": "100644",
@@ -33960,8 +33960,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "f59f11d12e078d6bc682e3df52362558babc13068b6c8e8db654278124543032",
-      "size": 135879
+      "sha256": "045bf41c09fabfe06d4f1abaceb7428231d4cde12b79bf86f5e86b6b3635f63b",
+      "size": 138141
     },
     "codex-rs/login/src/auth/manager/workspace_routing.rs": {
       "gitMode": "100644",
@@ -33995,15 +33995,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "4cbe574405d03825f6e10f51b6aac079cd6f3e22c1334fbe9eb2458f5629cfbd",
-      "size": 25958
+      "sha256": "d0d4fe4830a6b4ec071431cddf8bd79cc2489c60b35252088011d6c986e71e36",
+      "size": 26212
     },
     "codex-rs/login/src/auth/profiles_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "f5bb0ab7776c38e94c8b4dee0a0890c9f5c396a9b7b7c47a2087dd55cc19e2b2",
-      "size": 30053
+      "sha256": "bd9186dae054a35e95f00e5efab83e913414426036a39c87de809576c67ab27a",
+      "size": 31036
     },
     "codex-rs/login/src/auth/revoke.rs": {
       "gitMode": "100644",
@@ -36361,15 +36361,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "b4a5a944fb7624f6649ca41f0c91807df17e15b7282c7104ae3e8af64881e8f7",
-      "size": 20379
+      "sha256": "3850924573cb28ed3f57181cee7a477805e6b415e3711f91ba981f745092971e",
+      "size": 20629
     },
     "codex-rs/project-maintenance/src/coordination.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "8f2a2ae3b6900d9328d96b27b4f6a57695396a72878b4391de960d2a11f59119",
-      "size": 79976
+      "sha256": "0385a70a387f34714080dadde3cd938d132c91a0647de109d0d3a7a0b7075742",
+      "size": 87673
     },
     "codex-rs/project-maintenance/src/disk_budget.rs": {
       "gitMode": "100644",
@@ -36410,8 +36410,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "0e04e42fb6e548def9a2ca583b68a7ce9f49fbab8944b3fc69110472d2c0f060",
-      "size": 42450
+      "sha256": "635e7de1dc14b552706d6d2fafaf6bdb17baead107286e9116deae77362a3e5d",
+      "size": 42746
     },
     "codex-rs/project-maintenance/src/lock_wait.rs": {
       "gitMode": "100644",
@@ -65431,7 +65431,7 @@
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
   "inventoryCount": 9345,
-  "inventorySha256": "73230595a4f82b4b52eb0fd466494b7f5c3b249583929ca2b1db1a3d49a7b6bf",
+  "inventorySha256": "8011b69ce063281c91cbd67f1ae16e044e656f40259407ae820e700589be2578",
   "localIntegration": {
     "changes": {
       ".gitattributes": {
@@ -67185,8 +67185,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "255453a8f799139a658a1df1b1ffd7976c5ec64c06fd9fefed9fcba6ebdb5670",
-          "size": 86122
+          "sha256": "f42f9a2e5b59ddc3e94c237b36a5c82431d8ca99898fac2c25280e51f5913672",
+          "size": 87442
         },
         "before": null
       },
@@ -67251,8 +67251,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "1070da6cbc8fef13979a022828c22b2c8e548c70e855cb93adff4db5b636efcc",
-          "size": 32031
+          "sha256": "b8d600aeb3878cb718bfac578c0501e72f67cb931a7dc7ee44417754a90f766b",
+          "size": 36264
         },
         "before": {
           "gitMode": "100644",
@@ -67283,8 +67283,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "f79ffe2867e2dfee00d75806ee7ddfffb1fc70748bc6f6080f2d42536b79393d",
-          "size": 49439
+          "sha256": "7cd8e74359330d00d44b56a9216020be0173a48e1285701df1b0f404ea562678",
+          "size": 49486
         },
         "before": {
           "gitMode": "100644",
@@ -67299,8 +67299,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "a69b21afa4a5afd9e9f88fe148bf3acc9944270f0fd75e4b6bf09de676b9f5c2",
-          "size": 72419
+          "sha256": "3c3a71172f5f38e3b02dd7effdf2922d88d8df50d2be066f7d57b29d67306917",
+          "size": 72461
         },
         "before": {
           "gitMode": "100644",
@@ -67347,8 +67347,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "cd89477e3a42a63f75b01cf57443a8c1c4bbbbb51d10c377bed5150cc1f35246",
-          "size": 96308
+          "sha256": "a3508d52c8c6277f7bfd86a56c1172cba1d897e284edc82729fee73ef0f52bd2",
+          "size": 96593
         },
         "before": {
           "gitMode": "100644",
@@ -67363,8 +67363,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "8a4b55befbfa2f27e8b9a0aa12efe919258adc6b60bc3c664d6c3e159ceee7eb",
-          "size": 26652
+          "sha256": "4b847c2bd129b2ceae5e3f5fd4ff0cfa538ba686731ef7bf34b9ba5368887597",
+          "size": 26691
         },
         "before": {
           "gitMode": "100644",
@@ -67427,8 +67427,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "8b604388d1206bc0e17ef43050d784f7ad7e8c4a12e5644b14fc6dea972cb605",
-          "size": 81241
+          "sha256": "4d503abf03740fb5d6fd0148b1742cc41c71efe5176e01ec66d2d8633822f92d",
+          "size": 83536
         },
         "before": {
           "gitMode": "100644",
@@ -67443,8 +67443,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "1654bebe591efddd83660ba36b82c720d36535c2a9ff72aafe64dff8289b79fd",
-          "size": 40173
+          "sha256": "d38f7ca082e33e11598c4feb16247ffd6543a03389efe475ea0beaa56620a6ff",
+          "size": 44207
         },
         "before": {
           "gitMode": "100644",
@@ -67454,13 +67454,29 @@
           "size": 40030
         }
       },
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "682b68342d081498ca3f82b731795b8e6a32bf1069f919e2ea9755c3c7bd8c63",
+          "size": 7838
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "0239228ffb00796a01c875ea62c238994d566cb5544dd56d48c1166b170edc9d",
+          "size": 7729
+        }
+      },
       "codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs": {
         "after": {
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "d5a48007af87b77b495d0493ffcefe743556b357a3cdb3a5a5aab77788b1af6c",
-          "size": 20678
+          "sha256": "6fe6f545f686e7a8ece725352dfc2ed193ddd2048b76efb1bda0254122a4558d",
+          "size": 23086
         },
         "before": {
           "gitMode": "100644",
@@ -67475,8 +67491,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "f15fe3180db4e773918d95630b2a79363b3fab591e1c821fab40250a97b69a57",
-          "size": 16590
+          "sha256": "3f714ec7f364908534061312b1acf716595f8086e312edee8cf1fc8de06dc3aa",
+          "size": 22754
         },
         "before": {
           "gitMode": "100644",
@@ -67484,6 +67500,22 @@
           "permissions": 438,
           "sha256": "c341ef462e56ac494bbe1c7a5fd30a93fe5210034708d621ce68586c7bbcf12e",
           "size": 16372
+        }
+      },
+      "codex-rs/app-server/src/request_processors/account_processor/retirement.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "ceb6f71ae2188c02fa36003c892f97e9cf1d79247b516a9b9a97de61cf241220",
+          "size": 16472
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "5776fbe1ab696d3e05e1e8a0c23c631812f90aa5a62d47ac666e6bdcf476634a",
+          "size": 16126
         }
       },
       "codex-rs/app-server/src/request_processors/account_processor/usage_identity_tests.rs": {
@@ -67666,13 +67698,29 @@
           "size": 24518
         }
       },
+      "codex-rs/app-server/src/user_verification.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bf80d43e1e396da8a38543d3e4853189be90c211bddaf8f23ad69654456ffbd5",
+          "size": 10511
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "12d0481f346805b77baa6a74631f9ad0c1b78dc8626e539e12c330b435579c0f",
+          "size": 10500
+        }
+      },
       "codex-rs/app-server/src/user_verification_test_support.rs": {
         "after": {
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "3458f9e74fd439e18a704fccfd87856f57b8d9dd35606a2224753d876b9ab6b8",
-          "size": 11291
+          "sha256": "2aef64e4e2a8d70b28204b38c67edf9cce363253ebe137af4947ea02f1db35c0",
+          "size": 11333
         },
         "before": {
           "gitMode": "100644",
@@ -71697,8 +71745,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "f59f11d12e078d6bc682e3df52362558babc13068b6c8e8db654278124543032",
-          "size": 135879
+          "sha256": "045bf41c09fabfe06d4f1abaceb7428231d4cde12b79bf86f5e86b6b3635f63b",
+          "size": 138141
         },
         "before": {
           "gitMode": "100644",
@@ -71713,8 +71761,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "4cbe574405d03825f6e10f51b6aac079cd6f3e22c1334fbe9eb2458f5629cfbd",
-          "size": 25958
+          "sha256": "d0d4fe4830a6b4ec071431cddf8bd79cc2489c60b35252088011d6c986e71e36",
+          "size": 26212
         },
         "before": {
           "gitMode": "100644",
@@ -71722,6 +71770,22 @@
           "permissions": 438,
           "sha256": "34b5bdb7e360baced94e403ae99ca688d8234bf32c47cc5f0553e1cfdafb4b93",
           "size": 25937
+        }
+      },
+      "codex-rs/login/src/auth/profiles_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bd9186dae054a35e95f00e5efab83e913414426036a39c87de809576c67ab27a",
+          "size": 31036
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "f5bb0ab7776c38e94c8b4dee0a0890c9f5c396a9b7b7c47a2087dd55cc19e2b2",
+          "size": 30053
         }
       },
       "codex-rs/login/src/auth/storage.rs": {
@@ -72119,8 +72183,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "b4a5a944fb7624f6649ca41f0c91807df17e15b7282c7104ae3e8af64881e8f7",
-          "size": 20379
+          "sha256": "3850924573cb28ed3f57181cee7a477805e6b415e3711f91ba981f745092971e",
+          "size": 20629
         },
         "before": null
       },
@@ -72129,8 +72193,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "8f2a2ae3b6900d9328d96b27b4f6a57695396a72878b4391de960d2a11f59119",
-          "size": 79976
+          "sha256": "0385a70a387f34714080dadde3cd938d132c91a0647de109d0d3a7a0b7075742",
+          "size": 87673
         },
         "before": null
       },
@@ -72189,8 +72253,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "0e04e42fb6e548def9a2ca583b68a7ce9f49fbab8944b3fc69110472d2c0f060",
-          "size": 42450
+          "sha256": "635e7de1dc14b552706d6d2fafaf6bdb17baead107286e9116deae77362a3e5d",
+          "size": 42746
         },
         "before": null
       },
@@ -139052,7 +139116,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
-    "repositoryHead": "9d583ffca53c5797d670481ce09827bb3ecef711",
+    "repositoryHead": "9b54d7787eb6d0aae1e42f9077bc88735833c7d1",
     "schema": 4,
     "sourcePrefix": "engine"
   },

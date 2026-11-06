@@ -216,4 +216,5 @@ async function verifyDeploymentWorkspace(context) {
   if (manifest.engine && (JSON.stringify(engineSnapshot(manifest.immutableProjectRoot, manifest.immutableEngineRoot, manifest.pythonExecutable)) !== JSON.stringify(manifest.engine) || JSON.stringify(engineSnapshot(manifest.immutableProjectRoot, manifest.workingEngineRoot, manifest.pythonExecutable)) !== JSON.stringify(manifest.engine))) throw Error("Compiled engine source differs from immutable inputs");
   return { status: "verified", projectSha256: immutable.sha256, engine: manifest.engine, inputLifecycleId: manifest.inputLifecycleId, workingLifecycleId: manifest.workingLifecycleId };
 }
-module.exports = { prepareDeploymentWorkspace, verifyDeploymentWorkspace };
+const { prepareDeploymentControlRetirement, applyDeploymentControlRetirement } = require("./deployment-control-retirement.cjs");
+module.exports = { prepareDeploymentWorkspace, verifyDeploymentWorkspace, prepareDeploymentControlRetirement, applyDeploymentControlRetirement };

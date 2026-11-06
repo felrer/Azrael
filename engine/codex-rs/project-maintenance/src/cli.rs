@@ -93,6 +93,7 @@ fn request_mode_with_home(
                 | "review"
                 | "apply"
                 | "begin_run"
+                | "run_status"
                 | "request_status"
                 | "request_cancel"
                 | "request_ack"
@@ -103,7 +104,7 @@ fn request_mode_with_home(
         )
     ) {
         return Err(
-            "owner runner supports only inventory/register/review/apply/begin_run/request_status/request_cancel/request_ack/request_recover/request_recover_pending/recover_lock/recover_reservation".into(),
+            "owner runner supports only inventory/register/review/apply/begin_run/run_status/request_status/request_cancel/request_ack/request_recover/request_recover_pending/recover_lock/recover_reservation".into(),
         );
     }
     let automatic = automatic_envelope(&mut request)?;
@@ -251,7 +252,7 @@ pub fn capabilities() -> Value {
         "preferences": true,
         "platform": {"os": os, "arch": arch},
         "operations": [
-            "inventory", "register", "review", "apply", "begin_run",
+            "inventory", "register", "review", "apply", "begin_run", "run_status",
             "request_status", "request_cancel", "request_ack", "request_recover", "request_recover_pending", "recover_lock",
             "recover_reservation",
         ],
@@ -329,6 +330,11 @@ mod tests {
         assert!(request.get("coordination").is_none());
         assert!(
             automatic_envelope(&mut serde_json::json!({"operation":"inventory"}))
+                .unwrap()
+                .is_none()
+        );
+        assert!(
+            automatic_envelope(&mut serde_json::json!({"operation":"run_status"}))
                 .unwrap()
                 .is_none()
         );
@@ -514,6 +520,7 @@ mod tests {
                 "review",
                 "apply",
                 "begin_run",
+                "run_status",
                 "request_status",
                 "request_cancel",
                 "request_ack",

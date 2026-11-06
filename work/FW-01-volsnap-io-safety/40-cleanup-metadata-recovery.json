@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "actualExit": 0,
+  "startedUtc": "2026-11-06T02:31:04.745Z",
+  "scope": "New explicit metadata-only attempt2, quiet gate; no physical apply/delete/new fixture/native change",
+  "original37Status": "unknown preserved",
+  "recordId": "work:deployment-control-retirement:79868d24-78c5-43a2-9b93-133925f1b25f",
+  "releases": [
+    {
+      "filename": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\maintenance\\lifecycles\\catalog.lock",
+      "options": {
+        "operation": "test.control-finalize-reconcile",
+        "waitMs": 5000,
+        "queue": true,
+        "drainOnly": true
+      },
+      "native_pid": 32248,
+      "result": {
+        "released": true,
+        "reservations_retained": [],
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true
+      }
+    },
+    {
+      "filename": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\maintenance\\lifecycles\\catalog.lock",
+      "options": {
+        "operation": "test.control-original-caller-close",
+        "waitMs": 5000,
+        "queue": true,
+        "drainOnly": true
+      },
+      "native_pid": 51652,
+      "result": {
+        "released": true,
+        "reservations_retained": [],
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true
+      }
+    }
+  ],
+  "preflight": {
+    "record": {
+      "created_at": "2026-11-06T01:54:18.789Z",
+      "generation": "79868d24-78c5-43a2-9b93-133925f1b25f",
+      "id": "work:deployment-control-retirement:79868d24-78c5-43a2-9b93-133925f1b25f",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\workspace",
+          "protection_known": true,
+          "role": "deployment-control-container"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "control-retirement-test",
+      "references": [],
+      "revision": 1,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-11-06T01:54:18.790Z",
+      "version": "79868d24-78c5-43a2-9b93-133925f1b25f"
+    },
+    "sha256": "8184709611fcc8fa7695c65fa6ab178cfa32483938e09164cad4bf79d0d40b1e",
+    "remainingMembers": [],
+    "inboundReferences": [],
+    "sidecarPreflight": {
+      "sidecarNames": [
+        "5b12cbe23e0e8d345d8a50ba58f97ae6a77b9b10fbbf65047d1fa86b4d5a0511.5e8fe15b00513bd23876cffdf6465542e7a7559d242712ae7f2632f0d748a35f.terminal",
+        "5b12cbe23e0e8d345d8a50ba58f97ae6a77b9b10fbbf65047d1fa86b4d5a0511.lock"
+      ],
+      "activeReservationJsonAbsent": true,
+      "terminalFenceCurrentEvidenceExact": true,
+      "lockMetadata": "Nonempty persisted schema2 owner metadata; content does not establish current OS lock availability. Supported native guards retain custody checks.",
+      "originalActualReleaseCloseProof": "original37-control-flow-stop-assessment.json; accepted source+runtime proof, not direct old terminal packet"
+    },
+    "priorReservationFinished": true
+  },
+  "lockedPreflight": {
+    "record": {
+      "created_at": "2026-11-06T01:54:18.789Z",
+      "generation": "79868d24-78c5-43a2-9b93-133925f1b25f",
+      "id": "work:deployment-control-retirement:79868d24-78c5-43a2-9b93-133925f1b25f",
+      "kind": "work",
+      "members": [
+        {
+          "generated": true,
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\workspace",
+          "protection_known": true,
+          "role": "deployment-control-container"
+        }
+      ],
+      "membership_complete": true,
+      "owner": "control-retirement-test",
+      "references": [],
+      "revision": 1,
+      "schema": 1,
+      "state": "complete",
+      "updated_at": "2026-11-06T01:54:18.790Z",
+      "version": "79868d24-78c5-43a2-9b93-133925f1b25f"
+    },
+    "sha256": "8184709611fcc8fa7695c65fa6ab178cfa32483938e09164cad4bf79d0d40b1e",
+    "remainingMembers": [],
+    "inboundReferences": [],
+    "sidecarPreflight": {
+      "sidecarNames": [
+        "5b12cbe23e0e8d345d8a50ba58f97ae6a77b9b10fbbf65047d1fa86b4d5a0511.5e8fe15b00513bd23876cffdf6465542e7a7559d242712ae7f2632f0d748a35f.terminal",
+        "5b12cbe23e0e8d345d8a50ba58f97ae6a77b9b10fbbf65047d1fa86b4d5a0511.lock"
+      ],
+      "activeReservationJsonAbsent": true,
+      "terminalFenceCurrentEvidenceExact": true,
+      "lockMetadata": "Nonempty persisted schema2 owner metadata; content does not establish current OS lock availability. Supported native guards retain custody checks.",
+      "originalActualReleaseCloseProof": "original37-control-flow-stop-assessment.json; accepted source+runtime proof, not direct old terminal packet"
+    },
+    "priorReservationFinished": true
+  },
+  "finalize": {
+    "id": "work:deployment-control-retirement:79868d24-78c5-43a2-9b93-133925f1b25f",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\maintenance\\lifecycles\\adb2da479bb9df8dc55116cf0e76b3859881df0fe70b5f1f501fb98476e2a4a2.json"
+  },
+  "recordAbsent": true,
+  "callerBefore": {
+    "created_at": "2026-11-06T01:54:13.289Z",
+    "id": "run:test:controller",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\inputs",
+        "protection_known": true,
+        "role": "inputs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\temporary",
+        "protection_known": true,
+        "role": "temporary"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\logs",
+        "protection_known": true,
+        "role": "logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\reports",
+        "protection_known": true,
+        "role": "reports"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\outputs",
+        "protection_known": true,
+        "role": "outputs"
+      }
+    ],
+    "membership_complete": false,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller",
+    "owner": "control-retirement-test",
+    "ownership_scope": "run-root",
+    "references": [],
+    "revision": 1,
+    "schema": 1,
+    "state": "pending",
+    "updated_at": "2026-11-06T01:54:13.290Z",
+    "version": null
+  },
+  "callerClosed": {
+    "created_at": "2026-11-06T01:54:13.289Z",
+    "id": "run:test:controller",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\inputs",
+        "protection_known": true,
+        "role": "inputs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\temporary",
+        "protection_known": true,
+        "role": "temporary"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\logs",
+        "protection_known": true,
+        "role": "logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\reports",
+        "protection_known": true,
+        "role": "reports"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\outputs",
+        "protection_known": true,
+        "role": "outputs"
+      }
+    ],
+    "membership_complete": true,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller",
+    "owner": "control-retirement-test",
+    "ownership_scope": "run-root",
+    "references": [],
+    "revision": 2,
+    "schema": 1,
+    "state": "failed",
+    "updated_at": "2026-11-06T02:31:05.805Z",
+    "version": null,
+    "producer": {
+      "status": "stopped",
+      "outcome": "failure",
+      "exit_code": 1,
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\reports\\metadata-recovery-actual-stop-attempt2.json",
+      "evidence_sha256": "f5f6414d05e5d55e3d26c7f3a1873469dee651a1785ca2080f5fd9fd044f27b0",
+      "reason": "Original worker actualexit1/close and accepted source+runtime native release0close control-flow proof; unknown apply result preserved"
+    },
+    "close_receipt": {
+      "request_sha256": "b68f0958bf046fdd217be8e0f26434b12faacbf46ee857d5750887e8bf5f26ce",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-cleanup-js-r2\\artifacts\\tasks\\strict-cleanup-js\\runs\\gated-cleanup-retry\\temporary\\happy\\normal\\artifacts\\tasks\\test\\runs\\controller\\reports\\metadata-recovery-actual-stop-attempt2.json",
+      "evidence_sha256": "f5f6414d05e5d55e3d26c7f3a1873469dee651a1785ca2080f5fd9fd044f27b0",
+      "reason": "Original worker actualexit1/close and accepted source+runtime native release0close control-flow proof; unknown apply result preserved"
+    }
+  },
+  "endedUtc": "2026-11-06T02:31:05.983Z",
+  "limits": [
+    "Original37unknown unchanged",
+    "No actual3targets/newfixture/physicalapply/recorder/compile",
+    "Source/native/candidatebytes unchanged",
+    "New result is explicit metadata attempt, not original apply success"
+  ]
+}

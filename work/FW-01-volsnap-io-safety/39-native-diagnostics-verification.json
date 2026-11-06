@@ -1,0 +1,730 @@
+{
+  "schema": 1,
+  "recordKind": "native-admission-diagnostics-verification",
+  "status": "passed",
+  "readiness": "READY for root integration; transport limitation recorded separately",
+  "completedUtc": "2026-11-06T02:30:20.091Z",
+  "scope": {
+    "policy": "Common observability only; existing timeout/cancellation, 5s caller deadline, FIFO conflict guards, acknowledgement and evidence bounds remain unchanged in selected input",
+    "verified": "Windows x64 local MSVC only",
+    "excluded": [
+      "installation/default owner replacement",
+      "orphan recovery",
+      "actual product cleanup",
+      "VSS rerun",
+      "benchmark",
+      "Linux/macOS acceptance",
+      "full engine/core/Node caller acceptance"
+    ]
+  },
+  "source": {
+    "method": "git-head-plus-unit-overlay",
+    "baseHead": "896108eb9c7b789a948b6605c2bb10a7e13094f7",
+    "parentAttempt": "unit7",
+    "candidateManifest": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\manifest-v7.json",
+    "candidateManifestSha256": "07d58a4a9e8aef0365839ecc4ed5a91fd9bce86b15036b878b13033396be04d0",
+    "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18",
+    "sourceListSha256": "bac7debfca520e2c3516b5713dc8dad98d1b598265732992bd81c52b6e1f3ecf",
+    "lockSha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df",
+    "closurePins": 79,
+    "changedSources": [
+      {
+        "path": "project-maintenance\\src\\coordination.rs",
+        "sha256": "0385a70a387f34714080dadde3cd938d132c91a0647de109d0d3a7a0b7075742"
+      },
+      {
+        "path": "project-maintenance\\src\\lock_recovery.rs",
+        "sha256": "635e7de1dc14b552706d6d2fafaf6bdb17baead107286e9116deae77362a3e5d"
+      }
+    ],
+    "files": [
+      {
+        "path": ".cargo\\config.toml",
+        "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b"
+      },
+      {
+        "path": "Cargo.lock",
+        "sha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df"
+      },
+      {
+        "path": "Cargo.toml",
+        "sha256": "7db85dfe9cf1d44c6ec6dea5a31b2336bdf803f2f2cbfe73f7a244040a6758c9"
+      },
+      {
+        "path": "project-maintenance\\Cargo.toml",
+        "sha256": "3f7efaa56f5dfa44e60dc21d5d4336b1687fa49f08ec7c1c5376b7afcdc2869b"
+      },
+      {
+        "path": "project-maintenance\\examples\\maintenance_dispatch.rs",
+        "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8"
+      },
+      {
+        "path": "project-maintenance\\src\\admission.rs",
+        "sha256": "61997d1d5c61e905256a9270aaa147b15cf38c8c66720ad55f9236d6b26b7476"
+      },
+      {
+        "path": "project-maintenance\\src\\apply.rs",
+        "sha256": "9f16076fbec6b6865b3bb98e880cca4ea632be02d9bec0d8310e1bf2e6cf366c"
+      },
+      {
+        "path": "project-maintenance\\src\\bin\\maintenance_owner.rs",
+        "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936"
+      },
+      {
+        "path": "project-maintenance\\src\\cli.rs",
+        "sha256": "3850924573cb28ed3f57181cee7a477805e6b415e3711f91ba981f745092971e"
+      },
+      {
+        "path": "project-maintenance\\src\\coordination.rs",
+        "sha256": "0385a70a387f34714080dadde3cd938d132c91a0647de109d0d3a7a0b7075742"
+      },
+      {
+        "path": "project-maintenance\\src\\disk_budget.rs",
+        "sha256": "00f3ed44091ae98405db1730c1a5f3cb7e1204d90557225c57c25b2706552bbc"
+      },
+      {
+        "path": "project-maintenance\\src\\groups.rs",
+        "sha256": "cfd3b5e6d6c49dbec2ae60aec87fd58a7366d354a00709dd12512830153cae3f"
+      },
+      {
+        "path": "project-maintenance\\src\\io_priority.rs",
+        "sha256": "7ac1a29b632f02147a9a002500c4a392a39d55c0999a7060ef2c2b8e717dbe75"
+      },
+      {
+        "path": "project-maintenance\\src\\lease.rs",
+        "sha256": "55e8f7f51c2e94d28d28b85ef71999486b41d68ae05c7ed7dab169a8fc18d2f8"
+      },
+      {
+        "path": "project-maintenance\\src\\lib.rs",
+        "sha256": "fab60f0c57494dd503558d318be3f9a0f402078c43f4b63697f5186a7101b72d"
+      },
+      {
+        "path": "project-maintenance\\src\\lock_recovery.rs",
+        "sha256": "635e7de1dc14b552706d6d2fafaf6bdb17baead107286e9116deae77362a3e5d"
+      },
+      {
+        "path": "project-maintenance\\src\\lock_wait.rs",
+        "sha256": "268e547a4128e2cdec28ace5e5266539f37a17c973e43a7259959012352a05be"
+      },
+      {
+        "path": "project-maintenance\\src\\nested_retirement.rs",
+        "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06"
+      },
+      {
+        "path": "project-maintenance\\src\\paths.rs",
+        "sha256": "53908c738445538dfbc7e96b0071f6a78d1b41b9e55a1f4336a8fa1168aa2685"
+      },
+      {
+        "path": "project-maintenance\\src\\planning.rs",
+        "sha256": "452fb10076918b6092eefadf28293d598004865d46c5d39be11a25dd366bfba0"
+      },
+      {
+        "path": "project-maintenance\\src\\preferences.rs",
+        "sha256": "e94847d9e6ee716fdeef9b0a34952ee9e64e059f160ae7272bd30ae2b5da21af"
+      },
+      {
+        "path": "project-maintenance\\src\\registration.rs",
+        "sha256": "0afd90602598af6c261ad1c6c89eb14c3fb0d1ba18871b16662d95b44da18a95"
+      },
+      {
+        "path": "project-maintenance\\src\\registry.rs",
+        "sha256": "66d674894559a08901b71c3242b535ee4c28d6c64cdeb53d8083ed8834aa756d"
+      },
+      {
+        "path": "project-maintenance\\src\\reservations.rs",
+        "sha256": "125a04873a97fda310038251e257ff4ff0187b0212f0a4bf21ff183b181cffce"
+      },
+      {
+        "path": "project-maintenance\\src\\retirement.rs",
+        "sha256": "ee9187c68667beff0624dc6ed940243ab28d044c82c7fbb47487436ed2367eb2"
+      },
+      {
+        "path": "project-maintenance\\src\\review_relations.rs",
+        "sha256": "02ab58ece513f473356f0ec06bdd72040b8877d9ce6f54476e606ee5dcedcefd"
+      },
+      {
+        "path": "project-maintenance\\src\\review_reuse.rs",
+        "sha256": "8edb1c6c3a47275da25eed621d060e4b75f20c9955fb840eb00130dd8cad8e91"
+      },
+      {
+        "path": "project-maintenance\\src\\run_measurement.rs",
+        "sha256": "c004f3280d8d7dad7e78cf52385509925d117598cea1ebd6fe943002bd0d0a09"
+      },
+      {
+        "path": "project-maintenance\\src\\storage.rs",
+        "sha256": "1537c9d7bf1c9dd6e2eeaf34e7bcd67f7f1527ccb352aa72b095caefefdead4b"
+      },
+      {
+        "path": "project-maintenance\\src\\timing.rs",
+        "sha256": "e92ca342f78783ac21c865cadab95530b4d76207bb5d7e810d5a3ba1beafab32"
+      },
+      {
+        "path": "project-maintenance\\src\\windows_delete.rs",
+        "sha256": "693a0bdc7e2c831254070fa2c55aba51896cf84ac63f3e565eeef182b7ddac71"
+      },
+      {
+        "path": "project-maintenance\\tests\\absent_adoption.rs",
+        "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a"
+      },
+      {
+        "path": "project-maintenance\\tests\\contracts.rs",
+        "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df"
+      },
+      {
+        "path": "project-maintenance\\tests\\groups.rs",
+        "sha256": "963b6b77135183b90dac01792f292603ac3ebf9a22eeda8ec2cf215e42247ce8"
+      },
+      {
+        "path": "project-maintenance\\tests\\hardlink_normalization.rs",
+        "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf"
+      },
+      {
+        "path": "project-maintenance\\tests\\lock_recovery.rs",
+        "sha256": "bba60370c4460a0d3d7c55dcfc33362c582cbafc19e28736746b12f8eca1d275"
+      },
+      {
+        "path": "project-maintenance\\tests\\nested_retirement.rs",
+        "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec"
+      },
+      {
+        "path": "project-maintenance\\tests\\registry.rs",
+        "sha256": "13d1c1c933549c3e06e55a57f55a879b461c07f661ad1c53310bb65f4f2092c3"
+      },
+      {
+        "path": "project-maintenance\\tests\\root_retirement.rs",
+        "sha256": "e680a45636be409f186cf0e6d5e218ae7fc3ef47100b824a219520f3cce1740d"
+      },
+      {
+        "path": "project-maintenance\\tests\\run_measurement.rs",
+        "sha256": "54ec01572532a778b9dff1312f1377cc53b3451d0b8c188f3860dddbb0931438"
+      },
+      {
+        "path": "project-maintenance\\tests\\verified_junctions.rs",
+        "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2"
+      },
+      {
+        "path": "utils\\process\\BUILD.bazel",
+        "sha256": "e2dda5bd5234cd732dfbf954b2d73366ef9baba3cf5b307fd7773abf9b54b7da"
+      },
+      {
+        "path": "utils\\process\\Cargo.toml",
+        "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f"
+      },
+      {
+        "path": "utils\\process\\src\\background_command_tests.rs",
+        "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6"
+      },
+      {
+        "path": "utils\\process\\src\\lib.rs",
+        "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90"
+      }
+    ],
+    "unit7Unchanged": true,
+    "unit8Unchanged": true,
+    "candidateV7Unchanged": true
+  },
+  "preflight": {
+    "stage": "preflight",
+    "exit": 0,
+    "tools": {
+      "rustc": {
+        "path": "C:\\Users\\felre\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+        "version": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "exit": 0
+      },
+      "cargo": {
+        "path": "C:\\Users\\felre\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\cargo.exe",
+        "version": "cargo 1.98.0 (797e8a9bc 2026-08-05)",
+        "exit": 0
+      }
+    },
+    "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18",
+    "lockSha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df",
+    "packages": 79,
+    "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\t",
+    "cargoHome": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\ch",
+    "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\unit8-probe-state",
+    "home": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\unit8-probe-state\\home",
+    "lifecycleRevision": 1,
+    "plannedOutputs": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit8",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\unit8-probe-state",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit8-maintenance_owner.exe"
+    ],
+    "targetReuse": "Existing owned temporary/t, sequential single producer; no duplicate target",
+    "metadataInputs": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit8\\codex-rs\\project-maintenance\\Cargo.toml",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\e-unit8\\codex-rs\\utils\\process\\Cargo.toml"
+    ]
+  },
+  "execution": {
+    "compile": {
+      "stage": "compile",
+      "args": [
+        "test",
+        "-p",
+        "azrael-project-maintenance",
+        "--locked",
+        "--offline",
+        "--no-run"
+      ],
+      "exit": 0,
+      "signal": null,
+      "elapsedMs": 223153,
+      "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18",
+      "frozenUnchanged": true,
+      "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\unit8-probe-state",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\t"
+    },
+    "focused": {
+      "stage": "focused",
+      "args": [
+        "test",
+        "-p",
+        "azrael-project-maintenance",
+        "--locked",
+        "--offline",
+        "--lib",
+        "coordination::tests::admission_mutex_uses_the_original_request_deadline",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "signal": null,
+      "elapsedMs": 32996,
+      "preflight": {
+        "schema": 2,
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "contract": "selected-tests-v2",
+        "cargoInvocations": 1,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 1,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 80
+            }
+          ],
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 80,
+          "executed": 1
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "azrael-project-maintenance",
+              "--locked",
+              "--offline",
+              "--lib",
+              "coordination::tests::admission_mutex_uses_the_original_request_deadline",
+              "--",
+              "--exact",
+              "--test-threads=1"
+            ],
+            "startedUtc": "2026-11-06T02:22:31.225Z",
+            "durationMs": 32979,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18",
+      "frozenUnchanged": true,
+      "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\unit8-probe-state",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\t"
+    },
+    "full": {
+      "stage": "full",
+      "args": [
+        "test",
+        "-p",
+        "azrael-project-maintenance",
+        "--locked",
+        "--offline",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=2"
+      ],
+      "exit": 0,
+      "signal": null,
+      "elapsedMs": 368487,
+      "preflight": {
+        "schema": 2,
+        "compilation": "cargo-test",
+        "testExecution": "nonzero-passed",
+        "contract": "selected-tests-v2",
+        "cargoInvocations": 1,
+        "accepted": true,
+        "actualCounts": {
+          "summaries": [
+            {
+              "status": "ok",
+              "passed": 81,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 0,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 4,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 35,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 28,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 4,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 10,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 5,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 21,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 8,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 8,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 4,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            },
+            {
+              "status": "ok",
+              "passed": 0,
+              "failed": 0,
+              "ignored": 0,
+              "measured": 0,
+              "filteredOut": 0
+            }
+          ],
+          "passed": 208,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filteredOut": 0,
+          "executed": 208
+        },
+        "phases": [
+          {
+            "phase": "compilation-and-execution",
+            "args": [
+              "test",
+              "-p",
+              "azrael-project-maintenance",
+              "--locked",
+              "--offline",
+              "--no-fail-fast",
+              "--",
+              "--test-threads=2"
+            ],
+            "startedUtc": "2026-11-06T02:23:08.539Z",
+            "durationMs": 368470,
+            "exitCode": 0,
+            "signal": null
+          }
+        ]
+      },
+      "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18",
+      "frozenUnchanged": true,
+      "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\unit8-probe-state",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\t"
+    },
+    "binary": {
+      "stage": "binary",
+      "args": [
+        "build",
+        "-p",
+        "azrael-project-maintenance",
+        "--bin",
+        "maintenance_owner",
+        "--locked",
+        "--offline"
+      ],
+      "exit": 0,
+      "signal": null,
+      "elapsedMs": 311,
+      "sourceSha256": "2e57459bb0f14565411dda8fce3333c3bd730b7528b885323b8a62ba4ea88f18",
+      "frozenUnchanged": true,
+      "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\unit8-probe-state",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\t",
+      "executable": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit8-maintenance_owner.exe",
+        "sha256": "515d0f48efed78cbb8aded3d877417606ff9a169f0367b08c09989c9b5f42446"
+      }
+    }
+  },
+  "executable": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit8-maintenance_owner.exe",
+    "sha256": "515d0f48efed78cbb8aded3d877417606ff9a169f0367b08c09989c9b5f42446"
+  },
+  "boundaryVerification": {
+    "status": "passed-with-explicit-transport-limit",
+    "capabilities": {
+      "args": [
+        "capabilities"
+      ],
+      "exit": 0,
+      "value": {
+        "max_lock_wait_ms": 600000,
+        "max_queued_requests": 256,
+        "max_session_queued_requests": 32,
+        "operations": [
+          "inventory",
+          "register",
+          "review",
+          "apply",
+          "begin_run",
+          "run_status",
+          "request_status",
+          "request_cancel",
+          "request_ack",
+          "request_recover",
+          "request_recover_pending",
+          "recover_lock",
+          "recover_reservation"
+        ],
+        "platform": {
+          "arch": "x64",
+          "os": "win32"
+        },
+        "preferences": true,
+        "protocol": "maintenance-owner-lease-v1",
+        "request_file_policy": "outside-maintenance-state",
+        "request_queue_v1": true,
+        "request_transports": [
+          "file",
+          "stdin"
+        ],
+        "schema": 1,
+        "storage_formats": [
+          "legacy"
+        ]
+      }
+    },
+    "cliTests": {
+      "source": "Actual full package libtest stdout; no duplicate filtered Cargo invocation",
+      "passed": 6,
+      "lines": [
+        "test cli::tests::automatic_ack_preserves_outcomes_and_uncertainty ... ok",
+        "test cli::tests::automatic_coordination_respects_explicit_controls ... ok",
+        "test cli::tests::capability_contract ... ok",
+        "test cli::tests::command_boundaries ... ok",
+        "test cli::tests::request_transport_rejects_malformed_and_oversized_json ... ok",
+        "test cli::tests::request_transports_keep_disposable_files_outside_management_state ... ok"
+      ]
+    },
+    "diagnosticBoundary": {
+      "actual": "Focused native libtest executed expiry/cancel enrollment through coordination::run and crate::error_response, asserting exact error/fields/cancel-vs-expired/null-before-blocker/16KiB bound and ordinary wrapping",
+      "transport": "Static closure only: unchanged lease emit mutates the error_response Value by adding id/ok; unchanged CLI serializes error_response directly on stderr. No new failure packet emitted through a separate lease subprocess.",
+      "sourceLines": {
+        "lease": "lease.rs:19-29",
+        "cli": "cli.rs:292-299",
+        "wrapper": "lock_recovery.rs:24-44"
+      },
+      "freshLeaseFailureFixtureCreated": false
+    },
+    "readOnlyReuse": {
+      "receipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\21-cleanup-native-verification.json",
+      "receiptSha256": "a1c01c3f78519e6020b7fc034f73b1de8ce4c06729baaa2e8fb9d13a44c1585b",
+      "scope": "Prior unit7 actual capabilities/inventory/run_status eight-call read-only success evidence only; not reported as a fresh unit8 eight-call run",
+      "unchangedBoundarySources": [
+        {
+          "path": "project-maintenance\\src\\cli.rs",
+          "sha256": "3850924573cb28ed3f57181cee7a477805e6b415e3711f91ba981f745092971e"
+        },
+        {
+          "path": "project-maintenance\\src\\lib.rs",
+          "sha256": "fab60f0c57494dd503558d318be3f9a0f402078c43f4b63697f5186a7101b72d"
+        },
+        {
+          "path": "project-maintenance\\src\\preferences.rs",
+          "sha256": "e94847d9e6ee716fdeef9b0a34952ee9e64e059f160ae7272bd30ae2b5da21af"
+        },
+        {
+          "path": "project-maintenance\\src\\storage.rs",
+          "sha256": "1537c9d7bf1c9dd6e2eeaf34e7bcd67f7f1527ccb352aa72b095caefefdead4b"
+        },
+        {
+          "path": "project-maintenance\\src\\paths.rs",
+          "sha256": "53908c738445538dfbc7e96b0071f6a78d1b41b9e55a1f4336a8fa1168aa2685"
+        },
+        {
+          "path": "project-maintenance\\src\\lease.rs",
+          "sha256": "55e8f7f51c2e94d28d28b85ef71999486b41d68ae05c7ed7dab169a8fc18d2f8"
+        }
+      ],
+      "reason": "Diagnostics affect failed coordination admission; successful read-only entry/dispatch/storage/paths and serializer owners are byte-identical. Actual full CLI tests and fresh capabilities additionally pass."
+    },
+    "frozenUnchanged": true
+  },
+  "logs": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\compile.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\compile.stderr.log",
+      "bytes": 3449,
+      "sha256": "67817c45c3459ec67c7a9a94cec99540377905d47ef7b5a9fa28c561b5c34fd1"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\focused.stdout.log",
+      "bytes": 198,
+      "sha256": "edfe952f2a9962fb84c124ddaac29b411e9eebc20527c66b4c424c800ee1b9aa"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\focused.stderr.log",
+      "bytes": 1202,
+      "sha256": "3c37650e0c48348817a8d930911c205c4472fbdb3940d180adb71acbbf3dc975"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\full.stdout.log",
+      "bytes": 18437,
+      "sha256": "092e69697d92691571e34de560dde218d11905fdf57f1a9254e95fe2fe5969c1"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\full.stderr.log",
+      "bytes": 3308,
+      "sha256": "a069dca4f06c648a44a5d52d5e07a610c5bb1e4789f646e9ff06f184b75f3598"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\binary.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\binary.stderr.log",
+      "bytes": 999,
+      "sha256": "9cfe4d661df74c2d09545151b2c14fbf30ae5846a708d4558b77865278d296f1"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\capabilities.stdout.log",
+      "bytes": 546,
+      "sha256": "4919766e75d75b36973276411d7c54440a0af587d34f5a02aa8c3774332a188d"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit8\\capabilities.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "actualLibtestSummaries": [
+    "test result: ok. 81 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 147.62s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 70.03s",
+    "test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.84s",
+    "test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.43s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.88s",
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.87s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.20s",
+    "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 52.68s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.60s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.88s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.03s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+  ],
+  "testRetention": {
+    "newTestCount": 0,
+    "expandedExistingTest": "coordination::tests::admission_mutex_uses_the_original_request_deadline",
+    "reason": "Prevent repeat omission of diagnostic response structure and wrapper forwarding during later queue/serializer edits"
+  },
+  "resultMeaning": [
+    "Exact expanded deadline test actually passed; actual full package208 passed with no ignored/failed cases. These are scoped regression evidence, not an exhaustive scheduling proof.",
+    "Full package contains six individually observed CLI test passes, avoiding a duplicate filtered run.",
+    "New diagnostics are verified at actual coordination::run/error_response unit boundary. Lease/CLI emission closure is static source evidence; no new separate failure-packet subprocess fixture was executed.",
+    "Existing unit7 eight-call read-only probe evidence is reused for byte-identical successful read paths and recorded under its own original source identity. Only capabilities is freshly invoked on unit8 executable.",
+    "Original failure37 and metadata attempt38 are not rewritten or promoted; their historical scheduler cause remains unestablished."
+  ],
+  "artifactLifecycle": {
+    "id": "run:fw03v:native-613162bb",
+    "owner": "FW-01-integrated/native-verification",
+    "ownedRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb",
+    "claim": "Existing pending/incomplete run-root reservation; no new nested owner",
+    "activeConsumer": "Root integration and selected unit8 executable handoff",
+    "cleanup": "No producer reference release or cleanup performed; root owns lifecycle closure after acceptance consumers finish"
+  },
+  "limitations": [
+    "No installation/default settings/source/index/HEAD changes or commits in this verification assignment.",
+    "No new lease failure fixture, workload, orphan recovery, actual product cleanup, VSS or benchmark execution.",
+    "Direct subprocess delivery of a newly failed lease packet remains unexecuted; actual libtest wrapper and static unchanged emit/CLI closure are the available evidence."
+  ]
+}

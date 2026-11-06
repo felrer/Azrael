@@ -22,6 +22,85 @@ const child = code => spawnSync(process.execPath, ["-e", code], { encoding: "utf
 const hash = bytes => createHash("sha256").update(bytes).digest("hex");
 const checks = [];
 try {
+  const catalogWire = child("(" + function catalogOptions(helper, lock) {
+    const assert = require("node:assert/strict");
+    const fs = require("node:fs"), path = require("node:path"), owner = require(helper);
+    const lifecycle = require(path.join(path.dirname(helper), "artifact-lifecycle.cjs"));
+    const originalAcquire = owner.acquire, originalMkdir = fs.mkdirSync, captured = [];
+    let releaseFailure = null;
+    try {
+      fs.mkdirSync = () => {}; // No fixture or native producer is needed for option forwarding.
+      owner.acquire = (filename, options) => {
+        captured.push(options);
+        return { owner: { pid: 314 }, release() { if (releaseFailure) throw releaseFailure; return { native_exit_observed: true, native_exit_code: 0, native_signal: null, native_close_observed: true }; } };
+      };
+      const root = path.dirname(lock);
+      assert.equal(lifecycle.withCatalogLock(root, () => "default"), "default");
+      assert.equal(captured.pop().drainOnly, false);
+      assert.equal(lifecycle.withCatalogLock(root, () => lifecycle.withCatalogLock(root, () => "nested"),
+        { operation: "test.catalog-drain", drainOnly: true }), "nested");
+      assert.equal(captured.length, 1);
+      assert.equal(captured.pop().drainOnly, true);
+      const first = Object.assign(Error("original action error"), { lease: { native_close_observed: false } });
+      const originalStack = first.stack;
+      assert.throws(() => lifecycle.withCatalogLock(root, () => { throw first; }, { drainOnly: true }), error => {
+        assert.equal(error, first); assert.equal(error.stack, originalStack);
+        assert.equal(error.lease.native_close_observed, false);
+        assert.deepEqual(error.catalog_lease_release, { native_exit_observed: true, native_exit_code: 0, native_signal: null, native_close_observed: true, native_pid: 314 });
+        assert.equal(error.release_error, undefined); return true;
+      });
+      releaseFailure = Object.assign(Error("catalog release unknown"), { lease: { native_exit_observed: false, native_close_observed: false } });
+      assert.throws(() => lifecycle.withCatalogLock(root, () => "must not return", { drainOnly: true }), error => error === releaseFailure);
+      const primary = Error("primary catalog refusal");
+      assert.throws(() => lifecycle.withCatalogLock(root, () => { throw primary; }, { drainOnly: true }), error => error === primary && error.release_error === releaseFailure);
+    } finally { owner.acquire = originalAcquire; fs.mkdirSync = originalMkdir; }
+  } + ")(" + JSON.stringify(helper) + "," + JSON.stringify(lock) + ");");
+  assert.equal(catalogWire.status, 0, catalogWire.stderr);
+  // Retain: a future teardown simplification must not reintroduce timeout-kill
+  // for explicitly drain-only destructive owners, or turn late replies into success.
+  const drain = child("(" + function drainOnlyWire(helper, lock) {
+    const assert = require("node:assert/strict"), Module = require("node:module"), threads = require("node:worker_threads");
+    const load = Module._load, controls = [], ticks = { now: 0 };
+    let delayedClose, emptyReads = 0;
+    const originalPerformance = global.performance;
+    Object.defineProperty(global, "performance", { configurable: true, value: { now() { ticks.now += 20000; return ticks.now; } } });
+    class DrainWorker {
+      constructor(filename, options) {
+        this.port = options.workerData.port;
+        this.port.postMessage({ id: 0, ok: false, error: "first transport failure", transport_failure: true, coordination_diagnostics: { admission_phase: "waiting", wait_ms: 5000 } });
+        this.port.postMessage({ id: 0, ok: true, result: { pid: 99 } });
+        this.port.postMessage({ type: "closed", native_pid: 99, native_exit_observed: true, native_exit_code: 23, native_signal: null, native_close_observed: true });
+        // Capture adapter requests synchronously, without requiring this blocked
+        // JS thread to dispatch MessagePort callbacks.
+        const receive = threads.receiveMessageOnPort;
+        this.onTerminate = () => { let packet; while ((packet = receive(this.port))) controls.push(packet.message); };
+      }
+      on() { return this; } unref() {} terminate() { this.onTerminate(); this.port.close(); }
+    }
+    Module._load = function(id, ...args) {
+      return id === "node:worker_threads" ? { ...threads, Worker: DrainWorker, receiveMessageOnPort(port) {
+        if (delayedClose) { if (++emptyReads < 3) return undefined; const value = delayedClose; delayedClose = null; return value; }
+        const packet = threads.receiveMessageOnPort(port);
+        if (packet?.message.type === "closed") { delayedClose = packet; return undefined; }
+        return packet;
+      } } : load.call(this, id, ...args);
+    };
+    const { acquire } = require(helper);
+    assert.throws(() => acquire(lock, { operation: "test.drain-only", drainOnly: true, command: { executable: process.execPath, args: [] } }), error => {
+      assert.equal(error.message, "first transport failure");
+      assert.deepEqual(error.lease.coordination_diagnostics, { admission_phase: "waiting", wait_ms: 5000 });
+      assert.equal(error.lease.native_kill_requested, false);
+      assert.equal(error.lease.native_close_observed, true);
+      assert.equal(error.lease.native_exit_code, 23);
+      assert.equal(error.lease.late_response.ok, true);
+      return true;
+    });
+    assert(controls.some(packet => packet.control === "shutdown"));
+    assert(!controls.some(packet => packet.control === "kill"));
+    Object.defineProperty(global, "performance", { configurable: true, value: originalPerformance });
+  } + ")(" + [helper, lock].map(value => JSON.stringify(value)).join(",") + ");");
+  assert.equal(drain.status, 0, drain.stderr);
+  checks.push("opt-in drain-only teardown waits for close without kill and preserves the first failure after late success");
   const wire = child("(" + function wirePackets(helper, lock) {
     const assert = require("node:assert/strict"), Module = require("node:module");
     const threads = require("node:worker_threads"), load = Module._load;

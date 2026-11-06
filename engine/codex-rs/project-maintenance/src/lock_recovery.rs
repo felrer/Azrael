@@ -23,6 +23,13 @@ pub(crate) fn requested_wait(request: &Value) -> Result<std::time::Duration, Str
 /// remain ordinary errors, including Windows error 33 outside lock acquisition.
 pub fn error_response(error: &str) -> Value {
     if let Ok(value) = serde_json::from_str::<Value>(error) {
+        if error.len() <= 16 * 1024
+            && value.as_object().is_some_and(|object| object.len() == 2)
+            && value["error"] == "request cancelled or wait deadline exhausted"
+            && value["coordination_diagnostics"].is_object()
+        {
+            return value;
+        }
         if value["code"] == "maintenance_busy"
             && value["retryable"] == true
             && value["error"].is_string()

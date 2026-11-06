@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "status": "passed-with-external-head-index-change-separated",
+  "assessmentActualExit": 0,
+  "original41ActualOuterExit": 1,
+  "officialRecorderActualExit": 0,
+  "officialSnapshotActualExit": 0,
+  "originalFailure": "Additional rawfile-to-Gitblob assertion failed at original SQL; baseline bytes CRLF and canonical Git LF differ by existing clean/EOL rules",
+  "sqlRepresentation": {
+    "path": "codex-rs/state/goals_migrations/0001_thread_goals.sql",
+    "rawBytes": 513,
+    "baselineBytes": 513,
+    "headBytes": 495,
+    "rawEqualsBaseline": true,
+    "rawBlob": "3eafd9f77a4819951013c78b8050f4fda3a43845",
+    "headAndNewIndexBlob": "943226ee8a19ff4341e1b22f1892e3a13cb19dcc",
+    "newIndexBlob": "943226ee8a19ff4341e1b22f1892e3a13cb19dcc",
+    "oldUnit7IndexBlob": "943226ee8a19ff4341e1b22f1892e3a13cb19dcc",
+    "gitCleanBlobReadonly": "943226ee8a19ff4341e1b22f1892e3a13cb19dcc",
+    "cleanEqualsIndex": true,
+    "CRLFToLFEqualsIndexBytes": true,
+    "rawCRLFCount": 18,
+    "rawLFCount": 18
+  },
+  "originalSql83RawProtection": "Reuse original41 issuer pre-recorder baseline raw/descriptor83 exact; no SQL bytes altered or payload rehash repeated",
+  "selected21EntriesExact": {
+    "engine/SOURCE.json": {
+      "mode": "100644",
+      "gitBlob": "339f8f97bcb1d75115c0158196038d6bc54e475b"
+    },
+    "engine/codex-rs/app-server/src/azrael_shared_server.rs": {
+      "mode": "100644",
+      "gitBlob": "874a2cfcaf1ed09435ebab6d81179f3a1abbe25e"
+    },
+    "engine/codex-rs/app-server/src/config_manager.rs": {
+      "mode": "100644",
+      "gitBlob": "92863db76b835e01cae6f40cbe89fb590791167e"
+    },
+    "engine/codex-rs/app-server/src/in_process.rs": {
+      "mode": "100644",
+      "gitBlob": "d252604afbfbe3d8ecb822bdde060f507d179f3a"
+    },
+    "engine/codex-rs/app-server/src/lib.rs": {
+      "mode": "100644",
+      "gitBlob": "07e2c06a2bd2871faa8cf7ffd14256f6792b1b64"
+    },
+    "engine/codex-rs/app-server/src/message_processor.rs": {
+      "mode": "100644",
+      "gitBlob": "107ebeb80037f0c80ac07f9f10100462de860755"
+    },
+    "engine/codex-rs/app-server/src/message_processor_tracing_tests.rs": {
+      "mode": "100644",
+      "gitBlob": "57e385319daea7c755c58c4571e97f15b9cc9a31"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor.rs": {
+      "mode": "100644",
+      "gitBlob": "84d9cd502f8ac6045363e91ffdc76694e1d808f1"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/azrael.rs": {
+      "mode": "100644",
+      "gitBlob": "955cfbe9c6b0389cfafb60e68e3f98c3e066bc48"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs": {
+      "mode": "100644",
+      "gitBlob": "43bd592c12e6baed4564820b24f0a945f3461260"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs": {
+      "mode": "100644",
+      "gitBlob": "5165a2b372df00f1606e4028c731c10dd10f90fd"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs": {
+      "mode": "100644",
+      "gitBlob": "1bf6f8aaf00747cb827ebafd1b78976287b360c3"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/retirement.rs": {
+      "mode": "100644",
+      "gitBlob": "f548727b78a19b313ee8722d334f64e372521f36"
+    },
+    "engine/codex-rs/app-server/src/user_verification.rs": {
+      "mode": "100644",
+      "gitBlob": "de65a148a257cb03700d1fed9d5e32d30033cdc3"
+    },
+    "engine/codex-rs/app-server/src/user_verification_test_support.rs": {
+      "mode": "100644",
+      "gitBlob": "9e838e6f7eaf3a36b7bf16aa33ab2d375d318e25"
+    },
+    "engine/codex-rs/login/src/auth/manager.rs": {
+      "mode": "100644",
+      "gitBlob": "1063a2931b5c5688c1ac7c862a1d69cae8073586"
+    },
+    "engine/codex-rs/login/src/auth/profiles.rs": {
+      "mode": "100644",
+      "gitBlob": "cfd9387828c4883bedef5f50431aa092130ba3b1"
+    },
+    "engine/codex-rs/login/src/auth/profiles_tests.rs": {
+      "mode": "100644",
+      "gitBlob": "fae7fdbba17e279fdcf8772b565da33e72d943ce"
+    },
+    "engine/codex-rs/project-maintenance/src/cli.rs": {
+      "mode": "100644",
+      "gitBlob": "a756f27961aee49b89009c0ae03aa52bc6060d1b"
+    },
+    "engine/codex-rs/project-maintenance/src/coordination.rs": {
+      "mode": "100644",
+      "gitBlob": "536cd5564f7f7a19112231bc048e4903114ea95c"
+    },
+    "engine/codex-rs/project-maintenance/src/lock_recovery.rs": {
+      "mode": "100644",
+      "gitBlob": "757d77393085ac2cdef093bf6a0d425968b2d252"
+    }
+  },
+  "descriptorDelta19": [
+    "codex-rs/app-server/src/azrael_shared_server.rs",
+    "codex-rs/app-server/src/config_manager.rs",
+    "codex-rs/app-server/src/in_process.rs",
+    "codex-rs/app-server/src/lib.rs",
+    "codex-rs/app-server/src/message_processor.rs",
+    "codex-rs/app-server/src/message_processor_tracing_tests.rs",
+    "codex-rs/app-server/src/request_processors/account_processor.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/retirement.rs",
+    "codex-rs/app-server/src/user_verification.rs",
+    "codex-rs/app-server/src/user_verification_test_support.rs",
+    "codex-rs/login/src/auth/manager.rs",
+    "codex-rs/login/src/auth/profiles.rs",
+    "codex-rs/login/src/auth/profiles_tests.rs",
+    "codex-rs/project-maintenance/src/coordination.rs",
+    "codex-rs/project-maintenance/src/lock_recovery.rs"
+  ],
+  "selectedSourceProvenance": {
+    "preservedCommitted17": [
+      "engine/codex-rs/app-server/src/azrael_shared_server.rs",
+      "engine/codex-rs/app-server/src/config_manager.rs",
+      "engine/codex-rs/app-server/src/in_process.rs",
+      "engine/codex-rs/app-server/src/lib.rs",
+      "engine/codex-rs/app-server/src/message_processor.rs",
+      "engine/codex-rs/app-server/src/message_processor_tracing_tests.rs",
+      "engine/codex-rs/app-server/src/request_processors/account_processor.rs",
+      "engine/codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+      "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs",
+      "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs",
+      "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
+      "engine/codex-rs/app-server/src/request_processors/account_processor/retirement.rs",
+      "engine/codex-rs/app-server/src/user_verification.rs",
+      "engine/codex-rs/app-server/src/user_verification_test_support.rs",
+      "engine/codex-rs/login/src/auth/manager.rs",
+      "engine/codex-rs/login/src/auth/profiles.rs",
+      "engine/codex-rs/login/src/auth/profiles_tests.rs"
+    ],
+    "functionalNative2": [
+      "engine/codex-rs/project-maintenance/src/coordination.rs",
+      "engine/codex-rs/project-maintenance/src/lock_recovery.rs"
+    ],
+    "cli": "Already included in36 receipt; exact candidate in newindex",
+    "source": "Official issued receipt matches staged blob"
+  },
+  "otherIndexEntries": "git diff --cached baseline9b reports only CLI/native2/SOURCE; all other full-repository entries equal approved9b baseline, including committed17",
+  "privateEngineTreeIndexExact": true,
+  "engineTree": "56131ce1a24ceae92a2f3294d8dffc5523251460",
+  "receipt": {
+    "bytes": 5317418,
+    "sha256": "75dba2af40161a5c9105a5efffdb9f63d04e73d550f23233a384d9929061cdcf",
+    "gitBlob": "339f8f97bcb1d75115c0158196038d6bc54e475b"
+  },
+  "captureRepositoryHead": "9b54d7787eb6d0aae1e42f9077bc88735833c7d1",
+  "currentRepositoryHead": "7590bf72e35ffe87b5cb82148612446b385e0f30",
+  "externalHeadChangePaths": [
+    "work/FO-01-azrael-auth-entry-review/01-plan.md"
+  ],
+  "externalIndexByteChange": {
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\.git\\index": {
+      "before": {
+        "bytes": 2640337,
+        "sha256": "d8d0b978276bcdf5e65c6fe98b83439329a0f49ab5acf2cefb2de4fd7ec30110"
+      },
+      "after": {
+        "bytes": 2640337,
+        "sha256": "92a9e3abe61751e9ac741fb7d0685d4c8271793ecc9c7356bbfc918c794a5a12"
+      }
+    }
+  },
+  "primaryEngineSourceAndPriorPrivateIndexesUnchanged": true,
+  "prior36SourceBackupPreserved": true,
+  "notPerformed": [
+    "Source conversion",
+    "SQL modification",
+    "Additional recorder",
+    "Primary HEAD/index writes",
+    "OldHEAD restore"
+  ],
+  "scopeLimit": "Receipt records actual9b capture. Current759 differs only unrelated workplan; never claim receipt repositoryHead equals currentHEAD. Root cleanup commit must base on currentHEAD and preserve it."
+}

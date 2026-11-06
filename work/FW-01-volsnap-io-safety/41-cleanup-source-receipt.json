@@ -1,0 +1,412 @@
+{
+  "schema": 1,
+  "status": "failed-or-incomplete",
+  "actualExit": 1,
+  "startedUtc": "2026-11-06T02:39:28.778627+00:00",
+  "scope": "Official expected19 once; HEAD committed17 preservation + native8 diagnostics2; no primary writes/native tests/commit",
+  "protectedBefore": {
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\.git\\index": {
+      "bytes": 2640337,
+      "sha256": "d8d0b978276bcdf5e65c6fe98b83439329a0f49ab5acf2cefb2de4fd7ec30110"
+    },
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\SOURCE.json": {
+      "bytes": 5393377,
+      "sha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149"
+    },
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\project-maintenance\\src\\cli.rs": {
+      "bytes": 21363,
+      "sha256": "53791d30530c3992e345b8d5779d7da5c9017e986a3436653df8a743a07a0bd0"
+    },
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\project-maintenance\\src\\coordination.rs": {
+      "bytes": 87673,
+      "sha256": "0385a70a387f34714080dadde3cd938d132c91a0647de109d0d3a7a0b7075742"
+    },
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\project-maintenance\\src\\lock_recovery.rs": {
+      "bytes": 72326,
+      "sha256": "c20999cdc6ee11944e73b09f57498efa8136cce628869e7f33fa5df42aeda664"
+    },
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\control.index": {
+      "bytes": 2636996,
+      "sha256": "cde0037089925636f5746ccaee20a56151f71e0ee90006d12c8909c9cbfc5031"
+    },
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\main-r2.index": {
+      "bytes": 2636996,
+      "sha256": "b68f8f52574942ae49874e3f4637610c8da8cbe62550483ab6bfa90968aa6c5a"
+    },
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\main-r3.index": {
+      "bytes": 2636996,
+      "sha256": "a2561dfd3b34fca7368af3362f7a450218f865a8cb160d4c2baee4826f12e33b"
+    },
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\unit7-source.index": {
+      "bytes": 2637500,
+      "sha256": "4f261ff8584ad7ecceab06e7d38fe749de95820a87af5ab1bce8a22d3f0bdda7"
+    }
+  },
+  "headBefore": "9b54d7787eb6d0aae1e42f9077bc88735833c7d1",
+  "ownership": "Existing protected fw03v whole run; unit8 index/objects/prior SOURCE/report/logs retained root cleanupcommit consumer",
+  "committed17Preserved": {
+    "engine/codex-rs/app-server/src/azrael_shared_server.rs": {
+      "mode": "100644",
+      "gitBlob": "874a2cfcaf1ed09435ebab6d81179f3a1abbe25e",
+      "bytes": 87442,
+      "sha256": "f42f9a2e5b59ddc3e94c237b36a5c82431d8ca99898fac2c25280e51f5913672",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/config_manager.rs": {
+      "mode": "100644",
+      "gitBlob": "92863db76b835e01cae6f40cbe89fb590791167e",
+      "bytes": 36264,
+      "sha256": "b8d600aeb3878cb718bfac578c0501e72f67cb931a7dc7ee44417754a90f766b",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/in_process.rs": {
+      "mode": "100644",
+      "gitBlob": "d252604afbfbe3d8ecb822bdde060f507d179f3a",
+      "bytes": 49486,
+      "sha256": "7cd8e74359330d00d44b56a9216020be0173a48e1285701df1b0f404ea562678",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/lib.rs": {
+      "mode": "100644",
+      "gitBlob": "07e2c06a2bd2871faa8cf7ffd14256f6792b1b64",
+      "bytes": 72461,
+      "sha256": "3c3a71172f5f38e3b02dd7effdf2922d88d8df50d2be066f7d57b29d67306917",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/message_processor.rs": {
+      "mode": "100644",
+      "gitBlob": "107ebeb80037f0c80ac07f9f10100462de860755",
+      "bytes": 96593,
+      "sha256": "a3508d52c8c6277f7bfd86a56c1172cba1d897e284edc82729fee73ef0f52bd2",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/message_processor_tracing_tests.rs": {
+      "mode": "100644",
+      "gitBlob": "57e385319daea7c755c58c4571e97f15b9cc9a31",
+      "bytes": 26691,
+      "sha256": "4b847c2bd129b2ceae5e3f5fd4ff0cfa538ba686731ef7bf34b9ba5368887597",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor.rs": {
+      "mode": "100644",
+      "gitBlob": "84d9cd502f8ac6045363e91ffdc76694e1d808f1",
+      "bytes": 83536,
+      "sha256": "4d503abf03740fb5d6fd0148b1742cc41c71efe5176e01ec66d2d8633822f92d",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/azrael.rs": {
+      "mode": "100644",
+      "gitBlob": "955cfbe9c6b0389cfafb60e68e3f98c3e066bc48",
+      "bytes": 44207,
+      "sha256": "d38f7ca082e33e11598c4feb16247ffd6543a03389efe475ea0beaa56620a6ff",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs": {
+      "mode": "100644",
+      "gitBlob": "43bd592c12e6baed4564820b24f0a945f3461260",
+      "bytes": 7838,
+      "sha256": "682b68342d081498ca3f82b731795b8e6a32bf1069f919e2ea9755c3c7bd8c63",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs": {
+      "mode": "100644",
+      "gitBlob": "5165a2b372df00f1606e4028c731c10dd10f90fd",
+      "bytes": 23086,
+      "sha256": "6fe6f545f686e7a8ece725352dfc2ed193ddd2048b76efb1bda0254122a4558d",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs": {
+      "mode": "100644",
+      "gitBlob": "1bf6f8aaf00747cb827ebafd1b78976287b360c3",
+      "bytes": 22754,
+      "sha256": "3f714ec7f364908534061312b1acf716595f8086e312edee8cf1fc8de06dc3aa",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/request_processors/account_processor/retirement.rs": {
+      "mode": "100644",
+      "gitBlob": "f548727b78a19b313ee8722d334f64e372521f36",
+      "bytes": 16472,
+      "sha256": "ceb6f71ae2188c02fa36003c892f97e9cf1d79247b516a9b9a97de61cf241220",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/user_verification.rs": {
+      "mode": "100644",
+      "gitBlob": "de65a148a257cb03700d1fed9d5e32d30033cdc3",
+      "bytes": 10511,
+      "sha256": "bf80d43e1e396da8a38543d3e4853189be90c211bddaf8f23ad69654456ffbd5",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/app-server/src/user_verification_test_support.rs": {
+      "mode": "100644",
+      "gitBlob": "9e838e6f7eaf3a36b7bf16aa33ab2d375d318e25",
+      "bytes": 11333,
+      "sha256": "2aef64e4e2a8d70b28204b38c67edf9cce363253ebe137af4947ea02f1db35c0",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/login/src/auth/manager.rs": {
+      "mode": "100644",
+      "gitBlob": "1063a2931b5c5688c1ac7c862a1d69cae8073586",
+      "bytes": 138141,
+      "sha256": "045bf41c09fabfe06d4f1abaceb7428231d4cde12b79bf86f5e86b6b3635f63b",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/login/src/auth/profiles.rs": {
+      "mode": "100644",
+      "gitBlob": "cfd9387828c4883bedef5f50431aa092130ba3b1",
+      "bytes": 26212,
+      "sha256": "d0d4fe4830a6b4ec071431cddf8bd79cc2489c60b35252088011d6c986e71e36",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    },
+    "engine/codex-rs/login/src/auth/profiles_tests.rs": {
+      "mode": "100644",
+      "gitBlob": "fae7fdbba17e279fdcf8772b565da33e72d943ce",
+      "bytes": 31036,
+      "sha256": "bd9186dae054a35e95f00e5efab83e913414426036a39c87de809576c67ab27a",
+      "provenance": "Exact committed HEAD blob; preserve separately from this functional delta"
+    }
+  },
+  "functionalNative2": [
+    {
+      "file": "engine/codex-rs/project-maintenance/src/coordination.rs",
+      "candidate": "536cd5564f7f7a19112231bc048e4903114ea95c",
+      "sha256": "0385a70a387f34714080dadde3cd938d132c91a0647de109d0d3a7a0b7075742",
+      "changedFromV6": true
+    },
+    {
+      "file": "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+      "candidate": "757d77393085ac2cdef093bf6a0d425968b2d252",
+      "sha256": "635e7de1dc14b552706d6d2fafaf6bdb17baead107286e9116deae77362a3e5d",
+      "changedFromV6": true
+    }
+  ],
+  "unit7CliPreserved": {
+    "file": "engine/codex-rs/project-maintenance/src/cli.rs",
+    "candidate": "a756f27961aee49b89009c0ae03aa52bc6060d1b",
+    "sha256": "3850924573cb28ed3f57181cee7a477805e6b415e3711f91ba981f745092971e",
+    "changedFromV6": false
+  },
+  "descriptorDelta19": [
+    "codex-rs/app-server/src/azrael_shared_server.rs",
+    "codex-rs/app-server/src/config_manager.rs",
+    "codex-rs/app-server/src/in_process.rs",
+    "codex-rs/app-server/src/lib.rs",
+    "codex-rs/app-server/src/message_processor.rs",
+    "codex-rs/app-server/src/message_processor_tracing_tests.rs",
+    "codex-rs/app-server/src/request_processors/account_processor.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
+    "codex-rs/app-server/src/request_processors/account_processor/retirement.rs",
+    "codex-rs/app-server/src/user_verification.rs",
+    "codex-rs/app-server/src/user_verification_test_support.rs",
+    "codex-rs/login/src/auth/manager.rs",
+    "codex-rs/login/src/auth/profiles.rs",
+    "codex-rs/login/src/auth/profiles_tests.rs",
+    "codex-rs/project-maintenance/src/coordination.rs",
+    "codex-rs/project-maintenance/src/lock_recovery.rs"
+  ],
+  "originalSql83Unchanged": [
+    "codex-rs/state/goals_migrations/0001_thread_goals.sql",
+    "codex-rs/state/goals_migrations/0002_thread_goal_continuation_deferrals.sql",
+    "codex-rs/state/logs_migrations/0001_logs.sql",
+    "codex-rs/state/logs_migrations/0002_logs_feedback_log_body.sql",
+    "codex-rs/state/memory_migrations/0001_memories.sql",
+    "codex-rs/state/memory_migrations/0002_consolidation_progress.sql",
+    "codex-rs/state/migrations/0001_threads.sql",
+    "codex-rs/state/migrations/0002_logs.sql",
+    "codex-rs/state/migrations/0003_logs_thread_id.sql",
+    "codex-rs/state/migrations/0004_thread_dynamic_tools.sql",
+    "codex-rs/state/migrations/0005_threads_cli_version.sql",
+    "codex-rs/state/migrations/0006_memories.sql",
+    "codex-rs/state/migrations/0007_threads_first_user_message.sql",
+    "codex-rs/state/migrations/0008_backfill_state.sql",
+    "codex-rs/state/migrations/0009_stage1_outputs_rollout_slug.sql",
+    "codex-rs/state/migrations/0010_logs_process_id.sql",
+    "codex-rs/state/migrations/0011_logs_partition_prune_indexes.sql",
+    "codex-rs/state/migrations/0012_logs_estimated_bytes.sql",
+    "codex-rs/state/migrations/0013_threads_agent_nickname.sql",
+    "codex-rs/state/migrations/0014_agent_jobs.sql",
+    "codex-rs/state/migrations/0015_agent_jobs_max_runtime_seconds.sql",
+    "codex-rs/state/migrations/0016_memory_usage.sql",
+    "codex-rs/state/migrations/0017_phase2_selection_flag.sql",
+    "codex-rs/state/migrations/0018_phase2_selection_snapshot.sql",
+    "codex-rs/state/migrations/0019_thread_dynamic_tools_defer_loading.sql",
+    "codex-rs/state/migrations/0020_threads_model_reasoning_effort.sql",
+    "codex-rs/state/migrations/0021_thread_spawn_edges.sql",
+    "codex-rs/state/migrations/0022_threads_agent_path.sql",
+    "codex-rs/state/migrations/0023_drop_logs.sql",
+    "codex-rs/state/migrations/0024_remote_control_enrollments.sql",
+    "codex-rs/state/migrations/0025_thread_timestamps_millis.sql",
+    "codex-rs/state/migrations/0026_thread_dynamic_tools_namespace.sql",
+    "codex-rs/state/migrations/0027_threads_cwd_sort_indexes.sql",
+    "codex-rs/state/migrations/0028_device_key_bindings.sql",
+    "codex-rs/state/migrations/0029_thread_goals.sql",
+    "codex-rs/state/migrations/0030_threads_thread_source.sql",
+    "codex-rs/state/migrations/0031_drop_device_key_bindings.sql",
+    "codex-rs/state/migrations/0032_threads_preview.sql",
+    "codex-rs/state/migrations/0033_thread_goal_stopped_statuses.sql",
+    "codex-rs/state/migrations/0034_drop_thread_goals.sql",
+    "codex-rs/state/migrations/0035_drop_memory_tables.sql",
+    "codex-rs/state/migrations/0036_threads_visible_sort_indexes.sql",
+    "codex-rs/state/migrations/0037_remote_control_enrollments_enabled.sql",
+    "codex-rs/state/migrations/0038_external_agent_config_imports.sql",
+    "codex-rs/state/migrations/0039_threads_recency_at.sql",
+    "codex-rs/state/migrations/0040_threads_history_mode.sql",
+    "codex-rs/state/migrations/0041_threads_name.sql",
+    "codex-rs/state/migrations/0042_drop_agent_jobs.sql",
+    "codex-rs/state/migrations/0043_threads_is_pinned.sql",
+    "codex-rs/state/migrations/0044_external_agent_config_imports_provider_id.sql",
+    "codex-rs/state/migrations/0045_threads_section.sql",
+    "codex-rs/state/migrations/0046_threads_section_order.sql",
+    "codex-rs/state/migrations/0047_rollout_migration_state.sql",
+    "codex-rs/state/migrations/0048_thread_section_appearance.sql",
+    "codex-rs/state/migrations/0049_projects.sql",
+    "codex-rs/state/migrations/0050_threads_section_empty_preview_indexes.sql",
+    "codex-rs/state/migrations/0051_thread_artifacts.sql",
+    "codex-rs/state/migrations/0052_projects_recency.sql",
+    "codex-rs/state/migrations/0053_threads_originator.sql",
+    "codex-rs/state/migrations/0054_threads_daybreak_enabled.sql",
+    "codex-rs/state/migrations/0055_root_resume_reservations.sql",
+    "codex-rs/state/migrations/0056_threads_creator_identity.sql",
+    "codex-rs/state/migrations/0057_cleanup_guardian_thread_metadata.sql",
+    "codex-rs/state/migrations/0058_thread_attachments.sql",
+    "codex-rs/state/migrations/0059_threads_archive_sort_indexes.sql",
+    "codex-rs/state/migrations/0060_root_resume_wait_timestamps.sql",
+    "codex-rs/state/migrations/0061_thread_attachment_reverse_lookup.sql",
+    "codex-rs/state/migrations/0062_project_usage_daily.sql",
+    "codex-rs/state/migrations/0063_root_resume_completion_tasks.sql",
+    "codex-rs/state/queue_migrations/0001_queued_items.sql",
+    "codex-rs/state/queue_migrations/0002_queued_thread_revisions.sql",
+    "codex-rs/state/queue_migrations/0003_accepted_user_inputs.sql",
+    "codex-rs/state/queue_migrations/0004_accepted_user_input_root.sql",
+    "codex-rs/state/thread_history_migrations/0001_thread_history.sql",
+    "codex-rs/state/thread_history_migrations/0002_thread_items_item_type.sql",
+    "codex-rs/state/thread_history_migrations/0003_turn_rollout_positions.sql",
+    "codex-rs/state/thread_history_migrations/0004_thread_items_updated_at_ordinal.sql",
+    "codex-rs/state/thread_history_migrations/0005_thread_realtime_items.sql",
+    "codex-rs/state/thread_history_migrations/0006_thread_turn_ends.sql",
+    "codex-rs/state/thread_history_migrations/0007_projection_version.sql",
+    "codex-rs/state/thread_history_migrations/0008_thread_item_lifecycle_timestamps.sql",
+    "codex-rs/state/thread_history_migrations/0009_root_resume_wait.sql",
+    "codex-rs/state/thread_history_migrations/0010_thread_turn_root.sql"
+  ],
+  "native24Exact": [
+    "codex-rs/project-maintenance/src/admission.rs",
+    "codex-rs/project-maintenance/src/apply.rs",
+    "codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+    "codex-rs/project-maintenance/src/cli.rs",
+    "codex-rs/project-maintenance/src/coordination.rs",
+    "codex-rs/project-maintenance/src/disk_budget.rs",
+    "codex-rs/project-maintenance/src/groups.rs",
+    "codex-rs/project-maintenance/src/lease.rs",
+    "codex-rs/project-maintenance/src/lib.rs",
+    "codex-rs/project-maintenance/src/lock_recovery.rs",
+    "codex-rs/project-maintenance/src/lock_wait.rs",
+    "codex-rs/project-maintenance/src/paths.rs",
+    "codex-rs/project-maintenance/src/planning.rs",
+    "codex-rs/project-maintenance/src/preferences.rs",
+    "codex-rs/project-maintenance/src/registration.rs",
+    "codex-rs/project-maintenance/src/registry.rs",
+    "codex-rs/project-maintenance/src/reservations.rs",
+    "codex-rs/project-maintenance/src/review_relations.rs",
+    "codex-rs/project-maintenance/src/review_reuse.rs",
+    "codex-rs/project-maintenance/src/run_measurement.rs",
+    "codex-rs/project-maintenance/src/storage.rs",
+    "codex-rs/project-maintenance/src/timing.rs",
+    "codex-rs/project-maintenance/tests/registry.rs",
+    "codex-rs/project-maintenance/tests/run_measurement.rs"
+  ],
+  "coreSeparatePreserved": true,
+  "sourceInventoryCount": 9345,
+  "sourceInventorySha256": "8011b69ce063281c91cbd67f1ae16e044e656f40259407ae820e700589be2578",
+  "nativeFrozenIdentity": {
+    "bytes": 30697,
+    "sha256": "8bc195b8a979995b673094e330455dcd0a9d35dc9c04df885c59820ab3b2c0b8"
+  },
+  "nativeExecutable": {
+    "bytes": 4869120,
+    "sha256": "515d0f48efed78cbb8aded3d877417606ff9a169f0367b08c09989c9b5f42446"
+  },
+  "recorder": {
+    "argv": [
+      "C:\\Users\\felre\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\record-engine-local-changes.py",
+      "--destination",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\engine",
+      "--baseline",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\shared\\engine-original-ccbcbf93\\engine",
+      "--baseline-receipt-sha256",
+      "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+      "--current-receipt-sha256",
+      "4a3601fd1d880c11d8206e66f2b47082566514977c8580a699be839f38192054",
+      "--expected-path",
+      "codex-rs/app-server/src/azrael_shared_server.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/config_manager.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/in_process.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/lib.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/message_processor.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/message_processor_tracing_tests.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/request_processors/account_processor.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_login.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/request_processors/account_processor/azrael_tests.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/request_processors/account_processor/retirement.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/user_verification.rs",
+      "--expected-path",
+      "codex-rs/app-server/src/user_verification_test_support.rs",
+      "--expected-path",
+      "codex-rs/login/src/auth/manager.rs",
+      "--expected-path",
+      "codex-rs/login/src/auth/profiles.rs",
+      "--expected-path",
+      "codex-rs/login/src/auth/profiles_tests.rs",
+      "--expected-path",
+      "codex-rs/project-maintenance/src/coordination.rs",
+      "--expected-path",
+      "codex-rs/project-maintenance/src/lock_recovery.rs"
+    ],
+    "actualExit": 0,
+    "scopedGitEnvironment": true
+  },
+  "snapshot-only": {
+    "argv": [
+      "C:\\Users\\felre\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\import-engine-source.py",
+      "--destination",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\engine",
+      "--check",
+      "--snapshot-only"
+    ],
+    "actualExit": 0,
+    "scopedGitEnvironment": false
+  },
+  "receipt": {
+    "bytes": 5317418,
+    "sha256": "75dba2af40161a5c9105a5efffdb9f63d04e73d550f23233a384d9929061cdcf",
+    "gitBlob": "339f8f97bcb1d75115c0158196038d6bc54e475b"
+  },
+  "engineTree": "56131ce1a24ceae92a2f3294d8dffc5523251460",
+  "privateIndex": {
+    "bytes": 2637668,
+    "sha256": "178a9915adc9e47ad24c7376923c17435106f51396a2b31ed8136fe88342c823"
+  },
+  "error": "codex-rs/state/goals_migrations/0001_thread_goals.sql",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\issue-unit8-source41.py\", line 60, in <module>\n    if v['mode']=='100644':assert blob(p.read_bytes())==v['blob'],k\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: codex-rs/state/goals_migrations/0001_thread_goals.sql\n",
+  "endedUtc": "2026-11-06T02:43:38.795038+00:00"
+}

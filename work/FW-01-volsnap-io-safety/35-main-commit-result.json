@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "status": "committed-and-reconciled",
+  "commit": "c7d67ae5053e04bf48616c86348c3d8301818611",
+  "parent": "8ed62f7b34f062ce6948cc14f412d425894af271",
+  "rootTree": "5ee1730415f8f22ec231f103fa4c3fbbeab6df0b",
+  "engineTree": "ef9106fd4a69dd615a980b16add5b4f2034cd1ea",
+  "selectedPaths": [
+    "docs/architecture/project-maintenance.md",
+    "engine/SOURCE.json",
+    "engine/codex-rs/core/src/tools/handlers/project_maintenance.rs",
+    "engine/codex-rs/project-maintenance/src/admission.rs",
+    "engine/codex-rs/project-maintenance/src/apply.rs",
+    "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+    "engine/codex-rs/project-maintenance/src/cli.rs",
+    "engine/codex-rs/project-maintenance/src/coordination.rs",
+    "engine/codex-rs/project-maintenance/src/disk_budget.rs",
+    "engine/codex-rs/project-maintenance/src/groups.rs",
+    "engine/codex-rs/project-maintenance/src/lease.rs",
+    "engine/codex-rs/project-maintenance/src/lib.rs",
+    "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+    "engine/codex-rs/project-maintenance/src/lock_wait.rs",
+    "engine/codex-rs/project-maintenance/src/paths.rs",
+    "engine/codex-rs/project-maintenance/src/planning.rs",
+    "engine/codex-rs/project-maintenance/src/preferences.rs",
+    "engine/codex-rs/project-maintenance/src/registration.rs",
+    "engine/codex-rs/project-maintenance/src/registry.rs",
+    "engine/codex-rs/project-maintenance/src/reservations.rs",
+    "engine/codex-rs/project-maintenance/src/review_relations.rs",
+    "engine/codex-rs/project-maintenance/src/review_reuse.rs",
+    "engine/codex-rs/project-maintenance/src/run_measurement.rs",
+    "engine/codex-rs/project-maintenance/src/storage.rs",
+    "engine/codex-rs/project-maintenance/src/timing.rs",
+    "engine/codex-rs/project-maintenance/tests/registry.rs",
+    "engine/codex-rs/project-maintenance/tests/run_measurement.rs",
+    "scripts/artifact-lifecycle.cjs",
+    "scripts/azrael-feature-contracts.json",
+    "scripts/maintenance-lock-owner.cjs",
+    "scripts/maintenance-lock-worker.cjs",
+    "scripts/maintenance-owner-config.cjs",
+    "scripts/test-maintenance-lock-owner.cjs",
+    "work/FW-01-volsnap-io-safety/02-plan.md",
+    "work/FW-01-volsnap-io-safety/11-coordination-scenarios.json",
+    "work/FW-01-volsnap-io-safety/12-capture-prerequisite-verification.json",
+    "work/FW-01-volsnap-io-safety/13-core-verification.json",
+    "work/FW-01-volsnap-io-safety/14-parallel-admission.json",
+    "work/FW-01-volsnap-io-safety/15-native-verification.json",
+    "work/FW-01-volsnap-io-safety/18-selected-source-provenance.json",
+    "work/FW-01-volsnap-io-safety/19-performance-comparison.json",
+    "work/FW-01-volsnap-io-safety/20-parallel-cleanup.json",
+    "work/FW-01-volsnap-io-safety/24-vss-comparison-attempt.json",
+    "work/FW-01-volsnap-io-safety/29-vss-corrected-attempt.json",
+    "work/FW-01-volsnap-io-safety/30-main-js-verification.json",
+    "work/FW-01-volsnap-io-safety/32-vss-comparison-result.json"
+  ],
+  "selectedCount": 46,
+  "originalTransaction": {
+    "exitCode": 1,
+    "phase": "head-committed-index-pending",
+    "commitCreated": "c7d67ae5053e04bf48616c86348c3d8301818611",
+    "indexInstalled": false,
+    "normalIndexPreserved": true,
+    "objectImport": {
+      "producerExit": 0,
+      "consumerExit": 0
+    }
+  },
+  "cause": {
+    "boundary": "Task-owned Git commit orchestration; product code unchanged",
+    "reason": "Windows CRT text mode translated LF bytes during os.write of index.lock; integrity check refused installation",
+    "probe": [
+      {
+        "mode": "default",
+        "requestedHex": "000a0d0a1a",
+        "actualHex": "000d0a0d0d0a1a",
+        "equal": false
+      },
+      {
+        "mode": "binary",
+        "requestedHex": "000a0d0a1a",
+        "actualHex": "000a0d0a1a",
+        "equal": true
+      }
+    ]
+  },
+  "recovery": {
+    "exitCode": 0,
+    "mode": "index-only-recovery",
+    "commit": "c7d67ae5053e04bf48616c86348c3d8301818611",
+    "headWrites": false,
+    "workingFileWrites": false,
+    "normalIndexBefore": {
+      "bytes": 2638538,
+      "sha256": "cbbeb165f0bc790f3660a5ca1cd2cf84e06864431bc1c836cb3f39089bb3519d"
+    },
+    "candidateIndex": {
+      "bytes": 2639835,
+      "sha256": "41dfb1908da318d6a643c051ff979fcd5bebcfbd4a1b00772c85b13f231f6ccf"
+    },
+    "phase": "committed-and-reconciled",
+    "normalIndexAfter": {
+      "bytes": 2639835,
+      "sha256": "41dfb1908da318d6a643c051ff979fcd5bebcfbd4a1b00772c85b13f231f6ccf"
+    },
+    "unselectedEntriesPreserved": true,
+    "workingBytesUnchanged": true
+  },
+  "preservation": {
+    "workingBytesUnchanged": true,
+    "unselectedEntriesPreserved": true,
+    "noSecondCommitOrRollback": true,
+    "noPushOrInstallation": true
+  },
+  "verificationEvidence": [
+    "15-native-verification.json",
+    "30-main-js-verification.json",
+    "32-vss-comparison-result.json"
+  ],
+  "pending": "Separate cleanup feature verification/commit and final disposable owner cleanup remain",
+  "evidenceIdentities": {
+    "15-native-verification.json": {
+      "bytes": 20752,
+      "sha256": "f8bd44a03d1051459dd4301b5ebc9adcaec6587008e3e76d54fcf6669801b1fd"
+    },
+    "30-main-js-verification.json": {
+      "bytes": 17827,
+      "sha256": "9c34f75e5d5c88b422bf38fe12c8ecbb27a4862b72a6b19ca6e80e001f09ee2b"
+    },
+    "32-vss-comparison-result.json": {
+      "bytes": 48328,
+      "sha256": "1aaae0a995db6b06e62b83fcfde1b0d91c79efa6252233d8bd4984c2749ace4e"
+    }
+  }
+}

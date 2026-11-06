@@ -1,0 +1,382 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "completedUtc": "2026-11-06T00:18:53.917Z",
+  "scope": "Only user-authorized original FW03c input2/fresh CargoHome groups; existing pinned owner managed-root retirement",
+  "authorization": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\16-retirement-authorization.json",
+    "formalCopy": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\fw03c-root-retirement-authorization.json",
+    "rawSha256": "c3db332dbd7fdace1e140995acc6b0b6751b40f759d116b1d7c8c4ce35c97e4d",
+    "bytes": 12206,
+    "unchangedAfterApply": true,
+    "cargoOriginalReceiptBase64RoundtripVerified": true,
+    "cargoOriginalReceiptSha256": "e970cef8509386722b769a3347f7607e610699d4f7654d53b7b49a26ff4f2c63"
+  },
+  "historicalReceiptFaultUnchanged": {
+    "originalInputReceiptFilesLost": true,
+    "originalBytesNotRecovered": true,
+    "metadataOnlyHistoricalOutcomes": [
+      {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-02\\reports\\preparation-terminal.json",
+        "evidence_sha256": "a159a9dbd8dd1fc2cdf679607c2a43510d24e3a038140d8687afd255f35f824f",
+        "exit_code": 1,
+        "outcome": "failure",
+        "reason": "Observed failed preparation controllers stopped; preserve partial inputs for parent diagnosis",
+        "status": "stopped"
+      },
+      {
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-03\\reports\\frozen-inputs.json",
+        "evidence_sha256": "f6e5c58711cdfe898917c2c0a1789928530b31ccc5dc424b73f5259cc383c4b4",
+        "exit_code": 0,
+        "outcome": "success",
+        "reason": "Immutable deployment input preparation completed",
+        "status": "stopped"
+      }
+    ],
+    "missingPathsVerified": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-02\\reports\\preparation-terminal.json",
+        "absent": true
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-03\\reports\\frozen-inputs.json",
+        "absent": true
+      }
+    ],
+    "summaryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\13-core-verification.json",
+    "summarySha256": "4caed30aec7432d319640f9f8673ba6944ac2c53473538cbabf7a7b9f3545c39",
+    "attestationMeaning": "Current owner/root identity/ref0 observation plus existing observed termination summary; not original receipt reconstruction, replacement or retrospective exit creation"
+  },
+  "preparationGuard": {
+    "actualCommandExitCode": 1,
+    "scope": "Before authorization creation and deletion",
+    "cause": "Current primary configuration differed from old98f8 baseline by concurrent approved shared-engine bundle additions",
+    "resolution": "Parent explicitly authorized preserving concurrent content and using current76f5284f baseline; original config was never overwritten"
+  },
+  "pinnedOwner": {
+    "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+    "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+    "installation": {
+      "schema": 1,
+      "protocol": "maintenance-owner-lease-v1",
+      "executable": "artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+      "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+      "version_id": "version:maintenance-owner:ff01:reservation-20261102",
+      "version": "reservation-20261102",
+      "acceptance_sha256": "e10bd3e1a418a5e9add0ca88b1a6d656b77d125211abce5ef87b240edac42056",
+      "max_lock_wait_ms": 600000
+    }
+  },
+  "requests": {
+    "review": {
+      "operation": "review",
+      "group_ids": [
+        "input:839670901ef58c6e3218d7ef",
+        "input:70a0aeaea849ea63da8491cc",
+        "run:fw03c:cargo-prep-20261106-01"
+      ],
+      "verification": "registered",
+      "retire_managed_roots": {
+        "owner": "fw03-core-verification",
+        "reason": "User-authorized exact FW03c input2 and fresh CargoHome root retirement after all observed consumers ended; immutable current authorization16 preserves original Cargo receipt and historical input receipt loss",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\fw03c-root-retirement-authorization.json",
+        "ids": [
+          "e446447856870be4dd48cd55c4afa0a58269f0b8caef5745a3c5e5a03745b701",
+          "edf0b54cb8c9c26f653e47942275dcadf18755dbebad30e3cfdd806385ab9a41",
+          "f55e00c8b773d6429c346fe1586c340fca1b09620865334fef99b3db0e67f3cd"
+        ]
+      },
+      "lock_wait_ms": 600000
+    },
+    "apply": {
+      "operation": "apply",
+      "verification": "registered",
+      "lock_wait_ms": 600000,
+      "retire_managed_roots": {
+        "owner": "fw03-core-verification",
+        "reason": "User-authorized exact FW03c input2 and fresh CargoHome root retirement after all observed consumers ended; immutable current authorization16 preserves original Cargo receipt and historical input receipt loss",
+        "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\fw03c-root-retirement-authorization.json",
+        "ids": [
+          "e446447856870be4dd48cd55c4afa0a58269f0b8caef5745a3c5e5a03745b701",
+          "edf0b54cb8c9c26f653e47942275dcadf18755dbebad30e3cfdd806385ab9a41",
+          "f55e00c8b773d6429c346fe1586c340fca1b09620865334fef99b3db0e67f3cd"
+        ]
+      },
+      "decisions": [
+        {
+          "id": "9e6c146de6d11b362b4047507783c7af2331cffb86ecde01f08099bcc01ab957",
+          "token": "83df9760eceb6468614e5d910dda521d61e16254e55be98324a6bbd5e2fab38e",
+          "decision": "delete",
+          "reason": "User-authorized exact FW03c input2 and fresh CargoHome root retirement after all observed consumers ended; immutable current authorization16 preserves original Cargo receipt and historical input receipt loss"
+        },
+        {
+          "id": "e446447856870be4dd48cd55c4afa0a58269f0b8caef5745a3c5e5a03745b701",
+          "token": "7666888ccccaf3136db80a69c7a859deb3ee99e9cd08cd6eeead2e9a8e6b513b",
+          "decision": "delete",
+          "reason": "User-authorized exact FW03c input2 and fresh CargoHome root retirement after all observed consumers ended; immutable current authorization16 preserves original Cargo receipt and historical input receipt loss"
+        },
+        {
+          "id": "edf0b54cb8c9c26f653e47942275dcadf18755dbebad30e3cfdd806385ab9a41",
+          "token": "becc99cb807b8935dcb4212adcf494f049d9cb658f2b1d480931456700696e4d",
+          "decision": "delete",
+          "reason": "User-authorized exact FW03c input2 and fresh CargoHome root retirement after all observed consumers ended; immutable current authorization16 preserves original Cargo receipt and historical input receipt loss"
+        },
+        {
+          "id": "f55e00c8b773d6429c346fe1586c340fca1b09620865334fef99b3db0e67f3cd",
+          "token": "cdd73ef748b3966f81cd311f0db661f36471ff888bb61b7fe8f90400106251ef",
+          "decision": "delete",
+          "reason": "User-authorized exact FW03c input2 and fresh CargoHome root retirement after all observed consumers ended; immutable current authorization16 preserves original Cargo receipt and historical input receipt loss"
+        }
+      ]
+    }
+  },
+  "terminals": {
+    "review": {
+      "pid": 24560,
+      "exitCode": 0,
+      "signal": null,
+      "pipesDrained": true,
+      "elapsedMs": 24361
+    },
+    "apply": {
+      "pid": 29508,
+      "exitCode": 0,
+      "signal": null,
+      "pipesDrained": true,
+      "elapsedMs": 1644608
+    },
+    "supportedFinalizeCommandExitCode": 0,
+    "configurationRestoreCommandExitCode": 0
+  },
+  "review": {
+    "verification": "registered",
+    "cachedMeasurementsReused": true,
+    "noPayloadReregistrationOrHash": true,
+    "items": [
+      {
+        "id": "9e6c146de6d11b362b4047507783c7af2331cffb86ecde01f08099bcc01ab957",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\cargo-prep-20261106-01",
+        "logicalBytes": 335074,
+        "blockers": [],
+        "token": "83df9760eceb6468614e5d910dda521d61e16254e55be98324a6bbd5e2fab38e"
+      },
+      {
+        "id": "e446447856870be4dd48cd55c4afa0a58269f0b8caef5745a3c5e5a03745b701",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ci02",
+        "logicalBytes": 669016379,
+        "blockers": [],
+        "token": "7666888ccccaf3136db80a69c7a859deb3ee99e9cd08cd6eeead2e9a8e6b513b"
+      },
+      {
+        "id": "edf0b54cb8c9c26f653e47942275dcadf18755dbebad30e3cfdd806385ab9a41",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ci03",
+        "logicalBytes": 669096864,
+        "blockers": [],
+        "token": "becc99cb807b8935dcb4212adcf494f049d9cb658f2b1d480931456700696e4d"
+      },
+      {
+        "id": "f55e00c8b773d6429c346fe1586c340fca1b09620865334fef99b3db0e67f3cd",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ch01",
+        "logicalBytes": 1546063659,
+        "blockers": [],
+        "token": "cdd73ef748b3966f81cd311f0db661f36471ff888bb61b7fe8f90400106251ef"
+      }
+    ]
+  },
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "input:70a0aeaea849ea63da8491cc",
+        "status": "deleted"
+      },
+      {
+        "id": "input:839670901ef58c6e3218d7ef",
+        "status": "deleted"
+      },
+      {
+        "id": "run:fw03c:cargo-prep-20261106-01",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "id": "9e6c146de6d11b362b4047507783c7af2331cffb86ecde01f08099bcc01ab957",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\cargo-prep-20261106-01",
+        "status": "deleted",
+        "remaining": false,
+        "error": null,
+        "nativeRetirementEvidenceIdentity": null,
+        "attemptId": "attempt-29508-7479-1793922843310",
+        "decisionId": "f905ab85344392c2aef39c0efab87d3c2be11de6749dc2c84efc9d9e52e291b4"
+      },
+      {
+        "id": "f55e00c8b773d6429c346fe1586c340fca1b09620865334fef99b3db0e67f3cd",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ch01",
+        "status": "deleted",
+        "remaining": false,
+        "error": null,
+        "nativeRetirementEvidenceIdentity": "7b3e54e45efb13ff2a5d9edda1c920509d3f61dd33af388af6fa66e0a3f30d32",
+        "attemptId": "attempt-29508-7481-1793922864746",
+        "decisionId": "0f22cea7b281539313812794680366ad66ad0cafc5c2bb3da3217395c43b462d"
+      },
+      {
+        "id": "e446447856870be4dd48cd55c4afa0a58269f0b8caef5745a3c5e5a03745b701",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ci02",
+        "status": "deleted",
+        "remaining": false,
+        "error": null,
+        "nativeRetirementEvidenceIdentity": "7b3e54e45efb13ff2a5d9edda1c920509d3f61dd33af388af6fa66e0a3f30d32",
+        "attemptId": "attempt-29508-7483-1793923556687",
+        "decisionId": "37c11c2bd1f43c0c21babbbf0345f92eb3134711a192f13536070517df2fd83e"
+      },
+      {
+        "id": "edf0b54cb8c9c26f653e47942275dcadf18755dbebad30e3cfdd806385ab9a41",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ci03",
+        "status": "deleted",
+        "remaining": false,
+        "error": null,
+        "nativeRetirementEvidenceIdentity": "7b3e54e45efb13ff2a5d9edda1c920509d3f61dd33af388af6fa66e0a3f30d32",
+        "attemptId": "attempt-29508-7485-1793923947957",
+        "decisionId": "6baf985b5043170114681ac28dc1c88879a8a73172149e385de595338aa15c98"
+      }
+    ]
+  },
+  "absence": [
+    {
+      "groupId": "input:839670901ef58c6e3218d7ef",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ci02",
+      "absent": true
+    },
+    {
+      "groupId": "input:70a0aeaea849ea63da8491cc",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ci03",
+      "absent": true
+    },
+    {
+      "groupId": "run:fw03c:cargo-prep-20261106-01",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\cargo-prep-20261106-01",
+      "absent": true
+    },
+    {
+      "groupId": "run:fw03c:cargo-prep-20261106-01",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ch01",
+      "absent": true
+    }
+  ],
+  "finalizations": [
+    {
+      "id": "input:839670901ef58c6e3218d7ef",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\14d39ccf9289afcaad98c7a10ab7a983acacd0bd082b979b396606d15d536227.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\16-retirement-authorization.json",
+        "sha256": "c3db332dbd7fdace1e140995acc6b0b6751b40f759d116b1d7c8c4ce35c97e4d",
+        "reason": "Existing owner exact root retirement returned terminal exit0 and all four items deleted/remaining=false; exact path absence checked; immutable authorization16 preserves current attestation and original Cargo receipt without repairing lost input receipts",
+        "original_state": "failed",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "input:70a0aeaea849ea63da8491cc",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\246852ceb6098444238b2df0a898ad3aaf0f3d15fc0cc784d5deb4677b573678.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\16-retirement-authorization.json",
+        "sha256": "c3db332dbd7fdace1e140995acc6b0b6751b40f759d116b1d7c8c4ce35c97e4d",
+        "reason": "Existing owner exact root retirement returned terminal exit0 and all four items deleted/remaining=false; exact path absence checked; immutable authorization16 preserves current attestation and original Cargo receipt without repairing lost input receipts",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    },
+    {
+      "id": "run:fw03c:cargo-prep-20261106-01",
+      "status": "finalized",
+      "remaining": [],
+      "references": [],
+      "blockers": [],
+      "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\708aae573fff019aa240f9ef08585b7d7bb8e75bf707cf8b287e96f82fcd588f.json",
+      "retirement": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\16-retirement-authorization.json",
+        "sha256": "c3db332dbd7fdace1e140995acc6b0b6751b40f759d116b1d7c8c4ce35c97e4d",
+        "reason": "Existing owner exact root retirement returned terminal exit0 and all four items deleted/remaining=false; exact path absence checked; immutable authorization16 preserves current attestation and original Cargo receipt without repairing lost input receipts",
+        "original_state": "complete",
+        "original_membership_complete": true
+      }
+    }
+  ],
+  "configuration": {
+    "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\project-maintenance.json",
+    "beforeRestorationSha256": "74c2dfa254d5807ec57d95e252888eba470e14ddbd15242ef2ba6dea49a9426a",
+    "afterRestorationSha256": "76f5284f37232b2d23630187273a17a45f5adddb89e8867d9269772c2581aa9d",
+    "approvedCurrentBaselineSha256": "76f5284f37232b2d23630187273a17a45f5adddb89e8867d9269772c2581aa9d",
+    "restoredApprovedCurrentBaseline": true,
+    "oldBaselineSha256": "98f8af5a096f0da394d821710b6f695c071991bc07849cf02f3fbcba5d559b6c",
+    "preservedOtherTaskBundleChanges": true,
+    "removedOnly": [
+      "artifacts/fw03ci02",
+      "artifacts/fw03ci03",
+      "artifacts/fw03ch01"
+    ]
+  },
+  "remainingRetirementScopeRecords": [],
+  "excludedGitControl": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw02\\.git",
+      "bytes": 78,
+      "sha256": "6f4c536d66c4d7b0ea85946468cf8273284dcdea55714052c3d02982ed4c0a10",
+      "unchanged": true,
+      "retainedForSeparateSupportedOwner": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\.git",
+      "bytes": 78,
+      "sha256": "e1d8c1c9e8501f7a2f66f92bda07027c4ad0cda2cc905ae268aa54861d105d4b",
+      "unchanged": true,
+      "retainedForSeparateSupportedOwner": true
+    }
+  ],
+  "excludedStructuralDirectories": "Untouched; exact known list remains in evidence13. Separate formal control-file/container owner work pending.",
+  "preservedSharedCache": {
+    "id": "shared:cargo-target:9d65c03f6d2d798ea0081c6babb32ee4882b57c9db7b08cb46623200846f02d1",
+    "owner": "cargo-shared-cache",
+    "references": [
+      {
+        "id": "run:FT-02-target-recovery:20261104T130237346Z-956442a1-4dad-4e93-9ab4-6b02d5055e10",
+        "kind": "dependency",
+        "reason": "Retained interrupted-generation recovery evidence required for cache reuse",
+        "reference_id": "b08459dd131a2a89feb319487409b840dac669f05f40cc71887449742a961709"
+      },
+      {
+        "id": "run:FT-02-reboot-recovery:20261104T121514667Z-1d87435d-6b22-4c55-9b07-941408294112",
+        "kind": "dependency",
+        "reason": "Retained interrupted-generation recovery evidence required for cache reuse",
+        "reference_id": "040d208cb4096e0871ff1ef2bab8610a18571cd3665f0eedcf1e3e47bd5bf22a"
+      }
+    ],
+    "ourExecutionConsumerRemaining": false
+  },
+  "actualNativeChildrenTerminated": true,
+  "allPipesDrained": true,
+  "ioQuiet": true,
+  "noChangesByThisOperation": [
+    "primary SOURCE",
+    "normal Git index",
+    "shared Cargo target/persistent cache",
+    "Git control files",
+    "structural directories",
+    "past producer outcomes/exit/evidence pointers"
+  ],
+  "rawControl": {
+    "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\fw03c-final-cleaner-state\\root-retirement-20261106-01",
+    "owner": "Existing native-613162bb whole run claim; raw reports outside every deleted group"
+  },
+  "evidenceCustody": "Authorization16 and identical formalcopy remain immutable; former source pointers were not repaired. Result17 is new independently readable output; root owns subsequent artifact custody."
+}
