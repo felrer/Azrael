@@ -1,0 +1,294 @@
+{
+  "schema": 1,
+  "recordKind": "strict-main-js-actual-verification",
+  "status": "passed",
+  "actualRunnerExit": 1,
+  "startedUtc": "2026-11-06T01:25:55.060322+00:00",
+  "endedUtc": "2026-11-06T01:28:39.159742+00:00",
+  "scope": "Exact approved strict14 HEAD+main-r1 JS acceptance, sequential existing Node tests with exact unit6 native; no build/compile/VSS",
+  "platform": {
+    "os": "Windows",
+    "arch": "x64",
+    "runtime": {
+      "path": "C:\\Program Files\\nodejs\\node.EXE",
+      "version": "v26.7.0"
+    }
+  },
+  "strictSourceManifest": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\strict-source-manifest.json",
+    "bytes": 15635,
+    "sha256": "086b23fdfa5c673daeed7b42fb6f1e9e10f37146e2f8482a5844feff4ebb52bb"
+  },
+  "strictFileIdentities": {
+    "scripts/test-maintenance-lock-owner.cjs": {
+      "bytes": 18350,
+      "sha256": "e410784208cc09481476e32f27b9816fb76508dd956b16ed56b33124f1628f65",
+      "gitBlob": "2d9fde3bb6379d012a15df443f00941c4bd78511"
+    },
+    "scripts/test-artifact-lifecycle.cjs": {
+      "bytes": 94162,
+      "sha256": "778b3dbbea0c7875a94e1e167ae591995945a7474990d02c86ea99b28473fdb1",
+      "gitBlob": "f8ce1348a1c31ed3d5d21ac8e372a08c54bb320e"
+    },
+    "scripts/maintenance-lock-owner.cjs": {
+      "bytes": 10512,
+      "sha256": "aa7a84f0fc7209e060296b62b027aed31fa6d1879c08ac64cbfe1ed19fd77d76",
+      "gitBlob": "bfb953a4a3b7b1c45b5d2346f503ffb4b441ef44"
+    },
+    "scripts/maintenance-owner-config.cjs": {
+      "bytes": 2751,
+      "sha256": "9d976bf241f80aa8ff7480b63bd6c478928e712c2f5d838deb6b09927e1b777f",
+      "gitBlob": "8adda60b7d0424699b16ea0e898540236fd5355a"
+    },
+    "scripts/artifact-lifecycle.cjs": {
+      "bytes": 72768,
+      "sha256": "8e61be076ea0cec31602bd3e33054c0ed73e8df7b8c7b36f2f32c63d681bd4da",
+      "gitBlob": "deeea93a2f12aaac33d2972108036c2705877353"
+    },
+    "scripts/build-platform.cjs": {
+      "bytes": 22859,
+      "sha256": "cf729277b17d1a8d994c94c6fd429dcab90ce440e80c79b6c9d899f89cf0cc6d",
+      "gitBlob": "91e7839f7a4a8949d283a5b00bdffe47acb7c1cf"
+    },
+    "scripts/check-artifact-lifecycle.cjs": {
+      "bytes": 6524,
+      "sha256": "9f4d34845e782b9c24a5a1078b3870d7c78d127b967e6ba292fc1e8840c45a0e",
+      "gitBlob": "f1a6f37d56597054018592731bbe3861f467c446"
+    },
+    "scripts/maintenance-lock-worker.cjs": {
+      "bytes": 4044,
+      "sha256": "eed5162daa6c3951cd610dcd8fd1b8986a85a7a2172c4a39a48ddc60aaeebf54",
+      "gitBlob": "7b453ac2e19f3ac194ad9339467f346f60e9d407"
+    },
+    "scripts/artifact-observations.cjs": {
+      "bytes": 16185,
+      "sha256": "080de3ed0bc00f5c6dc31f79e7cd735fc68afe57b6f0bb213559810235ddb222",
+      "gitBlob": "1770936349f8727991bd6e90e1425d45321186f1"
+    },
+    "scripts/platform-runtime.cjs": {
+      "bytes": 3894,
+      "sha256": "e8afe9b36748f6f1bbfdf9e7d3dcf88dd57f7bce1aea360743c4b8430c7a780c",
+      "gitBlob": "c1bcf85d8e6e07e232e6d6842b72d2ace63b749f"
+    },
+    "scripts/freeze-platform-inputs.cjs": {
+      "bytes": 6616,
+      "sha256": "deabc22f335f22a1b3a4160b7b00f6f4bee1e67ae70cf950c3a181cf49d4f735",
+      "gitBlob": "322efd95e898794c449c4a7245d1dd192bb14c8f"
+    },
+    "scripts/macos-signing.cjs": {
+      "bytes": 3674,
+      "sha256": "01ba722e29b9ac69b0a0e25d376d62b606d2746dfe271b071c1e117e233862ed",
+      "gitBlob": "3b66bb53b61121986af95989e3020d7b95730b3e"
+    },
+    "scripts/azrael-platforms.json": {
+      "bytes": 663,
+      "sha256": "3caf21b20d952aa095dc5a5553c1a53389a209f61b9850c981e858ea24527770",
+      "gitBlob": "2af08e1cc07248f9ad2bda4fce05c057b98f06ad"
+    },
+    "scripts/deployment-input-snapshot.cjs": {
+      "bytes": 9155,
+      "sha256": "039074400fa5e0e667396a9e54d024f48b08f784deff1c8db181b4a012255f37",
+      "gitBlob": "0cabfd1b51c329c2fa1d5e58d9afff354c72fe55"
+    }
+  },
+  "sourceOrigin": "Pinned HEAD c3d2 plus approved main-r1 only; no composite primary JS modules",
+  "nativeIdentity": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+    "bytes": 4843008,
+    "sha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3"
+  },
+  "checks": [
+    {
+      "id": "lock-owner",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.EXE",
+        "scripts/test-maintenance-lock-owner.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\temporary\\lock-owner"
+      ],
+      "startedUtc": "2026-11-06T01:25:55.163620+00:00",
+      "actualExit": 0,
+      "processExitObserved": true,
+      "stdoutFile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\logs\\lock-owner.stdout.log",
+      "stderrFile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\logs\\lock-owner.stderr.log",
+      "purpose": "Existing real native lease contention/nonblocking/80ms wait, crash close, legacy refusal, CAS/producers, resolver identity; selected fake packet/queue proof covers transport only. Real processes use exact unit6 binary.",
+      "pid": 37220,
+      "processHandleWaitCompleted": true,
+      "elapsedSeconds": 69.0460000000021,
+      "stdoutStderrHandlesClosed": true,
+      "stdoutIdentity": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\logs\\lock-owner.stdout.log",
+        "bytes": 990,
+        "sha256": "3fee1b550eec98d3348b360aa593045d91355653c80718c18d63ea8f422307d2"
+      },
+      "stderrIdentity": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\logs\\lock-owner.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "endedUtc": "2026-11-06T01:27:04.218173+00:00",
+      "reportedChecks": [
+        "selected main packet metadata and bounded queue options",
+        "real child contention, persistent metadata, reacquisition",
+        "bounded wait expires without taking a held lock",
+        "parent crash closes native stdin and releases OS exclusion",
+        "idle native helper death reports terminal state and releases exclusion",
+        "existing empty, malformed and schema1 markers require recovery",
+        "replaced lock inode is preserved and release refuses replacement, or OS denies replacement",
+        "symlink/reparse ancestors and non-file lock targets refused",
+        "native >1 MiB UTF-8 record CAS/reserve/finish and oversized response preflight without durable fence creation",
+        "native hashed-ID CAS, producer reservation/catalog handoff/pinned finish, unsafe member and wrong lock rejection",
+        "default installation receipt resolves pinned owner; SHA/protocol/traversal/linked ancestors refuse without execution",
+        "malformed protocol fails closed; unknown command refused"
+      ],
+      "reportedPlatform": {
+        "os": "win32",
+        "arch": "x64"
+      },
+      "ordinaryFixtureCleanup": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\temporary\\lock-owner",
+        "existsAfter": false
+      }
+    },
+    {
+      "id": "catalog-caller",
+      "argv": [
+        "C:\\Program Files\\nodejs\\node.EXE",
+        "--test",
+        "--test-name-pattern",
+        "^catalog\\ lock\\ serializes\\ mutations,\\ and\\ reference\\ registration\\ preserves\\ external\\ and\\ planned\\ targets$",
+        "scripts/test-artifact-lifecycle.cjs"
+      ],
+      "startedUtc": "2026-11-06T01:27:04.346774+00:00",
+      "actualExit": 0,
+      "processExitObserved": true,
+      "stdoutFile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\logs\\catalog-caller.stdout.log",
+      "stderrFile": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\logs\\catalog-caller.stderr.log",
+      "purpose": "One existing caller test exercises actual native catalog queue/writer, reentrant withCatalogLock, close/finalize and scoped references against selected HEAD+main-r1. Other callbacks remain skipped.",
+      "pid": 53624,
+      "processHandleWaitCompleted": true,
+      "elapsedSeconds": 94.71899999999732,
+      "stdoutStderrHandlesClosed": true,
+      "stdoutIdentity": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\logs\\catalog-caller.stdout.log",
+        "bytes": 601,
+        "sha256": "90bd86f02690fde97ac1bccc6c085d3cc74cdb00099d3d878bd17f655a9c663b"
+      },
+      "stderrIdentity": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\logs\\catalog-caller.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "endedUtc": "2026-11-06T01:28:39.067221+00:00",
+      "namedTest": {
+        "name": "catalog lock serializes mutations, and reference registration preserves external and planned targets",
+        "actualTests": 1,
+        "actualPassCount": 1,
+        "actualFailureCount": 0,
+        "actualCancelledCount": 0,
+        "matchedSpecReporterResult": true
+      },
+      "ordinaryFixtureCleanup": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\temporary\\callers",
+        "remainingEntries": []
+      }
+    }
+  ],
+  "environment": {
+    "scrubbedKeys": [
+      "GIT_DIR",
+      "GIT_WORK_TREE",
+      "GIT_INDEX_FILE",
+      "GIT_COMMON_DIR",
+      "GIT_OBJECT_DIRECTORY",
+      "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+      "NODE_PATH",
+      "NODE_OPTIONS",
+      "AZRAEL_MAINTENANCE_INSTALLATION"
+    ],
+    "setOverrides": {
+      "AZRAEL_MAINTENANCE_OWNER": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+      "AZRAEL_MAINTENANCE_OWNER_MODE": "standalone",
+      "AZRAEL_STATE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\home",
+      "CODEX_HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\home",
+      "AZRAEL_LIFECYCLE_FIXTURE_ROOT": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\temporary\\callers",
+      "TEMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\temporary\\os",
+      "TMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\temporary\\os"
+    },
+    "gitOverridesAbsent": true,
+    "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js"
+  },
+  "inputUnchanged": {
+    "strictSource": true,
+    "primarySelectedSourceAndPrivateIndexes": true,
+    "normalIndex": false,
+    "head": false,
+    "native": true
+  },
+  "error": null,
+  "executionReport": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\execution-report.json",
+    "bytes": 31301,
+    "sha256": "766ebbb004ef0e5e1cab88342ed3626390205c798dc2f5428adbc91b948b84f6"
+  },
+  "headBefore": "c3d2c02e8fec6b60951e25bd9b408b9351f93a8a",
+  "headAfter": "8ed62f7b34f062ce6948cc14f412d425894af271",
+  "terminalEvidenceBoundary": "Top-level Node process wait and log handles closed are directly recorded. Existing spawnSync children are synchronously awaited by selected tests; successful main lease release requires observed actual native exit0/close and drains its pipes. The intentional crash/kill/unknown regression retains its original failure meaning. No new independent per-PID OS process-tree audit or broader acceptance is claimed.",
+  "cleanup": {
+    "owner": "Existing FW-01 integrated native fw03v whole-run owner; root main commit consumer remains active",
+    "strictSourcesReportsRetained": true,
+    "homeAndLogsRetained": true,
+    "releaseCondition": "Root main commit consumer completes and minimal independent evidence is retained, then existing wholeNativeRoot owner cleanup; no new retention reclassification",
+    "unknownPolicy": "Any missing terminal result or failed test blocks subsequent execution and retains state; no automatic success/rollback or process killing by this runner."
+  },
+  "notRun": [
+    "Compile/build",
+    "VSS",
+    "Cleanup JS/control unit acceptance",
+    "Main index refresh or commit",
+    "Other platform/application acceptance"
+  ],
+  "assessmentExit": 0,
+  "assessment": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\result-assessment.json",
+    "bytes": 4422,
+    "sha256": "7035150e427141adeb62beda69532996fe00c7c882945597d53e06058067e4df"
+  },
+  "concurrentChange": {
+    "authority": "Parent resolved 01a1ae7a-0e32-7bb1-bf20-fe56942fd1d8",
+    "headBefore": "c3d2c02e8fec6b60951e25bd9b408b9351f93a8a",
+    "headAfter": "8ed62f7b34f062ce6948cc14f412d425894af271",
+    "concurrentCommit": "8ed62f7b34f062ce6948cc14f412d425894af271",
+    "parentReviewedScope": [
+      "recovery-state.cjs",
+      "test-recovery-state.cjs"
+    ],
+    "parentReviewedAddedLines": 83,
+    "scopeDisjointFromStrict14AndMain": true,
+    "normalIndexByteChange": {
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\.git\\index": {
+        "before": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.git\\index",
+          "bytes": 2638414,
+          "sha256": "e5b61dfcd9f34ec7352c8df4b5e244c2b56c56148947ae73d76dacd5ff28a658"
+        },
+        "after": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.git\\index",
+          "bytes": 2638538,
+          "sha256": "cbbeb165f0bc790f3660a5ca1cd2cf84e06864431bc1c836cb3f39089bb3519d"
+        }
+      }
+    },
+    "stagedDeltaObservation": "Cached raw delta still39 paths with existing original mode/blob identities; not a claim that index bytes or HEAD stayed unchanged.",
+    "writerAttribution": "Unknown; parent reports no root index write. Do not assign writer/stat-cache cause. Preserve concurrent commit/index; no restore, CAS refresh requires later root instruction."
+  },
+  "collectorCorrection": {
+    "originalActualExit": 1,
+    "originalError": "Require exactly one passing selected named test",
+    "originalEvidence": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\strict-main-js\\artifacts\\tasks\\strict-main-js\\runs\\gated-main\\evidence-initial-parser-result.json",
+      "bytes": 14591,
+      "sha256": "bd630e4e4ce2a1e9f83b8895a3ff6c4440ed013f019de57826e79741cc29ac44"
+    },
+    "interpretation": "Both actual Node checks exited0. The original outer result-parser failure is preserved; corrected independent assessment passes without rerunning tests."
+  }
+}

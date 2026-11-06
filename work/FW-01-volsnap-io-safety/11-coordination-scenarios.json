@@ -1,0 +1,1211 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "platform": "win32",
+  "arch": "x64",
+  "binarySha256": "7d292c6eea7c7c92b5fe043adc95d10c324a8e2e48a7b8af17e788a8e332a920",
+  "sourceHash": "1d44a59ad84fe6e74d2544984bee51524f23ee20131b37dabd1b125ae3596ba2",
+  "purpose": "bounded real-process correctness; not a performance measurement",
+  "cases": [
+    {
+      "name": "fifo-cancel-unrelated-bypass-stale-approval",
+      "status": "passed",
+      "manifestMode": "legacy-json",
+      "queueEvidence": [
+        {
+          "label": "A running; B and C waiting while P1 maintenance custody held",
+          "timestamp": "2026-11-05T18:40:14.946Z",
+          "nativeActive": 4,
+          "entries": [
+            {
+              "executionId": "3a64-0-8677fc61bc37e48b",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1",
+              "state": "running",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1\\generated\\payload",
+                  "exclusive": true
+                }
+              ],
+              "subscribers": [
+                {
+                  "requestId": "P1-A",
+                  "cancelled": false,
+                  "expired": false,
+                  "acknowledged": false
+                }
+              ]
+            },
+            {
+              "executionId": "a3e8-2-10571394f142acbb",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1",
+              "state": "waiting",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1\\generated\\payload",
+                  "exclusive": true
+                }
+              ],
+              "subscribers": [
+                {
+                  "requestId": "P1-B",
+                  "cancelled": false,
+                  "expired": false,
+                  "acknowledged": false
+                }
+              ]
+            },
+            {
+              "executionId": "8318-3-a39498f858252251",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1",
+              "state": "waiting",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1\\generated\\payload",
+                  "exclusive": true
+                }
+              ],
+              "subscribers": [
+                {
+                  "requestId": "P1-C",
+                  "cancelled": false,
+                  "expired": false,
+                  "acknowledged": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "P2 register/apply completed; P1 A still running and C still waiting",
+          "timestamp": "2026-11-05T18:40:18.492Z",
+          "nativeActive": 3,
+          "entries": [
+            {
+              "executionId": "3a64-0-8677fc61bc37e48b",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1",
+              "state": "running",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1\\generated\\payload",
+                  "exclusive": true
+                }
+              ],
+              "subscribers": [
+                {
+                  "requestId": "P1-A",
+                  "cancelled": false,
+                  "expired": false,
+                  "acknowledged": false
+                }
+              ]
+            },
+            {
+              "executionId": "a3e8-2-10571394f142acbb",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1\\generated\\payload",
+                  "exclusive": true
+                }
+              ],
+              "subscribers": [
+                {
+                  "requestId": "P1-B",
+                  "cancelled": true,
+                  "expired": false,
+                  "acknowledged": false
+                }
+              ]
+            },
+            {
+              "executionId": "8318-3-a39498f858252251",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1",
+              "state": "waiting",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1\\generated\\payload",
+                  "exclusive": true
+                }
+              ],
+              "subscribers": [
+                {
+                  "requestId": "P1-C",
+                  "cancelled": false,
+                  "expired": false,
+                  "acknowledged": false
+                }
+              ]
+            },
+            {
+              "executionId": "6654-6-e452452c139ad39f",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P2",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P2\\generated\\independent",
+                  "exclusive": true
+                }
+              ],
+              "subscribers": [
+                {
+                  "requestId": "P2-D-register",
+                  "cancelled": false,
+                  "expired": false,
+                  "acknowledged": false
+                }
+              ]
+            },
+            {
+              "executionId": "957c-9-00029645f1917c1e",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P2",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P2\\generated\\payload",
+                  "exclusive": true
+                }
+              ],
+              "subscribers": [
+                {
+                  "requestId": "P2-D-apply",
+                  "cancelled": false,
+                  "expired": false,
+                  "acknowledged": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "barrier": {
+        "ready": {
+          "id": 0,
+          "ok": true,
+          "result": {
+            "acquired_at_ms": 1793904014391,
+            "operation": "fw03s.barrier",
+            "parent_pid": 54768,
+            "pid": 33652,
+            "schema": 2,
+            "token": "33652-1793904014391-2fe137d7990d45af"
+          }
+        },
+        "exit": 0,
+        "ordinaryRelease": true
+      },
+      "processes": [
+        {
+          "label": "P1-A",
+          "pid": 14948,
+          "exitCode": 0,
+          "signal": null,
+          "result": {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [],
+            "results": [
+              {
+                "attempt_id": "attempt-14948-1-1793904018955",
+                "decision": "delete",
+                "decision_id": "46cfa834af0ceff3bc822320c3bb170a786635cea88d625cea8ef69ddd2362a2",
+                "deletion": {
+                  "attributes": [],
+                  "error": null,
+                  "physical_bytes_reclaimed": null,
+                  "remaining": false,
+                  "status": "deleted"
+                },
+                "id": "target",
+                "reason": "first accepted deletion",
+                "remaining": false,
+                "status": "deleted",
+                "token": "d269e3b16dbed5e86c3baf9d41523d15bf8c25bced78d9fa1694754e3d218664"
+              }
+            ]
+          },
+          "physicalDeletes": [
+            {
+              "arch": "x86_64",
+              "attempts": 1,
+              "component": "project-maintenance",
+              "elapsed_us": 1032601,
+              "event": "maintenance.phase",
+              "level": "DEBUG",
+              "operation": "apply.physical_delete",
+              "os": "windows",
+              "outcome": "success",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P1\\generated\\payload",
+              "pid": 14948,
+              "timestamp_unix_ms": 1793904020117,
+              "version": "0.162.0"
+            }
+          ],
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "P1-B",
+          "pid": 41960,
+          "exitCode": 1,
+          "signal": null,
+          "physicalDeletes": [],
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "P1-C",
+          "pid": 33560,
+          "exitCode": 0,
+          "signal": null,
+          "result": {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [],
+            "results": [
+              {
+                "decision": "delete",
+                "decision_id": "3a0a6497dfadabe1ec075e24b48fe68acb2f5da5cc32ae0c1d7ce320c2f70e5d",
+                "error": "tree entry disappeared",
+                "id": "target",
+                "reason": "later distinct request must retain original approval",
+                "remaining": false,
+                "status": "blocked",
+                "token": "d269e3b16dbed5e86c3baf9d41523d15bf8c25bced78d9fa1694754e3d218664"
+              }
+            ]
+          },
+          "physicalDeletes": [],
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "P2-D-register",
+          "pid": 26196,
+          "exitCode": 0,
+          "signal": null,
+          "result": {
+            "item": {
+              "cache_schema": null,
+              "created_at_ms": null,
+              "generated": true,
+              "id": "independent",
+              "identity": "0484cb43c7f678afbab6f921b7b07156739cb56641e876dd79b347406574b6cf",
+              "kind": "work",
+              "logical_bytes": 11,
+              "measured_at_ms": 1793904015739,
+              "owner": "fw03s",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P2\\generated\\independent",
+              "presence": "present",
+              "protection_known": true,
+              "provenance": null,
+              "references": [],
+              "registered_at_ms": 1793904015739,
+              "remaining": true,
+              "source_path": null,
+              "tool": null,
+              "version": null
+            }
+          },
+          "physicalDeletes": [],
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "P2-D-apply",
+          "pid": 38268,
+          "exitCode": 0,
+          "signal": null,
+          "result": {
+            "aborted": false,
+            "cancelled": false,
+            "groups": [],
+            "results": [
+              {
+                "attempt_id": "attempt-38268-2-1793904016690",
+                "decision": "delete",
+                "decision_id": "284ba6a3fce78760f6a94f190a9f19834d1bc160b90b3bd6fc9ae40c18ba0ea7",
+                "deletion": {
+                  "attributes": [],
+                  "error": null,
+                  "physical_bytes_reclaimed": null,
+                  "remaining": false,
+                  "status": "deleted"
+                },
+                "id": "target",
+                "reason": "unrelated project must bypass the blocked head",
+                "remaining": false,
+                "status": "deleted",
+                "token": "2ec0c67221ebe0324680850a5e11617f1f28b0d978744e9516a1500e04825aa0"
+              }
+            ]
+          },
+          "physicalDeletes": [
+            {
+              "arch": "x86_64",
+              "attempts": 1,
+              "component": "project-maintenance",
+              "elapsed_us": 1222954,
+              "event": "maintenance.phase",
+              "level": "DEBUG",
+              "operation": "apply.physical_delete",
+              "os": "windows",
+              "outcome": "success",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P2\\generated\\payload",
+              "pid": 38268,
+              "timestamp_unix_ms": 1793904018064,
+              "version": "0.162.0"
+            }
+          ],
+          "exitObserved": true,
+          "closeObserved": true
+        }
+      ],
+      "conclusions": {
+        "A_physicalDeletes": 1,
+        "B_cancelledBeforeExecution": true,
+        "C_neverOvertookA": true,
+        "C_originalApprovalWasNotRenewed": true,
+        "P2_completedBeforeP1BarrierRelease": true
+      }
+    },
+    {
+      "name": "controlled-pre-Store-root-exit-unknown-proof-recovery",
+      "status": "passed",
+      "queueEvidence": {
+        "label": "P3 running before Store admission; exact maintenance barrier held",
+        "timestamp": "2026-11-05T18:51:33.308Z",
+        "nativeActive": 2,
+        "entries": [
+          {
+            "executionId": "7e00-0-d79496c3ac3c865b",
+            "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "state": "running",
+            "scopes": [
+              {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3\\generated\\payload",
+                "exclusive": true
+              }
+            ],
+            "subscribers": [
+              {
+                "requestId": "P3-original",
+                "cancelled": false,
+                "expired": false,
+                "acknowledged": false
+              }
+            ]
+          }
+        ]
+      },
+      "stoppedProof": {
+        "schema": 1,
+        "producer_stopped_verified": true,
+        "producer": {
+          "pid": 32256,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "sha256": "7d292c6eea7c7c92b5fe043adc95d10c324a8e2e48a7b8af17e788a8e332a920",
+          "sourceHash": "1d44a59ad84fe6e74d2544984bee51524f23ee20131b37dabd1b125ae3596ba2",
+          "actualExit": null,
+          "actualSignal": "SIGTERM",
+          "exitObserved": true,
+          "closeObserved": true,
+          "startedAt": "2026-11-05T18:51:33.116Z",
+          "exitedAt": "2026-11-05T18:51:34.512Z",
+          "closedAt": "2026-11-05T18:51:34.512Z"
+        },
+        "independentlyObserved": {
+          "beforeTree": [
+            {
+              "ProcessId": 32256,
+              "ParentProcessId": 49916,
+              "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+              "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe --project-root C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3 --request -",
+              "CreationDate": "/Date(1793904693118)/"
+            },
+            {
+              "ProcessId": 9056,
+              "ParentProcessId": 32256,
+              "ExecutablePath": "C:\\WINDOWS\\system32\\conhost.exe",
+              "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4",
+              "CreationDate": "/Date(1793904693122)/"
+            }
+          ],
+          "afterTree": [],
+          "consoleHandleEvidence": {
+            "ready": {
+              "parent_pid": 32256,
+              "creation_ms": 1793904693122,
+              "pid": 9056,
+              "handle_opened": true,
+              "ready": true,
+              "executable": "C:\\WINDOWS\\system32\\conhost.exe"
+            },
+            "completed": {
+              "ended": true,
+              "pid": 9056,
+              "basis": "previously opened exact process handle signaled",
+              "has_exited": true,
+              "exit_code": 0
+            },
+            "watcherExitObserved": true,
+            "watcherCloseObserved": true
+          },
+          "barrierOwner": {
+            "id": 0,
+            "ok": true,
+            "result": {
+              "acquired_at_ms": 1793904693073,
+              "operation": "fw03s.barrier",
+              "parent_pid": 49916,
+              "pid": 29032,
+              "schema": 2,
+              "token": "29032-1793904693073-e188c8934597230b"
+            }
+          },
+          "queue": {
+            "label": "P3 running before Store admission; exact maintenance barrier held",
+            "timestamp": "2026-11-05T18:51:33.308Z",
+            "nativeActive": 2,
+            "entries": [
+              {
+                "executionId": "7e00-0-d79496c3ac3c865b",
+                "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+                "state": "running",
+                "scopes": [
+                  {
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3\\generated\\payload",
+                    "exclusive": true
+                  }
+                ],
+                "subscribers": [
+                  {
+                    "requestId": "P3-original",
+                    "cancelled": false,
+                    "expired": false,
+                    "acknowledged": false
+                  }
+                ]
+              }
+            ]
+          },
+          "payloadStillExists": true,
+          "physicalDeleteEvents": 0
+        },
+        "stoppedTreeBasis": "Exact CLI root child was observed exit and close after Node child.kill. Its only permitted descendant was exact system32 conhost.exe with matching parent and creation time; a process handle opened before root termination was independently observed signaled by WaitForExit. No deletion worker or other child was present. Exact project maintenance OS custody remained held throughout, so dispatch could not open mutable Store or reach lazy Windows deletion-worker creation. PID absence alone is not the proof."
+      },
+      "stoppedProofSha256": "c5d855109854135292dac5c65feb5bfe48ec6a3eb2134bf1717d3a6e6042d757",
+      "original": {
+        "pid": 32256,
+        "exitCode": null,
+        "signal": "SIGTERM",
+        "exitObserved": true,
+        "closeObserved": true,
+        "physicalDeletes": []
+      },
+      "unknownStatus": {
+        "acknowledged": false,
+        "cancel_requested": false,
+        "execution_id": "7e00-0-d79496c3ac3c865b",
+        "expired": false,
+        "recovery_token": "43d9fa8fcafd92b3bfc7e9d60a221b2af6d39c9389107ff538e5058d9456f522",
+        "request_id": "P3-original",
+        "result": null,
+        "session_id": "fw03s-scenarios",
+        "status": "unknown"
+      },
+      "blockedNew": {
+        "exitCode": 1,
+        "physicalDeletes": []
+      },
+      "prooflessRecovery": {
+        "exitCode": 1,
+        "stderr": "{\"arch\":\"x86_64\",\"attempts\":1,\"component\":\"project-maintenance\",\"elapsed_us\":4542040,\"event\":\"maintenance.lock_wait\",\"level\":\"DEBUG\",\"operation\":\"wait_for_lock\",\"os\":\"windows\",\"outcome\":\"acquired\",\"path\":null,\"pid\":19248,\"timestamp_unix_ms\":1793904715298,\"version\":\"0.162.0\"}\n{\"arch\":\"x86_64\",\"attempts\":1,\"component\":\"project-maintenance\",\"elapsed_us\":4585697,\"event\":\"maintenance.lock_hold\",\"level\":\"DEBUG\",\"operation\":\"request_queue\",\"os\":\"windows\",\"outcome\":\"verified\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03s\\\\runs\\\\scenarios-02\\\\temporary\\\\state\\\\maintenance-coordination\\\\artifacts\\\\maintenance\\\\requests\\\\queue.lock\",\"pid\":19248,\"timestamp_unix_ms\":1793904715345,\"version\":\"0.162.0\"}\n{\"error\":\"explicit verification that the exact producer and its process tree stopped is required; PID absence is insufficient\"}\n"
+      },
+      "recovered": {
+        "execution_id": "7e00-0-d79496c3ac3c865b",
+        "recovery_receipt": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\state\\maintenance-coordination\\artifacts\\maintenance\\requests\\recovery-5e4fbce22b2b3ccf981ef39badf9c592c9d86124edbc8787e179e6a82007e210-completed.json",
+        "result": {
+          "Err": "interrupted; explicit recovery released custody"
+        },
+        "status": "terminal"
+      },
+      "barrierRelease": {
+        "ordinary": true,
+        "exitCode": 0
+      },
+      "fresh": {
+        "exitCode": 0,
+        "result": {
+          "aborted": false,
+          "cancelled": false,
+          "groups": [],
+          "results": [
+            {
+              "attempt_id": "attempt-38764-1-1793904733829",
+              "decision": "delete",
+              "decision_id": "5cdf59e612edcad059e2273b0d1967ae4917eb4865da55bc57fcb1620f39abfb",
+              "deletion": {
+                "attributes": [],
+                "error": null,
+                "physical_bytes_reclaimed": null,
+                "remaining": false,
+                "status": "deleted"
+              },
+              "id": "target",
+              "reason": "fresh legitimate post-recovery deletion",
+              "remaining": false,
+              "status": "deleted",
+              "token": "31f954906eec80248615e8ee1aecc48a2f7fefede57de252e46145687bb447e8"
+            }
+          ]
+        },
+        "physicalDeletes": [
+          {
+            "arch": "x86_64",
+            "attempts": 1,
+            "component": "project-maintenance",
+            "elapsed_us": 25180242,
+            "event": "maintenance.phase",
+            "level": "DEBUG",
+            "operation": "apply.physical_delete",
+            "os": "windows",
+            "outcome": "success",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3\\generated\\payload",
+            "pid": 38764,
+            "timestamp_unix_ms": 1793904759172,
+            "version": "0.162.0"
+          }
+        ]
+      },
+      "conclusions": {
+        "originalNeverExecutedPayload": true,
+        "noUnknownAutoReplay": true,
+        "prooflessRecoveryRejected": true,
+        "recoveredAsInterruptedOnly": true,
+        "freshPhysicalDeletes": 1
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "runId": "run:fw03s:scenarios-01",
+      "status": "failed",
+      "firstCausalError": {
+        "message": "unexpected owned descendant before controlled termination",
+        "stack": "AssertionError [ERR_ASSERTION]: unexpected owned descendant before controlled termination\n    at scenarioTwo (C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\inputs\\scenarios.cjs:99:119)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\inputs\\scenarios.cjs:121:93"
+      },
+      "classification": "harness OS-console-helper model omission; not product failure; no kill was performed",
+      "processTreeBefore": [
+        {
+          "ProcessId": 53028,
+          "ParentProcessId": 54768,
+          "ExecutablePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "CommandLine": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe --project-root C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P3 --request -",
+          "CreationDate": "/Date(1793904023219)/"
+        },
+        {
+          "ProcessId": 35884,
+          "ParentProcessId": 53028,
+          "ExecutablePath": "C:\\WINDOWS\\system32\\conhost.exe",
+          "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4",
+          "CreationDate": "/Date(1793904023223)/"
+        }
+      ],
+      "maxConcurrentActualProcesses": 5,
+      "actualSpawnedProcesses": 21,
+      "allOwnedProcessesObservedClosed": true,
+      "originalP3FinalOutcome": {
+        "index": 20,
+        "label": "P3-original",
+        "pid": 53028,
+        "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+        "args": [
+          "--project-root",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\temporary\\fixtures\\P3",
+          "--request",
+          "-"
+        ],
+        "startedAt": "2026-11-05T18:40:23.201Z",
+        "exitObserved": true,
+        "closeObserved": true,
+        "exitCode": 0,
+        "exitSignal": null,
+        "exitedAt": "2026-11-05T18:40:26.320Z",
+        "closeCode": 0,
+        "closeSignal": null,
+        "closedAt": "2026-11-05T18:40:26.320Z"
+      },
+      "inputs": {
+        "schema": 1,
+        "frozenAt": "2026-11-05T18:40:13.239Z",
+        "files": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\inputs\\identity.json",
+            "sha256": "86e9416ee73e76680c15c135fbe45b50f6fd9fefe13d87b674f3654a4656b698",
+            "bytes": 906
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-01\\inputs\\scenarios.cjs",
+            "sha256": "a8dfdba682d3fe89853febdc6fa98459dbc913b48e6d0f931b13232e2eadefb0",
+            "bytes": 17619
+          }
+        ],
+        "scope": "two bounded real native coordination scenarios, no product changes",
+        "resourcePrecheck": "No cargo.exe/rustc.exe/cl.exe/link.exe processes observed immediately before launch"
+      },
+      "processCountScope": "Direct controlled native CLI/barrier and PowerShell observer children; OS-created conhost helpers are independently observed separately, not included in this count"
+    },
+    {
+      "runId": "run:fw03s:scenarios-02",
+      "status": "passed",
+      "approvedCorrection": "Recognize only exact OS system32 console-helper; preserve exact process handle proof and reject any other descendant",
+      "actualControllerExit": 0,
+      "maxConcurrentDirectChildren": 3,
+      "actualSpawnedDirectChildren": 17,
+      "allDirectChildrenExitAndCloseObserved": true,
+      "inputs": {
+        "schema": 1,
+        "frozenAt": "2026-11-05T18:51:32.230Z",
+        "files": [
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\inputs\\identity.json",
+            "sha256": "c13bc7ff5c1989697cece8d1a92df01caeb338df1551da8a06063f6398083ee7",
+            "bytes": 906
+          },
+          {
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\inputs\\scenarios.cjs",
+            "sha256": "8d930b1c0cd10ffae9ae114a0cb782806ebc39f5161d5846f007393bf36cd343",
+            "bytes": 20864
+          }
+        ],
+        "scope": "approved scenario2-only with exact OS console-helper process-handle observation",
+        "resourcePrecheck": "No cargo/rustc/cl/link observed immediately before launch",
+        "priorAttempt": "run:fw03s:scenarios-01 preserved independently and actually deleted/finalized"
+      },
+      "processes": [
+        {
+          "index": 1,
+          "label": "P3-seed",
+          "pid": 12624,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:32.447Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:32.945Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:32.945Z"
+        },
+        {
+          "index": 2,
+          "label": "P3-review",
+          "pid": 40932,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:32.947Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:33.017Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:33.017Z"
+        },
+        {
+          "index": 3,
+          "label": "P3-barrier",
+          "pid": 29032,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--lease",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3\\artifacts\\maintenance\\maintenance.lock",
+            "--operation",
+            "fw03s.barrier",
+            "--wait-ms",
+            "0",
+            "--parent-pid",
+            "49916"
+          ],
+          "startedAt": "2026-11-05T18:51:33.019Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:52:12.964Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:52:12.964Z"
+        },
+        {
+          "index": 4,
+          "label": "P3-original",
+          "pid": 32256,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:33.116Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": null,
+          "exitSignal": "SIGTERM",
+          "exitedAt": "2026-11-05T18:51:34.512Z",
+          "closeCode": null,
+          "closeSignal": "SIGTERM",
+          "closedAt": "2026-11-05T18:51:34.512Z"
+        },
+        {
+          "index": 5,
+          "label": "P3-tree-before",
+          "pid": 16532,
+          "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "args": [
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "$ErrorActionPreference='Stop'; $all=@(Get-CimInstance Win32_Process); $ids=[Collections.Generic.HashSet[uint32]]::new(); $null=$ids.Add(32256); do {$added=$false;foreach($p in $all){if($ids.Contains([uint32]$p.ParentProcessId) -and $ids.Add([uint32]$p.ProcessId)){$added=$true}}}while($added); @($all | Where-Object {$ids.Contains([uint32]$_.ProcessId)} | Select-Object ProcessId,ParentProcessId,ExecutablePath,CommandLine,CreationDate) | ConvertTo-Json -Depth 4 -Compress"
+          ],
+          "startedAt": "2026-11-05T18:51:33.308Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:33.933Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:33.933Z"
+        },
+        {
+          "index": 6,
+          "label": "P3-console-handle",
+          "pid": 55332,
+          "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "args": [
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "$ErrorActionPreference='Stop'; $pidValue=9056; $c=Get-CimInstance Win32_Process -Filter \"ProcessId = $pidValue\"; if($null -eq $c -or $c.ParentProcessId -ne 32256 -or $c.ExecutablePath -ine 'C:\\WINDOWS\\system32\\conhost.exe' -or ([DateTimeOffset]$c.CreationDate).ToUnixTimeMilliseconds() -ne 1793904693122){throw 'console-helper exact identity changed'}; $owned=[Diagnostics.Process]::GetProcessById($pidValue); $openedHandle=$owned.Handle; @{ready=$true;pid=$pidValue;parent_pid=$c.ParentProcessId;creation_ms=1793904693122;executable=$c.ExecutablePath;handle_opened=($openedHandle -ne 0)} | ConvertTo-Json -Compress; [Console]::Out.Flush(); $command=[Console]::ReadLine(); if($command -ne 'wait'){throw 'explicit wait command required'}; $ended=$owned.WaitForExit(15000); @{ended=$ended;has_exited=$owned.HasExited;pid=$pidValue;exit_code=$(if($ended){$owned.ExitCode}else{$null});basis='previously opened exact process handle signaled'} | ConvertTo-Json -Compress; [Console]::Out.Flush(); $owned.Dispose(); if(-not $ended){exit 1}"
+          ],
+          "startedAt": "2026-11-05T18:51:33.934Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:34.534Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:34.534Z"
+        },
+        {
+          "index": 7,
+          "label": "P3-tree-after",
+          "pid": 7408,
+          "executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "args": [
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "$ErrorActionPreference='Stop'; $all=@(Get-CimInstance Win32_Process); $ids=[Collections.Generic.HashSet[uint32]]::new(); $null=$ids.Add(32256); do {$added=$false;foreach($p in $all){if($ids.Contains([uint32]$p.ParentProcessId) -and $ids.Add([uint32]$p.ProcessId)){$added=$true}}}while($added); @($all | Where-Object {$ids.Contains([uint32]$_.ProcessId)} | Select-Object ProcessId,ParentProcessId,ExecutablePath,CommandLine,CreationDate) | ConvertTo-Json -Depth 4 -Compress"
+          ],
+          "startedAt": "2026-11-05T18:51:34.535Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:43.932Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:43.932Z"
+        },
+        {
+          "index": 8,
+          "label": "P3-original-request_status",
+          "pid": 37664,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:43.933Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:47.216Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:47.216Z"
+        },
+        {
+          "index": 9,
+          "label": "P3-blocked-new",
+          "pid": 54484,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:47.218Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 1,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:50.668Z",
+          "closeCode": 1,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:50.668Z"
+        },
+        {
+          "index": 10,
+          "label": "P3-no-proof",
+          "pid": 19248,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:50.670Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 1,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:55.347Z",
+          "closeCode": 1,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:55.347Z"
+        },
+        {
+          "index": 11,
+          "label": "P3-original-request_status",
+          "pid": 12156,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:55.349Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:55.599Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:55.599Z"
+        },
+        {
+          "index": 12,
+          "label": "P3-original-request_recover",
+          "pid": 51036,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:55.603Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:57.487Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:57.487Z"
+        },
+        {
+          "index": 13,
+          "label": "P3-original-request_ack",
+          "pid": 47584,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:57.489Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:51:57.745Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:51:57.745Z"
+        },
+        {
+          "index": 14,
+          "label": "P3-blocked-new-request_ack",
+          "pid": 31596,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:51:57.747Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:52:12.949Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:52:12.949Z"
+        },
+        {
+          "index": 15,
+          "label": "P3-fresh-review",
+          "pid": 49344,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:52:12.966Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:52:13.048Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:52:13.048Z"
+        },
+        {
+          "index": 16,
+          "label": "P3-fresh",
+          "pid": 38764,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:52:13.049Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:52:39.771Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:52:39.771Z"
+        },
+        {
+          "index": 17,
+          "label": "P3-fresh-request_ack",
+          "pid": 34644,
+          "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\candidate3-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03s\\runs\\scenarios-02\\temporary\\fixtures\\P3",
+            "--request",
+            "-"
+          ],
+          "startedAt": "2026-11-05T18:52:39.773Z",
+          "exitObserved": true,
+          "closeObserved": true,
+          "exitCode": 0,
+          "exitSignal": null,
+          "exitedAt": "2026-11-05T18:52:40.039Z",
+          "closeCode": 0,
+          "closeSignal": null,
+          "closedAt": "2026-11-05T18:52:40.039Z"
+        }
+      ]
+    }
+  ],
+  "cleanup": [
+    {
+      "runId": "run:fw03s:scenarios-01",
+      "pinSha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+      "attempts": [
+        {
+          "stage": "register",
+          "exitCode": 1,
+          "signal": null,
+          "diagnostic": "{\"code\":\"maintenance_busy\",\"error\":\"OS lock busy: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock (catalog)\",\"lock_path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\catalog.lock\",\"owner\":null,\"retryable\":true}\n"
+        },
+        {
+          "stage": "register-explicit-acquisition-wait600000",
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "stage": "review",
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "stage": "apply",
+          "exitCode": 0,
+          "signal": null
+        }
+      ],
+      "applied": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:fw03s:scenarios-01",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-47584-7333-1793904607658",
+            "decision": "delete",
+            "decision_id": "6addb2d88c41dfa03002f2eb4e900c81b77747c6102e862d9b54567b39a97835",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "3b24c515b69ac439073710b5d7273cdf972b56a455e9aef02f034265a9af09d1",
+            "lifecycle_group_id": "run:fw03s:scenarios-01",
+            "reason": "Consumed bounded scenario run; independent evidence retained and every owned producer observed closed",
+            "remaining": false,
+            "status": "deleted",
+            "token": "01f6f4f62d0d4aff783a04b5803752ff6bc835ead5955f37d3dd80a40b38f9e2"
+          }
+        ]
+      },
+      "actualRootAbsent": true,
+      "finalized": {
+        "id": "run:fw03s:scenarios-01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\3dfd4c618977e0c417564ef6033532363384c836dca86b6155d2ee89d7a33d96.json",
+        "retirement": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\11-coordination-scenarios.json",
+          "sha256": "18aee91e877c743720269247517b3a0765bd438ee5cc0be07db8ca3f67cc84ff",
+          "reason": "Independent scenario-one and failure results preserved; original run root actually absent",
+          "original_state": "failed",
+          "original_membership_complete": true
+        }
+      }
+    },
+    {
+      "runId": "run:fw03s:scenarios-02",
+      "pinSha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+      "attempts": [
+        {
+          "stage": "register",
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "stage": "review",
+          "exitCode": 0,
+          "signal": null
+        },
+        {
+          "stage": "apply",
+          "exitCode": 0,
+          "signal": null
+        }
+      ],
+      "applied": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:fw03s:scenarios-02",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-50584-7340-1793905011232",
+            "decision": "delete",
+            "decision_id": "a7f5b902884c40001502e7f2bee425a5abec8174276b7ba25229a814994d196c",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "76e4cd45b227319b121c54e1a683c5af165a247d7920d621bdd84cde2485e4e6",
+            "lifecycle_group_id": "run:fw03s:scenarios-02",
+            "reason": "Bounded process scenarios complete; independently readable acceptance and exact stopped-tree proof retained in approved work record",
+            "remaining": false,
+            "status": "deleted",
+            "token": "bd6d1d120f411778b10acb407078f86bdb3ea603ddbebb1b70894fd4d2461298"
+          }
+        ]
+      },
+      "actualRootAbsent": true,
+      "finalized": {
+        "id": "run:fw03s:scenarios-02",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\308935640b8a4ad4e8407e2b1ef2bc61e903a0db51b8c1268855a8c54bac7d39.json",
+        "retirement": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\11-coordination-scenarios.json",
+          "sha256": "0157ac7aaef9da80a82b5091a2483c5aa86fcd05c0b9a4207183566d880dfaf8",
+          "reason": "All owned processes and exact conhost handle stopped; independent evidence verified; final scenario run actually absent",
+          "original_state": "complete",
+          "original_membership_complete": true
+        }
+      }
+    }
+  ],
+  "processCountScope": "Direct controlled native CLI/barrier and PowerShell observer children; OS-created conhost helpers are independently observed separately, not included in this count",
+  "limitations": [
+    "Windows x64 local native CLI only; no cross-platform execution assertion",
+    "Small correctness fixtures, not contention throughput or VSS/Volsnap evidence",
+    "Direct-child concurrency counts exclude automatically created OS console-helper processes; exact P3 helper identity and handle termination are recorded separately",
+    "Candidate3 queue/admission verification; parent owns final candidate source integration and unrelated reservation test fix impact"
+  ],
+  "cleanupComplete": true,
+  "cleanerState": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\fw03s-final-cleaner-state",
+    "owner": "run:fw03v:native-613162bb",
+    "purpose": "approved separate isolated final cleanup controller state; no live fw03s producer after this command",
+    "retirementOwner": "native run owner"
+  },
+  "emptyTaskContainersRemoved": true
+}

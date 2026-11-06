@@ -16,6 +16,48 @@ fn directory(root: &Path) -> PathBuf {
 mod tests {
     use super::*;
 
+    #[test]
+    fn observed_reservation_read_keeps_authorization_content_and_identity_guards() {
+        for guard in ["none", "mid_write", "late_write", "identity", "deny"] {
+            let root = tempfile::tempdir().unwrap();
+            let path = root.path().join("record.json");
+            fs::write(&path, b"aaaa").unwrap();
+            let allow = |_: &Path, _: AccessMode| Ok(());
+            let before = paths::checked_metadata(root.path(), &path, &crate::Context::new(&allow))
+                .unwrap()
+                .unwrap();
+            let calls = std::cell::Cell::new(0);
+            let authorize = |entry: &Path, _: AccessMode| {
+                if entry == path {
+                    let call = calls.get() + 1;
+                    calls.set(call);
+                    if guard == "deny" && call == 2 {
+                        return Err("read denied".into());
+                    }
+                    if guard == "mid_write" && call == 2 || guard == "late_write" && call == 3 {
+                        fs::write(&path, b"bbbb").unwrap();
+                    }
+                    if guard == "identity" && call == 4 {
+                        fs::rename(&path, root.path().join("old.json")).unwrap();
+                        fs::write(&path, b"aaaa").unwrap();
+                    }
+                }
+                Ok(())
+            };
+            let result =
+                read_bytes_observed(root.path(), &path, &crate::Context::new(&authorize), before);
+            match guard {
+                "none" => assert_eq!(result.unwrap(), b"aaaa"),
+                "deny" => assert_eq!(result.unwrap_err(), "read denied"),
+                "identity" => assert_eq!(result.unwrap_err(), "reservation file identity changed"),
+                _ => assert_eq!(
+                    result.unwrap_err(),
+                    "reservation changed during observation"
+                ),
+            }
+        }
+    }
+
     fn producer_release_fixture(
         ids: &[&str],
     ) -> (tempfile::TempDir, Vec<Value>, Vec<Value>, Value) {
@@ -289,12 +331,30 @@ fn filename(root: &Path, id: &str) -> Result<PathBuf, String> {
     Ok(directory(root).join(format!("{}.json", hash(&id)?)))
 }
 fn read_bytes(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<u8>, String> {
+    let _detail = crate::timing::detail("reservation.read_bytes");
     let metadata = paths::checked_metadata(root, path, auth)?.ok_or("reservation disappeared")?;
+    read_bytes_observed(root, path, auth, metadata)
+}
+
+/// Consume the immediately preceding metadata observation in local_group.
+/// There is no intervening I/O or callback. Both bounded reads, their fresh
+/// authorization, the between-read path check and final identity check remain.
+fn read_bytes_observed(
+    root: &Path,
+    path: &Path,
+    auth: Auth<'_>,
+    metadata: fs::Metadata,
+) -> Result<Vec<u8>, String> {
+    let _detail = crate::timing::detail("reservation.read_observed");
     if !metadata.is_file() || metadata.len() > MAX_RESERVATION_BYTES as u64 {
         return Err("invalid reservation file".into());
     }
+    // The caller's checked metadata already authorized this path. Bind the OS
+    // object before subsequent callbacks can replace it with identical bytes.
+    let identity = paths::registered_identity(path, &metadata)?;
     auth(path, AccessMode::Read)?;
     let bounded_read = || -> Result<Vec<u8>, String> {
+        let _detail = crate::timing::detail("reservation.read_payload");
         let mut bytes = Vec::new();
         fs::File::open(path)
             .map_err(|e| e.to_string())?
@@ -313,7 +373,8 @@ fn read_bytes(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<u8>, Strin
         return Err("reservation changed during observation".into());
     }
     let after = paths::checked_metadata(root, path, auth)?.ok_or("reservation disappeared")?;
-    if paths::platform_identity(&metadata) != paths::platform_identity(&after)
+    if paths::registered_identity(path, &after)? != identity
+        || paths::platform_identity(&metadata) != paths::platform_identity(&after)
         || metadata.len() != after.len()
     {
         return Err("reservation file identity changed".into());
@@ -321,7 +382,12 @@ fn read_bytes(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Vec<u8>, Strin
     Ok(bytes)
 }
 fn read(root: &Path, path: &Path, auth: Auth<'_>) -> Result<Value, String> {
-    let value: Value = serde_json::from_slice(&read_bytes(root, path, auth)?)
+    decode_record(read_bytes(root, path, auth)?)
+}
+
+fn decode_record(bytes: Vec<u8>) -> Result<Value, String> {
+    let _detail = crate::timing::detail("reservation.parse_validate");
+    let value: Value = serde_json::from_slice(&bytes)
         .map_err(|e| format!("reservation requires recovery: {e}"))?;
     if value["schema"] != 1 || !value["members"].is_array() {
         return Err("invalid reservation requires recovery".into());
@@ -647,20 +713,117 @@ fn check_claim(
     Ok(())
 }
 
-/// All group readers, including review, must validate the exact owning fence.
-pub(crate) fn check_group(root: &Path, id: &str, auth: Auth<'_>) -> Result<(), String> {
+/// Fresh local reservation validation, without observing its producer sources.
+fn local_group(root: &Path, id: &str, auth: Auth<'_>) -> Result<Option<Value>, String> {
     let path = filename(root, id)?;
-    if paths::checked_metadata(root, &path, auth)?.is_none() {
+    let Some(metadata) = paths::checked_metadata(root, &path, auth)? else {
         if auth.reservations.borrow().contains_key(id) {
             return Err("owning reservation disappeared".into());
         }
-        return Ok(());
-    }
-    let record = read(root, &path, auth)?;
+        return Ok(None);
+    };
+    let record = decode_record(read_bytes_observed(root, &path, auth, metadata)?)?;
+    let _detail = crate::timing::detail("reservation.ownership");
     if !owned(&record, auth) {
         return Err("lifecycle group is reserved; recovery may be required".into());
     }
-    verify_sources(root, &record, auth)?;
+    Ok(Some(record))
+}
+
+#[derive(PartialEq)]
+struct LocalGroupSnapshot {
+    record: Value,
+    identity: Value,
+    content: [u8; 32],
+}
+
+fn local_group_snapshot(
+    root: &Path,
+    id: &str,
+    auth: Auth<'_>,
+) -> Result<Option<LocalGroupSnapshot>, String> {
+    let path = filename(root, id)?;
+    let Some(metadata) = paths::checked_metadata(root, &path, auth)? else {
+        if auth.reservations.borrow().contains_key(id) {
+            return Err("owning reservation disappeared".into());
+        }
+        return Ok(None);
+    };
+    use sha2::Digest;
+    let identity = json!({"object":paths::registered_identity(&path, &metadata)?,
+        "metadata":paths::platform_identity(&metadata)});
+    let bytes = read_bytes_observed(root, &path, auth, metadata)?;
+    let content = sha2::Sha256::digest(&bytes).into();
+    let record = decode_record(bytes)?;
+    // The bounded read performs the final authorization/metadata check. Capture
+    // OS identity again without invoking another callback after that check.
+    let after = fs::symlink_metadata(&path).map_err(|error| error.to_string())?;
+    if json!({"object":paths::registered_identity(&path, &after)?,
+        "metadata":paths::platform_identity(&after)})
+        != identity
+    {
+        return Err("reservation file identity changed".into());
+    }
+    let _detail = crate::timing::detail("reservation.ownership");
+    if !owned(&record, auth) {
+        return Err("lifecycle group is reserved; recovery may be required".into());
+    }
+    Ok(Some(LocalGroupSnapshot {
+        record,
+        identity,
+        content,
+    }))
+}
+
+/// One pure group observation may defer repeated local reads until its end.
+/// Never retain this bracket across observations or perform payload work in it.
+pub(crate) struct GroupReviewFence {
+    root: PathBuf,
+    id: String,
+    snapshot: Option<LocalGroupSnapshot>,
+}
+
+impl GroupReviewFence {
+    pub(crate) fn begin(root: &Path, id: &str, auth: Auth<'_>) -> Result<Self, String> {
+        Ok(Self {
+            root: root.to_owned(),
+            id: id.to_owned(),
+            snapshot: local_group_snapshot(root, id, auth)?,
+        })
+    }
+
+    pub(crate) fn check_member(&self, root: &Path, item: &Value) -> Result<(), String> {
+        if root != self.root || crate::groups::id(item) != Some(self.id.as_str()) {
+            return Err("group review reservation fence does not match member".into());
+        }
+        Ok(())
+    }
+
+    pub(crate) fn finish(self, root: &Path, auth: Auth<'_>) -> Result<(), String> {
+        if root != self.root || local_group_snapshot(root, &self.id, auth)? != self.snapshot {
+            return Err("lifecycle reservation changed during group review".into());
+        }
+        Ok(())
+    }
+}
+
+/// All ordinary group readers must also validate the exact owning source fence.
+pub(crate) fn check_group(root: &Path, id: &str, auth: Auth<'_>) -> Result<(), String> {
+    if let Some(record) = local_group(root, id, auth)? {
+        verify_sources(root, &record, auth)?;
+    }
+    Ok(())
+}
+
+/// Only grouped reviews ending in a fresh source observation may defer the
+/// source-fence check. Local identity, permissions and ownership remain fresh.
+pub(crate) fn check_group_member_local(
+    root: &Path,
+    item: &Value,
+    auth: Auth<'_>,
+) -> Result<(), String> {
+    let id = crate::groups::id(item).ok_or("local reservation review requires grouped member")?;
+    local_group(root, id, auth)?;
     Ok(())
 }
 
@@ -1341,6 +1504,85 @@ impl<'a> ReservationSet<'a> {
             auth.reservations.borrow_mut().insert(id.clone(), record);
         }
         Ok(set)
+    }
+    /// Explicit pre-publication abort only. The caller proves no save/deletion
+    /// was attempted and holds maintenance plus every source catalog lease.
+    /// No Drop path calls this: uncertain outcomes deliberately retain custody.
+    pub(crate) fn abort_before_intent(
+        &mut self,
+        state: &State,
+        auth: Auth<'_>,
+    ) -> Result<(), String> {
+        let pending = self.root.join("artifacts/maintenance/manifest.pending");
+        if paths::checked_metadata(&self.root, &pending, auth)?.is_some() {
+            return Err("pending state retains pre-intent reservation".into());
+        }
+        let catalog = self
+            .root
+            .join("artifacts/maintenance/lifecycles/catalog.lock");
+        if !auth.catalog_locks.borrow().contains(&catalog) {
+            return Err("pre-intent abort requires catalog custody".into());
+        }
+        self.verify(auth)?;
+        for (id, reservation) in &self.records {
+            if !owned(reservation, auth) {
+                return Err("pre-intent abort requires exact owned reservation".into());
+            }
+            for binding in source_bindings(reservation)? {
+                let source = paths::resolve(&self.root, Path::new(string(binding, "source")?))?;
+                if !auth
+                    .catalog_locks
+                    .borrow()
+                    .contains(&source.join("catalog.lock"))
+                {
+                    return Err("pre-intent abort requires source catalog custody".into());
+                }
+            }
+            if reservation["members"]
+                .as_array()
+                .ok_or("invalid reserved members")?
+                .iter()
+                .any(|member| {
+                    state
+                        .items
+                        .get(member["id"].as_str().unwrap_or(""))
+                        .is_some_and(|item| item["cleanup_status"] == "pending")
+                        || state.decisions.iter().any(|decision| {
+                            decision["id"] == member["id"] && decision["status"] == "pending"
+                        })
+                })
+            {
+                return Err("pending intent retains pre-intent reservation".into());
+            }
+            let path = filename(&self.root, id)?;
+            auth(&path, AccessMode::Write)?;
+            auth(
+                path.parent().ok_or("missing reservation parent")?,
+                AccessMode::Write,
+            )?;
+            // Recheck after policy callbacks, immediately before ordinary removal.
+            self.verify_group(id, auth)?;
+            if paths::checked_metadata(&self.root, &pending, auth)?.is_some()
+                || read(&self.root, &path, auth)? != *reservation
+            {
+                return Err("pre-intent abort became uncertain".into());
+            }
+            fs::remove_file(&path).map_err(|error| {
+                format!(
+                    "reservation.abort_before_intent: {}: {error}",
+                    path.display()
+                )
+            })?;
+            if paths::checked_metadata(&self.root, &path, auth)?.is_some() {
+                return Err("pre-intent reservation removal unconfirmed".into());
+            }
+            auth.reservations.borrow_mut().remove(id);
+        }
+        self.records.clear();
+        for lease in std::mem::take(&mut self.leases).into_values() {
+            lease.release()?;
+        }
+        Ok(())
     }
     /// Caller holds the catalog lock, and state was committed successfully.
     /// Unknown observations and any pending intent deliberately retain protection.

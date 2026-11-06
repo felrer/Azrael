@@ -1,0 +1,1167 @@
+{
+  "schema": 1,
+  "status": "completed-bounded-VSS-comparison-originals-protected-until-root-cleanup",
+  "createdUtc": "2026-11-06T01:38:28.824Z",
+  "scope": "Windows x64 local; sequential debug timing-ON regression comparison, not release performance or strengthened Volsnap25 reproduction",
+  "environment": {
+    "os": "Windows",
+    "cpu": "x86_64",
+    "execution": "local elevated PowerShell7; NTFS volume in owned8GiB VHDX",
+    "build": "debug",
+    "maintenanceTiming": "ON",
+    "physicalIoIsolation": false,
+    "lockWaitMs": 0,
+    "runtime": {
+      "path": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+      "sha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+      "bytes": 301360
+    },
+    "wrapper": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\invoke-vss-only-stage.ps1",
+      "sha256": "88f037bf67d48ccab051613f280ad91f5d3499743ce8a4dca338afacbe2c80d6",
+      "bytes": 3365
+    }
+  },
+  "identity": {
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661",
+    "lifecycleId": "run:fw03v:vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661",
+    "inputs": {
+      "controller.ps1": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\controller.ps1",
+        "sha256": "558e106fbccb93fe7aaf0dd18076ea497356be36047a9cefaab1d4129c708640",
+        "bytes": 38271
+      },
+      "compare-stage.ps1": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\compare-stage.ps1",
+        "sha256": "aba5f3785976fcf9c98a12706156c0da2491fe4ef19bbfeaefd30dd7636727f3",
+        "bytes": 9789
+      },
+      "fixture.cs": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\fixture.cs",
+        "sha256": "313f16bf06f8955bbdb11fe75de0dbad90845ca3b565677b85b5088451faf91c",
+        "bytes": 3441
+      },
+      "native-identities.json": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\native-identities.json",
+        "sha256": "6ae983befa9db44335794fc3d79a2360c300ba3d62d63af8266d09cb8af0bcba",
+        "bytes": 585
+      }
+    },
+    "binary": {
+      "Baseline": {
+        "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/fw03v/runs/native-613162bb/outputs/baseline-maintenance_owner.exe",
+        "sha256": "02fd336f118a598d3a18e8e8395556781bd4a5d5c38101ac80b4dfe270a59e3d",
+        "bytes": 4887552,
+        "sourceInputSha256": null
+      },
+      "Candidate": {
+        "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/fw03v/runs/native-613162bb/outputs/unit6-maintenance_owner.exe",
+        "sha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3",
+        "bytes": 4843008,
+        "sourceInputSha256": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5"
+      }
+    },
+    "volume": {
+      "ImagePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\outputs\\test.vhdx",
+      "DiskUniqueId": "600224809A1F2DFE510AF15B5050747C",
+      "PartitionGuid": "{678330c8-57c2-4694-8378-f88cc04d5193}",
+      "VolumeGuid": "\\\\?\\Volume{678330c8-57c2-4694-8378-f88cc04d5193}\\",
+      "DriveToken": "F:",
+      "DeviceName": "\\Device\\HarddiskVolume35"
+    },
+    "sourceProof": "Baseline/unit6 frozen-source provenance reused from prior verified owner; no product build or source copy in this preparation"
+  },
+  "launch": {
+    "Preflight": {
+      "pid": 40888,
+      "schema": 1,
+      "stage": "Preflight",
+      "process_tree_claim": "Controller protocol and owned child reports must be checked separately",
+      "exit_observed": true,
+      "completion_evidence": "WaitForExit on retained exact process object",
+      "exit_code": 0,
+      "controller_sha256": "558e106fbccb93fe7aaf0dd18076ea497356be36047a9cefaab1d4129c708640",
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\controller.ps1",
+      "ended_utc": "2026-11-06T01:34:53.7514033Z",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Preflight-vssonly-launch-terminal.json",
+        "sha256": "10076550323b123fe694c16c3bd2d1edf403ff3e8b8c1f32534f0d757027638a",
+        "bytes": 585
+      }
+    },
+    "Compare": {
+      "controller_sha256": "558e106fbccb93fe7aaf0dd18076ea497356be36047a9cefaab1d4129c708640",
+      "completion_evidence": "WaitForExit on retained exact process object",
+      "process_tree_claim": "Controller protocol and owned child reports must be checked separately",
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\controller.ps1",
+      "exit_observed": true,
+      "pid": 2720,
+      "stage": "Compare",
+      "exit_code": 0,
+      "schema": 1,
+      "ended_utc": "2026-11-06T01:36:40.7741861Z",
+      "evidence": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Compare-vssonly-launch-terminal.json",
+        "sha256": "ed6432bd0dc62b35bbd5f50290a209cb41a82de75c0cecab053743db4447afdb",
+        "bytes": 582
+      }
+    },
+    "executor": {
+      "Preflight": {
+        "workId": "44378d88-7ad2-4a0a-a3cb-62f4b28ae860",
+        "outcome": "Parent reports executor exit0"
+      },
+      "Compare": {
+        "workId": "b2764e80-0137-4f21-8980-c9e0c194be9d",
+        "outcome": "Parent reports executor succeeded0"
+      }
+    }
+  },
+  "result": {
+    "success": true,
+    "comparisonComplete": true,
+    "startedUtc": "2026-11-06T01:35:17.0300747Z",
+    "endedUtc": "2026-11-06T01:36:40.6609221Z",
+    "controllerStageWallMs": 83630,
+    "compareLoadClockSeconds": 79.2049069,
+    "variantStatus": [
+      {
+        "Variant": "Baseline",
+        "Status": "Complete",
+        "ActuallyAbsentMembers": 16
+      },
+      {
+        "Variant": "Candidate",
+        "Status": "Complete",
+        "ActuallyAbsentMembers": 16
+      }
+    ],
+    "preparedFiles": 4096,
+    "actuallyAbsentMembers": 32,
+    "filesUnderAbsentMembers": 4096,
+    "requestedFixtureBytes": 268435456,
+    "completedFixtureBytes": 268435456,
+    "preflightRequestedBytes": 1048576,
+    "totalRequestedDataBytes": 269484032
+  },
+  "nativePhases": [
+    {
+      "Variant": "Baseline",
+      "Phase": "Register",
+      "nativePid": 28284,
+      "nativeActualExit": 0,
+      "nativeTermination": {
+        "Kind": "synchronous-native-worker-protocol",
+        "ExitObserved": true,
+        "RedirectedStreamsClosed": true,
+        "ForcedTermination": false
+      },
+      "adapterChildPid": 46880,
+      "adapterChildActualExit": 0,
+      "adapterElapsedMs": 2921.9018,
+      "controllerObservedChildWallMs": 5519,
+      "nativeFullWallMs": null,
+      "nativeFullWallNotInstrumented": true,
+      "nativeDiagnosticFirstEventUnixMs": 1793928939543,
+      "nativeDiagnosticLastEventUnixMs": 1793928940843,
+      "nativeDiagnosticEventSpanMs": 1300,
+      "physicalDeleteCalls": 0,
+      "physicalDeleteElapsedMs": 0,
+      "managementLockHoldMs": 111.132,
+      "validation": {
+        "groupId": "fixture",
+        "owner": "fw03-vss-comparison",
+        "memberCount": 16,
+        "membershipComplete": true
+      },
+      "evidence": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Baseline-Register.json",
+          "sha256": "37c273819ec4ff527481953c4aadf64f8349a2d2ba72f1c5bb0b7095a9960c78",
+          "bytes": 16253
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Register.execution.json",
+          "sha256": "435b8c53187feba8ef9871d2ce2ed06e89bbedeec149f764a96bb673b4bc975a",
+          "bytes": 228
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Register.stderr.jsonl",
+          "sha256": "aed2703a25831ab42873b76e95d3978eb4ed7e829018957034c9900fbfea4177",
+          "bytes": 27557
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Register.stdout.json",
+          "sha256": "d34d1ab5bcaccb6a9d3c135388308db456358236e36bff62252b19dd5016975f",
+          "bytes": 10410
+        }
+      ]
+    },
+    {
+      "Variant": "Baseline",
+      "Phase": "Review",
+      "nativePid": 50960,
+      "nativeActualExit": 0,
+      "nativeTermination": {
+        "ExitObserved": true,
+        "ForcedTermination": false,
+        "Kind": "synchronous-native-worker-protocol",
+        "RedirectedStreamsClosed": true
+      },
+      "adapterChildPid": 20944,
+      "adapterChildActualExit": 0,
+      "adapterElapsedMs": 1426.9963,
+      "controllerObservedChildWallMs": 2815,
+      "nativeFullWallMs": null,
+      "nativeFullWallNotInstrumented": true,
+      "nativeDiagnosticFirstEventUnixMs": 1793928946462,
+      "nativeDiagnosticLastEventUnixMs": 1793928946481,
+      "nativeDiagnosticEventSpanMs": 19,
+      "physicalDeleteCalls": 0,
+      "physicalDeleteElapsedMs": 0,
+      "managementLockHoldMs": 0,
+      "validation": {
+        "Members": 16,
+        "Blockers": 0
+      },
+      "evidence": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Baseline-Review.json",
+          "sha256": "97e68827afa25dd4e775158e21a5f2ed8a6e9470fad583b3a5e35ae2d9345725",
+          "bytes": 593
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Review.execution.json",
+          "sha256": "c34e7693572d1016e7efaa85ac64287cc44afaeeae7d341d754a22a7faae77df",
+          "bytes": 228
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Review.stderr.jsonl",
+          "sha256": "9406e02a45b91c4c364501f5a53b925c704818b3b9c985019220acc3d47312f1",
+          "bytes": 3925
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Review.stdout.json",
+          "sha256": "e481ecca5db0681f35803199994d539536645bbc110c915110f6b316c2a0e38c",
+          "bytes": 65364
+        }
+      ]
+    },
+    {
+      "Variant": "Baseline",
+      "Phase": "Apply",
+      "nativePid": 22124,
+      "nativeActualExit": 0,
+      "nativeTermination": {
+        "ForcedTermination": false,
+        "RedirectedStreamsClosed": true,
+        "ExitObserved": true,
+        "Kind": "synchronous-native-worker-protocol"
+      },
+      "adapterChildPid": 45280,
+      "adapterChildActualExit": 0,
+      "adapterElapsedMs": 7641.3656,
+      "controllerObservedChildWallMs": 8411,
+      "nativeFullWallMs": null,
+      "nativeFullWallNotInstrumented": true,
+      "nativeDiagnosticFirstEventUnixMs": 1793928951186,
+      "nativeDiagnosticLastEventUnixMs": 1793928957080,
+      "nativeDiagnosticEventSpanMs": 5894,
+      "physicalDeleteCalls": 16,
+      "physicalDeleteElapsedMs": 4255.285,
+      "managementLockHoldMs": 746.792,
+      "validation": {
+        "Members": 16,
+        "AllDeleted": true,
+        "AllAbsent": true,
+        "resultCount": 16,
+        "deletedCount": 16,
+        "errors": [],
+        "members": [
+          {
+            "id": "part-00",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-01",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-02",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-03",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-04",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-05",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-06",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-07",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-08",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-09",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-10",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-11",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-12",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-13",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-14",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-15",
+            "status": "deleted",
+            "remaining": false
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Baseline-Apply.json",
+          "sha256": "27decb17c77a850091d9c6f821d54705451c301edcb92e4b43640d65da8dffda",
+          "bytes": 12864
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Apply.execution.json",
+          "sha256": "34aa901fa0c6695ce113788f9fefb1a8f854569fd8584ba0bee945ca7781e12f",
+          "bytes": 228
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Apply.stderr.jsonl",
+          "sha256": "96245097654a57ef10f883887d323af7ca2f1b802c6db47cc8a143d7fb13484f",
+          "bytes": 296347
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Apply.stdout.json",
+          "sha256": "4b30e0468a82992367f9ea754b63e4a2d73b823c4ef90b57541a3a100d0c2d8c",
+          "bytes": 8121
+        }
+      ]
+    },
+    {
+      "Variant": "Candidate",
+      "Phase": "Register",
+      "nativePid": 43504,
+      "nativeActualExit": 0,
+      "nativeTermination": {
+        "ExitObserved": true,
+        "ForcedTermination": false,
+        "Kind": "synchronous-native-worker-protocol",
+        "RedirectedStreamsClosed": true
+      },
+      "adapterChildPid": 33384,
+      "adapterChildActualExit": 0,
+      "adapterElapsedMs": 2861.4344,
+      "controllerObservedChildWallMs": 5494,
+      "nativeFullWallMs": null,
+      "nativeFullWallNotInstrumented": true,
+      "nativeDiagnosticFirstEventUnixMs": 1793928977601,
+      "nativeDiagnosticLastEventUnixMs": 1793928978961,
+      "nativeDiagnosticEventSpanMs": 1360,
+      "physicalDeleteCalls": 0,
+      "physicalDeleteElapsedMs": 0,
+      "managementLockHoldMs": 150.223,
+      "validation": {
+        "groupId": "fixture",
+        "owner": "fw03-vss-comparison",
+        "memberCount": 16,
+        "membershipComplete": true
+      },
+      "evidence": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Candidate-Register.json",
+          "sha256": "919bbb5dbceef475749e814b4f414a0c5a58ac4229d122ab30a45ab49a85a5e1",
+          "bytes": 16273
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Register.execution.json",
+          "sha256": "a743dfe765076037f3e1a1cfa42dd31f26ad852d1a7cfbce35580553f46d55d5",
+          "bytes": 228
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Register.stderr.jsonl",
+          "sha256": "6810dc9542535e1d1d2cac4b0dfb272a50138f22fedc301e9a8e366c280ffcb8",
+          "bytes": 10060
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Register.stdout.json",
+          "sha256": "f00e3480934631483db4eaf94a431a5d9ac17d8332d035fc1212972d6a7a9d87",
+          "bytes": 10428
+        }
+      ]
+    },
+    {
+      "Variant": "Candidate",
+      "Phase": "Review",
+      "nativePid": 54492,
+      "nativeActualExit": 0,
+      "nativeTermination": {
+        "ForcedTermination": false,
+        "RedirectedStreamsClosed": true,
+        "ExitObserved": true,
+        "Kind": "synchronous-native-worker-protocol"
+      },
+      "adapterChildPid": 18208,
+      "adapterChildActualExit": 0,
+      "adapterElapsedMs": 1507.592,
+      "controllerObservedChildWallMs": 2824,
+      "nativeFullWallMs": null,
+      "nativeFullWallNotInstrumented": true,
+      "nativeDiagnosticFirstEventUnixMs": 1793928984952,
+      "nativeDiagnosticLastEventUnixMs": 1793928984965,
+      "nativeDiagnosticEventSpanMs": 13,
+      "physicalDeleteCalls": 0,
+      "physicalDeleteElapsedMs": 0,
+      "managementLockHoldMs": 0,
+      "validation": {
+        "Blockers": 0,
+        "Members": 16
+      },
+      "evidence": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Candidate-Review.json",
+          "sha256": "cce8f43cf9c062cf473d6e4806042dd97405a8f4a73a1c1d136eabb486c3579e",
+          "bytes": 594
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Review.execution.json",
+          "sha256": "a13efac40a7a727ce12a15b39d614e7dcd333cb068e7612d7ae655acf984efbe",
+          "bytes": 228
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Review.stderr.jsonl",
+          "sha256": "139b88fb17353df1bdff50c4a388a41e31a7b9c149c29214edbeda56526e42a1",
+          "bytes": 1354
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Review.stdout.json",
+          "sha256": "47287e329ac015baaef50da5ddb38e26ccebcb3279fb05b9cddf5b21e64664d6",
+          "bytes": 65638
+        }
+      ]
+    },
+    {
+      "Variant": "Candidate",
+      "Phase": "Apply",
+      "nativePid": 34828,
+      "nativeActualExit": 0,
+      "nativeTermination": {
+        "ForcedTermination": false,
+        "RedirectedStreamsClosed": true,
+        "Kind": "synchronous-native-worker-protocol",
+        "ExitObserved": true
+      },
+      "adapterChildPid": 37952,
+      "adapterChildActualExit": 0,
+      "adapterElapsedMs": 8935.4229,
+      "controllerObservedChildWallMs": 11163,
+      "nativeFullWallMs": null,
+      "nativeFullWallNotInstrumented": true,
+      "nativeDiagnosticFirstEventUnixMs": 1793928989549,
+      "nativeDiagnosticLastEventUnixMs": 1793928996803,
+      "nativeDiagnosticEventSpanMs": 7254,
+      "physicalDeleteCalls": 16,
+      "physicalDeleteElapsedMs": 4965.608,
+      "managementLockHoldMs": 951.621,
+      "validation": {
+        "Members": 16,
+        "AllDeleted": true,
+        "AllAbsent": true,
+        "resultCount": 16,
+        "deletedCount": 16,
+        "errors": [],
+        "members": [
+          {
+            "id": "part-00",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-01",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-02",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-03",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-04",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-05",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-06",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-07",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-08",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-09",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-10",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-11",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-12",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-13",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-14",
+            "status": "deleted",
+            "remaining": false
+          },
+          {
+            "id": "part-15",
+            "status": "deleted",
+            "remaining": false
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Candidate-Apply.json",
+          "sha256": "c6c9395f2e2bb66b828fe30b0d71073df2b01a8de53c4eaeb86dc75c5aefc614",
+          "bytes": 12866
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Apply.execution.json",
+          "sha256": "1bb05b795d9a1623ab3b725543b8b62ec9c1b8a78bd81f20ddaca8f1271ec776",
+          "bytes": 228
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Apply.stderr.jsonl",
+          "sha256": "709af4ab8facaac4e12759c6da928f5d66441508c5e731b3600eb0d07622244f",
+          "bytes": 137993
+        },
+        {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Apply.stdout.json",
+          "sha256": "49ae54af88f26bdd72ded9a3f2ad2a38e7e5556847df1671f1538a3c217c1931",
+          "bytes": 8121
+        }
+      ]
+    }
+  ],
+  "timingComparison": {
+    "units": "milliseconds",
+    "totals": {
+      "Baseline": {
+        "registerReviewApplyAdapterElapsedMs": 11990.2637,
+        "controllerObservedChildWallMs": 16745,
+        "nativeFullWallMs": null,
+        "nativeDiagnosticSpansSumMs": 7213,
+        "physicalDeleteElapsedMs": 4255.285,
+        "phases": [
+          {
+            "Phase": "Register",
+            "adapterElapsedMs": 2921.9018,
+            "controllerObservedChildWallMs": 5519,
+            "nativeDiagnosticEventSpanMs": 1300,
+            "physicalDeleteElapsedMs": 0
+          },
+          {
+            "Phase": "Review",
+            "adapterElapsedMs": 1426.9963,
+            "controllerObservedChildWallMs": 2815,
+            "nativeDiagnosticEventSpanMs": 19,
+            "physicalDeleteElapsedMs": 0
+          },
+          {
+            "Phase": "Apply",
+            "adapterElapsedMs": 7641.3656,
+            "controllerObservedChildWallMs": 8411,
+            "nativeDiagnosticEventSpanMs": 5894,
+            "physicalDeleteElapsedMs": 4255.285
+          }
+        ]
+      },
+      "Candidate": {
+        "registerReviewApplyAdapterElapsedMs": 13304.4493,
+        "controllerObservedChildWallMs": 19481,
+        "nativeFullWallMs": null,
+        "nativeDiagnosticSpansSumMs": 8627,
+        "physicalDeleteElapsedMs": 4965.608,
+        "phases": [
+          {
+            "Phase": "Register",
+            "adapterElapsedMs": 2861.4344,
+            "controllerObservedChildWallMs": 5494,
+            "nativeDiagnosticEventSpanMs": 1360,
+            "physicalDeleteElapsedMs": 0
+          },
+          {
+            "Phase": "Review",
+            "adapterElapsedMs": 1507.592,
+            "controllerObservedChildWallMs": 2824,
+            "nativeDiagnosticEventSpanMs": 13,
+            "physicalDeleteElapsedMs": 0
+          },
+          {
+            "Phase": "Apply",
+            "adapterElapsedMs": 8935.4229,
+            "controllerObservedChildWallMs": 11163,
+            "nativeDiagnosticEventSpanMs": 7254,
+            "physicalDeleteElapsedMs": 4965.608
+          }
+        ]
+      }
+    },
+    "candidateVsBaselineAdapterElapsedRatio": 1.109604395106006,
+    "candidateAdapterElapsedChangePercent": 10.960439510600594,
+    "interpretation": "Single sequential debug/timing-ON sample. Adapter elapsed includes binary hashing, native startup/wait, serialization and log validation. Controller-observed child wall additionally includes child launch/monitor/drain. Native full wall was not separately instrumented; diagnostic first-to-last event spans omit startup/exit and are not substitutes. Physical-delete elapsed sums16 distinct calls per variant; nested phase/lock/diagnostic times are not summed into full native elapsed."
+  },
+  "variants": [
+    {
+      "Variant": "Baseline",
+      "Status": "Complete",
+      "StartedUtc": "2026-11-06T01:35:21.4578140Z",
+      "Binary": {
+        "Sha256": "02FD336F118A598D3A18E8E8395556781BD4A5D5C38101AC80B4DFE270A59E3D",
+        "Path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\baseline-maintenance_owner.exe"
+      },
+      "LockWaitMs": 0,
+      "ExpectedMembers": 16,
+      "ExpectedFiles": 2048,
+      "ExpectedDataBytes": 134217728,
+      "RequestedBytes": 134217728,
+      "CompletedBytes": 134217728,
+      "Files": 2048,
+      "ShadowId": "{BD16B46B-CFC5-4F5A-AACF-C5519B53F988}",
+      "ActuallyAbsentMembers": 16,
+      "CutoffUtc": "2026-11-06T01:35:58.7610524Z",
+      "ShadowAbsent": true,
+      "EndedUtc": "2026-11-06T01:35:59.1158974Z",
+      "variantWallMs": 37658,
+      "diffArea": {
+        "maxUsedBytes": 5947392,
+        "maxAllocatedBytes": 33554432,
+        "quotaBytes": 4294967296,
+        "sampleCount": 12
+      },
+      "lastShadowConfirmedPresent": {
+        "Utc": "2026-11-06T01:35:58.6717506Z",
+        "Variant": "Baseline",
+        "Phase": "Baseline-Apply",
+        "Kind": "owned-shadow",
+        "Data": {
+          "ID": "{BD16B46B-CFC5-4F5A-AACF-C5519B53F988}",
+          "VolumeName": "\\\\?\\Volume{678330c8-57c2-4694-8378-f88cc04d5193}\\",
+          "DeviceObject": "\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy17",
+          "ProviderID": "{B5946137-7B9F-4925-AF80-51ABD60B20D5}",
+          "InstallDate": "2026-11-06T10:35:34.25587+09:00",
+          "State": 12,
+          "ClientAccessible": true
+        }
+      },
+      "intentionalShadowRemoval": {
+        "Utc": "2026-11-06T01:35:58.9299939Z",
+        "Variant": "Baseline",
+        "Phase": "Baseline-Apply",
+        "Kind": "intentional-shadow-delete",
+        "Data": {
+          "CutoffUtc": "2026-11-06T01:35:58.7610524Z",
+          "ID": "{BD16B46B-CFC5-4F5A-AACF-C5519B53F988}",
+          "VolumeGuid": "\\\\?\\Volume{678330c8-57c2-4694-8378-f88cc04d5193}\\"
+        }
+      },
+      "shadowAbsentObservation": {
+        "Utc": "2026-11-06T01:35:59.0133060Z",
+        "Variant": "Baseline",
+        "Phase": "Baseline-Apply",
+        "Kind": "shadow-absent",
+        "Data": {
+          "ID": "{BD16B46B-CFC5-4F5A-AACF-C5519B53F988}",
+          "Variant": "Baseline"
+        }
+      },
+      "shadowPresenceUntilCutoffVerified": true,
+      "lastFixture": {
+        "Utc": "2026-11-06T01:35:58.7193339Z",
+        "Variant": "Baseline",
+        "Phase": "Baseline-Apply",
+        "Kind": "fixture",
+        "Data": {
+          "Seconds": 36.9355298,
+          "Running": false,
+          "Requested": 134217728,
+          "Files": 2048,
+          "Completed": 134217728
+        }
+      }
+    },
+    {
+      "Variant": "Candidate",
+      "Status": "Complete",
+      "StartedUtc": "2026-11-06T01:35:59.1567202Z",
+      "Binary": {
+        "Sha256": "3499EA95FE95B0692D91E6E9369C0880E85C7260781BBF314F1A4FD2843664F3",
+        "Path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe"
+      },
+      "LockWaitMs": 0,
+      "ExpectedMembers": 16,
+      "ExpectedFiles": 2048,
+      "ExpectedDataBytes": 134217728,
+      "RequestedBytes": 134217728,
+      "CompletedBytes": 134217728,
+      "Files": 2048,
+      "ShadowId": "{BEBF7575-FFBB-41C1-BAAA-01C5F54B854F}",
+      "ActuallyAbsentMembers": 16,
+      "CutoffUtc": "2026-11-06T01:36:39.6507755Z",
+      "ShadowAbsent": true,
+      "EndedUtc": "2026-11-06T01:36:40.0969706Z",
+      "variantWallMs": 40940,
+      "diffArea": {
+        "maxUsedBytes": 5636096,
+        "maxAllocatedBytes": 33554432,
+        "quotaBytes": 4294967296,
+        "sampleCount": 13
+      },
+      "lastShadowConfirmedPresent": {
+        "Utc": "2026-11-06T01:36:39.6081811Z",
+        "Variant": "Candidate",
+        "Phase": "Candidate-Apply",
+        "Kind": "owned-shadow",
+        "Data": {
+          "ID": "{BEBF7575-FFBB-41C1-BAAA-01C5F54B854F}",
+          "VolumeName": "\\\\?\\Volume{678330c8-57c2-4694-8378-f88cc04d5193}\\",
+          "DeviceObject": "\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy18",
+          "ProviderID": "{B5946137-7B9F-4925-AF80-51ABD60B20D5}",
+          "InstallDate": "2026-11-06T10:36:12.782156+09:00",
+          "State": 12,
+          "ClientAccessible": true
+        }
+      },
+      "intentionalShadowRemoval": {
+        "Utc": "2026-11-06T01:36:39.8019139Z",
+        "Variant": "Candidate",
+        "Phase": "Candidate-Apply",
+        "Kind": "intentional-shadow-delete",
+        "Data": {
+          "CutoffUtc": "2026-11-06T01:36:39.6507755Z",
+          "ID": "{BEBF7575-FFBB-41C1-BAAA-01C5F54B854F}",
+          "VolumeGuid": "\\\\?\\Volume{678330c8-57c2-4694-8378-f88cc04d5193}\\"
+        }
+      },
+      "shadowAbsentObservation": {
+        "Utc": "2026-11-06T01:36:39.9982282Z",
+        "Variant": "Candidate",
+        "Phase": "Candidate-Apply",
+        "Kind": "shadow-absent",
+        "Data": {
+          "ID": "{BEBF7575-FFBB-41C1-BAAA-01C5F54B854F}",
+          "Variant": "Candidate"
+        }
+      },
+      "shadowPresenceUntilCutoffVerified": true,
+      "lastFixture": {
+        "Utc": "2026-11-06T01:36:39.6469728Z",
+        "Variant": "Candidate",
+        "Phase": "Candidate-Apply",
+        "Kind": "fixture",
+        "Data": {
+          "Seconds": 40.1500554,
+          "Running": false,
+          "Requested": 134217728,
+          "Files": 2048,
+          "Completed": 134217728
+        }
+      }
+    }
+  ],
+  "resources": {
+    "Preflight": {
+      "samples": 5,
+      "minRam": {
+        "Utc": "2026-11-06T01:34:40.1481606Z",
+        "Variant": null,
+        "Phase": "baseline",
+        "Kind": "resources",
+        "Data": {
+          "AvailablePhysicalRamBytes": 10759401472,
+          "CFreeBytes": 160977235968
+        }
+      },
+      "minCFree": {
+        "Utc": "2026-11-06T01:34:48.4501975Z",
+        "Variant": null,
+        "Phase": "quota",
+        "Kind": "resources",
+        "Data": {
+          "AvailablePhysicalRamBytes": 11101581312,
+          "CFreeBytes": 160831107072
+        }
+      }
+    },
+    "Compare": {
+      "samples": 50,
+      "minRam": {
+        "Utc": "2026-11-06T01:36:08.4485197Z",
+        "Variant": "Candidate",
+        "Phase": "fixture",
+        "Kind": "resources",
+        "Data": {
+          "AvailablePhysicalRamBytes": 10035892224,
+          "CFreeBytes": 161014501376
+        }
+      },
+      "minCFree": {
+        "Utc": "2026-11-06T01:35:30.8634178Z",
+        "Variant": "Baseline",
+        "Phase": "fixture",
+        "Kind": "resources",
+        "Data": {
+          "AvailablePhysicalRamBytes": 10389663744,
+          "CFreeBytes": 160560508928
+        }
+      }
+    },
+    "ramFloorBytes": 8589934592,
+    "cFreeFloorBytes": 107374182400,
+    "meaning": "Discrete samples during successful run, not global machine minima between samples"
+  },
+  "events": {
+    "eventFloor": 45156,
+    "volumeGuid": "\\\\?\\Volume{678330c8-57c2-4694-8378-f88cc04d5193}\\",
+    "perVariantCutoff": [
+      {
+        "Variant": "Baseline",
+        "ShadowID": "{BD16B46B-CFC5-4F5A-AACF-C5519B53F988}",
+        "CutoffUtc": "2026-11-06T01:35:58.7610524Z"
+      },
+      {
+        "Variant": "Candidate",
+        "ShadowID": "{BEBF7575-FFBB-41C1-BAAA-01C5F54B854F}",
+        "CutoffUtc": "2026-11-06T01:36:39.6507755Z"
+      }
+    ],
+    "finalCleanupCutoffUtc": "2026-11-06T01:36:40.2993086Z",
+    "ownedVolumeEvent25": [],
+    "otherVolsnapEvents": [],
+    "meaning": "No matching reported event in observed bounded windows; not proof of recurrence prevention or absence outside filters/windows"
+  },
+  "teardownSixGates": {
+    "Preflight": {
+      "controllerExitObserved": true,
+      "knownChildrenSettled": "No comparison native phase; successful controller teardown",
+      "ownedShadowAbsent": true,
+      "normalDetach": true,
+      "preexistingVssPreserved": true,
+      "noRecoveryOrCleanupError": true
+    },
+    "Compare": {
+      "controllerExitObserved": true,
+      "knownChildrenSettled": true,
+      "ownedShadowAbsent": true,
+      "normalDetach": true,
+      "preexistingVssPreserved": true,
+      "noRecoveryOrCleanupError": true
+    },
+    "terminationLimit": "Exit/drained synchronous-native-worker protocol and retained controller process; independent complete OS descendant-tree observation not established"
+  },
+  "preservation": {
+    "originalFailuresRetained": [
+      "24-vss-comparison-attempt.json",
+      "29-vss-corrected-attempt.json"
+    ],
+    "oldFailureResultsUnchanged": true,
+    "originalRunInputsLogsSnapshotsVhdProtected": true,
+    "noReferencesReleasedByTransfer": true,
+    "noNativeOrVssWorkStartedByTransfer": true,
+    "cleanupOwner": "root final commit/all-consumer cleanup gate"
+  },
+  "limitations": [
+    "One baseline then one unit6 sample; order/cache/resource conditions may affect timing",
+    "Candidate was slower in aggregate adapter time in this sample; do not claim uniform speedup or maximum deletion throughput",
+    "Debug timing-ON results do not establish release performance",
+    "No strengthened Volsnap25 reproduction, Windows bugcheck, remote or Linux/macOS validation",
+    "No exact full native wall measurement; null fields are intentionally unmeasured",
+    "Required final task commit/cleanup remain root responsibilities"
+  ],
+  "rawEvidenceManifest": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Preflight-vssonly-launch-terminal.json",
+      "sha256": "10076550323b123fe694c16c3bd2d1edf403ff3e8b8c1f32534f0d757027638a",
+      "bytes": 585
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Compare-vssonly-launch-terminal.json",
+      "sha256": "ed6432bd0dc62b35bbd5f50290a209cb41a82de75c0cecab053743db4447afdb",
+      "bytes": 582
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\controller.ps1",
+      "sha256": "558e106fbccb93fe7aaf0dd18076ea497356be36047a9cefaab1d4129c708640",
+      "bytes": 38271
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\compare-stage.ps1",
+      "sha256": "aba5f3785976fcf9c98a12706156c0da2491fe4ef19bbfeaefd30dd7636727f3",
+      "bytes": 9789
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\fixture.cs",
+      "sha256": "313f16bf06f8955bbdb11fe75de0dbad90845ca3b565677b85b5088451faf91c",
+      "bytes": 3441
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\inputs\\native-identities.json",
+      "sha256": "6ae983befa9db44335794fc3d79a2360c300ba3d62d63af8266d09cb8af0bcba",
+      "bytes": 585
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/fw03v/runs/native-613162bb/outputs/baseline-maintenance_owner.exe",
+      "sha256": "02fd336f118a598d3a18e8e8395556781bd4a5d5c38101ac80b4dfe270a59e3d",
+      "bytes": 4887552
+    },
+    {
+      "path": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/fw03v/runs/native-613162bb/outputs/unit6-maintenance_owner.exe",
+      "sha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3",
+      "bytes": 4843008
+    },
+    {
+      "path": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+      "sha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+      "bytes": 301360
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\invoke-vss-only-stage.ps1",
+      "sha256": "88f037bf67d48ccab051613f280ad91f5d3499743ce8a4dca338afacbe2c80d6",
+      "bytes": 3365
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Baseline-Register.json",
+      "sha256": "37c273819ec4ff527481953c4aadf64f8349a2d2ba72f1c5bb0b7095a9960c78",
+      "bytes": 16253
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Register.execution.json",
+      "sha256": "435b8c53187feba8ef9871d2ce2ed06e89bbedeec149f764a96bb673b4bc975a",
+      "bytes": 228
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Register.stderr.jsonl",
+      "sha256": "aed2703a25831ab42873b76e95d3978eb4ed7e829018957034c9900fbfea4177",
+      "bytes": 27557
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Register.stdout.json",
+      "sha256": "d34d1ab5bcaccb6a9d3c135388308db456358236e36bff62252b19dd5016975f",
+      "bytes": 10410
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Baseline-Review.json",
+      "sha256": "97e68827afa25dd4e775158e21a5f2ed8a6e9470fad583b3a5e35ae2d9345725",
+      "bytes": 593
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Review.execution.json",
+      "sha256": "c34e7693572d1016e7efaa85ac64287cc44afaeeae7d341d754a22a7faae77df",
+      "bytes": 228
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Review.stderr.jsonl",
+      "sha256": "9406e02a45b91c4c364501f5a53b925c704818b3b9c985019220acc3d47312f1",
+      "bytes": 3925
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Review.stdout.json",
+      "sha256": "e481ecca5db0681f35803199994d539536645bbc110c915110f6b316c2a0e38c",
+      "bytes": 65364
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Baseline-Apply.json",
+      "sha256": "27decb17c77a850091d9c6f821d54705451c301edcb92e4b43640d65da8dffda",
+      "bytes": 12864
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Apply.execution.json",
+      "sha256": "34aa901fa0c6695ce113788f9fefb1a8f854569fd8584ba0bee945ca7781e12f",
+      "bytes": 228
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Apply.stderr.jsonl",
+      "sha256": "96245097654a57ef10f883887d323af7ca2f1b802c6db47cc8a143d7fb13484f",
+      "bytes": 296347
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Baseline-Apply.stdout.json",
+      "sha256": "4b30e0468a82992367f9ea754b63e4a2d73b823c4ef90b57541a3a100d0c2d8c",
+      "bytes": 8121
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Candidate-Register.json",
+      "sha256": "919bbb5dbceef475749e814b4f414a0c5a58ac4229d122ab30a45ab49a85a5e1",
+      "bytes": 16273
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Register.execution.json",
+      "sha256": "a743dfe765076037f3e1a1cfa42dd31f26ad852d1a7cfbce35580553f46d55d5",
+      "bytes": 228
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Register.stderr.jsonl",
+      "sha256": "6810dc9542535e1d1d2cac4b0dfb272a50138f22fedc301e9a8e366c280ffcb8",
+      "bytes": 10060
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Register.stdout.json",
+      "sha256": "f00e3480934631483db4eaf94a431a5d9ac17d8332d035fc1212972d6a7a9d87",
+      "bytes": 10428
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Candidate-Review.json",
+      "sha256": "cce8f43cf9c062cf473d6e4806042dd97405a8f4a73a1c1d136eabb486c3579e",
+      "bytes": 594
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Review.execution.json",
+      "sha256": "a13efac40a7a727ce12a15b39d614e7dcd333cb068e7612d7ae655acf984efbe",
+      "bytes": 228
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Review.stderr.jsonl",
+      "sha256": "139b88fb17353df1bdff50c4a388a41e31a7b9c149c29214edbeda56526e42a1",
+      "bytes": 1354
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Review.stdout.json",
+      "sha256": "47287e329ac015baaef50da5ddb38e26ccebcb3279fb05b9cddf5b21e64664d6",
+      "bytes": 65638
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\adapter-Candidate-Apply.json",
+      "sha256": "c6c9395f2e2bb66b828fe30b0d71073df2b01a8de53c4eaeb86dc75c5aefc614",
+      "bytes": 12866
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Apply.execution.json",
+      "sha256": "1bb05b795d9a1623ab3b725543b8b62ec9c1b8a78bd81f20ddaca8f1271ec776",
+      "bytes": 228
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Apply.stderr.jsonl",
+      "sha256": "709af4ab8facaac4e12759c6da928f5d66441508c5e731b3600eb0d07622244f",
+      "bytes": 137993
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\logs\\adapter-Candidate-Apply.stdout.json",
+      "sha256": "49ae54af88f26bdd72ded9a3f2ad2a38e7e5556847df1671f1538a3c217c1931",
+      "bytes": 8121
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\Compare-result.json",
+      "sha256": "09e9c764ca0865853477e7d286feb808f51f9decb4bc40fb6e00db87eb365f6b",
+      "bytes": 3030
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\Preflight-result.json",
+      "sha256": "bf705621f6aa8d4f9b00053f30d9f07b09fbbaffc2c2aa172300d91906971882",
+      "bytes": 1264
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\Compare-journal.jsonl",
+      "sha256": "bd955fbe844506ab714e5aa7abef3335f1f2c7ba64548b5029aa86759bad17ce",
+      "bytes": 47459
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\Preflight-journal.jsonl",
+      "sha256": "d364827bdc55d0d965bff2cdb2ad74029a48e6f1a778ab166e65b9af89c75c37",
+      "bytes": 5893
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\preflight-identity.json",
+      "sha256": "933d14bc20478de4edabbd64e789cfef400f0e13968e6ef9b75dc14d2dcbc1e2",
+      "bytes": 426
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\Compare-baseline.json",
+      "sha256": "010873789f681c6d4815a7ad24b7e53930aefe943781925a25dbfd68191c8c56",
+      "bytes": 387
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\vss-only-c7246296-044d-4e1e-b9cf-74a1673a0661\\reports\\Compare-after.json",
+      "sha256": "6a3ff37087a57b84456ce5286220c13320e2abfb5b564ed6b9145cf7809c2715",
+      "bytes": 359
+    }
+  ]
+}

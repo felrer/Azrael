@@ -1,0 +1,746 @@
+{
+  "schema": 1,
+  "status": "attempt-failed-cleanup-HOLD",
+  "createdUtc": "2026-11-06T01:05:30.718Z",
+  "owner": "FW-01 root independently readable VSS attempt evidence",
+  "scope": "Windows x64 local; sequential debug timing-ON regression comparison, not release performance or strengthened Volsnap25 reproduction",
+  "environment": {
+    "os": "Windows",
+    "cpu": "x86_64",
+    "execution": "local elevated PowerShell controller; temporary VHD-mounted F: volume",
+    "profile": "debug timing-ON",
+    "physicalIoIsolation": false,
+    "runtime": "C:\\Users\\felre\\AppData\\Local\\Programs\\PowerShell\\7\\pwsh.exe",
+    "runtimeSha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+    "osBuild": "not established by selected reports"
+  },
+  "identity": {
+    "runId": "run:fw03v:fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+    "nativeDependency": "run:fw03v:native-613162bb",
+    "vhd": {
+      "ImagePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\outputs\\test.vhdx",
+      "DiskUniqueId": "600224800C1BC335A933790973DB1648",
+      "PartitionGuid": "{da8d841c-7977-401e-a82d-313c033330b6}",
+      "VolumeGuid": "\\\\?\\Volume{da8d841c-7977-401e-a82d-313c033330b6}\\",
+      "DriveToken": "F:",
+      "DeviceName": "\\Device\\HarddiskVolume27"
+    },
+    "baselineFixture": {
+      "DiskUniqueId": "600224800C1BC335A933790973DB1648",
+      "FileBytes": 65536,
+      "ProjectRoot": "F:\\fw03vss-Baseline-4cc9a5bc-5e44-44e0-ad13-51768b71acdf",
+      "Directories": 16,
+      "VolumeGuid": "\\\\?\\Volume{da8d841c-7977-401e-a82d-313c033330b6}\\",
+      "Variant": "Baseline",
+      "FilesPerDirectory": 128,
+      "Members": [
+        "generated/part-00",
+        "generated/part-01",
+        "generated/part-02",
+        "generated/part-03",
+        "generated/part-04",
+        "generated/part-05",
+        "generated/part-06",
+        "generated/part-07",
+        "generated/part-08",
+        "generated/part-09",
+        "generated/part-10",
+        "generated/part-11",
+        "generated/part-12",
+        "generated/part-13",
+        "generated/part-14",
+        "generated/part-15"
+      ],
+      "Seed": 35233693,
+      "ImagePath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\outputs\\test.vhdx"
+    },
+    "baselineBinary": {
+      "Path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\baseline-maintenance_owner.exe",
+      "Sha256": "02FD336F118A598D3A18E8E8395556781BD4A5D5C38101AC80B4DFE270A59E3D"
+    },
+    "ownedShadow": {
+      "Utc": "2026-11-06T01:00:17.2270864Z",
+      "ShadowId": "{6D6FC1FA-E1E4-43A4-A17B-7571B0D9F58C}",
+      "VolumeGuid": "\\\\?\\Volume{da8d841c-7977-401e-a82d-313c033330b6}\\"
+    }
+  },
+  "preflight": {
+    "intent": {
+      "launcher_pid": 6616,
+      "runtime": "C:\\Users\\felre\\AppData\\Local\\Programs\\PowerShell\\7\\pwsh.exe",
+      "started_utc": "2026-11-06T00:55:02.3298108Z",
+      "schema": 1,
+      "runtime_sha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+      "controller_sha256": "57c2cc4dc8ac8dc65c3e944817e9d3ce3b1b69c38a497deb4ca0c2efaf03940e",
+      "uac_requested": true,
+      "arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1",
+        "-Stage",
+        "Preflight"
+      ],
+      "stage": "Preflight",
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1"
+    },
+    "started": {
+      "process_started_utc": "2026-11-06T00:55:03.7746775Z",
+      "schema": 1,
+      "runtime_sha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+      "stage": "Preflight",
+      "pid": 56240,
+      "returned_utc": "2026-11-06T00:55:03.7966176Z",
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1"
+    },
+    "terminal": {
+      "exit_observed": true,
+      "pid": 56240,
+      "process_tree_claim": "Controller protocol and owned child reports must be checked separately",
+      "exit_code": 0,
+      "schema": 1,
+      "completion_evidence": "WaitForExit on retained exact process object",
+      "controller_sha256": "57c2cc4dc8ac8dc65c3e944817e9d3ce3b1b69c38a497deb4ca0c2efaf03940e",
+      "ended_utc": "2026-11-06T00:55:21.0413194Z",
+      "stage": "Preflight",
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1"
+    },
+    "result": {
+      "Stage": "Preflight",
+      "StartedUtc": "2026-11-06T00:55:04.5279909Z",
+      "Success": true,
+      "RecoveryNeeded": false,
+      "Scope": "Windows x64 local; sequential debug timing-ON regression comparison, not release performance or strengthened Volsnap25 reproduction",
+      "Limits": {
+        "WorkSeconds": 180,
+        "RequestedDataBytes": 17179869184,
+        "VhdBytes": 8589934592,
+        "FixtureWriters": 1,
+        "WritersMaximum": 2
+      },
+      "Fixture": {
+        "FileBytes": 65536,
+        "FilesPerDirectory": 128,
+        "ExpectedDataBytes": 268435456,
+        "Variants": 2,
+        "DirectoriesPerVariant": 16,
+        "Seed": 35233693
+      },
+      "PhysicalIoIsolation": false,
+      "ShadowAbsent": true,
+      "CutoffUtc": "2026-11-06T00:55:20.1283202Z",
+      "Detached": true,
+      "PreexistingShadowsPreserved": true,
+      "PreexistingAssociationsPreserved": true,
+      "RequestedFixtureBytes": 0,
+      "CompletedFixtureBytes": 0,
+      "PreflightRequestedBytes": 1048576,
+      "TotalRequestedDataBytes": 1048576,
+      "PreparedFiles": 0,
+      "ExpectedAbsentMembers": 32,
+      "ActuallyAbsentMembers": 0,
+      "FilesUnderAbsentMembers": 0,
+      "OwnedVolumeEvent25": [],
+      "OtherVolsnapEvents": [],
+      "EndedUtc": "2026-11-06T00:55:20.9217244Z"
+    },
+    "workCompletion": {
+      "idPrefix": "61b",
+      "actualExitCode": 0,
+      "provenance": "Parent terminal observation; only prefix supplied, no full ID inferred"
+    }
+  },
+  "firstCompare": {
+    "intent": {
+      "uac_requested": true,
+      "launcher_pid": 52568,
+      "started_utc": "2026-11-06T00:55:35.9891140Z",
+      "arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1",
+        "-Stage",
+        "Compare"
+      ],
+      "schema": 1,
+      "runtime_sha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+      "controller_sha256": "57c2cc4dc8ac8dc65c3e944817e9d3ce3b1b69c38a497deb4ca0c2efaf03940e",
+      "stage": "Compare",
+      "runtime": "C:\\Users\\felre\\AppData\\Local\\Programs\\PowerShell\\7\\pwsh.exe",
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1"
+    },
+    "launcherFailure": {
+      "exit_observed": false,
+      "started_process_id": null,
+      "ended_utc": "2026-11-06T00:57:38.4211422Z",
+      "hresult": -2146233079,
+      "schema": 1,
+      "stage": "Compare",
+      "launcher_error": "This command cannot be run due to the error: An error occurred trying to start process 'C:\\Users\\felre\\AppData\\Local\\Programs\\PowerShell\\7\\pwsh.exe' with working directory 'C:\\Users\\felre\\Desktop\\pi-harness-init'. 사용자가 작업을 취소했습니다.",
+      "exit_code": null,
+      "no_termination_inferred": true
+    },
+    "launcherActualExitCode": 1,
+    "controllerStartedProcessId": null,
+    "meaning": "UAC launch cancelled by user; controller not started. Null controller exit is preserved, not a controller failure result.",
+    "workCompletion": {
+      "idPrefix": "7e1d",
+      "actualExitCode": 1,
+      "provenance": "Parent terminal observation; only prefix supplied"
+    }
+  },
+  "retry": {
+    "authorization": {
+      "userText": "?????",
+      "provenance": "Root delegated record of explicit user retry approval"
+    },
+    "intent": {
+      "schema": 1,
+      "started_utc": "2026-11-06T00:59:57.1509118Z",
+      "runtime_sha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+      "controller_sha256": "57c2cc4dc8ac8dc65c3e944817e9d3ce3b1b69c38a497deb4ca0c2efaf03940e",
+      "stage": "Compare",
+      "launcher_pid": 44704,
+      "runtime": "C:\\Users\\felre\\AppData\\Local\\Programs\\PowerShell\\7\\pwsh.exe",
+      "arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "RemoteSigned",
+        "-File",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1",
+        "-Stage",
+        "Compare"
+      ],
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1",
+      "uac_requested": true
+    },
+    "started": {
+      "returned_utc": "2026-11-06T00:59:59.0842239Z",
+      "runtime_sha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+      "stage": "Compare",
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1",
+      "pid": 38220,
+      "schema": 1,
+      "process_started_utc": "2026-11-06T00:59:59.0688629Z"
+    },
+    "terminal": {
+      "completion_evidence": "WaitForExit on retained exact process object",
+      "schema": 1,
+      "exit_code": 1,
+      "exit_observed": true,
+      "controller_sha256": "57c2cc4dc8ac8dc65c3e944817e9d3ce3b1b69c38a497deb4ca0c2efaf03940e",
+      "stage": "Compare",
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1",
+      "pid": 38220,
+      "process_tree_claim": "Controller protocol and owned child reports must be checked separately",
+      "ended_utc": "2026-11-06T01:00:23.3099042Z"
+    },
+    "workCompletion": {
+      "idPrefix": "823f4051",
+      "actualExitCode": 1,
+      "provenance": "Parent terminal observation; only prefix supplied"
+    },
+    "result": {
+      "Stage": "Compare",
+      "StartedUtc": "2026-11-06T00:59:59.6892985Z",
+      "Success": false,
+      "RecoveryNeeded": false,
+      "Scope": "Windows x64 local; sequential debug timing-ON regression comparison, not release performance or strengthened Volsnap25 reproduction",
+      "Limits": {
+        "WritersMaximum": 2,
+        "WorkSeconds": 180,
+        "FixtureWriters": 1,
+        "RequestedDataBytes": 17179869184,
+        "VhdBytes": 8589934592
+      },
+      "Fixture": {
+        "Seed": 35233693,
+        "Variants": 2,
+        "FileBytes": 65536,
+        "ExpectedDataBytes": 268435456,
+        "DirectoriesPerVariant": 16,
+        "FilesPerDirectory": 128
+      },
+      "PhysicalIoIsolation": false,
+      "ShadowAbsent": true,
+      "LastFixtureJoined": true,
+      "LastFixture": {
+        "Seconds": 17.9243489,
+        "Files": 2048,
+        "Requested": 134217728,
+        "Completed": 134217728
+      },
+      "CutoffUtc": "2026-11-06T01:00:22.7782411Z",
+      "Detached": true,
+      "PreexistingShadowsPreserved": true,
+      "PreexistingAssociationsPreserved": true,
+      "RequestedFixtureBytes": 134217728,
+      "CompletedFixtureBytes": 134217728,
+      "PreflightRequestedBytes": 1048576,
+      "TotalRequestedDataBytes": 135266304,
+      "PreparedFiles": 2048,
+      "ExpectedAbsentMembers": 32,
+      "ActuallyAbsentMembers": 0,
+      "FilesUnderAbsentMembers": 0,
+      "OwnedVolumeEvent25": [],
+      "OtherVolsnapEvents": [],
+      "EndedUtc": "2026-11-06T01:00:23.2369449Z",
+      "CompareSeconds": 18.6461118
+    },
+    "variants": [
+      {
+        "Variant": "Baseline",
+        "Status": "Stopped",
+        "StartedUtc": "2026-11-06T01:00:04.5932470Z",
+        "Binary": {
+          "Path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\baseline-maintenance_owner.exe",
+          "Sha256": "02FD336F118A598D3A18E8E8395556781BD4A5D5C38101AC80B4DFE270A59E3D"
+        },
+        "LockWaitMs": 0,
+        "ExpectedMembers": 16,
+        "ExpectedFiles": 2048,
+        "ExpectedDataBytes": 134217728,
+        "RequestedBytes": 134217728,
+        "CompletedBytes": 134217728,
+        "Files": 2048,
+        "ShadowId": "{6D6FC1FA-E1E4-43A4-A17B-7571B0D9F58C}"
+      },
+      {
+        "RequestedBytes": 0,
+        "Status": "Skipped",
+        "Reason": "Earlier failure/stop; no new candidate payload",
+        "Variant": "Candidate"
+      }
+    ]
+  },
+  "failure": {
+    "firstCause": "reserved producer record missing",
+    "operation": "Baseline/Register",
+    "native": {
+      "pid": 18200,
+      "exitCode": 1,
+      "started": true,
+      "terminated": true,
+      "treeSettled": true,
+      "terminationEvidence": {
+        "ExitObserved": true,
+        "RedirectedStreamsClosed": true,
+        "ForcedTermination": false,
+        "Kind": "synchronous-native-worker-protocol"
+      },
+      "execution": {
+        "Terminated": true,
+        "Protocol": {
+          "ExitObserved": true,
+          "RedirectedStreamsClosed": true,
+          "ForcedTermination": false,
+          "Kind": "synchronous-native-worker-protocol"
+        },
+        "Pid": 18200,
+        "Exit": 1
+      }
+    },
+    "adapter": {
+      "pid": 54516,
+      "actualExitCode": 1,
+      "terminationBasis": "Synchronous native worker protocol and closed redirected streams; not independent OS process-tree observation"
+    },
+    "controller": {
+      "pid": 38220,
+      "actualExitCode": 1,
+      "exitObserved": true,
+      "completionEvidence": "WaitForExit on retained exact process object"
+    },
+    "stackScope": {
+      "phase": "Baseline-Register",
+      "controllerFunctions": [
+        {
+          "function": "Complete-Adapter",
+          "line": 202
+        },
+        {
+          "function": "Wait-Adapter",
+          "line": 209
+        },
+        {
+          "function": "Invoke-Adapter",
+          "line": 223
+        },
+        {
+          "function": "<ScriptBlock>",
+          "line": 294
+        }
+      ],
+      "controller": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1"
+    },
+    "rawStderr": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\logs\\adapter-Baseline-Register.stderr.jsonl",
+      "sha256": "2c8fdbcf02bdc80c45029c6084d474cc1e500532049de8b0e3e5be6be5e86c42",
+      "bytes": 2893
+    },
+    "diagnosis": "Root/vss_diagnosis investigating missing producer record; evidence here establishes reported first error and stopped phase, not its underlying implementation cause."
+  },
+  "knownChildSettlement": {
+    "prepareAdapter": {
+      "pid": 21468,
+      "actualExitCode": 0
+    },
+    "fixtureJoined": true,
+    "fixture": {
+      "Seconds": 17.9243489,
+      "Files": 2048,
+      "Requested": 134217728,
+      "Completed": 134217728
+    },
+    "registerAdapter": {
+      "pid": 54516,
+      "actualExitCode": 1
+    },
+    "nativeProtocol": {
+      "Terminated": true,
+      "Protocol": {
+        "ExitObserved": true,
+        "RedirectedStreamsClosed": true,
+        "ForcedTermination": false,
+        "Kind": "synchronous-native-worker-protocol"
+      },
+      "Pid": 18200,
+      "Exit": 1
+    },
+    "selectedJournalObservations": [
+      {
+        "Utc": "2026-11-06T01:00:14.3874590Z",
+        "Kind": "fixture",
+        "Phase": "fixture",
+        "Data": {
+          "Seconds": 9.4977395,
+          "Files": 2048,
+          "Requested": 134217728,
+          "Running": false,
+          "Completed": 134217728
+        }
+      },
+      {
+        "Utc": "2026-11-06T01:00:16.4271755Z",
+        "Kind": "adapter-child-exit",
+        "Phase": "fixture",
+        "Data": {
+          "Phase": "Prepare",
+          "Pid": 21468,
+          "Utc": "2026-11-06T01:00:16.3952729Z",
+          "ExitCode": 0,
+          "Variant": "Baseline"
+        }
+      },
+      {
+        "Utc": "2026-11-06T01:00:18.6149074Z",
+        "Kind": "fixture",
+        "Phase": "quota",
+        "Data": {
+          "Seconds": 13.7317423,
+          "Files": 2048,
+          "Requested": 134217728,
+          "Running": false,
+          "Completed": 134217728
+        }
+      },
+      {
+        "Utc": "2026-11-06T01:00:19.3823045Z",
+        "Kind": "fixture",
+        "Phase": "quota",
+        "Data": {
+          "Seconds": 14.4984508,
+          "Files": 2048,
+          "Requested": 134217728,
+          "Running": false,
+          "Completed": 134217728
+        }
+      },
+      {
+        "Utc": "2026-11-06T01:00:20.4934693Z",
+        "Kind": "fixture",
+        "Phase": "Baseline-Register",
+        "Data": {
+          "Seconds": 15.6068571,
+          "Files": 2048,
+          "Requested": 134217728,
+          "Running": false,
+          "Completed": 134217728
+        }
+      },
+      {
+        "Utc": "2026-11-06T01:00:22.5265287Z",
+        "Kind": "adapter-child-exit",
+        "Phase": "Baseline-Register",
+        "Data": {
+          "Phase": "Register",
+          "Pid": 54516,
+          "Utc": "2026-11-06T01:00:22.4957968Z",
+          "ExitCode": 1,
+          "Variant": "Baseline"
+        }
+      },
+      {
+        "Utc": "2026-11-06T01:00:22.9137723Z",
+        "Kind": "intentional-shadow-delete",
+        "Phase": "cleanup",
+        "Data": {
+          "CutoffUtc": "2026-11-06T01:00:22.7782411Z",
+          "ID": "{6D6FC1FA-E1E4-43A4-A17B-7571B0D9F58C}",
+          "VolumeGuid": "\\\\?\\Volume{da8d841c-7977-401e-a82d-313c033330b6}\\"
+        }
+      },
+      {
+        "Utc": "2026-11-06T01:00:23.0009096Z",
+        "Kind": "shadow-absent",
+        "Phase": "cleanup",
+        "Data": {
+          "ID": "{6D6FC1FA-E1E4-43A4-A17B-7571B0D9F58C}",
+          "Variant": "Baseline"
+        }
+      }
+    ],
+    "limitation": "Register native tree settlement is reported by synchronous worker protocol and closed redirected streams. This is not independent OS process-tree observation; launcher WaitForExit alone does not prove every descendant stopped."
+  },
+  "teardownSixGates": [
+    {
+      "gate": "Exact retry controller terminal",
+      "passed": true,
+      "basis": "WaitForExit retained exact process object"
+    },
+    {
+      "gate": "Known child and fixture settlement",
+      "passed": true,
+      "basis": "Selected adapter/native/fixture protocol; independent OS-tree limitation retained"
+    },
+    {
+      "gate": "Owned shadow absent after intentional teardown",
+      "passed": true,
+      "basis": "Compare result plus shadow-absent journal observation"
+    },
+    {
+      "gate": "VHD normal detach",
+      "passed": true,
+      "basis": "Compare result; VHDX file deletion not claimed"
+    },
+    {
+      "gate": "Preexisting shadows and associations preserved",
+      "passed": true,
+      "basis": "Compare baseline/after and result"
+    },
+    {
+      "gate": "No reported recovery requirement or cleanup error",
+      "passed": true,
+      "basis": "Compare result RecoveryNeeded=false/Cleanup=[]; not authorization to delete protected run"
+    }
+  ],
+  "events": {
+    "eventFloor": 45118,
+    "cutoffUtc": "2026-11-06T01:00:22.7782411Z",
+    "ownedVolumeEvent25": [],
+    "otherVolsnapEvents": [],
+    "meaning": "No matching reported Volsnap event in this bounded failed baseline attempt; no recurrence-prevention or completed comparison claim."
+  },
+  "accounting": {
+    "baselineRequestedBytes": 134217728,
+    "baselineCompletedBytes": 134217728,
+    "preflightRequestedBytes": 1048576,
+    "totalRequestedDataBytes": 135266304,
+    "preparedFiles": 2048,
+    "preparedDirectories": 16,
+    "deletionStarted": false,
+    "candidateStarted": false,
+    "actualAbsentMembers": 0,
+    "comparisonSeconds": 18.6461118,
+    "meaning": "CompareSeconds includes preparation until failure; no baseline/candidate deletion performance comparison was completed."
+  },
+  "cleanup": {
+    "status": "HOLD",
+    "reason": "Original inputs/raw minimum protocol evidence remain protected while root diagnosis proceeds; no close/release/recover/register/review/apply/finalize authorized by this evidence transfer.",
+    "runGroups": [
+      "run:fw03v:fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c",
+      "run:fw03v:native-613162bb",
+      "run:fw03r:control-01"
+    ],
+    "additionalHold": "Legacy cw02/cw03 management-root/control cleanup remains HOLD; evidence23 happy acceptance failed before apply. control_finish owns this boundary.",
+    "controlEvidence": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\23-control-retirement-acceptance.json",
+      "sha256": "3e0cfb984fc8f916d5aa0bfe2fc4239244d198ff66f13502776c0a2e35e14fa3",
+      "bytes": 37824
+    },
+    "finalRoute": "After explicit root all-consumer gate only, installed identity-verified C0CF CLI and actual existing CODEX_HOME; no validation/fixture/preferences writes in user home. Distinct final cleaner disposable; last self-cleanup request/minimum outcomes outside deleted roots in existing work evidence.",
+    "sixGateLimit": "Reported six teardown gates do not establish whole task cleanup complete or release diagnosis/current consumer protection."
+  },
+  "sourceCustody": {
+    "currentInputHashes": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\controller.ps1",
+        "sha256": "57c2cc4dc8ac8dc65c3e944817e9d3ce3b1b69c38a497deb4ca0c2efaf03940e",
+        "bytes": 38250
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\compare-stage.ps1",
+        "sha256": "a20f51ed5b2de934ab4f0dd60989d99008fa7d0744c4c314e54053920963b972",
+        "bytes": 9216
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\fixture.cs",
+        "sha256": "27069a7948e2a157eb5fb2452a760789f4e017dc603cd6e1a968d350a21d5eca",
+        "bytes": 3429
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\inputs\\native-identities.json",
+        "sha256": "6ae983befa9db44335794fc3d79a2360c300ba3d62d63af8266d09cb8af0bcba",
+        "bytes": 585
+      }
+    ],
+    "launchedControllerSha256": "57c2cc4dc8ac8dc65c3e944817e9d3ce3b1b69c38a497deb4ca0c2efaf03940e",
+    "currentControllerMatchesLaunch": true
+  },
+  "rawEvidenceManifest": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\Preflight-result.json",
+      "sha256": "12f98e1efb7e3289621956e151553fbd4ca406c9226495bb53066f05cb3db42c",
+      "bytes": 1264
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\Compare-result.json",
+      "sha256": "f9f19cd20d42fdcadea66e74bbc629013d6b5442bd37e31f7dafbea670765c3a",
+      "bytes": 25453
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\Compare-entry-or-stage-error.json",
+      "sha256": "03405f624115eb4233eeb98a8932685359437e7e6c752819f0fcb5a11ac43ee1",
+      "bytes": 11529
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\adapter-Baseline-Prepare.json",
+      "sha256": "6ec2f9d325e4a24902c78e59dcb95685124bb328e50a7faa5f7675191c816ed3",
+      "bytes": 709
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\controller-adapter-Baseline-Prepare.json",
+      "sha256": "b13abe68eb5d45adcf8b4df9e14a347de3c410c1ea163ec9e9257be1cda4655f",
+      "bytes": 979
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\adapter-Baseline-Register.json",
+      "sha256": "a7d8f4a6bea9b65a58419128eeb6ebb7671e6658c4018f4040530f95ea94fc19",
+      "bytes": 3935
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\controller-adapter-Baseline-Register.json",
+      "sha256": "2d390d98c3f7dfdac22ce2ba741f1a7fc24bbc99eaefc9d3e7668f38b4efb6b7",
+      "bytes": 4195
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\Compare-journal.jsonl",
+      "sha256": "9b95979a7fc40593710b9a18b8c083e9593fb793663e85446e81fda63441dced",
+      "bytes": 23686
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\Preflight-journal.jsonl",
+      "sha256": "9a6ab4070fe8d737ce6ec0ab48ea8f8091a7c896f80bba6f74783d5bba9f80b5",
+      "bytes": 5887
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\preflight-identity.json",
+      "sha256": "22d8f569175fd8069f8727da3c30420c6cdb4baaefa4aff718d6010c7b589d28",
+      "bytes": 425
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\fixture-Baseline-identity.json",
+      "sha256": "05654ba866d736e8263720d9d54998827a1000976c7629b873240128a16d3638",
+      "bytes": 930
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\Baseline-owned-shadow.json",
+      "sha256": "f273e41a78fd49ae6f06051481e3deb0a5629e2d711522bc51dbcd4775ffa9f5",
+      "bytes": 178
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\Compare-baseline.json",
+      "sha256": "21c4bbfa3baf4eeff8b8deea31e16ce32db129a60b7d643b0fd459c63502724b",
+      "bytes": 387
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\reports\\Compare-after.json",
+      "sha256": "d751320f23a2bcfd7e173a5864da09ea6e511db77483cae6c9ab8ad76c9b80c0",
+      "bytes": 359
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Preflight-launch-intent.json",
+      "sha256": "c66672a946f4d726ac2adbb1c50ef21988bf4bd5a16aed5386da8a25b92796b1",
+      "bytes": 887
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Preflight-launch-started.json",
+      "sha256": "6d5cf99aee994976928a0102f69b9532068e3afd30c5ca23a3f32fedb88b3f71",
+      "bytes": 424
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Preflight-launch-terminal.json",
+      "sha256": "1c881c6f5c923ef75bca36fd59572e296491e371a43471e49dd73f51ebf3a82e",
+      "bytes": 584
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Compare-launch-intent.json",
+      "sha256": "a0d8b6a6221c094b19744b6e5ada2695d1c44fa65ed82867600ba4ebdfdbc48f",
+      "bytes": 884
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Compare-launch-failure.json",
+      "sha256": "958a38c668e74a37354af9ca09642424879237911ffdb0975a3e48dce9122e90",
+      "bytes": 527
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Compare-retry1-launch-intent.json",
+      "sha256": "eaf11ec6ab5309b86438b4087b2579c0831ee74237302ee8c2325ad341f04a24",
+      "bytes": 884
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Compare-retry1-launch-started.json",
+      "sha256": "13a3483bcfb8cd4a2950d880794b604ab6b03110aec3b649450940e0b4f24dbe",
+      "bytes": 422
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\vss-Compare-retry1-launch-terminal.json",
+      "sha256": "719a01675d229c06961e36a258035d88d3190a5e4c8ebc94407d2e7ef46eae77",
+      "bytes": 582
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\logs\\adapter-Baseline-Register.execution.json",
+      "sha256": "8ecbdc403c970baaa9ca95de4df44ec8794bb10df5fdcd022f9f81ba9d982f92",
+      "bytes": 228
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\logs\\adapter-Baseline-Register.stdout.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\logs\\adapter-child-Baseline-Register.stderr.log",
+      "sha256": "77f6be5cff8fb33c67f46fdd519881cb83cd7a2b74c241cfa3230d47fbbfa824",
+      "bytes": 3151
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\fw03vss-ba65a3a5-e67d-435b-a752-f1ef3da1556c\\logs\\adapter-child-Baseline-Register.stdout.log",
+      "sha256": "f1945cd6c19e56b3c1c78943ef5ec18116907a4ca1efc40a57d48ab1db7adfc5",
+      "bytes": 3
+    }
+  ],
+  "limitations": [
+    "Failed baseline registration; no deletion or candidate execution occurred.",
+    "Preflight passed; it does not convert the failed comparison to success.",
+    "First UAC cancellation and authorized retry are distinct attempts.",
+    "Known terminal protocol outcomes are preserved; no invented process-tree proof or historical exit code.",
+    "No new producer, VSS source change, native call, payload scan or cleanup executed during this evidence transfer.",
+    "Raw pointers/hashes attest to selected existing evidence at transfer time; included summaries remain independently readable after later authorized raw cleanup."
+  ]
+}

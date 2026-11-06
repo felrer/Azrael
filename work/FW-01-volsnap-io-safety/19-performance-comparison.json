@@ -1,0 +1,962 @@
+{
+  "schema": 1,
+  "task": "FW-01-volsnap-io-safety",
+  "scope": "Fresh controlled32-member baseline vs accepted unit6; one sample per variant",
+  "rawRun": "artifacts\\tasks\\fw03v\\runs\\native-613162bb",
+  "actualHarnessExit": 0,
+  "elapsedMs": 115213,
+  "budgetSeconds": 180,
+  "budgetMeaning": "No new wrapper/native stage starts after deadline; started native processes drain without force termination. Actual total wall can exceed budget while draining.",
+  "completedSamples": 2,
+  "error": null,
+  "allLaunchedChildrenTerminal": true,
+  "cargoLeasePresent": false,
+  "preflight": {
+    "accepted": true,
+    "cpuPercent": 8.472672822560522,
+    "freeMemoryBytes": 11959242752,
+    "freeDiskBytes": 173226389504,
+    "diskError": null,
+    "minimumFreeDiskBytes": 107374182400
+  },
+  "observerSha256": "e7ecd2207fe1cc3486484bbb795bf73e295d3b3611c0aa449022b2b6eda69307",
+  "pwshSha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+  "sourceCommandMeaning": "Real standalone register/review/apply requests; no workload command, compiler, libtest or installed executable mutation. Each sample used fresh equal-length/depth owned project and state, same config/payload/request shape and sanitized environment.",
+  "sameCommonEnvironment": true,
+  "sameConfigShape": true,
+  "samePayloadShape": true,
+  "samples": [
+    {
+      "id": "b032",
+      "variant": "baseline",
+      "members": 32,
+      "bytesPerMember": 1024,
+      "logicalPayloadBytes": 32768,
+      "payloadShapeSha256": "7f814e2129eb6ead1d5e250773f4bdf7a475c3ef28f21f449e1029e728750f9d",
+      "projectConfigShapeSha256": "fb0d6b8720dcffddf542eb139cdced81fd685ffcfdcfb3d12a2cc43df5124926",
+      "commonEnvironmentSha256": "b70821e53a2adad95d19b4c44f785a0af574387f5be3e5ff27fa2a467a7dc99f",
+      "binarySha256": "02fd336f118a598d3a18e8e8395556781bd4a5d5c38101ac80b4dfe270a59e3d",
+      "sourceInputSha256": "bfcbf281318f4022730e2024d9dcf759b4063fc30f1dcf3299e2cf8687b13b2e",
+      "sourceFiles": 43,
+      "focusedLockSha256": "b4cae5976ca3167792ffa9096330f54b96b8e69dcdc1ba0861703e0929dad081",
+      "dependencyPins": 79,
+      "sourceUnchanged": true,
+      "binaryUnchanged": true,
+      "paths": {
+        "project": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\project",
+          "utf16Length": 116,
+          "components": 14
+        },
+        "state": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\state",
+          "utf16Length": 114,
+          "components": 14
+        },
+        "member": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\project\\artifacts\\generated\\member-0.bin",
+          "utf16Length": 149,
+          "components": 17
+        },
+        "longestMember": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\project\\artifacts\\generated\\member-31.bin",
+          "utf16Length": 150,
+          "components": 17
+        },
+        "catalogFile": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\project\\artifacts\\maintenance\\lifecycles\\f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d.json",
+          "utf16Length": 219,
+          "components": 18
+        },
+        "queue": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\state\\maintenance-coordination\\artifacts\\maintenance\\requests\\queue.json",
+          "utf16Length": 181,
+          "components": 19
+        }
+      },
+      "settingsEnvironmentChecks": [
+        {
+          "label": "preferences-before",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        },
+        {
+          "label": "register",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        },
+        {
+          "label": "review",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        },
+        {
+          "label": "apply",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        },
+        {
+          "label": "preferences-after",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        }
+      ],
+      "complete": true,
+      "error": null,
+      "budgetExceeded": false,
+      "preferencesBefore": {
+        "deletion": true,
+        "effective": {
+          "deletion": true,
+          "groups": true,
+          "locks": true
+        },
+        "groups": true,
+        "locks": true,
+        "pending": false,
+        "revision": 0,
+        "schema": 1,
+        "status": "enabled"
+      },
+      "preferencesAfter": {
+        "deletion": true,
+        "effective": {
+          "deletion": true,
+          "groups": true,
+          "locks": true
+        },
+        "groups": true,
+        "locks": true,
+        "pending": false,
+        "revision": 0,
+        "schema": 1,
+        "status": "enabled"
+      },
+      "preferenceFileBefore": {
+        "exists": false,
+        "sha256": null
+      },
+      "preferenceFileAfter": {
+        "exists": false,
+        "sha256": null
+      },
+      "preferencesUnchanged": true,
+      "actualNativeCalls": 5,
+      "actualNativeExits": [
+        {
+          "stage": "preferences-before",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        },
+        {
+          "stage": "register",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        },
+        {
+          "stage": "review",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        },
+        {
+          "stage": "apply",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        },
+        {
+          "stage": "preferences-after",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        }
+      ],
+      "nativeOperationElapsedMs": 24824.512300000002,
+      "operationWrapperWallMs": 27633.0267,
+      "deletedResultCount": 32,
+      "physicalDeleteSpanCount": 32,
+      "allDeleted": true,
+      "allPayloadAbsent": true,
+      "parentOperationCpuMs": 21984.375,
+      "parentOperationPeakWorkingSetBytes": 10100736,
+      "parentLogicalIo": {
+        "readOperations": 19036,
+        "writeOperations": 2299,
+        "otherOperations": 1380926,
+        "readBytes": 43255493,
+        "writeBytes": 3231838,
+        "otherBytes": 8599092
+      },
+      "counterErrors": [],
+      "operations": [
+        {
+          "label": "register",
+          "argv": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\project",
+            "--request",
+            "-"
+          ],
+          "actualExit": 0,
+          "nativeElapsedMs": 2234.9798,
+          "launchPlusWrapperWallMs": 3184.5978,
+          "parentCpuUserMs": 296.875,
+          "parentCpuKernelMs": 1765.625,
+          "parentPeakWorkingSetBytes": 8200192,
+          "parentPeakPagefileBytes": 2592768,
+          "parentLogicalIo": {
+            "readOperations": 522,
+            "writeOperations": 109,
+            "otherOperations": 135778,
+            "readBytes": 736034,
+            "writeBytes": 107173,
+            "otherBytes": 830446
+          },
+          "hostBefore": {
+            "atMs": 1793924430161,
+            "freeMemoryBytes": 11875971072,
+            "cpuCount": 16,
+            "cpuTotalMs": 922613754,
+            "cpuIdleMs": 773595539
+          },
+          "hostAfter": {
+            "atMs": 1793924433335,
+            "freeMemoryBytes": 11983720448,
+            "cpuCount": 16,
+            "cpuTotalMs": 922664536,
+            "cpuIdleMs": 773636180
+          },
+          "hostCpuPercent": 19.969674294041194,
+          "phaseSummaries": {
+            "wait_for_lock": {
+              "count": 14,
+              "totalUs": 134514,
+              "p50Us": 14,
+              "p95Us": 71556
+            },
+            "request_queue": null,
+            "request_execution": null,
+            "catalog": {
+              "count": 2,
+              "totalUs": 1146366,
+              "p50Us": 435088,
+              "p95Us": 711278
+            },
+            "maintenance": {
+              "count": 2,
+              "totalUs": 1243044,
+              "p50Us": 488202,
+              "p95Us": 754842
+            },
+            "group_reservation": {
+              "count": 1,
+              "totalUs": 1939138,
+              "p50Us": 1939138,
+              "p95Us": 1939138
+            },
+            "group.current.relations": null,
+            "group.current.members": null,
+            "group.current.combine": null,
+            "apply.current_review": null,
+            "apply.physical_delete": null,
+            "state.commit": {
+              "count": 1,
+              "totalUs": 23792,
+              "p50Us": 23792,
+              "p95Us": 23792
+            },
+            "apply.intent_save": null,
+            "apply.actual_result_save": null
+          }
+        },
+        {
+          "label": "review",
+          "argv": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\project",
+            "--request",
+            "-"
+          ],
+          "actualExit": 0,
+          "nativeElapsedMs": 446.1676,
+          "launchPlusWrapperWallMs": 1429.7027,
+          "parentCpuUserMs": 93.75,
+          "parentCpuKernelMs": 312.5,
+          "parentPeakWorkingSetBytes": 9662464,
+          "parentPeakPagefileBytes": 4227072,
+          "parentLogicalIo": {
+            "readOperations": 46,
+            "writeOperations": 316,
+            "otherOperations": 23510,
+            "readBytes": 55292,
+            "writeBytes": 313274,
+            "otherBytes": 160326
+          },
+          "hostBefore": {
+            "atMs": 1793924433348,
+            "freeMemoryBytes": 11988635648,
+            "cpuCount": 16,
+            "cpuTotalMs": 922664863,
+            "cpuIdleMs": 773636477
+          },
+          "hostAfter": {
+            "atMs": 1793924434775,
+            "freeMemoryBytes": 11782782976,
+            "cpuCount": 16,
+            "cpuTotalMs": 922687881,
+            "cpuIdleMs": 773652806
+          },
+          "hostCpuPercent": 29.059866191676075,
+          "phaseSummaries": {
+            "wait_for_lock": {
+              "count": 5,
+              "totalUs": 3615,
+              "p50Us": 16,
+              "p95Us": 3550
+            },
+            "request_queue": null,
+            "request_execution": null,
+            "catalog": null,
+            "maintenance": null,
+            "group_reservation": null,
+            "group.current.relations": null,
+            "group.current.members": null,
+            "group.current.combine": null,
+            "apply.current_review": null,
+            "apply.physical_delete": null,
+            "state.commit": null,
+            "apply.intent_save": null,
+            "apply.actual_result_save": null
+          }
+        },
+        {
+          "label": "apply",
+          "argv": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\b032\\project",
+            "--request",
+            "-"
+          ],
+          "actualExit": 0,
+          "nativeElapsedMs": 22143.3649,
+          "launchPlusWrapperWallMs": 23003.9037,
+          "parentCpuUserMs": 3421.875,
+          "parentCpuKernelMs": 16093.75,
+          "parentPeakWorkingSetBytes": 10100736,
+          "parentPeakPagefileBytes": 3768320,
+          "parentLogicalIo": {
+            "readOperations": 18468,
+            "writeOperations": 1874,
+            "otherOperations": 1221638,
+            "readBytes": 42464167,
+            "writeBytes": 2811391,
+            "otherBytes": 7608320
+          },
+          "hostBefore": {
+            "atMs": 1793924434782,
+            "freeMemoryBytes": 11785646080,
+            "cpuCount": 16,
+            "cpuTotalMs": 922687912,
+            "cpuIdleMs": 773652837
+          },
+          "hostAfter": {
+            "atMs": 1793924457780,
+            "freeMemoryBytes": 11857678336,
+            "cpuCount": 16,
+            "cpuTotalMs": 923056300,
+            "cpuIdleMs": 773952930
+          },
+          "hostCpuPercent": 18.538877487866056,
+          "phaseSummaries": {
+            "wait_for_lock": {
+              "count": 258,
+              "totalUs": 1758778,
+              "p50Us": 13,
+              "p95Us": 31727
+            },
+            "request_queue": null,
+            "request_execution": null,
+            "catalog": {
+              "count": 2,
+              "totalUs": 659504,
+              "p50Us": 180171,
+              "p95Us": 479333
+            },
+            "maintenance": {
+              "count": 65,
+              "totalUs": 3562243,
+              "p50Us": 44710,
+              "p95Us": 54908
+            },
+            "group_reservation": {
+              "count": 1,
+              "totalUs": 21683696,
+              "p50Us": 21683696,
+              "p95Us": 21683696
+            },
+            "group.current.relations": {
+              "count": 32,
+              "totalUs": 4090,
+              "p50Us": 46,
+              "p95Us": 82
+            },
+            "group.current.members": {
+              "count": 32,
+              "totalUs": 5860090,
+              "p50Us": 176988,
+              "p95Us": 304280
+            },
+            "group.current.combine": {
+              "count": 32,
+              "totalUs": 31951,
+              "p50Us": 983,
+              "p95Us": 1206
+            },
+            "apply.current_review": {
+              "count": 32,
+              "totalUs": 12867688,
+              "p50Us": 398254,
+              "p95Us": 508497
+            },
+            "apply.physical_delete": {
+              "count": 32,
+              "totalUs": 1421447,
+              "p50Us": 16807,
+              "p95Us": 58218
+            },
+            "state.commit": {
+              "count": 64,
+              "totalUs": 1504069,
+              "p50Us": 23383,
+              "p95Us": 24754
+            },
+            "apply.intent_save": {
+              "count": 32,
+              "totalUs": 1717290,
+              "p50Us": 54786,
+              "p95Us": 58078
+            },
+            "apply.actual_result_save": {
+              "count": 32,
+              "totalUs": 1483733,
+              "p50Us": 46059,
+              "p95Us": 47630
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "u632",
+      "variant": "unit6",
+      "members": 32,
+      "bytesPerMember": 1024,
+      "logicalPayloadBytes": 32768,
+      "payloadShapeSha256": "7f814e2129eb6ead1d5e250773f4bdf7a475c3ef28f21f449e1029e728750f9d",
+      "projectConfigShapeSha256": "fb0d6b8720dcffddf542eb139cdced81fd685ffcfdcfb3d12a2cc43df5124926",
+      "commonEnvironmentSha256": "b70821e53a2adad95d19b4c44f785a0af574387f5be3e5ff27fa2a467a7dc99f",
+      "binarySha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3",
+      "sourceInputSha256": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5",
+      "sourceFiles": 42,
+      "focusedLockSha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df",
+      "dependencyPins": 79,
+      "sourceUnchanged": true,
+      "binaryUnchanged": true,
+      "paths": {
+        "project": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\project",
+          "utf16Length": 116,
+          "components": 14
+        },
+        "state": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\state",
+          "utf16Length": 114,
+          "components": 14
+        },
+        "member": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\project\\artifacts\\generated\\member-0.bin",
+          "utf16Length": 149,
+          "components": 17
+        },
+        "longestMember": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\project\\artifacts\\generated\\member-31.bin",
+          "utf16Length": 150,
+          "components": 17
+        },
+        "catalogFile": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\project\\artifacts\\maintenance\\lifecycles\\f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d.json",
+          "utf16Length": 219,
+          "components": 18
+        },
+        "queue": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\state\\maintenance-coordination\\artifacts\\maintenance\\requests\\queue.json",
+          "utf16Length": 181,
+          "components": 19
+        }
+      },
+      "settingsEnvironmentChecks": [
+        {
+          "label": "preferences-before",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        },
+        {
+          "label": "register",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        },
+        {
+          "label": "review",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        },
+        {
+          "label": "apply",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        },
+        {
+          "label": "preferences-after",
+          "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\state",
+          "codexKeys": [],
+          "azraelKeys": [
+            "AZRAEL_MAINTENANCE_TIMING",
+            "AZRAEL_STATE_ROOT"
+          ]
+        }
+      ],
+      "complete": true,
+      "error": null,
+      "budgetExceeded": false,
+      "preferencesBefore": {
+        "deletion": true,
+        "deletion_parallelism": 1,
+        "effective": {
+          "deletion": true,
+          "groups": true,
+          "locks": true
+        },
+        "groups": true,
+        "locks": true,
+        "pending": false,
+        "revision": 0,
+        "schema": 1,
+        "status": "enabled"
+      },
+      "preferencesAfter": {
+        "deletion": true,
+        "deletion_parallelism": 1,
+        "effective": {
+          "deletion": true,
+          "groups": true,
+          "locks": true
+        },
+        "groups": true,
+        "locks": true,
+        "pending": false,
+        "revision": 0,
+        "schema": 1,
+        "status": "enabled"
+      },
+      "preferenceFileBefore": {
+        "exists": false,
+        "sha256": null
+      },
+      "preferenceFileAfter": {
+        "exists": false,
+        "sha256": null
+      },
+      "preferencesUnchanged": true,
+      "actualNativeCalls": 5,
+      "actualNativeExits": [
+        {
+          "stage": "preferences-before",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        },
+        {
+          "stage": "register",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        },
+        {
+          "stage": "review",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        },
+        {
+          "stage": "apply",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        },
+        {
+          "stage": "preferences-after",
+          "exit": 0,
+          "spawned": true,
+          "wrapperExit": 0,
+          "signal": null,
+          "error": null,
+          "drained": true
+        }
+      ],
+      "nativeOperationElapsedMs": 78523.2926,
+      "operationWrapperWallMs": 81310.7015,
+      "deletedResultCount": 32,
+      "physicalDeleteSpanCount": 32,
+      "allDeleted": true,
+      "allPayloadAbsent": true,
+      "parentOperationCpuMs": 74109.375,
+      "parentOperationPeakWorkingSetBytes": 10342400,
+      "parentLogicalIo": {
+        "readOperations": 32162,
+        "writeOperations": 2070,
+        "otherOperations": 5112944,
+        "readBytes": 32479853,
+        "writeBytes": 3259626,
+        "otherBytes": 42943380
+      },
+      "counterErrors": [],
+      "operations": [
+        {
+          "label": "register",
+          "argv": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\project",
+            "--request",
+            "-"
+          ],
+          "actualExit": 0,
+          "nativeElapsedMs": 5840.6328,
+          "launchPlusWrapperWallMs": 6767.8389,
+          "parentCpuUserMs": 390.625,
+          "parentCpuKernelMs": 4921.875,
+          "parentPeakWorkingSetBytes": 8589312,
+          "parentPeakPagefileBytes": 2863104,
+          "parentLogicalIo": {
+            "readOperations": 1512,
+            "writeOperations": 107,
+            "otherOperations": 363324,
+            "readBytes": 1392787,
+            "writeBytes": 203079,
+            "otherBytes": 2741044
+          },
+          "hostBefore": {
+            "atMs": 1793924459910,
+            "freeMemoryBytes": 11831033856,
+            "cpuCount": 16,
+            "cpuTotalMs": 923090390,
+            "cpuIdleMs": 773978306
+          },
+          "hostAfter": {
+            "atMs": 1793924466676,
+            "freeMemoryBytes": 11771203584,
+            "cpuCount": 16,
+            "cpuTotalMs": 923198798,
+            "cpuIdleMs": 774066883
+          },
+          "hostCpuPercent": 18.292930411039777,
+          "phaseSummaries": {
+            "wait_for_lock": {
+              "count": 36,
+              "totalUs": 1512809,
+              "p50Us": 50707,
+              "p95Us": 171442
+            },
+            "request_queue": {
+              "count": 24,
+              "totalUs": 1456211,
+              "p50Us": 37972,
+              "p95Us": 121022
+            },
+            "request_execution": {
+              "count": 1,
+              "totalUs": 5022408,
+              "p50Us": 5022408,
+              "p95Us": 5022408
+            },
+            "catalog": {
+              "count": 2,
+              "totalUs": 2196194,
+              "p50Us": 691269,
+              "p95Us": 1504925
+            },
+            "maintenance": {
+              "count": 2,
+              "totalUs": 2283176,
+              "p50Us": 734023,
+              "p95Us": 1549153
+            },
+            "group_reservation": {
+              "count": 1,
+              "totalUs": 4353293,
+              "p50Us": 4353293,
+              "p95Us": 4353293
+            },
+            "group.current.relations": null,
+            "group.current.members": null,
+            "group.current.combine": null,
+            "apply.current_review": null,
+            "apply.physical_delete": null,
+            "state.commit": null,
+            "apply.intent_save": null,
+            "apply.actual_result_save": null
+          }
+        },
+        {
+          "label": "review",
+          "argv": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\project",
+            "--request",
+            "-"
+          ],
+          "actualExit": 0,
+          "nativeElapsedMs": 343.827,
+          "launchPlusWrapperWallMs": 1314.0643,
+          "parentCpuUserMs": 62.5,
+          "parentCpuKernelMs": 250,
+          "parentPeakWorkingSetBytes": 9699328,
+          "parentPeakPagefileBytes": 4292608,
+          "parentLogicalIo": {
+            "readOperations": 46,
+            "writeOperations": 309,
+            "otherOperations": 19765,
+            "readBytes": 55292,
+            "writeBytes": 310161,
+            "otherBytes": 147796
+          },
+          "hostBefore": {
+            "atMs": 1793924466690,
+            "freeMemoryBytes": 11771158528,
+            "cpuCount": 16,
+            "cpuTotalMs": 923199032,
+            "cpuIdleMs": 774067040
+          },
+          "hostAfter": {
+            "atMs": 1793924468001,
+            "freeMemoryBytes": 11842490368,
+            "cpuCount": 16,
+            "cpuTotalMs": 923219925,
+            "cpuIdleMs": 774083664
+          },
+          "hostCpuPercent": 20.432680802182546,
+          "phaseSummaries": {
+            "wait_for_lock": {
+              "count": 5,
+              "totalUs": 4428,
+              "p50Us": 14,
+              "p95Us": 4367
+            },
+            "request_queue": null,
+            "request_execution": null,
+            "catalog": null,
+            "maintenance": null,
+            "group_reservation": null,
+            "group.current.relations": null,
+            "group.current.members": null,
+            "group.current.combine": null,
+            "apply.current_review": null,
+            "apply.physical_delete": null,
+            "state.commit": null,
+            "apply.intent_save": null,
+            "apply.actual_result_save": null
+          }
+        },
+        {
+          "label": "apply",
+          "argv": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\tiny-scale1\\u632\\project",
+            "--request",
+            "-"
+          ],
+          "actualExit": 0,
+          "nativeElapsedMs": 72338.8328,
+          "launchPlusWrapperWallMs": 73197.7005,
+          "parentCpuUserMs": 8375,
+          "parentCpuKernelMs": 60109.375,
+          "parentPeakWorkingSetBytes": 10342400,
+          "parentPeakPagefileBytes": 4337664,
+          "parentLogicalIo": {
+            "readOperations": 30604,
+            "writeOperations": 1654,
+            "otherOperations": 4729855,
+            "readBytes": 31031774,
+            "writeBytes": 2746386,
+            "otherBytes": 40054540
+          },
+          "hostBefore": {
+            "atMs": 1793924468007,
+            "freeMemoryBytes": 11846963200,
+            "cpuCount": 16,
+            "cpuTotalMs": 923220112,
+            "cpuIdleMs": 774083835
+          },
+          "hostAfter": {
+            "atMs": 1793924541201,
+            "freeMemoryBytes": 12038021120,
+            "cpuCount": 16,
+            "cpuTotalMs": 924392848,
+            "cpuIdleMs": 775028181
+          },
+          "hostCpuPercent": 19.474971349050428,
+          "phaseSummaries": {
+            "wait_for_lock": {
+              "count": 678,
+              "totalUs": 24636308,
+              "p50Us": 51048,
+              "p95Us": 57170
+            },
+            "request_queue": {
+              "count": 489,
+              "totalUs": 18797524,
+              "p50Us": 36941,
+              "p95Us": 42840
+            },
+            "request_execution": {
+              "count": 1,
+              "totalUs": 71675633,
+              "p50Us": 71675633,
+              "p95Us": 71675633
+            },
+            "catalog": {
+              "count": 2,
+              "totalUs": 1097989,
+              "p50Us": 185786,
+              "p95Us": 912203
+            },
+            "maintenance": {
+              "count": 65,
+              "totalUs": 4232591,
+              "p50Us": 46806,
+              "p95Us": 96838
+            },
+            "group_reservation": {
+              "count": 1,
+              "totalUs": 70664118,
+              "p50Us": 70664118,
+              "p95Us": 70664118
+            },
+            "group.current.relations": {
+              "count": 64,
+              "totalUs": 3149,
+              "p50Us": 47,
+              "p95Us": 60
+            },
+            "group.current.members": {
+              "count": 64,
+              "totalUs": 3754912,
+              "p50Us": 58082,
+              "p95Us": 65128
+            },
+            "group.current.combine": {
+              "count": 64,
+              "totalUs": 66776,
+              "p50Us": 995,
+              "p95Us": 1519
+            },
+            "apply.current_review": null,
+            "apply.physical_delete": {
+              "count": 32,
+              "totalUs": 5160213,
+              "p50Us": 129606,
+              "p95Us": 240922
+            },
+            "state.commit": null,
+            "apply.intent_save": null,
+            "apply.actual_result_save": null
+          }
+        }
+      ]
+    }
+  ],
+  "observedNativeUnit6ToBaselineRatio": 3.163135357950214,
+  "interpretation": [
+    "This is one sequential sample each. Unit6 native78.523s vs baseline24.825s is observed elapsed time, not a proven causal throughput regression or maximum-speed bound. Earlier counterbalanced tiny cohort had large same-variant wall variation.",
+    "fw03p metadata-close work was permitted to overlap; actual temporal overlap is not established by this report. It may affect timing interpretation.",
+    "Counter fields cover native parent process only and exclude workers/descendants. Logical I/O counts/bytes are not physical disk throughput. Missing API data remains null/error; nested phase times must not be summed into exclusive wall time.",
+    "NativeElapsedMs excludes observer launch/Add-Type overhead; wrapper wall is separately recorded. Parent peak is the maximum across the three operation processes, not combined concurrent RSS.",
+    "The original inherited-user-profile4/32/80/200 baseline is historical and is not reused causally here. Both new preference snapshots and default/schema differences are retained."
+  ],
+  "terminalAndRemaining": {
+    "terminal": "Harness actualexit0; all10 native children and10 wrappers actualexit0 with stdout/stderr drain; both32-delete results and payload absence verified; source/binary and preferences unchanged",
+    "noAutomaticExpansion": true,
+    "notExecuted": "80/200, unit7 compile/full/probe, new parallel or VSS",
+    "cleanup": "Raw native run remains protected for consumers and root cleanup gate. No cleanup in this turn."
+  },
+  "retainedUnit6Evidence": {
+    "path": "work/FW-01-volsnap-io-safety/15-native-verification.json",
+    "sha256": "f8bd44a03d1051459dd4301b5ebc9adcaec6587008e3e76d54fcf6669801b1fd",
+    "unchanged": true
+  }
+}

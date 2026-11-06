@@ -350,6 +350,8 @@ pub(crate) struct Batch {
     source_members: BTreeMap<String, Value>,
     pub completed: BTreeSet<String>,
     pub verification: Verification,
+    relations: std::cell::RefCell<Option<std::rc::Rc<crate::review_relations::ReviewRelations>>>,
+    tokens: crate::review_reuse::TokenCache,
 }
 pub(crate) fn source_measurement(
     root: &Path,
@@ -405,6 +407,7 @@ pub(crate) fn batch(
         .groups
         .get(group_id)
         .ok_or("unknown lifecycle group")?;
+    let reservation = crate::reservations::GroupReviewFence::begin(root, group_id, auth)?;
     let mut members = BTreeMap::new();
     let mut reviews = BTreeMap::new();
     let mut source_members = BTreeMap::new();
@@ -417,9 +420,17 @@ pub(crate) fn batch(
     }
     for id in live_ids(root, state, group, auth)? {
         let item = state.items.get(&id).ok_or("unknown member")?;
+        members.insert(id, item.clone());
+    }
+    let relations = std::rc::Rc::new(crate::review_relations::ReviewRelations::new(
+        root, state, &members,
+    ));
+    let tokens = crate::review_reuse::TokenCache::default();
+    let runs = tokens.begin(&state.runs);
+    for (id, item) in &members {
         reviews.insert(
             id.clone(),
-            review_ungrouped(
+            crate::review_group_member_local(
                 root,
                 config,
                 config_identity,
@@ -427,24 +438,35 @@ pub(crate) fn batch(
                 item,
                 auth,
                 verification,
+                &crate::ReviewReuse {
+                    relations: relations.member(id)?,
+                    tokens: &tokens,
+                    runs: &runs,
+                    reservation: Some(&reservation),
+                },
             )?,
         );
-        members.insert(id, item.clone());
     }
+    // Fresh source observation closes the local-only reservation checks above.
+    let source = observe_source(root, group, &source_members, auth);
+    reservation.finish(root, auth)?;
     Ok(Batch {
         verification,
         definition: definition(group),
         members,
         reviews,
-        source: observe_source(root, group, &source_members, auth),
+        source,
         source_members,
         completed: BTreeSet::new(),
+        relations: std::cell::RefCell::new(Some(relations)),
+        tokens,
     })
 }
 fn combine(
     group: &Value,
     reviews: &BTreeMap<String, Value>,
     source: &Value,
+    selected: Option<&str>,
 ) -> Result<BTreeMap<String, Value>, String> {
     let evidence=reviews.iter().map(|(id,review)|json!({"id":id,"token":review["token"],"identity":review["identity"],"blockers":review["blockers"]})).collect::<Vec<_>>();
     let token =
@@ -452,8 +474,16 @@ fn combine(
     let protected = reviews
         .values()
         .any(|review| !review["blockers"].as_array().is_some_and(Vec::is_empty));
+    let member_ids = json!(reviews.keys().collect::<Vec<_>>());
     let mut combined = BTreeMap::new();
     for (id, review) in reviews {
+        // Validate all member reviews even when only one output is consumed.
+        review["blockers"]
+            .as_array()
+            .ok_or("invalid member review")?;
+        if selected.is_some_and(|selected| selected != id.as_str()) {
+            continue;
+        }
         let mut review = review.clone();
         let blockers = review["blockers"]
             .as_array_mut()
@@ -476,7 +506,7 @@ fn combine(
         review["token"] = json!(hash(&json!({"member":review["token"],"group":token}))?);
         review["group_token"] = json!(token);
         review["lifecycle_group_id"] = group["id"].clone();
-        review["group_member_ids"] = json!(reviews.keys().collect::<Vec<_>>());
+        review["group_member_ids"] = member_ids.clone();
         review["membership_source_observation"] = source.clone();
         combined.insert(id.clone(), review);
     }
@@ -520,7 +550,7 @@ impl Batch {
         Ok(())
     }
     pub fn initial(&self) -> Result<BTreeMap<String, Value>, String> {
-        combine(&self.definition, &self.reviews, &self.source)
+        combine(&self.definition, &self.reviews, &self.source, None)
     }
     pub fn current(
         &self,
@@ -529,12 +559,14 @@ impl Batch {
         config_identity: &str,
         state: &State,
         auth: Auth<'_>,
-    ) -> Result<BTreeMap<String, Value>, String> {
+        selected: &str,
+    ) -> Result<Value, String> {
         let group_id = string(&self.definition, "id")?;
         let current = state.groups.get(group_id).ok_or("group disappeared")?;
         if definition(current) != self.definition {
             return Err("lifecycle group membership or metadata changed".into());
         }
+        let reservation = crate::reservations::GroupReviewFence::begin(root, group_id, auth)?;
         let live = live_ids(root, state, current, auth)?
             .into_iter()
             .collect::<BTreeSet<_>>();
@@ -552,34 +584,65 @@ impl Batch {
         {
             return Err("lifecycle live membership changed".into());
         }
-        let mut reviews = BTreeMap::new();
-        for (id, item) in &self.members {
-            if self.completed.contains(id) {
-                let path = Path::new(string(item, "path")?);
-                if paths::checked_metadata(root, path, auth)?.is_some() {
-                    return Err("deleted lifecycle member reappeared".into());
-                }
-                reviews.insert(id.clone(), self.reviews[id].clone());
-            } else {
-                reviews.insert(
-                    id.clone(),
-                    review_ungrouped(
-                        root,
-                        config,
-                        config_identity,
-                        state,
-                        item,
-                        auth,
-                        self.verification,
-                    )?,
-                );
+        let relations = crate::timing::phase("group.current.relations", Some(root), || {
+            let previous = self.relations.borrow().as_ref().cloned();
+            if let Some(previous) = previous.filter(|plan| plan.matches(root, state)) {
+                return Ok::<_, String>(previous);
             }
-        }
-        combine(
-            &self.definition,
-            &reviews,
-            &observe_source(root, &self.definition, &self.source_members, auth),
-        )
+            let plan = crate::timing::phase("group.relations.build", Some(root), || {
+                Ok::<_, String>(std::rc::Rc::new(
+                    crate::review_relations::ReviewRelations::new(root, state, &self.members),
+                ))
+            })?;
+            *self.relations.borrow_mut() = Some(plan.clone());
+            Ok(plan)
+        })?;
+        // One immutable State snapshot per observation. begin compares actual run
+        // values; the next save's revision alone cannot authorize token reuse.
+        let runs = self.tokens.begin(&state.runs);
+        let mut reviews = BTreeMap::new();
+        crate::timing::phase("group.current.members", Some(root), || {
+            let _details = crate::timing::DetailScope::new("group.current.members");
+            for (id, item) in &self.members {
+                if self.completed.contains(id) {
+                    let _detail = crate::timing::detail("member.completed");
+                    let path = Path::new(string(item, "path")?);
+                    if paths::checked_metadata(root, path, auth)?.is_some() {
+                        return Err("deleted lifecycle member reappeared".into());
+                    }
+                    reviews.insert(id.clone(), self.reviews[id].clone());
+                } else {
+                    let _detail = crate::timing::detail("member.live");
+                    reviews.insert(
+                        id.clone(),
+                        crate::review_group_member_local(
+                            root,
+                            config,
+                            config_identity,
+                            state,
+                            item,
+                            auth,
+                            self.verification,
+                            &crate::ReviewReuse {
+                                relations: relations.member(id)?,
+                                tokens: &self.tokens,
+                                runs: &runs,
+                                reservation: Some(&reservation),
+                            },
+                        )?,
+                    );
+                }
+            }
+            Ok::<_, String>(())
+        })?;
+        // Source and permissions are observed anew even if every pure token hit.
+        let source = observe_source(root, &self.definition, &self.source_members, auth);
+        reservation.finish(root, auth)?;
+        crate::timing::phase("group.current.combine", Some(root), || {
+            combine(&self.definition, &reviews, &source, Some(selected))
+        })?
+        .remove(selected)
+        .ok_or("missing lifecycle review".into())
     }
 }
 pub(crate) fn review_selection(
@@ -648,4 +711,308 @@ pub(crate) fn review_selection(
         return Err("expanded review exceeds 200 live members; select fewer groups".into());
     }
     Ok(json!({"items":reviews.into_values().collect::<Vec<_>>(),"groups":groups}))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reused_group_plans_keep_current_overlap_protection_and_run_inputs() {
+        fn comparable_review(mut review: Value) -> Value {
+            // Response times are generated after hashing and differ between
+            // observations. Registered measurement time remains bound to item.
+            let full = review["verification"] == "full";
+            let fields = review.as_object_mut().unwrap();
+            assert!(fields.remove("observed_at_ms").unwrap().is_u64());
+            if full {
+                assert!(fields.remove("measured_at_ms").unwrap().is_u64());
+            }
+            review
+        }
+        let comparable_reviews = |reviews: BTreeMap<String, Value>| {
+            reviews
+                .into_iter()
+                .map(|(id, review)| (id, comparable_review(review)))
+                .collect::<BTreeMap<_, _>>()
+        };
+        let root = tempfile::tempdir().unwrap();
+        std::fs::create_dir(root.path().join("generated")).unwrap();
+        std::fs::write(root.path().join("generated/membership.json"), "{}").unwrap();
+        let config_bytes = serde_json::to_vec(&json!({"schema_version":1,"project_id":"reuse","managed_roots":["generated"],"bundles":[]})).unwrap();
+        std::fs::write(root.path().join("project-maintenance.json"), &config_bytes).unwrap();
+        let members = ["a", "b"].map(|id| {
+            std::fs::write(root.path().join("generated").join(id), id).unwrap();
+            json!({"id":id,"path":format!("generated/{id}"),"kind":"fixture","owner":"test","generated":true,"protection_known":true,"references":[],"lifecycle_role":"artifact"})
+        });
+        let allow = |_: &Path, _: crate::AccessMode| Ok(());
+        crate::dispatch(root.path(), json!({"operation":"register","group":{"id":"g","kind":"run","owner":"test","membership_complete":true,"provenance_ref":"fixture","membership_source":"generated/membership.json","members":members}}), &allow).unwrap();
+        let config: Config = serde_json::from_slice(&config_bytes).unwrap();
+        let config_identity = hash(&config_bytes).unwrap();
+        let mut state: State = serde_json::from_slice(
+            &std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap(),
+        )
+        .unwrap();
+        let auth = crate::Context::new(&allow);
+        // A callback may change the reservation during the member/source
+        // observation. Both entry points must reject that observation, including
+        // replacement by a different file containing identical bytes.
+        let reservation_path = root
+            .path()
+            .join("artifacts/maintenance/lifecycles/reservations")
+            .join(format!("{}.json", hash(&"g").unwrap()));
+        std::fs::create_dir_all(reservation_path.parent().unwrap()).unwrap();
+        let record = json!({"schema":1,"id":"g","token":"review-owner","members":[]});
+        let record_bytes = serde_json::to_vec(&record).unwrap();
+        for current in [false, true] {
+            for mutation in ["bytes", "identity", "remove", "appear"] {
+                let cohort = batch(
+                    root.path(),
+                    &config,
+                    &config_identity,
+                    &state,
+                    "g",
+                    &auth,
+                    Verification::Registered,
+                )
+                .unwrap();
+                if mutation != "appear" {
+                    std::fs::write(&reservation_path, &record_bytes).unwrap();
+                }
+                let injected = std::cell::Cell::new(false);
+                let authorize = |path: &Path, _: crate::AccessMode| {
+                    if path == root.path().join("generated/membership.json")
+                        && !injected.replace(true)
+                    {
+                        match mutation {
+                            "bytes" => {
+                                let mut changed = record.clone();
+                                changed["token"] = json!("changed-owner");
+                                std::fs::write(
+                                    &reservation_path,
+                                    serde_json::to_vec(&changed).unwrap(),
+                                )
+                                .unwrap();
+                            }
+                            "identity" => {
+                                std::fs::rename(
+                                    &reservation_path,
+                                    reservation_path.with_extension("old"),
+                                )
+                                .unwrap();
+                                std::fs::write(&reservation_path, &record_bytes).unwrap();
+                            }
+                            "remove" => std::fs::remove_file(&reservation_path).unwrap(),
+                            "appear" => {
+                                std::fs::write(&reservation_path, &record_bytes).unwrap();
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    Ok(())
+                };
+                let context = crate::Context::new(&authorize);
+                if mutation != "appear" {
+                    context
+                        .reservations
+                        .borrow_mut()
+                        .insert("g".into(), record.clone());
+                }
+                let result = if current {
+                    cohort
+                        .current(
+                            root.path(),
+                            &config,
+                            &config_identity,
+                            &state,
+                            &context,
+                            "a",
+                        )
+                        .map(|_| ())
+                } else {
+                    batch(
+                        root.path(),
+                        &config,
+                        &config_identity,
+                        &state,
+                        "g",
+                        &context,
+                        Verification::Registered,
+                    )
+                    .map(|_| ())
+                };
+                assert!(injected.get());
+                assert!(result.is_err(), "current={current}, mutation={mutation}");
+                if reservation_path.exists() {
+                    std::fs::remove_file(&reservation_path).unwrap();
+                }
+                if mutation == "identity" {
+                    std::fs::remove_file(reservation_path.with_extension("old")).unwrap();
+                }
+            }
+        }
+        // Reusing the pure plan must preserve the original member and grouped
+        // token bytes, including the full-verification path.
+        for verification in [Verification::Registered, Verification::Full] {
+            let cohort = batch(
+                root.path(),
+                &config,
+                &config_identity,
+                &state,
+                "g",
+                &auth,
+                verification,
+            )
+            .unwrap();
+            let expected = cohort
+                .members
+                .iter()
+                .map(|(id, item)| {
+                    (
+                        id.clone(),
+                        review_ungrouped(
+                            root.path(),
+                            &config,
+                            &config_identity,
+                            &state,
+                            item,
+                            &auth,
+                            verification,
+                        )
+                        .unwrap(),
+                    )
+                })
+                .collect::<BTreeMap<_, _>>();
+            assert_eq!(
+                comparable_reviews(cohort.reviews.clone()),
+                comparable_reviews(expected.clone())
+            );
+            assert_eq!(
+                comparable_reviews(cohort.initial().unwrap()),
+                comparable_reviews(
+                    combine(&cohort.definition, &expected, &cohort.source, None).unwrap()
+                )
+            );
+        }
+        let cohort = batch(
+            root.path(),
+            &config,
+            &config_identity,
+            &state,
+            "g",
+            &auth,
+            Verification::Registered,
+        )
+        .unwrap();
+        let observed = cohort
+            .current(root.path(), &config, &config_identity, &state, &auth, "a")
+            .unwrap();
+        assert_eq!(observed["token"], cohort.initial().unwrap()["a"]["token"]);
+        let mut parent = state.items["a"].clone();
+        parent["id"] = json!("parent");
+        parent["references"] = json!(["active consumer"]);
+        parent.as_object_mut().unwrap().remove("lifecycle_group_id");
+        state.items.insert("parent".into(), parent);
+        let protected = cohort
+            .current(root.path(), &config, &config_identity, &state, &auth, "a")
+            .unwrap();
+        assert!(
+            protected["blockers"]
+                .as_array()
+                .unwrap()
+                .contains(&json!("overlapping registered item protected: \"parent\"")),
+            "actual review: {protected}"
+        );
+        let initial_protected = batch(
+            root.path(),
+            &config,
+            &config_identity,
+            &state,
+            "g",
+            &auth,
+            Verification::Registered,
+        )
+        .unwrap()
+        .initial()
+        .unwrap();
+        assert_eq!(
+            comparable_review(protected.clone()),
+            comparable_review(initial_protected["a"].clone())
+        );
+        let plan = cohort.relations.borrow().as_ref().unwrap().clone();
+        state.items.get_mut("parent").unwrap()["references"] = json!([]);
+        state.revision += 1;
+        let released = cohort
+            .current(root.path(), &config, &config_identity, &state, &auth, "a")
+            .unwrap();
+        assert!(released["blockers"].as_array().unwrap().is_empty());
+        assert_ne!(protected["token"], released["token"]);
+        assert!(std::rc::Rc::ptr_eq(
+            &plan,
+            cohort.relations.borrow().as_ref().unwrap()
+        ));
+        state.runs.insert("unresolved".into(), json!({"steps":[{"producer_completed":false,"inputs":[{"path":state.items["a"]["path"]}]}]}));
+        let active = cohort
+            .current(root.path(), &config, &config_identity, &state, &auth, "a")
+            .unwrap();
+        assert!(
+            active["blockers"]
+                .as_array()
+                .unwrap()
+                .contains(&json!("active or unresolved related run"))
+        );
+        assert_ne!(released["token"], active["token"]);
+        assert!(std::rc::Rc::ptr_eq(
+            &plan,
+            cohort.relations.borrow().as_ref().unwrap()
+        ));
+    }
+
+    #[test]
+    fn selected_combination_preserves_whole_group_evidence() {
+        let group = json!({"id":"group","membership_complete":false,
+            "membership_source":"source","membership_source_identity":"registered"});
+        let source = json!({"status":"measured","identity":"changed",
+            "blockers":["source protection"]});
+        let reviews = BTreeMap::from([
+            (
+                "a".into(),
+                json!({"token":"a-token","identity":"a-root","blockers":[]}),
+            ),
+            (
+                "b".into(),
+                json!({"token":"b-token","identity":"b-root","blockers":["sibling protection"]}),
+            ),
+        ]);
+        let all = combine(&group, &reviews, &source, None).unwrap();
+        let selected = combine(&group, &reviews, &source, Some("a")).unwrap();
+        assert_eq!(selected.len(), 1);
+        assert_eq!(selected["a"], all["a"]);
+        assert_eq!(selected["a"]["group_member_ids"], json!(["a", "b"]));
+        assert_eq!(selected["a"]["membership_source_observation"], source);
+        assert_eq!(
+            selected["a"]["blockers"],
+            json!([
+                "lifecycle group membership is incomplete",
+                "lifecycle membership source changed or is unavailable; re-register full current membership",
+                "source protection",
+                "a lifecycle group member is protected"
+            ])
+        );
+
+        let mut changed = reviews;
+        changed.get_mut("b").unwrap()["token"] = json!("changed-sibling-token");
+        let changed_selected = combine(&group, &changed, &source, Some("a")).unwrap();
+        assert_ne!(
+            selected["a"]["group_token"],
+            changed_selected["a"]["group_token"]
+        );
+        assert_ne!(selected["a"]["token"], changed_selected["a"]["token"]);
+
+        changed.get_mut("b").unwrap()["blockers"] = Value::Null;
+        assert_eq!(
+            combine(&group, &changed, &source, Some("a")).unwrap_err(),
+            "invalid member review"
+        );
+    }
 }

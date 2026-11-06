@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "scope": "Windows x64 exact staged frozen-input copy prerequisite",
+  "commit": "896108eb9c7b789a948b6605c2bb10a7e13094f7",
+  "records": {
+    "capture-verification.json": {
+      "sha256": "60dc1df4b5922d6b121e32578a9fcd70635e60c032738e901f58ad8567d41e59",
+      "value": {
+        "commit": "896108eb9c7b789a948b6605c2bb10a7e13094f7",
+        "workingSuite": {
+          "command": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "scripts/test-capture-project-inputs.cjs",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-fix-20261106-01\\temporary\\fixtures"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-fix-20261106-01\\logs\\capture-project-inputs.log",
+          "summary": {
+            "passed": 14,
+            "failed": 0,
+            "platform": "win32",
+            "arch": "x64",
+            "node": "v26.7.0",
+            "fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-fix-20261106-01\\temporary\\fixtures"
+          },
+          "checks": [
+            "PASS [threshold=131072] selected bytes include dirty/untracked/deleted paths and nested repositories",
+            "PASS [threshold=131072] verified copies preserve untracked nested repositories and reject missing indexed files",
+            "PASS [threshold=131072] file and directory modes are preserved",
+            "PASS [threshold=131072] existing blobs are reused and new duplicate blobs preserve raw bytes",
+            "PASS [threshold=131072] mutation during Git blob import rejects the result and closes its importer",
+            "PASS [threshold=131072] source change before open-stat and after reading fails closed",
+            "PASS [threshold=0] source change before open-stat and after reading fails closed",
+            "PASS [threshold=131072] source parent identity replacement fails closed",
+            "PASS [threshold=131072] destination parent replacement fails closed",
+            "PASS [threshold=131072] source junction and destination junction escape are rejected",
+            "PASS [threshold=131072] existing destination files preserve exclusive-create behavior",
+            "PASS [threshold=131072] final frozen hash rejects destination byte mutation",
+            "PASS [threshold=131072] capture destination must be independent of source",
+            "PASS [threshold=131072] mixed buffered and streamed files preserve identical selected bytes"
+          ],
+          "sourceBlobs": {
+            "capture": "10b643594b7cbe4056319cd6f7664cee4b337fdd",
+            "tests": "e3c714a2013adc18bfdc32433bde010266dbd8d6"
+          }
+        },
+        "stagedSuite": {
+          "mode": "Staged CommonJS compile, dedicated git show environment, fixture child environment excludes GIT_INDEX_FILE",
+          "index": "C:\\Users\\felre\\Desktop\\pi-harness-init\\.git\\fw03-capture-unit.index",
+          "stagedTestBlob": "f8d4049be81716d77e3ee1f2f9a79e1e45ab41d8",
+          "before": {
+            "alternateIndex": "38c9489bb9af7ac801c8e09d418cafc7bcbc2da51b71d11f37425d9930a1eff7",
+            "normalIndex": "cbb547efec2cf1b537989ec1e896902c8e7c0f57de92edd88821d1c5f034a618",
+            "source": "e352f14722c8f3b33b02e2951f8c28bf37b3f2aafeb9ac8fb137630018aa3247",
+            "test": "73cdc4d7818afe9714a742a5be49d47207a62e935b57812f330d3bf47a1ee816"
+          },
+          "after": {
+            "alternateIndex": "38c9489bb9af7ac801c8e09d418cafc7bcbc2da51b71d11f37425d9930a1eff7",
+            "normalIndex": "cbb547efec2cf1b537989ec1e896902c8e7c0f57de92edd88821d1c5f034a618",
+            "source": "e352f14722c8f3b33b02e2951f8c28bf37b3f2aafeb9ac8fb137630018aa3247",
+            "test": "73cdc4d7818afe9714a742a5be49d47207a62e935b57812f330d3bf47a1ee816"
+          },
+          "unchanged": true,
+          "exitCode": 0,
+          "signal": null,
+          "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\logs\\capture-staged.log",
+          "summary": {
+            "passed": 27,
+            "failed": 0,
+            "platform": "win32",
+            "arch": "x64",
+            "node": "v26.7.0",
+            "fixtures": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\temporary\\fixtures"
+          },
+          "checks": [
+            "PASS [threshold=131072] verified copies preserve untracked nested repositories and reject missing indexed files",
+            "PASS [threshold=131072] selected bytes include dirty/untracked/deleted paths and nested repositories",
+            "PASS [threshold=131072] file and directory modes are copied once per directory",
+            "PASS [threshold=131072] existing blobs are reused and new duplicate blobs preserve raw bytes",
+            "PASS [threshold=131072] mutation during Git blob import rejects the result and closes its importer",
+            "PASS [threshold=131072] physical root resolves once per parent inspection",
+            "PASS [threshold=131072] source change before open-stat and during streaming fails closed",
+            "PASS [threshold=131072] source parent identity replacement fails closed",
+            "PASS [threshold=131072] destination parent replacement fails closed",
+            "PASS [threshold=131072] source junction and destination junction escape are rejected",
+            "PASS [threshold=131072] existing destination files preserve exclusive-create behavior",
+            "PASS [threshold=131072] final frozen hash rejects destination byte mutation",
+            "PASS [threshold=131072] syntax-invalid selected files remain exact bytes; helper syntax and CLI failures",
+            "PASS [threshold=0] verified copies preserve untracked nested repositories and reject missing indexed files",
+            "PASS [threshold=0] selected bytes include dirty/untracked/deleted paths and nested repositories",
+            "PASS [threshold=0] file and directory modes are copied once per directory",
+            "PASS [threshold=0] existing blobs are reused and new duplicate blobs preserve raw bytes",
+            "PASS [threshold=0] mutation during Git blob import rejects the result and closes its importer",
+            "PASS [threshold=0] physical root resolves once per parent inspection",
+            "PASS [threshold=0] source change before open-stat and during streaming fails closed",
+            "PASS [threshold=0] source parent identity replacement fails closed",
+            "PASS [threshold=0] destination parent replacement fails closed",
+            "PASS [threshold=0] source junction and destination junction escape are rejected",
+            "PASS [threshold=0] existing destination files preserve exclusive-create behavior",
+            "PASS [threshold=0] final frozen hash rejects destination byte mutation",
+            "PASS [threshold=0] syntax-invalid selected files remain exact bytes; helper syntax and CLI failures",
+            "PASS [threshold=0] mixed buffered and streamed files preserve identical selected bytes"
+          ]
+        },
+        "correctedHarnessFailure": {
+          "exitCode": 1,
+          "passed": 0,
+          "cause": "Inherited GIT_INDEX_FILE reached fixture Git; isolated git show environment corrected the harness, root restored alternate index, retry verified index and source unchanged"
+        },
+        "cleanupRegistrationFailure": {
+          "exitCode": 1,
+          "error": "Error: Native exit 1: {\"error\":\"link/reparse path rejected: C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03c\\\\runs\\\\capture-staged-20261106-02\\\\temporary\\\\fixtures\\\\threshold-0\\\\destination-link-frozen\\\\dir\"}"
+        }
+      }
+    },
+    "junction-closure.json": {
+      "sha256": "bdb458bbc55917ed233662e3f8bddc40348c374fc93ee4ba2893f4874d727762",
+      "value": {
+        "procedure": "Existing test owner finally/fs.unlinkSync; exact four junctions authorized; no target traversal deletion",
+        "closures": [
+          {
+            "link": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\temporary\\fixtures\\threshold-131072\\source-link\\dir",
+            "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\temporary\\fixtures\\threshold-131072\\outside\\dir",
+            "linkAbsent": true,
+            "targetInputSha256": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+          },
+          {
+            "link": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\temporary\\fixtures\\threshold-131072\\destination-link-frozen\\dir",
+            "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\temporary\\fixtures\\threshold-131072\\outside\\dir",
+            "linkAbsent": true,
+            "targetInputSha256": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+          },
+          {
+            "link": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\temporary\\fixtures\\threshold-0\\source-link\\dir",
+            "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\temporary\\fixtures\\threshold-0\\outside\\dir",
+            "linkAbsent": true,
+            "targetInputSha256": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+          },
+          {
+            "link": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\temporary\\fixtures\\threshold-0\\destination-link-frozen\\dir",
+            "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-staged-20261106-02\\temporary\\fixtures\\threshold-0\\outside\\dir",
+            "linkAbsent": true,
+            "targetInputSha256": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+          }
+        ]
+      }
+    },
+    "cleanup.json": {
+      "sha256": "b1841bd7790686b43e6f1d280591255f4a30a16bf59adc8035a98b9a5f9a9bcd",
+      "value": {
+        "outcomes": [
+          {
+            "group": "run:fw03c:capture-staged-20261106-02",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "normalizedAttributeCount": 326
+          },
+          {
+            "group": "run:fw03c:capture-evidence-20261106-01",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "normalizedAttributeCount": 0
+          },
+          {
+            "group": "run:fw03c:capture-delete-20261106-01",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "normalizedAttributeCount": 0
+          },
+          {
+            "group": "run:fw03c:capture-cleanup-20261106-02",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "normalizedAttributeCount": 0
+          }
+        ],
+        "groups": [
+          {
+            "id": "run:fw03c:capture-cleanup-20261106-02",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:capture-delete-20261106-01",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:capture-evidence-20261106-01",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:capture-staged-20261106-02",
+            "status": "deleted"
+          }
+        ],
+        "absence": {
+          "run:fw03c:capture-staged-20261106-02": true,
+          "run:fw03c:capture-delete-20261106-01": true,
+          "run:fw03c:capture-cleanup-20261106-02": true,
+          "run:fw03c:capture-evidence-20261106-01": true
+        }
+      }
+    },
+    "finalization.json": {
+      "sha256": "e8b971a047863a1c4f6713d40cf39c1c237d1d992bafaae8aef7b0a9ecc366b7",
+      "value": [
+        {
+          "id": "run:fw03c:capture-staged-20261106-02",
+          "status": "finalized"
+        },
+        {
+          "id": "run:fw03c:capture-delete-20261106-01",
+          "status": "finalized"
+        },
+        {
+          "id": "run:fw03c:capture-cleanup-20261106-02",
+          "status": "finalized"
+        },
+        {
+          "id": "run:fw03c:capture-evidence-20261106-01",
+          "status": "finalized"
+        }
+      ]
+    }
+  }
+}

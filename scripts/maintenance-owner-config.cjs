@@ -16,10 +16,11 @@ function plainFile(filename) {
   return path.resolve(filename);
 }
 
-function resolveMaintenanceOwner() {
-  const override = process.env.AZRAEL_MAINTENANCE_OWNER;
-  if (override) return plainFile(override);
-  const root = path.resolve(__dirname, "..");
+function resolveMaintenanceCommand(projectRoot = path.resolve(__dirname, ".."), { env = process.env } = {}) {
+  const override = env.AZRAEL_MAINTENANCE_OWNER;
+  if (override) return { executable: plainFile(override), args: [] };
+  if (typeof projectRoot !== "string" || !path.isAbsolute(projectRoot) || projectRoot.includes("\0") || projectRoot.split(/[\\/]/).includes("..")) throw Error("Absolute maintenance owner project root required");
+  const root = path.resolve(projectRoot);
   const receiptPath = path.join(root, "artifacts/maintenance/owner-installation.json");
   plainFile(receiptPath);
   const receipt = JSON.parse(fs.readFileSync(receiptPath, "utf8"));
@@ -28,7 +29,13 @@ function resolveMaintenanceOwner() {
   const executable = plainFile(path.join(root, receipt.executable));
   const actual = crypto.createHash("sha256").update(fs.readFileSync(executable)).digest("hex");
   if (actual !== receipt.sha256) throw Error("Installed maintenance owner identity changed");
-  return executable;
+  let maxLockWaitMs;
+  if (receipt.max_lock_wait_ms !== undefined) {
+    if (!Number.isSafeInteger(receipt.max_lock_wait_ms) || receipt.max_lock_wait_ms < 5000 || receipt.max_lock_wait_ms > 600000) throw Error("Invalid maintenance lock wait capability");
+    maxLockWaitMs = receipt.max_lock_wait_ms;
+  }
+  return { executable, args: [], ...(maxLockWaitMs === undefined ? {} : { maxLockWaitMs }) };
 }
 
-module.exports = { resolveMaintenanceOwner };
+function resolveMaintenanceOwner(...args) { return resolveMaintenanceCommand(...args).executable; }
+module.exports = { resolveMaintenanceOwner, resolveMaintenanceCommand };

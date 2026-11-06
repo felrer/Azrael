@@ -1,22 +1,32 @@
 //! Project-local execution receipts and explicit, reviewed artifact maintenance.
 //! Commands in plans are data: the host owns process execution and authorization.
+mod admission;
 mod apply;
+pub mod cli;
+mod coordination;
+mod disk_budget;
 mod groups;
 mod io_priority;
 pub mod lease;
 mod lock_recovery;
+mod lock_wait;
 mod nested_retirement;
 mod paths;
 mod planning;
+pub mod preferences;
 mod registration;
 mod registry;
 mod reservations;
 mod retirement;
+mod review_relations;
+mod review_reuse;
+mod run_measurement;
 mod storage;
+mod timing;
 #[cfg(windows)]
 mod windows_delete;
 
-pub use lock_recovery::recover_lock;
+pub use lock_recovery::{error_response, recover_lock};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -40,6 +50,11 @@ pub(crate) struct Context<'a> {
     catalog: std::cell::RefCell<registry::CatalogCache>,
     reservations: std::cell::RefCell<BTreeMap<String, Value>>,
     cancelled: &'a dyn Fn() -> bool,
+    lock_wait: std::cell::Cell<std::time::Duration>,
+    preference_revision: Option<u64>,
+    admitted_scopes: Option<Vec<coordination::Scope>>,
+    admission_config: Option<String>,
+    coordination_home: Option<PathBuf>,
     #[cfg(windows)]
     windows_delete: std::cell::RefCell<Option<windows_delete::Worker>>,
     retirement: std::cell::RefCell<Option<retirement::Retirement>>,
@@ -63,6 +78,11 @@ impl<'a> Context<'a> {
             catalog: Default::default(),
             reservations: Default::default(),
             cancelled,
+            lock_wait: Default::default(),
+            preference_revision: None,
+            admitted_scopes: None,
+            admission_config: None,
+            coordination_home: None,
             #[cfg(windows)]
             windows_delete: Default::default(),
             retirement: Default::default(),
@@ -178,6 +198,23 @@ pub fn dispatch(
 }
 
 /// Cancellation stops future destructive work without denying durable result writes.
+/// The production entry points bind reviews to current user settings as well as
+/// project state. An off/on transition always requires a new deletion review.
+pub fn dispatch_with_preferences(
+    home: &Path,
+    root: &Path,
+    request: Value,
+    authorize: &dyn Fn(&Path, AccessMode) -> Result<(), String>,
+    cancelled: &dyn Fn() -> bool,
+) -> Result<Value, String> {
+    let admission = preferences::enter(home, string(&request, "operation")?)?;
+    let mut context = Context::with_cancellation(authorize, cancelled);
+    context.preference_revision = Some(admission.revision);
+    context.coordination_home = Some(home.to_path_buf());
+    dispatch_inner(root, request, &context)
+}
+
+/// Cancellation stops future destructive work without denying durable result writes.
 pub fn dispatch_with_cancellation(
     root: &Path,
     request: Value,
@@ -196,7 +233,26 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     paths::check(root, root, authorize)?;
     let root = dunce::canonicalize(root).map_err(|e| e.to_string())?;
     paths::check(&root, &root, authorize)?;
+    authorize
+        .lock_wait
+        .set(lock_recovery::requested_wait(&request)?);
     let operation = string(&request, "operation")?;
+    if matches!(
+        operation,
+        "request_status"
+            | "request_cancel"
+            | "request_ack"
+            | "request_recover"
+            | "request_recover_pending"
+    ) {
+        return admission::control(&root, &request, authorize);
+    }
+    if request.get("coordination").is_some()
+        && authorize.admitted_scopes.is_none()
+        && admission::supported(&request)
+    {
+        return admission::run(&root, &request, authorize);
+    }
     if operation == "recover_lock" {
         return lock_recovery::recover_lock(&root, request, authorize.authorize);
     }
@@ -231,25 +287,58 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
         Some(config)
     };
     let config_identity = hash(&config_bytes)?;
-    let mut store = storage::Store::open(
-        &root,
-        authorize,
-        matches!(
-            operation,
-            "register" | "begin_run" | "finish_step" | "validate_step" | "recover_run" | "apply"
-        ),
-    )?;
-    for item in store.state.items.values() {
-        paths::configure_junctions(&root, item, false, authorize)?;
+    if authorize
+        .admission_config
+        .as_ref()
+        .is_some_and(|expected| expected != &config_identity)
+    {
+        return Err(
+            "project config changed while request was queued; fresh review required".into(),
+        );
     }
-    if matches!(
+    let mutate = matches!(
         operation,
         "register" | "begin_run" | "finish_step" | "validate_step" | "recover_run" | "apply"
-    ) {
-        store.authorize_save(authorize)?;
+    );
+    let wait = authorize.lock_wait.get();
+    // Retry only transaction acquisition. A failed catalog acquisition drops all
+    // partial leases before sleeping; every attempt reads fresh state and policy.
+    // Never replay refresh, save, or any operation that may have committed.
+    let (mut store, catalog_locks) =
+        lock_recovery::wait_for_lock_cancel(wait, &|| authorize.cancelled(), || {
+            authorize.junctions.borrow_mut().clear();
+            let store = storage::Store::open(&root, authorize, mutate)?;
+            for item in store.state.items.values() {
+                paths::configure_junctions(&root, item, false, authorize)?;
+            }
+            if mutate {
+                store.authorize_save(authorize)?;
+            }
+            let locks = registry::lock_request(&root, &request, &store.state, authorize)?;
+            Ok((store, locks))
+        })?;
+    if admission::supported(&request)
+        && (authorize.admitted_scopes.is_some() || admission::has_queue(&root, authorize)?)
+    {
+        let scopes = admission::scopes(&root, &request, &store.state, authorize)?;
+        if let Some(expected) = &authorize.admitted_scopes {
+            if expected != &scopes {
+                return Err("queued request scope changed; fresh review required".into());
+            }
+        } else {
+            admission::check_external(&root, &scopes, authorize)?;
+        }
+    }
+    if matches!(operation, "validate_step" | "finish_step")
+        && store
+            .state
+            .runs
+            .get(string(&request, "run_id")?)
+            .is_some_and(|run| run["preparation"] == true)
+    {
+        return Err("run preparation has not completed".into());
     }
     // Long payload work uses scoped fences between short state/catalog transactions.
-    let catalog_locks = registry::lock_request(&root, &request, &store.state, authorize)?;
     reservations::check_request(&root, &request, &store.state, authorize)?;
     *authorize.retirement.borrow_mut() =
         retirement::validate(&root, config.as_ref(), &store.state, &request, authorize)?;
@@ -269,6 +358,27 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     if operation == "register" && request.get("refresh_group").is_none() {
         return registration::register(
             &root,
+            &config_identity,
+            &request,
+            &mut store,
+            authorize,
+            catalog_locks,
+        );
+    }
+    if operation == "validate_step" {
+        return run_measurement::validate_step(
+            &root,
+            &config_identity,
+            &request,
+            &mut store,
+            authorize,
+            catalog_locks,
+        );
+    }
+    if operation == "begin_run" {
+        return run_measurement::begin_run(
+            &root,
+            config.as_ref().ok_or("valid project config required")?,
             &config_identity,
             &request,
             &mut store,
@@ -385,127 +495,11 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             refresh_unchanged = !changed;
             result
         }
-        "plan" | "begin_run" => {
+        "plan" => {
             let config = config.as_ref().ok_or("valid project config required")?;
-            let mut plan = planning::plan(&root, &config, &request, authorize)?;
+            let mut plan = planning::plan(&root, config, &request, authorize)?;
             plan["config_identity"] = json!(config_identity);
-            if operation == "begin_run" {
-                let reader_paths = plan["steps"]
-                    .as_array()
-                    .into_iter()
-                    .flatten()
-                    .flat_map(|step| step["inputs"].as_array().into_iter().flatten())
-                    .map(|input| string(input, "path").map(PathBuf::from))
-                    .collect::<Result<Vec<_>, _>>()?;
-                reservations::check_reader_paths(&root, &reader_paths, authorize)?;
-                for existing in state.runs.values() {
-                    if !existing["steps"]
-                        .as_array()
-                        .is_some_and(|steps| steps.iter().any(producer_active))
-                    {
-                        continue;
-                    }
-                    let shared_resource = plan["steps"].as_array().is_some_and(|requested| {
-                        requested.iter().any(|step| {
-                            step["resource"].as_str().is_some_and(|resource| {
-                                existing["steps"].as_array().is_some_and(|steps| {
-                                    steps.iter().any(|active| {
-                                        active["resource"].as_str() == Some(resource)
-                                            && producer_active(active)
-                                    })
-                                })
-                            })
-                        })
-                    });
-                    if existing["plan_id"] == plan["plan_id"] || shared_resource {
-                        return Err(
-                            "existing unresolved producer owns this plan or resource".into()
-                        );
-                    }
-                }
-                let now = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map_err(|e| e.to_string())?
-                    .as_nanos();
-                let run_id = format!("run-{}-{}-{now}", std::process::id(), state.revision);
-                plan["run_id"] = json!(run_id);
-                let mut run = plan.clone();
-                run["owner"] = json!(
-                    request
-                        .get("owner")
-                        .and_then(Value::as_str)
-                        .unwrap_or("model")
-                );
-                run["status"] = json!("unknown");
-                if let Some(steps) = run["steps"].as_array_mut() {
-                    for step in steps {
-                        step["status"] = json!("unknown");
-                        step["exit_code"] = Value::Null;
-                    }
-                }
-                state.runs.insert(run_id, run);
-            }
             plan
-        }
-        "validate_step" => {
-            let run_id = string(&request, "run_id")?;
-            let step_id = string(&request, "step_id")?;
-            let phase = string(&request, "phase")?;
-            if !["before", "after"].contains(&phase) {
-                return Err("invalid validation phase".into());
-            }
-            let run = state.runs.get_mut(run_id).ok_or("unknown run")?;
-            let expected_config = run["config_identity"].clone();
-            let steps = run["steps"].as_array_mut().ok_or("invalid stored steps")?;
-            let step = steps
-                .iter_mut()
-                .find(|step| step["step_id"] == step_id)
-                .ok_or("unknown step")?;
-            let check = (|| -> Result<(), String> {
-                if expected_config != config_identity {
-                    return Err("project config changed after planning".into());
-                }
-                for input in step["inputs"].as_array().ok_or("missing planned inputs")? {
-                    let path = Path::new(string(input, "path")?);
-                    let observed = paths::measure(&root, path, authorize)?;
-                    if observed["identity"] != input["identity"] {
-                        return Err(format!("planned input changed: {}", path.display()));
-                    }
-                }
-                paths::check(&root, &config_path, authorize)?;
-                if hash(&std::fs::read(&config_path).map_err(|e| e.to_string())?)?
-                    != config_identity
-                {
-                    return Err("project config changed during validation".into());
-                }
-                if step["integrity_status"] == "invalid" {
-                    return Err("step integrity was already invalidated".into());
-                }
-                Ok(())
-            })();
-            let result = match check {
-                Ok(()) => {
-                    json!({"run_id":run_id,"step_id":step_id,"phase":phase,"valid":true,"checked_at_ms":now_ms()?})
-                }
-                Err(reason) => {
-                    json!({"run_id":run_id,"step_id":step_id,"phase":phase,"valid":false,"reason":reason,"checked_at_ms":now_ms()?})
-                }
-            };
-            step["integrity_status"] = json!(if result["valid"] == true {
-                "valid"
-            } else {
-                "invalid"
-            });
-            step[format!("integrity_{phase}")] = result.clone();
-            if result["valid"] != true {
-                if !step["exit_code"].is_null() {
-                    step["observed_exit_code"] = step["exit_code"].clone();
-                }
-                step["exit_code"] = Value::Null;
-                step["status"] = json!("unknown");
-                run["status"] = json!("unknown");
-            }
-            result
         }
         "recover_run" => {
             if request
@@ -760,6 +754,68 @@ fn review_ungrouped(
     verification: Verification,
 ) -> Result<Value, String> {
     reservations::check_item(root, item, auth)?;
+    review_contents(
+        root,
+        config,
+        config_identity,
+        state,
+        item,
+        auth,
+        verification,
+        None,
+    )
+}
+
+struct ReviewReuse<'a> {
+    relations: &'a review_relations::MemberRelations,
+    tokens: &'a review_reuse::TokenCache,
+    runs: &'a review_reuse::TokenRuns,
+    reservation: Option<&'a reservations::GroupReviewFence>,
+}
+
+/// Batch::current supplies the fresh source observation after all member
+/// reviews. This helper must stay inside that pure observation boundary.
+fn review_group_member_local(
+    root: &Path,
+    config: &Config,
+    config_identity: &str,
+    state: &State,
+    item: &Value,
+    auth: Auth<'_>,
+    verification: Verification,
+    reuse: &ReviewReuse<'_>,
+) -> Result<Value, String> {
+    {
+        let _detail = timing::detail("member.reservation");
+        if let Some(fence) = reuse.reservation {
+            fence.check_member(root, item)?;
+        } else {
+            reservations::check_group_member_local(root, item, auth)?;
+        }
+    }
+    review_contents(
+        root,
+        config,
+        config_identity,
+        state,
+        item,
+        auth,
+        verification,
+        Some(reuse),
+    )
+}
+
+fn review_contents(
+    root: &Path,
+    config: &Config,
+    config_identity: &str,
+    state: &State,
+    item: &Value,
+    auth: Auth<'_>,
+    verification: Verification,
+    reuse: Option<&ReviewReuse<'_>>,
+) -> Result<Value, String> {
+    let _contents_detail = timing::detail("member.contents");
     let mut selected = review_single(
         root,
         config,
@@ -769,39 +825,49 @@ fn review_ungrouped(
         auth,
         true,
         verification,
+        reuse,
     )?;
-    let target = Path::new(string(item, "path")?);
     let mut related = Vec::new();
-    for group in state.groups.values() {
-        if let Some(source) = group["membership_source"].as_str() {
-            let source = paths::resolve(root, Path::new(source))?;
-            if paths::within(target, &source) || paths::within(&source, target) {
+    let fresh_relations;
+    let related_detail = timing::detail("contents.related");
+    let relations = if let Some(reuse) = reuse {
+        reuse.relations
+    } else {
+        fresh_relations = review_relations::MemberRelations::new(root, state, item);
+        &fresh_relations
+    };
+    for step in &relations.steps {
+        let (key, source_overlap, overlaps) = match step {
+            review_relations::Step::ControlSource => {
                 selected["blockers"]
                     .as_array_mut()
                     .ok_or("invalid review")?
                     .push(json!(
                         "lifecycle membership source is read-only control evidence"
                     ));
+                continue;
             }
-        }
-    }
-    for other in state.items.values() {
-        if other["id"] == item["id"] {
-            continue;
-        }
+            review_relations::Step::Error(error) => return Err(error.clone()),
+            review_relations::Step::Item {
+                key,
+                source_overlap,
+                overlaps,
+            } => (key, *source_overlap, *overlaps),
+        };
+        let other = state
+            .items
+            .get(key)
+            .ok_or("related registered item disappeared")?;
         let other_path = Path::new(string(other, "path")?);
-        if let Some(source) = other["source_path"].as_str() {
-            let source = paths::resolve(root, Path::new(source))?;
-            if paths::within(target, &source) || paths::within(&source, target) {
-                selected["blockers"]
-                    .as_array_mut()
-                    .ok_or("invalid review")?
-                    .push(json!(
-                        "another registered item's original source overlaps target"
-                    ));
-            }
+        if source_overlap {
+            selected["blockers"]
+                .as_array_mut()
+                .ok_or("invalid review")?
+                .push(json!(
+                    "another registered item's original source overlaps target"
+                ));
         }
-        if paths::within(target, other_path) || paths::within(other_path, target) {
+        if overlaps {
             if other["cleanup_status"] == "deleted" && other["remaining"] == false {
                 paths::check(root, other_path, auth)?;
                 match std::fs::symlink_metadata(other_path) {
@@ -830,6 +896,7 @@ fn review_ungrouped(
                 auth,
                 false,
                 verification,
+                reuse,
             )?;
             if !reviewed["blockers"].as_array().is_some_and(Vec::is_empty) {
                 selected["blockers"]
@@ -845,6 +912,8 @@ fn review_ungrouped(
             );
         }
     }
+    drop(related_detail);
+    let _detail = timing::detail("contents.combine");
     selected["token"] = json!(hash(
         &json!({"selected":selected["token"],"related":related})
     )?);
@@ -861,8 +930,11 @@ fn review_single(
     auth: Auth<'_>,
     measure: bool,
     verification: Verification,
+    reuse: Option<&ReviewReuse<'_>>,
 ) -> Result<Value, String> {
+    let _single_detail = timing::detail("single.total");
     let path = Path::new(string(item, "path")?);
+    let observation_detail = timing::detail("single.observation");
     let observation = if measure && verification == Verification::Registered {
         match paths::registered_observation(root, path, auth) {
             Ok(value) => value,
@@ -871,6 +943,8 @@ fn review_single(
     } else {
         Value::Null
     };
+    drop(observation_detail);
+    let measurement_detail = timing::detail("single.measurement");
     let measured = if measure && verification == Verification::Registered {
         json!({"identity":item["identity"],"logical_bytes":item["logical_bytes"],"presence":observation["presence"],"remaining":match observation["presence"].as_str() { Some("present")=>Some(true),Some("absent")=>Some(false),_=>None },"error":observation["error"]})
     } else if measure && groups::id(item).is_some() {
@@ -891,6 +965,8 @@ fn review_single(
     } else {
         Value::Null
     };
+    drop(measurement_detail);
+    let protection_detail = timing::detail("single.protection");
     let mut blockers = Vec::new();
     if measured["presence"] == "unknown" {
         blockers.push("target observation unavailable");
@@ -947,6 +1023,8 @@ fn review_single(
             blockers.push("original source overlaps target");
         }
     }
+    drop(protection_detail);
+    let recovery_detail = timing::detail("single.recovery");
     let mut recovery_state = Value::Null;
     if item["kind"] == "backup"
         && !item.get("provenance").is_some_and(|provenance| {
@@ -996,6 +1074,8 @@ fn review_single(
             blockers.push("backup has no registered verified superseding recovery reference");
         }
     }
+    drop(recovery_detail);
+    let runs_detail = timing::detail("single.runs");
     for (run_id, run) in &state.runs {
         if run["steps"]
             .as_array()
@@ -1028,9 +1108,38 @@ fn review_single(
             }
         }
     }
-    let token = hash(
-        &json!({"item":item,"verification":verification.name(),"observation":observation,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity,"retire_managed_roots":*auth.retirement.borrow(),"retirement_evidence_identity":retirement::evidence_identity(root, auth)?,"retire_nested_member":*auth.nested_retirement.borrow(),"nested_evidence_identity":nested_retirement::evidence_identity(root, auth)?}),
-    )?;
+    drop(runs_detail);
+    let proofs_detail = timing::detail("single.proofs");
+    // Filesystem proof identities remain fresh, in the original evaluation order.
+    // Only the pure serialization/hash may be reused after exact input comparison.
+    let retire_managed_roots =
+        serde_json::to_value(&*auth.retirement.borrow()).map_err(|e| e.to_string())?;
+    let retirement_evidence_identity = retirement::evidence_identity(root, auth)?;
+    let retire_nested_member =
+        serde_json::to_value(&*auth.nested_retirement.borrow()).map_err(|e| e.to_string())?;
+    let nested_evidence_identity = nested_retirement::evidence_identity(root, auth)?;
+    drop(proofs_detail);
+    let token_detail = timing::detail("single.token");
+    let inputs = review_reuse::TokenInputs {
+        item,
+        verification: verification.name(),
+        observation: &observation,
+        measurement: &measured,
+        recovery: &recovery_state,
+        config: config_identity,
+        preference_revision: auth.preference_revision,
+        retire_managed_roots: &retire_managed_roots,
+        retirement_evidence_identity: &retirement_evidence_identity,
+        retire_nested_member: &retire_nested_member,
+        nested_evidence_identity: &nested_evidence_identity,
+    };
+    let token = if let Some(reuse) = reuse {
+        reuse.tokens.token(reuse.runs, measure, &inputs)?
+    } else {
+        inputs.hash(&state.runs)?
+    };
+    drop(token_detail);
+    let _response_detail = timing::detail("single.response");
     Ok(
         json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"presence":measured["presence"],"remaining":measured["remaining"],"observation_error":measured["error"],"verification":verification.name(),"root_observation":observation,"observed_at_ms":now_ms()?,"measured_at_ms":if verification == Verification::Registered {item["measured_at_ms"].clone()} else {json!(now_ms()?)},"token":token,"blockers":blockers}),
     )

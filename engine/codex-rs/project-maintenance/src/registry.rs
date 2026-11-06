@@ -34,7 +34,7 @@ pub(crate) fn lock_request<'a>(
     request: &Value,
     state: &crate::State,
     auth: Auth<'a>,
-) -> Result<Vec<CatalogLock<'a>>, String> {
+) -> Result<Vec<CatalogLock<'a>>, crate::lock_recovery::LockAcquireError> {
     let mut sources = BTreeSet::new();
     let mut add = |group: &Value| -> Result<(), String> {
         if group["membership_source_format"] == "producer_registry_v1" {

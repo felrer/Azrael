@@ -1,0 +1,1683 @@
+{
+  "schema": 1,
+  "scope": "Bounded Windows x64 native cross-process physical budget acceptance; two one-shot phases; not a throughput benchmark",
+  "behaviorStatus": "passed",
+  "controllerStatus": "failed-after-behavior-before-producer-close",
+  "controllerActualExitCode": 1,
+  "controllerExitObserved": true,
+  "controllerSessionId": 91245,
+  "producer_stopped_verified": true,
+  "originalProducerOutcome": "failure",
+  "originalProducerExitCode": 1,
+  "binary": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+    "sha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3",
+    "sourceInputSha256": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5"
+  },
+  "calibratedProbe": {
+    "schema": 1,
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\inputs\\slot-probe.cs",
+    "sourceSha256": "6ba18c3790e2742d8b2dc59fde17aa01e6a2252475ef515c86999d9861aefce9",
+    "output": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\outputs\\slot-probe-v2.exe",
+    "outputSha256": "b0e05439eb42a77547024dca58560d5b11ba5c6035652ad83a6c2d8311d535b6",
+    "compiler": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe",
+    "compilerSha256": "46809206887326d2d24db1eff1f3064de972c3451abe766b49111450a5e08e00",
+    "frameworkReference": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\System.Web.Extensions.dll",
+    "frameworkReferenceSha256": "5e6378edc06f5a61920aaadb2aba839dd3cf302d6192e08aacd4454ba4cff0b3",
+    "argv": [
+      "/nologo",
+      "/target:exe",
+      "/platform:x64",
+      "/reference:C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\System.Web.Extensions.dll",
+      "/out:C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\outputs\\slot-probe-v2.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\inputs\\slot-probe.cs"
+    ],
+    "actualCompileExit": 0,
+    "priorAttempts": [
+      {
+        "stage": "powershell-script-host",
+        "exitCode": 1,
+        "reason": "Local .ps1 execution policy UnauthorizedAccess; no policy modified; helper never executed"
+      },
+      {
+        "stage": "relative-forward-slash-compiler-input",
+        "exitCode": 1,
+        "reason": "CS1504 source resolved outside planned path; corrected to absolute Windows paths"
+      },
+      {
+        "stage": "compiled-v1",
+        "exitCode": 0,
+        "output": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\outputs\\slot-probe.exe",
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\inputs\\slot-probe-v1.cs",
+        "outputSha256": "60101d454e80c620978dc1e40c39ead78a46aaca6e0712ec81aa410d4adce25a",
+        "sourceSha256": "8e7c77e6674010e4c9feb5d3abbec3a893dd0fdd6ac7b1a933285e57101f8e8a"
+      }
+    ]
+  },
+  "preparationRevision": 3,
+  "fixture": {
+    "projectsPerPhase": 4,
+    "phases": 2,
+    "filesPerProject": 16,
+    "bytesPerFile": 4096,
+    "totalPayloadBytes": 524288,
+    "maxDirectChildren": 5
+  },
+  "execution": {
+    "originalResultSha256": "b03309c265fe000a4a25a1c91e624d154da105ed89801dfc948e3220223fc011",
+    "result": {
+      "schema": 1,
+      "purpose": "Four independent project deletions under each native host budget capacity; bounded correctness, not throughput",
+      "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+      "binarySha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3",
+      "probe": {
+        "schema": 1,
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\inputs\\slot-probe.cs",
+        "sourceSha256": "6ba18c3790e2742d8b2dc59fde17aa01e6a2252475ef515c86999d9861aefce9",
+        "output": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\outputs\\slot-probe-v2.exe",
+        "outputSha256": "b0e05439eb42a77547024dca58560d5b11ba5c6035652ad83a6c2d8311d535b6",
+        "compiler": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe",
+        "compilerSha256": "46809206887326d2d24db1eff1f3064de972c3451abe766b49111450a5e08e00",
+        "frameworkReference": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\System.Web.Extensions.dll",
+        "frameworkReferenceSha256": "5e6378edc06f5a61920aaadb2aba839dd3cf302d6192e08aacd4454ba4cff0b3",
+        "argv": [
+          "/nologo",
+          "/target:exe",
+          "/platform:x64",
+          "/reference:C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\System.Web.Extensions.dll",
+          "/out:C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\outputs\\slot-probe-v2.exe",
+          "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\inputs\\slot-probe.cs"
+        ],
+        "actualCompileExit": 0,
+        "priorAttempts": [
+          {
+            "stage": "powershell-script-host",
+            "exitCode": 1,
+            "reason": "Local .ps1 execution policy UnauthorizedAccess; no policy modified; helper never executed"
+          },
+          {
+            "stage": "relative-forward-slash-compiler-input",
+            "exitCode": 1,
+            "reason": "CS1504 source resolved outside planned path; corrected to absolute Windows paths"
+          },
+          {
+            "stage": "compiled-v1",
+            "exitCode": 0,
+            "output": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\outputs\\slot-probe.exe",
+            "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\inputs\\slot-probe-v1.cs",
+            "outputSha256": "60101d454e80c620978dc1e40c39ead78a46aaca6e0712ec81aa410d4adce25a",
+            "sourceSha256": "8e7c77e6674010e4c9feb5d3abbec3a893dd0fdd6ac7b1a933285e57101f8e8a"
+          }
+        ]
+      },
+      "phases": [
+        {
+          "capacity": 1,
+          "status": "passed",
+          "filesPerProject": 16,
+          "bytesPerFile": 4096,
+          "totalPayloadBytes": 262144,
+          "requests": [
+            {
+              "index": 0,
+              "pid": 51756,
+              "exitCode": 0,
+              "exitObserved": true,
+              "closeObserved": true,
+              "payloadAbsent": true,
+              "result": {
+                "aborted": false,
+                "cancelled": false,
+                "groups": [],
+                "results": [
+                  {
+                    "attempt_id": "attempt-51756-1-1793924319243",
+                    "decision": "delete",
+                    "decision_id": "7f404e10fa404f2a696f140b8df8b94ab9ced25ec695b57794882605bd0d9be3",
+                    "deletion": {
+                      "attributes": [],
+                      "error": null,
+                      "physical_bytes_reclaimed": null,
+                      "remaining": false,
+                      "status": "deleted"
+                    },
+                    "id": "payload",
+                    "reason": "bounded capacity-1 independent project admission",
+                    "remaining": false,
+                    "status": "deleted",
+                    "token": "993afc8ffd8ed0a1125a5e1f86076acdc3aaaa364750a3bef6e3a76e861d9387"
+                  }
+                ]
+              },
+              "physicalPhase": [
+                {
+                  "arch": "x86_64",
+                  "attempts": 1,
+                  "component": "project-maintenance",
+                  "elapsed_us": 4688121,
+                  "event": "maintenance.phase",
+                  "level": "DEBUG",
+                  "operation": "apply.physical_delete",
+                  "os": "windows",
+                  "outcome": "success",
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-0\\generated\\payload",
+                  "pid": 51756,
+                  "timestamp_unix_ms": 1793924324391,
+                  "version": "0.162.0"
+                }
+              ]
+            },
+            {
+              "index": 1,
+              "pid": 45532,
+              "exitCode": 0,
+              "exitObserved": true,
+              "closeObserved": true,
+              "payloadAbsent": true,
+              "result": {
+                "aborted": false,
+                "cancelled": false,
+                "groups": [],
+                "results": [
+                  {
+                    "attempt_id": "attempt-45532-1-1793924318083",
+                    "decision": "delete",
+                    "decision_id": "9ec7156c2c91789dfa0853f3b86390d9bf249f9605c33de505d1270516f11c76",
+                    "deletion": {
+                      "attributes": [],
+                      "error": null,
+                      "physical_bytes_reclaimed": null,
+                      "remaining": false,
+                      "status": "deleted"
+                    },
+                    "id": "payload",
+                    "reason": "bounded capacity-1 independent project admission",
+                    "remaining": false,
+                    "status": "deleted",
+                    "token": "82994f7de4c4d1e3da8e90160da63ffaf009403a096bc9f2f6539cd19e35753f"
+                  }
+                ]
+              },
+              "physicalPhase": [
+                {
+                  "arch": "x86_64",
+                  "attempts": 1,
+                  "component": "project-maintenance",
+                  "elapsed_us": 2233759,
+                  "event": "maintenance.phase",
+                  "level": "DEBUG",
+                  "operation": "apply.physical_delete",
+                  "os": "windows",
+                  "outcome": "success",
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-1\\generated\\payload",
+                  "pid": 45532,
+                  "timestamp_unix_ms": 1793924320817,
+                  "version": "0.162.0"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "pid": 33516,
+              "exitCode": 0,
+              "exitObserved": true,
+              "closeObserved": true,
+              "payloadAbsent": true,
+              "result": {
+                "aborted": false,
+                "cancelled": false,
+                "groups": [],
+                "results": [
+                  {
+                    "attempt_id": "attempt-33516-1-1793924318686",
+                    "decision": "delete",
+                    "decision_id": "d1355f78cd8dd23f1fc43954aafc011af191a6829f05eaa249699cb244d94461",
+                    "deletion": {
+                      "attributes": [],
+                      "error": null,
+                      "physical_bytes_reclaimed": null,
+                      "remaining": false,
+                      "status": "deleted"
+                    },
+                    "id": "payload",
+                    "reason": "bounded capacity-1 independent project admission",
+                    "remaining": false,
+                    "status": "deleted",
+                    "token": "0ec472040b2f0ce76f9d2f76dfa18f4d0960146b8099b7eff9da6e002a510b94"
+                  }
+                ]
+              },
+              "physicalPhase": [
+                {
+                  "arch": "x86_64",
+                  "attempts": 1,
+                  "component": "project-maintenance",
+                  "elapsed_us": 4233176,
+                  "event": "maintenance.phase",
+                  "level": "DEBUG",
+                  "operation": "apply.physical_delete",
+                  "os": "windows",
+                  "outcome": "success",
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-2\\generated\\payload",
+                  "pid": 33516,
+                  "timestamp_unix_ms": 1793924323252,
+                  "version": "0.162.0"
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "pid": 53700,
+              "exitCode": 0,
+              "exitObserved": true,
+              "closeObserved": true,
+              "payloadAbsent": true,
+              "result": {
+                "aborted": false,
+                "cancelled": false,
+                "groups": [],
+                "results": [
+                  {
+                    "attempt_id": "attempt-53700-1-1793924318369",
+                    "decision": "delete",
+                    "decision_id": "fd89513767d7298c52d530d3a9c1707a5fb20e1cc034489046ec5d6dd281cdeb",
+                    "deletion": {
+                      "attributes": [],
+                      "error": null,
+                      "physical_bytes_reclaimed": null,
+                      "remaining": false,
+                      "status": "deleted"
+                    },
+                    "id": "payload",
+                    "reason": "bounded capacity-1 independent project admission",
+                    "remaining": false,
+                    "status": "deleted",
+                    "token": "8331f61c9894499b3804c829d5c290af6914c2a27ae4b5d2f071f5e4d0f11130"
+                  }
+                ]
+              },
+              "physicalPhase": [
+                {
+                  "arch": "x86_64",
+                  "attempts": 1,
+                  "component": "project-maintenance",
+                  "elapsed_us": 3144443,
+                  "event": "maintenance.phase",
+                  "level": "DEBUG",
+                  "operation": "apply.physical_delete",
+                  "os": "windows",
+                  "outcome": "success",
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-3\\generated\\payload",
+                  "pid": 53700,
+                  "timestamp_unix_ms": 1793924322039,
+                  "version": "0.162.0"
+                }
+              ]
+            }
+          ],
+          "admitted": [
+            {
+              "executionId": "b1dc-0-debca3246148ea2b",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-1",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-1\\generated\\payload",
+                  "exclusive": true
+                }
+              ]
+            },
+            {
+              "executionId": "d1c4-2-49770874878f2afd",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-3",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-3\\generated\\payload",
+                  "exclusive": true
+                }
+              ]
+            },
+            {
+              "executionId": "82ec-4-9aebdd6fa64b74f3",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-2",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-2\\generated\\payload",
+                  "exclusive": true
+                }
+              ]
+            },
+            {
+              "executionId": "ca2c-6-a60daeb1bf2e74e7",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-0",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-0\\generated\\payload",
+                  "exclusive": true
+                }
+              ]
+            }
+          ],
+          "probeReady": {
+            "ready": true,
+            "pid": 1036,
+            "frequency": 10000000,
+            "slot_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\state\\maintenance-coordination\\disks",
+            "mode": "observe"
+          },
+          "probeSummary": {
+            "summary": true,
+            "samples": 483,
+            "max_busy_observed": 1,
+            "both_busy_samples": 0,
+            "tight_both_busy_samples": 0,
+            "slot_one_busy_samples": 0,
+            "max_window_ticks": 127828,
+            "max_double_window_ticks": 0,
+            "max_free_lock_ticks": 8292,
+            "frequency": 10000000,
+            "transitions": [
+              {
+                "index": 1,
+                "reading": {
+                  "States": [
+                    "absent",
+                    "absent"
+                  ],
+                  "StartTicks": 574213056961,
+                  "EndTicks": 574213184789,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 0
+                }
+              },
+              {
+                "index": 108,
+                "reading": {
+                  "States": [
+                    "free",
+                    "free"
+                  ],
+                  "StartTicks": 574229779783,
+                  "EndTicks": 574229795997,
+                  "MaximumFreeHoldTicks": 8292,
+                  "Busy": 0
+                }
+              },
+              {
+                "index": 112,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "free"
+                  ],
+                  "StartTicks": 574230398625,
+                  "EndTicks": 574230398840,
+                  "MaximumFreeHoldTicks": 85,
+                  "Busy": 1
+                }
+              },
+              {
+                "index": 396,
+                "reading": {
+                  "States": [
+                    "free",
+                    "free"
+                  ],
+                  "StartTicks": 574274700214,
+                  "EndTicks": 574274700425,
+                  "MaximumFreeHoldTicks": 144,
+                  "Busy": 0
+                }
+              },
+              {
+                "index": 397,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "free"
+                  ],
+                  "StartTicks": 574274860802,
+                  "EndTicks": 574274860969,
+                  "MaximumFreeHoldTicks": 59,
+                  "Busy": 1
+                }
+              },
+              {
+                "index": 469,
+                "reading": {
+                  "States": [
+                    "free",
+                    "free"
+                  ],
+                  "StartTicks": 574286046394,
+                  "EndTicks": 574286046565,
+                  "MaximumFreeHoldTicks": 106,
+                  "Busy": 0
+                }
+              }
+            ],
+            "double_samples": [],
+            "measurement": "Sequential immediate byte-range-lock probes; exact sample windows retained; no native span-overlap inference"
+          },
+          "observedMaxSlots": 1,
+          "parallelTwoObserved": false,
+          "parallelismAcceptance": "default upper bound observed",
+          "observationLimits": "Probes are sequential OS lock observations with explicit sample windows, not an atomic two-file snapshot. Native physical-phase spans include slot waiting and are never used to infer overlap.",
+          "maximumFreeProbeHoldMicroseconds": 829.2,
+          "phaseElapsedMs": 9554
+        },
+        {
+          "capacity": 2,
+          "status": "passed",
+          "filesPerProject": 16,
+          "bytesPerFile": 4096,
+          "totalPayloadBytes": 262144,
+          "requests": [
+            {
+              "index": 0,
+              "pid": 44152,
+              "exitCode": 0,
+              "exitObserved": true,
+              "closeObserved": true,
+              "payloadAbsent": true,
+              "result": {
+                "aborted": false,
+                "cancelled": false,
+                "groups": [],
+                "results": [
+                  {
+                    "attempt_id": "attempt-44152-1-1793924328769",
+                    "decision": "delete",
+                    "decision_id": "ae30c4b4cebfdbf3cdd6e0a7990c366e29b7c2cf394254ba44673e9df89206ee",
+                    "deletion": {
+                      "attributes": [],
+                      "error": null,
+                      "physical_bytes_reclaimed": null,
+                      "remaining": false,
+                      "status": "deleted"
+                    },
+                    "id": "payload",
+                    "reason": "bounded capacity-2 independent project admission",
+                    "remaining": false,
+                    "status": "deleted",
+                    "token": "0243fe9f19578353f6bffd18eeb409cc35759ab909033d0b29766ba68223a707"
+                  }
+                ]
+              },
+              "physicalPhase": [
+                {
+                  "arch": "x86_64",
+                  "attempts": 1,
+                  "component": "project-maintenance",
+                  "elapsed_us": 1700492,
+                  "event": "maintenance.phase",
+                  "level": "DEBUG",
+                  "operation": "apply.physical_delete",
+                  "os": "windows",
+                  "outcome": "success",
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-0\\generated\\payload",
+                  "pid": 44152,
+                  "timestamp_unix_ms": 1793924330680,
+                  "version": "0.162.0"
+                }
+              ]
+            },
+            {
+              "index": 1,
+              "pid": 30900,
+              "exitCode": 0,
+              "exitObserved": true,
+              "closeObserved": true,
+              "payloadAbsent": true,
+              "result": {
+                "aborted": false,
+                "cancelled": false,
+                "groups": [],
+                "results": [
+                  {
+                    "attempt_id": "attempt-30900-1-1793924328121",
+                    "decision": "delete",
+                    "decision_id": "d7e3837e9ff4f3d5b2b39151e6467785ca248a09ee56734512a81fae136dbdd8",
+                    "deletion": {
+                      "attributes": [],
+                      "error": null,
+                      "physical_bytes_reclaimed": null,
+                      "remaining": false,
+                      "status": "deleted"
+                    },
+                    "id": "payload",
+                    "reason": "bounded capacity-2 independent project admission",
+                    "remaining": false,
+                    "status": "deleted",
+                    "token": "d02db9bc771963a74bff145c75acf171dbd369cbc5516d81c55a956ef70614ec"
+                  }
+                ]
+              },
+              "physicalPhase": [
+                {
+                  "arch": "x86_64",
+                  "attempts": 1,
+                  "component": "project-maintenance",
+                  "elapsed_us": 1272320,
+                  "event": "maintenance.phase",
+                  "level": "DEBUG",
+                  "operation": "apply.physical_delete",
+                  "os": "windows",
+                  "outcome": "success",
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-1\\generated\\payload",
+                  "pid": 30900,
+                  "timestamp_unix_ms": 1793924329582,
+                  "version": "0.162.0"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "pid": 39548,
+              "exitCode": 0,
+              "exitObserved": true,
+              "closeObserved": true,
+              "payloadAbsent": true,
+              "result": {
+                "aborted": false,
+                "cancelled": false,
+                "groups": [],
+                "results": [
+                  {
+                    "attempt_id": "attempt-39548-1-1793924328456",
+                    "decision": "delete",
+                    "decision_id": "c2903e9a6a6f626941ec51b7917750d9fb81fc3793b70910591673f0aa8359d4",
+                    "deletion": {
+                      "attributes": [],
+                      "error": null,
+                      "physical_bytes_reclaimed": null,
+                      "remaining": false,
+                      "status": "deleted"
+                    },
+                    "id": "payload",
+                    "reason": "bounded capacity-2 independent project admission",
+                    "remaining": false,
+                    "status": "deleted",
+                    "token": "d527b19e95b8d9c91eb0456ec6fec684ce93c267409838bc69304c3c76fd34f9"
+                  }
+                ]
+              },
+              "physicalPhase": [
+                {
+                  "arch": "x86_64",
+                  "attempts": 1,
+                  "component": "project-maintenance",
+                  "elapsed_us": 2413349,
+                  "event": "maintenance.phase",
+                  "level": "DEBUG",
+                  "operation": "apply.physical_delete",
+                  "os": "windows",
+                  "outcome": "success",
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-2\\generated\\payload",
+                  "pid": 39548,
+                  "timestamp_unix_ms": 1793924331048,
+                  "version": "0.162.0"
+                }
+              ]
+            },
+            {
+              "index": 3,
+              "pid": 8020,
+              "exitCode": 0,
+              "exitObserved": true,
+              "closeObserved": true,
+              "payloadAbsent": true,
+              "result": {
+                "aborted": false,
+                "cancelled": false,
+                "groups": [],
+                "results": [
+                  {
+                    "attempt_id": "attempt-8020-1-1793924328296",
+                    "decision": "delete",
+                    "decision_id": "37d4b22f94b16fa1d521cc832d088efa42cfab3a65354374e9823f4f885ba624",
+                    "deletion": {
+                      "attributes": [],
+                      "error": null,
+                      "physical_bytes_reclaimed": null,
+                      "remaining": false,
+                      "status": "deleted"
+                    },
+                    "id": "payload",
+                    "reason": "bounded capacity-2 independent project admission",
+                    "remaining": false,
+                    "status": "deleted",
+                    "token": "5993b7315271abae57969da2777a8ea144ccceb3cbce9f17d1eff1e20c2a820d"
+                  }
+                ]
+              },
+              "physicalPhase": [
+                {
+                  "arch": "x86_64",
+                  "attempts": 1,
+                  "component": "project-maintenance",
+                  "elapsed_us": 1271317,
+                  "event": "maintenance.phase",
+                  "level": "DEBUG",
+                  "operation": "apply.physical_delete",
+                  "os": "windows",
+                  "outcome": "success",
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-3\\generated\\payload",
+                  "pid": 8020,
+                  "timestamp_unix_ms": 1793924329810,
+                  "version": "0.162.0"
+                }
+              ]
+            }
+          ],
+          "admitted": [
+            {
+              "executionId": "78b4-14-a0e21bb841f8ffe4",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-1",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-1\\generated\\payload",
+                  "exclusive": true
+                }
+              ]
+            },
+            {
+              "executionId": "1f54-16-e060dfe52a8ad530",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-3",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-3\\generated\\payload",
+                  "exclusive": true
+                }
+              ]
+            },
+            {
+              "executionId": "9a7c-18-9efe5906db5ee43c",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-2",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-2\\generated\\payload",
+                  "exclusive": true
+                }
+              ]
+            },
+            {
+              "executionId": "ac78-1a-99b95c4f6b0cccf7",
+              "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-0",
+              "state": "terminal",
+              "scopes": [
+                {
+                  "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-0\\generated\\payload",
+                  "exclusive": true
+                }
+              ]
+            }
+          ],
+          "probeReady": {
+            "ready": true,
+            "pid": 33456,
+            "frequency": 10000000,
+            "slot_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\state\\maintenance-coordination\\disks",
+            "mode": "observe"
+          },
+          "probeSummary": {
+            "summary": true,
+            "samples": 238,
+            "max_busy_observed": 2,
+            "both_busy_samples": 132,
+            "tight_both_busy_samples": 132,
+            "slot_one_busy_samples": 157,
+            "max_window_ticks": 20029,
+            "max_double_window_ticks": 948,
+            "max_free_lock_ticks": 5045,
+            "frequency": 10000000,
+            "transitions": [
+              {
+                "index": 1,
+                "reading": {
+                  "States": [
+                    "free",
+                    "free"
+                  ],
+                  "StartTicks": 574318317840,
+                  "EndTicks": 574318337869,
+                  "MaximumFreeHoldTicks": 5045,
+                  "Busy": 0
+                }
+              },
+              {
+                "index": 50,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "free"
+                  ],
+                  "StartTicks": 574326038077,
+                  "EndTicks": 574326038233,
+                  "MaximumFreeHoldTicks": 55,
+                  "Busy": 1
+                }
+              },
+              {
+                "index": 65,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574328424359,
+                  "EndTicks": 574328424474,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 127,
+                "reading": {
+                  "States": [
+                    "free",
+                    "busy"
+                  ],
+                  "StartTicks": 574338033995,
+                  "EndTicks": 574338034118,
+                  "MaximumFreeHoldTicks": 87,
+                  "Busy": 1
+                }
+              },
+              {
+                "index": 128,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574338191154,
+                  "EndTicks": 574338191278,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 198,
+                "reading": {
+                  "States": [
+                    "free",
+                    "busy"
+                  ],
+                  "StartTicks": 574349034909,
+                  "EndTicks": 574349035096,
+                  "MaximumFreeHoldTicks": 132,
+                  "Busy": 1
+                }
+              },
+              {
+                "index": 222,
+                "reading": {
+                  "States": [
+                    "free",
+                    "free"
+                  ],
+                  "StartTicks": 574352738221,
+                  "EndTicks": 574352738361,
+                  "MaximumFreeHoldTicks": 98,
+                  "Busy": 0
+                }
+              }
+            ],
+            "double_samples": [
+              {
+                "index": 65,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574328424359,
+                  "EndTicks": 574328424474,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 66,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574328585194,
+                  "EndTicks": 574328585558,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 67,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574328735355,
+                  "EndTicks": 574328735482,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 68,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574328896618,
+                  "EndTicks": 574328896778,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 69,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574329058370,
+                  "EndTicks": 574329058527,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 70,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574329209139,
+                  "EndTicks": 574329209286,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 71,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574329360499,
+                  "EndTicks": 574329360655,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 72,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574329516829,
+                  "EndTicks": 574329516947,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 73,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574329666844,
+                  "EndTicks": 574329667013,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 74,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574329818586,
+                  "EndTicks": 574329818740,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 75,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574329979424,
+                  "EndTicks": 574329979539,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 76,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574330131865,
+                  "EndTicks": 574330132039,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 77,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574330292305,
+                  "EndTicks": 574330292448,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 78,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574330444741,
+                  "EndTicks": 574330444871,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 79,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574330599717,
+                  "EndTicks": 574330599837,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              },
+              {
+                "index": 80,
+                "reading": {
+                  "States": [
+                    "busy",
+                    "busy"
+                  ],
+                  "StartTicks": 574330751272,
+                  "EndTicks": 574330752220,
+                  "MaximumFreeHoldTicks": 0,
+                  "Busy": 2
+                }
+              }
+            ],
+            "measurement": "Sequential immediate byte-range-lock probes; exact sample windows retained; no native span-overlap inference"
+          },
+          "observedMaxSlots": 2,
+          "parallelTwoObserved": true,
+          "parallelismAcceptance": "two external slots observed with bounded-transition evidence",
+          "observationLimits": "Probes are sequential OS lock observations with explicit sample windows, not an atomic two-file snapshot. Native physical-phase spans include slot waiting and are never used to infer overlap.",
+          "maximumFreeProbeHoldMicroseconds": 504.5,
+          "phaseElapsedMs": 5964
+        }
+      ],
+      "platform": "win32",
+      "arch": "x64",
+      "startedAt": "2026-11-06T00:18:34.823Z",
+      "initialPreferences": {
+        "deletion": true,
+        "deletion_parallelism": 1,
+        "effective": {
+          "deletion": true,
+          "groups": true,
+          "locks": true
+        },
+        "groups": true,
+        "locks": true,
+        "pending": false,
+        "revision": 0,
+        "schema": 1,
+        "status": "enabled"
+      },
+      "secondPreferences": {
+        "deletion": true,
+        "deletion_parallelism": 2,
+        "effective": {
+          "deletion": true,
+          "groups": true,
+          "locks": true
+        },
+        "groups": true,
+        "locks": true,
+        "pending": false,
+        "revision": 1,
+        "schema": 1,
+        "status": "enabled"
+      },
+      "status": "passed",
+      "finishedAt": "2026-11-06T00:18:52.072Z",
+      "maximumDirectChildren": 5,
+      "directProcessCount": 36,
+      "processCountScope": "Directly controlled native CLI and compiled observer children; native-owned workers and OS console helpers are outside this count",
+      "allDirectChildrenExitedAndClosed": true,
+      "activeRemaining": 0,
+      "processes": [
+        {
+          "label": "preferences-read",
+          "pid": 33880,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "preferences",
+            "read"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p0-register",
+          "pid": 46176,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-0",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p0-review",
+          "pid": 26304,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-0",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p1-register",
+          "pid": 32560,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-1",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p1-review",
+          "pid": 39364,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-1",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p2-register",
+          "pid": 44576,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-2",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p2-review",
+          "pid": 49000,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-2",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p3-register",
+          "pid": 24956,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-3",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p3-review",
+          "pid": 18800,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-3",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-observer",
+          "pid": 1036,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\outputs\\slot-probe-v2.exe",
+          "args": [
+            "--mode",
+            "observe",
+            "--slot-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\state\\maintenance-coordination\\disks",
+            "--stop-file",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\probe-stop-1"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p0-apply",
+          "pid": 51756,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-0",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p1-apply",
+          "pid": 45532,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-1",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p2-apply",
+          "pid": 33516,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-2",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p3-apply",
+          "pid": 53700,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-3",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p0-ack",
+          "pid": 31320,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-0",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p1-ack",
+          "pid": 6368,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-1",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p2-ack",
+          "pid": 41760,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-2",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m1-p3-ack",
+          "pid": 26068,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-1\\project-3",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "preferences-write",
+          "pid": 30072,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "preferences",
+            "write"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p0-register",
+          "pid": 25476,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-0",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p0-review",
+          "pid": 41836,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-0",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p1-register",
+          "pid": 39524,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-1",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p1-review",
+          "pid": 47468,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-1",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p2-register",
+          "pid": 36120,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-2",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p2-review",
+          "pid": 50580,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-2",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p3-register",
+          "pid": 52816,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-3",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p3-review",
+          "pid": 16504,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-3",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-observer",
+          "pid": 33456,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\outputs\\slot-probe-v2.exe",
+          "args": [
+            "--mode",
+            "observe",
+            "--slot-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\state\\maintenance-coordination\\disks",
+            "--stop-file",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\probe-stop-2"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p0-apply",
+          "pid": 44152,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-0",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p1-apply",
+          "pid": 30900,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-1",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p2-apply",
+          "pid": 39548,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-2",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p3-apply",
+          "pid": 8020,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-3",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p0-ack",
+          "pid": 22648,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-0",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p1-ack",
+          "pid": 25932,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-1",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p2-ack",
+          "pid": 34724,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-2",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        },
+        {
+          "label": "m2-p3-ack",
+          "pid": 46056,
+          "binary": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit6-maintenance_owner.exe",
+          "args": [
+            "--project-root",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03p\\runs\\parallel-01\\temporary\\capacity-2\\project-3",
+            "--request",
+            "-"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "exitObserved": true,
+          "closeObserved": true
+        }
+      ],
+      "unresolvedExecutions": [],
+      "pendingSnapshot": false,
+      "producerStopVerified": true
+    }
+  },
+  "controllerFailure": {
+    "schema": 1,
+    "stage": "producer close after both behavior phases",
+    "harnessActualExitCode": 1,
+    "behaviorReportStatus": "passed",
+    "action": "lifecycle.catalog acquire before closeLifecycle",
+    "error": "invalid maintenance preferences: unknown field `deletion_parallelism`, expected one of `schema`, `revision`, `groups`, `locks`, `deletion` at line 1 column 90",
+    "nativeLease": {
+      "pid": 26360,
+      "exitObserved": true,
+      "exitCode": 1,
+      "closeObserved": true,
+      "transportFailure": true
+    },
+    "sourceWrites": 0,
+    "productReruns": 0,
+    "automaticRetries": 0,
+    "producerCloseStarted": false,
+    "originalResultPreserved": true
+  },
+  "acceptance": {
+    "defaultCapacityUpperBoundObserved": true,
+    "capacityTwoObserved": true,
+    "eightNativeDeleteRequestsExitedZero": true,
+    "eightPayloadsAbsent": true,
+    "allDirectChildrenExitAndClose": true,
+    "unknownExecutions": 0,
+    "pendingSnapshot": false,
+    "noLoadIncrease": true,
+    "noRerun": true,
+    "observationLimits": "Sequential OS byte-range lock observations with sample windows and bounded-transition evidence; not atomic two-file snapshots. Native phase spans include slot waiting. Phase elapsed times are not performance or wall-time comparison evidence."
+  },
+  "closeRecovery": {
+    "authorizedSeparateState": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\fw03p-final-cleaner-state",
+    "originalFailurePreserved": true,
+    "requestedOutcome": "failure",
+    "requestedExitCode": 1
+  },
+  "cleanup": {
+    "status": "HOLD pending root gate; no cleanup invocation yet",
+    "owner": "fw03p-parallel-admission",
+    "lifecycleId": "run:fw03p:parallel-01"
+  }
+}

@@ -1,0 +1,520 @@
+{
+  "schema": 1,
+  "task": "FW-01-volsnap-io-safety integrated native verification",
+  "status": "Native unit6 full package and same-target8 accepted; larger performance/parallel/VSS still pending",
+  "recordPurpose": "Independent minimal retained evidence; raw logs, source snapshots, binaries and caches are not copied",
+  "verifiedEnvironment": {
+    "os": "Windows x64 local checkout/C: filesystem",
+    "rustTarget": "x86_64-pc-windows-msvc",
+    "rustToolchain": "stable 1.98",
+    "scope": "Standalone maintenance CLI and library/package tests; no installed executable replacement or live-data migration",
+    "notVerified": "Other OS/CPU targets; whole application verification belongs to separate retained core report"
+  },
+  "provenance": {
+    "runId": "run:fw03v:native-613162bb",
+    "owner": "FW-01-integrated/native-verification",
+    "rawRunPath": "artifacts\\tasks\\fw03v\\runs\\native-613162bb",
+    "sourceGitBase": "896108eb9c7b789a948b6605c2bb10a7e13094f7",
+    "headChange": "Parent reports later9d583ffca53c5797d670481ce09827bb3ecef711 changed only two test-selection expectation hunks; frozen unit sources were not replaced from newer HEAD"
+  },
+  "dependencyMetadata": {
+    "originalEngineLockSha256": "ef8c599da0c984f1207532209dbe71fedcbc1eed9d714e06cf131078c9664b76",
+    "initialFocusedLockSha256": "b4cae5976ca3167792ffa9096330f54b96b8e69dcdc1ba0861703e0929dad081",
+    "normalizedFocusedLockSha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df",
+    "unit1FullLockedMetadataExit": 101,
+    "unit1NoDepsMetadataExit": 0,
+    "normalizationExit": 0,
+    "change": "Only root azrael-project-maintenance direct libc/rustix dependency edges removed for HEAD crate; all79 package name/version/source/checksum identities stayed within initial focused and original engine locks. No package additions/removals, download or product-lock modification.",
+    "unit2CompileExit": 101,
+    "unit2FirstCause": "apply.rs:556 supplied5args to groups::Batch.current requiring selected sixtharg; subsequent Value.remove error. Original immutable unit1/2 failures retained during diagnosis."
+  },
+  "identities": [
+    {
+      "attempt": "baseline",
+      "gitBase": null,
+      "sourceFiles": 43,
+      "inputSha256": "bfcbf281318f4022730e2024d9dcf759b4063fc30f1dcf3299e2cf8687b13b2e",
+      "sourceListSha256": null,
+      "patchSha256": null,
+      "lockSha256": "b4cae5976ca3167792ffa9096330f54b96b8e69dcdc1ba0861703e0929dad081",
+      "dependencyPins": 79,
+      "binarySha256": "02fd336f118a598d3a18e8e8395556781bd4a5d5c38101ac80b4dfe270a59e3d"
+    },
+    {
+      "attempt": "candidate4",
+      "gitBase": null,
+      "sourceFiles": 48,
+      "inputSha256": "7779b0c6c85809e78e4bb98b9a623ad982231f58be517c0cf3c1bb4de576eeaf",
+      "sourceListSha256": null,
+      "patchSha256": null,
+      "lockSha256": "b4cae5976ca3167792ffa9096330f54b96b8e69dcdc1ba0861703e0929dad081",
+      "dependencyPins": 79,
+      "binarySha256": "056725cb628d65014377ba9c99357bb51266c5937ce7fcdedb5698e9de99384a"
+    },
+    {
+      "attempt": "unit3",
+      "gitBase": "896108eb9c7b789a948b6605c2bb10a7e13094f7",
+      "sourceFiles": 42,
+      "inputSha256": "11597a610bf27f9ec0a94af2754b588009bd12b8f1022cd475923fc4017291b3",
+      "sourceListSha256": "b35a15d0c590014695431bb912f826cbcf81fbaa4de2c89ed10fb376cbf2aa8b",
+      "patchSha256": "811103841ecd31a71ae303b904a16dce1b0850fbc4d11769c85bd55f95087ca1",
+      "lockSha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df",
+      "dependencyPins": 79,
+      "binarySha256": "3f1d30fe4d3537848dd913add8e9da2208de36c4b116577561a270fd11f72146"
+    },
+    {
+      "attempt": "unit4",
+      "gitBase": "896108eb9c7b789a948b6605c2bb10a7e13094f7",
+      "sourceFiles": 42,
+      "inputSha256": "dea8b94d3dbfcd90a3c54df9435ad699cdd4b84c9128a86ddd669ee013047ab2",
+      "sourceListSha256": "4e55ae698827b5d1df80b717eb86ad8ffa9c59e58c76b94703e6c9a5cff19227",
+      "patchSha256": "f1ba57aa3bfbd8496e8ca5bcf49dd0228befea0fa4167e14685808f5e033547c",
+      "lockSha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df",
+      "dependencyPins": 79,
+      "binarySha256": "5cc282cc7f3e22252e953b4ee9fb27d538efb98c7912036358fec930beeced88"
+    },
+    {
+      "attempt": "unit5",
+      "gitBase": "896108eb9c7b789a948b6605c2bb10a7e13094f7",
+      "sourceFiles": 42,
+      "inputSha256": "eb77d2794ee929fb5f58838f5407a12b43db54201612334be16f4828095db36c",
+      "sourceListSha256": "fec087514ff100204b1e28f46bd942cdffb2c5e9aca3442242db540b0f0f971c",
+      "patchSha256": "0b0a5b4d946172dace88391e4940e5a9fb724c2980fa497a9bd71bccc89042db",
+      "lockSha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df",
+      "dependencyPins": 79,
+      "binarySha256": "f50f76cdba6aa19eabc094b40e5715a60a42982b2bb3d4278e878f31260e5d71"
+    },
+    {
+      "attempt": "unit6",
+      "gitBase": "896108eb9c7b789a948b6605c2bb10a7e13094f7",
+      "sourceFiles": 42,
+      "inputSha256": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5",
+      "sourceListSha256": "bb5d8e9fe416f7c4db98387587fb8d1501e6d42522833654fc3c5cb578cfefaf",
+      "patchSha256": "f4905a10c5865cf28a8d1d91e7355cead1cfff6094851095eee6b8863879a6d7",
+      "lockSha256": "1d297e6ad672d1da859f992b738f8e741770d79ec2a1c147171fbd2958e9f1df",
+      "dependencyPins": 79,
+      "binarySha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3"
+    }
+  ],
+  "attemptResults": {
+    "baseline": {
+      "actualFullExit": 0,
+      "passed": 258,
+      "actualSettingsRootRecorded": false
+    },
+    "candidate4Original": {
+      "actualExit": 101,
+      "passed": 284,
+      "failed": 1,
+      "elapsedMs": 2234800,
+      "frozenUnchanged": true,
+      "settingsRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\settings\\candidate4"
+    },
+    "candidate4QuietRetry": {
+      "actualExit": 0,
+      "passed": 285,
+      "failed": 0,
+      "elapsedMs": 211677,
+      "frozenUnchanged": true,
+      "settingsRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\settings\\candidate4"
+    },
+    "unit3": {
+      "compileExit": 0,
+      "full": {
+        "actualExit": 0,
+        "passed": 208,
+        "failed": 0,
+        "elapsedMs": 1337008,
+        "frozenUnchanged": true,
+        "settingsRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\settings\\unit3"
+      }
+    },
+    "unit4": {
+      "compileExit": 0,
+      "compileElapsedMs": 25128,
+      "fullNotRun": true
+    },
+    "unit5E1": {
+      "compileExit": 0,
+      "compileElapsedMs": 28886,
+      "boundaryExit": 0,
+      "boundaryPassed": 9,
+      "tinyHarnessExit": 0,
+      "tinyNativeMs": 13565.298999999999,
+      "tinyWrapperMs": 16257.3371,
+      "settingsRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\settings\\controlled-tiny-unit5\\uni5",
+      "sourceUnchanged": true,
+      "binaryUnchanged": true,
+      "preferencesUnchanged": true,
+      "status": "Rejected performance experiment; excluded from unit6 input",
+      "fullNotRun": true
+    },
+    "unit6": {
+      "compileExit": 0,
+      "compileElapsedMs": 198759,
+      "boundaryExit": 0,
+      "boundaryPassed": 3,
+      "tinyHarnessExit": 0,
+      "tinyNativeMs": 60223.2715,
+      "tinyWrapperMs": 76066.6453,
+      "settingsRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\settings\\controlled-tiny-unit6\\uni6",
+      "sourceUnchanged": true,
+      "binaryUnchanged": true,
+      "preferencesUnchanged": true,
+      "full": {
+        "actualExit": 0,
+        "passed": 208,
+        "failed": 0,
+        "elapsedMs": 181890,
+        "frozenUnchanged": true,
+        "settingsRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\settings\\unit6"
+      }
+    }
+  },
+  "baselineIsolationAudit": {
+    "actualGroupPreferenceHome": "C:\\Users\\felre\\.azrael-ex",
+    "originalStateRootAbsent": true,
+    "inheritedAzraelCodexKeys": 20,
+    "historicalEffectivePreferenceSnapshot": "Not recorded; successful admissions only establish enabled groups/locks/deletion, not exact revision or persisted-vs-default state",
+    "preferencesWriteRequests": 0,
+    "userStateMutationLimit": "No preferences-write request was made, but admission opens/possibly creates maintenance-activity.lock in user CODEX_HOME. Historical before/after identity absent; zero-user-state-change cannot be claimed. Audit did not modify/delete user profile files.",
+    "historicalLargeBaseline": [
+      {
+        "members": 4,
+        "actualExits": [
+          0,
+          0,
+          0
+        ],
+        "elapsedMs": 3656.179,
+        "allDeleted": true,
+        "allAbsent": true
+      },
+      {
+        "members": 32,
+        "actualExits": [
+          0,
+          0,
+          0
+        ],
+        "elapsedMs": 25748.3154,
+        "allDeleted": true,
+        "allAbsent": true
+      },
+      {
+        "members": 80,
+        "actualExits": [
+          0,
+          0,
+          0
+        ],
+        "elapsedMs": 120728.356,
+        "allDeleted": true,
+        "allAbsent": true
+      },
+      {
+        "members": 200,
+        "actualExits": [
+          0,
+          0,
+          0
+        ],
+        "elapsedMs": 709508.3206,
+        "allDeleted": true,
+        "allAbsent": true
+      }
+    ],
+    "causalUse": "Historical only; condition mismatch forbids treating old200≈709s sample as equivalent isolated causal baseline. Fresh controlled larger baseline is needed before larger causal comparison.",
+    "currentIsolation": "candidate4 quiet285 and unit3/unit6 full208 receipts explicitly record run-owned settings. Future controlled comparisons remove inherited AZRAEL_/CODEX_ env, use fresh owned homes and before/after preference receipts."
+  },
+  "acceptedUnit6": {
+    "sourceSha256": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5",
+    "sourceFiles": 42,
+    "binarySha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3",
+    "sourceAndBinaryUnchanged": true,
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "azrael-project-maintenance",
+      "--locked",
+      "--offline",
+      "--no-fail-fast",
+      "--",
+      "--test-threads=2"
+    ],
+    "jobs": 2,
+    "fullActualExit": 0,
+    "passed": 208,
+    "failed": 0,
+    "libraryPassed": 81,
+    "integrationPassed": 127,
+    "elapsedMs": 181890,
+    "fullReceiptSha256": "a1ba934e28328e98d866211cb92e872dcc76fee5980438dcfc27578eeb64963b",
+    "sameTarget": {
+      "actualHarnessExit": 0,
+      "actualCliCalls": 26,
+      "allCliExit0": true,
+      "processCount": 8,
+      "lockWaitMs": 600000,
+      "executionId": "6cb4-0-6be0fe319d5836fb",
+      "simultaneousRunningSubscribers": 8,
+      "repliesIdentical": true,
+      "physicalDeleteSpans": 4,
+      "payloadFilesAbsent": 4,
+      "statusAndAcksCompleted": true,
+      "receiptSha256": "6ff3998a08f666303db21d6e607d9937b1410fed8a6c6d52f7da9a29fc311d14"
+    },
+    "terminal": "Cargo52684 observed exit0/signalnull and same-target harness plus all26 CLI calls drained; target lease absent after both",
+    "fullVerifierParentResource": {
+      "scope": "Node verification coordinator only; Cargo/libtest descendants excluded; process lifetime CPU and end RSS",
+      "cpuMicroseconds": {
+        "user": 31000,
+        "system": 62000
+      },
+      "memoryBytes": {
+        "rss": 65130496,
+        "heapTotal": 8523776,
+        "heapUsed": 6236856,
+        "external": 2322590,
+        "arrayBuffers": 165295
+      }
+    },
+    "sameTargetVerifierParentResource": {
+      "scope": "Node coordinator lifetime CPU/end RSS only; native children excluded",
+      "cpuMicroseconds": {
+        "user": 93000,
+        "system": 93000
+      },
+      "memoryBytes": {
+        "rss": 66244608,
+        "heapTotal": 9572352,
+        "heapUsed": 6966368,
+        "external": 2284703,
+        "arrayBuffers": 144687
+      }
+    },
+    "resourceScope": "These two parent CPU/RSS observations are Node verification coordinators only; Cargo/libtest/native descendants excluded. Not whole-test CPU/RAM."
+  },
+  "observer": {
+    "pwshSha256": "2a6769a3330dc1084d0154bfde7d164ab750ca7f700f313f9d417c1be78b2233",
+    "initialObserverSha256": "22acf7d8832d5ec100ec36628af03b6aa6e426a0b76c40178efb1afe34e8fb68",
+    "calibration": {
+      "syntaxExit": 0,
+      "actualChildExits": [
+        0,
+        7
+      ],
+      "wrapperExits": [
+        0,
+        0
+      ],
+      "stdoutReadyAndEofVerified": true,
+      "counterApiErrors": 0
+    },
+    "initialSyntaxHarnessFailure": "PowerShell parser path argument forwarding failed before any native child. Task-only harness corrected to explicit environment path; original failure retained and successful parse followed.",
+    "counters": "GetProcessTimes, GetProcessIoCounters, GetProcessMemoryInfo on retained native parent handle after actual exit; parent-only CPU/peak memory/logical I/O, descendants excluded. API failures remain null/error, not zero. Logical I/O is not physical disk throughput. Native elapsed and wrapper-launch wall are separate.",
+    "cohortObserverSha256": "e7ecd2207fe1cc3486484bbb795bf73e295d3b3611c0aa449022b2b6eda69307",
+    "cohortGuardChange": "Exact observer copy plus deadline check immediately before native Process.Start; no new measurement hooks/helper download."
+  },
+  "controlledCounterbalanced": {
+    "sequence": [
+      "baseline",
+      "unit4",
+      "unit6",
+      "unit6",
+      "unit4",
+      "baseline"
+    ],
+    "actualExit": 0,
+    "completed": 6,
+    "elapsedMs": 128208,
+    "maxSeconds": 180,
+    "all30NativeAndWrapperExit0": true,
+    "allChildTerminal": true,
+    "sourceAndBinaryAndPreferencesUnchanged": true,
+    "sameEnvironmentAndProjectAndPayload": true,
+    "sourceDeltaUnit4To6": [
+      "project-maintenance\\src\\coordination.rs",
+      "project-maintenance\\src\\lock_recovery.rs"
+    ],
+    "isolatedSettings": true,
+    "effectivePreferences": "All samples revision0, groups/locks/deletion effective=true, no preference file created. unit4/unit6 additionally report deletion_parallelism1; baseline has no such field.",
+    "preflight": {
+      "accepted": true,
+      "cpuPercent": 13.295927373597271,
+      "freeMemoryBytes": 13954633728
+    },
+    "hostCpuDuringRange": [
+      7.808106045558616,
+      35.08999003025903
+    ],
+    "pairs": [
+      {
+        "variant": "b",
+        "completed": 2,
+        "nativeMedianMs": 10040.68375,
+        "wrapperMedianMs": 12786.7451,
+        "firstNativeMs": 16607.4297,
+        "lastNativeMs": 3473.9377999999997,
+        "spreadMs": 13133.4919
+      },
+      {
+        "variant": "u4",
+        "completed": 2,
+        "nativeMedianMs": 27520.17555,
+        "wrapperMedianMs": 30102.6531,
+        "firstNativeMs": 43374.1748,
+        "lastNativeMs": 11666.1763,
+        "spreadMs": 31707.9985
+      },
+      {
+        "variant": "u6",
+        "completed": 2,
+        "nativeMedianMs": 10386.29885,
+        "wrapperMedianMs": 13102.25905,
+        "firstNativeMs": 11318.8451,
+        "lastNativeMs": 9453.7526,
+        "spreadMs": 1865.0925000000007
+      }
+    ],
+    "cohortNativeMedianMs": 11492.510699999999,
+    "resourcePairs": [
+      {
+        "variant": "b",
+        "parentCpuMedianMs": 2328.125,
+        "parentPeakMedianBytes": 7624704,
+        "logicalWriteOperationsMedian": 376,
+        "logicalWriteBytesMedian": 202343.5
+      },
+      {
+        "variant": "u4",
+        "parentCpuMedianMs": 9546.875,
+        "parentPeakMedianBytes": 7860224,
+        "logicalWriteOperationsMedian": 409,
+        "logicalWriteBytesMedian": 208016.5
+      },
+      {
+        "variant": "u6",
+        "parentCpuMedianMs": 8640.625,
+        "parentPeakMedianBytes": 7821312,
+        "logicalWriteOperationsMedian": 316,
+        "logicalWriteBytesMedian": 190063.5
+      }
+    ],
+    "pathEquality": {
+      "project": {
+        "utf16": 116,
+        "components": 14
+      },
+      "state": {
+        "utf16": 114,
+        "components": 14
+      },
+      "member": {
+        "utf16": 149,
+        "components": 17
+      },
+      "catalog": {
+        "utf16": 219,
+        "components": 18
+      },
+      "queue": {
+        "utf16": 181,
+        "components": 19
+      },
+      "persistentObservedMaximumUtf16BySample": [
+        {
+          "id": "b001",
+          "max": 232,
+          "atLeast248": 0,
+          "atLeast260": 0
+        },
+        {
+          "id": "u401",
+          "max": 232,
+          "atLeast248": 0,
+          "atLeast260": 0
+        },
+        {
+          "id": "u601",
+          "max": 232,
+          "atLeast248": 0,
+          "atLeast260": 0
+        },
+        {
+          "id": "u602",
+          "max": 232,
+          "atLeast248": 0,
+          "atLeast260": 0
+        },
+        {
+          "id": "u402",
+          "max": 232,
+          "atLeast248": 0,
+          "atLeast260": 0
+        },
+        {
+          "id": "b002",
+          "max": 232,
+          "atLeast248": 0,
+          "atLeast260": 0
+        }
+      ],
+      "priorControlledPaths": "base/unit4 project+state122chars/member155; earlier unit6 project+state127/member160; same component counts. These lengths differ from new cohort. Removed payload paths were planned; transient pending paths not observed.",
+      "interpretation": "Equal path lengths/depth remove that cohort confound; no evidence establishes MAX_PATH as prior delay cause."
+    },
+    "interpretation": "Large same-variant wall spreads remain (baseline13.133s, unit431.708s, unit61.865s); no causal wall-speed, maximum throughput or stress-stability claim. Both samples contribute to pair medians; no best-sample selection. Unit6 pair parent CPU/logical writes were lower than unit4; root selected read-only query structure on safety/observed resource evidence, not proven wall speed."
+  },
+  "failedDiagnostics": [
+    {
+      "attempt": "candidate-preflight1",
+      "actualFullExit": 101,
+      "cause": "New group result equality included observed_at_ms; independent integrations subsequently exposed additional failures, preserved and fixed in later inputs."
+    },
+    {
+      "attempt": "candidate2 actual8",
+      "actualHarnessExit": 1,
+      "cause": "Transient maintenance Busy was interpreted as cancellation; requests failed and4payloads remained. Original initial harness did not preserve all child exit codes; no invented per-child exits."
+    },
+    {
+      "attempt": "candidate3 full",
+      "actualExit": 101,
+      "passed": 284,
+      "failed": 1,
+      "cause": "Existing same-content replaced reservation identity test unexpectedly returned Ok. Windows OS identity check added in candidate4."
+    },
+    {
+      "attempt": "candidate4 original full",
+      "actualExit": 101,
+      "passed": 284,
+      "failed": 1,
+      "elapsedMs": 2234800,
+      "cause": "registry refresh_waits_for_os_locks_without_holding_partial_transactions helper recv_timeout2s expired before authorization callback; SendError followed helper timeout. Concurrent source capture present, causal attribution unproven. Same unchanged binary exact test passed1 alone, then unchanged full285 passed. Original failure preserved; no timeout/test changes."
+    },
+    {
+      "attempt": "unit2 compile",
+      "actualExit": 101,
+      "cause": "Extracted HEAD caller mismatch; fixed only in next immutable unit3 overlay."
+    },
+    {
+      "attempt": "E1 unit5 performance",
+      "actualExit": 0,
+      "cause": "Behavior boundaries9passed, tiny completed; no demonstrated improvement, source excluded from unit6."
+    },
+    {
+      "attempt": "host resource CIM diagnostic",
+      "originalExitCode": null,
+      "status": "not recovered; inspection output only, not a passing test",
+      "diagnosticOnly": true,
+      "observedReportPresent": true,
+      "matchingOriginalCommandProcesses": 0,
+      "meaning": "Original command exit was not recovered and remains null. Later inspection/report presence does not turn it into a passing command, test, or causal host-performance proof."
+    }
+  ],
+  "pending": {
+    "approvedFutureDesignOnly": "Start with isolated32-member baseline/unit6 comparison; actual execution awaits explicit root gate. Then80/200 only after32 completion/acceptance and new approval.",
+    "notExecuted": "No larger controlled32/80/200, independent4project budget proof or VSS in this native verification turn",
+    "cleanup": "Raw task run still protected pending consumers/core support and independent evidence transfer; no cleanup was performed during this transfer"
+  }
+}

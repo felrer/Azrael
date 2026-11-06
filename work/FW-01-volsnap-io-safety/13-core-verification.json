@@ -1,0 +1,1671 @@
+{
+  "schema": 1,
+  "createdUtc": "2026-11-05T21:31:50.231Z",
+  "scope": "FW03 mandatory core/caller checks on local Windows x64; no installation; Unix native execution not performed",
+  "source": {
+    "engine": {
+      "buildEnvironment": {
+        "CARGO_ENCODED_RUSTFLAGS": "",
+        "CLANG_BASE_PATH": "",
+        "EXTRA_GN_ARGS": "",
+        "GN": "",
+        "GN_ARGS": "",
+        "LIBCLANG_PATH": "",
+        "NINJA": "",
+        "PYTHON": "",
+        "RUSTC_WRAPPER": "",
+        "RUSTFLAGS": "",
+        "RUSTUP_TOOLCHAIN": "",
+        "RUSTY_V8_ARCHIVE": "",
+        "RUSTY_V8_MIRROR": "",
+        "RUSTY_V8_SRC_BINDING_PATH": "",
+        "V8_FORCE_DEBUG": "",
+        "V8_FROM_SOURCE": ""
+      },
+      "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+      "fileCount": 9365,
+      "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+      "importedInventorySha256": "2e40244756cf53b6a07e0a55738de6f41ce806492eed2022b3085a7905b2f745",
+      "importedReceiptSha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149",
+      "schema": 2,
+      "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "sourceKind": "imported-snapshot",
+      "sourceSha256": "e7ce7c98dffcdbae78a99725ee11e2bb030b7ea69de7501973d0a8e0abb88b38",
+      "target": "x86_64-pc-windows-msvc"
+    },
+    "projectSha256": "def03cbf0bf1c94bbc182cee020e6cbfec976579289860a051afbb1a6b07a14e",
+    "manifestSha256": "f6e5c58711cdfe898917c2c0a1789928530b31ccc5dc424b73f5259cc383c4b4"
+  },
+  "core": {
+    "command": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\check-project-maintenance.cjs",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\engine",
+        "--stage",
+        "core"
+      ],
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03",
+      "sourceSha256": "e7ce7c98dffcdbae78a99725ee11e2bb030b7ea69de7501973d0a8e0abb88b38",
+      "sourceReceiptSha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cargo\\9d65c03f6d2d798ea0081c6babb32ee4\\target",
+      "cargoHome": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ch01",
+      "jobs": 2,
+      "testThreads": 1,
+      "profileDebug": 0,
+      "coordinatorOwner": {
+        "executable": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102\\payload\\maintenance_owner.exe",
+        "args": [],
+        "maxLockWaitMs": 600000,
+        "sha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680"
+      },
+      "correction": "Explicit existing pinned coordinator owner; Cargo child host-environment isolation remains in existing runCargoTest helper"
+    },
+    "result": {
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1881170,
+      "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-checks-20261106-02\\logs\\core.log",
+      "leasePresent": false,
+      "actualCargoHomeSourcesCreated": true
+    },
+    "selectedTests": {
+      "contract": "selected-tests-v2",
+      "cargoInvocations": 1,
+      "accepted": true,
+      "passed": 9,
+      "failed": 0,
+      "ignored": 0,
+      "filteredOut": 3153
+    },
+    "rustVersion": "1.95.0",
+    "cargoArgs": [
+      "test",
+      "-p",
+      "codex-core",
+      "--lib",
+      "project_maintenance",
+      "--locked",
+      "--offline",
+      "--target",
+      "x86_64-pc-windows-msvc",
+      "--",
+      "--test-threads=1"
+    ]
+  },
+  "initialFailures": [
+    {
+      "run": "core-20261106-01",
+      "exitCode": 1,
+      "context": "Source receipt preflight missing six approved new input files; resolved through authorized official recorder; no Cargo invoked"
+    },
+    {
+      "run": "core-20261106-02",
+      "exitCode": 1,
+      "context": "copyVerifiedProject trailing-separator nested repository normalization; prerequisite fix committed separately as 896108eb9c7b789a948b6605c2bb10a7e13094f7"
+    },
+    {
+      "run": "core-checks-20261106-01",
+      "result": {
+        "exitCode": 1,
+        "signal": null,
+        "elapsedMs": 2063,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-checks-20261106-01\\logs\\core.log",
+        "actualCargoHomeSourcesCreated": false
+      },
+      "context": "Frozen coordinator default installation receipt absent; supported absolute pinned owner override corrected environment; no Cargo invoked"
+    },
+    {
+      "run": "post-core-checks-20261106-01",
+      "adapter": {
+        "tests": 107,
+        "passed": 104,
+        "failed": 3
+      },
+      "context": "One harness runner parent mkdir omission; two existing expected selection-list mismatches. Packaging lacked four pinned upstream UI assets."
+    }
+  ],
+  "postCore": {
+    "commands": {
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03",
+      "commands": [
+        {
+          "name": "adapter",
+          "exe": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "--test",
+            "scripts/test-project-maintenance.cjs",
+            "scripts/test-maintenance-lock-owner.cjs",
+            "scripts/test-maintenance-owner-config.cjs",
+            "scripts/test-project-fail-fast.cjs",
+            "scripts/test-project-selection.cjs",
+            "scripts/test-source-test-policy.cjs",
+            "scripts/test-source-test-fixtures.cjs",
+            "scripts/test-account-fixture-environment.cjs",
+            "scripts/test-account-models-catalog.cjs",
+            "scripts/test-source-check-selection.cjs"
+          ]
+        },
+        {
+          "name": "lifecycle-source-0",
+          "exe": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "--test",
+            "scripts/test-artifact-lifecycle.cjs",
+            "scripts/test-build-platform.cjs"
+          ]
+        },
+        {
+          "name": "lifecycle-source-1",
+          "exe": "C:\\Program Files\\nodejs\\node.exe",
+          "args": [
+            "scripts/test-platform-packaging.cjs"
+          ]
+        },
+        {
+          "name": "windows-registry",
+          "exe": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+          "args": [
+            "-NoLogo",
+            "-NoProfile",
+            "-File",
+            "scripts/test-build-module-cache.ps1",
+            "-RegistryOnly",
+            "-FixtureRoot",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\tasks\\fw03n01\\registry"
+          ]
+        },
+        {
+          "name": "windows-legacy-registry",
+          "exe": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+          "args": [
+            "-NoLogo",
+            "-NoProfile",
+            "-File",
+            "scripts/test-build-module-cache.ps1",
+            "-LegacyRegistryOnly",
+            "-FixtureRoot",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\tasks\\fw03n01\\legacy-registry"
+          ]
+        },
+        {
+          "name": "windows-legacy-releases",
+          "exe": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+          "args": [
+            "-NoLogo",
+            "-NoProfile",
+            "-File",
+            "scripts/test-clean-legacy-releases.ps1",
+            "-RunDirectory",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\tasks\\fw03n01\\legacy-run"
+          ]
+        },
+        {
+          "name": "windows-verification",
+          "exe": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+          "args": [
+            "-NoLogo",
+            "-NoProfile",
+            "-File",
+            "scripts/test-clean-verification-artifacts.ps1",
+            "-FixtureRoot",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\tasks\\fw03n01\\verification"
+          ]
+        },
+        {
+          "name": "windows-engine-caches",
+          "exe": "C:/Users/felre/AppData/Local/Programs/PowerShell/7/pwsh.exe",
+          "args": [
+            "-NoLogo",
+            "-NoProfile",
+            "-File",
+            "scripts/test-clean-engine-caches.ps1",
+            "-FixtureRoot",
+            "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\tasks\\fw03n01\\engine-caches"
+          ]
+        }
+      ],
+      "fixtureRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\tasks\\fw03n01"
+    },
+    "results": [
+      {
+        "name": "adapter",
+        "exitCode": 1,
+        "signal": null,
+        "elapsedMs": 189769,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\logs\\adapter.log"
+      },
+      {
+        "name": "lifecycle-source-0",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 87451,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\logs\\lifecycle-source-0.log"
+      },
+      {
+        "name": "lifecycle-source-1",
+        "exitCode": 1,
+        "signal": null,
+        "elapsedMs": 28475,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\logs\\lifecycle-source-1.log"
+      },
+      {
+        "name": "windows-registry",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 48214,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\logs\\windows-registry.log"
+      },
+      {
+        "name": "windows-legacy-registry",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 36014,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\logs\\windows-legacy-registry.log"
+      },
+      {
+        "name": "windows-legacy-releases",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 136880,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\logs\\windows-legacy-releases.log"
+      },
+      {
+        "name": "windows-verification",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 160193,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\logs\\windows-verification.log"
+      },
+      {
+        "name": "windows-engine-caches",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 17376,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\logs\\windows-engine-caches.log"
+      }
+    ],
+    "lifecycleSource": {
+      "passed": 218,
+      "failed": 0,
+      "skipped": 1,
+      "skipReason": "Unix executable-mode case on Windows"
+    },
+    "windows": {
+      "registry": "passed",
+      "legacyRegistry": "passed",
+      "legacyReleases": {
+        "passed": 54
+      },
+      "verification": {
+        "passed": 98,
+        "failed": 0
+      },
+      "engineCaches": "passed"
+    }
+  },
+  "prerequisiteRetry": {
+    "commands": {
+      "cwd": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03",
+      "commands": [
+        {
+          "name": "fixture-readiness",
+          "args": [
+            "--test",
+            "--test-name-pattern=fixture readiness is explicit and blocks before output creation or command launch",
+            "scripts/test-project-fail-fast.cjs"
+          ]
+        },
+        {
+          "name": "packaging",
+          "args": [
+            "scripts/test-platform-packaging.cjs"
+          ]
+        }
+      ],
+      "resource": "run:fw03c:packaging-resource-20261106-01",
+      "provenance": {
+        "version": "26.1007.21434",
+        "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434",
+        "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\upstream-ui\\26.1007.21434",
+        "packageVersion": "26.1007.21434",
+        "files": [
+          {
+            "name": "package.json",
+            "bytes": 8467,
+            "sha256": "fa0b6df79be88e4c7ec18fb647cd305edef557a3cc96d89e60c297c6f0990ae3"
+          },
+          {
+            "name": "out/extension.js",
+            "bytes": 2539539,
+            "sha256": "a8069de80c8f8141481d033f94c3a95e1b59f399143cb2554d3f68469dfbe5b8"
+          },
+          {
+            "name": "webview/assets/app-initial-7a199c66e670.js",
+            "bytes": 6116253,
+            "sha256": "59b909377a370e09cb8523ab99a1f4ff282a0126527bd339db31e6d9ac7c9c26"
+          },
+          {
+            "name": "webview/assets/profile-dropdown-items-93d2a2e5b8d6.js",
+            "bytes": 28897,
+            "sha256": "e1d433655601fc050140d42f7fffadb10b594263bb8d765a28403888411a3321"
+          }
+        ]
+      }
+    },
+    "results": [
+      {
+        "name": "fixture-readiness",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 245,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-retry-20261106-01\\logs\\fixture-readiness.log"
+      },
+      {
+        "name": "packaging",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 29414,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-retry-20261106-01\\logs\\packaging.log"
+      }
+    ],
+    "fixtureReadinessPassed": 1,
+    "packagingChecksPassed": 33
+  },
+  "selectionRetry": {
+    "inputs": {
+      "specs": [
+        {
+          "name": "current39",
+          "blob": "d9ab03e426054065043e615247ff7c5bc4ff303f",
+          "sha256": "904f21195b4cecb03e8b01bcff9421fb42e3e4a57d4fee0572feaaec19afe5cb",
+          "count": 39,
+          "input": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\selection-retry-20261106-01\\inputs\\current39.cjs",
+          "bytes": 49771
+        },
+        {
+          "name": "staged38",
+          "blob": "c794aa12520054a67911f637b626b56cba498591",
+          "sha256": "b8bfd7bcff06f469d383af0988265d66b150dd9d396e1bd9d8a14cb116ab86e8",
+          "count": 38,
+          "input": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\selection-retry-20261106-01\\inputs\\staged38.cjs",
+          "bytes": 48868
+        }
+      ],
+      "before": [
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\test-project-selection.cjs",
+          "sha256": "c2e308b177b06d9ab8449818ebb7165096701d54db0a5c7ac84cc39f327f3352"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\test-project.cjs",
+          "sha256": "d80c6de5a331e24191f8d287100662d66b35b04b4b1cc49d7cea7b31c48fd283"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\source-preflight-reuse.cjs",
+          "sha256": "4160703ddda88e730d46013fc8a5a80ef2ec1d16c3279a9172c494d9ac497109"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\engine\\SOURCE.json",
+          "sha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-03\\reports\\frozen-inputs.json",
+          "sha256": "f6e5c58711cdfe898917c2c0a1789928530b31ccc5dc424b73f5259cc383c4b4"
+        }
+      ],
+      "originalFailureLog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\logs\\adapter.log",
+      "originalFailures": [
+        "test-project-selection.cjs:270",
+        "test-project-selection.cjs:313"
+      ],
+      "contract": "Whole test file via Module._compile at unchanged original frozen filename and paths"
+    },
+    "results": [
+      {
+        "name": "current39",
+        "exitCode": 0,
+        "signal": null,
+        "elapsedMs": 410663,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\selection-retry-20261106-01\\logs\\current39.log",
+        "inputSha256": "904f21195b4cecb03e8b01bcff9421fb42e3e4a57d4fee0572feaaec19afe5cb",
+        "expectedCases": 39,
+        "counts": {
+          "tests": 39,
+          "pass": 39,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "inputUnchanged": true,
+        "scopeAccepted": true
+      },
+      {
+        "name": "staged38",
+        "exitCode": 1,
+        "signal": null,
+        "elapsedMs": 488298,
+        "log": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\selection-retry-20261106-01\\logs\\staged38.log",
+        "inputSha256": "b8bfd7bcff06f469d383af0988265d66b150dd9d396e1bd9d8a14cb116ab86e8",
+        "expectedCases": 38,
+        "counts": {
+          "tests": 38,
+          "pass": 37,
+          "fail": 1,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "inputUnchanged": true,
+        "scopeAccepted": false
+      }
+    ],
+    "sourceIdentity": {
+      "before": [
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\test-project-selection.cjs",
+          "sha256": "c2e308b177b06d9ab8449818ebb7165096701d54db0a5c7ac84cc39f327f3352"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\test-project.cjs",
+          "sha256": "d80c6de5a331e24191f8d287100662d66b35b04b4b1cc49d7cea7b31c48fd283"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\source-preflight-reuse.cjs",
+          "sha256": "4160703ddda88e730d46013fc8a5a80ef2ec1d16c3279a9172c494d9ac497109"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\engine\\SOURCE.json",
+          "sha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-03\\reports\\frozen-inputs.json",
+          "sha256": "f6e5c58711cdfe898917c2c0a1789928530b31ccc5dc424b73f5259cc383c4b4"
+        }
+      ],
+      "after": [
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\test-project-selection.cjs",
+          "sha256": "c2e308b177b06d9ab8449818ebb7165096701d54db0a5c7ac84cc39f327f3352"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\test-project.cjs",
+          "sha256": "d80c6de5a331e24191f8d287100662d66b35b04b4b1cc49d7cea7b31c48fd283"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\scripts\\source-preflight-reuse.cjs",
+          "sha256": "4160703ddda88e730d46013fc8a5a80ef2ec1d16c3279a9172c494d9ac497109"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\engine\\SOURCE.json",
+          "sha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149"
+        },
+        {
+          "file": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-03\\reports\\frozen-inputs.json",
+          "sha256": "f6e5c58711cdfe898917c2c0a1789928530b31ccc5dc424b73f5259cc383c4b4"
+        }
+      ],
+      "unchanged": true
+    },
+    "context": "current39 passed in entirety; staged HEAD+two approved expected hunks passed37/38. Remaining staged btw expected included three earlier user-diff entries absent from frozen actual selection. No further expected changes or rerun. Root committed own two hunks as 9d583ffca53c5797d670481ce09827bb3ecef711."
+  },
+  "postverify": {
+    "initial": {
+      "elapsedMs": 54055,
+      "status": "verified",
+      "moduleCacheProjectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "projectSha256": "def03cbf0bf1c94bbc182cee020e6cbfec976579289860a051afbb1a6b07a14e",
+      "engine": {
+        "buildEnvironment": {
+          "CARGO_ENCODED_RUSTFLAGS": "",
+          "CLANG_BASE_PATH": "",
+          "EXTRA_GN_ARGS": "",
+          "GN": "",
+          "GN_ARGS": "",
+          "LIBCLANG_PATH": "",
+          "NINJA": "",
+          "PYTHON": "",
+          "RUSTC_WRAPPER": "",
+          "RUSTFLAGS": "",
+          "RUSTUP_TOOLCHAIN": "",
+          "RUSTY_V8_ARCHIVE": "",
+          "RUSTY_V8_MIRROR": "",
+          "RUSTY_V8_SRC_BINDING_PATH": "",
+          "V8_FORCE_DEBUG": "",
+          "V8_FROM_SOURCE": ""
+        },
+        "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+        "fileCount": 9365,
+        "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+        "importedInventorySha256": "2e40244756cf53b6a07e0a55738de6f41ce806492eed2022b3085a7905b2f745",
+        "importedReceiptSha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149",
+        "schema": 2,
+        "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "sourceKind": "imported-snapshot",
+        "sourceSha256": "e7ce7c98dffcdbae78a99725ee11e2bb030b7ea69de7501973d0a8e0abb88b38",
+        "target": "x86_64-pc-windows-msvc"
+      },
+      "inputLifecycleId": "input:70a0aeaea849ea63da8491cc",
+      "workingLifecycleId": "workspace:70a0aeaea849ea63da8491cc"
+    },
+    "afterSelection": {
+      "status": "verified",
+      "moduleCacheProjectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+      "projectSha256": "def03cbf0bf1c94bbc182cee020e6cbfec976579289860a051afbb1a6b07a14e",
+      "engine": {
+        "buildEnvironment": {
+          "CARGO_ENCODED_RUSTFLAGS": "",
+          "CLANG_BASE_PATH": "",
+          "EXTRA_GN_ARGS": "",
+          "GN": "",
+          "GN_ARGS": "",
+          "LIBCLANG_PATH": "",
+          "NINJA": "",
+          "PYTHON": "",
+          "RUSTC_WRAPPER": "",
+          "RUSTFLAGS": "",
+          "RUSTUP_TOOLCHAIN": "",
+          "RUSTY_V8_ARCHIVE": "",
+          "RUSTY_V8_MIRROR": "",
+          "RUSTY_V8_SRC_BINDING_PATH": "",
+          "V8_FORCE_DEBUG": "",
+          "V8_FROM_SOURCE": ""
+        },
+        "distributionAdaptationSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "distributionFilesSha256": "2d08673f22d45fc3c9bca6a25b93d5c8212358b4d16eff4a7262c590827eb10e",
+        "fileCount": 9365,
+        "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
+        "importedInventorySha256": "2e40244756cf53b6a07e0a55738de6f41ce806492eed2022b3085a7905b2f745",
+        "importedReceiptSha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149",
+        "schema": 2,
+        "sourceFixesSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "sourceKind": "imported-snapshot",
+        "sourceSha256": "e7ce7c98dffcdbae78a99725ee11e2bb030b7ea69de7501973d0a8e0abb88b38",
+        "target": "x86_64-pc-windows-msvc"
+      },
+      "inputLifecycleId": "input:70a0aeaea849ea63da8491cc",
+      "workingLifecycleId": "workspace:70a0aeaea849ea63da8491cc"
+    }
+  },
+  "termination": {
+    "observedSessions": [
+      46341,
+      16607,
+      48496,
+      99662,
+      98320,
+      21715,
+      12662,
+      22270,
+      37656
+    ],
+    "allObservedTerminal": true,
+    "ownedRuns": [
+      {
+        "id": "run:fw03c:capture-evidence-20261106-02",
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\capture-evidence-20261106-02\\reports\\producer-e8a1f340fed94927fc41ba95caeea1f7e121a542a7f572272bb6962cfba81787.json",
+          "evidence_sha256": "e8a1f340fed94927fc41ba95caeea1f7e121a542a7f572272bb6962cfba81787",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Authorized exact fixture link closure and same pinned native cleanup returned terminal results; absence and finalization checked",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "run:fw03c:core-checks-20261106-02",
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-checks-20261106-02\\reports\\producer-bf63583fe3917a31017e13b9907d6e25e5eb4f274e38a0d73c662a421077540a.json",
+          "evidence_sha256": "bf63583fe3917a31017e13b9907d6e25e5eb4f274e38a0d73c662a421077540a",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Selected-tests-v2 core wrapper reached observed terminal result; target lease absence checked before releasing execution references",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "workspace:839670901ef58c6e3218d7ef",
+        "state": "failed",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-02\\reports\\preparation-terminal.json",
+          "evidence_sha256": "a159a9dbd8dd1fc2cdf679607c2a43510d24e3a038140d8687afd255f35f824f",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Observed failed preparation controllers stopped; preserve partial inputs for parent diagnosis",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "input:839670901ef58c6e3218d7ef",
+        "state": "failed",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-02\\reports\\preparation-terminal.json",
+          "evidence_sha256": "a159a9dbd8dd1fc2cdf679607c2a43510d24e3a038140d8687afd255f35f824f",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Observed failed preparation controllers stopped; preserve partial inputs for parent diagnosis",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "input:70a0aeaea849ea63da8491cc",
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-03\\reports\\frozen-inputs.json",
+          "evidence_sha256": "f6e5c58711cdfe898917c2c0a1789928530b31ccc5dc424b73f5259cc383c4b4",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Immutable deployment input preparation completed",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "run:fw03c:post-core-retry-20261106-01",
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-retry-20261106-01\\reports\\producer-8c9bee49ebf686873675ea965a281069b4775465e9fb85060f8a9f82b0f69fc3.json",
+          "evidence_sha256": "8c9bee49ebf686873675ea965a281069b4775465e9fb85060f8a9f82b0f69fc3",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "run:fw03c:final-postverify-20261106-01",
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\final-postverify-20261106-01\\reports\\producer-955eacc7d7d7caf9b3eb2d25a2b4f7ef650e9c4999a06f8ba258e63361f92d18.json",
+          "evidence_sha256": "955eacc7d7d7caf9b3eb2d25a2b4f7ef650e9c4999a06f8ba258e63361f92d18",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "run:fw03c:core-20261106-01",
+        "state": "failed",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-02\\reports\\preparation-terminal.json",
+          "evidence_sha256": "a159a9dbd8dd1fc2cdf679607c2a43510d24e3a038140d8687afd255f35f824f",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Observed failed preparation controllers stopped; preserve partial inputs for parent diagnosis",
+          "status": "stopped"
+        },
+        "revision": 3
+      },
+      {
+        "id": "run:fw03c:cargo-prep-20261106-01",
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\cargo-prep-20261106-01\\reports\\producer-e970cef8509386722b769a3347f7607e610699d4f7654d53b7b49a26ff4f2c63.json",
+          "evidence_sha256": "e970cef8509386722b769a3347f7607e610699d4f7654d53b7b49a26ff4f2c63",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Owned Cargo dependency archive/index preparation completed or failed synchronously, no compiler started",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "run:fw03c:cargo-git-prep-20261106-01",
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\cargo-git-prep-20261106-01\\reports\\producer-9ae50442d445e15c7153668242d8561692a84ac653c790860c14d46e42fcf68b.json",
+          "evidence_sha256": "9ae50442d445e15c7153668242d8561692a84ac653c790860c14d46e42fcf68b",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Locked existing Git DB copy and git cat-file commit presence checks reached terminal results; no Cargo compilation",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "workspace:70a0aeaea849ea63da8491cc",
+        "state": "pending",
+        "producer": null,
+        "revision": 1
+      },
+      {
+        "id": "run:fw03c:selection-retry-20261106-01",
+        "state": "failed",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\selection-retry-20261106-01\\reports\\producer-17e88babe4a6f8855ce5d91a06e5741aa0017e0da376351855501ec0db3aa503.json",
+          "evidence_sha256": "17e88babe4a6f8855ce5d91a06e5741aa0017e0da376351855501ec0db3aa503",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "run:fw03c:packaging-resource-20261106-01",
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\packaging-resource-20261106-01\\reports\\producer-47ed0d0eb94a296e108126d3bc1ebea2a216f9352c540d0ec45d0cf72538bc94.json",
+          "evidence_sha256": "47ed0d0eb94a296e108126d3bc1ebea2a216f9352c540d0ec45d0cf72538bc94",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "run:fw03c:core-20261106-03",
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-03\\reports\\producer-c2ef3cc2496eab229e40e236630844e03865cada61b1bff11255a61be7fcbbe0.json",
+          "evidence_sha256": "c2ef3cc2496eab229e40e236630844e03865cada61b1bff11255a61be7fcbbe0",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Final approved source recorder/frozen preparation reached observed terminal result; all synchronous subprocesses and awaited copy workers completed",
+          "status": "stopped"
+        },
+        "revision": 3
+      },
+      {
+        "id": "run:fw03c:core-checks-20261106-01",
+        "state": "failed",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-checks-20261106-01\\reports\\producer-a2c7509ccdd90402eac440b29f9710349181bb3722bed9b9b9b6b65599b075e9.json",
+          "evidence_sha256": "a2c7509ccdd90402eac440b29f9710349181bb3722bed9b9b9b6b65599b075e9",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Selected-tests-v2 maintenance core wrapper child reached observed synchronous terminal result",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "run:fw03c:post-core-checks-20261106-01",
+        "state": "failed",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\post-core-checks-20261106-01\\reports\\producer-060c0f35ee9255838c7780df6b08428ef3d13cccc8876da952d9fc4d5981c4c0.json",
+          "evidence_sha256": "060c0f35ee9255838c7780df6b08428ef3d13cccc8876da952d9fc4d5981c4c0",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Owned producer and tracked children stopped",
+          "status": "stopped"
+        },
+        "revision": 2
+      },
+      {
+        "id": "run:fw03c:core-20261106-02",
+        "state": "failed",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-02\\reports\\preparation-terminal.json",
+          "evidence_sha256": "a159a9dbd8dd1fc2cdf679607c2a43510d24e3a038140d8687afd255f35f824f",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Observed failed preparation controllers stopped; preserve partial inputs for parent diagnosis",
+          "status": "stopped"
+        },
+        "revision": 4
+      }
+    ],
+    "workspaceClosurePending": "workspace:70a0aeaea849ea63da8491cc had preparation ownership pending; all actual consumers ended, aggregate final selection wrapper exit1 preserved"
+  },
+  "cleanupPolicy": {
+    "currentUseEnded": true,
+    "persistentCargoCachePreserved": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cargo\\9d65c03f6d2d798ea0081c6babb32ee4\\target",
+    "preservedRecoveryReferenceIds": [
+      "run:FT-02-target-recovery:20261104T130237346Z-956442a1-4dad-4e93-9ab4-6b02d5055e10",
+      "run:FT-02-reboot-recovery:20261104T121514667Z-1d87435d-6b22-4c55-9b07-941408294112"
+    ],
+    "gitControlFiles": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw02\\.git",
+        "bytes": 78,
+        "sha256": "6f4c536d66c4d7b0ea85946468cf8273284dcdea55714052c3d02982ed4c0a10",
+        "text": "gitdir: C:/Users/felre/Desktop/pi-harness-init/artifacts/fw03cw02/control/git\n",
+        "owner": "fw03-core-verification",
+        "protection": "Excluded by deployment-workspace.cjs retainedControlEvidence; parent deferred retirement pending supported owner"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\.git",
+        "bytes": 78,
+        "sha256": "e1d8c1c9e8501f7a2f66f92bda07027c4ad0cda2cc905ae268aa54861d105d4b",
+        "text": "gitdir: C:/Users/felre/Desktop/pi-harness-init/artifacts/fw03cw03/control/git\n",
+        "owner": "fw03-core-verification",
+        "protection": "Excluded by deployment-workspace.cjs retainedControlEvidence; parent deferred retirement pending supported owner"
+      }
+    ],
+    "gitControlGuard": "deployment-workspace.cjs excludes .git and retains structural gitfile pending supported control-file retirement owner"
+  },
+  "cleanup": {
+    "completedUtc": "2026-11-05T22:51:58.915Z",
+    "status": "partial-protected-boundaries",
+    "ownerExecutableSha256": "c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680",
+    "registration": {
+      "actualExitCode": 0,
+      "groups": 17
+    },
+    "reviews": [
+      {
+        "actualExitCode": 0,
+        "groups": 17,
+        "items": 72,
+        "firstBoundary": "outside configured managed roots"
+      },
+      {
+        "actualExitCode": 0,
+        "groups": 9,
+        "items": 64,
+        "remainingBoundary": "managed root itself is protected; select owned descendants"
+      }
+    ],
+    "applies": [
+      {
+        "actualExitCode": 0,
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:fw03c:capture-evidence-20261106-02",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:cargo-git-prep-20261106-01",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:core-20261106-01",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:core-20261106-02",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:core-20261106-03",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:core-checks-20261106-01",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:core-checks-20261106-02",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:final-postverify-20261106-01",
+            "status": "deleted"
+          }
+        ],
+        "items": [
+          {
+            "id": "0bec41a33bd5f29cafe6b5b6321d93499ef098f9d132b2c2dd72bed7a7951a3e",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "1ec2413d1fa4aeb478fbd066dbb0f4de09d92cd1aae76526c5fa75a16f65028b",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "2b0105f7580fdbaaac020ffbec023789b1fe465ed5a3c1022f1cca6d2cdbfdeb",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "2c7fa3de86044cc66a6530a5f43136050c3f4364be7a512784cde115f0418765",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "41d947864d95452e34b4b9ee8e09c0c32064996a35ce4b06204f40b2abcb45c7",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "47b1e1875d09afe033e6c179721a9b51db89b1c8a57609b555fee77fdd7ec35d",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "7bba518775cb70bc8503f7dc911abcb03c05f31c27658e645183a3fd591e1de9",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "83b7ca628d93b104e8d88b30624e242a0916ed4be15c7d6d11c083f27da96005",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          }
+        ]
+      },
+      {
+        "actualExitCode": 0,
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:fw03c:packaging-resource-20261106-01",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:post-core-checks-20261106-01",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:post-core-retry-20261106-01",
+            "status": "deleted"
+          },
+          {
+            "id": "run:fw03c:selection-retry-20261106-01",
+            "status": "deleted"
+          },
+          {
+            "id": "workspace:70a0aeaea849ea63da8491cc",
+            "status": "deleted"
+          },
+          {
+            "id": "workspace:839670901ef58c6e3218d7ef",
+            "status": "deleted"
+          }
+        ],
+        "items": [
+          {
+            "id": "03f312b9928c29fde66324ada3ac1018198626edbf7ba2b029029c45adb793bf",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "09151337edf166dedd032e54b7f1a5d6caff5793d125e12c3761fa9318f09196",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "1762773efe919bd4d131578e3ab49e4fe95d9fc4f7dc9c1e8687386ca6ad41ec",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "30081485cbd5e3e430b767949aa8251447ebb4bc65d9e426185f357272ddd3e8",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "33442140eb093d94fbd54c2170200a075c741a3b58980f72192158342aa7dcaa",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "37aa04cadf413b56abaac336aed9ea168c34a83e4385e55959ec72a20eef79e6",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "3f575c2c23e4fc71d6bfa0284054b5d21d1a45ee6a87d9a35b1b01015233d231",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "46d2cd87101fc776ba0b62f74e7a741d90d2bd34739bcb038fff2825e652e706",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "4861e57f19ff169188cc9672389edbeec8b5fd60e12ce40eca2ac391ad60255b",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "4db146c4d65956a843c0740c945d95379cf706b5b5b8f781c50cdb6bf0707e35",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "55528427eb7dafc924e66a38aea8b24e3238c61a9e2323f364ecdd2fb07da0ed",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "7b4e434260c4def143c60bca3a8928ef4d436b0795eb1ceba48e19ec81964f63",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "7f69371d370e5519bd9d85d4a7b15a1252f33444df49e13eaae8c6d0e8123b5d",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "a089b534f17043e6a43f2907c3c330bc56ce265cc971ae9c1a8423fd246616b8",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "aaec64ef48f1b5fd3eaf51af75370f22ccaa78c200656bce462e462dc4e82c97",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "b3df47bb82774611948d919b6fe80422604c30cb1bd6e35e153c28a97c1bed11",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "b8f70b4151aea3536bc979419941843c09ee354ba26fe39bbbf4c7bd1b35a7e9",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "c0d45e8ed897008f797d409c38b7afdbb511924f3d1a0348b06dc48deb987c9c",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "c2cfbce4359a3f283fbd85b07a08b7ed6827610fa63105623f6cec28c6f934da",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "cf216791cd112d829395a2143614bcb6cc633ce070a83f56ddc170547c37a0bc",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "d52b150e7aeed097a516075ab3ec63523e06c4d0e330bf3b8ed4414942091e6a",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "d64a7f59aa3cbdef5d2229168e81c8461c2b1d560ae86085e40befd4a7523d55",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "d8e7a048386b61d42dbee5e2bc3ed5447e0fe6e96b36a27f4a3089c3e6be9e89",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "ee4a757e03c6a04e43c0d095a5f159ad86c848094d4271b0b353c31f5601c57b",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "f2e3b0019ea3f90f1b55085d0ea8d44e53e120f162c06e6b9f93bb9c636e50e1",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "f693a07e9d807cc9b0c3242819eeb31075973d5b5c8c5262176501ad5f1c1ba3",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "10e2a35f46a6c6c3522e541236c6b1713fd0171990dc8ac88445b5e2c03ba550",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "14e21d8c14ce9106543e06ffb8e6f14f56ca3ecf64123e3ee977a70ada6276f5",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "19cf5044816fbc4119a7328c90b5a3bab3c03a3bb175bffa836ee2fdad9f35d5",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "2c2cf76de69e38054457d88e4705c9585b31b66f291629951dfd0deddcef09c6",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "2fe083369fe301afa850140a45cbf448d228cce522046e22ad4555419aaab052",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "452674b2ea2c7172c7694720140af523963413cf062f78e274fa2c8cf64eca02",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "4a381caf6cd221a65f8fe0a4e01176c9fc4925e6dcb6504149b943ba01a1ddee",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "50147ed0338466eb34a907c9cbd3fca6b01c792c0cbc36fba6dbd8d3699b9f31",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "54e0a9523704e0732f159286ba383cc1c4a0431b7a7f7365b3a112affcd87201",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "5ba76e6cfc642f9aeb7f24c5bc9a1bd2c970d894bf9267a3733ac47e22df1b8d",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "61fd0c705c41e517e1926b0ce165fb30555576d5071c762e32c8bcfef7da3c50",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "7ba574ad695224960bc8cb649eb184b6b3ae48866f57fffefa71b351897f6fc0",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "839a8e7c86fc29e524b397c6974bdf942f84fa17305c82560b77c6a405b28a7a",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "932ef836cebb81f7cb6da74599ea6667d4d1bdfb4c4bb4bdecc36223305ca0ea",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "94d4dc198c0fb39a7c539bc49c9c8a8b8ff8b3293a0cac6bb26d6e0ec37d860d",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "c11d5f72050fd9edf88ecc2e5c814f8b3b3f76cf937f4338ae08123f46d7b2b3",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "d29dd03dcc67bbbdf580b219e8237557cd103fe5fdd67928a9e176d2b8d79654",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "d2ea1affef63bb1c8bb16bb18b5ce8f60192069dad1cd2d532dab343261a36dc",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "e7184857f9ad2a5280aa7e3f13d7e0e69045ff6ac91ff6129d8bf2bf39c4c669",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "eeac92f4f86e7b5e03ad9c08040755094f3c1c498f0e3f227d6ee8bf64586e32",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "eec4a1e00625984f7fac2b1d65468f6a97aa59bad1c44a49c48edd0e638f30a0",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "f1af305fa291348033044ecb79190ee09da6a694d7941e0d58306980accf966e",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "f9932168f42709aeff8935db8f4ef0107cc5e933644f95de8a9c13f0af3f12a9",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "f9d475759249d2ed44fd71f791041f33a7153ee080d8e40a49c39c377a726780",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "fbc86d2525dbea8be62db3442252565b89eafd1ee969cfe00e9a84adb89b832b",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "fdcaf40e6205af54ea5c7c8e423a648296e1d74798e4ae24f565ed0f8baec8f3",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "2cfe518de7f18e376c3683ab497847136c4d9a602451b5d76acb8d3e5864ff97",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "c0706a15911e4b4f102c506cdcfab0c31a6868ce25333dd6d5e9afd7547dc8e6",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "2e448615ca65c311c525a7b8d25f0bd9acda61e8ce33ac2a310664a6a9b95b69",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "757ddb7243bfd807bf52926977c27b59725bd13e96cc374d3991be34fbf31b0b",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "35e055e21060da72fc1a919b79aff2a7ec007554c1e32b3eea59d88a6589da48",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "f1722ded4f0c5cc04d6a9e53439da928b41e8da3dfd61ed37f166fb76c5667cc",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "5a6c112c679b9fb72e126c49021537715fe2bcffaf224542e3870049e0aa23f8",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          },
+          {
+            "id": "c94b670617a02a1677524977d5cee0aac9610a1480d2a83effce992aa26defd6",
+            "status": "deleted",
+            "remaining": false,
+            "error": null
+          }
+        ]
+      }
+    ],
+    "deletedGroups": 14,
+    "deletedItems": 68,
+    "finalizations": [
+      {
+        "id": "run:fw03c:capture-evidence-20261106-02",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:cargo-git-prep-20261106-01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:core-20261106-01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:core-20261106-02",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:core-20261106-03",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:core-checks-20261106-01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:core-checks-20261106-02",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:final-postverify-20261106-01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:packaging-resource-20261106-01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:post-core-checks-20261106-01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:post-core-retry-20261106-01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "run:fw03c:selection-retry-20261106-01",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "workspace:70a0aeaea849ea63da8491cc",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      },
+      {
+        "id": "workspace:839670901ef58c6e3218d7ef",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": []
+      }
+    ],
+    "remainingGroups": [
+      {
+        "id": "input:839670901ef58c6e3218d7ef",
+        "revision": 2,
+        "state": "failed",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-02\\reports\\preparation-terminal.json",
+          "evidence_sha256": "a159a9dbd8dd1fc2cdf679607c2a43510d24e3a038140d8687afd255f35f824f",
+          "exit_code": 1,
+          "outcome": "failure",
+          "reason": "Observed failed preparation controllers stopped; preserve partial inputs for parent diagnosis",
+          "status": "stopped"
+        },
+        "references": [],
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ci02",
+            "protection_known": true,
+            "role": "immutable-input",
+            "remaining": true,
+            "logicalBytes": 669016379
+          }
+        ],
+        "inboundReferences": [],
+        "reason": "Exact managed root itself is protected; existing closed producer membership cannot extend/change to descendants. Native guard and membership API preserved; no false restart or manual registry edits."
+      },
+      {
+        "id": "input:70a0aeaea849ea63da8491cc",
+        "revision": 2,
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\core-20261106-03\\reports\\frozen-inputs.json",
+          "evidence_sha256": "f6e5c58711cdfe898917c2c0a1789928530b31ccc5dc424b73f5259cc383c4b4",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Immutable deployment input preparation completed",
+          "status": "stopped"
+        },
+        "references": [],
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ci03",
+            "protection_known": true,
+            "role": "immutable-input",
+            "remaining": true,
+            "logicalBytes": 669096864
+          }
+        ],
+        "inboundReferences": [],
+        "reason": "Exact managed root itself is protected; existing closed producer membership cannot extend/change to descendants. Native guard and membership API preserved; no false restart or manual registry edits."
+      },
+      {
+        "id": "run:fw03c:cargo-prep-20261106-01",
+        "revision": 3,
+        "state": "complete",
+        "producer": {
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\cargo-prep-20261106-01\\reports\\producer-e970cef8509386722b769a3347f7607e610699d4f7654d53b7b49a26ff4f2c63.json",
+          "evidence_sha256": "e970cef8509386722b769a3347f7607e610699d4f7654d53b7b49a26ff4f2c63",
+          "exit_code": 0,
+          "outcome": "success",
+          "reason": "Owned Cargo dependency archive/index preparation completed or failed synchronously, no compiler started",
+          "status": "stopped"
+        },
+        "references": [],
+        "members": [
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03c\\runs\\cargo-prep-20261106-01",
+            "protection_known": true,
+            "role": "run",
+            "remaining": true,
+            "logicalBytes": 335074
+          },
+          {
+            "generated": true,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03ch01",
+            "protection_known": true,
+            "role": "temporary",
+            "remaining": true,
+            "logicalBytes": 1546063659
+          }
+        ],
+        "inboundReferences": [],
+        "reason": "Exact managed root itself is protected; existing closed producer membership cannot extend/change to descendants. Native guard and membership API preserved; no false restart or manual registry edits."
+      }
+    ],
+    "preservedGitControlFiles": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw02\\.git",
+        "bytes": 78,
+        "sha256": "6f4c536d66c4d7b0ea85946468cf8273284dcdea55714052c3d02982ed4c0a10",
+        "text": "gitdir: C:/Users/felre/Desktop/pi-harness-init/artifacts/fw03cw02/control/git\n",
+        "owner": "fw03-core-verification",
+        "protection": "Excluded by deployment-workspace.cjs retainedControlEvidence; parent deferred retirement pending supported owner"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\.git",
+        "bytes": 78,
+        "sha256": "e1d8c1c9e8501f7a2f66f92bda07027c4ad0cda2cc905ae268aa54861d105d4b",
+        "text": "gitdir: C:/Users/felre/Desktop/pi-harness-init/artifacts/fw03cw03/control/git\n",
+        "owner": "fw03-core-verification",
+        "protection": "Excluded by deployment-workspace.cjs retainedControlEvidence; parent deferred retirement pending supported owner"
+      }
+    ],
+    "structuralContainers": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw02",
+        "entries": [
+          ".git"
+        ]
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03",
+        "entries": [
+          ".git",
+          "artifacts"
+        ]
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts",
+        "entries": [
+          "logs",
+          "tasks",
+          "upstream-ui",
+          "verification"
+        ]
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\logs",
+        "entries": [
+          "project-maintenance"
+        ]
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\logs\\project-maintenance",
+        "entries": []
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\tasks",
+        "entries": []
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\upstream-ui",
+        "entries": []
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\fw03cw03\\artifacts\\verification",
+        "entries": []
+      }
+    ],
+    "managedRootsRestoration": {
+      "beforeRestorationSha256": "667c82a188c2bf0aad5f80e1e742d186d4571041a6b48655a2386e2ccabc1e45",
+      "afterRestorationSha256": "98f8af5a096f0da394d821710b6f695c071991bc07849cf02f3fbcba5d559b6c",
+      "originalSha256": "98f8af5a096f0da394d821710b6f695c071991bc07849cf02f3fbcba5d559b6c",
+      "exactOriginal": true,
+      "removedOnly": [
+        "artifacts/fw03ci02",
+        "artifacts/fw03ci03",
+        "artifacts/fw03cw02",
+        "artifacts/fw03cw03",
+        "artifacts/fw03ch01"
+      ]
+    },
+    "persistentCargo": {
+      "id": "shared:cargo-target:9d65c03f6d2d798ea0081c6babb32ee4882b57c9db7b08cb46623200846f02d1",
+      "owner": "cargo-shared-cache",
+      "state": "complete",
+      "references": [
+        {
+          "id": "run:FT-02-target-recovery:20261104T130237346Z-956442a1-4dad-4e93-9ab4-6b02d5055e10",
+          "kind": "dependency",
+          "reason": "Retained interrupted-generation recovery evidence required for cache reuse",
+          "reference_id": "b08459dd131a2a89feb319487409b840dac669f05f40cc71887449742a961709"
+        },
+        {
+          "id": "run:FT-02-reboot-recovery:20261104T121514667Z-1d87435d-6b22-4c55-9b07-941408294112",
+          "kind": "dependency",
+          "reason": "Retained interrupted-generation recovery evidence required for cache reuse",
+          "reference_id": "040d208cb4096e0871ff1ef2bab8610a18571cd3665f0eedcf1e3e47bd5bf22a"
+        }
+      ],
+      "paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cargo\\9d65c03f6d2d798ea0081c6babb32ee4"
+      ]
+    },
+    "allOwnActualProducersTerminal": true,
+    "ioQuiet": true,
+    "rawReportCustody": {
+      "root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\fw03c-final-cleaner-state",
+      "owner": "Root-authorized native-613162bb whole run claim; outside all deleted FW03c groups",
+      "currentUse": "Cleanup completed; root can retire after consuming minimum independent evidence"
+    },
+    "retention": "Protected leftovers require root/user decision or supported owner; no retention approval inferred",
+    "evidenceContinuity": {
+      "status": "original-input-producer-receipts-lost-during-cleanup",
+      "scope": [
+        "input:839670901ef58c6e3218d7ef",
+        "input:70a0aeaea849ea63da8491cc"
+      ],
+      "lostOriginalReceiptSha256": [
+        "a159a9dbd8dd1fc2cdf679607c2a43510d24e3a038140d8687afd255f35f824f",
+        "f6e5c58711cdfe898917c2c0a1789928530b31ccc5dc424b73f5259cc383c4b4"
+      ],
+      "preserved": "Observed terminal exit/outcome/stopped/reason, original receipt paths and hashes, and source/test/postverify summaries in this independent record and owned cleanup control reports.",
+      "missing": "Original receipt bytes, full frozen-input manifest, and durable replacement of the retained input producer evidence pointers were not preserved before their source run groups were deleted.",
+      "cause": "Cleanup transferred result summaries but failed to preserve evidence needed by the retained input groups.",
+      "limits": "Summary evidence does not reproduce or independently revalidate the original receipt bytes or full manifest; no historical success or exit is regenerated, and no retained registry field is manually rewritten.",
+      "cargoHomeProducerReceipt": "Still present in the retained cargo-prep run.",
+      "supportedOwner": "Existing closeLifecycle rejects a conflicting close retry; recordLifecycle preserves prior producer/close_receipt and does not replace closed evidence pointers.",
+      "productSourceModified": false
+    }
+  }
+}

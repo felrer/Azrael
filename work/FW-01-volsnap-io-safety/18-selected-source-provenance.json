@@ -1,0 +1,330 @@
+{
+  "schema": 1,
+  "record_kind": "immutable-selected-main-source-provenance",
+  "created_at_utc": "2026-11-06T00:17:44.102517+00:00",
+  "owner": "FW-01-volsnap-io-safety / root integration",
+  "scope": "Main candidate-v5 / native unit6 only; later cleanup run_status/unit7 source excluded",
+  "state_at_recording": "Selected source officially issued and verified; staged/reconcile preparation is not a main-unit commit completion record",
+  "source_selection": {
+    "historical_repository_head": "9d583ffca53c5797d670481ce09827bb3ecef711",
+    "candidate": "candidate-v5",
+    "unit_patch_sha256": "f4905a10c5865cf28a8d1d91e7355cead1cfff6094851095eee6b8863879a6d7",
+    "native_attempt": "unit6",
+    "native_source_sha256": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5",
+    "binary_sha256": "3499ea95fe95b0692d91e6e9369c0880e85c7260781bbf314f1a4fd2843664f3"
+  },
+  "official_receipt_revision2": {
+    "started_at_utc": "2026-11-05T23:53:29.766342+00:00",
+    "ended_at_utc": "2026-11-05T23:58:11.685871+00:00",
+    "producer_actual_exit": 0,
+    "recorder_actual_argv": [
+      "C:\\Users\\felre\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\record-engine-local-changes.py",
+      "--destination",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\engine",
+      "--baseline",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\shared\\engine-original-ccbcbf93\\engine",
+      "--baseline-receipt-sha256",
+      "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6",
+      "--current-receipt-sha256",
+      "20c91a39e7ac5b1693bda87690a989ab436baadd88e1f678982957ef75f48f11",
+      "--expected-path",
+      "codex-rs/project-maintenance/src/coordination.rs",
+      "--expected-path",
+      "codex-rs/project-maintenance/src/lock_recovery.rs"
+    ],
+    "recorder_actual_exit": 0,
+    "recorder_git_environment_keys": [
+      "GIT_DIR",
+      "GIT_WORK_TREE",
+      "GIT_INDEX_FILE",
+      "GIT_OBJECT_DIRECTORY",
+      "GIT_ALTERNATE_OBJECT_DIRECTORIES"
+    ],
+    "environment_boundary": "Only owned Git/recorder process and its internal Git inherited the five overrides; snapshot-only checker had them scrubbed; no test/compile child was launched",
+    "snapshot_only_actual_argv": [
+      "C:\\Users\\felre\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\import-engine-source.py",
+      "--destination",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\receipt-staging\\engine",
+      "--check",
+      "--snapshot-only"
+    ],
+    "snapshot_only_actual_exit": 0,
+    "receipt": {
+      "bytes": 5315269,
+      "sha256": "fd830550fba73ee2da4a68f7f7e77f599aba907b35e707f2aad1d14f2d01a271",
+      "gitBlob": "57726017769a7674071a2738f38671342ed6a0f6"
+    },
+    "engine_git_tree": "ef9106fd4a69dd615a980b16add5b4f2034cd1ea",
+    "inventory_count": 9345,
+    "byte_count": 95970951,
+    "inventory_sha256": "73230595a4f82b4b52eb0fd466494b7f5c3b249583929ca2b1db1a3d49a7b6bf",
+    "prior_receipt": {
+      "sha256": "20c91a39e7ac5b1693bda87690a989ab436baadd88e1f678982957ef75f48f11",
+      "gitBlob": "b4474f1ab1d313a70581c4bbee763e05445fe94a",
+      "objectBytesMatch": true
+    },
+    "original_import_receipt": {
+      "bytes": 2359410,
+      "sha256": "12a1dbfc1725df7d4e87de4e336e0b8dab217aecbe7d26b624d1e264356b00b6"
+    }
+  },
+  "delta_and_guards": {
+    "revision2_expected_paths": [
+      "codex-rs/project-maintenance/src/coordination.rs",
+      "codex-rs/project-maintenance/src/lock_recovery.rs"
+    ],
+    "revision2_unexpected_descriptor_deltas": 0,
+    "candidate_engine_files_matched": 25,
+    "native_actual_frozen_engine_files_matched": 24,
+    "native_input_boundary": "The standalone crate does not include core/src/tools/handlers/project_maintenance.rs; no native coverage for that file is claimed here",
+    "core_caller_preservation": [
+      {
+        "path": "codex-rs/core/src/tools/handlers/project_maintenance.rs",
+        "sha256": "133a13a6ebaa7df6fa8de5738205add3edb5f36ed8b838fe30746b2c088a7e69",
+        "candidateV3V5AndPriorReceiptIdentical": true,
+        "nativeUnit6Input": false,
+        "separateCoreVerification": "Parent links existing fullengine/core9 verification; not newly rerun here"
+      }
+    ],
+    "original_sql_files_verified_identical": 83,
+    "sql_comparison": "All83 descriptors and raw bytes matched the original import; checkout EOL restoration proof was retained separately",
+    "other_head_source_bytes": "Unchanged except the selected main unit; revision2 changed only coordination.rs and lock_recovery.rs",
+    "e1_and_cleanup_run_status_absorbed": false
+  },
+  "native_verification_existing_evidence": {
+    "scope": "Windows x64 local standalone/library; frozen HEAD896 unit overlay; no installed executable change",
+    "source_sha256": "385b4bcb42dae0dbd3fa96fe2d5157a9c3812e5e1306e2a501d27c0080f191d5",
+    "frozen_unchanged": true,
+    "full_actual_exit": 0,
+    "full_passed": 208,
+    "full_failed": 0,
+    "same_target_process_count": 8,
+    "same_target_all26_calls_actual_exit_zero": true,
+    "same_target_same_results": true,
+    "same_target_all_absent": true,
+    "same_target_all_deleted": true,
+    "no_execution_repeated_for_this_provenance_record": true
+  },
+  "selected_files": [
+    {
+      "path": "engine/codex-rs/core/src/tools/handlers/project_maintenance.rs",
+      "git_mode": "100644",
+      "git_blob": "05e9484defd4013c0636fb8d5d2d54ced4780f12",
+      "sha256": "133a13a6ebaa7df6fa8de5738205add3edb5f36ed8b838fe30746b2c088a7e69"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/admission.rs",
+      "git_mode": "100644",
+      "git_blob": "5417f78dd5326f7ccff922d320f85311332e3c9a",
+      "sha256": "61997d1d5c61e905256a9270aaa147b15cf38c8c66720ad55f9236d6b26b7476"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/apply.rs",
+      "git_mode": "100644",
+      "git_blob": "9c2dd2a2dfef5d0c87efd724fb84063584f65677",
+      "sha256": "9f16076fbec6b6865b3bb98e880cca4ea632be02d9bec0d8310e1bf2e6cf366c"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/bin/maintenance_owner.rs",
+      "git_mode": "100644",
+      "git_blob": "3f85c253d7a2b69ba8067c0f36c6502eec44cf06",
+      "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/cli.rs",
+      "git_mode": "100644",
+      "git_blob": "781466c8f51118a620e48219d57f3de77fbbc22d",
+      "sha256": "b4a5a944fb7624f6649ca41f0c91807df17e15b7282c7104ae3e8af64881e8f7"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/coordination.rs",
+      "git_mode": "100644",
+      "git_blob": "05323b8dd4ac52e65bd365436648243f6154111d",
+      "sha256": "8f2a2ae3b6900d9328d96b27b4f6a57695396a72878b4391de960d2a11f59119"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/disk_budget.rs",
+      "git_mode": "100644",
+      "git_blob": "df7cad56173c777487d4c53222d74682eb3e17d8",
+      "sha256": "00f3ed44091ae98405db1730c1a5f3cb7e1204d90557225c57c25b2706552bbc"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/groups.rs",
+      "git_mode": "100644",
+      "git_blob": "3dab60d0288ecae625a0bd2f4d7c44289999503f",
+      "sha256": "cfd3b5e6d6c49dbec2ae60aec87fd58a7366d354a00709dd12512830153cae3f"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lease.rs",
+      "git_mode": "100644",
+      "git_blob": "8ed9b96952c434ef0ac2e212d62d8a8dd9b3e02b",
+      "sha256": "55e8f7f51c2e94d28d28b85ef71999486b41d68ae05c7ed7dab169a8fc18d2f8"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lib.rs",
+      "git_mode": "100644",
+      "git_blob": "5bfff88e7291bf673ff2ac9c58a46134571e0882",
+      "sha256": "fab60f0c57494dd503558d318be3f9a0f402078c43f4b63697f5186a7101b72d"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
+      "git_mode": "100644",
+      "git_blob": "ed818e845a8751e5f31eb0de82e7172bc8f745a7",
+      "sha256": "0e04e42fb6e548def9a2ca583b68a7ce9f49fbab8944b3fc69110472d2c0f060"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lock_wait.rs",
+      "git_mode": "100644",
+      "git_blob": "4a59fc8e892e1de5069d197173b933f0aa39712d",
+      "sha256": "268e547a4128e2cdec28ace5e5266539f37a17c973e43a7259959012352a05be"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/paths.rs",
+      "git_mode": "100644",
+      "git_blob": "9e7eb5207bb82251833daecc393c4686f672e983",
+      "sha256": "53908c738445538dfbc7e96b0071f6a78d1b41b9e55a1f4336a8fa1168aa2685"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/planning.rs",
+      "git_mode": "100644",
+      "git_blob": "7c7e7f08e39e8ef9b5e9e56f0cfdf547eb183292",
+      "sha256": "452fb10076918b6092eefadf28293d598004865d46c5d39be11a25dd366bfba0"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/preferences.rs",
+      "git_mode": "100644",
+      "git_blob": "e5f9c2cae0fdae09dfe0624ae657242b9443a5f9",
+      "sha256": "e94847d9e6ee716fdeef9b0a34952ee9e64e059f160ae7272bd30ae2b5da21af"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/registration.rs",
+      "git_mode": "100644",
+      "git_blob": "ae39541202787860b4738b2759261649511afcaa",
+      "sha256": "0afd90602598af6c261ad1c6c89eb14c3fb0d1ba18871b16662d95b44da18a95"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/registry.rs",
+      "git_mode": "100644",
+      "git_blob": "395e71bfc2a3125924892aefb934ab79d76acbd3",
+      "sha256": "66d674894559a08901b71c3242b535ee4c28d6c64cdeb53d8083ed8834aa756d"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/reservations.rs",
+      "git_mode": "100644",
+      "git_blob": "487b1bbe2d287962334669e7acd9b8e98d7bf187",
+      "sha256": "125a04873a97fda310038251e257ff4ff0187b0212f0a4bf21ff183b181cffce"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/review_relations.rs",
+      "git_mode": "100644",
+      "git_blob": "f2c22ad9b3605c844866b0ed848ac815d29d3ee7",
+      "sha256": "02ab58ece513f473356f0ec06bdd72040b8877d9ce6f54476e606ee5dcedcefd"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/review_reuse.rs",
+      "git_mode": "100644",
+      "git_blob": "03ff066bea94f5fe9bbcb89b7e91501d129f2d08",
+      "sha256": "8edb1c6c3a47275da25eed621d060e4b75f20c9955fb840eb00130dd8cad8e91"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/run_measurement.rs",
+      "git_mode": "100644",
+      "git_blob": "081a9ee5a4cd3947caff13996265a46b77885439",
+      "sha256": "c004f3280d8d7dad7e78cf52385509925d117598cea1ebd6fe943002bd0d0a09"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/storage.rs",
+      "git_mode": "100644",
+      "git_blob": "88ed4da2339fb38072d417d3393b5dd437a336c5",
+      "sha256": "1537c9d7bf1c9dd6e2eeaf34e7bcd67f7f1527ccb352aa72b095caefefdead4b"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/timing.rs",
+      "git_mode": "100644",
+      "git_blob": "a79dfb0671bc7a8af7b84990754767830daa361a",
+      "sha256": "e92ca342f78783ac21c865cadab95530b4d76207bb5d7e810d5a3ba1beafab32"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/tests/registry.rs",
+      "git_mode": "100644",
+      "git_blob": "df95a38e6b3a9cd4ea3b886fadc6c06e145fd18b",
+      "sha256": "13d1c1c933549c3e06e55a57f55a879b461c07f661ad1c53310bb65f4f2092c3"
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/tests/run_measurement.rs",
+      "git_mode": "100644",
+      "git_blob": "323b0593809aed6c336055f3a68acf7dd0b59015",
+      "sha256": "54ec01572532a778b9dff1312f1377cc53b3451d0b8c188f3860dddbb0931438"
+    },
+    {
+      "path": "scripts/maintenance-lock-owner.cjs",
+      "git_mode": "100644",
+      "git_blob": "bfb953a4a3b7b1c45b5d2346f503ffb4b441ef44",
+      "sha256": "aa7a84f0fc7209e060296b62b027aed31fa6d1879c08ac64cbfe1ed19fd77d76"
+    },
+    {
+      "path": "engine/SOURCE.json",
+      "git_mode": "100644",
+      "git_blob": "57726017769a7674071a2738f38671342ed6a0f6",
+      "sha256": "fd830550fba73ee2da4a68f7f7e77f599aba907b35e707f2aad1d14f2d01a271"
+    }
+  ],
+  "head_refresh": {
+    "old_head": "9d583ffca53c5797d670481ce09827bb3ecef711",
+    "new_head": "c3d2c02e8fec6b60951e25bd9b408b9351f93a8a",
+    "old_and_new_head_engine_tree": "50d0ef992d19a4314059cb89e60407c6a08bbe55",
+    "head_engine_unchanged": true,
+    "selected_engine_tree_unchanged": true,
+    "derived_main_root_tree_before_root_docs": "1872ea473293aca47fb88b960e69618c74cb5d95",
+    "new_head_other_paths_preserved": true,
+    "selected_file_count": 27,
+    "changed_path_count": 26,
+    "diff_check_actual_exit": 0,
+    "source_receipt_not_reissued_for_head_refresh": true
+  },
+  "primary_preservation": {
+    "revision2_primary_source_and_index_unchanged": true,
+    "primary_source_receipt_before": {
+      "bytes": 5393377,
+      "sha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149"
+    },
+    "primary_source_receipt_after": {
+      "bytes": 5393377,
+      "sha256": "53d0f70f471bbdc9b255ab2ba057b77794c8409130fc86c62e6dad50c6afe149"
+    },
+    "primary_source_receipt_was_not_written": true,
+    "head_refresh_normal_index_unchanged": true,
+    "head_refresh_primary_working_bytes_unchanged": true,
+    "no_primary_index_or_head_write_or_commit_by_this_issuer": true
+  },
+  "staged_reconcile_status_at_recording": {
+    "historical_base": "9d583ffca53c5797d670481ce09827bb3ecef711",
+    "normal_index_overlap": "Three add/add paths were simulated; no conflict resolution or normal-index write was performed",
+    "timing_and_preferences": "Original staged functionality reviewed as included in main prerequisite scope; candidate alignment is a later root operation",
+    "cli": "Candidate plus original excluded routes/capability extras is being prepared as an owned residual, excluding cleanup run_status",
+    "other_original_staged_entries": "33 unrelated plus3 matching entries were preserved exactly; HEAD/index must be rechecked before actual reconciliation",
+    "commit_completed": false
+  },
+  "independent_evidence_fingerprints": [
+    {
+      "path": "artifacts/tasks/fw03v/runs/native-613162bb/temporary/root-commit-control/isolated-unit/receipt-staging/revision2-report.json",
+      "bytes": 3731439,
+      "sha256": "c71e92ec458f1a478463842bc55d53abcb1087d611f4dc65bd8ed61a2c39bbbb"
+    },
+    {
+      "path": "artifacts/tasks/fw03v/runs/native-613162bb/temporary/root-commit-control/isolated-unit/receipt-staging/head-refresh-report-c3d2.json",
+      "bytes": 22783,
+      "sha256": "f1d87f46baea96406877388c81a9974430678084817ff429aacc0e6098458d2c"
+    },
+    {
+      "path": "artifacts/tasks/fw03v/runs/native-613162bb/reports/unit6/final-readiness.json",
+      "bytes": 6532,
+      "sha256": "5f7bbd35dc04893c2ec8d4714e02c5fb4fcc82856cdd73bf8b90ac72b8902a31"
+    }
+  ],
+  "retention_note": "This compact record retains identities, exact official argv, actual outcomes and scope independently of temporary raw logs/full inventories; those payloads are not copied here."
+}
