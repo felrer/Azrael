@@ -1,0 +1,510 @@
+{
+  "schema": 1,
+  "status": "ready-official-prerequisites",
+  "scope": "Windows x64 persistent isolated official Codex/audio prerequisites only; no Azrael install, no S writes, no user window closure",
+  "plan": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\inputs\\seed-plan.json",
+    "sha256": "e1ec3a11c7ec0da59aa6668931a9b1f6a4a35c03574e49fa1e770f817fa1e837"
+  },
+  "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+  "runId": "run:fw04:isolated-seed-20261106-01",
+  "profileOwner": {
+    "schema": 1,
+    "id": "version:fw04-18-isolated-profile",
+    "kind": "version",
+    "owner": "FW04-isolated-installation",
+    "version": null,
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "generated": false,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "protection_known": true,
+        "role": "vscode-user-data"
+      },
+      {
+        "generated": false,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "protection_known": true,
+        "role": "vscode-extensions"
+      }
+    ],
+    "references": [],
+    "revision": 2,
+    "created_at": "2026-11-06T13:55:29.399Z",
+    "updated_at": "2026-11-06T13:58:10.005Z"
+  },
+  "calls": [
+    {
+      "label": "01-code-version",
+      "argv": [
+        "--user-data-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "--extensions-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "--extensions-download-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+        "--logsPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+        "--log",
+        "trace",
+        "--verbose",
+        "--version"
+      ],
+      "observed": {
+        "pid": 21996,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "overflow": false,
+        "exitScope": "Official code.cmd synchronous CLI exit forwarded by cmd.exe; no Code GUI window launch or shutdown requested"
+      },
+      "stdout": "1.145.2\nc4453f8ea430795f941c1b2ff6c9321135a74a02\nx64\n",
+      "stderr": ""
+    },
+    {
+      "label": "02-audio-install",
+      "argv": [
+        "--user-data-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "--extensions-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "--extensions-download-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+        "--logsPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+        "--log",
+        "trace",
+        "--verbose",
+        "--install-extension",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\inputs\\openai.codex-audio-26.1021.22027.vsix",
+        "--do-not-include-pack-dependencies"
+      ],
+      "observed": {
+        "pid": 24936,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "overflow": false,
+        "exitScope": "Official code.cmd synchronous CLI exit forwarded by cmd.exe; no Code GUI window launch or shutdown requested"
+      },
+      "stdout": "TRACE PolicyConfiguration#initialize\nTRACE PolicyConfiguration#updatePolicyDefinitions [\n  'http.useLocalProxyConfiguration',\n  'http.electronFetch',\n  'http.proxy',\n  'http.proxyStrictSSL',\n  'http.proxyKerberosServicePrincipal',\n  'http.noProxy',\n  'http.proxyAuthorization',\n  'http.proxySupport',\n  'http.systemCertificates',\n  'http.systemCertificatesNode',\n  'http.experimental.systemCertificatesV2',\n  'http.fetchAdditionalSupport',\n  'http.webSocketAdditionalSupport',\n  'http.experimental.networkInterfaceCheckInterval',\n  'extensions.allowed',\n  'telemetry.telemetryLevel',\n  'telemetry.feedback.enabled',\n  'telemetry.enableTelemetry'\n]\nTRACE NativePolicyService#_updatePolicyDefinitions - Found 3 policy definitions\nTRACE Creating watcher for productName VSCode\nTRACE NativePolicyService#_onDidPolicyChange - Updated policy values: {}\nTRACE PolicyConfiguration#update [\n  'extensions.allowed',\n  'telemetry.telemetryLevel',\n  'telemetry.feedback.enabled'\n]\nTRACE [File Watcher (node.js)] Request to start watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>),c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\n INFO CLI main {\n  _: [],\n  diff: false,\n  merge: false,\n  add: false,\n  remove: false,\n  goto: false,\n  'new-window': false,\n  'reuse-window': false,\n  agents: false,\n  wait: false,\n  'user-data-dir': 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\p\\\\fw04-18\\\\u',\n  help: false,\n  'extensions-dir': 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\p\\\\fw04-18\\\\e',\n  'extensions-download-dir': 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\temporary\\\\cache\\\\extension-vsix',\n  'list-extensions': false,\n  'show-versions': false,\n  'install-extension': [\n    'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\inputs\\\\openai.codex-audio-26.1021.22027.vsix'\n  ],\n  'pre-release': false,\n  'update-extensions': false,\n  version: false,\n  verbose: true,\n  log: [ 'trace' ],\n  status: false,\n  'prof-startup': false,\n  'no-cached-data': false,\n  'prof-v8-extensions': false,\n  'disable-extensions': false,\n  'disable-lcd-text': false,\n  'disable-gpu': false,\n  'disable-chromium-sandbox': false,\n  sandbox: false,\n  telemetry: false,\n  debugRenderer: false,\n  'enable-smoke-test-driver': false,\n  'skip-sessions-welcome': false,\n  logExtensionHostCommunication: false,\n  'skip-release-notes': false,\n  'skip-welcome': false,\n  'disable-telemetry': false,\n  'disable-updates': false,\n  'share-secrets-with-agents-app': false,\n  transient: false,\n  'use-inmemory-secretstorage': false,\n  'disable-workspace-trust': false,\n  'disable-crash-reporter': false,\n  'skip-add-to-recently-opened': false,\n  'open-url': false,\n  'file-write': false,\n  'file-chmod': false,\n  force: false,\n  'do-not-sync': false,\n  'do-not-include-pack-dependencies': true,\n  trace: false,\n  'trace-memory-infra': false,\n  'preserve-env': false,\n  'force-user-env': false,\n  'force-disable-user-env': false,\n  'open-devtools': false,\n  'disable-gpu-sandbox': false,\n  logsPath: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\logs\\\\code-cli',\n  '__enable-file-policy': false,\n  'enable-coi': false,\n  'enable-rdp-display-tracking': false,\n  'disable-layout-restore': false,\n  'disable-experiments': false,\n  'no-proxy-server': false,\n  'no-sandbox': false,\n  nolazy: false,\n  'force-renderer-accessibility': false,\n  'ignore-certificate-errors': false,\n  'allow-insecure-localhost': false,\n  'disable-dev-shm-usage': false,\n  'profile-temp': false\n}\nInstalling extensions...\nTRACE Started scanning system extensions\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nTRACE [File Watcher (node.js)] ignoring a path for watching who's stat info failed to resolve: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (error: Error: ENOENT: no such file or directory, stat 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json')\nTRACE [File Watcher (node.js)] starting fs.watchFile() on c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (correlationId: undefined)\n INFO Started initializing default profile extensions in extensions installation folder. file:///c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e\nTRACE [File Watcher (node.js)] Request to start watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\nTRACE [File Watcher (node.js)] Request to stop watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\nTRACE [File Watcher (node.js)] stopping file watcher (c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>))\nDEBUG ComputeTargetPlatform: win32-x64\nTRACE [File Watcher (node.js)] Started watching: 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User'\nTRACE [File Watcher (node.js)] Started watching: 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e'\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"change\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"change\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json\n INFO Completed initializing default profile extensions in extensions installation folder. file:///c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e\nTRACE Scanned user extensions: 0\nTRACE [File Watcher (node.js)] Request to start watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\nTRACE [File Watcher (node.js)] Started watching: 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json'\nTRACE Scanned system extensions: 95\nTRACE ExtensionManagementService#install file:///c%3A/Users/felre/Desktop/pi-harness-init/artifacts/tasks/fw04/runs/isolated-seed-20261106-01/inputs/openai.codex-audio-26.1021.22027.vsix\nTRACE Started scanning system extensions\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nTRACE Scanned user extensions: 0\nDEBUG Using cached extensions scan result system file:///c%3A/Users/felre/AppData/Local/Programs/Microsoft%20VS%20Code/c4453f8ea4/resources/app/extensions\nTRACE Scanned system extensions: 95\n INFO Installing extension: openai.codex-audio {\n  isMachineScoped: false,\n  installPreReleaseVersion: false,\n  donotIncludePackAndDependencies: true,\n  profileLocation: Ir {\n    scheme: 'vscode-userdata',\n    authority: '',\n    path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n    query: '',\n    fragment: '',\n    _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n    _fsPath: null\n  },\n  installGivenVersion: true,\n  isBuiltin: false,\n  isApplicationScoped: false,\n  productVersion: { version: '1.145.2', date: '2026-11-06T04:28:13Z' }\n}\n INFO Installing the extension without checking dependencies and pack openai.codex-audio\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nTRACE Scanned user extensions: 0\nTRACE Started scanning system extensions\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nTRACE Scanned user extensions: 0\nDEBUG Using cached extensions scan result system file:///c%3A/Users/felre/AppData/Local/Programs/Microsoft%20VS%20Code/c4453f8ea4/resources/app/extensions\nTRACE Scanned system extensions: 95\nTRACE [File Watcher (node.js)]  >> normalized [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json.vsctmp\nDEBUG User data changed\nTRACE Started extracting the extension from c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\inputs\\openai.codex-audio-26.1021.22027.vsix to c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.codex-audio-26.1021.22027\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] .dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [DELETED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json\n INFO Extracted extension to file:///c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/openai.codex-audio-26.1021.22027: openai.codex-audio\nTRACE [File Watcher (node.js)]  >> normalized [DELETED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json.vsctmp\nTRACE [File Watcher (node.js)]  >> normalized [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)]  >> normalized [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json\nDEBUG User data changed\nTRACE Started renaming the extension from c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.dc43d2ef-f088-47df-b0fd-993f25f205ea to c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.codex-audio-26.1021.22027\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] .dc43d2ef-f088-47df-b0fd-993f25f205ea\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] openai.codex-audio-26.1021.22027\n INFO Renamed to c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.codex-audio-26.1021.22027\nTRACE [File Watcher (node.js)] [raw] [\"change\"] openai.codex-audio-26.1021.22027\nTRACE [File Watcher (node.js)] [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.codex-audio-26.1021.22027\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"change\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nTRACE Scanned user extensions: 1\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #1: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - begin POST Pu {\n  original: {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac',\n    'Content-Type': 'application/json',\n    Accept: 'application/json;api-version=3.0-preview.1',\n    'Accept-Encoding': 'gzip',\n    'Content-Length': '243'\n  },\n  headers: [Object: null prototype] {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac',\n    'Content-Type': 'application/json',\n    Accept: 'application/json;api-version=3.0-preview.1',\n    'Accept-Encoding': 'gzip',\n    'Content-Length': '243'\n  }\n}\n INFO Extension installed successfully: openai.codex-audio vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json\nExtension 'openai.codex-audio-26.1021.22027.vsix' was successfully installed.\n",
+      "stderr": "(node:25928) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.\n(Use `Code --trace-deprecation ...` to show where the warning was created)\n"
+    },
+    {
+      "label": "03-codex-install",
+      "argv": [
+        "--user-data-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "--extensions-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "--extensions-download-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+        "--logsPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+        "--log",
+        "trace",
+        "--verbose",
+        "--install-extension",
+        "openai.chatgpt@26.1021.22027",
+        "--do-not-include-pack-dependencies"
+      ],
+      "observed": {
+        "pid": 10116,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "overflow": false,
+        "exitScope": "Official code.cmd synchronous CLI exit forwarded by cmd.exe; no Code GUI window launch or shutdown requested"
+      },
+      "stdout": "TRACE PolicyConfiguration#initialize\nTRACE PolicyConfiguration#updatePolicyDefinitions [\n  'http.useLocalProxyConfiguration',\n  'http.electronFetch',\n  'http.proxy',\n  'http.proxyStrictSSL',\n  'http.proxyKerberosServicePrincipal',\n  'http.noProxy',\n  'http.proxyAuthorization',\n  'http.proxySupport',\n  'http.systemCertificates',\n  'http.systemCertificatesNode',\n  'http.experimental.systemCertificatesV2',\n  'http.fetchAdditionalSupport',\n  'http.webSocketAdditionalSupport',\n  'http.experimental.networkInterfaceCheckInterval',\n  'extensions.allowed',\n  'telemetry.telemetryLevel',\n  'telemetry.feedback.enabled',\n  'telemetry.enableTelemetry'\n]\nTRACE NativePolicyService#_updatePolicyDefinitions - Found 3 policy definitions\nTRACE Creating watcher for productName VSCode\nTRACE NativePolicyService#_onDidPolicyChange - Updated policy values: {}\nTRACE PolicyConfiguration#update [\n  'extensions.allowed',\n  'telemetry.telemetryLevel',\n  'telemetry.feedback.enabled'\n]\nTRACE [File Watcher (node.js)] Request to start watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>),c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\n INFO CLI main {\n  _: [],\n  diff: false,\n  merge: false,\n  add: false,\n  remove: false,\n  goto: false,\n  'new-window': false,\n  'reuse-window': false,\n  agents: false,\n  wait: false,\n  'user-data-dir': 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\p\\\\fw04-18\\\\u',\n  help: false,\n  'extensions-dir': 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\p\\\\fw04-18\\\\e',\n  'extensions-download-dir': 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\temporary\\\\cache\\\\extension-vsix',\n  'list-extensions': false,\n  'show-versions': false,\n  'install-extension': [ 'openai.chatgpt@26.1021.22027' ],\n  'pre-release': false,\n  'update-extensions': false,\n  version: false,\n  verbose: true,\n  log: [ 'trace' ],\n  status: false,\n  'prof-startup': false,\n  'no-cached-data': false,\n  'prof-v8-extensions': false,\n  'disable-extensions': false,\n  'disable-lcd-text': false,\n  'disable-gpu': false,\n  'disable-chromium-sandbox': false,\n  sandbox: false,\n  telemetry: false,\n  debugRenderer: false,\n  'enable-smoke-test-driver': false,\n  'skip-sessions-welcome': false,\n  logExtensionHostCommunication: false,\n  'skip-release-notes': false,\n  'skip-welcome': false,\n  'disable-telemetry': false,\n  'disable-updates': false,\n  'share-secrets-with-agents-app': false,\n  transient: false,\n  'use-inmemory-secretstorage': false,\n  'disable-workspace-trust': false,\n  'disable-crash-reporter': false,\n  'skip-add-to-recently-opened': false,\n  'open-url': false,\n  'file-write': false,\n  'file-chmod': false,\n  force: false,\n  'do-not-sync': false,\n  'do-not-include-pack-dependencies': true,\n  trace: false,\n  'trace-memory-infra': false,\n  'preserve-env': false,\n  'force-user-env': false,\n  'force-disable-user-env': false,\n  'open-devtools': false,\n  'disable-gpu-sandbox': false,\n  logsPath: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\logs\\\\code-cli',\n  '__enable-file-policy': false,\n  'enable-coi': false,\n  'enable-rdp-display-tracking': false,\n  'disable-layout-restore': false,\n  'disable-experiments': false,\n  'no-proxy-server': false,\n  'no-sandbox': false,\n  nolazy: false,\n  'force-renderer-accessibility': false,\n  'ignore-certificate-errors': false,\n  'allow-insecure-localhost': false,\n  'disable-dev-shm-usage': false,\n  'profile-temp': false\n}\nInstalling extensions...\nTRACE Started scanning system extensions\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nTRACE [File Watcher (node.js)] ignoring a path for watching who's stat info failed to resolve: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (error: Error: ENOENT: no such file or directory, stat 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json')\nTRACE [File Watcher (node.js)] starting fs.watchFile() on c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (correlationId: undefined)\nTRACE [File Watcher (node.js)] Request to start watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\nTRACE [File Watcher (node.js)] Request to stop watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\nTRACE [File Watcher (node.js)] stopping file watcher (c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>))\nDEBUG Using cached extensions scan result system file:///c%3A/Users/felre/AppData/Local/Programs/Microsoft%20VS%20Code/c4453f8ea4/resources/app/extensions\nTRACE Scanned system extensions: 95\nDEBUG ComputeTargetPlatform: win32-x64\nTRACE [File Watcher (node.js)] Request to start watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\nTRACE [File Watcher (node.js)] Started watching: 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User'\nTRACE [File Watcher (node.js)] Started watching: 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e'\nTRACE Scanned user extensions: 1\nTRACE [File Watcher (node.js)] Started watching: 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json'\nDEBUG ComputeTargetPlatform: win32-x64\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #1: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - begin POST Pu {\n  original: {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac',\n    'Content-Type': 'application/json',\n    Accept: 'application/json;api-version=3.0-preview.1',\n    'Accept-Encoding': 'gzip',\n    'Content-Length': '239'\n  },\n  headers: [Object: null prototype] {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac',\n    'Content-Type': 'application/json',\n    Accept: 'application/json;api-version=3.0-preview.1',\n    'Accept-Encoding': 'gzip',\n    'Content-Length': '239'\n  }\n}\nTRACE #1: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - end POST 200 {\n  'cache-control': 'no-cache, no-store, must-revalidate',\n  pragma: 'no-cache',\n  'transfer-encoding': 'chunked',\n  'content-type': 'application/json; charset=utf-8; api-version=3.0-preview.1',\n  'content-encoding': 'gzip',\n  expires: '-1',\n  vary: 'Accept-Encoding',\n  p3p: 'CP=\"CAO DSP COR ADMa DEV CONo TELo CUR PSA PSD TAI IVDo OUR SAMi BUS DEM NAV STA UNI COM INT PHY ONL FIN PUR LOC CNT\"',\n  'set-cookie': [\n    'VstsSession=%7B%22PersistentSessionId%22%3A%224384cd1b-cc78-46d3-9702-b9952577437b%22%2C%22PendingAuthenticationSessionId%22%3A%2200000000-0000-0000-0000-000000000000%22%2C%22CurrentAuthenticationSessionId%22%3A%2200000000-0000-0000-0000-000000000000%22%2C%22SignInState%22%3A%7B%7D%7D;SameSite=None; domain=.visualstudio.com; expires=Sat, 06-Nov-2027 13:55:40 GMT; path=/; secure; HttpOnly'\n  ],\n  'x-tfs-processid': 'c5819cb5-24c8-4ed9-a6a0-0c6c8127d649',\n  'strict-transport-security': 'max-age=31536000; includeSubDomains',\n  activityid: 'e05fcb5f-aab0-4d28-b651-070853cb40fa',\n  'x-tfs-session': 'e05fcb5f-aab0-4d28-b651-070853cb40fa',\n  'x-vss-e2eid': 'e05fcb5f-aab0-4d28-b651-070853cb40fa',\n  'x-vss-senderdeploymentid': '2663b13f-50e3-a655-a159-22f6f4725fab',\n  'request-context': 'appId=cid-v1:84715e31-583a-4723-a46d-946169b2f4a8',\n  'access-control-expose-headers': 'Request-Context',\n  'x-content-type-options': 'nosniff',\n  'x-cache': 'CONFIG_NOCACHE',\n  'x-msedge-ref': 'Ref A: 16C4010CE3C94B6EB65924F9BB996697 Ref B: SEL221051804053 Ref C: 2026-11-06T13:55:40Z',\n  date: 'Fri, 06 Nov 2026 13:55:40 GMT'\n}\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #2: https://openai.gallerycdn.vsassets.io/extensions/openai/chatgpt/26.1021.22027/1792790459551/Microsoft.VisualStudio.Code.Manifest?targetPlatform=win32-x64 - begin GET Pu {\n  original: {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac'\n  },\n  headers: [Object: null prototype] {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac'\n  }\n}\nTRACE #2: https://openai.gallerycdn.vsassets.io/extensions/openai/chatgpt/26.1021.22027/1792790459551/Microsoft.VisualStudio.Code.Manifest?targetPlatform=win32-x64 - end GET 200 {\n  'cache-control': 'public, max-age=31536000',\n  'content-type': 'application/json',\n  'last-modified': 'Fri, 23 Oct 2026 21:22:18 GMT',\n  etag: '0x8DF314BB7847B95',\n  'x-ms-request-id': '1a86798f-201e-0052-4c3b-63af12000000',\n  'x-ms-version': '2009-09-19',\n  'x-ms-lease-status': 'unlocked',\n  'x-ms-blob-type': 'BlockBlob',\n  'access-control-expose-headers': 'x-ms-request-id,Server,x-ms-version,Content-Type,Content-Encoding,Cache-Control,ETag,Last-Modified,x-ms-lease-status,x-ms-blob-type,Content-Length,Date,Transfer-Encoding',\n  'access-control-allow-origin': '*',\n  date: 'Fri, 06 Nov 2026 13:55:41 GMT',\n  'content-length': '8463',\n  connection: 'keep-alive'\n}\nInstalling extension 'openai.chatgpt' v26.1021.22027...\nTRACE ExtensionManagementService.updateControlCache\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #3: https://main.vscode-cdn.net/extensions/marketplace.json - begin GET Pu { original: {}, headers: [Object: null prototype] {} }\nTRACE #3: https://main.vscode-cdn.net/extensions/marketplace.json - end GET 200 {\n  date: 'Fri, 06 Nov 2026 13:55:41 GMT',\n  'content-type': 'application/json',\n  'content-length': '80589',\n  connection: 'keep-alive',\n  'cache-control': 'max-age=3600',\n  'last-modified': 'Mon, 26 Oct 2026 17:23:03 GMT',\n  etag: '\"0x8DF3385CABB540F\"',\n  'x-ms-request-id': '029328a6-601e-0001-25d1-6d641d000000',\n  'x-ms-version': '2018-03-28',\n  'x-azure-ref': '20261106T135541Z-1688479c474bknwmhC1SEL21s80000000v9g000000006hr1',\n  'x-fd-int-roxy-purgeid': '3',\n  'x-cache': 'TCP_HIT',\n  vary: 'Origin',\n  'cross-origin-resource-policy': 'cross-origin',\n  'accept-ranges': 'bytes'\n}\n INFO Getting Manifest... openai.chatgpt\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #4: https://openai.gallerycdn.vsassets.io/extensions/openai/chatgpt/26.1021.22027/1792790459551/Microsoft.VisualStudio.Code.Manifest?targetPlatform=win32-x64 - begin GET Pu {\n  original: {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac'\n  },\n  headers: [Object: null prototype] {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac'\n  }\n}\nTRACE #4: https://openai.gallerycdn.vsassets.io/extensions/openai/chatgpt/26.1021.22027/1792790459551/Microsoft.VisualStudio.Code.Manifest?targetPlatform=win32-x64 - end GET 200 {\n  'cache-control': 'public, max-age=31536000',\n  'content-type': 'application/json',\n  'last-modified': 'Fri, 23 Oct 2026 21:22:18 GMT',\n  etag: '0x8DF314BB7847B95',\n  'x-ms-request-id': '1a86798f-201e-0052-4c3b-63af12000000',\n  'x-ms-version': '2009-09-19',\n  'x-ms-lease-status': 'unlocked',\n  'x-ms-blob-type': 'BlockBlob',\n  'access-control-expose-headers': 'x-ms-request-id,Server,x-ms-version,Content-Type,Content-Encoding,Cache-Control,ETag,Last-Modified,x-ms-lease-status,x-ms-blob-type,Content-Length,Date,Transfer-Encoding',\n  'access-control-allow-origin': '*',\n  date: 'Fri, 06 Nov 2026 13:55:41 GMT',\n  'content-length': '8463',\n  connection: 'keep-alive'\n}\nTRACE Started scanning system extensions\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nDEBUG Using cached extensions scan result system file:///c%3A/Users/felre/AppData/Local/Programs/Microsoft%20VS%20Code/c4453f8ea4/resources/app/extensions\nTRACE Scanned system extensions: 95\nTRACE Scanned user extensions: 1\n INFO Installing extension: openai.chatgpt {\n  isMachineScoped: false,\n  installPreReleaseVersion: false,\n  donotIncludePackAndDependencies: true,\n  profileLocation: Ir {\n    scheme: 'vscode-userdata',\n    authority: '',\n    path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n    query: '',\n    fragment: '',\n    _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n    _fsPath: null\n  },\n  isBuiltin: false,\n  installGivenVersion: true,\n  isApplicationScoped: false,\n  productVersion: { version: '1.145.2', date: '2026-11-06T04:28:13Z' }\n}\n INFO Installing the extension without checking dependencies and pack openai.chatgpt\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nTRACE Scanned user extensions: 1\nTRACE Started scanning system extensions\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nDEBUG Using cached extensions scan result system file:///c%3A/Users/felre/AppData/Local/Programs/Microsoft%20VS%20Code/c4453f8ea4/resources/app/extensions\nTRACE Scanned system extensions: 95\nTRACE Scanned user extensions: 1\nTRACE ExtensionGalleryService#download openai.chatgpt\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #5: https://openai.gallery.vsassets.io/_apis/public/gallery/publisher/openai/extension/chatgpt/26.1021.22027/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage?redirect=true&targetPlatform=win32-x64&install=true - begin GET Pu {\n  original: {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac',\n    'X-Market-Search-Activity-Id': 'e05fcb5f-aab0-4d28-b651-070853cb40fa'\n  },\n  headers: [Object: null prototype] {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac',\n    'X-Market-Search-Activity-Id': 'e05fcb5f-aab0-4d28-b651-070853cb40fa'\n  }\n}\nTRACE #5: https://openai.gallery.vsassets.io/_apis/public/gallery/publisher/openai/extension/chatgpt/26.1021.22027/assetbyname/Microsoft.VisualStudio.Services.VSIXPackage?redirect=true&targetPlatform=win32-x64&install=true - end GET 200 {\n  'cache-control': 'public, max-age=31536000',\n  'content-length': '614151151',\n  'content-type': 'application/zip',\n  'last-modified': 'Fri, 23 Oct 2026 21:21:53 GMT',\n  etag: '0x8DF314BA8F11590',\n  'x-ms-request-id': 'a3b07ff0-d01e-0101-743b-63023a000000',\n  'x-ms-version': '2009-09-19',\n  'x-ms-lease-status': 'unlocked',\n  'x-ms-blob-type': 'BlockBlob',\n  'access-control-expose-headers': 'x-ms-request-id,Server,x-ms-version,Content-Type,Cache-Control,ETag,Last-Modified,x-ms-lease-status,x-ms-blob-type,Content-Length,Date,Transfer-Encoding',\n  'access-control-allow-origin': '*',\n  date: 'Fri, 06 Nov 2026 13:55:41 GMT',\n  connection: 'keep-alive'\n}\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #6: https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream - begin POST Pu {\n  original: {\n    'Client-Id': 'NO_AUTH',\n    'client-version': '1DS-Web-JS-3.2.13',\n    apikey: '5bbf946d11a54f6783919c455abaddaf-fd62977b-c92d-4714-a45d-649d06980372-7168',\n    'upload-time': '1793973341385',\n    'time-delta-to-apply-millis': 'use-collector-delta',\n    'cache-control': 'no-cache, no-store',\n    'content-type': 'application/x-json-stream',\n    'Content-Type': 'application/json',\n    'Content-Length': '1667'\n  },\n  headers: [Object: null prototype] {\n    'Client-Id': 'NO_AUTH',\n    'client-version': '1DS-Web-JS-3.2.13',\n    apikey: '5bbf946d11a54f6783919c455abaddaf-fd62977b-c92d-4714-a45d-649d06980372-7168',\n    'upload-time': '1793973341385',\n    'time-delta-to-apply-millis': 'use-collector-delta',\n    'cache-control': 'no-cache, no-store',\n    'content-type': 'application/x-json-stream',\n    'Content-Type': 'application/json',\n    'Content-Length': '1667'\n  }\n}\nTRACE #6: https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream - end POST 200 {\n  'content-type': 'application/json',\n  server: 'Microsoft-HTTPAPI/2.0',\n  'strict-transport-security': 'max-age=31536000',\n  'time-delta-millis': '2543',\n  'access-control-allow-headers': 'Strict-Transport-Security,time-delta-millis,Content-Type,Content-Length',\n  'access-control-allow-methods': 'POST',\n  'access-control-allow-credentials': 'true',\n  'access-control-allow-origin': '*',\n  'access-control-expose-headers': 'time-delta-millis',\n  date: 'Fri, 06 Nov 2026 13:55:43 GMT',\n  'content-length': '9'\n}\nTRACE ExtensionGalleryService#downloadSignatureArchive openai.chatgpt\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #7: https://openai.gallerycdn.vsassets.io/extensions/openai/chatgpt/26.1021.22027/1792790459551/Microsoft.VisualStudio.Services.VsixSignature?targetPlatform=win32-x64 - begin GET Pu {\n  original: {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac'\n  },\n  headers: [Object: null prototype] {\n    'X-Market-Client-Id': 'VSCode 1.145.2',\n    'User-Agent': 'VSCode 1.145.2 (Code)',\n    'X-Market-User-Id': '8b3145ab-15d5-4961-a023-7aed1e960b9a',\n    'VSCode-SessionId': '157d37cedaf9202400dfaeb8e6d0604a7d76affe3b5198a9e4016b73e2c7e0ac'\n  }\n}\nTRACE #7: https://openai.gallerycdn.vsassets.io/extensions/openai/chatgpt/26.1021.22027/1792790459551/Microsoft.VisualStudio.Services.VsixSignature?targetPlatform=win32-x64 - end GET 200 {\n  'cache-control': 'public, max-age=31536000',\n  'content-length': '1335063',\n  'content-type': 'application/zip',\n  'last-modified': 'Fri, 23 Oct 2026 22:04:18 GMT',\n  etag: '0x8DF315195F8E7C3',\n  'x-ms-request-id': 'ef2ca554-101e-0030-433a-63b377000000',\n  'x-ms-version': '2009-09-19',\n  'x-ms-lease-status': 'unlocked',\n  'x-ms-blob-type': 'BlockBlob',\n  'access-control-expose-headers': 'x-ms-request-id,Server,x-ms-version,Content-Type,Cache-Control,ETag,Last-Modified,x-ms-lease-status,x-ms-blob-type,Content-Length,Date,Transfer-Encoding',\n  'access-control-allow-origin': '*',\n  date: 'Fri, 06 Nov 2026 13:56:09 GMT',\n  connection: 'keep-alive'\n}\nTRACE Verifying extension signature for openai.chatgpt...\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #8: https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream - begin POST Pu {\n  original: {\n    'Client-Id': 'NO_AUTH',\n    'client-version': '1DS-Web-JS-3.2.13',\n    apikey: '5bbf946d11a54f6783919c455abaddaf-fd62977b-c92d-4714-a45d-649d06980372-7168',\n    'upload-time': '1793973369405',\n    'time-delta-to-apply-millis': '2543',\n    'cache-control': 'no-cache, no-store',\n    'content-type': 'application/x-json-stream',\n    'Content-Type': 'application/json',\n    'Content-Length': '1505'\n  },\n  headers: [Object: null prototype] {\n    'Client-Id': 'NO_AUTH',\n    'client-version': '1DS-Web-JS-3.2.13',\n    apikey: '5bbf946d11a54f6783919c455abaddaf-fd62977b-c92d-4714-a45d-649d06980372-7168',\n    'upload-time': '1793973369405',\n    'time-delta-to-apply-millis': '2543',\n    'cache-control': 'no-cache, no-store',\n    'content-type': 'application/x-json-stream',\n    'Content-Type': 'application/json',\n    'Content-Length': '1505'\n  }\n}\nTRACE #8: https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream - end POST 200 {\n  'content-type': 'application/json',\n  server: 'Microsoft-HTTPAPI/2.0',\n  'strict-transport-security': 'max-age=31536000',\n  'time-delta-millis': '2537',\n  'access-control-allow-headers': 'Strict-Transport-Security,time-delta-millis,Content-Type,Content-Length',\n  'access-control-allow-methods': 'POST',\n  'access-control-allow-credentials': 'true',\n  'access-control-allow-origin': '*',\n  'access-control-expose-headers': 'time-delta-millis',\n  date: 'Fri, 06 Nov 2026 13:56:11 GMT',\n  'content-length': '9'\n}\n INFO Extension signature verification result for openai.chatgpt: Success. Internal Code: 0. Executed: true. Duration: 5665ms.\nTRACE Extension signature verification output for openai.chatgpt:\nPackage file size:  614151151\r\nSignature archive file size:  1335063\r\nManifest file size:  3702701\r\nSignature file size:  12147\r\nManifest file hash:  6xjHcK0yNgqAsTITeSJEBzx3zd+jehPcAGnsueivkyg=\r\nSignature file hash:  Cxt8EYU9F3DwcwpsjzVYL2yriOp7VlhQOIgcxANtVbw=\r\nPackage file hash:  XaWvpQVogKaCnBVcfpd7vpo0J2jD9lw0PLp7NosG+Ok=\r\nManifestPackageIntegrityPolicy succeeded.\r\nSignatureIntegrityPolicy for primary signature succeeded.\r\nSignatureValidityPolicy for primary signature succeeded.\r\nSignatureIntegrityPolicy for primary timestamp signature succeeded.\r\nSignatureValidityPolicy for primary timestamp signature succeeded.\r\nX.509 certificate chain validation will use the current user's trust store for timestamping.\r\nSignatureTrustPolicy for repository primary signature timestamp signature succeeded.\r\nX.509 certificate chain validation will use the current user's trust store for code signing.\r\nSignatureTrustPolicy for repository primary signature succeeded.\r\nRepositoryCountersignaturePolicy for repository primary signature succeeded.\r\nPrimary signature type:  repository primary signature\r\nPrimary signature status:  OK\r\nTimestamp signature status:  OK\r\nExit code:  Success\r\n\nTRACE Started extracting the extension from c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix\\openai.chatgpt-26.1021.22027-win32-x64 to c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.chatgpt-26.1021.22027-win32-x64\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)]  >> normalized [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nDEBUG User data changed\nTRACE [File Watcher (node.js)] [raw] [\"change\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)]  >> normalized [CHANGED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c\nDEBUG User data changed\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #9: https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream - begin POST Pu {\n  original: {\n    'Client-Id': 'NO_AUTH',\n    'client-version': '1DS-Web-JS-3.2.13',\n    apikey: '5bbf946d11a54f6783919c455abaddaf-fd62977b-c92d-4714-a45d-649d06980372-7168',\n    'upload-time': '1793973375209',\n    'time-delta-to-apply-millis': '2543',\n    'cache-control': 'no-cache, no-store',\n    'content-type': 'application/x-json-stream',\n    'Content-Type': 'application/json',\n    'Content-Length': '1310'\n  },\n  headers: [Object: null prototype] {\n    'Client-Id': 'NO_AUTH',\n    'client-version': '1DS-Web-JS-3.2.13',\n    apikey: '5bbf946d11a54f6783919c455abaddaf-fd62977b-c92d-4714-a45d-649d06980372-7168',\n    'upload-time': '1793973375209',\n    'time-delta-to-apply-millis': '2543',\n    'cache-control': 'no-cache, no-store',\n    'content-type': 'application/x-json-stream',\n    'Content-Type': 'application/json',\n    'Content-Length': '1310'\n  }\n}\nTRACE #9: https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream - end POST 200 {\n  'content-type': 'application/json',\n  server: 'Microsoft-HTTPAPI/2.0',\n  'strict-transport-security': 'max-age=31536000',\n  'time-delta-millis': '1874',\n  'access-control-allow-headers': 'Strict-Transport-Security,time-delta-millis,Content-Type,Content-Length',\n  'access-control-allow-methods': 'POST',\n  'access-control-allow-credentials': 'true',\n  'access-control-allow-origin': '*',\n  'access-control-expose-headers': 'time-delta-millis',\n  date: 'Fri, 06 Nov 2026 13:56:17 GMT',\n  'content-length': '9'\n}\n INFO Extracted extension to file:///c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/openai.chatgpt-26.1021.22027-win32-x64: openai.chatgpt\nTRACE Started renaming the extension from c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\.1396bd7d-f868-401b-aa9a-7ddb349c098c to c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.chatgpt-26.1021.22027-win32-x64\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] .1396bd7d-f868-401b-aa9a-7ddb349c098c\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] openai.chatgpt-26.1021.22027-win32-x64\n INFO Renamed to c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.chatgpt-26.1021.22027-win32-x64\nTRACE [File Watcher (node.js)] [raw] [\"change\"] openai.chatgpt-26.1021.22027-win32-x64\nTRACE [File Watcher (node.js)] [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.chatgpt-26.1021.22027-win32-x64\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"change\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [ADDED] c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json.vsctmp\nTRACE [File Watcher (node.js)] [raw] [\"rename\"] extensions.json\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nTRACE Scanned user extensions: 2\n INFO Extension installed successfully: openai.chatgpt vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json\nExtension 'openai.chatgpt' v26.1021.22027 was successfully installed.\nTRACE resolveShellEnv(): skipped (Windows)\nTRACE #10: https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream - begin POST Pu {\n  original: {\n    'Client-Id': 'NO_AUTH',\n    'client-version': '1DS-Web-JS-3.2.13',\n    apikey: '5bbf946d11a54f6783919c455abaddaf-fd62977b-c92d-4714-a45d-649d06980372-7168',\n    'upload-time': '1793973478300',\n    'time-delta-to-apply-millis': '2543',\n    'cache-control': 'no-cache, no-store',\n    'content-type': 'application/x-json-stream',\n    'Content-Type': 'application/json',\n    'Content-Length': '1627'\n  }\n}\n",
+      "stderr": "(node:7700) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.\n(Use `Code --trace-deprecation ...` to show where the warning was created)\n"
+    },
+    {
+      "label": "04-official-inventory",
+      "argv": [
+        "--user-data-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "--extensions-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "--extensions-download-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+        "--logsPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+        "--log",
+        "trace",
+        "--verbose",
+        "--list-extensions",
+        "--show-versions"
+      ],
+      "observed": {
+        "pid": 24276,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "overflow": false,
+        "exitScope": "Official code.cmd synchronous CLI exit forwarded by cmd.exe; no Code GUI window launch or shutdown requested"
+      },
+      "stdout": "TRACE PolicyConfiguration#initialize\nTRACE PolicyConfiguration#updatePolicyDefinitions [\n  'http.useLocalProxyConfiguration',\n  'http.electronFetch',\n  'http.proxy',\n  'http.proxyStrictSSL',\n  'http.proxyKerberosServicePrincipal',\n  'http.noProxy',\n  'http.proxyAuthorization',\n  'http.proxySupport',\n  'http.systemCertificates',\n  'http.systemCertificatesNode',\n  'http.experimental.systemCertificatesV2',\n  'http.fetchAdditionalSupport',\n  'http.webSocketAdditionalSupport',\n  'http.experimental.networkInterfaceCheckInterval',\n  'extensions.allowed',\n  'telemetry.telemetryLevel',\n  'telemetry.feedback.enabled',\n  'telemetry.enableTelemetry'\n]\nTRACE NativePolicyService#_updatePolicyDefinitions - Found 3 policy definitions\nTRACE Creating watcher for productName VSCode\nTRACE NativePolicyService#_onDidPolicyChange - Updated policy values: {}\nTRACE PolicyConfiguration#update [\n  'extensions.allowed',\n  'telemetry.telemetryLevel',\n  'telemetry.feedback.enabled'\n]\nTRACE [File Watcher (node.js)] Request to start watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>),c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\n INFO CLI main {\n  _: [],\n  diff: false,\n  merge: false,\n  add: false,\n  remove: false,\n  goto: false,\n  'new-window': false,\n  'reuse-window': false,\n  agents: false,\n  wait: false,\n  'user-data-dir': 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\p\\\\fw04-18\\\\u',\n  help: false,\n  'extensions-dir': 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\p\\\\fw04-18\\\\e',\n  'extensions-download-dir': 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\temporary\\\\cache\\\\extension-vsix',\n  'list-extensions': true,\n  'show-versions': true,\n  'pre-release': false,\n  'update-extensions': false,\n  version: false,\n  verbose: true,\n  log: [ 'trace' ],\n  status: false,\n  'prof-startup': false,\n  'no-cached-data': false,\n  'prof-v8-extensions': false,\n  'disable-extensions': false,\n  'disable-lcd-text': false,\n  'disable-gpu': false,\n  'disable-chromium-sandbox': false,\n  sandbox: false,\n  telemetry: false,\n  debugRenderer: false,\n  'enable-smoke-test-driver': false,\n  'skip-sessions-welcome': false,\n  logExtensionHostCommunication: false,\n  'skip-release-notes': false,\n  'skip-welcome': false,\n  'disable-telemetry': false,\n  'disable-updates': false,\n  'share-secrets-with-agents-app': false,\n  transient: false,\n  'use-inmemory-secretstorage': false,\n  'disable-workspace-trust': false,\n  'disable-crash-reporter': false,\n  'skip-add-to-recently-opened': false,\n  'open-url': false,\n  'file-write': false,\n  'file-chmod': false,\n  force: false,\n  'do-not-sync': false,\n  'do-not-include-pack-dependencies': false,\n  trace: false,\n  'trace-memory-infra': false,\n  'preserve-env': false,\n  'force-user-env': false,\n  'force-disable-user-env': false,\n  'open-devtools': false,\n  'disable-gpu-sandbox': false,\n  logsPath: 'C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\logs\\\\code-cli',\n  '__enable-file-policy': false,\n  'enable-coi': false,\n  'enable-rdp-display-tracking': false,\n  'disable-layout-restore': false,\n  'disable-experiments': false,\n  'no-proxy-server': false,\n  'no-sandbox': false,\n  nolazy: false,\n  'force-renderer-accessibility': false,\n  'ignore-certificate-errors': false,\n  'allow-insecure-localhost': false,\n  'disable-dev-shm-usage': false,\n  'profile-temp': false\n}\nTRACE Started scanning user extensions Ir {\n  scheme: 'vscode-userdata',\n  authority: '',\n  path: '/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  query: '',\n  fragment: '',\n  _formatted: 'vscode-userdata:/c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/extensions.json',\n  _fsPath: null\n}\nTRACE [File Watcher (node.js)] ignoring a path for watching who's stat info failed to resolve: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (error: Error: ENOENT: no such file or directory, stat 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json')\nTRACE [File Watcher (node.js)] starting fs.watchFile() on c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (correlationId: undefined)\nTRACE [File Watcher (node.js)] Request to start watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\nTRACE [File Watcher (node.js)] Request to stop watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\nTRACE [File Watcher (node.js)] stopping file watcher (c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User\\settings.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>))\nTRACE [File Watcher (node.js)] Request to start watching: c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json (excludes: <none>, includes: <all>, filter: <none>, correlationId: <none>)\nTRACE [File Watcher (node.js)] Started watching: 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u\\User'\nTRACE [File Watcher (node.js)] Started watching: 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e'\nDEBUG ComputeTargetPlatform: win32-x64\nTRACE Scanned user extensions: 2\nTRACE [File Watcher (node.js)] Started watching: 'c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json'\nopenai.chatgpt@26.1021.22027\nopenai.codex-audio@26.1021.22027\n",
+      "stderr": ""
+    }
+  ],
+  "actualCode": {
+    "cmd": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\code.cmd",
+    "exe": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+    "cli": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\c4453f8ea4\\resources\\app\\out\\cli.js",
+    "cliProcessMain": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\c4453f8ea4\\resources\\app\\out\\vs\\code\\node\\cliProcessMain.js",
+    "version": "1.145.2",
+    "commit": "c4453f8ea430795f941c1b2ff6c9321135a74a02"
+  },
+  "originalProfileChecks": {
+    "before": {
+      "idRecords": [
+        {
+          "identifier": {
+            "id": "openai.codex-audio",
+            "uuid": "e35fa0f0-aaed-4821-9226-773b8fa21ae3"
+          },
+          "version": "26.1021.22027",
+          "location": {
+            "$mid": 1,
+            "path": "/c:/Users/felre/.vscode/extensions/openai.codex-audio-26.1021.22027",
+            "scheme": "file"
+          },
+          "relativeLocation": "openai.codex-audio-26.1021.22027",
+          "metadata": {
+            "isApplicationScoped": false,
+            "isMachineScoped": false,
+            "isBuiltin": false,
+            "installedTimestamp": 1792805388847,
+            "pinned": false,
+            "source": "gallery",
+            "id": "e35fa0f0-aaed-4821-9226-773b8fa21ae3",
+            "publisherId": "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+            "publisherDisplayName": "OpenAI",
+            "targetPlatform": "undefined",
+            "updated": true,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false,
+            "preRelease": false
+          }
+        },
+        {
+          "identifier": {
+            "id": "openai.chatgpt",
+            "uuid": "90b52117-6fd1-4f1c-9e14-256bd6e21d79"
+          },
+          "version": "26.1021.22027",
+          "location": {
+            "$mid": 1,
+            "path": "/c:/Users/felre/.vscode/extensions/openai.chatgpt-26.1021.22027-win32-x64",
+            "scheme": "file"
+          },
+          "relativeLocation": "openai.chatgpt-26.1021.22027-win32-x64",
+          "metadata": {
+            "isApplicationScoped": false,
+            "isMachineScoped": false,
+            "isBuiltin": false,
+            "installedTimestamp": 1793148234585,
+            "pinned": true,
+            "source": "gallery",
+            "id": "90b52117-6fd1-4f1c-9e14-256bd6e21d79",
+            "publisherId": "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+            "publisherDisplayName": "OpenAI",
+            "targetPlatform": "win32-x64",
+            "updated": true,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": true,
+            "preRelease": false
+          }
+        }
+      ],
+      "settings": "536a85f6bed88a9922dbe20973c019a1ba90b85fcdbbd8a30dc9fcb32729fbf0",
+      "officialPackages": [
+        {
+          "path": "C:/Users/felre/.vscode/extensions/openai.chatgpt-26.1021.22027-win32-x64/package.json",
+          "sha256": "7616aae8305328fc0e69bafd76992277d60fed7c57be6747f76f491ce5476b5c"
+        },
+        {
+          "path": "C:/Users/felre/.vscode/extensions/openai.codex-audio-26.1021.22027/package.json",
+          "sha256": "52ad3d241989681de039d2be097110156d73dac0f24c25284e458168e17c7254"
+        }
+      ]
+    },
+    "after": {
+      "idRecords": [
+        {
+          "identifier": {
+            "id": "openai.codex-audio",
+            "uuid": "e35fa0f0-aaed-4821-9226-773b8fa21ae3"
+          },
+          "version": "26.1021.22027",
+          "location": {
+            "$mid": 1,
+            "path": "/c:/Users/felre/.vscode/extensions/openai.codex-audio-26.1021.22027",
+            "scheme": "file"
+          },
+          "relativeLocation": "openai.codex-audio-26.1021.22027",
+          "metadata": {
+            "isApplicationScoped": false,
+            "isMachineScoped": false,
+            "isBuiltin": false,
+            "installedTimestamp": 1792805388847,
+            "pinned": false,
+            "source": "gallery",
+            "id": "e35fa0f0-aaed-4821-9226-773b8fa21ae3",
+            "publisherId": "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+            "publisherDisplayName": "OpenAI",
+            "targetPlatform": "undefined",
+            "updated": true,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false,
+            "preRelease": false
+          }
+        },
+        {
+          "identifier": {
+            "id": "openai.chatgpt",
+            "uuid": "90b52117-6fd1-4f1c-9e14-256bd6e21d79"
+          },
+          "version": "26.1021.22027",
+          "location": {
+            "$mid": 1,
+            "path": "/c:/Users/felre/.vscode/extensions/openai.chatgpt-26.1021.22027-win32-x64",
+            "scheme": "file"
+          },
+          "relativeLocation": "openai.chatgpt-26.1021.22027-win32-x64",
+          "metadata": {
+            "isApplicationScoped": false,
+            "isMachineScoped": false,
+            "isBuiltin": false,
+            "installedTimestamp": 1793148234585,
+            "pinned": true,
+            "source": "gallery",
+            "id": "90b52117-6fd1-4f1c-9e14-256bd6e21d79",
+            "publisherId": "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+            "publisherDisplayName": "OpenAI",
+            "targetPlatform": "win32-x64",
+            "updated": true,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": true,
+            "preRelease": false
+          }
+        }
+      ],
+      "settings": "536a85f6bed88a9922dbe20973c019a1ba90b85fcdbbd8a30dc9fcb32729fbf0",
+      "officialPackages": [
+        {
+          "path": "C:/Users/felre/.vscode/extensions/openai.chatgpt-26.1021.22027-win32-x64/package.json",
+          "sha256": "7616aae8305328fc0e69bafd76992277d60fed7c57be6747f76f491ce5476b5c"
+        },
+        {
+          "path": "C:/Users/felre/.vscode/extensions/openai.codex-audio-26.1021.22027/package.json",
+          "sha256": "52ad3d241989681de039d2be097110156d73dac0f24c25284e458168e17c7254"
+        }
+      ]
+    }
+  },
+  "stateRootSUnchanged": true,
+  "audioInput": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\inputs\\openai.codex-audio-26.1021.22027.vsix",
+    "sha256": "65ed4dd51553e5bc2d81689845ea93ba1d9fd98386c159acb6df752ff182f60f",
+    "manifest": {
+      "id": "openai.codex-audio",
+      "version": "26.1021.22027"
+    }
+  },
+  "audioRegistry": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json",
+    "sha256": "ee48f7bfb60e2a13f6e98f1d78f51b8652707d751d49ce9b015fff3ceb5610c6",
+    "ids": [
+      "openai.codex-audio"
+    ],
+    "entries": [
+      {
+        "id": "openai.codex-audio",
+        "version": "26.1021.22027",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.codex-audio-26.1021.22027",
+        "registry": {
+          "identifier": {
+            "id": "openai.codex-audio"
+          },
+          "version": "26.1021.22027",
+          "location": {
+            "$mid": 1,
+            "fsPath": "c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.codex-audio-26.1021.22027",
+            "_sep": 1,
+            "external": "file:///c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/openai.codex-audio-26.1021.22027",
+            "path": "/c:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/openai.codex-audio-26.1021.22027",
+            "scheme": "file"
+          },
+          "relativeLocation": "openai.codex-audio-26.1021.22027",
+          "metadata": {
+            "installedTimestamp": 1793973337786,
+            "pinned": true,
+            "source": "vsix"
+          }
+        },
+        "packageSha256": "fff9a11925c998b36a4ba95a8a57d7c641b3f0ef9be9e9cc61adbf74f74a8545"
+      }
+    ]
+  },
+  "inventory": [
+    "openai.chatgpt@26.1021.22027",
+    "openai.codex-audio@26.1021.22027"
+  ],
+  "registry": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\extensions.json",
+    "sha256": "019bf33fbea00c0ce709578a100dbc63ba3fb80b61fc7fd2686eda423468ebd9",
+    "ids": [
+      "openai.codex-audio",
+      "openai.chatgpt"
+    ],
+    "entries": [
+      {
+        "id": "openai.chatgpt",
+        "version": "26.1021.22027",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.chatgpt-26.1021.22027-win32-x64",
+        "registry": {
+          "identifier": {
+            "id": "openai.chatgpt"
+          },
+          "version": "26.1021.22027",
+          "location": {
+            "$mid": 1,
+            "fsPath": "c:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.chatgpt-26.1021.22027-win32-x64",
+            "_sep": 1,
+            "external": "file:///c%3A/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/openai.chatgpt-26.1021.22027-win32-x64",
+            "path": "/c:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/openai.chatgpt-26.1021.22027-win32-x64",
+            "scheme": "file"
+          },
+          "relativeLocation": "openai.chatgpt-26.1021.22027-win32-x64",
+          "metadata": {
+            "installedTimestamp": 1793973339562,
+            "pinned": true,
+            "source": "gallery",
+            "id": "90b52117-6fd1-4f1c-9e14-256bd6e21d79",
+            "publisherId": "c0a8460b-1d33-4e44-9cf5-9874a65dd334",
+            "publisherDisplayName": "OpenAI",
+            "targetPlatform": "win32-x64",
+            "updated": false,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false
+          }
+        },
+        "packageSha256": "854343d9cc1defc588281ee557086f68115e1270eb3308de35db5813d6247913"
+      },
+      {
+        "id": "openai.codex-audio",
+        "version": "26.1021.22027",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e\\openai.codex-audio-26.1021.22027",
+        "registry": {
+          "identifier": {
+            "id": "openai.codex-audio"
+          },
+          "version": "26.1021.22027",
+          "location": {
+            "$mid": 1,
+            "path": "/C:/Users/felre/Desktop/pi-harness-init/artifacts/p/fw04-18/e/openai.codex-audio-26.1021.22027",
+            "scheme": "file"
+          },
+          "relativeLocation": "openai.codex-audio-26.1021.22027",
+          "metadata": {
+            "installedTimestamp": 1793973337786,
+            "pinned": true,
+            "source": "vsix"
+          }
+        },
+        "packageSha256": "fff9a11925c998b36a4ba95a8a57d7c641b3f0ef9be9e9cc61adbf74f74a8545"
+      }
+    ]
+  },
+  "profileIdentity": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+      "dev": "3057815611",
+      "ino": "4503599643891291",
+      "mode": "16822"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+      "dev": "3057815611",
+      "ino": "1970324853594154",
+      "mode": "16822"
+    }
+  ],
+  "effectiveCache": {
+    "explicitExtensionsDownloadDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+    "files": [
+      {
+        "name": "openai.chatgpt-26.1021.22027-win32-x64",
+        "bytes": 614151151
+      }
+    ],
+    "explicitLogsDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+    "actualLogEntries": [
+      "cli.log"
+    ],
+    "childPaths": {
+      "HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\home",
+      "USERPROFILE": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\home",
+      "APPDATA": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\appdata",
+      "LOCALAPPDATA": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\localappdata",
+      "TEMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\tmp",
+      "TMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\tmp",
+      "XDG_CACHE_HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\xdg",
+      "EXTENSIONS_DOWNLOAD_DIRECTORY": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+      "CODE_LOG_DIRECTORY": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli"
+    },
+    "consumingCliArguments": [
+      "--user-data-dir",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+      "--extensions-dir",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+      "--extensions-download-dir",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+      "--logsPath",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+      "--log",
+      "trace",
+      "--verbose"
+    ],
+    "sourceContract": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\c4453f8ea4\\resources\\app\\out\\vs\\code\\node\\cliProcessMain.js"
+  },
+  "defaultProfilePreserved": true,
+  "azraelInstalled": false,
+  "recordedUtc": "2026-11-06T13:58:13.737Z",
+  "profilePaths": {
+    "u": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+    "e": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+    "s": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\s",
+    "sExists": false
+  },
+  "temporaryRunCleanup": "After parent independent evidence consumption, close/fresh C0CF registered cleanup required; persistent U/E excluded"
+}

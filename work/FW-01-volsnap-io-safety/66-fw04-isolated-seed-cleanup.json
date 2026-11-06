@@ -1,0 +1,720 @@
+{
+  "schema": 1,
+  "status": "cleanup-complete",
+  "id": "run:fw04:isolated-seed-20261106-01",
+  "scope": "Only disposable isolated seed run/cache/input VSIX/logs; persistent U/E and deployment S excluded",
+  "terminalProof": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\66a-fw04-seed-terminal-proof.json",
+    "sha256": "5e4b55c7701b39e7f32c407e153600565d0092e4d974636db0af65222761c0bf"
+  },
+  "readiness": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\66-fw04-isolated-profile-readiness.json",
+    "sha256": "bcec2fedd02cff4a01ed22ea6bfbcabee7fe9ed9c8db04fe0e6a982c18017b95"
+  },
+  "calls": [
+    {
+      "request": {
+        "operation": "register",
+        "group": {
+          "id": "run:fw04:isolated-seed-20261106-01",
+          "kind": "run",
+          "owner": "FW04/isolated-official-prerequisite-seed",
+          "version": null,
+          "membership_complete": true,
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "members": [
+            {
+              "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+              "role": "run",
+              "lifecycle_role": "artifact",
+              "kind": "run",
+              "owner": "FW04/isolated-official-prerequisite-seed",
+              "generated": true,
+              "protection_known": true,
+              "references": [],
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json"
+            }
+          ]
+        },
+        "lock_wait_ms": 600000
+      },
+      "observed": {
+        "pid": 24740,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true
+      },
+      "result": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:fw04:isolated-seed-20261106-01",
+          "kind": "run",
+          "members": [
+            "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29",
+          "owner": "FW04/isolated-official-prerequisite-seed",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+          "registered_at_ms": 1793973984903,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+            "identity": "61cc909d9e7022ecc295d9ee705b74a79ce28cfc2e47d50a76b254be4d8833ef",
+            "kind": "run",
+            "lifecycle_group_id": "run:fw04:isolated-seed-20261106-01",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 616325112,
+            "measured_at_ms": 1793973977061,
+            "owner": "FW04/isolated-official-prerequisite-seed",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+            "references": [],
+            "registered_at_ms": 1793973977061,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      },
+      "stdout": "{\"group\":{\"cleanup_status\":null,\"id\":\"run:fw04:isolated-seed-20261106-01\",\"kind\":\"run\",\"members\":[\"b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f\"],\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_format\":\"producer_registry_v1\",\"membership_source_identity\":\"f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29\",\"owner\":\"FW04/isolated-official-prerequisite-seed\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json\",\"registered_at_ms\":1793973984903,\"version\":null},\"items\":[{\"cache_schema\":null,\"created_at_ms\":null,\"generated\":true,\"id\":\"b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f\",\"identity\":\"61cc909d9e7022ecc295d9ee705b74a79ce28cfc2e47d50a76b254be4d8833ef\",\"kind\":\"run\",\"lifecycle_group_id\":\"run:fw04:isolated-seed-20261106-01\",\"lifecycle_role\":\"artifact\",\"logical_bytes\":616325112,\"measured_at_ms\":1793973977061,\"owner\":\"FW04/isolated-official-prerequisite-seed\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\",\"presence\":\"present\",\"protection_known\":true,\"provenance\":null,\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json\",\"references\":[],\"registered_at_ms\":1793973977061,\"remaining\":true,\"role\":\"run\",\"source_path\":null,\"tool\":null,\"version\":null}]}\n",
+      "stderr": ""
+    },
+    {
+      "request": {
+        "operation": "review",
+        "group_ids": [
+          "run:fw04:isolated-seed-20261106-01"
+        ],
+        "verification": "registered",
+        "lock_wait_ms": 600000
+      },
+      "observed": {
+        "pid": 6520,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true
+      },
+      "result": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:fw04:isolated-seed-20261106-01",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29",
+            "owner": "FW04/isolated-official-prerequisite-seed",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f"
+            ],
+            "group_token": "ca5ecc3b7e503807e65bb3b6049b34d9153649f5ac38534cb7e82bec67ae967a",
+            "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+            "identity": "61cc909d9e7022ecc295d9ee705b74a79ce28cfc2e47d50a76b254be4d8833ef",
+            "lifecycle_group_id": "run:fw04:isolated-seed-20261106-01",
+            "logical_bytes": 616325112,
+            "measured_at_ms": 1793973977061,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29",
+              "member_references": {
+                "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\reports\\producer-a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061.json",
+                  "evidence_sha256": "a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "0997bad298cde108ed6f049fd035f907fb74d744609295390dee734efa32edba"
+                },
+                "created_at": "2026-11-06T13:55:16.579Z",
+                "id": "run:fw04:isolated-seed-20261106-01",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+                "owner": "FW04/isolated-official-prerequisite-seed",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\reports\\producer-a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061.json",
+                  "evidence_sha256": "a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "references": [],
+                "revision": 2,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-06T13:58:18.722Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793973989971,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  132,
+                  209,
+                  105,
+                  0,
+                  0,
+                  0,
+                  20,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95",
+            "verification": "registered"
+          }
+        ]
+      },
+      "stdout": "{\"groups\":[{\"cached_live_members\":1,\"cleanup_status\":null,\"id\":\"run:fw04:isolated-seed-20261106-01\",\"kind\":\"run\",\"members_total\":1,\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_format\":\"producer_registry_v1\",\"membership_source_identity\":\"f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29\",\"owner\":\"FW04/isolated-official-prerequisite-seed\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json\",\"version\":null}],\"items\":[{\"blockers\":[],\"group_member_ids\":[\"b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f\"],\"group_token\":\"ca5ecc3b7e503807e65bb3b6049b34d9153649f5ac38534cb7e82bec67ae967a\",\"id\":\"b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f\",\"identity\":\"61cc909d9e7022ecc295d9ee705b74a79ce28cfc2e47d50a76b254be4d8833ef\",\"lifecycle_group_id\":\"run:fw04:isolated-seed-20261106-01\",\"logical_bytes\":616325112,\"measured_at_ms\":1793973977061,\"membership_source_observation\":{\"blockers\":[],\"identity\":\"f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29\",\"member_references\":{\"b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f\":[]},\"membership_matches\":true,\"owner\":{\"close_receipt\":{\"evidence_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\reports\\\\producer-a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061.json\",\"evidence_sha256\":\"a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061\",\"reason\":\"Owned producer and tracked children stopped\",\"request_sha256\":\"0997bad298cde108ed6f049fd035f907fb74d744609295390dee734efa32edba\"},\"created_at\":\"2026-11-06T13:55:16.579Z\",\"id\":\"run:fw04:isolated-seed-20261106-01\",\"kind\":\"run\",\"members\":[{\"generated\":true,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\",\"protection_known\":true,\"role\":\"run\"},{\"generated\":true,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\inputs\",\"protection_known\":true,\"role\":\"inputs\"},{\"generated\":true,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\temporary\",\"protection_known\":true,\"role\":\"temporary\"},{\"generated\":true,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\logs\",\"protection_known\":true,\"role\":\"logs\"},{\"generated\":true,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\reports\",\"protection_known\":true,\"role\":\"reports\"},{\"generated\":true,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\outputs\",\"protection_known\":true,\"role\":\"outputs\"}],\"membership_complete\":true,\"owned_root\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\",\"owner\":\"FW04/isolated-official-prerequisite-seed\",\"ownership_scope\":\"run-root\",\"producer\":{\"evidence_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\\\\reports\\\\producer-a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061.json\",\"evidence_sha256\":\"a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061\",\"exit_code\":0,\"outcome\":\"success\",\"reason\":\"Owned producer and tracked children stopped\",\"status\":\"stopped\"},\"references\":[],\"revision\":2,\"schema\":1,\"state\":\"complete\",\"updated_at\":\"2026-11-06T13:58:18.722Z\",\"version\":null},\"references\":[],\"settled\":true,\"status\":\"measured\"},\"observation_error\":null,\"observed_at_ms\":1793973989971,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw04\\\\runs\\\\isolated-seed-20261106-01\",\"presence\":\"present\",\"related_items\":[],\"remaining\":true,\"root_observation\":{\"identity\":{\"file_id\":[132,209,105,0,0,0,20,0,0,0,0,0,0,0,0,0],\"volume\":14318705318996119611},\"kind\":\"directory\",\"presence\":\"present\"},\"token\":\"22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95\",\"verification\":\"registered\"}]}\n",
+      "stderr": ""
+    },
+    {
+      "request": {
+        "operation": "apply",
+        "verification": "registered",
+        "decisions": [
+          {
+            "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+            "token": "22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95",
+            "decision": "delete",
+            "reason": "Official prerequisite seed/controller and CLI children ended, persistent U/E independently verified and accepted by root, temporary VSIX/cache/log/input consumer ended"
+          }
+        ],
+        "lock_wait_ms": 600000
+      },
+      "observed": {
+        "pid": 25016,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true
+      },
+      "result": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:fw04:isolated-seed-20261106-01",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-25016-7561-1793974013011",
+            "decision": "delete",
+            "decision_id": "4e3be2ef36f795bfaf655cf475586b28d5abc0c1cdc9a56d8417872ede526b7a",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+            "lifecycle_group_id": "run:fw04:isolated-seed-20261106-01",
+            "reason": "Official prerequisite seed/controller and CLI children ended, persistent U/E independently verified and accepted by root, temporary VSIX/cache/log/input consumer ended",
+            "remaining": false,
+            "status": "deleted",
+            "token": "22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95"
+          }
+        ]
+      },
+      "stdout": "{\"aborted\":false,\"cancelled\":false,\"groups\":[{\"id\":\"run:fw04:isolated-seed-20261106-01\",\"status\":\"deleted\"}],\"results\":[{\"attempt_id\":\"attempt-25016-7561-1793974013011\",\"decision\":\"delete\",\"decision_id\":\"4e3be2ef36f795bfaf655cf475586b28d5abc0c1cdc9a56d8417872ede526b7a\",\"deletion\":{\"attributes\":[],\"error\":null,\"physical_bytes_reclaimed\":null,\"remaining\":false,\"status\":\"deleted\"},\"group_status\":\"deleted\",\"id\":\"b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f\",\"lifecycle_group_id\":\"run:fw04:isolated-seed-20261106-01\",\"reason\":\"Official prerequisite seed/controller and CLI children ended, persistent U/E independently verified and accepted by root, temporary VSIX/cache/log/input consumer ended\",\"remaining\":false,\"status\":\"deleted\",\"token\":\"22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95\"}]}\n",
+      "stderr": ""
+    }
+  ],
+  "leases": [
+    {
+      "operation": "lifecycle.reconcile",
+      "owner": {
+        "acquired_at_ms": 1793973949740,
+        "operation": "lifecycle.reconcile",
+        "parent_pid": 3280,
+        "pid": 6604,
+        "schema": 2,
+        "token": "6604-1793973949740-92cb0eb027c68067"
+      },
+      "release": {
+        "released": true,
+        "reservations_retained": [],
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true
+      }
+    },
+    {
+      "operation": "lifecycle.reconcile",
+      "owner": {
+        "acquired_at_ms": 1793973951339,
+        "operation": "lifecycle.reconcile",
+        "parent_pid": 3280,
+        "pid": 27132,
+        "schema": 2,
+        "token": "27132-1793973951339-09ac3dcefb2796ad"
+      },
+      "release": {
+        "released": true,
+        "reservations_retained": [],
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true
+      }
+    },
+    {
+      "operation": "lifecycle.reconcile",
+      "owner": {
+        "acquired_at_ms": 1793974018854,
+        "operation": "lifecycle.reconcile",
+        "parent_pid": 3280,
+        "pid": 17988,
+        "schema": 2,
+        "token": "17988-1793974018854-9552f52f2564e391"
+      },
+      "release": {
+        "released": true,
+        "reservations_retained": [],
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true
+      }
+    }
+  ],
+  "rootConsumed": true,
+  "ioHandoff": "build_execution session8693 actual0; its UIcopy/Cargo held until this cleanup terminal",
+  "persistentProfile": {
+    "id": "version:fw04-18-isolated-profile",
+    "identity": [
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "dev": "3057815611",
+        "ino": "4503599643891291",
+        "mode": "16822"
+      },
+      {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "dev": "3057815611",
+        "ino": "1970324853594154",
+        "mode": "16822"
+      }
+    ],
+    "registrySha256": "019bf33fbea00c0ce709578a100dbc63ba3fb80b61fc7fd2686eda423468ebd9"
+  },
+  "originalRecord": {
+    "close_receipt": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\reports\\producer-a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061.json",
+      "evidence_sha256": "a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061",
+      "reason": "Owned producer and tracked children stopped",
+      "request_sha256": "0997bad298cde108ed6f049fd035f907fb74d744609295390dee734efa32edba"
+    },
+    "created_at": "2026-11-06T13:55:16.579Z",
+    "id": "run:fw04:isolated-seed-20261106-01",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\inputs",
+        "protection_known": true,
+        "role": "inputs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary",
+        "protection_known": true,
+        "role": "temporary"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs",
+        "protection_known": true,
+        "role": "logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\reports",
+        "protection_known": true,
+        "role": "reports"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\outputs",
+        "protection_known": true,
+        "role": "outputs"
+      }
+    ],
+    "membership_complete": true,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+    "owner": "FW04/isolated-official-prerequisite-seed",
+    "ownership_scope": "run-root",
+    "producer": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\reports\\producer-a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061.json",
+      "evidence_sha256": "a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061",
+      "exit_code": 0,
+      "outcome": "success",
+      "reason": "Owned producer and tracked children stopped",
+      "status": "stopped"
+    },
+    "references": [],
+    "revision": 2,
+    "schema": 1,
+    "state": "complete",
+    "updated_at": "2026-11-06T13:58:18.722Z",
+    "version": null
+  },
+  "registration": {
+    "group": {
+      "cleanup_status": null,
+      "id": "run:fw04:isolated-seed-20261106-01",
+      "kind": "run",
+      "members": [
+        "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "membership_source_identity": "f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29",
+      "owner": "FW04/isolated-official-prerequisite-seed",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+      "registered_at_ms": 1793973984903,
+      "version": null
+    },
+    "items": [
+      {
+        "cache_schema": null,
+        "created_at_ms": null,
+        "generated": true,
+        "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+        "identity": "61cc909d9e7022ecc295d9ee705b74a79ce28cfc2e47d50a76b254be4d8833ef",
+        "kind": "run",
+        "lifecycle_group_id": "run:fw04:isolated-seed-20261106-01",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 616325112,
+        "measured_at_ms": 1793973977061,
+        "owner": "FW04/isolated-official-prerequisite-seed",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+        "presence": "present",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+        "references": [],
+        "registered_at_ms": 1793973977061,
+        "remaining": true,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    ]
+  },
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:fw04:isolated-seed-20261106-01",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29",
+        "owner": "FW04/isolated-official-prerequisite-seed",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f"
+        ],
+        "group_token": "ca5ecc3b7e503807e65bb3b6049b34d9153649f5ac38534cb7e82bec67ae967a",
+        "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+        "identity": "61cc909d9e7022ecc295d9ee705b74a79ce28cfc2e47d50a76b254be4d8833ef",
+        "lifecycle_group_id": "run:fw04:isolated-seed-20261106-01",
+        "logical_bytes": 616325112,
+        "measured_at_ms": 1793973977061,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "f8e5b096c1c52b2e1ca09f5bf02c2127043b254b287e6c7f16a4b31dabaa8f29",
+          "member_references": {
+            "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f": []
+          },
+          "membership_matches": true,
+          "owner": {
+            "close_receipt": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\reports\\producer-a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061.json",
+              "evidence_sha256": "a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061",
+              "reason": "Owned producer and tracked children stopped",
+              "request_sha256": "0997bad298cde108ed6f049fd035f907fb74d744609295390dee734efa32edba"
+            },
+            "created_at": "2026-11-06T13:55:16.579Z",
+            "id": "run:fw04:isolated-seed-20261106-01",
+            "kind": "run",
+            "members": [
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+                "protection_known": true,
+                "role": "run"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\inputs",
+                "protection_known": true,
+                "role": "inputs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary",
+                "protection_known": true,
+                "role": "temporary"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs",
+                "protection_known": true,
+                "role": "logs"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\reports",
+                "protection_known": true,
+                "role": "reports"
+              },
+              {
+                "generated": true,
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\outputs",
+                "protection_known": true,
+                "role": "outputs"
+              }
+            ],
+            "membership_complete": true,
+            "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+            "owner": "FW04/isolated-official-prerequisite-seed",
+            "ownership_scope": "run-root",
+            "producer": {
+              "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\reports\\producer-a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061.json",
+              "evidence_sha256": "a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061",
+              "exit_code": 0,
+              "outcome": "success",
+              "reason": "Owned producer and tracked children stopped",
+              "status": "stopped"
+            },
+            "references": [],
+            "revision": 2,
+            "schema": 1,
+            "state": "complete",
+            "updated_at": "2026-11-06T13:58:18.722Z",
+            "version": null
+          },
+          "references": [],
+          "settled": true,
+          "status": "measured"
+        },
+        "observation_error": null,
+        "observed_at_ms": 1793973989971,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+        "presence": "present",
+        "related_items": [],
+        "remaining": true,
+        "root_observation": {
+          "identity": {
+            "file_id": [
+              132,
+              209,
+              105,
+              0,
+              0,
+              0,
+              20,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "volume": 14318705318996120000
+          },
+          "kind": "directory",
+          "presence": "present"
+        },
+        "token": "22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95",
+        "verification": "registered"
+      }
+    ]
+  },
+  "apply": {
+    "aborted": false,
+    "cancelled": false,
+    "groups": [
+      {
+        "id": "run:fw04:isolated-seed-20261106-01",
+        "status": "deleted"
+      }
+    ],
+    "results": [
+      {
+        "attempt_id": "attempt-25016-7561-1793974013011",
+        "decision": "delete",
+        "decision_id": "4e3be2ef36f795bfaf655cf475586b28d5abc0c1cdc9a56d8417872ede526b7a",
+        "deletion": {
+          "attributes": [],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "b5d86f9e05ba8059a0a6d0ab66bb09f16975a72fa19ac0cf443927e849d3ac9f",
+        "lifecycle_group_id": "run:fw04:isolated-seed-20261106-01",
+        "reason": "Official prerequisite seed/controller and CLI children ended, persistent U/E independently verified and accepted by root, temporary VSIX/cache/log/input consumer ended",
+        "remaining": false,
+        "status": "deleted",
+        "token": "22bd374c42b8594a42b6ea2f2146206a3d8eb6306bfcd87c59a7dec09bd91e95"
+      }
+    ]
+  },
+  "finalization": {
+    "id": "run:fw04:isolated-seed-20261106-01",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\f4c73998fe6675f6503ef6271b2011fe04048b07385d1e8f752e9a0908394002.json"
+  },
+  "rootAbsent": true,
+  "canonicalAbsent": true,
+  "profileIdentityAfter": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+      "dev": "3057815611",
+      "ino": "4503599643891291",
+      "mode": "16822"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+      "dev": "3057815611",
+      "ino": "1970324853594154",
+      "mode": "16822"
+    }
+  ],
+  "persistentProfilePreserved": true,
+  "SUnchangedAbsent": true
+}

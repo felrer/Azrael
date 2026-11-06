@@ -1,0 +1,254 @@
+{
+  "schema": 1,
+  "status": "exact-official-seed-producer-terminal",
+  "runId": "run:fw04:isolated-seed-20261106-01",
+  "producer_stopped_verified": true,
+  "membership_complete_verified": true,
+  "outerActual": {
+    "session": 71486,
+    "terminalChunk": "4fd036",
+    "exit_code": 0,
+    "limitation": "Executor terminal; no separately invented global OS-tree observation"
+  },
+  "controller": {
+    "pid": 19416,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "close_observed": true,
+    "stdout_drained": true,
+    "stderr_drained": true
+  },
+  "cli": [
+    {
+      "label": "01-code-version",
+      "argv": [
+        "--user-data-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "--extensions-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "--extensions-download-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+        "--logsPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+        "--log",
+        "trace",
+        "--verbose",
+        "--version"
+      ],
+      "observed": {
+        "pid": 21996,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "overflow": false,
+        "exitScope": "Official code.cmd synchronous CLI exit forwarded by cmd.exe; no Code GUI window launch or shutdown requested"
+      }
+    },
+    {
+      "label": "02-audio-install",
+      "argv": [
+        "--user-data-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "--extensions-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "--extensions-download-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+        "--logsPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+        "--log",
+        "trace",
+        "--verbose",
+        "--install-extension",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\inputs\\openai.codex-audio-26.1021.22027.vsix",
+        "--do-not-include-pack-dependencies"
+      ],
+      "observed": {
+        "pid": 24936,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "overflow": false,
+        "exitScope": "Official code.cmd synchronous CLI exit forwarded by cmd.exe; no Code GUI window launch or shutdown requested"
+      }
+    },
+    {
+      "label": "03-codex-install",
+      "argv": [
+        "--user-data-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "--extensions-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "--extensions-download-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+        "--logsPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+        "--log",
+        "trace",
+        "--verbose",
+        "--install-extension",
+        "openai.chatgpt@26.1021.22027",
+        "--do-not-include-pack-dependencies"
+      ],
+      "observed": {
+        "pid": 10116,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "overflow": false,
+        "exitScope": "Official code.cmd synchronous CLI exit forwarded by cmd.exe; no Code GUI window launch or shutdown requested"
+      }
+    },
+    {
+      "label": "04-official-inventory",
+      "argv": [
+        "--user-data-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "--extensions-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "--extensions-download-dir",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+        "--logsPath",
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+        "--log",
+        "trace",
+        "--verbose",
+        "--list-extensions",
+        "--show-versions"
+      ],
+      "observed": {
+        "pid": 24276,
+        "exit": {
+          "code": 0,
+          "signal": null
+        },
+        "error": null,
+        "close_observed": true,
+        "stdout_drained": true,
+        "stderr_drained": true,
+        "overflow": false,
+        "exitScope": "Official code.cmd synchronous CLI exit forwarded by cmd.exe; no Code GUI window launch or shutdown requested"
+      }
+    }
+  ],
+  "producerReport": {
+    "lifecycleId": "run:fw04:isolated-seed-20261106-01",
+    "runRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe"
+    ],
+    "exitCode": 0,
+    "signal": null,
+    "producerStopped": true,
+    "reason": "Owned producer and tracked children stopped",
+    "children": [
+      {
+        "pid": 19416,
+        "closed": true
+      }
+    ],
+    "state": "complete",
+    "membership_complete": true
+  },
+  "sourceProducerReport": {
+    "sha256": "a356b9a7d0aaac780a3670ccef0bd903d415dc248b4d6982deeb77286df60061"
+  },
+  "sourceCodePins": [
+    {
+      "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\code.cmd",
+      "sha256": "4c1471a4b9353b118e72cd1d9d2868e2b45641bb3362a03e1b8f0d66f39de3b9"
+    },
+    {
+      "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+      "sha256": "51dfee70fd38d8cc3e204f9a304f6fb6700dfa5147223c59d8c37e8176fb9b64"
+    },
+    {
+      "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\c4453f8ea4\\resources\\app\\out\\cli.js",
+      "sha256": "1fa196655d93959322f3d570b35c3def6d6cbb201cb1d776435a7dd1f5136fdd"
+    },
+    {
+      "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\c4453f8ea4\\resources\\app\\out\\vs\\code\\node\\cliProcessMain.js",
+      "sha256": "356235bd7b808a02336d533d36e349fb5fa9b116e1a48e425d8a2dd76af9dfb3"
+    },
+    {
+      "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\c4453f8ea4\\resources\\app\\package.json",
+      "sha256": "3a6f94aa19273b5b3cc4c5d89e5b85956267c2f4a55ca524a91984457ddf745c"
+    },
+    {
+      "path": "C:\\Users\\felre\\AppData\\Local\\Programs\\Microsoft VS Code\\c4453f8ea4\\resources\\app\\product.json",
+      "sha256": "0f60dd4d6400f5b264dbba43e373e9e444fd23a22ac5da9ab04b7e5451b35be9"
+    }
+  ],
+  "actualEnvironmentPaths": {
+    "HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\home",
+    "USERPROFILE": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\home",
+    "APPDATA": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\appdata",
+    "LOCALAPPDATA": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\localappdata",
+    "TEMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\tmp",
+    "TMP": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\tmp",
+    "XDG_CACHE_HOME": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\xdg"
+  },
+  "cacheAndLogs": {
+    "extensionsDownloadDirectoryFlag": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\temporary\\cache\\extension-vsix",
+    "logsPathFlag": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01\\logs\\code-cli",
+    "archiveBytes": 614151151,
+    "actualCliLog": true,
+    "note": "EXTENSIONS_DOWNLOAD_DIRECTORY/CODE_LOG_DIRECTORY in readiness.childPaths are path descriptors; actual selection is via CLI flags, not environment variables"
+  },
+  "readiness": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\66-fw04-isolated-profile-readiness.json",
+    "sha256": "bcec2fedd02cff4a01ed22ea6bfbcabee7fe9ed9c8db04fe0e6a982c18017b95"
+  },
+  "persistentProfileOwner": {
+    "schema": 1,
+    "id": "version:fw04-18-isolated-profile",
+    "kind": "version",
+    "owner": "FW04-isolated-installation",
+    "version": null,
+    "state": "complete",
+    "membership_complete": true,
+    "members": [
+      {
+        "generated": false,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\u",
+        "protection_known": true,
+        "role": "vscode-user-data"
+      },
+      {
+        "generated": false,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\p\\fw04-18\\e",
+        "protection_known": true,
+        "role": "vscode-extensions"
+      }
+    ],
+    "references": [],
+    "revision": 2,
+    "created_at": "2026-11-06T13:55:29.399Z",
+    "updated_at": "2026-11-06T13:58:10.005Z"
+  },
+  "cleanupScope": {
+    "only": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\isolated-seed-20261106-01",
+    "persistentUandEExcluded": true,
+    "SExcluded": true,
+    "rawConsumedIntoIndependentEvidence": true
+  },
+  "noCargo": true,
+  "noAzraelInstallation": true,
+  "noUserWindowStop": true
+}
