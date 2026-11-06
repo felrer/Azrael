@@ -73,6 +73,10 @@ impl<'a> Store<'a> {
     }
     /// Re-enter the state transaction before the caller acquires catalog locks.
     pub fn resume(&mut self) -> Result<(), String> {
+        crate::lock_recovery::wait_for_lock(self.auth.lock_wait.get(), || self.try_resume())
+    }
+    /// One acquisition attempt, allowing the caller to retry the complete lock set.
+    pub fn try_resume(&mut self) -> Result<(), crate::lock_recovery::LockAcquireError> {
         if !self.suspended || self.handle.is_some() {
             return Err("state is not suspended".into());
         }
@@ -90,6 +94,23 @@ impl<'a> Store<'a> {
         self.handle = Some(handle);
         self.suspended = false;
         Ok(())
+    }
+    /// Used only before any publication attempt. A failed reacquisition leaves
+    /// the durable reservation protected for independent recovery.
+    pub(crate) fn resume_before_abort(&mut self) -> Result<(), String> {
+        if self.handle.is_some() && !self.suspended {
+            return Ok(());
+        }
+        // Abort bookkeeping still needs custody after cancellation; no payload
+        // operation is restarted by acquiring the state transaction here.
+        crate::lock_recovery::wait_for_lock(self.auth.lock_wait.get(), || self.try_resume())
+    }
+    pub(crate) fn preintent_state(&self) -> Result<State, String> {
+        if self.handle.is_none() || self.suspended {
+            return Err("pre-intent abort requires maintenance custody".into());
+        }
+        let current = self.current(self.auth)?;
+        serde_json::from_value(current).map_err(|error| error.to_string())
     }
     fn current(&self, auth: Auth<'_>) -> Result<serde_json::Value, String> {
         let manifest = self.directory.join("manifest.json");

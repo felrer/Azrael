@@ -77,105 +77,132 @@ pub(crate) fn register<'a>(
     }
     let mut lease =
         reservations::ReservationSet::acquire_registration(root, request, &store.state, auth)?;
-    let scope = lease
-        .observed()
-        .iter()
-        .flat_map(|entry| {
-            entry["fence"]["members"]
-                .as_array()
-                .into_iter()
-                .flatten()
-                .filter_map(|member| member["path"].as_str().map(PathBuf::from))
-                .collect::<Vec<_>>()
-        })
-        .collect::<BTreeSet<_>>();
-    let observed = scope
-        .iter()
-        .map(|path| Ok((path.clone(), root_stamp(root, path, auth)?)))
-        .collect::<Result<BTreeMap<_, _>, String>>();
-    // A failed preflight has not changed state or payload and can release safely.
-    let observed = match observed {
-        Ok(value) => value,
-        Err(error) => {
-            lease.release_registration(auth)?;
-            return Err(error);
+    let mut publication_started = false;
+    let result = (|| {
+        let scope = lease
+            .observed()
+            .iter()
+            .flat_map(|entry| {
+                entry["fence"]["members"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|member| member["path"].as_str().map(PathBuf::from))
+                    .collect::<Vec<_>>()
+            })
+            .collect::<BTreeSet<_>>();
+        let observed = scope
+            .iter()
+            .map(|path| Ok((path.clone(), root_stamp(root, path, auth)?)))
+            .collect::<Result<BTreeMap<_, _>, String>>();
+        // A failed preflight has not changed state or payload and can release safely.
+        let observed = match observed {
+            Ok(value) => value,
+            Err(error) => {
+                return Err(error);
+            }
+        };
+        drop(catalog_locks);
+        store.suspend()?;
+        let measured =
+            crate::io_priority::background(|| prepare(root, request, &mut store.state, auth))
+                .and_then(|result| {
+                    if auth.cancelled() {
+                        return Err("registration cancelled before commit".into());
+                    }
+                    for (path, stamp) in &observed {
+                        if root_stamp(root, path, auth)? != *stamp {
+                            return Err("registration root changed during measurement".into());
+                        }
+                    }
+                    Ok(result)
+                });
+        if measured.is_err() {
+            store.state = before.clone();
         }
-    };
-    drop(catalog_locks);
-    store.suspend()?;
-    let measured =
-        crate::io_priority::background(|| prepare(root, request, &mut store.state, auth)).and_then(
-            |result| {
-                if auth.cancelled() {
-                    return Err("registration cancelled before commit".into());
+        // Preserve lock ordering: reacquire maintenance first, then current catalogs.
+        // CAS merge rejects same-identity changes and retains unrelated commits.
+        let _catalog_locks = crate::lock_recovery::wait_for_lock(auth.lock_wait.get(), || {
+            store.try_resume()?;
+            // Catalog acquisition starts a fresh filesystem epoch. Retain only
+            // parsed-record reuse, which still requires freshly compared bytes.
+            // Use the original cohort so a source switch locks both sources.
+            match registry::lock_request(root, request, &before, auth) {
+                Ok(locks) => Ok(locks),
+                Err(error) => {
+                    // Release partial OS ownership before sleeping. Keep the
+                    // measured scope fenced by its durable registration lease.
+                    store.suspend()?;
+                    Err(error)
                 }
-                for (path, stamp) in &observed {
-                    if root_stamp(root, path, auth)? != *stamp {
-                        return Err("registration root changed during measurement".into());
+            }
+        })?;
+        lease.verify(auth)?;
+        let result = match measured {
+            Ok(value) => value,
+            Err(error) => {
+                return Err(error);
+            }
+        };
+        let validation = (|| {
+            let config_path = root.join("project-maintenance.json");
+            paths::check(root, &config_path, auth)?;
+            auth(&config_path, crate::AccessMode::Read)?;
+            let bytes = std::fs::read(config_path).map_err(|error| error.to_string())?;
+            if hash(&bytes)? != config_identity {
+                return Err("project config changed during registration".into());
+            }
+            reservations::check_request(root, request, &store.state, auth)?;
+            for (path, stamp) in &observed {
+                if root_stamp(root, path, auth)? != *stamp {
+                    return Err("registration root changed before commit".into());
+                }
+            }
+            if let Some(group) = result.get("group") {
+                if group["membership_source_format"] == "producer_registry_v1" {
+                    let items = result["items"]
+                        .as_array()
+                        .ok_or("missing prepared items")?
+                        .iter()
+                        .map(|item| Ok((string(item, "id")?.to_owned(), item.clone())))
+                        .collect::<Result<BTreeMap<_, _>, String>>()?;
+                    if groups::source_measurement(root, group, &items, auth)?["identity"]
+                        != group["membership_source_identity"]
+                    {
+                        return Err("registration producer source changed before commit".into());
                     }
                 }
-                Ok(result)
-            },
-        );
-    if measured.is_err() {
-        store.state = before.clone();
-    }
-    // Preserve lock ordering: reacquire maintenance first, then current catalogs.
-    // CAS merge rejects same-identity changes and retains unrelated commits.
-    store.resume()?;
-    *auth.catalog.borrow_mut() = Default::default();
-    // The merged state already contains the prepared source. Use the original
-    // cohort here so a source switch still locks both old and incoming catalogs.
-    let _catalog_locks = registry::lock_request(root, request, &before, auth)?;
-    lease.verify(auth)?;
-    let result = match measured {
-        Ok(value) => value,
-        Err(error) => {
-            lease.release_registration(auth)?;
+            }
+            if auth.cancelled() {
+                return Err("registration cancelled before commit".into());
+            }
+            Ok(())
+        })();
+        if let Err(error) = validation {
+            // No save has been attempted; prepared local state is discarded on return.
             return Err(error);
         }
-    };
-    let validation = (|| {
-        let config_path = root.join("project-maintenance.json");
-        paths::check(root, &config_path, auth)?;
-        auth(&config_path, crate::AccessMode::Read)?;
-        let bytes = std::fs::read(config_path).map_err(|error| error.to_string())?;
-        if hash(&bytes)? != config_identity {
-            return Err("project config changed during registration".into());
-        }
-        reservations::check_request(root, request, &store.state, auth)?;
-        for (path, stamp) in &observed {
-            if root_stamp(root, path, auth)? != *stamp {
-                return Err("registration root changed before commit".into());
-            }
-        }
-        if let Some(group) = result.get("group") {
-            if group["membership_source_format"] == "producer_registry_v1" {
-                let items = result["items"]
-                    .as_array()
-                    .ok_or("missing prepared items")?
-                    .iter()
-                    .map(|item| Ok((string(item, "id")?.to_owned(), item.clone())))
-                    .collect::<Result<BTreeMap<_, _>, String>>()?;
-                if groups::source_measurement(root, group, &items, auth)?["identity"]
-                    != group["membership_source_identity"]
-                {
-                    return Err("registration producer source changed before commit".into());
-                }
-            }
-        }
-        if auth.cancelled() {
-            return Err("registration cancelled before commit".into());
-        }
-        Ok(())
-    })();
-    if let Err(error) = validation {
-        // No save has been attempted; prepared local state is discarded on return.
+        // A failed/unknown save retains the durable scope for explicit recovery.
+        publication_started = true;
+        store.save(auth)?;
         lease.release_registration(auth)?;
-        return Err(error);
+        Ok(result)
+    })();
+    if result.is_err() && !publication_started {
+        let aborted = (|| -> Result<(), String> {
+            store.resume_before_abort()?;
+            let _catalog_locks = crate::lock_recovery::wait_for_lock(auth.lock_wait.get(), || {
+                registry::lock_request(root, request, &before, auth)
+            })?;
+            let current = store.preintent_state()?;
+            lease.abort_before_intent(&current, auth)
+        })();
+        if let Err(abort_error) = aborted {
+            return Err(crate::lock_recovery::with_context(
+                result.unwrap_err(),
+                &format!("pre-intent reservation retained: {abort_error}"),
+            ));
+        }
     }
-    // A failed/unknown save retains the durable scope for explicit recovery.
-    store.save(auth)?;
-    lease.release_registration(auth)?;
-    Ok(result)
+    result
 }

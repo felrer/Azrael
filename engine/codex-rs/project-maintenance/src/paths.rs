@@ -557,6 +557,69 @@ fn validate_nested_junctions(root: &Path, path: &Path, auth: Auth<'_>) -> Result
     Ok(())
 }
 
+#[cfg(windows)]
+fn short_local_ancestor_path(path: &Path) -> Option<[u16; 248]> {
+    use std::os::windows::ffi::OsStrExt;
+    use std::path::Prefix;
+
+    let mut components = path.components();
+    if !matches!(components.next(), Some(Component::Prefix(prefix)) if matches!(prefix.kind(), Prefix::Disk(drive) if drive.is_ascii_alphabetic()))
+        || !matches!(components.next(), Some(Component::RootDir))
+    {
+        return None;
+    }
+    for component in components {
+        let Component::Normal(name) = component else {
+            return None;
+        };
+        let name = name.to_str()?;
+        // Win32 normalization and DOS device spellings can differ from Rust's
+        // verbatim metadata lookup. Keep those on the existing metadata path.
+        if name.ends_with('.')
+            || name.ends_with(' ')
+            || name
+                .chars()
+                .any(|character| character < ' ' || "<>:\"|?*".contains(character))
+        {
+            return None;
+        }
+        let stem = name.split('.').next()?.trim_end_matches(' ');
+        if ["CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$", "CLOCK$"]
+            .iter()
+            .any(|reserved| stem.eq_ignore_ascii_case(reserved))
+        {
+            return None;
+        }
+        if stem.get(..3).is_some_and(|prefix| {
+            prefix.eq_ignore_ascii_case("COM") || prefix.eq_ignore_ascii_case("LPT")
+        }) {
+            let mut suffix = stem[3..].chars();
+            if matches!(suffix.next(), Some('1'..='9' | '¹' | '²' | '³')) && suffix.next().is_none()
+            {
+                return None;
+            }
+        }
+    }
+    let mut encoded = [0u16; 248];
+    for (index, unit) in path.as_os_str().encode_wide().enumerate() {
+        if unit == 0 || index >= encoded.len() - 1 {
+            return None;
+        }
+        encoded[index] = unit;
+    }
+    Some(encoded)
+}
+
+#[cfg(windows)]
+fn fresh_ancestor_attributes(path: &Path) -> Option<u32> {
+    use windows_sys::Win32::Storage::FileSystem::{GetFileAttributesW, INVALID_FILE_ATTRIBUTES};
+    let encoded = short_local_ancestor_path(path)?;
+    // This reports the entry's own reparse attribute. No result is cached, and
+    // failure must fall back to symlink_metadata's existing error semantics.
+    let attributes = unsafe { GetFileAttributesW(encoded.as_ptr()) };
+    (attributes != INVALID_FILE_ATTRIBUTES).then_some(attributes)
+}
+
 pub(crate) fn checked_metadata(
     root: &Path,
     path: &Path,
@@ -571,6 +634,18 @@ pub(crate) fn checked_metadata(
     let mut leaf = None;
     for p in ancestors {
         auth(p, AccessMode::Read)?;
+        #[cfg(windows)]
+        if p != path {
+            if let Some(attributes) = fresh_ancestor_attributes(p) {
+                if attributes
+                    & windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_REPARSE_POINT
+                    != 0
+                {
+                    return Err(format!("link/reparse path rejected: {}", p.display()));
+                }
+                continue;
+            }
+        }
         match fs::symlink_metadata(p) {
             Ok(m) => {
                 if m.file_type().is_symlink() || reparse(&m) {
@@ -615,7 +690,7 @@ pub(crate) fn registered_observation(
 }
 
 #[cfg(unix)]
-fn registered_identity(_: &Path, metadata: &fs::Metadata) -> Result<Value, String> {
+pub(crate) fn registered_identity(_: &Path, metadata: &fs::Metadata) -> Result<Value, String> {
     use std::os::unix::fs::MetadataExt;
     if metadata.ino() == 0 {
         return Err("registered object identity unavailable".into());
@@ -624,7 +699,7 @@ fn registered_identity(_: &Path, metadata: &fs::Metadata) -> Result<Value, Strin
 }
 
 #[cfg(windows)]
-fn registered_identity(path: &Path, metadata: &fs::Metadata) -> Result<Value, String> {
+pub(crate) fn registered_identity(path: &Path, metadata: &fs::Metadata) -> Result<Value, String> {
     let (_, id, standard) = registered_handle_information(path)?;
     if standard.Directory != metadata.is_dir() {
         return Err("registered object kind changed while observing".into());
@@ -696,7 +771,7 @@ fn registered_handle_information(
 }
 
 #[cfg(not(any(windows, unix)))]
-fn registered_identity(_: &Path, _: &fs::Metadata) -> Result<Value, String> {
+pub(crate) fn registered_identity(_: &Path, _: &fs::Metadata) -> Result<Value, String> {
     Err("registered object identity unsupported on this platform".into())
 }
 

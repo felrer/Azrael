@@ -34,6 +34,27 @@ pub(crate) fn plan(
     request: &Value,
     auth: Auth<'_>,
 ) -> Result<Value, String> {
+    plan_with_measurement(root, config, request, auth, true)
+}
+
+/// Validate and resolve the complete plan before publishing a reader fence.
+/// Identity-free inputs describe scope only and never authorize execution.
+pub(crate) fn outline(
+    root: &Path,
+    config: &Config,
+    request: &Value,
+    auth: Auth<'_>,
+) -> Result<Value, String> {
+    plan_with_measurement(root, config, request, auth, false)
+}
+
+fn plan_with_measurement(
+    root: &Path,
+    config: &Config,
+    request: &Value,
+    auth: Auth<'_>,
+    measure: bool,
+) -> Result<Value, String> {
     let requested_kind = match request.get("kind") {
         Some(value) => Some(
             value
@@ -110,8 +131,12 @@ pub(crate) fn plan(
         let mut inputs = Vec::new();
         for input in &bundle.inputs {
             let path = paths::resolve(root, input)?;
-            let measurement = paths::measure(root, &path, auth)?;
-            inputs.push(json!({"path":path,"identity":measurement["identity"]}));
+            let identity = if measure {
+                paths::measure(root, &path, auth)?["identity"].clone()
+            } else {
+                Value::Null
+            };
+            inputs.push(json!({"path":path,"identity":identity}));
         }
         let dependencies = bundle
             .depends_on

@@ -8,6 +8,232 @@ use std::path::{Path, PathBuf};
 
 const MAX_BYTES: u64 = 65_536;
 
+pub(crate) fn requested_wait(request: &Value) -> Result<std::time::Duration, String> {
+    let millis = match request.get("lock_wait_ms") {
+        None => 0,
+        Some(value) => value
+            .as_u64()
+            .filter(|value| *value <= 600_000)
+            .ok_or("lock_wait_ms must be an integer in 0..600000")?,
+    };
+    Ok(std::time::Duration::from_millis(millis))
+}
+
+/// Render only the exact structured contention contract. Ordinary I/O errors
+/// remain ordinary errors, including Windows error 33 outside lock acquisition.
+pub fn error_response(error: &str) -> Value {
+    if let Ok(value) = serde_json::from_str::<Value>(error) {
+        if value["code"] == "maintenance_busy"
+            && value["retryable"] == true
+            && value["error"].is_string()
+            && value["lock_path"].is_string()
+            && (value["owner"].is_null() || value["owner"].is_object())
+        {
+            return value;
+        }
+    }
+    json!({"error":error})
+}
+
+pub(crate) fn with_context(error: String, context: &str) -> String {
+    let mut response = error_response(&error);
+    if response["code"] == "maintenance_busy" {
+        response["error"] = json!(format!(
+            "{}; {context}",
+            response["error"].as_str().unwrap_or(&error)
+        ));
+        response.to_string()
+    } else {
+        format!("{error}; {context}")
+    }
+}
+
+pub(crate) fn busy(root: &Path, path: &Path, phase: &str, auth: Auth<'_>) -> LockAcquireError {
+    // Owner metadata is diagnostic only. Failed authorization or a racing read
+    // hides it; it never changes the contention result or proves termination.
+    let owner = observe(root, path, auth)
+        .ok()
+        .and_then(|observation| serde_json::from_slice::<Value>(&observation.bytes).ok())
+        .filter(|value| value.is_object())
+        .map(|value| {
+            json!({"pid":value["pid"],"operation":value["operation"],
+            "acquired_at_ms":value["acquired_at_ms"]})
+        });
+    LockAcquireError::Busy(
+        json!({"error":format!("OS lock busy: {} ({phase})",path.display()),
+        "code":"maintenance_busy","retryable":true,"lock_path":path,"owner":owner})
+        .to_string(),
+    )
+}
+
+#[derive(Debug)]
+pub(crate) enum LockAcquireError {
+    Busy(String),
+    Queued(String, crate::lock_wait::Waiter),
+    Other(String),
+}
+impl From<String> for LockAcquireError {
+    fn from(error: String) -> Self {
+        Self::Other(error)
+    }
+}
+impl From<&str> for LockAcquireError {
+    fn from(error: &str) -> Self {
+        Self::Other(error.into())
+    }
+}
+impl From<LockAcquireError> for String {
+    fn from(error: LockAcquireError) -> Self {
+        match error {
+            LockAcquireError::Busy(error)
+            | LockAcquireError::Queued(error, _)
+            | LockAcquireError::Other(error) => error,
+        }
+    }
+}
+
+/// Called only at a failed acquisition, with its already authorized handle.
+pub(crate) fn busy_for_file(
+    root: &Path,
+    path: &Path,
+    phase: &str,
+    auth: Auth<'_>,
+    file: &File,
+) -> LockAcquireError {
+    let prepare = (|| {
+        paths::check(root, path, auth)?;
+        auth(path, AccessMode::Read)?;
+        final_plain_path(path)?;
+        crate::lock_wait::Waiter::prepare(path, file)
+    })();
+    match prepare {
+        Ok(Some(waiter)) => LockAcquireError::Queued(busy(root, path, phase, auth).into(), waiter),
+        Ok(None) => busy(root, path, phase, auth),
+        Err(error) => LockAcquireError::Other(error),
+    }
+}
+
+// Internal String-returning read helpers can cross nested acquisition boundaries.
+// Carry the actual typed contention beside that exact error until the outer
+// acquisition has dropped partial leases. Never reconstruct a waiter from JSON.
+thread_local! {
+    static ACQUISITION: std::cell::RefCell<Vec<Option<LockAcquireError>>> = const {
+        std::cell::RefCell::new(Vec::new())
+    };
+}
+struct AcquisitionFrame;
+impl Drop for AcquisitionFrame {
+    fn drop(&mut self) {
+        ACQUISITION.with(|frames| {
+            frames.borrow_mut().pop();
+        });
+    }
+}
+fn diagnostic(error: &LockAcquireError) -> &str {
+    match error {
+        LockAcquireError::Busy(error)
+        | LockAcquireError::Queued(error, _)
+        | LockAcquireError::Other(error) => error,
+    }
+}
+
+/// Retry only an OS contention result, never recovery, authorization or commit errors.
+pub(crate) fn wait_for_lock<T>(
+    wait: std::time::Duration,
+    mut acquire: impl FnMut() -> Result<T, LockAcquireError>,
+) -> Result<T, String> {
+    wait_for_lock_cancel(wait, &|| false, &mut acquire)
+}
+
+pub(crate) fn wait_for_lock_cancel<T>(
+    wait: std::time::Duration,
+    cancelled: &dyn Fn() -> bool,
+    mut acquire: impl FnMut() -> Result<T, LockAcquireError>,
+) -> Result<T, String> {
+    if ACQUISITION.with(|frames| !frames.borrow().is_empty()) {
+        if cancelled() {
+            return Err("maintenance lock wait cancelled".into());
+        }
+        return acquire().map_err(|error| {
+            let message = diagnostic(&error).to_owned();
+            if matches!(
+                error,
+                LockAcquireError::Busy(_) | LockAcquireError::Queued(_, _)
+            ) {
+                ACQUISITION.with(|frames| {
+                    *frames.borrow_mut().last_mut().expect("active acquisition") = Some(error);
+                });
+            }
+            message
+        });
+    }
+    ACQUISITION.with(|frames| frames.borrow_mut().push(None));
+    let _frame = AcquisitionFrame;
+    let deadline = std::time::Instant::now() + wait;
+    let mut timing = crate::timing::Span::new("maintenance.lock_wait", "wait_for_lock", None);
+    let mut last_busy: Option<String> = None;
+    loop {
+        if cancelled() {
+            timing.outcome("cancelled");
+            return Err("maintenance lock wait cancelled".into());
+        }
+        if let Some(error) = &last_busy {
+            if std::time::Instant::now() >= deadline {
+                timing.outcome("timeout");
+                let mut response = error_response(error);
+                response["error"] = json!(format!(
+                    "{}; lock wait exhausted after {} ms",
+                    response["error"].as_str().unwrap_or(error),
+                    wait.as_millis()
+                ));
+                return Err(if response["code"] == "maintenance_busy" {
+                    response.to_string()
+                } else {
+                    response["error"].as_str().unwrap_or(error).to_owned()
+                });
+            }
+        }
+        timing.attempt();
+        let mut result = acquire();
+        let nested = ACQUISITION.with(|frames| frames.borrow_mut().last_mut().unwrap().take());
+        if let (Err(LockAcquireError::Other(message)), Some(error)) = (&result, nested) {
+            if message == diagnostic(&error) {
+                result = Err(error);
+            }
+        }
+        match result {
+            Ok(value) => {
+                if cancelled() {
+                    timing.outcome("cancelled");
+                    return Err("maintenance lock wait cancelled".into());
+                }
+                timing.outcome("acquired");
+                return Ok(value);
+            }
+            Err(LockAcquireError::Busy(error)) if !wait.is_zero() => {
+                last_busy = Some(error);
+                let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+                std::thread::sleep(remaining.min(std::time::Duration::from_millis(10)));
+            }
+            Err(LockAcquireError::Queued(error, waiter)) if !wait.is_zero() => {
+                last_busy = Some(error);
+                // acquire() has returned: all partial transaction leases are gone.
+                if let Err(error) = waiter.wait(deadline, cancelled) {
+                    timing.outcome("error");
+                    return Err(error);
+                }
+            }
+            Err(error) => {
+                timing.outcome(match &error {
+                    LockAcquireError::Busy(_) | LockAcquireError::Queued(_, _) => "busy",
+                    LockAcquireError::Other(_) => "error",
+                });
+                return Err(error.into());
+            }
+        }
+    }
+}
+
 fn digest(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
@@ -215,13 +441,31 @@ fn recovery_guard(root: &Path, auth: Auth<'_>) -> Result<File, String> {
     Ok(file)
 }
 
+// Fields drop in declaration order: close the OS handle before emitting timing.
+struct TimedLock {
+    file: File,
+    timing: crate::timing::Span,
+}
+impl std::ops::Deref for TimedLock {
+    type Target = File;
+    fn deref(&self) -> &File {
+        &self.file
+    }
+}
+impl std::ops::DerefMut for TimedLock {
+    fn deref_mut(&mut self) -> &mut File {
+        &mut self.file
+    }
+}
+
 /// Persistent OS lease; metadata never proves operation completion.
 pub(crate) struct Sentinel<'a> {
     root: PathBuf,
     path: PathBuf,
     observed: Observation,
-    _file: File,
+    _file: TimedLock,
     auth: Auth<'a>,
+    verify_on_drop: bool,
 }
 pub(crate) fn final_plain_path(path: &Path) -> Result<(), String> {
     for ancestor in path.ancestors() {
@@ -251,22 +495,26 @@ fn held_observation(
     paths::check(root, path, auth)?;
     auth(path, AccessMode::Read)?;
     final_plain_path(path)?;
-    let current = File::open(path).map_err(|e| e.to_string())?;
+    let current = File::open(path).map_err(|e| format!("lock.observe: {}: {e}", path.display()))?;
     let id = identity(file)?;
     if identity(&current)? != id {
         return Err("lock identity changed".into());
     }
     let mut reader = file;
-    reader.seek(SeekFrom::Start(0)).map_err(|e| e.to_string())?;
+    reader
+        .seek(SeekFrom::Start(0))
+        .map_err(|e| format!("lock.observe: {}: {e}", path.display()))?;
     let mut bytes = Vec::new();
     reader
         .take(MAX_BYTES + 1)
         .read_to_end(&mut bytes)
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("lock.observe: {}: {e}", path.display()))?;
     if bytes.len() as u64 > MAX_BYTES {
         return Err("lock metadata exceeds bound".into());
     }
-    if identity(&File::open(path).map_err(|e| e.to_string())?)? != id {
+    if identity(&File::open(path).map_err(|e| format!("lock.observe: {}: {e}", path.display()))?)?
+        != id
+    {
         return Err("lock replaced".into());
     }
     Ok(Observation {
@@ -287,17 +535,30 @@ pub(crate) fn check_available(root: &Path, path: &Path, auth: Auth<'_>) -> Resul
     if paths::checked_metadata(root, path, auth)?.is_none() {
         return Ok(());
     }
-    let original = observe(root, path, auth)?;
+    auth(path, AccessMode::Read)?;
+    let file = File::open(path).map_err(|e| e.to_string())?;
+    wait_for_lock_cancel(auth.lock_wait.get(), &|| auth.cancelled(), || {
+        file.try_lock_shared().map_err(|error| match error {
+            std::fs::TryLockError::WouldBlock => {
+                busy_for_file(root, path, "check_available", auth, &file)
+            }
+            std::fs::TryLockError::Error(error) => LockAcquireError::Other(format!(
+                "shared lock acquisition failed: {} (check_available): {error}",
+                path.display()
+            )),
+        })
+    })?;
+    // Windows byte-range locks also block reads through another handle. Read
+    // metadata only after shared custody, so contention reaches the wait path.
+    let original = held_observation(root, path, &file, auth)?;
     if !os_metadata(&original.bytes) {
         return Err("legacy or unknown lock requires explicit recovery".into());
     }
-    let file = File::open(path).map_err(|e| e.to_string())?;
-    file.try_lock_shared()
-        .map_err(|e| format!("OS lock busy: {e}"))?;
-    if identity(&file)? != original.identity {
-        return Err("lock identity changed".into());
+    let current = held_observation(root, path, &file, auth)?;
+    if current.identity != original.identity || current.bytes != original.bytes {
+        return Err("recovery file identity or contents changed".into());
     }
-    unchanged(root, path, &original, auth)
+    Ok(())
 }
 impl<'a> Sentinel<'a> {
     pub(crate) fn acquire(
@@ -305,7 +566,7 @@ impl<'a> Sentinel<'a> {
         path: &Path,
         operation: &str,
         auth: Auth<'a>,
-    ) -> Result<Self, String> {
+    ) -> Result<Self, LockAcquireError> {
         if operation.is_empty()
             || operation.len() > 120
             || !operation
@@ -321,7 +582,7 @@ impl<'a> Sentinel<'a> {
         )?;
         auth(path, AccessMode::Write)?;
         auth(path, AccessMode::Read)?;
-        let (mut file, created) = match OpenOptions::new()
+        let (file, created) = match OpenOptions::new()
             .read(true)
             .write(true)
             .create_new(true)
@@ -333,12 +594,24 @@ impl<'a> Sentinel<'a> {
                     .read(true)
                     .write(true)
                     .open(path)
-                    .map_err(|e| e.to_string())?,
+                    .map_err(|e| format!("lock.acquire: {}: {e}", path.display()))?,
                 false,
             ),
-            Err(e) => return Err(e.to_string()),
+            Err(e) => {
+                return Err(format!("lock.open: {} ({operation}): {e}", path.display()).into());
+            }
         };
-        file.try_lock().map_err(|e| format!("OS lock busy: {e}"))?;
+        file.try_lock().map_err(|error| match error {
+            std::fs::TryLockError::WouldBlock => busy_for_file(root, path, operation, auth, &file),
+            std::fs::TryLockError::Error(error) => LockAcquireError::Other(format!(
+                "OS lock acquisition failed: {} ({operation}): {error}",
+                path.display()
+            )),
+        })?;
+        let mut timing = crate::timing::Span::new("maintenance.lock_hold", operation, Some(path));
+        timing.attempt();
+        timing.outcome("acquisition_failed");
+        let mut file = TimedLock { file, timing };
         let id = identity(&file)?;
         let original = held_observation(root, path, &file, auth)?;
         if original.identity != id {
@@ -377,6 +650,7 @@ impl<'a> Sentinel<'a> {
             },
             _file: file,
             auth,
+            verify_on_drop: true,
         };
         lease.verify()?;
         Ok(lease)
@@ -398,7 +672,92 @@ impl<'a> Sentinel<'a> {
 impl Drop for Sentinel<'_> {
     fn drop(&mut self) {
         // Always close; never unlink the inode on which another owner may wait.
-        let _ = self.verify();
+        if self.verify_on_drop {
+            let result = self.verify();
+            self._file.timing.outcome(if result.is_ok() {
+                "verified"
+            } else {
+                "verification_failed"
+            });
+        } else {
+            self._file.timing.outcome("verification_skipped");
+        }
+    }
+}
+
+/// Exclusive custody for observation of an existing schema-2 sentinel.
+/// Its unchanged metadata describes the last diagnostic writer, not this
+/// observer or proof of a running operation. No owner or mutation API escapes.
+pub(crate) struct ObservationLock<'a> {
+    lease: Sentinel<'a>,
+}
+
+impl<'a> ObservationLock<'a> {
+    pub(crate) fn acquire(
+        root: &Path,
+        path: &Path,
+        operation: &str,
+        auth: Auth<'a>,
+    ) -> Result<Self, LockAcquireError> {
+        if operation.is_empty()
+            || operation.len() > 120
+            || !operation
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || b"_.:-".contains(&b))
+        {
+            return Err("bounded lock operation required".into());
+        }
+        paths::check(root, path, auth)?;
+        auth(
+            path.parent().ok_or("missing lock parent")?,
+            AccessMode::Write,
+        )?;
+        auth(path, AccessMode::Write)?;
+        auth(path, AccessMode::Read)?;
+        final_plain_path(path)?;
+        // Preserve the existing handle access and authorization policy. Opening
+        // for write access does not write: this path never creates, repairs,
+        // truncates, writes, or syncs metadata, and the handle remains private.
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(path)
+            .map_err(|e| format!("lock.observe.open: {} ({operation}): {e}", path.display()))?;
+        file.try_lock().map_err(|error| match error {
+            std::fs::TryLockError::WouldBlock => busy_for_file(root, path, operation, auth, &file),
+            std::fs::TryLockError::Error(error) => LockAcquireError::Other(format!(
+                "OS lock acquisition failed: {} ({operation}): {error}",
+                path.display()
+            )),
+        })?;
+        // Keep the same exclusive-hold timing label as a writer so observations
+        // remain comparable; custody here carries no metadata-publication work.
+        let mut timing = crate::timing::Span::new("maintenance.lock_hold", operation, Some(path));
+        timing.attempt();
+        timing.outcome("acquisition_failed");
+        let file = TimedLock { file, timing };
+        let id = identity(&file)?;
+        let observed = held_observation(root, path, &file, auth)?;
+        if observed.identity != id {
+            return Err("lock identity changed during acquisition".into());
+        }
+        if !os_metadata(&observed.bytes) {
+            return Err("legacy or unknown lock requires explicit recovery".into());
+        }
+        let lease = Sentinel {
+            root: root.to_owned(),
+            path: path.to_owned(),
+            observed,
+            _file: file,
+            auth,
+            verify_on_drop: true,
+        };
+        lease.verify()?;
+        Ok(Self { lease })
+    }
+
+    pub(crate) fn release(self) -> Result<(), String> {
+        self.lease.release()
     }
 }
 
@@ -671,13 +1030,31 @@ mod tests {
         let path = root.path().join("lock");
         let allow = |_: &Path, _: AccessMode| Ok(());
         let context = Context::new(&allow);
+        assert!(ObservationLock::acquire(root.path(), &path, "missing", &context).is_err());
+        assert!(!path.exists());
         let lease = Sentinel::acquire(root.path(), &path, "test", &context).unwrap();
         assert_eq!(lease.owner()["schema"], 2);
         assert!(Sentinel::acquire(root.path(), &path, "contender", &context).is_err());
+        assert!(ObservationLock::acquire(root.path(), &path, "observer", &context).is_err());
         assert!(check_available(root.path(), &path, &context).is_err());
         lease.release().unwrap();
         assert!(path.exists());
         check_available(root.path(), &path, &context).unwrap();
+        // Prevent observers acquiring writer capabilities or rewriting diagnostics.
+        let bytes = fs::read(&path).unwrap();
+        let id = identity(&File::open(&path).unwrap()).unwrap();
+        let observer = ObservationLock::acquire(root.path(), &path, "observer", &context).unwrap();
+        let during = held_observation(root.path(), &path, &observer.lease._file, &context).unwrap();
+        assert_eq!(during.bytes, bytes);
+        assert_eq!(during.identity, id);
+        assert!(Sentinel::acquire(root.path(), &path, "writer", &context).is_err());
+        assert!(ObservationLock::acquire(root.path(), &path, "second", &context).is_err());
+        observer.release().unwrap();
+        assert_eq!(fs::read(&path).unwrap(), bytes);
+        assert_eq!(identity(&File::open(&path).unwrap()).unwrap(), id);
+        drop(ObservationLock::acquire(root.path(), &path, "drop", &context).unwrap());
+        assert_eq!(fs::read(&path).unwrap(), bytes);
+        assert_eq!(identity(&File::open(&path).unwrap()).unwrap(), id);
         Sentinel::acquire(root.path(), &path, "again", &context)
             .unwrap()
             .release()
@@ -685,6 +1062,7 @@ mod tests {
         for bytes in ["", "malformed", r#"{"schema":1}"#] {
             fs::write(&path, bytes).unwrap();
             assert!(Sentinel::acquire(root.path(), &path, "legacy", &context).is_err());
+            assert!(ObservationLock::acquire(root.path(), &path, "legacy", &context).is_err());
             assert_eq!(fs::read_to_string(&path).unwrap(), bytes);
         }
     }
@@ -706,5 +1084,20 @@ mod tests {
         fs::write(&path, &bytes).unwrap();
         assert!(lease.release().is_err());
         assert_eq!(fs::read(&path).unwrap(), bytes);
+        let observer = ObservationLock::acquire(root.path(), &path, "observer", &context).unwrap();
+        fs::rename(&path, root.path().join("observer-old")).unwrap();
+        fs::write(&path, &bytes).unwrap();
+        assert!(observer.release().is_err());
+        assert_eq!(fs::read(&path).unwrap(), bytes);
+
+        let mut observer =
+            ObservationLock::acquire(root.path(), &path, "tamper", &context).unwrap();
+        // Only this private fixture can mutate the held observer handle.
+        observer.lease._file.seek(SeekFrom::Start(0)).unwrap();
+        observer.lease._file.set_len(0).unwrap();
+        observer.lease._file.write_all(b"tampered").unwrap();
+        assert!(observer.lease.verify().is_err());
+        assert!(observer.release().is_err());
+        assert_eq!(fs::read(&path).unwrap(), b"tampered");
     }
 }

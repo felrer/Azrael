@@ -72,13 +72,13 @@ function projectMembers(members) {
     .sort((a, b) => Number(/log|report|evidence/.test(a.role)) - Number(/log|report|evidence/.test(b.role)));
 }
 const catalogLeases = new Map();
-function withCatalogLock(root, action) {
+function withCatalogLock(root, action, { waitMs, operation = "lifecycle.catalog" } = {}) {
   root = path.resolve(root);
   if (catalogLeases.has(root)) return action();
   const directory = registry(root);
   fs.mkdirSync(directory, { recursive: true });
   const lock = checked(root, path.join(directory, "catalog.lock"));
-  const descriptor = maintenanceLocks.acquire(lock, { operation: "lifecycle.catalog" });
+  const descriptor = maintenanceLocks.acquire(lock, { operation, waitMs, queue: true });
   catalogLeases.set(root, descriptor);
   try { return action(); } finally { catalogLeases.delete(root); descriptor.release(); }
 }

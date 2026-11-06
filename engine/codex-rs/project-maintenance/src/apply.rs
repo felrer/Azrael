@@ -344,7 +344,16 @@ pub(crate) fn apply<'a>(
                             outcome["status"] = json!("cancelled");
                             outcome["attempted"] = json!(false);
                         } else {
-                            match paths::delete_verified(root, path, &fresh, auth) {
+                            match crate::timing::phase("apply.physical_delete", Some(path), || {
+                                let fallback_home = root.join("artifacts/maintenance/runtime");
+                                let home =
+                                    auth.coordination_home.as_deref().unwrap_or(&fallback_home);
+                                let budget =
+                                    crate::disk_budget::acquire(home, path, &|| auth.cancelled())?;
+                                let result = paths::delete_verified(root, path, &fresh, auth);
+                                budget.release();
+                                result
+                            }) {
                                 Ok(report) => {
                                     outcome["status"] = report["status"].clone();
                                     outcome["remaining"] = report["remaining"].clone();
@@ -543,10 +552,14 @@ fn safe_entries(
             enclosing.unchanged_controls(root, state, auth)?;
         }
         if let Some(batch) = batch {
-            batch
-                .current(root, config, config_identity, state, auth)?
-                .remove(string(item, "id")?)
-                .ok_or("missing lifecycle review".into())
+            batch.current(
+                root,
+                config,
+                config_identity,
+                state,
+                auth,
+                string(item, "id")?,
+            )
         } else {
             review(root, config, config_identity, state, item, auth)
         }

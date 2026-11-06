@@ -22,6 +22,70 @@ const child = code => spawnSync(process.execPath, ["-e", code], { encoding: "utf
 const hash = bytes => createHash("sha256").update(bytes).digest("hex");
 const checks = [];
 try {
+  const wire = child("(" + function wirePackets(helper, lock) {
+    const assert = require("node:assert/strict"), Module = require("node:module");
+    const threads = require("node:worker_threads"), load = Module._load;
+    const config = require.resolve(require("node:path").join(require("node:path").dirname(helper), "maintenance-owner-config.cjs"));
+    require.cache[config] = { exports: { resolveMaintenanceOwner: () => process.execPath, resolveMaintenanceCommand: () => ({ executable: process.execPath, args: [] }) } };
+    let packet, observedWait;
+    class FakeWorker {
+      constructor(filename, options) {
+        observedWait = options.workerData.waitMs; this.port = options.workerData.port; this.port.postMessage(packet);
+        this.port.postMessage({ type: "closed", native_close_observed: true,
+          native_pid: packet.native_pid ?? null, native_exit_observed: packet.native_exit_observed === true,
+          native_exit_code: packet.native_exit_code ?? null, native_signal: packet.native_signal ?? null });
+      }
+      on() { return this; } unref() {} terminate() { this.port.close(); }
+    }
+    Module._load = function(id, ...args) { return id === "node:worker_threads" ? { ...threads, Worker: FakeWorker } : load.call(this, id, ...args); };
+    const { acquire } = require(helper);
+    const busy = { code: "maintenance_busy", retryable: true, lock_path: lock, owner: { operation: "wire-holder" }, error: "OS lock busy: held" };
+    for (const errorPacket of [busy, { error: JSON.stringify(busy) }, { ...busy, owner: null }]) {
+      packet = { id: 0, ok: false, ...errorPacket };
+      assert.throws(() => acquire(lock, { operation: "test.wire" }), error => {
+        assert.equal(error.code, "EEXIST"); assert.equal(error.maintenance_code, "maintenance_busy");
+        assert.equal(error.retryable, true); assert.equal(error.lock_path, lock);
+        assert.deepEqual(error.owner, errorPacket.owner === null ? null : busy.owner);
+        assert.equal(error.message, busy.error); return true;
+      });
+    }
+    // Keep the capability/explicit-zero boundary: a future IPC cleanup must
+    // neither send a long wait to an old owner nor erase nonblocking requests.
+    packet = { id: 0, ok: false, ...busy };
+    const command = { executable: process.execPath, args: [] };
+    for (const [options, expected] of [
+      [{ queue: true, command }, 5000],
+      [{ queue: true, command: { ...command, maxLockWaitMs: 600000 } }, 600000],
+      [{ queue: true, waitMs: 0, command: { ...command, maxLockWaitMs: 600000 } }, 0],
+      [{ queue: true, waitMs: 5000, command: { ...command, maxLockWaitMs: 600000 } }, 5000],
+    ]) {
+      assert.throws(() => acquire(lock, { operation: "test.queue", ...options }), error => error.code === "EEXIST");
+      assert.equal(observedWait, expected);
+    }
+    for (const errorPacket of [
+      { error: "permission denied" },
+      { error: "legacy or unknown lock; explicit recovery required" },
+      { error: "Native lease exited before response: 1/null; " + JSON.stringify(busy), transport_failure: true },
+      { error: "Native lease exited before response: 17/null", transport_failure: true,
+        native_pid: 4343, native_exit_observed: true, native_exit_code: 17, native_signal: null }
+    ]) {
+      packet = { id: 0, ok: false, ...errorPacket };
+      assert.throws(() => acquire(lock, { operation: "test.wire-error" }), error => {
+        assert.equal(error.code, "ELOCKOWNERSHIP"); assert.equal(error.maintenance_code, undefined);
+        assert.equal(error.retryable, undefined);
+        assert.equal(error.lease.operation, "test.wire-error");
+        assert.equal(error.lease.request_operation, "acquire");
+        assert.equal(error.lease.native_pid, errorPacket.native_pid ?? null);
+        assert.equal(error.lease.native_exit_observed, errorPacket.native_exit_observed === true);
+        assert.equal(error.lease.native_exit_code, errorPacket.native_exit_code ?? null);
+        assert.equal(error.lease.native_signal, null);
+        assert.equal(error.lease.worker_termination_requested, true);
+        return true;
+      });
+    }
+  } + ")(" + JSON.stringify(helper) + "," + JSON.stringify(lock) + ");");
+  assert.equal(wire.status, 0, wire.stderr);
+  checks.push("selected main packet metadata and bounded queue options");
   const held = acquire(lock, { operation: "test.acquire" });
   assert.equal(held.owner.schema, 2);
   assert.equal(held.owner.parent_pid, process.pid);
@@ -34,7 +98,7 @@ try {
   assert.equal(bytes.schema, 2);
   const second = acquire(lock, { operation: "test.reacquire" }); second.release();
   checks.push("real child contention, persistent metadata, reacquisition");
-  for (const waitMs of [-1, 5001, 1.5, NaN]) assert.throws(() => acquire(lock, { operation: "test.invalid-wait", waitMs }), /Lock wait/);
+  for (const waitMs of [-1, 600001, 1.5, NaN]) assert.throws(() => acquire(lock, { operation: "test.invalid-wait", waitMs }), /Lock wait/);
   const busy = acquire(lock, { operation: "test.busy" });
   const timed = child('const assert=require("node:assert/strict"),{acquire}=require('+JSON.stringify(helper)+');const at=performance.now();assert.throws(()=>acquire('+JSON.stringify(lock)+',{operation:"test.timeout",waitMs:80}));assert(performance.now()-at>=60);');
   assert.equal(timed.status, 0, timed.stderr); busy.release();

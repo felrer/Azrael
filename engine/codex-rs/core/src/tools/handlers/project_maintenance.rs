@@ -3,7 +3,9 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use azrael_project_maintenance::AccessMode;
-use azrael_project_maintenance::{dispatch, dispatch_with_cancellation};
+#[cfg(test)]
+use azrael_project_maintenance::dispatch;
+use azrael_project_maintenance::dispatch_with_preferences;
 use codex_protocol::permissions::ReadDenyMatcher;
 use codex_sandboxing::policy_transforms::effective_file_system_sandbox_policy;
 use codex_tools::JsonSchema;
@@ -15,6 +17,7 @@ use codex_utils_path_uri::PathUri;
 use serde::Deserialize;
 use serde_json::Value;
 use serde_json::json;
+use sha2::{Digest, Sha256};
 
 use crate::function_tool::FunctionCallError;
 use crate::session::turn_context::TurnEnvironment;
@@ -77,6 +80,11 @@ fn request_for(name: &str, args: &Args) -> Result<Value, FunctionCallError> {
         ("project_inventory", "projects") => "native_projects",
         ("project_inventory", "register_project") => "native_register_project",
         ("project_inventory", "unregister_project") => "native_unregister_project",
+        ("project_inventory", "request_status") => "request_status",
+        ("project_inventory", "request_cancel") => "request_cancel",
+        ("project_inventory", "request_ack") => "request_ack",
+        ("project_inventory", "request_recover") => "request_recover",
+        ("project_inventory", "request_recover_pending") => "request_recover_pending",
         ("project_inventory" | "project_tests" | "project_build", "status") => "run_status",
         ("project_tests" | "project_build", "plan") => "plan",
         ("project_tests" | "project_build", "run") => "begin_run",
@@ -152,6 +160,11 @@ impl ToolExecutor<ToolInvocation> for ProjectMaintenanceHandler {
                 "projects",
                 "register_project",
                 "unregister_project",
+                "request_status",
+                "request_cancel",
+                "request_ack",
+                "request_recover",
+                "request_recover_pending",
             ],
             "project_tests" | "project_build" => &["plan", "run", "status", "recover"],
             "project_cleanup_review" => &["review"],
@@ -166,7 +179,7 @@ impl ToolExecutor<ToolInvocation> for ProjectMaintenanceHandler {
             ("run_id".into(), JsonSchema::string(Some("Run returned by run; status reconciles observed process outcomes only.".into()))),
             ("request".into(), {
                 let mut schema = JsonSchema::object(BTreeMap::new(), None, Some(true.into()));
-                schema.description = Some("Operation fields: register {item:{id,path,kind,generated,owner,protection_known,references:[]}}; register may instead use {group:{id,kind,owner,version,membership_complete,provenance_ref,membership_source,members:[item]}} with disjoint member paths; review {ids:[id]} or {group_ids:[id]} expands whole groups, any protected member protects all and every live member needs the same delete/defer fate; grouped review/apply default verification:'registered' trusts registered content measurements and checks current roots/protection/membership without payload rehash; explicit verification:'full' on both review and apply remeasures content; tokens bind mode and producers must register changes; membership changes require full re-registration; register {refresh_group:{id}} refreshes matching producer-registry protection metadata without content remeasurement; apply {decisions:[{id,token,decision:'delete'|'defer',reason,revisit_condition}]}; recover {producer_stopped_verified:true,reason,evidence_ref}, only after independently verifying the exact owned producer/process tree stopped, never mere PID absence. recover releases producer protection without changing unknown/interrupted results or supplying an exit code. Copy each current token from review; revisit_condition is required for defer. Backup deletion also needs verified replacement/recovery provenance. Bundle commands belong in project-maintenance.json.".into());
+                schema.description = Some("Operation fields: register {item:{id,path,kind,generated,owner,protection_known,references:[]}}; register may instead use {group:{id,kind,owner,version,membership_complete,provenance_ref,membership_source,members:[item]}} with disjoint member paths; review {ids:[id]} or {group_ids:[id]} expands whole groups, any protected member protects all and every live member needs the same delete/defer fate; grouped review/apply default verification:'registered' trusts registered content measurements and checks current roots/protection/membership without payload rehash; explicit verification:'full' on both review and apply remeasures content; tokens bind mode and producers must register changes; membership changes require full re-registration; register {refresh_group:{id}} refreshes matching producer-registry protection metadata without content remeasurement; apply {decisions:[{id,token,decision:'delete'|'defer',reason,revisit_condition}]}; recover {producer_stopped_verified:true,reason,evidence_ref}, only after independently verifying the exact owned producer/process tree stopped, never mere PID absence. recover releases producer protection without changing unknown/interrupted results or supplying an exit code. Copy each current token from review; revisit_condition is required for defer. Backup deletion also needs verified replacement/recovery provenance. Bundle commands belong in project-maintenance.json. Request controls request_status/request_cancel/request_ack use {coordination:{request_id:ORIGINAL_REQUEST_ID}}; the runtime fixes the session identity. Register/apply/run use request_id CALL_ID:OPERATION (SHA256 bounded when necessary); request_cleanup reports pending evidence cleanup. Explicit lock_wait_ms:0 keeps immediate mode. Request recovery accepts explicit proof and exact snapshots only: request_recover requires the original coordination.request_id, execution_id, recovery_token, producer_stopped_verified:true, reason, evidence_ref and evidence_sha256 after independently verifying the exact producer tree stopped. request_recover_pending requires exact queue_sha256 (or absent), pending_sha256 and stopped proof for the single project, or explicit affected_projects plus execution_proofs covering every affected execution. Recovery never infers successful execution or authorizes artifact deletion.".into());
                 schema
             }),
         ]);
@@ -189,6 +202,15 @@ impl ToolExecutor<ToolInvocation> for ProjectMaintenanceHandler {
             };
             let args: Args = parse_arguments(arguments)?;
             let request = request_for(self.name, &args)?;
+            // Recheck persisted user intent at invocation, including a tool plan
+            // produced before the user disabled support. Completion stays usable.
+            let _maintenance_admission = azrael_project_maintenance::preferences::enter(
+                invocation.turn.config.codex_home.as_path(),
+                request["operation"]
+                    .as_str()
+                    .ok_or_else(|| invalid("operation required"))?,
+            )
+            .map_err(invalid)?;
             if args.project_id.is_some() && args.project_root.is_some() {
                 return Err(invalid(
                     "project_id and project_root are mutually exclusive",
@@ -296,6 +318,7 @@ impl ToolExecutor<ToolInvocation> for ProjectMaintenanceHandler {
                 result = observe_run(&invocation, environment, root.as_path(), result).await?;
             }
             if args.action == "run" {
+                let request_cleanup = result.get("request_cleanup").cloned();
                 let run_id = result
                     .get("run_id")
                     .and_then(Value::as_str)
@@ -421,6 +444,12 @@ impl ToolExecutor<ToolInvocation> for ProjectMaintenanceHandler {
                     .as_object_mut()
                     .ok_or_else(|| invalid("run_status returned no object"))?
                     .insert("execution_outputs".into(), json!(outputs));
+                if let Some(cleanup) = request_cleanup {
+                    result
+                        .as_object_mut()
+                        .unwrap()
+                        .insert("request_cleanup".into(), cleanup);
+                }
             }
             Ok(boxed_tool_output(FunctionToolOutput::from_text(
                 result.to_string(),
@@ -722,15 +751,21 @@ async fn dispatch_local(
     invocation: &ToolInvocation,
     environment: &TurnEnvironment,
     root: &Path,
-    request: Value,
+    mut request: Value,
     observe_cancellation: bool,
 ) -> Result<Value, FunctionCallError> {
+    let automatic = coordinate_request(
+        &mut request,
+        &invocation.session.thread_id.to_string(),
+        &invocation.call_id,
+    )?;
     let environment = environment.clone();
     let root = root.to_path_buf();
     let granted = invocation
         .turn
         .granted_permissions(environment.selection.environment_id.as_str());
     let cancellation = invocation.cancellation_token.clone();
+    let preferences_home = invocation.turn.config.codex_home.as_path().to_path_buf();
     tokio::task::spawn_blocking(move || {
         let cwd = environment.cwd();
         let sandbox_context = environment.sandbox_context(None);
@@ -767,14 +802,94 @@ async fn dispatch_local(
         {
             project_registry(&root, &request, &authorize)
         } else {
-            dispatch_with_cancellation(&root, request, &authorize, &|| {
-                observe_cancellation && cancellation.is_cancelled()
-            })
+            let outcome =
+                dispatch_with_preferences(&preferences_home, &root, request, &authorize, &|| {
+                    observe_cancellation && cancellation.is_cancelled()
+                });
+            match automatic {
+                Some(envelope) => azrael_project_maintenance::cli::finish_automatic_request(
+                    outcome,
+                    envelope,
+                    |control| {
+                        dispatch_with_preferences(
+                            &preferences_home,
+                            &root,
+                            control,
+                            &authorize,
+                            &|| false,
+                        )
+                    },
+                ),
+                None => outcome,
+            }
         }
     })
     .await
     .map_err(invalid)?
     .map_err(invalid)
+}
+
+fn bounded_request_id(call_id: &str, operation: &str) -> String {
+    let identity = format!("{call_id}:{operation}");
+    if identity.len() <= 128 && !identity.chars().any(char::is_control) {
+        identity
+    } else {
+        format!("request-{:x}", Sha256::digest(identity.as_bytes()))
+    }
+}
+
+fn coordinate_request(
+    request: &mut Value,
+    session_id: &str,
+    call_id: &str,
+) -> Result<Option<Value>, FunctionCallError> {
+    let operation = request["operation"].as_str().unwrap_or_default().to_owned();
+    if operation == "request_recover_pending" {
+        let envelope = request
+            .as_object_mut()
+            .unwrap()
+            .entry("coordination")
+            .or_insert_with(|| json!({}))
+            .as_object_mut()
+            .ok_or_else(|| invalid("coordination must be an object"))?;
+        envelope.insert("session_id".into(), json!(session_id));
+        envelope
+            .entry("request_id")
+            .or_insert_with(|| json!(bounded_request_id(call_id, &operation)));
+        return Ok(None);
+    }
+    if matches!(
+        operation.as_str(),
+        "request_status" | "request_cancel" | "request_ack" | "request_recover"
+    ) {
+        let envelope = request
+            .get_mut("coordination")
+            .and_then(Value::as_object_mut)
+            .ok_or_else(|| {
+                invalid(
+                    "request control requires coordination.request_id from the original request",
+                )
+            })?;
+        envelope.insert("session_id".into(), json!(session_id));
+        return Ok(None);
+    }
+    if !matches!(operation.as_str(), "register" | "apply" | "begin_run") {
+        // Model input cannot attach another session's queue identity to other operations.
+        request
+            .as_object_mut()
+            .map(|object| object.remove("coordination"));
+        return Ok(None);
+    }
+    if request["lock_wait_ms"].as_u64() == Some(0) {
+        request
+            .as_object_mut()
+            .map(|object| object.remove("coordination"));
+        return Ok(None);
+    }
+    let envelope = json!({"session_id":session_id,
+        "request_id":bounded_request_id(call_id, &operation),"wait_ms":600000});
+    request["coordination"] = envelope.clone();
+    Ok(Some(envelope))
 }
 
 /// Only native empty-input observation may turn a stored session into a terminal receipt.
@@ -1464,5 +1579,65 @@ mod tests {
                 .unwrap();
         assert!(request_for("project_inventory", &args).is_err());
         assert!(request_for("project_cleanup_apply", &args).is_err());
+    }
+
+    // Caller changes must not allow model-selected sessions or lose control targets.
+    #[test]
+    fn coordination_uses_runtime_identity_and_preserves_control_targets() {
+        let mut request = json!({"operation":"register","coordination":{"session_id":"other","request_id":"forged"}});
+        let envelope = coordinate_request(&mut request, "runtime-session", "call-one")
+            .unwrap()
+            .unwrap();
+        assert_eq!(envelope["session_id"], "runtime-session");
+        assert_eq!(envelope["request_id"], "call-one:register");
+        assert_eq!(envelope["wait_ms"], 600000);
+        request["lock_wait_ms"] = json!(0);
+        assert!(
+            coordinate_request(&mut request, "runtime-session", "call-one")
+                .unwrap()
+                .is_none()
+        );
+        assert!(request.get("coordination").is_none());
+        for action in [
+            "request_status",
+            "request_cancel",
+            "request_ack",
+            "request_recover",
+        ] {
+            let args: Args = serde_json::from_value(json!({"action":action,"request":{
+                "coordination":{"session_id":"other","request_id":"call-one:register"}}}))
+            .unwrap();
+            let mut control = request_for("project_inventory", &args).unwrap();
+            assert_eq!(control["operation"], action);
+            assert!(
+                coordinate_request(&mut control, "runtime-session", "new-call")
+                    .unwrap()
+                    .is_none()
+            );
+            assert_eq!(control["coordination"]["session_id"], "runtime-session");
+            assert_eq!(control["coordination"]["request_id"], "call-one:register");
+        }
+        let args: Args = serde_json::from_value(json!({"action":"request_recover_pending","request":{
+            "queue_sha256":"absent","pending_sha256":"exact-snapshot","producer_stopped_verified":true,
+            "reason":"verified producer tree stopped","evidence_ref":"proof.json","evidence_sha256":"exact-proof"}})).unwrap();
+        let mut pending = request_for("project_inventory", &args).unwrap();
+        assert!(
+            coordinate_request(&mut pending, "runtime-session", "recovery-call")
+                .unwrap()
+                .is_none()
+        );
+        assert_eq!(pending["coordination"]["session_id"], "runtime-session");
+        assert_eq!(
+            pending["coordination"]["request_id"],
+            "recovery-call:request_recover_pending"
+        );
+        assert_eq!(pending["queue_sha256"], "absent");
+        assert_eq!(pending["pending_sha256"], "exact-snapshot");
+        assert_eq!(pending["evidence_sha256"], "exact-proof");
+        assert!(bounded_request_id(&"x".repeat(200), "apply").len() <= 128);
+        assert_eq!(
+            bounded_request_id(&"x".repeat(200), "apply"),
+            bounded_request_id(&"x".repeat(200), "apply")
+        );
     }
 }
