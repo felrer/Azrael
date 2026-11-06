@@ -378,6 +378,7 @@ const path = require('node:path');
     fs.writeFileSync(path.join(engineSourceRoot, 'source.rs'), 'selected source'); fs.writeFileSync(path.join(engineDirectory, 'azrael.exe'), 'synthetic binary');
     let provenanceCalls = 0, provenanceVersion = 'verified-selected-binary';
     const realConfig = { ...config, area: 'all', outputDirectory: path.join(root, 'artifacts/output'), typeScriptPath: typescript,
+      uiSourceObservation: { statePath: path.join(root, 'artifacts/output/ui-source-state.json'), generation: 'same-prepare-attempt' },
       sourceStatePath: path.join(root, 'consumer-state.json'), sourceGeneration: 'same-deployment-attempt',
       transformRules: { ...config.transformRules, 'content-font-resource:provenance.json': 'resource-content-digest' },
       identityProvider: undefined, engineSourceRoot, engineDirectory, execute: async (_executable, args, options) => {
@@ -390,8 +391,18 @@ const path = require('node:path');
     const receipt = await gate.runPreservation(realConfig);
     assert.equal(receipt.status, 'passed', receipt.error);
     assert.match(receipt.inputs.projectSha256, /^[a-f0-9]{64}$/); assert.match(receipt.inputs.ui.sha256, /^[a-f0-9]{64}$/);
+    if (process.platform === 'win32') assert.equal(JSON.parse(fs.readFileSync(realConfig.uiSourceObservation.statePath, 'utf8')).disposition, 'reused');
     assert.equal(receipt.inputs.ui.fileCount, 2); assert.equal(receipt.inputs.engine.sourceRoot, engineSourceRoot);
     assert.equal((await gate.verifyReceipt({ ...realConfig, receiptPath: receipt.receiptPath })).status, 'passed');
+    const packagePath = path.join(realConfig.outputDirectory, 'host.vsix'), reportPath = path.join(realConfig.outputDirectory, 'transform-report.json');
+    fs.writeFileSync(packagePath, 'synthetic package identity');
+    fs.writeFileSync(reportPath, JSON.stringify(reportFor(realConfig)));
+    const bindingConfig = { ...realConfig, receiptPath: receipt.receiptPath, packagePath, reportPath };
+    const binding = await gate.bindPackage(bindingConfig);
+    assert.deepEqual(binding.inputs.ui, receipt.inputs.ui);
+    assert.equal((await gate.verifyPackage(bindingConfig)).status, 'passed');
+    fs.appendFileSync(packagePath, 'changed package bytes');
+    await assert.rejects(gate.verifyPackage(bindingConfig), /binding is stale/);
     provenanceCalls = 0;
     const emptyConfig = { ...realConfig, featureIds: [] };
     const empty = await gate.runPreservation(emptyConfig);

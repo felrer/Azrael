@@ -191,7 +191,7 @@ async function identity(config, manifest, rules, features, execution = execute) 
   if (testPolicy) input.sourceTestPolicy = testPolicy;
   if (['ui', 'all'].includes(config.area)) {
     if (!config.uiRoot || !path.isAbsolute(config.uiRoot)) throw Error('Explicit absolute uiRoot required');
-    input.ui = await getDirectoryState(config.uiRoot);
+    input.ui = await require('./ui-source-state.cjs').getUiSourceState(config.uiRoot, config.uiSourceObservation);
     input.sourceUi = await sourceUiIdentity(config);
     const typescript = config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js');
     input.typeScriptSha256 = await fileHash(typescript);

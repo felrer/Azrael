@@ -332,6 +332,8 @@
         "scripts/azrael-recovery.cjs",
         "scripts/recovery-state.cjs",
         "scripts/preparation-state.cjs",
+        "scripts/ui-source-state.cjs",
+        "scripts/test-ui-source-state.cjs",
         "scripts/check-shared-engine-native.cjs",
         "scripts/test-cargo-verification.cjs",
         "scripts/check-shared-engine.mjs",
@@ -427,7 +429,8 @@
             "scripts/test-ordinary-runtime-node.cjs",
             "scripts/test-integrated-entry.cjs",
             "scripts/test-recovery-state.cjs",
-            "scripts/test-preparation-state.cjs"
+            "scripts/test-preparation-state.cjs",
+            "scripts/test-ui-source-state.cjs"
           ],
           "level": "source"
         },

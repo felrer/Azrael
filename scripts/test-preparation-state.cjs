@@ -47,6 +47,18 @@ test("unchanged preparation resumes and absent stages are explicit", async t => 
   assert.deepEqual(await state.load(output, "complete"), { found: false });
 });
 
+// Attempt-local observations must not enter semantic checkpoint configuration.
+test("UI observation forwarding preserves checkpoint identity across fresh Resume attempts", async t => {
+  const { config, output } = fixture(t);
+  const context = { statePath: path.join(output, "ui-source-state.json"), generation: "initial" };
+  const initial = await state.initialize(output, config, false, context);
+  assert.deepEqual(initial.inputs.source, await require('./directory-state.cjs').getDirectoryState(config.source));
+  const next = { ...context, generation: "resume" };
+  assert.deepEqual(await state.initialize(output, config, true, next), initial);
+  if (process.platform === 'win32') assert.equal(JSON.parse(fs.readFileSync(context.statePath, 'utf8')).disposition, 'full');
+  assert.equal(initial.inputs.config.uiSourceObservation, undefined);
+});
+
 test("resume refuses changed source content even at the same size and timestamp", async t => {
   const { config, output } = fixture(t);
   await state.initialize(output, config, false);

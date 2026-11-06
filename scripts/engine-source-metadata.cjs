@@ -5,13 +5,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-function observe(root, excluded) {
+function observe(root, excluded, includeShared = false) {
   if (process.platform !== 'win32' || !path.isAbsolute(root) || !Array.isArray(excluded)) throw Error('Windows absolute source root and exclusions required');
   const physical = fs.realpathSync.native(root);
   const first = fs.lstatSync(physical, { bigint: true });
   const identity = s => [String(s.dev), String(s.ino), String(s.mode)];
   if (!first.isDirectory() || first.isSymbolicLink()) throw Error('Physical directory required');
   const rows = [['.', ...identity(first)]];
+  const sharedPaths = [];
   function visit(directory, relative) {
     for (const child of fs.readdirSync(directory, { withFileTypes: true })) {
       const name = relative ? `${relative}/${child.name}` : child.name;
@@ -25,15 +26,19 @@ function observe(root, excluded) {
         const after = fs.lstatSync(filename, { bigint: true });
         if (String(identity(s)) !== String(identity(after))) throw Error('Source directory replaced');
       } else {
-        if (s.nlink !== 1n || typeof s.ctimeNs !== 'bigint' || typeof s.mtimeNs !== 'bigint' || s.ctimeNs <= 0n) throw Error('Shared or unsupported source identity');
-        rows.push([name, ...identity(s), String(s.size), String(s.mtimeNs), String(s.ctimeNs)]);
+        if ((!includeShared && s.nlink !== 1n) || typeof s.ctimeNs !== 'bigint' || typeof s.mtimeNs !== 'bigint' || s.ctimeNs <= 0n) throw Error('Shared or unsupported source identity');
+        if (s.nlink !== 1n) sharedPaths.push(name);
+        const row = [name, ...identity(s), String(s.size), String(s.mtimeNs), String(s.ctimeNs)];
+        if (includeShared) row.push(String(s.nlink));
+        rows.push(row);
       }
     }
   }
   visit(physical, '');
   if (fs.realpathSync.native(root) !== physical || String(identity(fs.lstatSync(physical, { bigint: true }))) !== String(identity(first))) throw Error('Source root replaced');
   rows.sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
-  return { inventory: crypto.createHash('sha256').update(JSON.stringify(rows)).digest('hex'), entries: rows.length };
+  return { inventory: crypto.createHash('sha256').update(JSON.stringify(rows)).digest('hex'), entries: rows.length,
+    ...(includeShared ? { sharedPaths: sharedPaths.sort() } : {}) };
 }
 module.exports = { observe };
 if (require.main === module) {
