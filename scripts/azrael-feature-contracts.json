@@ -406,6 +406,8 @@
         "scripts/recovery-state.cjs",
         "scripts/preparation-state.cjs",
         "scripts/ui-source-state.cjs",
+        "scripts/project-source-state.cjs",
+        "scripts/source-observation.cjs",
         "scripts/test-ui-source-state.cjs",
         "scripts/check-shared-engine-native.cjs",
         "scripts/test-cargo-verification.cjs",

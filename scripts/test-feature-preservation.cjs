@@ -368,7 +368,7 @@ const path = require('node:path');
     const { config, root, manifest } = setup();
     const { spawnSync } = require('node:child_process');
     fs.writeFileSync(path.join(root, '.gitignore'), 'artifacts/\n');
-    for (const file of ['feature-preservation.cjs', 'directory-state.cjs', 'deployment-input-snapshot.cjs', 'source-test-policy.cjs']) fs.writeFileSync(path.join(root, 'scripts', file), 'static identity fixture');
+    for (const file of ['feature-preservation.cjs', 'directory-state.cjs', 'deployment-input-snapshot.cjs', 'source-test-policy.cjs', 'project-source-state.cjs', 'source-observation.cjs', 'engine-source-metadata.cjs']) fs.writeFileSync(path.join(root, 'scripts', file), 'static identity fixture');
     fs.writeFileSync(path.join(root, 'scripts/azrael-feature-contracts.json'), JSON.stringify(manifest));
     const typescript = path.join(root, 'typescript.js'); fs.writeFileSync(typescript, 'fixture parser identity');
     const git = spawnSync('git', ['init', '--quiet', root], { encoding: 'utf8', shell: false, windowsHide: true });
@@ -379,6 +379,7 @@ const path = require('node:path');
     let provenanceCalls = 0, provenanceVersion = 'verified-selected-binary';
     const realConfig = { ...config, area: 'all', outputDirectory: path.join(root, 'artifacts/output'), typeScriptPath: typescript,
       uiSourceObservation: { statePath: path.join(root, 'artifacts/output/ui-source-state.json'), generation: 'same-prepare-attempt' },
+      projectSourceObservation: { statePath: path.join(root, 'artifacts/output/project-source-state.json'), generation: 'same-prepare-attempt' },
       sourceStatePath: path.join(root, 'consumer-state.json'), sourceGeneration: 'same-deployment-attempt',
       transformRules: { ...config.transformRules, 'content-font-resource:provenance.json': 'resource-content-digest' },
       identityProvider: undefined, engineSourceRoot, engineDirectory, execute: async (_executable, args, options) => {
@@ -391,6 +392,8 @@ const path = require('node:path');
     const receipt = await gate.runPreservation(realConfig);
     assert.equal(receipt.status, 'passed', receipt.error);
     assert.match(receipt.inputs.projectSha256, /^[a-f0-9]{64}$/); assert.match(receipt.inputs.ui.sha256, /^[a-f0-9]{64}$/);
+    assert.equal(receipt.inputs.projectSourceObservation, undefined, 'context is not a semantic input');
+    if (process.platform === 'win32') assert.equal(JSON.parse(fs.readFileSync(realConfig.projectSourceObservation.statePath, 'utf8')).disposition, 'reused');
     if (process.platform === 'win32') assert.equal(JSON.parse(fs.readFileSync(realConfig.uiSourceObservation.statePath, 'utf8')).disposition, 'reused');
     assert.equal(receipt.inputs.ui.fileCount, 2); assert.equal(receipt.inputs.engine.sourceRoot, engineSourceRoot);
     assert.equal((await gate.verifyReceipt({ ...realConfig, receiptPath: receipt.receiptPath })).status, 'passed');
@@ -401,6 +404,7 @@ const path = require('node:path');
     const binding = await gate.bindPackage(bindingConfig);
     assert.deepEqual(binding.inputs.ui, receipt.inputs.ui);
     assert.equal((await gate.verifyPackage(bindingConfig)).status, 'passed');
+    if (process.platform === 'win32') assert.equal(JSON.parse(fs.readFileSync(realConfig.projectSourceObservation.statePath, 'utf8')).disposition, 'reused');
     fs.appendFileSync(packagePath, 'changed package bytes');
     await assert.rejects(gate.verifyPackage(bindingConfig), /binding is stale/);
     provenanceCalls = 0;
