@@ -97,6 +97,7 @@ public static class ArtifactRemovalNative {
     }
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern SafeFileHandle CreateFileW(string p, uint a, uint s, IntPtr sa, uint c, uint f, IntPtr t);
     [DllImport("kernel32.dll", SetLastError=true)] static extern bool GetFileInformationByHandle(SafeFileHandle h, out Info i);
+    [DllImport("kernel32.dll", SetLastError=true)] static extern bool DeviceIoControl(SafeFileHandle h, uint code, IntPtr input, uint inputSize, byte[] output, uint outputSize, out uint returned, IntPtr overlapped);
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr FindFirstFileNameW(string p, uint f, ref uint n, StringBuilder b);
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)] static extern bool FindNextFileNameW(IntPtr h, ref uint n, StringBuilder b);
     [DllImport("kernel32.dll", SetLastError=true)] static extern bool FindClose(IntPtr h);
@@ -113,6 +114,15 @@ public static class ArtifactRemovalNative {
             if (h.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
             Info i; if (!GetFileInformationByHandle(h, out i)) throw new Win32Exception(Marshal.GetLastWin32Error());
             return i.Attributes;
+        }
+    }
+    public static uint ReparseTag(string path) {
+        using (var h = CreateFileW(Extended(path), 0, 7, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero)) {
+            if (h.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
+            var bytes = new byte[16384]; uint returned;
+            if (!DeviceIoControl(h, 0x000900a8, IntPtr.Zero, 0, bytes, (uint)bytes.Length, out returned, IntPtr.Zero)) throw new Win32Exception(Marshal.GetLastWin32Error());
+            if (returned < 8) throw new InvalidOperationException("Incomplete reparse data");
+            return BitConverter.ToUInt32(bytes, 0);
         }
     }
     public static string[] Names(string path) {
@@ -146,6 +156,83 @@ function Assert-ArtifactRemovalAncestors([string]$Path) {
     }
 }
 function Get-ArtifactRemovalHardlinkNames([string]$Path) { [ArtifactRemovalNative]::Names($Path) }
+function Get-ArtifactInternalJunctionTargetSnapshot([string]$Path) {
+    $entries = [Collections.Generic.List[object]]::new()
+    $pending = [Collections.Generic.Stack[object]]::new()
+    $pending.Push(@{path=$Path;depth=0})
+    [long]$bytes = 0
+    while ($pending.Count) {
+        $next = $pending.Pop()
+        if ($entries.Count -ge 4096 -or $next.depth -gt 32) { throw 'Internal junction target inspection exceeds bound.' }
+        $attributes = [ArtifactRemovalNative]::Attributes($next.path)
+        if ($attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Internal junction physical target contains a reparse path.' }
+        $identity = [ArtifactRemovalNative]::Identity($next.path)
+        $directory = ($attributes -band [IO.FileAttributes]::Directory) -ne 0
+        $entry = [ordered]@{path=$next.path;identity=$identity;attributes=[long]$attributes;directory=$directory}
+        if ($directory) {
+            foreach ($child in [IO.Directory]::EnumerateFileSystemEntries($next.path)) {
+                if ($pending.Count + $entries.Count -ge 4096) { throw 'Internal junction target inspection exceeds bound.' }
+                $pending.Push(@{path=$child;depth=$next.depth+1})
+            }
+        } else {
+            $stream = [IO.File]::Open($next.path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+            try {
+                $bytes += $stream.Length
+                if ($bytes -gt 64MB) { throw 'Internal junction target bytes exceed bound.' }
+                $entry.length = $stream.Length
+                $entry.sha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)).ToLowerInvariant()
+            } finally { $stream.Dispose() }
+        }
+        if ([ArtifactRemovalNative]::Identity($next.path) -cne $identity -or [ArtifactRemovalNative]::Attributes($next.path) -ne $attributes) { throw 'Internal junction target changed during inspection.' }
+        $entries.Add($entry)
+    }
+    @($entries | Sort-Object path)
+}
+function Remove-ArtifactInternalJunction {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][string]$Target,
+        [Parameter(Mandatory)][string]$Boundary, [Parameter(Mandatory)][string]$ExpectedBoundaryIdentity,
+        [Parameter(Mandatory)][string]$ExpectedLinkIdentity, [Parameter(Mandatory)][string]$ExpectedTargetIdentity,
+        [Parameter(Mandatory)][bool]$OwnershipVerified, [Parameter(Mandatory)][bool]$ProducerStoppedVerified,
+        [Parameter(Mandatory)][bool]$ReferencesZero, [Parameter(Mandatory)][scriptblock]$CheckAuthority)
+    if (-not [OperatingSystem]::IsWindows()) { throw 'Internal junction removal requires Windows.' }
+    if (-not $OwnershipVerified -or -not $ProducerStoppedVerified -or -not $ReferencesZero) { throw 'Internal junction removal requires verified ownership, stopped readers/producers and zero references.' }
+    Initialize-ArtifactWindowsIdentity
+    foreach ($value in @($Boundary,$Path,$Target)) {
+        if (-not [IO.Path]::IsPathFullyQualified($value) -or $value -cne [IO.Path]::GetFullPath($value) -or
+            $value.StartsWith('\\?\') -or $value.StartsWith('\\.\') -or $value.Substring([IO.Path]::GetPathRoot($value).Length) -match '[:]|[. ]([\\/]|$)') { throw 'Internal junction paths must be plain canonical absolute paths.' }
+    }
+    if ($Path -ieq $Boundary -or $Target -ieq $Boundary -or -not (Test-ArtifactRemovalContained $Path $Boundary) -or
+        -not (Test-ArtifactRemovalContained $Target $Boundary) -or (Test-ArtifactRemovalContained $Target $Path) -or
+        (Test-ArtifactRemovalContained $Path $Target)) { throw 'Internal junction link and physical target must be disjoint inside the same boundary.' }
+    $validate = {
+        $authority = @(& $CheckAuthority)
+        if ($authority.Count -ne 1 -or $authority[0] -isnot [bool] -or $authority[0] -ne $true) { throw 'Internal junction authority is no longer current.' }
+        Assert-ArtifactRemovalAncestors $Boundary
+        Assert-ArtifactRemovalAncestors ([IO.Path]::GetDirectoryName($Path))
+        Assert-ArtifactRemovalAncestors $Target
+        if ([ArtifactRemovalNative]::Identity($Boundary) -cne $ExpectedBoundaryIdentity -or
+            [ArtifactRemovalNative]::Identity($Path) -cne $ExpectedLinkIdentity -or
+            [ArtifactRemovalNative]::Identity($Target) -cne $ExpectedTargetIdentity) { throw 'Internal junction identity changed.' }
+        $item = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
+        if ($item.LinkType -ne 'Junction' -or @($item.Target).Count -ne 1 -or [string]$item.Target -cne $Target -or
+            [ArtifactRemovalNative]::ReparseTag($Path) -ne 0xa0000003L) { throw 'Internal junction mount-point target changed.' }
+        $attributes = [ArtifactRemovalNative]::Attributes($Path)
+        if (-not ($attributes -band [IO.FileAttributes]::ReparsePoint) -or -not ($attributes -band [IO.FileAttributes]::Directory)) { throw 'Internal junction is not a directory reparse link.' }
+        $attributes
+    }
+    $attributes = & $validate
+    $before = @(Get-ArtifactInternalJunctionTargetSnapshot $Target)
+    $beforeJson = ConvertTo-Json -InputObject $before -Depth 8 -Compress
+    $fresh = @(Get-ArtifactInternalJunctionTargetSnapshot $Target)
+    if ((ConvertTo-Json -InputObject $fresh -Depth 8 -Compress) -cne $beforeJson -or (& $validate) -ne $attributes) { throw 'Internal junction or physical target changed before unlink.' }
+    # Select only the verified directory entry. Never normalize attributes or recurse.
+    [IO.Directory]::Delete($Path, $false)
+    if (Get-ArtifactCleanupRemaining $Path) { throw 'Internal junction link remains after ordinary unlink.' }
+    $after = @(Get-ArtifactInternalJunctionTargetSnapshot $Target)
+    if ((ConvertTo-Json -InputObject $after -Depth 8 -Compress) -cne $beforeJson) { throw 'Internal junction physical target changed after unlink.' }
+    [pscustomobject]@{operation='remove-internal-junction-link';status='deleted';path=$Path;target=$Target;linkIdentity=$ExpectedLinkIdentity;targetIdentity=$ExpectedTargetIdentity;attributes=[long]$attributes;attributesChanged=$false;recursive=$false;targetPreserved=$true;targetSnapshot=$after}
+}
 function Assert-ArtifactRemovalHardlinks([string]$Path, [string[]]$GroupPaths) {
     $identity = [ArtifactRemovalNative]::Identity($Path)
     $count = [uint32]($identity.Split(':')[-1])

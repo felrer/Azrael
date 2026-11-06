@@ -142,6 +142,8 @@ node scripts/project-maintenance.cjs plan --area queue
 
 항목의 `verified_junctions` 예시는 `[{"path":"temporary/fixture/link","kind":"junction","target":"C:/선택한프로젝트/실제대상"}]`다. 정확한 소유 생성물만 지정하며 등록이 고정한 identity는 임의로 만들거나 수정하지 않는다. 새 링크·바뀐 대상·부재 경로 재등장은 새 검토가 필요하다. 기존 소유자 등록 요청의 전체 구성원을 유지한다.
 
+Windows의 내부 정션만 폐기할 때는 `artifact-lifecycle.ps1`의 `Remove-ArtifactInternalJunction`을 사용한다. 호출 소유자는 기존 maintenance→catalog custody에서 동일 작업 경계의 소유·생산자/독자 종료·참조 해제를 확인하고 `CheckAuthority`로 최신 권한을 재검증해야 한다. 정확한 경계·링크·물리 대상 identity, mount-point 종류와 대상 경로를 고정한다. 이 전용 경로는 System 속성이 있는 정션도 속성 변경 없이 `Directory.Delete(path, false)`로 연결만 제거하며, 물리 대상의 제한된 전후 관측으로 내용 보존을 확인한다. 일반 System 파일·디렉터리의 삭제 보호와 native bulk 경로는 바꾸지 않는다. 링크 교체·외부 대상·관측 한도 초과·권한 불확실성은 중단한다.
+
 생성 도구나 모델은 생성 근거를 확인한 항목을 `project_inventory`의 `register`로 등록한다. 항목에는 ID·경로·종류·소유자·생성 여부·사용/보호 확인 여부·참조를 명시한다. 확인 가능한 생성 시각·소스·버전·도구/캐시 형식·보존 사유도 함께 기록한다. 알 수 없는 값은 확인되지 않은 상태로 둔다.
 
 기존 네이티브 설치의 백업 후보는 명시한 `deployment.json`에서 다음 명령으로 읽는다.
