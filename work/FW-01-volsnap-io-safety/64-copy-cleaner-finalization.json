@@ -1,0 +1,387 @@
+{
+  "schema": 1,
+  "scope": "Exact stopped copy-cleanup RPC caller only; observer/original unknown/build artifacts excluded",
+  "startedAt": "2026-11-06T09:10:09.891Z",
+  "targetId": "run:fw04:copy-cleanup-20261106-01",
+  "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01",
+  "evidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\64-copy-probe-cleanup.json",
+  "evidenceSha256": "0b1fe4fb43b99f77f884c23bf23b730dcaf2c502701ce2156f66447194e0fe7b",
+  "originalProducer": {
+    "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\reports\\producer-8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8.json",
+    "evidence_sha256": "8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8",
+    "exit_code": 0,
+    "outcome": "success",
+    "reason": "Owned producer and tracked children stopped",
+    "status": "stopped"
+  },
+  "originalRevision": 2,
+  "originalReferences": [
+    {
+      "id": "run:fw04:maintenance-input-fw01-02",
+      "kind": "dependency",
+      "member_paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\maintenance-input-fw01-02"
+      ],
+      "reason": "Verified metadata owner for independently verified probe cleanup",
+      "reference_id": "03cbdf1fae9d39fba5c095132e70b65da306be683d82bcbb0b1f824d40ab08d4"
+    },
+    {
+      "id": "version:maintenance-owner:ff01:reservation-20261102",
+      "kind": "dependency",
+      "member_paths": [
+        "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\versions\\maintenance-owner-ff01-reservation-win-x64-20261102"
+      ],
+      "reason": "Pinned C0CF cleanup executable active invocation",
+      "reference_id": "4747441f10837bea40b7af3d42ebf9c93904c96aea5620eff0067881014c27ba"
+    }
+  ],
+  "status": "deleted-and-finalized",
+  "operations": [
+    {
+      "operation": "register",
+      "startedAt": "2026-11-06T09:10:11.975Z",
+      "durationMs": 33992,
+      "exitCode": 0,
+      "signal": null,
+      "requestSha256": "a157f772c482cdf23a68f53621a4deddf4feb35e9c97a3ea005f3c17ae2993bf",
+      "stdoutSha256": "bc72849fc1e351baf3dc3abc0210be8c98ceae7c95bfddeca1f24bdd6ca7bf06",
+      "stderr": "",
+      "response": {
+        "group": {
+          "cleanup_status": null,
+          "id": "run:fw04:copy-cleanup-20261106-01",
+          "kind": "run",
+          "members": [
+            "ede951bd0c5efbefabbe4230e6f0dde82ef5bba3f918184ef78f67561aa94d98"
+          ],
+          "membership_complete": true,
+          "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+          "membership_source_format": "producer_registry_v1",
+          "membership_source_identity": "d484a6af884aa8814928e298ff592bb76fdf8aaed191f2ab59fd8d2f7e32b6ca",
+          "owner": "fw04-copy-cleanup",
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\892d5b4d12422afdbf22eaeb63a73d29666a9438ca65952e8eed14032149dce6.json",
+          "registered_at_ms": 1793956240765,
+          "version": null
+        },
+        "items": [
+          {
+            "cache_schema": null,
+            "created_at_ms": null,
+            "generated": true,
+            "id": "ede951bd0c5efbefabbe4230e6f0dde82ef5bba3f918184ef78f67561aa94d98",
+            "identity": "b22388cd5285936beebcb70331b2794e2838a118cf077196a3a2e6f72a3bb176",
+            "kind": "run",
+            "lifecycle_group_id": "run:fw04:copy-cleanup-20261106-01",
+            "lifecycle_role": "artifact",
+            "logical_bytes": 28663,
+            "measured_at_ms": 1793956232900,
+            "owner": "fw04-copy-cleanup",
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01",
+            "presence": "present",
+            "protection_known": true,
+            "provenance": null,
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\892d5b4d12422afdbf22eaeb63a73d29666a9438ca65952e8eed14032149dce6.json",
+            "references": [],
+            "registered_at_ms": 1793956232900,
+            "remaining": true,
+            "role": "run",
+            "source_path": null,
+            "tool": null,
+            "version": null
+          }
+        ]
+      }
+    },
+    {
+      "operation": "review",
+      "startedAt": "2026-11-06T09:10:45.968Z",
+      "durationMs": 8575,
+      "exitCode": 0,
+      "signal": null,
+      "requestSha256": "50237c3b7724e4bf56f4ef5968b4b3d2423d43d640b8572e739f1a39d2823de6",
+      "stdoutSha256": "1d24989427457b7f98be70e61f9e5e2748ad10c08f4837f34aad3fb32a380d5f",
+      "stderr": "",
+      "response": {
+        "groups": [
+          {
+            "cached_live_members": 1,
+            "cleanup_status": null,
+            "id": "run:fw04:copy-cleanup-20261106-01",
+            "kind": "run",
+            "members_total": 1,
+            "membership_complete": true,
+            "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+            "membership_source_format": "producer_registry_v1",
+            "membership_source_identity": "d484a6af884aa8814928e298ff592bb76fdf8aaed191f2ab59fd8d2f7e32b6ca",
+            "owner": "fw04-copy-cleanup",
+            "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\892d5b4d12422afdbf22eaeb63a73d29666a9438ca65952e8eed14032149dce6.json",
+            "version": null
+          }
+        ],
+        "items": [
+          {
+            "blockers": [],
+            "group_member_ids": [
+              "ede951bd0c5efbefabbe4230e6f0dde82ef5bba3f918184ef78f67561aa94d98"
+            ],
+            "group_token": "63f09ded1b169ac68fac263ea95b3708e688b16e2820a8a6cfcf28b6023633d9",
+            "id": "ede951bd0c5efbefabbe4230e6f0dde82ef5bba3f918184ef78f67561aa94d98",
+            "identity": "b22388cd5285936beebcb70331b2794e2838a118cf077196a3a2e6f72a3bb176",
+            "lifecycle_group_id": "run:fw04:copy-cleanup-20261106-01",
+            "logical_bytes": 28663,
+            "measured_at_ms": 1793956232900,
+            "membership_source_observation": {
+              "blockers": [],
+              "identity": "d484a6af884aa8814928e298ff592bb76fdf8aaed191f2ab59fd8d2f7e32b6ca",
+              "member_references": {
+                "ede951bd0c5efbefabbe4230e6f0dde82ef5bba3f918184ef78f67561aa94d98": []
+              },
+              "membership_matches": true,
+              "owner": {
+                "close_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\reports\\producer-8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8.json",
+                  "evidence_sha256": "8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8",
+                  "reason": "Owned producer and tracked children stopped",
+                  "request_sha256": "3911f5b3460ffd5417b6b812cb0917052cdcf64cd8f936dfd901a0bf13e8833a"
+                },
+                "created_at": "2026-11-06T08:51:03.378Z",
+                "id": "run:fw04:copy-cleanup-20261106-01",
+                "kind": "run",
+                "members": [
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01",
+                    "protection_known": true,
+                    "role": "run"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\inputs",
+                    "protection_known": true,
+                    "role": "inputs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\temporary",
+                    "protection_known": true,
+                    "role": "temporary"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\logs",
+                    "protection_known": true,
+                    "role": "logs"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\reports",
+                    "protection_known": true,
+                    "role": "reports"
+                  },
+                  {
+                    "generated": true,
+                    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\outputs",
+                    "protection_known": true,
+                    "role": "outputs"
+                  }
+                ],
+                "membership_complete": true,
+                "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01",
+                "owner": "fw04-copy-cleanup",
+                "ownership_scope": "run-root",
+                "producer": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\reports\\producer-8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8.json",
+                  "evidence_sha256": "8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8",
+                  "exit_code": 0,
+                  "outcome": "success",
+                  "reason": "Owned producer and tracked children stopped",
+                  "status": "stopped"
+                },
+                "references": [],
+                "release_receipt": {
+                  "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\64-copy-probe-cleanup.json",
+                  "evidence_sha256": "0b1fe4fb43b99f77f884c23bf23b730dcaf2c502701ce2156f66447194e0fe7b",
+                  "reason": "Parent reader finished; immutable independent cleanup and actual terminal evidence preserved; exact stopped RPC caller disposable",
+                  "request_sha256": "ffb1f359232fe4569381188aeb1961859727c942f00e590bc3f3ed7765d84ee2"
+                },
+                "revision": 3,
+                "schema": 1,
+                "state": "complete",
+                "updated_at": "2026-11-06T09:10:09.972Z",
+                "version": null
+              },
+              "references": [],
+              "settled": true,
+              "status": "measured"
+            },
+            "observation_error": null,
+            "observed_at_ms": 1793956246255,
+            "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01",
+            "presence": "present",
+            "related_items": [],
+            "remaining": true,
+            "root_observation": {
+              "identity": {
+                "file_id": [
+                  219,
+                  65,
+                  22,
+                  1,
+                  0,
+                  0,
+                  3,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "volume": 14318705318996120000
+              },
+              "kind": "directory",
+              "presence": "present"
+            },
+            "token": "542570c0b0f85d7c2b2c4a98d39af51743e57270f999daccddf2edc63b2ac9c4",
+            "verification": "registered"
+          }
+        ]
+      }
+    },
+    {
+      "operation": "apply",
+      "startedAt": "2026-11-06T09:10:54.544Z",
+      "durationMs": 23176,
+      "exitCode": 0,
+      "signal": null,
+      "requestSha256": "65df65ce428b57b7d033def5366f7c283a9a4ccca5d576cc4fc1e60679dad130",
+      "stdoutSha256": "bd4426dc97b194509248fc5759d6dc4b422ac392a239fcc3d5ad2aab6ce6eaa0",
+      "stderr": "",
+      "response": {
+        "aborted": false,
+        "cancelled": false,
+        "groups": [
+          {
+            "id": "run:fw04:copy-cleanup-20261106-01",
+            "status": "deleted"
+          }
+        ],
+        "results": [
+          {
+            "attempt_id": "attempt-54652-7549-1793956271613",
+            "decision": "delete",
+            "decision_id": "6b56afab7cca85fa763293f558155a46ef99e7cd279fc39d08accb8e6e64a947",
+            "deletion": {
+              "attributes": [],
+              "error": null,
+              "physical_bytes_reclaimed": null,
+              "remaining": false,
+              "status": "deleted"
+            },
+            "group_status": "deleted",
+            "id": "ede951bd0c5efbefabbe4230e6f0dde82ef5bba3f918184ef78f67561aa94d98",
+            "lifecycle_group_id": "run:fw04:copy-cleanup-20261106-01",
+            "reason": "Exact stopped cleanup caller; independently preserved evidence consumed; parent scoped cleanup approval",
+            "remaining": false,
+            "status": "deleted",
+            "token": "542570c0b0f85d7c2b2c4a98d39af51743e57270f999daccddf2edc63b2ac9c4"
+          }
+        ]
+      }
+    }
+  ],
+  "referenceRelease": {
+    "close_receipt": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\reports\\producer-8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8.json",
+      "evidence_sha256": "8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8",
+      "reason": "Owned producer and tracked children stopped",
+      "request_sha256": "3911f5b3460ffd5417b6b812cb0917052cdcf64cd8f936dfd901a0bf13e8833a"
+    },
+    "created_at": "2026-11-06T08:51:03.378Z",
+    "id": "run:fw04:copy-cleanup-20261106-01",
+    "kind": "run",
+    "members": [
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01",
+        "protection_known": true,
+        "role": "run"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\inputs",
+        "protection_known": true,
+        "role": "inputs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\temporary",
+        "protection_known": true,
+        "role": "temporary"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\logs",
+        "protection_known": true,
+        "role": "logs"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\reports",
+        "protection_known": true,
+        "role": "reports"
+      },
+      {
+        "generated": true,
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\outputs",
+        "protection_known": true,
+        "role": "outputs"
+      }
+    ],
+    "membership_complete": true,
+    "owned_root": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01",
+    "owner": "fw04-copy-cleanup",
+    "ownership_scope": "run-root",
+    "producer": {
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw04\\runs\\copy-cleanup-20261106-01\\reports\\producer-8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8.json",
+      "evidence_sha256": "8e94a9f88f07680ad0d5b5d83f4f97b1b0c6f882a0ffcaf977dc2981afcbece8",
+      "exit_code": 0,
+      "outcome": "success",
+      "reason": "Owned producer and tracked children stopped",
+      "status": "stopped"
+    },
+    "references": [],
+    "revision": 3,
+    "schema": 1,
+    "state": "complete",
+    "updated_at": "2026-11-06T09:10:09.972Z",
+    "version": null,
+    "release_receipt": {
+      "request_sha256": "ffb1f359232fe4569381188aeb1961859727c942f00e590bc3f3ed7765d84ee2",
+      "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\64-copy-probe-cleanup.json",
+      "evidence_sha256": "0b1fe4fb43b99f77f884c23bf23b730dcaf2c502701ce2156f66447194e0fe7b",
+      "reason": "Parent reader finished; immutable independent cleanup and actual terminal evidence preserved; exact stopped RPC caller disposable"
+    }
+  },
+  "logicalBytes": 28663,
+  "absent": true,
+  "finalization": {
+    "id": "run:fw04:copy-cleanup-20261106-01",
+    "status": "finalized",
+    "remaining": [],
+    "references": [],
+    "blockers": [],
+    "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\892d5b4d12422afdbf22eaeb63a73d29666a9438ca65952e8eed14032149dce6.json",
+    "retirement": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\64-copy-probe-cleanup.json",
+      "sha256": "0b1fe4fb43b99f77f884c23bf23b730dcaf2c502701ce2156f66447194e0fe7b",
+      "reason": "Exact stopped RPC caller deleted by C0CF; independently preserved actual terminal evidence",
+      "original_state": "complete",
+      "original_membership_complete": true
+    }
+  },
+  "completedAt": "2026-11-06T09:11:19.991Z"
+}
