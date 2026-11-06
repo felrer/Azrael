@@ -12,20 +12,20 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 ## Contents
 
 - [Highlights](#highlights)
-- [1. Harness Architecture](#1-harness-architecture)
-- [2. Reducing cognitive load](#2-reducing-cognitive-load)
-- [3. Other features](#3-other-features)
+- [1. Agent efficiency](#1-agent-efficiency)
   - [a. Documentation](#a-documentation-that-connects-sessions)
   - [b. Custom skills](#b-custom-skills-from-discussion-to-delivery)
   - [c. Roles and communication](#c-root-for-time-subagents-for-tokens)
   - [d. Waiting and resuming](#d-waiting-without-repeated-checks-defer_root)
   - [e. Artifact groups and locks](#e-artifact-groups-and-locks)
-  - [f. Accounts](#f-many-accounts-one-page)
-  - [g. Models](#g-any-model-mid-conversation)
-  - [h. Context compaction](#h-context-compaction-that-waits-its-turn)
-  - [i. Window Use](#i-window-use-work-alongside-the-agent)
-  - [j. Session flags](#j-session-flags)
-  - [k. Profile and Team](#k-profile-and-team)
+- [2. Reducing cognitive load](#2-reducing-cognitive-load)
+  - [a. Accounts](#a-many-accounts-one-page)
+  - [b. Models](#b-any-model-mid-conversation)
+  - [c. Context compaction](#c-context-compaction-that-waits-its-turn)
+  - [d. Window Use](#d-window-use-work-alongside-the-agent)
+  - [e. Session flags](#e-session-flags)
+- [3. Other features](#3-other-features)
+  - [a. Profile and Team](#a-profile-and-team)
 - [Platform support](#platform-support)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -45,11 +45,7 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 | **Session flags** | Pin a red flag on a conversation so it stands out in the Chats list. |
 | **Recovery and queues** | Queued inputs survive reloads; accepted turns are reconciled instead of replayed. |
 
-## 1. Harness Architecture
-
-## 2. Reducing cognitive load
-
-## 3. Other features
+## 1. Agent efficiency
 
 Documents carry context across sessions. Instructions shape how work gets done. The root is designed to reduce overall completion time; subagents focus on keeping each assignment's token use low.
 
@@ -153,7 +149,9 @@ The model selects what to clean up. Azrael's built-in management tools carry own
 
 Details: [artifact management design](docs/architecture/project-maintenance.md), [management operations](docs/ops/project-maintenance.md).
 
-### f. Many accounts, one page
+## 2. Reducing cognitive load
+
+### a. Many accounts, one page
 
 Open **Accounts and usage** (`계정 및 사용량`) from the profile menu. Every provider's accounts are listed in one place, grouped under the provider's logo, each with a remaining-quota gauge, its reset time and a badge on the active one.
 
@@ -167,7 +165,7 @@ Open **Accounts and usage** (`계정 및 사용량`) from the profile menu. Ever
 
 Credentials stay out of Webviews and logs, and a running request is never silently redirected to another account.
 
-### g. Any model, mid-conversation
+### b. Any model, mid-conversation
 
 The model picker groups models by provider, with a count per section, and one search box matches display names and model IDs across all of them.
 
@@ -177,7 +175,7 @@ Supported sources: native **OpenAI** and **Devin**, managed **Anthropic** (subsc
 
 A model change applies at the next turn boundary; the running turn keeps its provider, model and account. When the conversation crosses providers, the previous model writes a bounded plain-text handoff summary that becomes a compaction checkpoint, so the next model starts with context and without the other provider's encrypted reasoning. The same picker sets the model a subagent runs on.
 
-### h. Context compaction that waits its turn
+### c. Context compaction that waits its turn
 
 The context gauge shows usage against both the automatic-compaction threshold and the model's full capacity. Click **Compact context** in its card — or type `/compact` — and the request joins the conversation queue instead of interrupting the current turn.
 
@@ -191,7 +189,7 @@ Compaction keeps a bounded summary, not every original detail. Combined with rel
 
 Details: [accounts](docs/architecture/accounts.md), [managed providers](docs/architecture/managed-providers.md), [custom API models](docs/architecture/custom-api-models.md), [context policy](docs/architecture/context-policy.md), [queued compaction](docs/architecture/queued-compaction.md), [reload recovery](docs/architecture/reload-recovery.md).
 
-### i. Window Use: work alongside the agent
+### d. Window Use: work alongside the agent
 
 Classic whole-desktop control moves your cursor, types into whatever has focus and needs the screen to itself, so you stop working while the agent works. **Window Use** is Azrael's desktop feature built around the opposite idea: the agent works on **one window it selected**, sees that window's own content even when it is covered, and acts through the app's accessibility interface so your cursor, keyboard and clipboard stay yours.
 
@@ -218,13 +216,15 @@ How a working session looks:
 
 Details: [Window Use](docs/architecture/window-use.md), [desktop backend (Computer Use)](docs/architecture/computer-use.md).
 
-### j. Session flags
+### e. Session flags
 
 Long-running projects produce many conversations. Hover a row in **Chats** and click the flag before its timestamp to mark it; flagged rows show a **filled red flag** at all times, including the new-chat screen's recent-chat preview. Enable **Flagged only** inside the history menu's chat-type dropdown to show marked chats plus the current chat within the current filters and search. The current chat stays visible even without a flag. Click a flag again to clear it. Flagging never opens, closes or archives anything, works from the keyboard, and is stored per host and conversation.
 
 <p align="center"><img src="docs/images/session-flags.png" alt="Chats list row with a red flag" width="576"></p>
 
-### k. Profile and Team
+## 3. Other features
+
+### a. Profile and Team
 
 Save a reusable work environment as a **Profile**, and an agent role configuration as a **Team**. Choose a setup for the task instead of configuring instructions and models each time.
 
