@@ -147,6 +147,12 @@ Windows 삭제에 사용하는 내부 PowerShell은 공용 `background_command` 
 
 Windows 속성 조회는 OS에 전달하는 경로만 표준 namespace 경로로 변환하며 선택·보호 검증과 보고에는 원래 경로를 유지한다. catalog 작업 오류의 `lease`는 작업 실패 시점의 관측이며 이후 정상 반환을 확인한 `catalog_lease_release`는 실제 native PID·종료 코드·pipe close를 별도로 보존한다. 원래 오류·stack과 `release_error`는 유지하고 물리 삭제, 예약 종료, metadata 최종화의 결과를 서로 대체하지 않는다.
 
+상태: `partial` — 추가 빈 publication 복구와 명시적 재준비의 실제 수용은 [FW-01 작업](../../work/FW-01-volsnap-io-safety/02-plan.md)이 소유한다. Windows x64 전용 복구 소유자는 별도 승인한 lifecycle catalog의 서로 다른 `.pending` 두 파일에만 적용한다. 각 파일은 identity·단일 hardlink·0바이트·빈 내용 SHA를 고정하고 대응 canonical `.json` 부재, 활성 caller reports, 관련 catalog·출처·참조·예약을 검증한다. maintenance 다음 catalog의 실제 native custody 안에서 지원 publication critical section을 배제하지만 원래 writer는 `unknown`으로 보존한다. 이 배제 증거는 과거 writer나 전체 producer tree의 종료 증거가 아니며 기존 unknown 결과를 성공으로 바꾸지 않는다. 승인된 정확한 두 파일에 canonical·owner 연결이 없음을 확인한 뒤 ordinary unlink로만 삭제하며 ACL·소유권·System 속성 변경이나 force 삭제는 허용하지 않는다.
+
+명시적 reprepare는 정확히 확인된 pre-reservation·physical-zero `blocked` 실패에만 허용한다. 원래 plan·intent·result·journal과 독립 child-only 종료 근거를 SHA로 고정하고 worker·supervisor·조회·속성 helper의 실제 종료와 drain, 준비 catalog의 source-enforced 반환 보장을 확인한다. 살아 있는 outer caller와 원래 aggregate stop의 `false`를 유지한다. 새 intent와 plan으로 연결하며 원래 실패를 덮어쓰거나 partial/unknown 적용을 재실행하지 않는다.
+
+예약 범위는 owner가 정확한 경로·논리 ID·pending digest로 도출한다. 예약의 identity·바이트·목록을 두 번 관측하고 관측별 누적 읽기를 할당 전에 64MiB로 제한한다. 검증된 catalog namespace 필드만 경로 비교에서 구분하며 member·source-owner·reference·provenance·evidence와 정확한 ID/digest 연결을 검사한다. 관련되거나 알 수 없는 형상은 거절하고 무관한 예약의 원문·상태·종료 주장은 변경하지 않는다. typed `producer_registry_v1`의 catalog namespace와 member 완결성은 별도로 판단하며, 파생 canonical/pending·provenance 연결과 기존 complete/exact-member 보호는 유지한다.
+
 관리 항목은 테스트/fixture, 실행파일, 빌드 결과, 캐시, 소스 스냅샷, 패키지, 백업으로 구분한다. 생성 시각·소유자·생성 작업·원본·경로·내용 identity·크기·버전/출처·관련 실행·최근 사용·보존 사유와 재검토 조건을 기록한다. 버전 정보에는 확인 가능한 소스 커밋, 도구 버전, 대상과 설정, 캐시 형식 등을 담으며 알 수 없는 정보는 추정하지 않는다.
 
 일반 목록 조회는 등록된 기록과 측정 시점을 반환한다. 매번 전체 프로젝트를 복사하거나 전 캐시를 해시하지 않는다. 명시한 항목의 검토·적용 시에는 실제 파일 identity와 보호 상태를 갱신한다. 논리 크기와 실제 회수 공간을 구분하고 하드링크·공유 파일 때문에 확보 공간을 과장하지 않는다.
@@ -236,6 +242,8 @@ Windows 소유 정리 경로의 하드링크·테스트 junction 확장은 `scri
 Node writer·참조 해제·finalize의 실제 JSON commit은 standalone native lease의 CAS 쓰기 경계가 소유한다. producer ledger는 소유권의 기준이며 producer-backed native inventory는 측정·결정의 파생 기록이다. PowerShell 정리도 같은 owner의 그룹 예약을 사용하며 물리 삭제 중에는 catalog 잠금을 반환한다. 결과를 payload 밖의 증거에 동기 저장하고 정확한 fence와 실제 잔여를 검증한 뒤 예약을 해제한다. 모든 member의 부재와 참조 해제 후 기존 finalize로 ledger를 축약한다. 비협조적인 직접 파일 변경을 잠금으로 막는다고 가정하지 않으며 기존 identity·내용·보호 재확인을 유지한다.
 
 `project_inventory`의 `register`에 `refresh_group:{id}`를 전달하면 `producer_registry_v1` 그룹의 현재 보호 메타데이터만 조정한다. 등록 소유자·종류·버전·전체 투영 경로·role이 같아야 하며, 내용 identity·측정 시각·크기는 보존한다. 참조·보호 확인·구성 완결과 관련 source identity를 갱신하되 pending 의도와 보존 이유는 유지하고 명시된 비생성물을 생성물로 승격하지 않는다. 구성이나 소유 경계가 바뀌면 전체 재등록이 필요하다. 갱신 이후 새 검토 토큰으로 명시적인 삭제·보류 결정을 적용한다. 보호 해제·갱신은 삭제 승인이 아니다.
+
+검증 후보의 `register.retire_group_source`는 삭제가 끝난 legacy 그룹의 오래된 membership source 참조를 한 번만 폐기한다. 정확한 소유자와 현재 state revision·config·그룹·역방향 구성원·관련 결정의 snapshot, SHA로 고정한 정식 근거를 요구한다. source는 형식 필드가 없는 현재 lifecycle catalog로 제한하며, 모든 구성원의 native 삭제 완료 영수증과 실제 부재, canonical/pending producer 기록 부재, 참조·예약·실행 보호 및 전체 catalog의 해석 가능성을 다시 검사한다. 불확실하거나 재등장한 대상은 거절한다. 성공하면 source 세 필드만 제거하고 감사 이력을 남기며 항목·결정·과거 결과·provenance는 유지한다. 감사 이력은 재등록으로 지울 수 없고 같은 그룹의 반복 폐기는 거절한다. payload나 catalog 파일을 지우거나 과거 producer의 종료를 새로 인증하는 기능은 아니다. 실제 설치본 전환과 이 기능의 운영 적용은 별도다.
 
 ## 지침과 적용 환경
 

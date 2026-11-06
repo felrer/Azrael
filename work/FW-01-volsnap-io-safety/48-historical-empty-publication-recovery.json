@@ -1,0 +1,365 @@
+{
+  "schema": 1,
+  "status": "blocked-protected",
+  "scope": "FW-01 exact two historical empty unpublished lifecycle controls; Windows x64 local only",
+  "success": false,
+  "recordedAtUtc": "2026-11-06T03:41:58.721Z",
+  "firstCausalError": {
+    "message": "Native reservation protects empty publication recovery",
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\lifecycle-empty-publication-recovery.cjs",
+    "line": 84,
+    "phase": "prepare recoveryQuiescence before native.captureEmptyPublications and acquireBoth"
+  },
+  "execution": {
+    "attempts": 1,
+    "command": [
+      "node",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty-recovery-controller.cjs",
+      "--execute",
+      "3490ab4a65b0ccc0aca71d3e81b156f217c0ebb39cf47d2d2a3372cbd65e5f6e"
+    ],
+    "supervisorPid": 50148,
+    "supervisorCommandExitCode": 1,
+    "worker": {
+      "pid": 35820,
+      "exit": {
+        "code": 1,
+        "signal": null
+      },
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    },
+    "nativeRecoveryProducerStarted": false,
+    "nativeRelease": null,
+    "nativeExit": null,
+    "nativeClose": null,
+    "nativeNotStartedEvidence": "Guard threw before native capture and lease acquisition; audit is empty; prepared/apply outputs absent",
+    "applyInvoked": false,
+    "deletedCount": 0,
+    "noRetry": true,
+    "noGuardModification": true,
+    "noReservationMutation": true,
+    "noRegistryDirectEdit": true
+  },
+  "preflight": {
+    "syntaxExitCode": 0,
+    "wrongPlanShaExitCode": 1,
+    "wrongPlanShaRejectedBeforeApi": true,
+    "firstPreflight": {
+      "exitCode": 1,
+      "error": "stateRoot already exists",
+      "planCreated": false,
+      "apiInvoked": false,
+      "mutations": 0
+    },
+    "preparedDirectoryReuseParentRequest": "01a1aef0-fa4d-7c43-b40b-f3ae5f65616a",
+    "preparedDirectoryIdentityEmptinessReparseCheck": "passed immediately before execute"
+  },
+  "plan": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty-recovery-plan.json",
+    "sha256": "3490ab4a65b0ccc0aca71d3e81b156f217c0ebb39cf47d2d2a3372cbd65e5f6e"
+  },
+  "controller": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty-recovery-controller.cjs",
+    "sha256": "017363148c7d631ddb33e1fee78a38372f5ed7b8053361a08d9b541cf66e5004"
+  },
+  "unit": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit8-maintenance_owner.exe",
+    "sha256": "515d0f48efed78cbb8aded3d877417606ff9a169f0367b08c09989c9b5f42446",
+    "label": "unit8-diagnostics",
+    "sourceEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\39-native-diagnostics-verification.json",
+    "sourceBlobAnnotation": null,
+    "unchanged": true
+  },
+  "sourceInputs23AndEvidenceInputs": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\artifact-lifecycle.cjs",
+      "sha256": "e44db66520720c75a8278518e2230e16594805f216261071feeba54fe20094c1",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\artifact-observations.cjs",
+      "sha256": "080de3ed0bc00f5c6dc31f79e7cd735fc68afe57b6f0bb213559810235ddb222",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\artifact-run.cjs",
+      "sha256": "2d607d29f75bf3b647129769660f9dcb10c49dbe33f4bbd233c438ad7e6ab1f6",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\azrael-platforms.json",
+      "sha256": "3caf21b20d952aa095dc5a5553c1a53389a209f61b9850c981e858ea24527770",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\build-platform.cjs",
+      "sha256": "cf729277b17d1a8d994c94c6fd429dcab90ce440e80c79b6c9d899f89cf0cc6d",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\capture-project-inputs.cjs",
+      "sha256": "5cb33119d86d359810b6e8639cd18669d87121ed9337895f33ce51342a1616df",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\check-artifact-lifecycle.cjs",
+      "sha256": "9201f1d12e715c2b3db864d7061f04e5ff29cd13cb407f595b37550c6c0e54e0",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\deployment-control-retirement-native.cjs",
+      "sha256": "af9a3edbc123e2c79c1fe4d4be1e6b643493ede7858946d6865b6be831e5485e",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\deployment-control-retirement.cjs",
+      "sha256": "108d3b39fd4eacf89f904097c69a8bec5c50bfb2879a607a0c524392b6fbfeb0",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\deployment-input-snapshot.cjs",
+      "sha256": "039074400fa5e0e667396a9e54d024f48b08f784deff1c8db181b4a012255f37",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\deployment-workspace.cjs",
+      "sha256": "00a6843b7bc18501b93f5b817c5adce5cf7411792ebd789e43d30291c0fb1a08",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\freeze-platform-inputs.cjs",
+      "sha256": "deabc22f335f22a1b3a4160b7b00f6f4bee1e67ae70cf950c3a181cf49d4f735",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\lifecycle-empty-publication-recovery.cjs",
+      "sha256": "4e3b39747757ec38a0c9a85fbfcdac8a245ca1ff992b35cd641ec4e52bf0ceb0",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\macos-signing.cjs",
+      "sha256": "01ba722e29b9ac69b0a0e25d376d62b606d2746dfe271b071c1e117e233862ed",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\maintenance-lock-owner.cjs",
+      "sha256": "d6c834d91d3b100bfb6bda28924fc1349952002293773d15a0ee0f15408ffeef",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\maintenance-lock-worker.cjs",
+      "sha256": "eed5162daa6c3951cd610dcd8fd1b8986a85a7a2172c4a39a48ddc60aaeebf54",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\maintenance-owner-config.cjs",
+      "sha256": "9d976bf241f80aa8ff7480b63bd6c478928e712c2f5d838deb6b09927e1b777f",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\maintenance-preferences.cjs",
+      "sha256": "6e5762ba9d6b8baa1a2bc2139aad8505b1ea322e6f1f8ba10e7dce2cf4f1e0c8",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\platform-runtime.cjs",
+      "sha256": "e8afe9b36748f6f1bbfdf9e7d3dcf88dd57f7bce1aea360743c4b8430c7a780c",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\test-artifact-lifecycle.cjs",
+      "sha256": "9f109aa4a377a923b66720a66078482cb75698b59cedc6a942ba3c1bd2882915",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\test-deployment-control-retirement.cjs",
+      "sha256": "3c463bdbac289ab9ae183ddc993f7b74b09b027f155b5c7399c6d1d3594a45af",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\scripts\\test-maintenance-lock-owner.cjs",
+      "sha256": "8415950fc9631822bb8b90b7452cee024365c3ede24fb429611e21aa270b8868",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\candidate-manifest-r2.json",
+      "sha256": "7036df5c4cc160f106cb09425f31fbf3a94449c10736784813903c4a11e3f456",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\reports\\tiny-execution-plan.json",
+      "sha256": "aeab8abb184f9cd36f7e418a990342e2c610d35b3b772283872e10f54bf3b6f3",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty-preparation.json",
+      "sha256": "bd29ef8b4d3fc8ae7e204c23e238278fa4409d060f825411e908bdd5d1ec14d8",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty-authority.json",
+      "sha256": "8a691927927a34efd88a6f4b280ef8d45437ec0c13f901bac8b22d08a3e104e7",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\2bcfa41bc73b235ff5d327fb8e21ca6f221e8d7c32be8d5beddb552ad1ccc6cf.json",
+      "sha256": "4b0b87dbba294baa410e4fe3601d5a3b4d6723bcd5abf486754d5e9aff72ac85",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\33-control-retirement-result.json",
+      "sha256": "17b95655beb67991477f2acd70879f1acc79608032dadf6db3a5ed8e5dd25da4",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\46-empty-publication-tiny-verification.json",
+      "sha256": "ddee639ac7345e7f0b813467e2cde1003e219e2f66ee30ba7cc145b6ad9332e0",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\47-tiny-reprepare-continuation.json",
+      "sha256": "c165fb83e14461cd9790958b6e9879eaa3f6d6d77422e19cb11dea10e3c9e5a9",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\39-native-diagnostics-verification.json",
+      "sha256": "b7c04557bb693acd6b2f9378d301451425404dbb9d8219bd1bb9cde3738d4adb",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r2\\reports\\source-pure-verification.json",
+      "sha256": "1e1bc8c2cffa973cd56e3db2a315c020f79f47b5313ad77d2489d596e548284a",
+      "unchanged": true
+    }
+  ],
+  "entries": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6fd942fbc36465bc3f72c94032b7ed34d5492a83f896cab9172f1e3a0692ac45.pending",
+      "identity": {
+        "dev": "3057815611",
+        "ino": "281474992442627",
+        "mode": "33206",
+        "nlink": "1",
+        "size": "0"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalBirthtimeUtc": "2026-11-03T09:59:51.738Z",
+      "actualIdentity": {
+        "dev": "3057815611",
+        "ino": "281474992442627",
+        "mode": "33206",
+        "nlink": "1",
+        "size": "0"
+      },
+      "actualSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "canonicalSiblingAbsent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e1309b15756f35c9f5a5a462d0b675fc306c7b92e21d86d744a1809da7e13ab6.pending",
+      "identity": {
+        "dev": "3057815611",
+        "ino": "281474992179715",
+        "mode": "33206",
+        "nlink": "1",
+        "size": "0"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalBirthtimeUtc": "2026-11-03T06:05:02.300Z",
+      "actualIdentity": {
+        "dev": "3057815611",
+        "ino": "281474992179715",
+        "mode": "33206",
+        "nlink": "1",
+        "size": "0"
+      },
+      "actualSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "canonicalSiblingAbsent": true
+    }
+  ],
+  "bothTargetsRemainPresent": true,
+  "canonicalSiblingsAbsent": true,
+  "callerUnchanged": true,
+  "originalWriter": "unknown",
+  "originalProducerStopClaim": false,
+  "reservationGuard": {
+    "directory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\reservations",
+    "jsonCount": 43,
+    "names": [
+      "03aaaee8dd537e62a5cc33078b3bea756d3ce0112df0838d0a7eaf96545199a4.json",
+      "07d8496b9450897ee9bd1e86fa193413127526ce870aaae25d866d4fef53c70d.json",
+      "0b44007b925796bd286286c979afb2fea163786ae0097944acaf203f8b4b164b.json",
+      "0b75b4dd77883b86e56edfa50c4ad27a0d28b1f6c17f03727f5e90ca688daf8e.json",
+      "229f929f90cae52368d0dd293b2f867ba28c2eb38a0b9f43bf951842f5b8a344.json",
+      "27912f101b0c931d439c87e00bc1be4bbabcb5331f9d75883a1dd6f9374dec53.json",
+      "2a40f1b6c6699b085f4bbd5e5d26ba5ad73b2acf076673e6fce69a1b9f51dd9b.json",
+      "2fb3b130c83bec13a6ecf0ebbc0f1f29b4d365fc9430fd874c3e599e1d873f0d.json",
+      "31586b7b4040bc55ef89ce9f39dff991cb4f8b72af42c9281af55ce8e35551b4.json",
+      "3660be0f814c189748177475425b2ccba93d7542cfae364bc7a3fc7d7225963b.json",
+      "4ce23bc1ee0e5d7103b52cee4b1699d56d0c012ce1bd916292083310586f8827.json",
+      "570fa92cb20b192dc628f752cb3ec6b045510d566b4d039c2a13da3cb436c105.json",
+      "5c8b7bd5d5e12a7ccd516b5922576ad256bda4b2e404643e818c125a04fc58f7.json",
+      "61379d639dd8c0feb292b1f324aac2dd8e721202981a8e8dd84623c825690df7.json",
+      "646f9174a3e167a092ccda9c15f5254ee19075a56834ab26f607bf2a205ecbb3.json",
+      "6549f13f0de3222891b4c66a6c4ba584d21b913c865ec7b031e2393cd3dc9d63.json",
+      "67668072caae47be2dda62d33a975a871df020470722a39979f380f12be4b5f8.json",
+      "7cd1958958d5089d043b4837bf1d516662b424cd711de55805e97b3f63157041.json",
+      "7f1ddc40a3f0531807d7950d1b3d3bb1779c064d972acd71ccd7e2a765ca740c.json",
+      "80b918bd82a3ba3f1724228a4074ca81b948d59d7318f3354224b7f5fa7c47ac.json",
+      "85144f337c7a19614311feda2d7340b3f694c39fc62aec4542deb5a4dedaa691.json",
+      "895e93f8b8759c45adf942b1d11fbaf3e03996c78e3116fa2f2cb43988384f74.json",
+      "8f28ec6850d3a3479eb3cc2d0abee7c22a7065fade1faaebfffa8f78c82c1fd1.json",
+      "98ed2be8227e114cf6b08aefe24196c52f51ef0311d98d6b466f2ac4875da0e3.json",
+      "994dcd14096fb033ed3a859a698bba0129e2525d606974d12228d23da63c03f0.json",
+      "9b7ab3403fac4e180107337b822f954a0d49a1513bf725f301974e084cb0886f.json",
+      "bae7df7938146ba4e0c21b7fa8f5252abec47210ea1d99db0ebc2bf8b64a21fb.json",
+      "c151a07ab6e1f70338fadbdf39a67b51c1d4ddeaf878d708dee09fae73b815d7.json",
+      "c3bdc69c91fb3e73df7f2f045d33682199428991a53111affa8c3d941d53493b.json",
+      "c73113c606ce468860f434632915b52f72ea05eed73c516a925c71756b12ef05.json",
+      "d01f33162454ce0847923819e2e96c30a614b2b70e7d4a56cfe2f93212c05ed0.json",
+      "d1ffa6d7d810c95f1d0c9800046cf221c11a27470ec7ebe21a7547809bde4783.json",
+      "d2890cb28eae0d4676768cc2519cb6f7edc290f9411391f4b13ee439d856c89b.json",
+      "d5270b7911c2468f1070671d28c180bc337a9eb352a87f96b0b3a295ef27496c.json",
+      "d690e5d1c1bf2e7c2a5e399db5512c02bb5ff7d15c4c5a6ade180c9e93006969.json",
+      "de99195fdaf0abf7c71982dfa72ded90d8d3d886857a38cf161fa0e8185cb717.json",
+      "deb7c09ba75563861c9d3f36af99cef2d179e91a8bb55e26a748d3d9ffe699fc.json",
+      "e2ff643704ab98dc8ececf1cb6b3d6e7363a5f6a61935f11305f7f2c460880bb.json",
+      "e358c016984b8195beefd73fb98d0247a750ee4111edbb1762cef46e60ff0986.json",
+      "ea0f590147a711371ce884ab5223941d82a1180e4850a1c01480ee0253371bfc.json",
+      "eaf5754ad65a416234a79b34b2764f4b62c1067750cb867233f228579c1c00c4.json",
+      "efb25f1e767d7f36cb4f88db120be78ca979e6e5efc05890be83fec806113fa9.json",
+      "f5cb6053c518ca13b80fc748b4c7d01ab9c291e0985337ed931285258d43bb10.json"
+    ],
+    "contentsNotClassified": true,
+    "unresolved": "Existing native reservation JSONs protect operation; their state/owners were not changed or inferred from age"
+  },
+  "outputAbsence": {
+    "prepared": true,
+    "applyPacket": true,
+    "workerResult": true,
+    "finalResult": true
+  },
+  "auditFiles": [],
+  "logs": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty-failure-worker.json",
+      "sha256": "0c7aa28a5e57b2485cf5f48b3ea4805f1ef1827c07f89b84037b8d870e2b0ecc"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty-failure-execute.json",
+      "sha256": "0c6073d745de9a2d42473cc141f9bcaaa8b9cf4fb580f86598ff3cdd3e8651d6"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty-supervisor-stop.json",
+      "sha256": "6d0dcb2395ae3c6b5a2dc24119ea4c6cc8e404a9907170b0bba8728b010f58f7"
+    }
+  ],
+  "protectedMaterial": {
+    "owner": "run:fw03r:control-01",
+    "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports",
+    "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\temporary\\historical-empty-state",
+    "cleanup": "HOLD for root diagnosis; no cleanup authority delegated"
+  },
+  "remaining": "Root decision and approved owner-based resolution or corrected product contract required before any fresh attempt; do not overwrite this failed attempt or resume 33/CW/cleanup"
+}

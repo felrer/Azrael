@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "Unit10 source-retirement native compile/focused/full/binary and one actual CLI acceptance of fresh synthetic legacy State; common metadata semantics, Windows x64 local verified only",
+  "nativeVerification": {
+    "finalReadiness": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10\\final-readiness.json",
+      "sha256": "b7e0467274b898376c5af27ec08a08e6a2aed2b79973a5273444d73a95d19018"
+    },
+    "source45Sha256": "a2a2358eb864ae5dffc4cf83c831744d500c435c26b0bd811a6065ec8797694a",
+    "sourceFiles": 45,
+    "stages": [
+      {
+        "stage": "compile",
+        "actualExit": 0,
+        "signal": null,
+        "outcome": "passed",
+        "frozenPrePostUnchanged": true,
+        "elapsedMs": 33418,
+        "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10\\compile.json",
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit10\\compile.stdout.log",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit10\\compile.stderr.log"
+      },
+      {
+        "stage": "retire-focused",
+        "actualExit": 0,
+        "signal": null,
+        "outcome": "passed",
+        "frozenPrePostUnchanged": true,
+        "elapsedMs": 3572,
+        "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10\\retire-focused.json",
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit10\\retire-focused.stdout.log",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit10\\retire-focused.stderr.log"
+      },
+      {
+        "stage": "full",
+        "actualExit": 0,
+        "signal": null,
+        "outcome": "passed",
+        "frozenPrePostUnchanged": true,
+        "elapsedMs": 241467,
+        "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10\\full.json",
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit10\\full.stdout.log",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit10\\full.stderr.log"
+      },
+      {
+        "stage": "binary",
+        "actualExit": 0,
+        "signal": null,
+        "outcome": "passed",
+        "frozenPrePostUnchanged": true,
+        "elapsedMs": 877,
+        "report": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10\\binary.json",
+        "stdout": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit10\\binary.stdout.log",
+        "stderr": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\logs\\unit10\\binary.stderr.log"
+      }
+    ],
+    "fullTestsPassed": 210,
+    "focusedTestsPassed": 2,
+    "binary": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit10-maintenance_owner.exe",
+      "sha256": "0155093a85dc2622909f281785c1e96903d279d4336ff4d5ddc9f713b4e5ebfd"
+    }
+  },
+  "tiny": {
+    "gateRequestId": "01a1af66-990f-7923-8aa9-01db4e02940a",
+    "command": [
+      "node",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10-source-retirement-tiny\\controller.cjs",
+      "--execute",
+      "1673cf4b13c7f4bfdaf759c1ebc123195fbaf1366ea45d006086ed7dbc1aaf60"
+    ],
+    "controller": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10-source-retirement-tiny\\controller.cjs",
+      "sha256": "e8eec3085c6ec8a7345d2163c5aecd1a2d1cd3cb0f19d0266de66098d7a6029b"
+    },
+    "executionPlan": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10-source-retirement-tiny\\execution-plan.json",
+      "sha256": "1673cf4b13c7f4bfdaf759c1ebc123195fbaf1366ea45d006086ed7dbc1aaf60"
+    },
+    "preflight": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10-source-retirement-tiny\\final-preflight.json",
+      "sha256": "91baaf6add9f158041b3d3a96b553472061cdefebe414fa969b33d2107964e02"
+    },
+    "controllerActualExitCode": 0,
+    "controllerSignal": null,
+    "actualAttemptCount": 1,
+    "actualNativeCommandCount": 3,
+    "inventory": {
+      "pid": 27176,
+      "stdout": "{\"bundles\":[],\"decisions\":[{\"attempt_id\":\"synthetic-native-attempt-not-real-deletion\",\"decision\":\"delete\",\"group_status\":\"deleted\",\"id\":\"member\",\"lifecycle_group_id\":\"legacy\",\"remaining\":false,\"status\":\"deleted\",\"token\":\"synthetic-original-token\"}],\"groups\":[{\"cached_live_members\":0,\"cleanup_status\":\"deleted\",\"id\":\"legacy\",\"kind\":\"run\",\"members_total\":1,\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\native-613162bb\\\\temporary\\\\source-retirement-tiny-unit10-project\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_format\":null,\"membership_source_identity\":\"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\",\"owner\":\"test\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\native-613162bb\\\\temporary\\\\source-retirement-tiny-unit10-project\\\\artifacts\\\\maintenance\\\\lifecycles\\\\c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84.json\",\"version\":null}],\"items\":[{\"cleanup_status\":\"deleted\",\"due_for_review\":false,\"generated\":true,\"id\":\"member\",\"identity\":\"synthetic-old-member-identity\",\"kind\":\"run\",\"lifecycle_group_id\":\"legacy\",\"logical_bytes\":0,\"measured_at_ms\":1,\"owner\":\"test\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\native-613162bb\\\\temporary\\\\source-retirement-tiny-unit10-project\\\\generated\\\\missing-payload.bin\",\"protection_known\":true,\"references\":[],\"remaining\":false,\"review_reasons\":[]}],\"logical_bytes\":0,\"measurement\":\"cached logical bytes; not reclaimed physical space\",\"pagination\":{\"bundles_total\":0,\"decisions_total\":1,\"groups_total\":1,\"limit\":200,\"offset\":0,\"runs_total\":0,\"total\":1},\"policy\":{},\"project_id\":\"unit10-source-retirement-tiny\",\"project_root\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\native-613162bb\\\\temporary\\\\source-retirement-tiny-unit10-project\",\"runs\":{}}\n",
+      "stderr": "",
+      "overflow": false,
+      "error": null,
+      "exit_observed": true,
+      "exit_code": 0,
+      "signal": null,
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    },
+    "retirement": {
+      "pid": 48628,
+      "stdout": "{\"id\":\"legacy\",\"receipt\":{\"evidence_identity\":\"14cc26f458ba4bb3ae2b64ba5744aad96d52bb7321498f91baf4b4ce058cc78d\",\"evidence_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\native-613162bb\\\\temporary\\\\source-retirement-tiny-unit10-project\\\\artifacts\\\\maintenance\\\\evidence\\\\retire.json\",\"evidence_sha256\":\"eedf32af02764e4e6dd8fe1aa8126a37769608b66a0068ac0677deb60ca1b36a\",\"expected_snapshot\":{\"config_identity\":\"046c48e369196c117f43568ef6d8e2f9ebc1c91013deef601fdad70096db022c\",\"decisions\":[{\"attempt_id\":\"synthetic-native-attempt-not-real-deletion\",\"decision\":\"delete\",\"deletion\":{\"remaining\":false,\"status\":\"deleted\"},\"group_status\":\"deleted\",\"id\":\"member\",\"lifecycle_group_id\":\"legacy\",\"remaining\":false,\"status\":\"deleted\",\"token\":\"synthetic-original-token\"}],\"group\":{\"cleanup_status\":\"deleted\",\"id\":\"legacy\",\"kind\":\"run\",\"members\":[\"member\"],\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\native-613162bb\\\\temporary\\\\source-retirement-tiny-unit10-project\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_identity\":\"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\",\"owner\":\"test\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\native-613162bb\\\\temporary\\\\source-retirement-tiny-unit10-project\\\\artifacts\\\\maintenance\\\\lifecycles\\\\c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84.json\"},\"members\":{\"member\":{\"cleanup_status\":\"deleted\",\"generated\":true,\"id\":\"member\",\"identity\":\"synthetic-old-member-identity\",\"kind\":\"run\",\"lifecycle_group_id\":\"legacy\",\"logical_bytes\":0,\"measured_at_ms\":1,\"owner\":\"test\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\fw03v\\\\runs\\\\native-613162bb\\\\temporary\\\\source-retirement-tiny-unit10-project\\\\generated\\\\missing-payload.bin\",\"protection_known\":true,\"references\":[],\"remaining\":false}},\"revision\":0},\"meaning\":\"terminal deletion metadata retirement; historical producer exit not certified\",\"owner\":\"test\",\"reason\":\"Retire obsolete source metadata in explicit synthetic terminal legacy fixture; no historical producer exit certification\",\"retired_at_ms\":1793944121003,\"scope\":\"terminal_deleted_legacy_membership_source\"},\"source_retired\":true}\n",
+      "stderr": "",
+      "overflow": false,
+      "error": null,
+      "exit_observed": true,
+      "exit_code": 0,
+      "signal": null,
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    },
+    "staleExpectedRejection": {
+      "pid": 2988,
+      "stdout": "",
+      "stderr": "{\"error\":\"source retirement snapshot changed; fresh evidence required\"}\n",
+      "overflow": false,
+      "error": null,
+      "exit_observed": true,
+      "exit_code": 1,
+      "signal": null,
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    },
+    "result": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10-source-retirement-tiny\\result.json",
+      "sha256": "459719b71086201d3ab32f14034f49ab0499569487fa56ecf35b3530700bddcb"
+    },
+    "initialManifestSha256": "cab47b5b0a4a880ff365075b0f370b4d0692a441c013e20301683bb6e36b4541",
+    "retiredManifestSha256": "6469f820ee5e2b2dcad2f693ed8260a92c2eabb1735da4afff6e9292d09bae08",
+    "sourceFieldsRemoved": [
+      "membership_source",
+      "membership_source_identity"
+    ],
+    "sourceFormatInitiallyAbsent": true,
+    "sourceRetirementAudits": 1,
+    "revisionBefore": 0,
+    "revisionAfter": 1,
+    "itemsDecisionsRunsAndUnrelatedGroupsUnchanged": true,
+    "staleRejectionStateBytesUnchanged": true,
+    "all57ImmutableInputsUnchanged": true
+  },
+  "truthfulFixtureBoundary": {
+    "setupProtocol": "fresh-synthetic-legacy-state",
+    "fixtureMetadataSeededOnceCreateNew": true,
+    "originaldeletionperformed": false,
+    "originalproducerexitverified": false,
+    "originalAttemptAndToken": "Explicit synthetic fixture strings; not real deletion or historical execution proof",
+    "payloadFilesCreated": 0,
+    "payloadFilesDeleted": 0,
+    "manifestDirectWritesAfterFirstNative": 0,
+    "realMainGroupMutation": false,
+    "realOldPendingRecovery": false,
+    "rawOriginalFailures48Through52Unchanged": true,
+    "mainConfigManifestCallerAndOld2InputPinsUnchanged": true
+  },
+  "retention": {
+    "owner": "run:fw03v:native-613162bb",
+    "project": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\source-retirement-tiny-unit10-project",
+    "state": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\source-retirement-tiny-unit10-state",
+    "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10-source-retirement-tiny",
+    "logs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\reports\\unit10-source-retirement-tiny\\logs",
+    "protectedFor": "Root acceptance, real source-retirement preparation and final whole native owner cleanup; no direct metadata/payload removal performed"
+  },
+  "limits": [
+    "No app build/install or cross-platform actual verification",
+    "Synthetic test does not assert original cleanup happened or historical producer exit was observed",
+    "Real legacy source retirement58b and oldpending58 remain separately gated",
+    "Full native owner cleanup remains pending root acceptance and consumer/reference release"
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "User-authorized exact terminal legacy group source evidence retirement only; common metadata semantics verified Windows x64 local",
+  "meaning": "Terminal deletion metadata retirement; historical producer exit not certified",
+  "authorization": {
+    "source": "Parent explicit exact58b preparation and native apply1 authority after user approval",
+    "groupId": "run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+    "owner": "artifact-lifecycle-checks"
+  },
+  "execution": {
+    "command": [
+      "node",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\source-retirement58b\\controller.cjs",
+      "--execute",
+      "2d6d7ea239f92f84ee9dfc075b83e4f671955e6c7e94b445fe034070bcfbc909"
+    ],
+    "controller": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\source-retirement58b\\controller.cjs",
+      "sha256": "f1c1af7122eeec1d53998232e968fbad0d5a9b7101f27ee7f3f7bd1df9d8f73b"
+    },
+    "plan": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\source-retirement58b\\execution-plan.json",
+      "sha256": "2d6d7ea239f92f84ee9dfc075b83e4f671955e6c7e94b445fe034070bcfbc909"
+    },
+    "preflight": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\source-retirement58b\\final-preflight.json",
+      "sha256": "91a2a36c97c15c14f1bd268432f6768c8b46d4527178053658c40efe8f60f25a"
+    },
+    "controllerActualExitCode": 0,
+    "controllerSignal": null,
+    "native": {
+      "pid": 37972,
+      "stdout": "{\"id\":\"run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e\",\"receipt\":{\"evidence_identity\":\"ab4e3830a317c3defe3b8a4e5611b4d36cbebafd8e4910d23691c57eff280d72\",\"evidence_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\evidence\\\\fw01-terminal-group-source-retirement.json\",\"evidence_sha256\":\"97f0bd6c926f853b8869f05462f2a969b399ecd097e178fffc1b00788670ec7a\",\"expected_snapshot\":{\"config_identity\":\"e81df7ad6a9b80121f32aad7eac95387a20c11fbcc96602c900f6c634d0d842b\",\"decisions\":[{\"attempt_id\":\"attempt-56308-24-1792041065407\",\"decision\":\"delete\",\"deletion\":{\"attributes\":[{\"after\":16,\"before\":16,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\lifecycle-checks\\\\runs\\\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\"},{\"after\":16,\"before\":16,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\lifecycle-checks\\\\runs\\\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\\\logs\"},{\"after\":32,\"before\":32,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\lifecycle-checks\\\\runs\\\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\\\logs\\\\0.log\"},{\"after\":32,\"before\":32,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\lifecycle-checks\\\\runs\\\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\\\logs\\\\1.log\"},{\"after\":32,\"before\":32,\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\lifecycle-checks\\\\runs\\\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\\\results.json\"}],\"error\":null,\"physical_bytes_reclaimed\":null,\"remaining\":false,\"status\":\"deleted\"},\"group_status\":\"deleted\",\"id\":\"ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45\",\"lifecycle_group_id\":\"run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e\",\"reason\":\"Producer와 소비 종료, 최종 검증 통과. 명령·입력 지문·실제 결과·한계는 work 기록에 보존했으며 고정 입력·원시 로그·fixture의 사용 목적 종료를 모델이 확인함.\",\"remaining\":false,\"status\":\"deleted\",\"token\":\"ed26f2a6ff69e40a58dc688d0fbd1d1d6934a4a11f91fcc40fe26a78f3f7ba08\"}],\"group\":{\"cleanup_status\":\"deleted\",\"id\":\"run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e\",\"kind\":\"run\",\"members\":[\"ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45\"],\"membership_complete\":true,\"membership_source\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\",\"membership_source_identity\":\"fddb1e533e5d4f6632830d7fee3b7c86a863a88048d4c425ffcd5fae04e11e92\",\"owner\":\"artifact-lifecycle-checks\",\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\a16425f3d613378cd53639aba39d85fe1ac58f371c6e6a9c27e751670a2a6a0c.json\",\"registered_at_ms\":1792040085416,\"version\":null},\"members\":{\"ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45\":{\"cache_schema\":null,\"cleanup_status\":\"deleted\",\"created_at_ms\":null,\"generated\":true,\"id\":\"ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45\",\"identity\":\"5f2fa90947ec5b82d0b24b445eda4c62c8c50d66f07e772f8e95d8c917c2996a\",\"kind\":\"run\",\"lifecycle_group_id\":\"run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e\",\"lifecycle_role\":\"artifact\",\"logical_bytes\":0,\"measured_at_ms\":1792040085409,\"owner\":\"artifact-lifecycle-checks\",\"path\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\lifecycle-checks\\\\runs\\\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\",\"protection_known\":true,\"provenance\":null,\"provenance_ref\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\maintenance\\\\lifecycles\\\\a16425f3d613378cd53639aba39d85fe1ac58f371c6e6a9c27e751670a2a6a0c.json\",\"references\":[],\"registered_at_ms\":1792040085409,\"remaining\":false,\"role\":\"run\",\"source_path\":null,\"tool\":null,\"version\":null}},\"revision\":7526},\"meaning\":\"terminal deletion metadata retirement; historical producer exit not certified\",\"owner\":\"artifact-lifecycle-checks\",\"reason\":\"Explicit user-authorized retirement of obsolete source control evidence for exact terminally deleted lifecycle-check group; preserve original outcomes and do not certify historical producer exit\",\"retired_at_ms\":1793944418034,\"scope\":\"terminal_deleted_legacy_membership_source\"},\"source_retired\":true}\n",
+      "stderr": "",
+      "overflow": false,
+      "error": null,
+      "exit_observed": true,
+      "exit_code": 0,
+      "signal": null,
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    },
+    "actualNativeMutationCalls": 1,
+    "retry": false,
+    "result": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\source-retirement58b\\result.json",
+      "sha256": "beb196caeb2d2a880e2241d7b288104680d423b101e9cc8cc5e6ee78366b0291"
+    },
+    "nativeUnit": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit10-maintenance_owner.exe",
+      "sha256": "0155093a85dc2622909f281785c1e96903d279d4336ff4d5ddc9f713b4e5ebfd"
+    },
+    "syntheticPredecessor58a": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58a-native-source-retirement-verification.json",
+      "sha256": "a6956877ef9d78bc60e1f03c0f1dd29140f1a760c95c8b196e3ec345c546eeb2"
+    }
+  },
+  "metadataEffect": {
+    "manifestBeforeSha256": "e0da3723abb084e1420c7c297d6cf302a59770dacd5993aaed8ac23ec8c88e8b",
+    "manifestAfterSha256": "a6d082e0c51479f5747173bcc27371c0fb7e5f614f302767ddba6c789dc092d8",
+    "revisionBefore": 7526,
+    "revisionAfter": 7527,
+    "groupBefore": {
+      "cleanup_status": "deleted",
+      "id": "run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+      "kind": "run",
+      "members": [
+        "ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45"
+      ],
+      "membership_complete": true,
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_identity": "fddb1e533e5d4f6632830d7fee3b7c86a863a88048d4c425ffcd5fae04e11e92",
+      "owner": "artifact-lifecycle-checks",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a16425f3d613378cd53639aba39d85fe1ac58f371c6e6a9c27e751670a2a6a0c.json",
+      "registered_at_ms": 1792040085416,
+      "version": null
+    },
+    "groupAfter": {
+      "cleanup_status": "deleted",
+      "id": "run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+      "kind": "run",
+      "members": [
+        "ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45"
+      ],
+      "membership_complete": true,
+      "owner": "artifact-lifecycle-checks",
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a16425f3d613378cd53639aba39d85fe1ac58f371c6e6a9c27e751670a2a6a0c.json",
+      "registered_at_ms": 1792040085416,
+      "source_retirements": [
+        {
+          "evidence_identity": "ab4e3830a317c3defe3b8a4e5611b4d36cbebafd8e4910d23691c57eff280d72",
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\fw01-terminal-group-source-retirement.json",
+          "evidence_sha256": "97f0bd6c926f853b8869f05462f2a969b399ecd097e178fffc1b00788670ec7a",
+          "expected_snapshot": {
+            "config_identity": "e81df7ad6a9b80121f32aad7eac95387a20c11fbcc96602c900f6c634d0d842b",
+            "decisions": [
+              {
+                "attempt_id": "attempt-56308-24-1792041065407",
+                "decision": "delete",
+                "deletion": {
+                  "attributes": [
+                    {
+                      "after": 16,
+                      "before": 16,
+                      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e"
+                    },
+                    {
+                      "after": 16,
+                      "before": 16,
+                      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\logs"
+                    },
+                    {
+                      "after": 32,
+                      "before": 32,
+                      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\logs\\0.log"
+                    },
+                    {
+                      "after": 32,
+                      "before": 32,
+                      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\logs\\1.log"
+                    },
+                    {
+                      "after": 32,
+                      "before": 32,
+                      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\results.json"
+                    }
+                  ],
+                  "error": null,
+                  "physical_bytes_reclaimed": null,
+                  "remaining": false,
+                  "status": "deleted"
+                },
+                "group_status": "deleted",
+                "id": "ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45",
+                "lifecycle_group_id": "run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+                "reason": "Producer와 소비 종료, 최종 검증 통과. 명령·입력 지문·실제 결과·한계는 work 기록에 보존했으며 고정 입력·원시 로그·fixture의 사용 목적 종료를 모델이 확인함.",
+                "remaining": false,
+                "status": "deleted",
+                "token": "ed26f2a6ff69e40a58dc688d0fbd1d1d6934a4a11f91fcc40fe26a78f3f7ba08"
+              }
+            ],
+            "group": {
+              "cleanup_status": "deleted",
+              "id": "run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+              "kind": "run",
+              "members": [
+                "ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45"
+              ],
+              "membership_complete": true,
+              "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+              "membership_source_identity": "fddb1e533e5d4f6632830d7fee3b7c86a863a88048d4c425ffcd5fae04e11e92",
+              "owner": "artifact-lifecycle-checks",
+              "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a16425f3d613378cd53639aba39d85fe1ac58f371c6e6a9c27e751670a2a6a0c.json",
+              "registered_at_ms": 1792040085416,
+              "version": null
+            },
+            "members": {
+              "ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45": {
+                "cache_schema": null,
+                "cleanup_status": "deleted",
+                "created_at_ms": null,
+                "generated": true,
+                "id": "ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45",
+                "identity": "5f2fa90947ec5b82d0b24b445eda4c62c8c50d66f07e772f8e95d8c917c2996a",
+                "kind": "run",
+                "lifecycle_group_id": "run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+                "lifecycle_role": "artifact",
+                "logical_bytes": 0,
+                "measured_at_ms": 1792040085409,
+                "owner": "artifact-lifecycle-checks",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+                "protection_known": true,
+                "provenance": null,
+                "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a16425f3d613378cd53639aba39d85fe1ac58f371c6e6a9c27e751670a2a6a0c.json",
+                "references": [],
+                "registered_at_ms": 1792040085409,
+                "remaining": false,
+                "role": "run",
+                "source_path": null,
+                "tool": null,
+                "version": null
+              }
+            },
+            "revision": 7526
+          },
+          "meaning": "terminal deletion metadata retirement; historical producer exit not certified",
+          "owner": "artifact-lifecycle-checks",
+          "reason": "Explicit user-authorized retirement of obsolete source control evidence for exact terminally deleted lifecycle-check group; preserve original outcomes and do not certify historical producer exit",
+          "retired_at_ms": 1793944418034,
+          "scope": "terminal_deleted_legacy_membership_source"
+        }
+      ],
+      "version": null
+    },
+    "sourceFieldsActuallyRemoved": [
+      "membership_source",
+      "membership_source_identity"
+    ],
+    "oneAuditAdded": true,
+    "memberRecordsBeforeAndAfter": {
+      "ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45": {
+        "cache_schema": null,
+        "cleanup_status": "deleted",
+        "created_at_ms": null,
+        "generated": true,
+        "id": "ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45",
+        "identity": "5f2fa90947ec5b82d0b24b445eda4c62c8c50d66f07e772f8e95d8c917c2996a",
+        "kind": "run",
+        "lifecycle_group_id": "run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+        "lifecycle_role": "artifact",
+        "logical_bytes": 0,
+        "measured_at_ms": 1792040085409,
+        "owner": "artifact-lifecycle-checks",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+        "protection_known": true,
+        "provenance": null,
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\a16425f3d613378cd53639aba39d85fe1ac58f371c6e6a9c27e751670a2a6a0c.json",
+        "references": [],
+        "registered_at_ms": 1792040085409,
+        "remaining": false,
+        "role": "run",
+        "source_path": null,
+        "tool": null,
+        "version": null
+      }
+    },
+    "originalDeletionDecisionsBeforeAndAfter": [
+      {
+        "attempt_id": "attempt-56308-24-1792041065407",
+        "decision": "delete",
+        "deletion": {
+          "attributes": [
+            {
+              "after": 16,
+              "before": 16,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e"
+            },
+            {
+              "after": 16,
+              "before": 16,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\logs"
+            },
+            {
+              "after": 32,
+              "before": 32,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\logs\\0.log"
+            },
+            {
+              "after": 32,
+              "before": 32,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\logs\\1.log"
+            },
+            {
+              "after": 32,
+              "before": 32,
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\b5b12bf7-ffaf-4568-b757-5633d0f9228e\\results.json"
+            }
+          ],
+          "error": null,
+          "physical_bytes_reclaimed": null,
+          "remaining": false,
+          "status": "deleted"
+        },
+        "group_status": "deleted",
+        "id": "ebb94a54f76761e9e494b5b3536499c8ca3e0304453574485dc2616b3f253a45",
+        "lifecycle_group_id": "run:lifecycle-check:b5b12bf7-ffaf-4568-b757-5633d0f9228e",
+        "reason": "Producer와 소비 종료, 최종 검증 통과. 명령·입력 지문·실제 결과·한계는 work 기록에 보존했으며 고정 입력·원시 로그·fixture의 사용 목적 종료를 모델이 확인함.",
+        "remaining": false,
+        "status": "deleted",
+        "token": "ed26f2a6ff69e40a58dc688d0fbd1d1d6934a4a11f91fcc40fe26a78f3f7ba08"
+      }
+    ],
+    "allItemsDecisionsRunsAndUnrelatedGroupsUnchanged": true,
+    "all74ImmutableInputsUnchanged": true,
+    "foreign43ActiveReservationIdentitiesAndRawSHAsUnchanged": true,
+    "oldPendingIdentityAndEmptySHAUnchanged": true,
+    "callerPendingRevision1Unchanged": true,
+    "canonicalAndPendingAbsencePreserved": true
+  },
+  "persistentControlAudit": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\evidence\\fw01-terminal-group-source-retirement.json",
+    "sha256": "97f0bd6c926f853b8869f05462f2a969b399ecd097e178fffc1b00788670ec7a",
+    "bytes": 6008,
+    "classification": "Persistent control audit evidence now referenced from native group source_retirements; preserve independently of disposable payload cleanup",
+    "notDisposablePayload": true,
+    "originalproducerexitcertified": false
+  },
+  "originalproducerexitcertified": false,
+  "originalOutcomesChanged": false,
+  "payloadDeletionCalls": 0,
+  "directManifestWrites": 0,
+  "rawLogs": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\source-retirement58b\\logs",
+  "ownerState": {
+    "owner": "run:fw03r:control-01",
+    "outerCallerRemainsPending": true,
+    "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\source-retirement58b",
+    "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\temporary\\source-retirement58b",
+    "temporaryLogsProtectedUntilOwnerCleanup": true
+  },
+  "remaining": [
+    "Old historical empty2 recovery58 still separately gated",
+    "CW59/outer60/VSS-native61/app build still outside this execution",
+    "Persistent official evidence is an active control audit reference; do not delete with task disposable material",
+    "No original producer exit is newly proved by this metadata retirement"
+  ]
+}

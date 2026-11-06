@@ -179,11 +179,24 @@ function append(filename, entry) {
   try { fs.writeFileSync(fd, JSON.stringify(entry) + "\n"); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
 }
 const native = require("./deployment-control-retirement-native.cjs").createNativeGuard({ checked, identity, absent, sha, inside, overlaps, same });
-async function prepareDeploymentControlRetirement(options) {
+const emptyRecoveryModule = require("./lifecycle-empty-publication-recovery.cjs");
+const emptyRecovery = emptyRecoveryModule.createOwner({ checked, identity, absent, sha, inside, same, windowsAttributes, evidence, writeNew,
+  lifecycle, acquire, native, assertEnabled, workerFile: __filename });
+function reservationScope(scope, record = null) {
+  return { paths: [scope.workingRoot, scope.outputDirectory], ids: [scope.original.workingLifecycleId, scope.runLifecycleId, ...(record ? [record.id] : [])], pendingStems: [] };
+}
+async function prepareControl(options, prior = null) {
   assertEnabled("deletion");
   const scope = selection(options);
   const preparationAttributeChecks = [];
-  const caller = owners(scope, lifecycle.catalog(scope.artifactProjectRoot));
+  const caller = owners(scope, lifecycle.catalog(scope.artifactProjectRoot), prior?.record);
+  // Fail before publishing a journal/owner or starting expensive native readers.
+  native.quiescent(scope.artifactProjectRoot, [], reservationScope(scope, prior?.record));
+  if (prior) {
+    same(caller, prior.caller, "Blocked-plan caller changed");
+    if (!absent(prior.claimPath)) throw Error("Blocked plan already has an explicit reprepare intent");
+    prior.verify();
+  }
   const observed = observe(scope, check => preparationAttributeChecks.push(check));
   const nonce = crypto.randomUUID();
   const files = Object.fromEntries(["plan", "journal", "intent", "evidence", "result"].map(role => [role, path.join(scope.outputDirectory, `control-retirement-${nonce}.${role}.json`)]));
@@ -195,20 +208,125 @@ async function prepareDeploymentControlRetirement(options) {
   try { nativeSnapshot = await native.capture(scope.artifactProjectRoot, scope.workingRoot, query => append(files.journal, { phase: "native-preparation-query", query })); }
   catch (error) { append(files.journal, { phase: "preparation-blocked", message: error.message }); throw error; }
   const record = lifecycle.withCatalogLock(scope.artifactProjectRoot, () => {
-    const freshCaller = owners(scope, lifecycle.catalog(scope.artifactProjectRoot));
+    const freshCaller = owners(scope, lifecycle.catalog(scope.artifactProjectRoot), prior?.record);
     same(freshCaller, caller, "Caller changed before retirement publication");
     evidence(scope.artifactProjectRoot, scope.evidence_ref, scope.evidence_sha256);
     same(identity(scope.artifactProjectRoot, "directory"), observed.project, "Project identity changed before publication");
     for (const directory of observed.directories) same(identity(directory.path, "directory"), directory.identity, "Structural identity changed before publication");
     same(identity(scope.gitfile.path, "file"), observed.gitfile, "Gitfile identity changed before publication");
+    native.quiescent(scope.artifactProjectRoot, [], reservationScope(scope, prior?.record));
+    if (prior) {
+      prior.verify();
+      writeNew(prior.claimPath, { schema: 1, operation: "deployment-control-retirement-reprepare", nonce, record: prior.record,
+        previous: prior.linkage, newPlanPath: files.plan });
+      return prior.record;
+    }
     return lifecycle.recordLifecycle(scope.artifactProjectRoot, { id: `work:deployment-control-retirement:${nonce}`, kind: "work", owner: scope.owner,
       version: nonce, generation: nonce, state: "complete", membership_complete: true, expected_revision: 0,
       members: [{ path: scope.workingRoot, role: "deployment-control-container", generated: true, protection_known: true }] });
   }, { operation: "deployment.control-prepare", drainOnly: true });
   const plan = { schema: 1, operation: "deployment-control-retirement", scope, observed, caller, record, files, journalIdentity, preparationAttributeChecks, nativeSnapshot };
+  if (prior) plan.recovery = prior.linkage;
   writeNew(files.plan, plan);
   append(files.journal, { phase: "prepared", record, plan: files.plan, sha256: sha(fs.readFileSync(files.plan)) });
   return { planPath: files.plan, planSha256: sha(fs.readFileSync(files.plan)), record, files };
+}
+function prepareDeploymentControlRetirement(options) { return prepareControl(options); }
+
+// Deliberately admits only the known pre-reservation blocked outcome. A failed
+// result/intent is immutable; this is not replay or partial/unknown recovery.
+function validateBlockedPlanStop(plan, stop, result, intent, events, original) {
+  const target = original?.worker?.targets?.[0], applied = target?.applied, observed = original?.supervisor;
+  if (stop?.schema !== 1 || stop.operation !== "blocked-control-reprepare-child-stop" || stop.scope !== "original-attempt-child-only" ||
+      stop.outerCallerRemainsActive !== true || Object.hasOwn(stop, "producer_stopped_verified") || Object.hasOwn(stop, "process_tree_stopped_verified") ||
+      original?.producer_stopped_verified !== false || original?.process_tree_stopped_verified !== false ||
+      stop.sourceReview?.unobservedExecutionPaths !== false || stop.sourceReview?.scope !== "original-attempt-child-only") throw Error("Child-only stop attestation must preserve active outer and original aggregate false");
+  same(stop.originalAggregate, { producer_stopped_verified: false, process_tree_stopped_verified: false }, "Original aggregate flags changed");
+  same(stop.record, { id: plan.record.id, revision: plan.record.revision, owner: plan.record.owner, generation: plan.record.generation }, "Child stop record binding changed");
+  same(stop.children, { supervisor: observed, applyWorker: applied?.worker, queries: [...(plan.nativeSnapshot?.queries || []), ...(result.nativeSnapshot?.queries || [])],
+    attributeHelpers: [...(plan.preparationAttributeChecks || []), ...(result.windowsAttributeChecks || [])],
+    maintenance: { owner: result.maintenanceOwner, release: result.maintenanceRelease } }, "Original per-child evidence changed");
+  const preparation = stop.preparationCatalog;
+  if (preparation?.evidenceType !== "source-enforced-synchronous-return" || preparation.native_pid !== null ||
+      preparation.exit_event !== null || preparation.close_event !== null || preparation.prepare_return_observed !== true ||
+      preparation.planPath !== result.planPath || preparation.planSha256 !== result.planSha256 ||
+      stop.sourceReview.preparationCatalogReturnGuarantee !== true) throw Error("Source-enforced preparation catalog termination proof required");
+  if (original?.schema !== 1 || original.worker?.targets?.length !== 1 || observed?.pid !== original.worker.controllerPid || observed.error !== null ||
+      observed.exit?.code !== 1 || observed.exit.signal !== null || observed.close_observed !== true ||
+      observed.stdout_drained !== true || observed.stderr_drained !== true ||
+      applied?.worker?.pid !== result.worker_pid || applied.worker.exit_observed !== true || applied.worker.exit_code !== 1 ||
+      applied.worker.signal !== null || applied.worker.close_observed !== true || applied.success !== false ||
+      target.prepared?.planPath !== result.planPath || target.prepared?.planSha256 !== result.planSha256) throw Error("Exact blocked worker/supervisor exit and close evidence required");
+  same(applied.result, result, "Independent blocked result changed");
+  if (result.schema !== 1 || result.operation !== plan.operation || result.id !== plan.record.id || result.status !== "blocked" ||
+      !Array.isArray(result.removed) || result.removed.length || result.errors?.length !== 1 ||
+      result.errors[0].message !== "Pending lifecycle publication requires existing explicit recovery" || result.errors[0].lease ||
+      ["nativeOwner", "nativeRelease", "reservationObservation", "reservationFinalization", "finalization"].some(key => result[key] !== null) ||
+      !Number.isSafeInteger(result.maintenanceOwner?.pid) || result.maintenanceOwner.parent_pid !== result.worker_pid ||
+      !emptyRecoveryModule.successfulRelease(result.maintenanceRelease)) throw Error("Only confirmed pre-reservation physical-zero failure may be reprepared");
+  if (intent.schema !== 1 || intent.operation !== plan.operation || intent.phase !== "applying" || intent.worker_pid !== result.worker_pid ||
+      intent.planPath !== result.planPath || intent.planSha256 !== result.planSha256) throw Error("Original blocked intent binding changed");
+  if (!Array.isArray(events) || events.length < 2 || events[0].phase !== "planned" || events.at(-1).phase !== "terminal" ||
+      events.at(-1).status !== "blocked" || events.some(event => ["reserve-intent", "reserved", "catalog-released", "unlink-intent", "unlinked", "rmdir-intent", "removed-directory", "finish-intent"].includes(event.phase))) throw Error("Journal does not prove a pre-reservation stop");
+  same(events[0].files, plan.files, "Original journal files changed");
+  same(events.at(-1).maintenanceRelease, result.maintenanceRelease, "Original maintenance release evidence changed");
+  if (events.at(-1).nativeRelease !== null) throw Error("Unexpected original catalog custody");
+  for (const snapshot of [plan.nativeSnapshot, result.nativeSnapshot]) {
+    if (!Array.isArray(snapshot?.queries) || !snapshot.queries.length || snapshot.queries.some(query => query.exit_observed !== true || query.exit_code !== 0 ||
+        query.signal !== null || query.close_observed !== true || query.stdout_drained !== true || query.stderr_drained !== true || query.error || query.overflow)) throw Error("Original native queries were not fully drained");
+  }
+  const attributes = stop.children.attributeHelpers;
+  if (!attributes.length || attributes.some(check => !Number.isSafeInteger(check.pid) || check.pid <= 0 || check.status !== 0 || check.signal !== null ||
+      check.process_returned !== true || check.stdout_drained !== true || check.stderr_drained !== true || check.error)) throw Error("Original attribute helpers were not fully drained");
+  return true;
+}
+async function reprepareBlockedDeploymentControlRetirement({ priorPlanPath, priorPlanSha256, stopEvidencePath, stopEvidenceSha256 }) {
+  const plan = readPlan(priorPlanPath, priorPlanSha256), root = plan.scope.artifactProjectRoot;
+  const pins = [];
+  function read(filename, expectedHash, maxBytes = 1024 * 1024) {
+    checked(root, filename);
+    const before = identity(filename, "file");
+    if (BigInt(before.size) > BigInt(maxBytes)) throw Error("Bounded blocked-plan evidence required");
+    const bytes = fs.readFileSync(filename);
+    same(identity(filename, "file"), before, "Blocked-plan evidence changed");
+    const hash = sha(bytes);
+    if (expectedHash && hash !== expectedHash) throw Error("Blocked-plan evidence SHA changed");
+    pins.push({ path: filename, identity: before, sha256: hash });
+    return bytes;
+  }
+  const stop = JSON.parse(read(stopEvidencePath, stopEvidenceSha256, 8 * 1024 * 1024));
+  if (!/^[a-f0-9]{64}$/.test(stopEvidenceSha256 || "")) throw Error("Exact independent stop evidence SHA required");
+  read(priorPlanPath, priorPlanSha256);
+  const resultBytes = read(plan.files.result), intentBytes = read(plan.files.intent);
+  const result = JSON.parse(resultBytes), intent = JSON.parse(intentBytes);
+  const journalBytes = read(plan.files.journal, null, 8 * 1024 * 1024);
+  const events = journalBytes.toString("utf8").trim().split(/\r?\n(?=\{)/).map(value => JSON.parse(value));
+  if (result.planPath !== priorPlanPath || result.planSha256 !== priorPlanSha256) throw Error("Original failure plan binding changed");
+  if (!/^[a-f0-9]{64}$/.test(stop.originalEvidence?.sha256 || "")) throw Error("Exact original attempt evidence SHA required");
+  const original = JSON.parse(read(stop.originalEvidence.path, stop.originalEvidence.sha256, 8 * 1024 * 1024));
+  const target = original.worker?.targets?.[0];
+  if (target?.rawResult?.path !== plan.files.result || target.rawResult.sha256 !== sha(resultBytes) ||
+      target?.journal?.path !== plan.files.journal || target.journal.sha256 !== sha(journalBytes)) throw Error("Independent original result/journal SHA binding required");
+  validateBlockedPlanStop(plan, stop, result, intent, events, original);
+  const executionPlan = JSON.parse(Buffer.from(original.plan.base64, "base64").toString("utf8"));
+  if (sha(Buffer.from(original.plan.base64, "base64")) !== original.plan.sha256) throw Error("Original execution source plan SHA changed");
+  const expectedSources = { controller: original.controller.sha256,
+    controlOwner: executionPlan.inputs.find(value => path.basename(value.path) === "deployment-control-retirement.cjs")?.sha256,
+    nativeGuard: executionPlan.inputs.find(value => path.basename(value.path) === "deployment-control-retirement-native.cjs")?.sha256,
+    lifecycle: executionPlan.inputs.find(value => path.basename(value.path) === "artifact-lifecycle.cjs")?.sha256,
+    leaseOwner: executionPlan.inputs.find(value => path.basename(value.path) === "maintenance-lock-owner.cjs")?.sha256,
+    leaseWorker: executionPlan.inputs.find(value => path.basename(value.path) === "maintenance-lock-worker.cjs")?.sha256,
+    resolver: executionPlan.inputs.find(value => path.basename(value.path) === "maintenance-owner-config.cjs")?.sha256 };
+  const reviewed = stop.sourceReview.sources;
+  if (!Array.isArray(reviewed) || reviewed.length !== 7 || new Set(reviewed.map(value => value.role)).size !== 7) throw Error("All original child-launch source owners must be reviewed");
+  for (const source of reviewed) {
+    if (!expectedSources[source.role] || source.sha256 !== expectedSources[source.role]) throw Error("Reviewed original execution source changed");
+    read(source.path, source.sha256);
+  }
+  const linkage = { operation: "deployment-control-retirement-reprepare", priorPlanPath, priorPlanSha256, stopEvidencePath, stopEvidenceSha256,
+    previousOutcome: "blocked", previousExitCode: 1, originalEvidence: pins };
+  const verify = () => { for (const pin of pins) { same(identity(pin.path, "file"), pin.identity, "Original failed evidence identity changed"); if (sha(fs.readFileSync(pin.path)) !== pin.sha256) throw Error("Original failed evidence SHA changed"); } };
+  return prepareControl(plan.scope, { record: plan.record, caller: plan.caller, claimPath: priorPlanPath + ".reprepare-intent.json", linkage, verify });
 }
 
 function readPlan(planPath, planSha256) {
@@ -276,10 +394,11 @@ async function applyWorker(planPath, planSha256) {
     maintenance = acquire(path.join(root, "artifacts/maintenance/maintenance.lock"), { operation: "deployment.control-retirement", queue: true, drainOnly: true, command: nativeSnapshot.command });
     result.maintenanceOwner = maintenance.owner;
     native.verify(root, nativeSnapshot);
-    native.quiescent(root);
+    native.quiescent(root, [], reservationScope(scope, plan.record));
     event({ phase: "maintenance-custody", owner: maintenance.owner, controls: nativeSnapshot.controls });
     lease = acquire(path.join(root, "artifacts/maintenance/lifecycles/catalog.lock"), { operation: "lifecycle.cleanup", queue: true, drainOnly: true, command: nativeSnapshot.command });
     result.nativeOwner = lease.owner;
+    native.quiescent(root, [], reservationScope(scope, plan.record));
     same(owners(scope, lifecycle.catalog(root), plan.record), plan.caller, "Caller changed before reservation");
     evidence(root, scope.evidence_ref, scope.evidence_sha256);
     cleanupPlan(plan);
@@ -290,7 +409,7 @@ async function applyWorker(planPath, planSha256) {
     if (!Array.isArray(reservation.observed) || reservation.observed.length !== 1 || reservation.observed[0].id !== plan.record.id) throw Error("Exact native reservation observer required");
     cleanupPlan(plan, reservation.observed);
     native.verify(root, nativeSnapshot);
-    native.quiescent(root, reservation.observed);
+    native.quiescent(root, reservation.observed, reservationScope(scope, plan.record));
     event({ phase: "reserved", observed: reservation.observed });
     lease.releaseCatalog();
     event({ phase: "catalog-released" });
@@ -298,7 +417,7 @@ async function applyWorker(planPath, planSha256) {
     // do not claim atomic protection from hostile external filesystem swaps.
     same(observe(scope, audit), plan.observed, "Retirement identity changed after reservation");
     native.verify(root, nativeSnapshot);
-    native.quiescent(root, reservation.observed);
+    native.quiescent(root, reservation.observed, reservationScope(scope, plan.record));
     same(owners(scope, lifecycle.catalog(root), plan.record), plan.caller, "Caller changed after catalog release");
     cleanupPlan(plan, reservation.observed);
     assertEnabled("deletion");
@@ -306,7 +425,7 @@ async function applyWorker(planPath, planSha256) {
     same(observe(scope, audit), plan.observed, "Retirement identity changed before gitfile unlink");
     evidence(root, scope.evidence_ref, scope.evidence_sha256);
     native.verify(root, nativeSnapshot);
-    native.quiescent(root, reservation.observed);
+    native.quiescent(root, reservation.observed, reservationScope(scope, plan.record));
     physicalStarted = true;
     fs.unlinkSync(scope.gitfile.path);
     if (!absent(scope.gitfile.path)) throw Error("Gitfile absence unconfirmed after unlink");
@@ -321,7 +440,7 @@ async function applyWorker(planPath, planSha256) {
       event({ phase: "rmdir-intent", path: directory.path, identity: directory.identity });
       windowsAttributes([directory.path], audit);
       native.verify(root, nativeSnapshot);
-      native.quiescent(root, reservation.observed);
+      native.quiescent(root, reservation.observed, reservationScope(scope, plan.record));
       remainingIdentities(plan, result.removed);
       same(identity(directory.path, "directory"), directory.identity, "Structural directory changed after rmdir intent");
       if (!empty(directory.path)) throw Error("Structural directory became nonempty");
@@ -409,12 +528,13 @@ function applyDeploymentControlRetirement({ planPath, planSha256 }) {
     });
   });
 }
-module.exports = { prepareDeploymentControlRetirement, applyDeploymentControlRetirement };
+module.exports = { prepareDeploymentControlRetirement, applyDeploymentControlRetirement, reprepareBlockedDeploymentControlRetirement,
+  prepareEmptyLifecyclePublicationRecovery: emptyRecovery.prepare, applyEmptyLifecyclePublicationRecovery: emptyRecovery.apply, validateBlockedPlanStop };
 if (require.main === module) {
   const [mode, planPath, planSha256, ...extra] = process.argv.slice(2);
   try {
-    if (mode !== "--apply-worker" || extra.length) throw Error("Expected --apply-worker PLAN SHA256");
-    applyWorker(planPath, planSha256).then(result => {
+    if (!["--apply-worker", "--empty-publication-worker"].includes(mode) || extra.length) throw Error("Expected explicit retirement/recovery worker PLAN SHA256");
+    (mode === "--apply-worker" ? applyWorker : emptyRecovery.applyWorker)(planPath, planSha256).then(result => {
       process.stdout.write(JSON.stringify(result) + "\n");
       process.exitCode = result.status === "deleted" ? 0 : 1;
     }).catch(error => {

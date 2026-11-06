@@ -1,0 +1,398 @@
+{
+  "schema": 1,
+  "status": "failed-protected",
+  "scope": "R5 fresh synthetic foreign-active acceptance only; no historical recovery/CW/build/installation performed",
+  "recordedUtc": "2026-11-06T04:19:16.406Z",
+  "actualExecution": {
+    "attempts": 1,
+    "command": [
+      "node",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-controller.cjs",
+      "--execute",
+      "a366fd2e2393e5c23fe8adeee3f054ecdb0f83b7455c88e33c69760adc34f621"
+    ],
+    "supervisorPid": 38796,
+    "commandExitCode": 1,
+    "worker": {
+      "pid": 42088,
+      "exit": {
+        "code": 1,
+        "signal": null
+      },
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    }
+  },
+  "firstCausalError": {
+    "message": "Unclear foreign group scope",
+    "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\deployment-control-retirement-native.cjs",
+    "line": 318,
+    "phase": "normal control prepare; foreign reservation already acquired and catalog released; no empty creation or physical apply"
+  },
+  "readOnlyCausalDiagnosis": {
+    "groupScopeChecks": {
+      "exactId": true,
+      "nonemptyOwner": true,
+      "membersArray": true,
+      "nonemptyMemberIds": true,
+      "sameMemberCount": true,
+      "uniqueMembers": true,
+      "allMemberIdsBound": true,
+      "literalSourceEqualsExpected": false,
+      "validNullableSourceIdentity": true
+    },
+    "actualGroupMembershipSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts/maintenance/lifecycles",
+    "actualTopSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts/maintenance/lifecycles",
+    "expectedCatalog": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\maintenance\\lifecycles",
+    "normalizedGroupSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\maintenance\\lifecycles",
+    "normalizedTopSource": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\maintenance\\lifecycles",
+    "nativeConvention": "unit8 Rust root.join(\"artifacts/maintenance/lifecycles\") preserves forward slashes in appended component; native packet has mixed separators",
+    "conclusion": "Literal string equality rejects the same normalized catalog path; first failed predicate is group_scope.membership_source !== catalog. Top source has same representation and would be rejected next. No source correction or retry performed."
+  },
+  "foreignReservation": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\maintenance\\lifecycles\\reservations\\37abeca1c94b5c9194e4031fbdea8d0be2b7e66e4284df17679fbf7cc6533e4e.json",
+    "sha256": "f6e7c083486e2391e0dbd0c4faab11cfa2f4faeb6fc70f051be79d782618e5a1",
+    "status": "active",
+    "stillPresent": true,
+    "exactReservedFenceUnchanged": true,
+    "ownerId": "run:scoped-reservation-tiny-r5:foreign",
+    "payload": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\tasks\\foreign\\payload.txt",
+      "sha256": "9aa38faced87cc7d1d79901678ec1976f5a7e473ebee2296105a76d6c6ab9b1b",
+      "matchesCreatedBytes": true
+    },
+    "supportedRelease": {
+      "returned": null,
+      "error": "maintenance_execution_unknown:cleanup released before finish proof; reservations retained",
+      "lease": {
+        "lock_path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\maintenance\\lifecycles\\catalog.lock",
+        "operation": "lifecycle.cleanup",
+        "request_operation": "release",
+        "request_id": 3,
+        "native_pid": 46560,
+        "native_exit_observed": true,
+        "native_exit_code": 0,
+        "native_signal": null,
+        "native_close_observed": true,
+        "worker_shutdown_requested": true,
+        "native_kill_requested": false,
+        "worker_termination_requested": true
+      },
+      "logicalOutcome": "unknown; durable reservation retained",
+      "nativeExitObserved": true,
+      "nativeExitCode": 0,
+      "nativeCloseObserved": true,
+      "successNotInferredFromNativeExit": true
+    }
+  },
+  "reached": {
+    "foreignReserve": true,
+    "foreignReleaseCatalog": true,
+    "normalPrepareSucceeded": false,
+    "syntheticEmptyCreated": false,
+    "emptyRecoveryInvoked": false,
+    "controlPhysicalApplyInvoked": false,
+    "foreignFinishInvoked": false,
+    "callerCloseInvoked": false
+  },
+  "immutableInputs": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\artifact-lifecycle.cjs",
+      "sha256": "e44db66520720c75a8278518e2230e16594805f216261071feeba54fe20094c1",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\artifact-observations.cjs",
+      "sha256": "080de3ed0bc00f5c6dc31f79e7cd735fc68afe57b6f0bb213559810235ddb222",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\artifact-run.cjs",
+      "sha256": "2d607d29f75bf3b647129769660f9dcb10c49dbe33f4bbd233c438ad7e6ab1f6",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\azrael-platforms.json",
+      "sha256": "3caf21b20d952aa095dc5a5553c1a53389a209f61b9850c981e858ea24527770",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\build-platform.cjs",
+      "sha256": "cf729277b17d1a8d994c94c6fd429dcab90ce440e80c79b6c9d899f89cf0cc6d",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\capture-project-inputs.cjs",
+      "sha256": "5cb33119d86d359810b6e8639cd18669d87121ed9337895f33ce51342a1616df",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\check-artifact-lifecycle.cjs",
+      "sha256": "9201f1d12e715c2b3db864d7061f04e5ff29cd13cb407f595b37550c6c0e54e0",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\deployment-control-retirement-native.cjs",
+      "sha256": "455470069972d77befdab61149cc09a3f3e425ec85efe4518f94a5afe68202e3",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\deployment-control-retirement.cjs",
+      "sha256": "739412ba986687573ea02ff69be5f2ccc0d89bb88574a22e0ffc1421a6eff401",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\deployment-input-snapshot.cjs",
+      "sha256": "039074400fa5e0e667396a9e54d024f48b08f784deff1c8db181b4a012255f37",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\deployment-workspace.cjs",
+      "sha256": "00a6843b7bc18501b93f5b817c5adce5cf7411792ebd789e43d30291c0fb1a08",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\freeze-platform-inputs.cjs",
+      "sha256": "deabc22f335f22a1b3a4160b7b00f6f4bee1e67ae70cf950c3a181cf49d4f735",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\lifecycle-empty-publication-recovery.cjs",
+      "sha256": "13a7abe7a2630a7ed6502061711cc49ef472fbd93e4b369b2c1693679bff2871",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\macos-signing.cjs",
+      "sha256": "01ba722e29b9ac69b0a0e25d376d62b606d2746dfe271b071c1e117e233862ed",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\maintenance-lock-owner.cjs",
+      "sha256": "d6c834d91d3b100bfb6bda28924fc1349952002293773d15a0ee0f15408ffeef",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\maintenance-lock-worker.cjs",
+      "sha256": "eed5162daa6c3951cd610dcd8fd1b8986a85a7a2172c4a39a48ddc60aaeebf54",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\maintenance-owner-config.cjs",
+      "sha256": "9d976bf241f80aa8ff7480b63bd6c478928e712c2f5d838deb6b09927e1b777f",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\maintenance-preferences.cjs",
+      "sha256": "6e5762ba9d6b8baa1a2bc2139aad8505b1ea322e6f1f8ba10e7dce2cf4f1e0c8",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\platform-runtime.cjs",
+      "sha256": "e8afe9b36748f6f1bbfdf9e7d3dcf88dd57f7bce1aea360743c4b8430c7a780c",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\test-artifact-lifecycle.cjs",
+      "sha256": "9f109aa4a377a923b66720a66078482cb75698b59cedc6a942ba3c1bd2882915",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\test-deployment-control-retirement.cjs",
+      "sha256": "3eb6dcd906eb2c9de1083c3c32f008e7dc17dccaa34dbb9064bd7b6124d4bd04",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\scripts\\test-maintenance-lock-owner.cjs",
+      "sha256": "8415950fc9631822bb8b90b7452cee024365c3ede24fb429611e21aa270b8868",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\candidate-manifest-r5.json",
+      "sha256": "13834dc576a3b89f47a0efedcefee275c7643ea2a18e32050a0cf44c354c6050",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\source-pure-readonly-verification.json",
+      "sha256": "c0485730b081a4807668a3edb6d017aad15490746728bcfff246eb22a0e73562",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-protocol-source-review.json",
+      "sha256": "5ba945c14bbf94f84529242f8f6626219804f9ede4bcefab8664a1b39ec26e28",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\33-control-retirement-result.json",
+      "sha256": "17b95655beb67991477f2acd70879f1acc79608032dadf6db3a5ed8e5dd25da4",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\46-empty-publication-tiny-verification.json",
+      "sha256": "ddee639ac7345e7f0b813467e2cde1003e219e2f66ee30ba7cc145b6ad9332e0",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\47-tiny-reprepare-continuation.json",
+      "sha256": "c165fb83e14461cd9790958b6e9879eaa3f6d6d77422e19cb11dea10e3c9e5a9",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\48-historical-empty-publication-recovery.json",
+      "sha256": "29bee4defeda6f47209b3b2105e915977c5e6cae03052d30f522e28e4eb2cc57",
+      "unchanged": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\39-native-diagnostics-verification.json",
+      "sha256": "b7c04557bb693acd6b2f9378d301451425404dbb9d8219bd1bb9cde3738d4adb",
+      "unchanged": true
+    }
+  ],
+  "unit": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit8-maintenance_owner.exe",
+    "sha256": "515d0f48efed78cbb8aded3d877417606ff9a169f0367b08c09989c9b5f42446",
+    "label": "unit8-diagnostics",
+    "sourceEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\39-native-diagnostics-verification.json",
+    "sourceBlobAnnotation": null,
+    "unchanged": true
+  },
+  "original43ShaUnchanged": true,
+  "original48Unchanged": true,
+  "original33And46And47Unchanged": true,
+  "historicalTargets": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6fd942fbc36465bc3f72c94032b7ed34d5492a83f896cab9172f1e3a0692ac45.pending",
+      "identity": {
+        "dev": "3057815611",
+        "ino": "281474992442627",
+        "mode": "33206",
+        "nlink": "1",
+        "size": "0"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "canonicalSiblingAbsent": true
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e1309b15756f35c9f5a5a462d0b675fc306c7b92e21d86d744a1809da7e13ab6.pending",
+      "identity": {
+        "dev": "3057815611",
+        "ino": "281474992179715",
+        "mode": "33206",
+        "nlink": "1",
+        "size": "0"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "canonicalSiblingAbsent": true
+    }
+  ],
+  "logs": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-supervisor-stop.json",
+      "sha256": "2569c1a731f412cd8a9e04cc20d9456ddfbadf23c3b96f11bdfa174216e5fa1b"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-failure-test-worker.json",
+      "sha256": "4267b2718bc37768b3a177944c2ba90fce2e52b9481f9f2cda62a644cafd397a"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-failure-execute.json",
+      "sha256": "cd4d4a4f0d2e2384f1b8e941ad01466b7ada8578f552af367d89c1a8de747484"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\tasks\\tiny\\runs\\scoped-controller\\reports\\foreign-reserved-packet.json",
+      "sha256": "ccc9f2a18bbb914b988a8b79862bfebf3069433a7782b73ad8bd67041c5fbdd5"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\tasks\\tiny\\runs\\scoped-controller\\reports\\foreign-catalog-released-packet.json",
+      "sha256": "e7047b817a20a066cf23301b278952ec31bc78d61e18f2a25b94f505d1331aee"
+    }
+  ],
+  "audit": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-audit\\lease-42088-0.json",
+      "sha256": "df296b171c5e370e73b0bbb384115095d619c6c908d0f8722943335ab115c21c",
+      "value": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\maintenance\\lifecycles\\catalog.lock",
+        "operation": "test.scoped-caller",
+        "owner": {
+          "acquired_at_ms": 1793938686644,
+          "operation": "test.scoped-caller",
+          "parent_pid": 42088,
+          "pid": 56280,
+          "schema": 2,
+          "token": "56280-1793938686644-b942c1e78e41560a"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      }
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-audit\\lease-42088-1.json",
+      "sha256": "cb0a7e0644a916746478f656f9a29f79976ed579f1fab7d73ae3d291cee68544",
+      "value": {
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\maintenance\\lifecycles\\catalog.lock",
+        "operation": "lifecycle.catalog",
+        "owner": {
+          "acquired_at_ms": 1793938687400,
+          "operation": "lifecycle.catalog",
+          "parent_pid": 42088,
+          "pid": 38988,
+          "schema": 2,
+          "token": "38988-1793938687400-5741e65c93861105"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      }
+    }
+  ],
+  "source": {
+    "manifest": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\candidate-manifest-r5.json",
+      "sha256": "13834dc576a3b89f47a0efedcefee275c7643ea2a18e32050a0cf44c354c6050"
+    },
+    "proof": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\source-pure-readonly-verification.json",
+      "sha256": "c0485730b081a4807668a3edb6d017aad15490746728bcfff246eb22a0e73562"
+    },
+    "plan": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-execution-plan.json",
+      "sha256": "a366fd2e2393e5c23fe8adeee3f054ecdb0f83b7455c88e33c69760adc34f621"
+    },
+    "controller": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-controller.cjs",
+      "sha256": "a3cfe0ddb2b693bd8532ebbf3a17b32dea1a91462c7fcf11627e3661f17c3213"
+    }
+  },
+  "protectedRemaining": {
+    "owner": "run:fw03v:native-613162bb",
+    "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project",
+    "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-state",
+    "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports",
+    "auditDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\revisions\\r5\\reports\\tiny-scoped-audit",
+    "retainedForeignReservation": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\maintenance\\lifecycles\\reservations\\37abeca1c94b5c9194e4031fbdea8d0be2b7e66e4284df17679fbf7cc6533e4e.json",
+    "retainedForeignPayload": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\temporary\\root-commit-control\\isolated-unit\\empty-publication-candidate\\acceptance\\tiny-r5-01-project\\artifacts\\tasks\\foreign\\payload.txt",
+    "callerPending": true,
+    "cleanup": "HOLD; preserve failed lifecycle/result and durable reservation. No ad-hoc deletion/recovery/finish, no automatically fabricated stop evidence."
+  },
+  "limitations": [
+    "No successful native scoped integration established",
+    "Native foreign release reports unknown cleanup outcome despite actual exit0/close; preserved as unknown",
+    "R5 source/controller remains frozen. All further fixture/native/recovery execution HOLD per root current build-priority instruction"
+  ],
+  "noSourceMutationAfterFailure": true,
+  "noRetry": true,
+  "noExternalReservationRelease": true,
+  "noOriginalWriterStopClaim": true
+}

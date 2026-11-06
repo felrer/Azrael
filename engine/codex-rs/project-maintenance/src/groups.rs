@@ -85,6 +85,15 @@ pub(crate) fn register(
     if previous.is_some_and(|old| old["owner"] != group["owner"] || old["kind"] != group["kind"]) {
         return Err("existing group ownership and kind cannot change".into());
     }
+    // Retirement receipts are historical metadata, never an active source.
+    // Full registration may establish a new source, but cannot erase this history.
+    if let Some(incoming) = group.get("source_retirements") {
+        if previous.and_then(|old| old.get("source_retirements")) != Some(incoming) {
+            return Err(
+                "source retirement history cannot be supplied or changed by registration".into(),
+            );
+        }
+    }
     let mut prepared = BTreeMap::new();
     let mut newly_absent = BTreeSet::new();
     let producer_source = group
@@ -155,6 +164,10 @@ pub(crate) fn register(
             }
         }
         prepared.insert(member_id, member);
+    }
+    // The immutable members borrow ends with preparation above.
+    if let Some(history) = previous.and_then(|old| old.get("source_retirements")) {
+        group["source_retirements"] = history.clone();
     }
     if let Some(old) = previous {
         for member_id in live_ids(root, state, old, auth)? {
@@ -251,6 +264,326 @@ pub(crate) fn register(
     state.items.extend(prepared);
     state.groups.insert(group_id, group.clone());
     Ok(json!({"group":group,"items":items}))
+}
+
+/// The caller supplies the exact group, inverse members, relevant decisions,
+/// global revision and config identity; no cached deletion token authorizes this.
+pub(crate) fn source_retirement_snapshot(
+    state: &State,
+    group_id: &str,
+    config_identity: &str,
+) -> Result<Value, String> {
+    let group = state
+        .groups
+        .get(group_id)
+        .ok_or("unknown lifecycle group")?;
+    let members = state
+        .items
+        .iter()
+        .filter(|(_, item)| id(item) == Some(group_id))
+        .map(|(id, item)| (id.clone(), item.clone()))
+        .collect::<BTreeMap<_, _>>();
+    let decisions = state
+        .decisions
+        .iter()
+        .filter(|decision| {
+            decision["lifecycle_group_id"] == group_id
+                || decision["id"]
+                    .as_str()
+                    .is_some_and(|id| members.contains_key(id))
+        })
+        .cloned()
+        .collect::<Vec<_>>();
+    Ok(
+        json!({"revision":state.revision,"config_identity":config_identity,
+        "group":group,"members":members,"decisions":decisions}),
+    )
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SourceRetirement {
+    id: String,
+    owner: String,
+    scope: String,
+    reason: String,
+    evidence_ref: String,
+    evidence_sha256: String,
+    expected_snapshot: Value,
+}
+
+fn source_retirement_evidence(
+    root: &Path,
+    request: &SourceRetirement,
+    auth: Auth<'_>,
+) -> Result<String, String> {
+    use sha2::{Digest, Sha256};
+    use std::io::Read;
+    // Reuse the formal evidence owner's containment, permission and size guard.
+    let identity = crate::retirement::read_evidence(root, &request.evidence_ref, auth)?;
+    let path = paths::resolve(root, Path::new(&request.evidence_ref))?;
+    let mut bytes = Vec::new();
+    std::fs::File::open(&path)
+        .map_err(|e| e.to_string())?
+        .take(1_048_577)
+        .read_to_end(&mut bytes)
+        .map_err(|e| e.to_string())?;
+    if bytes.len() > 1_048_576
+        || format!("{:x}", Sha256::digest(&bytes)) != request.evidence_sha256
+        || hash(&bytes)? != identity
+        || crate::retirement::read_evidence(root, &request.evidence_ref, auth)? != identity
+    {
+        return Err("retirement evidence changed or SHA256 pin is stale".into());
+    }
+    Ok(identity)
+}
+
+/// Retire only obsolete, unformatted directory evidence for a terminally deleted
+/// cohort. This neither deletes payload nor certifies a historical producer exit.
+pub(crate) fn retire_source(
+    root: &Path,
+    config: &Config,
+    config_identity: &str,
+    descriptor: &Value,
+    state: &mut State,
+    auth: Auth<'_>,
+) -> Result<Value, String> {
+    use sha2::{Digest, Sha256};
+    let request: SourceRetirement =
+        serde_json::from_value(descriptor.clone()).map_err(|e| e.to_string())?;
+    if request.scope != "terminal_deleted_legacy_membership_source"
+        || request.owner.trim().is_empty()
+        || request.reason.trim().is_empty()
+        || request.evidence_sha256.len() != 64
+        || !request
+            .evidence_sha256
+            .bytes()
+            .all(|b| b.is_ascii_hexdigit() && !b.is_ascii_uppercase())
+    {
+        return Err("invalid source retirement scope, owner, reason or evidence pin".into());
+    }
+    let snapshot = source_retirement_snapshot(state, &request.id, config_identity)?;
+    if request.expected_snapshot != snapshot {
+        return Err("source retirement snapshot changed; fresh evidence required".into());
+    }
+    let group = &snapshot["group"];
+    if group["owner"] != request.owner
+        || group["membership_complete"] != true
+        || group["cleanup_status"] != "deleted"
+        || group.get("membership_source_format").is_some()
+    {
+        return Err(
+            "source retirement requires an owned, complete, terminal deleted legacy group".into(),
+        );
+    }
+    if group
+        .get("references")
+        .is_some_and(|refs| !refs.as_array().is_some_and(Vec::is_empty))
+        || group
+            .get("retain_reason")
+            .is_some_and(|reason| reason.as_str().is_none_or(|reason| !reason.is_empty()))
+    {
+        return Err("source retirement group remains protected".into());
+    }
+    // This exception retires legacy directory evidence once. A new explicit
+    // registration preserves history and cannot reset this authority boundary.
+    if group.get("source_retirements").is_some() {
+        return Err("legacy group source retirement is permitted only once".into());
+    }
+    let source = paths::resolve(root, Path::new(string(group, "membership_source")?))?;
+    if source != root.join("artifacts/maintenance/lifecycles")
+        || group["membership_source_identity"]
+            .as_str()
+            .is_none_or(|identity| {
+                identity.len() != 64
+                    || !identity
+                        .bytes()
+                        .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+            })
+    {
+        return Err(
+            "source retirement is restricted to legacy lifecycle directory evidence".into(),
+        );
+    }
+    let members = snapshot["members"]
+        .as_object()
+        .ok_or("invalid inverse membership")?;
+    let ids = group["members"]
+        .as_array()
+        .filter(|ids| !ids.is_empty() && ids.len() <= 200)
+        .ok_or("invalid group members")?;
+    let listed = ids
+        .iter()
+        .map(|id| id.as_str().ok_or("invalid group member id"))
+        .collect::<Result<BTreeSet<_>, _>>()?;
+    if listed.len() != ids.len() || listed != members.keys().map(String::as_str).collect() {
+        return Err("source retirement requires exact complete inverse membership".into());
+    }
+    let decisions = snapshot["decisions"]
+        .as_array()
+        .ok_or("invalid decisions")?;
+    if decisions.iter().any(|decision| {
+        !matches!(
+            decision["status"].as_str(),
+            Some("deleted" | "blocked" | "deferred" | "failed" | "cancelled")
+        )
+    }) {
+        return Err("source retirement has pending or unknown decisions".into());
+    }
+    let evidence_identity = source_retirement_evidence(root, &request, auth)?;
+    let mut claim = group.clone();
+    claim["members"] = json!(members.values().collect::<Vec<_>>());
+    crate::reservations::check_group(root, &request.id, auth)?;
+    crate::reservations::check_record_mutation(root, &request.id, Some(&claim), auth)?;
+    for (member_id, item) in members {
+        if item["id"] != *member_id
+            || item["owner"] != request.owner
+            || item["generated"] != true
+            || item["protection_known"] != true
+            || item["cleanup_status"] != "deleted"
+            || item["remaining"] != false
+        {
+            return Err("source retirement member is not an owned terminal deletion".into());
+        }
+        let decision = decisions
+            .iter()
+            .rev()
+            .find(|d| d["id"] == *member_id)
+            .ok_or("source retirement lacks original terminal deletion decision")?;
+        if decision["lifecycle_group_id"] != request.id
+            || decision["decision"] != "delete"
+            || decision["status"] != "deleted"
+            || decision["remaining"] != false
+            || decision["group_status"] != "deleted"
+            || decision["deletion"]["status"] != "deleted"
+            || decision["deletion"]["remaining"] != false
+            || decision["attempt_id"].as_str().is_none_or(str::is_empty)
+            || decision["token"].as_str().is_none_or(str::is_empty)
+        {
+            return Err("source retirement lacks completed native deletion receipt".into());
+        }
+        let path = Path::new(string(item, "path")?);
+        if paths::checked_metadata(root, path, auth)?.is_some() {
+            return Err("source retirement member reappeared".into());
+        }
+        // Preserve configured protection, related active/unknown runs and native
+        // reference/retention policy using the ordinary review owner.
+        let review = crate::review_single(
+            root,
+            config,
+            config_identity,
+            state,
+            item,
+            auth,
+            false,
+            Verification::Registered,
+            None,
+        )?;
+        if !review["blockers"].as_array().is_some_and(Vec::is_empty) {
+            return Err("source retirement member remains protected".into());
+        }
+    }
+    let basename = format!("{:x}", Sha256::digest(request.id.as_bytes()));
+    for extension in ["json", "pending"] {
+        if paths::checked_metadata(root, &source.join(format!("{basename}.{extension}")), auth)?
+            .is_some()
+        {
+            return Err(
+                "source retirement canonical or pending producer record still exists".into(),
+            );
+        }
+    }
+    let records = crate::registry::retirement_records(root, &source, auth)?;
+    for (record_id, record) in &records {
+        if record_id == &request.id
+            || record["references"]
+                .as_array()
+                .is_none_or(|refs| refs.iter().any(|r| r["id"] == request.id))
+        {
+            return Err("source retirement has an active or ambiguous producer reference".into());
+        }
+        // Existing validated paths retain their meaning, including foreign typed
+        // namespaces; a real overlapping claim or reference remains protection.
+        let paths = crate::registry::validate(root, record)?;
+        for item in members.values() {
+            let target = Path::new(string(item, "path")?);
+            if paths
+                .iter()
+                .any(|path| paths::within(target, path) || paths::within(path, target))
+                || record["references"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .any(|reference| {
+                        reference["member_paths"]
+                            .as_array()
+                            .into_iter()
+                            .flatten()
+                            .any(|path| {
+                                path.as_str().is_some_and(|path| {
+                                    paths::within(target, Path::new(path))
+                                        || paths::within(Path::new(path), target)
+                                })
+                            })
+                    })
+            {
+                return Err(
+                    "source retirement has a related producer path claim or reference".into(),
+                );
+            }
+        }
+    }
+    if crate::registry::retirement_records(root, &source, auth)? != records {
+        return Err("source retirement catalog changed while observing".into());
+    }
+    crate::reservations::check_group(root, &request.id, auth)?;
+    crate::reservations::check_record_mutation(root, &request.id, Some(&claim), auth)?;
+    for extension in ["json", "pending"] {
+        if paths::checked_metadata(root, &source.join(format!("{basename}.{extension}")), auth)?
+            .is_some()
+        {
+            return Err("source retirement canonical or pending record reappeared".into());
+        }
+    }
+    // Reobserve the bounded proof and terminal absence after the catalog work.
+    if source_retirement_evidence(root, &request, auth)? != evidence_identity {
+        return Err("source retirement evidence changed".into());
+    }
+    for item in members.values() {
+        if paths::checked_metadata(root, Path::new(string(item, "path")?), auth)?.is_some() {
+            return Err("source retirement member reappeared".into());
+        }
+    }
+    let config_path = root.join("project-maintenance.json");
+    paths::check(root, &config_path, auth)?;
+    auth(&config_path, crate::AccessMode::Read)?;
+    if hash(&std::fs::read(&config_path).map_err(|e| e.to_string())?)? != config_identity {
+        return Err("source retirement config changed; fresh evidence required".into());
+    }
+    let receipt = json!({"scope":request.scope,"owner":request.owner,"reason":request.reason,
+        "evidence_ref":request.evidence_ref,"evidence_sha256":request.evidence_sha256,
+        "evidence_identity":evidence_identity,"expected_snapshot":snapshot,
+        "retired_at_ms":now_ms()?,"meaning":"terminal deletion metadata retirement; historical producer exit not certified"});
+    let mut updated = group.clone();
+    let object = updated.as_object_mut().ok_or("invalid group object")?;
+    for field in [
+        "membership_source",
+        "membership_source_format",
+        "membership_source_identity",
+    ] {
+        object.remove(field);
+    }
+    let mut history = match object.get("source_retirements") {
+        None => Vec::new(),
+        Some(value) => value
+            .as_array()
+            .ok_or("invalid source retirement history")?
+            .clone(),
+    };
+    history.push(receipt.clone());
+    object.insert("source_retirements".into(), json!(history));
+    state.groups.insert(request.id.clone(), updated);
+    Ok(json!({"id":request.id,"source_retired":true,"receipt":receipt}))
 }
 
 /// Refresh producer protection without traversing or hashing payload content.
@@ -716,6 +1049,297 @@ pub(crate) fn review_selection(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn source_retirement_fixture() -> (tempfile::TempDir, State, Value) {
+        use sha2::{Digest, Sha256};
+        let root = tempfile::tempdir().unwrap();
+        for relative in [
+            "generated",
+            "artifacts/maintenance/lifecycles",
+            "artifacts/maintenance/evidence",
+        ] {
+            std::fs::create_dir_all(root.path().join(relative)).unwrap();
+        }
+        let config = serde_json::to_vec(&json!({"schema_version":1,"project_id":"retirement",
+            "managed_roots":["generated"],"bundles":[]}))
+        .unwrap();
+        std::fs::write(root.path().join("project-maintenance.json"), &config).unwrap();
+        let evidence = b"Owner-authorized terminal deletion metadata retirement; original producer exit not certified.";
+        std::fs::write(
+            root.path()
+                .join("artifacts/maintenance/evidence/retire.txt"),
+            evidence,
+        )
+        .unwrap();
+        let mut state = State::default();
+        state.groups.insert(
+            "legacy".into(),
+            json!({"id":"legacy","owner":"test","kind":"run",
+            "membership_complete":true,"cleanup_status":"deleted","members":["member"],
+            "provenance_ref":"original provenance preserved",
+            "membership_source":root.path().join("artifacts/maintenance/lifecycles"),
+            "membership_source_identity":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"}),
+        );
+        state.items.insert(
+            "member".into(),
+            json!({"id":"member","lifecycle_group_id":"legacy",
+            "path":root.path().join("generated/missing"),"owner":"test","kind":"run",
+            "generated":true,"protection_known":true,"cleanup_status":"deleted","remaining":false,
+            "references":[],"identity":"old-member-identity","logical_bytes":0,"measured_at_ms":1}),
+        );
+        state.decisions.push(json!({"id":"member","lifecycle_group_id":"legacy","decision":"delete",
+            "status":"deleted","remaining":false,"group_status":"deleted","attempt_id":"native-attempt",
+            "token":"original-token","deletion":{"status":"deleted","remaining":false}}));
+        let descriptor = json!({"id":"legacy","owner":"test","scope":"terminal_deleted_legacy_membership_source",
+            "reason":"Retire obsolete directory evidence after completed deletion",
+            "evidence_ref":"artifacts/maintenance/evidence/retire.txt",
+            "evidence_sha256":format!("{:x}", Sha256::digest(evidence)),
+            "expected_snapshot":source_retirement_snapshot(&state,"legacy",&hash(&config).unwrap()).unwrap()});
+        (root, state, descriptor)
+    }
+
+    fn write_source_retirement_fixture(
+        root: &Path,
+        state: &State,
+        descriptor: &mut Value,
+    ) -> Vec<u8> {
+        let config = std::fs::read(root.join("project-maintenance.json")).unwrap();
+        descriptor["expected_snapshot"] =
+            source_retirement_snapshot(state, "legacy", &hash(&config).unwrap()).unwrap();
+        let bytes = serde_json::to_vec(state).unwrap();
+        std::fs::write(root.join("artifacts/maintenance/manifest.json"), &bytes).unwrap();
+        bytes
+    }
+
+    #[test]
+    fn retire_group_source_public_descriptor_preserves_terminal_history_and_invalidates_group_identity()
+     {
+        let (root, state, mut descriptor) = source_retirement_fixture();
+        write_source_retirement_fixture(root.path(), &state, &mut descriptor);
+        let allow = |_: &Path, _: crate::AccessMode| Ok(());
+        let result = crate::dispatch(
+            root.path(),
+            json!({"operation":"register","retire_group_source":descriptor}),
+            &allow,
+        )
+        .unwrap();
+        assert_eq!(result["source_retired"], true);
+        let saved: State = serde_json::from_slice(
+            &std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(saved.items, state.items);
+        assert_eq!(saved.decisions, state.decisions);
+        assert_eq!(saved.runs, state.runs);
+        let group = &saved.groups["legacy"];
+        for key in [
+            "membership_source",
+            "membership_source_format",
+            "membership_source_identity",
+        ] {
+            assert!(group.get(key).is_none());
+        }
+        assert_eq!(group["cleanup_status"], "deleted");
+        assert_eq!(
+            group["provenance_ref"],
+            state.groups["legacy"]["provenance_ref"]
+        );
+        assert_eq!(
+            group["source_retirements"][0]["expected_snapshot"]["group"],
+            state.groups["legacy"]
+        );
+        assert!(group["source_retirements"][0]["retired_at_ms"].is_u64());
+        assert_ne!(
+            hash(&definition(group)).unwrap(),
+            hash(&definition(&state.groups["legacy"])).unwrap()
+        );
+        assert!(!root.path().join("generated/missing").exists());
+        assert!(
+            crate::dispatch(
+                root.path(),
+                json!({"operation":"register","retire_group_source":descriptor}),
+                &allow
+            )
+            .is_err()
+        );
+        let mut registration = json!({"id":"legacy","kind":"run","owner":"test","membership_complete":true,
+            "provenance_ref":"new registration","members":[state.items["member"]]});
+        let registered = crate::dispatch(
+            root.path(),
+            json!({"operation":"register","group":registration}),
+            &allow,
+        )
+        .unwrap();
+        assert_eq!(
+            registered["group"]["source_retirements"],
+            group["source_retirements"]
+        );
+        assert!(registered["group"].get("membership_source").is_none());
+        let before =
+            std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap();
+        registration["source_retirements"] = json!([]);
+        assert!(
+            crate::dispatch(
+                root.path(),
+                json!({"operation":"register","group":registration}),
+                &allow
+            )
+            .is_err()
+        );
+        assert_eq!(
+            std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap(),
+            before
+        );
+    }
+
+    #[test]
+    fn retire_group_source_rejections_preserve_manifest_bytes() {
+        // These public-boundary cases prevent later register routing or guard
+        // simplifications from broadening this explicitly terminal legacy scope.
+        for case in [
+            "live",
+            "reappeared",
+            "incomplete",
+            "inverse",
+            "stale",
+            "evidence",
+            "inbound",
+            "pending",
+            "reservation",
+            "denied",
+            "foreign-source",
+            "formatted",
+            "mixed",
+            "ambiguous",
+            "active-run",
+            "pending-file",
+            "malformed-source-identity",
+            "prior-retirement",
+        ] {
+            let (root, mut state, mut descriptor) = source_retirement_fixture();
+            match case {
+                "malformed-source-identity" => {
+                    state.groups.get_mut("legacy").unwrap()["membership_source_identity"] =
+                        json!("not-a-sha256")
+                }
+                "prior-retirement" => {
+                    state.groups.get_mut("legacy").unwrap()["source_retirements"] = json!([])
+                }
+                "live" => {
+                    state.items.get_mut("member").unwrap()["cleanup_status"] = json!("retained")
+                }
+                "reappeared" => {
+                    std::fs::write(root.path().join("generated/missing"), "reappeared").unwrap()
+                }
+                "incomplete" => {
+                    state.groups.get_mut("legacy").unwrap()["membership_complete"] = json!(false)
+                }
+                "inverse" => {
+                    let mut extra = state.items["member"].clone();
+                    extra["id"] = json!("extra");
+                    state.items.insert("extra".into(), extra);
+                }
+                "pending" => {
+                    let mut pending = state.decisions[0].clone();
+                    pending["status"] = json!("pending");
+                    state.decisions.push(pending);
+                }
+                "foreign-source" => {
+                    state.groups.get_mut("legacy").unwrap()["membership_source"] =
+                        json!(root.path().join("generated"))
+                }
+                "formatted" => {
+                    state.groups.get_mut("legacy").unwrap()["membership_source_format"] =
+                        json!("producer_registry_v1")
+                }
+                "inbound" => {
+                    let consumer = json!({"schema":1,"id":"consumer","kind":"work","owner":"test","state":"complete",
+                        "membership_complete":true,"members":[{"path":root.path().join("artifacts/payload/consumer"),"role":"artifact"}],
+                        "references":[{"id":"legacy","reason":"retained dependency"}]});
+                    crate::registry::validate(root.path(), &consumer).unwrap();
+                    std::fs::write(
+                        root.path()
+                            .join("artifacts/maintenance/lifecycles/consumer.json"),
+                        serde_json::to_vec(&consumer).unwrap(),
+                    )
+                    .unwrap();
+                }
+                "reservation" => {
+                    let directory = root
+                        .path()
+                        .join("artifacts/maintenance/lifecycles/reservations");
+                    std::fs::create_dir(&directory).unwrap();
+                    std::fs::write(
+                        directory.join(format!("{}.json", hash(&"legacy").unwrap())),
+                        serde_json::to_vec(
+                            &json!({"schema":1,"id":"legacy","token":"other-owner","members":[]}),
+                        )
+                        .unwrap(),
+                    )
+                    .unwrap();
+                }
+                "ambiguous" => std::fs::write(
+                    root.path()
+                        .join("artifacts/maintenance/lifecycles/broken.json"),
+                    b"{",
+                )
+                .unwrap(),
+                "active-run" => {
+                    state.runs.insert(
+                        "running".into(),
+                        json!({"steps":[{"status":"unknown","producer_completed":false,
+                    "inputs":[{"path":root.path().join("generated/missing")}]}]}),
+                    );
+                }
+                "pending-file" => {
+                    use sha2::{Digest, Sha256};
+                    std::fs::write(
+                        root.path()
+                            .join("artifacts/maintenance/lifecycles")
+                            .join(format!("{:x}.pending", Sha256::digest(b"legacy"))),
+                        b"unresolved",
+                    )
+                    .unwrap();
+                }
+                _ => {}
+            }
+            let before = write_source_retirement_fixture(root.path(), &state, &mut descriptor);
+            if case == "stale" {
+                descriptor["expected_snapshot"]["revision"] = json!(99);
+            }
+            if case == "evidence" {
+                std::fs::write(
+                    root.path()
+                        .join("artifacts/maintenance/evidence/retire.txt"),
+                    "changed",
+                )
+                .unwrap();
+            }
+            let mut request = json!({"operation":"register","retire_group_source":descriptor});
+            if case == "mixed" {
+                request["refresh_group"] = json!({"id":"legacy"});
+            }
+            let denied = root
+                .path()
+                .join("artifacts/maintenance/evidence/retire.txt");
+            let authorize = |path: &Path, _: crate::AccessMode| {
+                if case == "denied" && path == denied {
+                    Err("retirement evidence permission denied".into())
+                } else {
+                    Ok(())
+                }
+            };
+            assert!(
+                crate::dispatch(root.path(), request, &authorize).is_err(),
+                "case {case} unexpectedly accepted"
+            );
+            assert_eq!(
+                std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap(),
+                before,
+                "case {case} changed state"
+            );
+        }
+    }
 
     #[test]
     fn reused_group_plans_keep_current_overlap_protection_and_run_inputs() {

@@ -3942,6 +3942,7 @@
         "scripts/test-capture-project-inputs.cjs",
         "scripts/deployment-workspace.cjs",
         "scripts/deployment-control-retirement.cjs",
+        "scripts/lifecycle-empty-publication-recovery.cjs",
         "scripts/deployment-control-retirement-native.cjs",
         "scripts/test-deployment-control-retirement.cjs",
         "scripts/maintenance-preferences.cjs",

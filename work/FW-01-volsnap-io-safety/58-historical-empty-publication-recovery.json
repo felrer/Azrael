@@ -1,0 +1,270 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "operation": "lifecycle-empty-publication-recovery",
+  "scope": "Exact user-approved historical empty pending2 only; Windows x64 local",
+  "authority": {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty-authority.json",
+    "sha256": "8a691927927a34efd88a6f4b280ef8d45437ec0c13f901bac8b22d08a3e104e7"
+  },
+  "original_writer": "unknown",
+  "noOriginalProducerStopClaim": true,
+  "approvedOriginalTargets": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6fd942fbc36465bc3f72c94032b7ed34d5492a83f896cab9172f1e3a0692ac45.pending",
+      "identity": {
+        "dev": "3057815611",
+        "ino": "281474992442627",
+        "mode": "33206",
+        "nlink": "1",
+        "size": "0"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalBirthtimeUtc": "2026-11-03T09:59:51.738Z"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e1309b15756f35c9f5a5a462d0b675fc306c7b92e21d86d744a1809da7e13ab6.pending",
+      "identity": {
+        "dev": "3057815611",
+        "ino": "281474992179715",
+        "mode": "33206",
+        "nlink": "1",
+        "size": "0"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalBirthtimeUtc": "2026-11-03T06:05:02.300Z"
+    }
+  ],
+  "actualOrdinaryUnlinkCount": 2,
+  "removed": [
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6fd942fbc36465bc3f72c94032b7ed34d5492a83f896cab9172f1e3a0692ac45.pending",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e1309b15756f35c9f5a5a462d0b675fc306c7b92e21d86d744a1809da7e13ab6.pending"
+  ],
+  "exactTwoPendingAbsent": true,
+  "canonicalSiblingsAbsent": true,
+  "errors": [],
+  "execution": {
+    "command": [
+      "node",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\controller.cjs",
+      "--execute",
+      "c0cc29c49b550300b8f38a763046f1047ed2ff0f9a3d50643e6bcf4eccb29a2d"
+    ],
+    "controller": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\controller.cjs",
+      "sha256": "a7a63bd0cc524d7c2b3c2787a1f6f6f547dac56dc78dc5b4768700edaa56c52c"
+    },
+    "executionPlan": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\execution-plan.json",
+      "sha256": "c0cc29c49b550300b8f38a763046f1047ed2ff0f9a3d50643e6bcf4eccb29a2d"
+    },
+    "nativeUnit": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03v\\runs\\native-613162bb\\outputs\\unit10-maintenance_owner.exe",
+      "sha256": "0155093a85dc2622909f281785c1e96903d279d4336ff4d5ddc9f713b4e5ebfd",
+      "label": "unit10-source-retirement-full210-focused2",
+      "sourceEvidence": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\FW-01-volsnap-io-safety\\58a-native-source-retirement-verification.json",
+      "sourceBlobAnnotation": null
+    },
+    "controllerActualExitCode": 0,
+    "supervisorObservedWorker": {
+      "pid": 48980,
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    },
+    "applyWorker": {
+      "pid": 35180,
+      "exit_observed": true,
+      "exit_code": 0,
+      "signal": null,
+      "close_observed": true,
+      "stdout_drained": true,
+      "stderr_drained": true
+    },
+    "attemptCount": 1,
+    "prepareCalls": 1,
+    "applyCalls": 1,
+    "metadataQueries": {
+      "preflight": 118,
+      "prepare": 118,
+      "apply": 118,
+      "total": 354,
+      "eachStage": {
+        "capabilities": 1,
+        "inventory": 15,
+        "runStatus": 102
+      },
+      "allActualExit0CloseStdoutStderrDrained": true
+    },
+    "leaseOwnersAndReleases": [
+      {
+        "stage": "prepare",
+        "owner": {
+          "acquired_at_ms": 1793944929702,
+          "operation": "lifecycle.empty-recovery",
+          "parent_pid": 48980,
+          "pid": 12576,
+          "schema": 2,
+          "token": "12576-1793944929702-732ac57ffed43adc"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      },
+      {
+        "stage": "prepare",
+        "owner": {
+          "acquired_at_ms": 1793944929786,
+          "operation": "lifecycle.empty-recovery",
+          "parent_pid": 48980,
+          "pid": 41144,
+          "schema": 2,
+          "token": "41144-1793944929786-dc1f1914dccbd1f6"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      },
+      {
+        "stage": "apply-catalog",
+        "owner": {
+          "acquired_at_ms": 1793945078758,
+          "operation": "lifecycle.empty-recovery",
+          "parent_pid": 35180,
+          "pid": 36732,
+          "schema": 2,
+          "token": "36732-1793945078758-dc365f970598b8cd"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      },
+      {
+        "stage": "apply-maintenance",
+        "owner": {
+          "acquired_at_ms": 1793945078655,
+          "operation": "lifecycle.empty-recovery",
+          "parent_pid": 35180,
+          "pid": 32552,
+          "schema": 2,
+          "token": "32552-1793945078655-7b1617a82f4b19d5"
+        },
+        "release": {
+          "released": true,
+          "reservations_retained": [],
+          "native_exit_observed": true,
+          "native_exit_code": 0,
+          "native_signal": null,
+          "native_close_observed": true
+        }
+      }
+    ],
+    "applyAttributeHelpers": [
+      {
+        "pid": 48964,
+        "status": 0,
+        "process_returned": true,
+        "stdout_drained": true,
+        "stderr_drained": true
+      },
+      {
+        "pid": 26316,
+        "status": 0,
+        "process_returned": true,
+        "stdout_drained": true,
+        "stderr_drained": true
+      },
+      {
+        "pid": 46184,
+        "status": 0,
+        "process_returned": true,
+        "stdout_drained": true,
+        "stderr_drained": true
+      }
+    ]
+  },
+  "preservation": {
+    "all93ImmutableInputsUnchanged": true,
+    "source22AndNative45Unchanged": true,
+    "mainManifestAndConfigUnchanged": true,
+    "callerPendingRevision1Unchanged": true,
+    "foreignActive43NamesIdentitiesAndRawSHAsUnchanged": true,
+    "completeReservationDirectoryMetadataFilesUnchanged": 1173,
+    "original33And48_49_52FailureResultsUnchanged": true,
+    "originalAggregateFalseAndUnknownProducerNotChanged": true
+  },
+  "artifacts": {
+    "preparedPacket": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\prepared-packet.json",
+      "sha256": "f1a67324db54e11a78922d0f91ffbcd54a0f1e0471cf8161e824a4d41982d9df"
+    },
+    "productPlan": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\empty-publication-recovery-34b974a4-6e87-4859-9211-c3ae41c14d30.plan.json",
+      "sha256": "43cf12728e0798122f3518864d2fced9b6598975ae140bdc741fc1642c53e75b"
+    },
+    "preparationRelease": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\empty-publication-recovery-34b974a4-6e87-4859-9211-c3ae41c14d30.prepare.json",
+      "sha256": "59fe7555d977298447e9b00fe7676a8202ac69533358cbab7c7384579471d98c"
+    },
+    "productIntent": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\empty-publication-recovery-34b974a4-6e87-4859-9211-c3ae41c14d30.intent.json",
+      "sha256": "4bfe699ebab86068f7756daa153c41492bb92950ee745c5ab09403be28470c19"
+    },
+    "productResult": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\empty-publication-recovery-34b974a4-6e87-4859-9211-c3ae41c14d30.result.json",
+      "sha256": "72d60d2297366fb2fff3b81d33074e9575d85ed9bc190a770ba802ab46af97b7"
+    },
+    "applyPacket": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\apply-packet.json",
+      "sha256": "5a5b7c7385e79a39cdba1b043d80acb22a7d1113afc764a26c7f97f3736b461d"
+    },
+    "workerResult": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\worker-result.json",
+      "sha256": "74622c127ae272aeb96ffbf0801d37c4f4216cd66c4bdb3c75667af748e87039"
+    },
+    "supervisorStop": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\supervisor-stop.json",
+      "sha256": "7b6d2fce9862594b32c664e87b82d3f72ef717ab635548803d70b07f4bb3b8d6"
+    },
+    "finalResult": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\result.json",
+      "sha256": "169d7cf291b5d8c53bb55a0401a13cb2d1f4b52594fb9b157f4eee6d72434353"
+    },
+    "readonlyResult": {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\readonly-preflight-result.json",
+      "sha256": "0fa0aba8c5d785a88e32fe41cf03a10fce5efc488fd325f4a429ccaed0987db8"
+    },
+    "auditDirectory": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58\\audit"
+  },
+  "collectionCorrection": "First post-run receipt collector compared43 filtered active filenames with full1173-file metadata snapshot and failed before receipt write. Corrected collector compares the complete directory and all1173 identity/SHA values; no native/source/actual run retry.",
+  "limitations": [
+    "Original writer and historical producer termination remain unknown; supported current publication critical-section exclusion is verified",
+    "Preparation attribute helper synchronous-return boundary is source-enforced; individual preparation helper PID records not exposed",
+    "Original33/CW59/outer60/VSS-native61/app build are separate work"
+  ],
+  "retention": {
+    "owner": "run:fw03r:control-01",
+    "reports": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\reports\\historical-empty58",
+    "stateRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\fw03r\\runs\\control-01\\temporary\\historical-empty58-state",
+    "protectedUntilWholeOwnerCleanup": true
+  }
+}

@@ -355,7 +355,10 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             catalog_locks,
         );
     }
-    if operation == "register" && request.get("refresh_group").is_none() {
+    if operation == "register"
+        && request.get("refresh_group").is_none()
+        && request.get("retire_group_source").is_none()
+    {
         return registration::register(
             &root,
             &config_identity,
@@ -482,6 +485,25 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
                 })
                 .collect::<Vec<_>>();
             json!({"project_id":config.project_id,"project_root":root,"items":items,"groups":groups,"bundles":bundles,"runs":runs,"decisions":decisions,"pagination":{"offset":offset,"limit":limit,"total":state.items.len(),"groups_total":state.groups.len(),"runs_total":state.runs.len(),"decisions_total":state.decisions.len(),"bundles_total":config.bundles.len()},"logical_bytes":total,"measurement":"cached logical bytes; not reclaimed physical space","policy":config.metadata})
+        }
+        "register" if request.get("retire_group_source").is_some() => {
+            if ["item", "group", "refresh_group"]
+                .iter()
+                .any(|key| request.get(key).is_some())
+            {
+                return Err(
+                    "retire_group_source is mutually exclusive with item, group and refresh_group"
+                        .into(),
+                );
+            }
+            groups::retire_source(
+                &root,
+                config.as_ref().ok_or("valid project config required")?,
+                &config_identity,
+                &request["retire_group_source"],
+                state,
+                authorize,
+            )?
         }
         "register" => {
             let refresh = request

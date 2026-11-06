@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "Windows primary retained JS recovery tests, no native call or fixture creation",
+  "command": [
+    "C:/Program Files/nodejs/node.exe",
+    "scripts/test-deployment-control-retirement.cjs",
+    "--recovery-pure"
+  ],
+  "actual": {
+    "exit": 0,
+    "source_unchanged": true,
+    "source_sha256": {
+      "scripts/lifecycle-empty-publication-recovery.cjs": "13a7abe7a2630a7ed6502061711cc49ef472fbd93e4b369b2c1693679bff2871",
+      "scripts/deployment-control-retirement.cjs": "739412ba986687573ea02ff69be5f2ccc0d89bb88574a22e0ffc1421a6eff401",
+      "scripts/deployment-control-retirement-native.cjs": "f1227855ffe1a9eef95978c28d2c265c97e17fc2dc4db229a2340bdff93ff306",
+      "scripts/test-deployment-control-retirement.cjs": "d9b544edb82a440ab13f32bf276010da72788583c3caac00362725304a3f9918"
+    },
+    "checks": 113,
+    "actualNativeCalls": 0,
+    "fixtureCreated": false,
+    "status": "passed"
+  },
+  "first_attempt": {
+    "exit": 1,
+    "cause": "Retained test referenced task-owned reports/fixtures/bi-catalog-record.json absent from the primary repository; no runtime recovery code changed.",
+    "report_sha256": "2833a79e1505a48c14577e99e16e09a2462879bd9c8835aaff704f5ef452f5da"
+  },
+  "correction": "Replace both task-owned historical test fixtures with compact inline synthetic metadata preserving 12463-path traversal, late protected reference, namespace and incomplete-group boundaries. Keep actual historical-data acceptance separately in prior read-only evidence.",
+  "retention_reason": "Prevent future simplification from reintroducing occurrence-count limits, dropping late protection or confusing typed catalog namespace with owned payload scope. Tests must remain runnable after disposable task evidence is removed.",
+  "successful_report_sha256": "9218f5b335e5a2d60a6f70ee59d74ed96a3735302cd0336a49bbc2d2f186254d",
+  "stdout_sha256": "7c04ad59a18039eb485c162b03917b5a94dc1774f8b1c3753bce0f996b0c17bd",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "production_runtime_three_sources_unchanged_from_r10": true,
+  "raw_logs_owner": "run:fw03v:native-613162bb"
+}

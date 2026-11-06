@@ -875,6 +875,20 @@ pub(crate) fn check_request(
     if let Some(refresh) = request.get("refresh_group") {
         check_group(root, string(refresh, "id")?, auth)?;
     }
+    if let Some(retirement) = request.get("retire_group_source") {
+        let id = string(retirement, "id")?;
+        check_group(root, id, auth)?;
+        let group = state.groups.get(id).ok_or("unknown lifecycle group")?;
+        let mut claim = group.clone();
+        claim["members"] = json!(
+            state
+                .items
+                .values()
+                .filter(|item| crate::groups::id(item) == Some(id))
+                .collect::<Vec<_>>()
+        );
+        check_record_mutation(root, id, Some(&claim), auth)?;
+    }
     if let Some(item) = request.get("item") {
         if let Some(group) = state
             .items

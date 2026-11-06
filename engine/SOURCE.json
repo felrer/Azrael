@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 96716345,
+  "byteCount": 96745778,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -36403,8 +36403,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "61997d1d5c61e905256a9270aaa147b15cf38c8c66720ad55f9236d6b26b7476",
-      "size": 15435
+      "sha256": "f8c05dc2a2b179cfc444e1be3533afb1fd87e87fcf867f65810883fc0d8077ee",
+      "size": 15895
     },
     "codex-rs/project-maintenance/src/apply.rs": {
       "gitMode": "100644",
@@ -36452,8 +36452,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "cfd3b5e6d6c49dbec2ae60aec87fd58a7366d354a00709dd12512830153cae3f",
-      "size": 41888
+      "sha256": "cf558b15f5352b3b1c8b90d01cd92c03078f1d09e73c6f2c2d9fec9785e98c41",
+      "size": 68297
     },
     "codex-rs/project-maintenance/src/io_priority.rs": {
       "gitMode": "100644",
@@ -36473,8 +36473,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "1345868f00d034d3bec33df5eec0c66d2f67c72177e79d208bbdc8530aa5ac44",
-      "size": 49412
+      "sha256": "cb9b2ceb956473a40e708e88cb52f44b63126ac041e6077339eef06c8e667777",
+      "size": 50177
     },
     "codex-rs/project-maintenance/src/lock_recovery.rs": {
       "gitMode": "100644",
@@ -36536,15 +36536,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "c8c4e6cc18f6cac96d4524b8c71be7a8f5756d40c069feec92a2c21048a691e0",
-      "size": 72035
+      "sha256": "e1ec6ca3e10e27a928e6c41f9714e571a17628a673414eb1c8af9d61ef8e095e",
+      "size": 73285
     },
     "codex-rs/project-maintenance/src/reservations.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "6910f68631e1a679aca442ba8afb8cb07c385d6986e5be85264f947cd5b184e4",
-      "size": 85173
+      "sha256": "f5c16dca9ba10f73cdf82794d7ddbb245b6c17f61a6fcf0d242c4ee3a8f139a2",
+      "size": 85722
     },
     "codex-rs/project-maintenance/src/retirement.rs": {
       "gitMode": "100644",
@@ -65571,7 +65571,7 @@
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
   "inventoryCount": 9365,
-  "inventorySha256": "7297016908dbc6f4e1bf03ca51e88988daf9bba81cdfdf41b912a6647fedbdd5",
+  "inventorySha256": "7a5ac6b4c3dfe3834bd10ccb1abebe5857b603c4054c3a0fae43d27f379c4934",
   "localIntegration": {
     "changes": {
       ".gitattributes": {
@@ -73983,8 +73983,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "61997d1d5c61e905256a9270aaa147b15cf38c8c66720ad55f9236d6b26b7476",
-          "size": 15435
+          "sha256": "f8c05dc2a2b179cfc444e1be3533afb1fd87e87fcf867f65810883fc0d8077ee",
+          "size": 15895
         },
         "before": null
       },
@@ -74053,8 +74053,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "cfd3b5e6d6c49dbec2ae60aec87fd58a7366d354a00709dd12512830153cae3f",
-          "size": 41888
+          "sha256": "cf558b15f5352b3b1c8b90d01cd92c03078f1d09e73c6f2c2d9fec9785e98c41",
+          "size": 68297
         },
         "before": null
       },
@@ -74083,8 +74083,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "1345868f00d034d3bec33df5eec0c66d2f67c72177e79d208bbdc8530aa5ac44",
-          "size": 49412
+          "sha256": "cb9b2ceb956473a40e708e88cb52f44b63126ac041e6077339eef06c8e667777",
+          "size": 50177
         },
         "before": null
       },
@@ -74173,8 +74173,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "c8c4e6cc18f6cac96d4524b8c71be7a8f5756d40c069feec92a2c21048a691e0",
-          "size": 72035
+          "sha256": "e1ec6ca3e10e27a928e6c41f9714e571a17628a673414eb1c8af9d61ef8e095e",
+          "size": 73285
         },
         "before": null
       },
@@ -74183,8 +74183,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "6910f68631e1a679aca442ba8afb8cb07c385d6986e5be85264f947cd5b184e4",
-          "size": 85173
+          "sha256": "f5c16dca9ba10f73cdf82794d7ddbb245b6c17f61a6fcf0d242c4ee3a8f139a2",
+          "size": 85722
         },
         "before": null
       },
@@ -141463,7 +141463,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
-    "repositoryHead": "785d0d9db3bb3f1cc2b8ab6ed60edafa612781ab",
+    "repositoryHead": "00cfbc2c6e37aba333a8e6afe1b1305fbb12e54d",
     "schema": 4,
     "sourcePrefix": "engine"
   },

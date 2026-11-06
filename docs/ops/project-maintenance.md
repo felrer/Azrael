@@ -77,6 +77,14 @@ Windows 명시적 복구는 프로세스 객체가 조회된다는 이유만으�
 
 이미 intent가 있거나 partial/unknown이면 자동 재개하지 않는다. 실제 결과에서 worker exit/close, native exit/close, 예약 finish, 경로 부재와 lifecycle finalize를 각각 확인한다. 시작한 작업은 종료까지 drain하므로 호출 시간이 길어질 수 있다. 미확인 종료에는 원래 fence와 증거를 보존하고 지원되는 예약 복구 절차를 사용한다. 정확한 결과를 별도 작업 근거로 이관한 다음 caller run의 일회용 계획·로그·fixture를 기존 소유자 절차로 정리한다.
 
+#### 비게시 빈 lifecycle 파일의 전용 복구와 재준비
+
+상태: `partial` — Windows x64 실제 수용과 원래 실패·후속 결과는 [FW-01 작업](../../work/FW-01-volsnap-io-safety/02-plan.md)에서 구분한다. `scripts/deployment-control-retirement.cjs`의 `prepareEmptyLifecyclePublicationRecovery({artifactProjectRoot,requestPath,requestSha256})`와 `applyEmptyLifecyclePublicationRecovery({planPath,planSha256})`를 명시적으로 사용한다. 승인 request는 정확한 두 `.pending`의 project/file identity·0바이트 SHA·단일 hardlink와 caller revision/reports를 묶고 `original_writer:"unknown"`을 유지한다. canonical `.json`, 다른 pending·보호·소유·참조 또는 대상과 관련되거나 해석할 수 없는 활성 native 예약이 있거나 선택이 달라지면 중단한다. 무관한 예약은 owner가 도출한 정확한 scope와 검증된 namespace/owner 형상으로만 분류하고 상태·원문은 보존한다. 일반 pending/비어 있지 않은 파일의 삭제 절차로 확장하지 않는다.
+
+실제 maintenance/catalog custody가 확인한 `supported_publication_critical_section_excluded`는 지원 publication 구간의 배제이며 원래 writer나 전체 producer 종료를 뜻하지 않는다. 이전 unknown의 stop 플래그를 만들거나 승격하지 않는다. 새 worker와 두 native의 exit/close, 승인된 두 파일 부재 및 원래 writer unknown을 각각 남긴다. 원래 실패와 후속 실제 평가는 작업 근거에서 원문을 보존해 별도로 읽는다. 삭제는 승인된 두 파일의 identity와 canonical·owner 연결 부재를 다시 확인한 ordinary unlink에 한정하며 ACL·소유권 변경이나 force 삭제로 실패를 우회하지 않는다.
+
+`reprepareBlockedDeploymentControlRetirement({priorPlanPath,priorPlanSha256,stopEvidencePath,stopEvidenceSha256})`는 정확한 pre-reservation·physical-zero blocked 원문과 journal, 독립 child-only stop 근거를 검증한 새 명시 시도다. 원래 실패·intent/result는 그대로 두고 새 reprepare intent/plan으로 연결한다. 부분 삭제나 미확인 적용의 자동 재개에 사용하지 않으며 outer caller가 계속 살아 있으면 whole-producer stop으로 기록하지 않는다.
+
 ## 중첩 소유 항목의 단계적 폐기
 
 검증한 `maintenance_owner`에서만 `retire_nested_member`를 사용한다. 예시는 `{"parent":"PARENT_ID","child":"CHILD_ID","owner":"OWNER","reason":"폐기 근거","evidence_ref":"artifacts/maintenance/evidence/retirement.json"}`다. 같은 소유자의 서로 다른 완결 묶음이며 각각 live 항목이 하나이고 child가 parent의 엄격한 하위여야 한다. 근거 파일은 parent 밖에 보존한다.

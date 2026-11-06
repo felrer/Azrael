@@ -1,0 +1,359 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "Windows x64 current composite native package typecheck and two selected source-retirement public tests. Not a full current-primary suite or app build.",
+  "actual": {
+    "schema": 1,
+    "stage": "retire-focused-current-composite",
+    "args": [
+      "test",
+      "-p",
+      "azrael-project-maintenance",
+      "--locked",
+      "--offline",
+      "--lib",
+      "retire_group_source_",
+      "--",
+      "--test-threads=1"
+    ],
+    "exit": 0,
+    "signal": null,
+    "elapsedMs": 20751,
+    "outcome": "passed",
+    "testResults": [
+      "ok. 2 passed; 0 failed; 0 ignored; 0 measured; 121 filtered out; finished in 3.29s"
+    ],
+    "selectedTests": [
+      {
+        "name": "groups::tests::retire_group_source_public_descriptor_preserves_terminal_history_and_invalidates_group_identity",
+        "outcome": "ok"
+      },
+      {
+        "name": "groups::tests::retire_group_source_rejections_preserve_manifest_bytes",
+        "outcome": "ok"
+      }
+    ],
+    "expectedTests": 2,
+    "preflight": {
+      "schema": 2,
+      "compilation": "cargo-test",
+      "testExecution": "nonzero-passed",
+      "contract": "selected-tests-v2",
+      "cargoInvocations": 1,
+      "accepted": true,
+      "actualCounts": {
+        "summaries": [
+          {
+            "status": "ok",
+            "passed": 2,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filteredOut": 121
+          }
+        ],
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filteredOut": 121,
+        "executed": 2
+      },
+      "phases": [
+        {
+          "phase": "compilation-and-execution",
+          "args": [
+            "test",
+            "-p",
+            "azrael-project-maintenance",
+            "--locked",
+            "--offline",
+            "--lib",
+            "retire_group_source_",
+            "--",
+            "--test-threads=1"
+          ],
+          "startedUtc": "2026-11-06T05:58:26.306Z",
+          "durationMs": 20700,
+          "exitCode": 0,
+          "signal": null
+        }
+      ]
+    },
+    "frozen50Unchanged": true,
+    "primary47AndControlInputsUnchanged": true,
+    "sourceError": null,
+    "sourceSha256": "eaca6200b21a097ebc8c720bdea24bf818dbc75fca8f33932548f6c87950d851",
+    "focusedLockSha256": "b4cae5976ca3167792ffa9096330f54b96b8e69dcdc1ba0861703e0929dad081",
+    "targetLeaseAbsent": true,
+    "unit10Full210ReusedWithoutRerun": true,
+    "scope": "Current composite native package typecheck and selected two public-descriptor tests only; no full unrelated-primary acceptance",
+    "notExecuted": [
+      "full-package suite",
+      "app build",
+      "additional native binary",
+      "real metadata mutation",
+      "installation"
+    ]
+  },
+  "source_inputs": [
+    {
+      "path": ".cargo\\config.toml",
+      "sha256": "adc1b9fa038d4bca7d7cbae2139f8e22d7a8e9956ec4f723956055350ed07e2b"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "b4cae5976ca3167792ffa9096330f54b96b8e69dcdc1ba0861703e0929dad081"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "7db85dfe9cf1d44c6ec6dea5a31b2336bdf803f2f2cbfe73f7a244040a6758c9"
+    },
+    {
+      "path": "project-maintenance\\Cargo.toml",
+      "sha256": "057bc3dd73155a84453db7abafee14f4387c0f26eb9bd99d53327f8e02f91c1d"
+    },
+    {
+      "path": "project-maintenance\\examples\\maintenance_dispatch.rs",
+      "sha256": "8e30ec513de48a82bfcbeb4e3dc3acab95429276b410e85a4ba7b34bf51ee3e8"
+    },
+    {
+      "path": "project-maintenance\\src\\admission.rs",
+      "sha256": "f8c05dc2a2b179cfc444e1be3533afb1fd87e87fcf867f65810883fc0d8077ee"
+    },
+    {
+      "path": "project-maintenance\\src\\apply.rs",
+      "sha256": "8b13a23fc8055a18970343c3b96b99d34e545f56e0e255eadb0649fce8fde15b"
+    },
+    {
+      "path": "project-maintenance\\src\\bin\\maintenance_owner.rs",
+      "sha256": "76158c12983348173507b06577796ffaeba7aca8ac8bfa51c7396745b3688936"
+    },
+    {
+      "path": "project-maintenance\\src\\cli.rs",
+      "sha256": "53791d30530c3992e345b8d5779d7da5c9017e986a3436653df8a743a07a0bd0"
+    },
+    {
+      "path": "project-maintenance\\src\\coordination.rs",
+      "sha256": "0385a70a387f34714080dadde3cd938d132c91a0647de109d0d3a7a0b7075742"
+    },
+    {
+      "path": "project-maintenance\\src\\disk_budget.rs",
+      "sha256": "00f3ed44091ae98405db1730c1a5f3cb7e1204d90557225c57c25b2706552bbc"
+    },
+    {
+      "path": "project-maintenance\\src\\duplicate_claims.rs",
+      "sha256": "896665b2e03326db2913826033416eff6335f75195280c2d1322c98d9041d4c6"
+    },
+    {
+      "path": "project-maintenance\\src\\groups.rs",
+      "sha256": "cf558b15f5352b3b1c8b90d01cd92c03078f1d09e73c6f2c2d9fec9785e98c41"
+    },
+    {
+      "path": "project-maintenance\\src\\io_priority.rs",
+      "sha256": "7ac1a29b632f02147a9a002500c4a392a39d55c0999a7060ef2c2b8e717dbe75"
+    },
+    {
+      "path": "project-maintenance\\src\\lease.rs",
+      "sha256": "f8669a8451c94ea2873d9dada7081e39a4c548a599bdc8be42570d65b7e49383"
+    },
+    {
+      "path": "project-maintenance\\src\\lib.rs",
+      "sha256": "cb9b2ceb956473a40e708e88cb52f44b63126ac041e6077339eef06c8e667777"
+    },
+    {
+      "path": "project-maintenance\\src\\lock_recovery.rs",
+      "sha256": "c20999cdc6ee11944e73b09f57498efa8136cce628869e7f33fa5df42aeda664"
+    },
+    {
+      "path": "project-maintenance\\src\\lock_wait.rs",
+      "sha256": "268e547a4128e2cdec28ace5e5266539f37a17c973e43a7259959012352a05be"
+    },
+    {
+      "path": "project-maintenance\\src\\nested_retirement.rs",
+      "sha256": "857e24533a7613e2fc5903afa2afa319afa403588b3e9d734551af22d1ae7b06"
+    },
+    {
+      "path": "project-maintenance\\src\\partitioned_storage.rs",
+      "sha256": "9d6fc0f264ec026ca052d50da9968081a69bab7a612b79f12fb490f63710ab35"
+    },
+    {
+      "path": "project-maintenance\\src\\paths.rs",
+      "sha256": "c95e3c8c81705852dd0736e6620855df976d89b7c9c3645865d0a6a5022f8b44"
+    },
+    {
+      "path": "project-maintenance\\src\\planning.rs",
+      "sha256": "452fb10076918b6092eefadf28293d598004865d46c5d39be11a25dd366bfba0"
+    },
+    {
+      "path": "project-maintenance\\src\\preferences.rs",
+      "sha256": "e94847d9e6ee716fdeef9b0a34952ee9e64e059f160ae7272bd30ae2b5da21af"
+    },
+    {
+      "path": "project-maintenance\\src\\registration.rs",
+      "sha256": "0afd90602598af6c261ad1c6c89eb14c3fb0d1ba18871b16662d95b44da18a95"
+    },
+    {
+      "path": "project-maintenance\\src\\registry.rs",
+      "sha256": "e1ec6ca3e10e27a928e6c41f9714e571a17628a673414eb1c8af9d61ef8e095e"
+    },
+    {
+      "path": "project-maintenance\\src\\reservations.rs",
+      "sha256": "f5c16dca9ba10f73cdf82794d7ddbb245b6c17f61a6fcf0d242c4ee3a8f139a2"
+    },
+    {
+      "path": "project-maintenance\\src\\retirement.rs",
+      "sha256": "c4a286f07dc25bd4fec0938a7b9ea504d4a1837c2bd66ad6c1b6f2e262b6c807"
+    },
+    {
+      "path": "project-maintenance\\src\\review_relations.rs",
+      "sha256": "02ab58ece513f473356f0ec06bdd72040b8877d9ce6f54476e606ee5dcedcefd"
+    },
+    {
+      "path": "project-maintenance\\src\\review_reuse.rs",
+      "sha256": "8edb1c6c3a47275da25eed621d060e4b75f20c9955fb840eb00130dd8cad8e91"
+    },
+    {
+      "path": "project-maintenance\\src\\run_measurement.rs",
+      "sha256": "c004f3280d8d7dad7e78cf52385509925d117598cea1ebd6fe943002bd0d0a09"
+    },
+    {
+      "path": "project-maintenance\\src\\storage.rs",
+      "sha256": "ec6d220f1ae3ebe16e3c39d3ced4d55269df196581dea28b4858d1948c490481"
+    },
+    {
+      "path": "project-maintenance\\src\\timing.rs",
+      "sha256": "e92ca342f78783ac21c865cadab95530b4d76207bb5d7e810d5a3ba1beafab32"
+    },
+    {
+      "path": "project-maintenance\\src\\unix_delete.rs",
+      "sha256": "ba2203f31f4cc48cac301f88c2eaf0d782bfd0da01dbb7b7184b3fdafd1ce5ee"
+    },
+    {
+      "path": "project-maintenance\\src\\windows_delete.rs",
+      "sha256": "693a0bdc7e2c831254070fa2c55aba51896cf84ac63f3e565eeef182b7ddac71"
+    },
+    {
+      "path": "project-maintenance\\tests\\absent_adoption.rs",
+      "sha256": "6b23a73d8b05f096030250f5f3f46fcd5d8f457ec6f5709c136dc6213a2bb20a"
+    },
+    {
+      "path": "project-maintenance\\tests\\contention.rs",
+      "sha256": "87c78393393b6c0f76c803b7a416674d653b5bda9e1dfc772ce6fb6a32253f4d"
+    },
+    {
+      "path": "project-maintenance\\tests\\contracts.rs",
+      "sha256": "43d0923cb7da1296a93214a0f2032f10da0021a016e563244e43c4a3183e85df"
+    },
+    {
+      "path": "project-maintenance\\tests\\duplicate_claims.rs",
+      "sha256": "d810b614551801330d5b0a993eadb4d45b99aac5d9939f8e4f9945984f465683"
+    },
+    {
+      "path": "project-maintenance\\tests\\groups.rs",
+      "sha256": "36bbe1ee2394643fa5000fdf0b672b09401113ca662794dc8019dd7bebc6423c"
+    },
+    {
+      "path": "project-maintenance\\tests\\hardlink_normalization.rs",
+      "sha256": "a812d39d4e6f3e07bca01afe0fb8510c29672b1d128361377bba45231533afaf"
+    },
+    {
+      "path": "project-maintenance\\tests\\lock_recovery.rs",
+      "sha256": "d3c5583e3d324db19e0a4c8157408da8e44c5993d0575a6739c18af2cd34deab"
+    },
+    {
+      "path": "project-maintenance\\tests\\nested_retirement.rs",
+      "sha256": "7ce39d9a03c2e89127d23a7a3e7d5fce76018ffdf1fe1cbc1e1c0f95923067ec"
+    },
+    {
+      "path": "project-maintenance\\tests\\partitioned.rs",
+      "sha256": "af9e1aa59cb0f9ee214fbc4e8c431c8cbfec02e3bb39425f2e5284a2060a9031"
+    },
+    {
+      "path": "project-maintenance\\tests\\registry.rs",
+      "sha256": "4ff45678bc1a348d82d118ccd70c1318c3dd5d5d3eafd57e89a40ca73f3ebd09"
+    },
+    {
+      "path": "project-maintenance\\tests\\root_retirement.rs",
+      "sha256": "31cc0a35e98b3aec4e7aae8cab04a0a8ad8ef90785e2cb8b8c88aaa5a438690f"
+    },
+    {
+      "path": "project-maintenance\\tests\\run_measurement.rs",
+      "sha256": "54ec01572532a778b9dff1312f1377cc53b3451d0b8c188f3860dddbb0931438"
+    },
+    {
+      "path": "project-maintenance\\tests\\verified_junctions.rs",
+      "sha256": "fafcd2f0e5cedc737873a0d5ea37dc3368f64e9baf2d6f0678b302d1cf9a68a2"
+    },
+    {
+      "path": "utils\\process\\Cargo.toml",
+      "sha256": "35acdda376f2b198672542735b90ea9bbd7ab64479273376724dd6077297669f"
+    },
+    {
+      "path": "utils\\process\\src\\background_command_tests.rs",
+      "sha256": "e775c89367ec66cb760bef7ecce185d0edff07dab5723e64b7b1137f96ac6ac6"
+    },
+    {
+      "path": "utils\\process\\src\\lib.rs",
+      "sha256": "aa58f00405861461ff93deea71d0be1eb83ead1423fc09e08df5936efcb05a90"
+    }
+  ],
+  "source_identity": "eaca6200b21a097ebc8c720bdea24bf818dbc75fca8f33932548f6c87950d851",
+  "integration_proposal": [
+    {
+      "path": "engine/codex-rs/project-maintenance/src/groups.rs",
+      "base_sha256": "cfd3b5e6d6c49dbec2ae60aec87fd58a7366d354a00709dd12512830153cae3f",
+      "candidate_sha256": "cf558b15f5352b3b1c8b90d01cd92c03078f1d09e73c6f2c2d9fec9785e98c41",
+      "primary_before_sha256": "cfd3b5e6d6c49dbec2ae60aec87fd58a7366d354a00709dd12512830153cae3f",
+      "proposed_sha256": "cf558b15f5352b3b1c8b90d01cd92c03078f1d09e73c6f2c2d9fec9785e98c41",
+      "merge_exit": 0,
+      "bytes": 68297
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/lib.rs",
+      "base_sha256": "fab60f0c57494dd503558d318be3f9a0f402078c43f4b63697f5186a7101b72d",
+      "candidate_sha256": "d00dc79ed4feab9b803b5c5e06e670937d52777902669019edf7a04efab03157",
+      "primary_before_sha256": "1345868f00d034d3bec33df5eec0c66d2f67c72177e79d208bbdc8530aa5ac44",
+      "proposed_sha256": "cb9b2ceb956473a40e708e88cb52f44b63126ac041e6077339eef06c8e667777",
+      "merge_exit": 0,
+      "bytes": 50177
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/admission.rs",
+      "base_sha256": "61997d1d5c61e905256a9270aaa147b15cf38c8c66720ad55f9236d6b26b7476",
+      "candidate_sha256": "f8c05dc2a2b179cfc444e1be3533afb1fd87e87fcf867f65810883fc0d8077ee",
+      "primary_before_sha256": "61997d1d5c61e905256a9270aaa147b15cf38c8c66720ad55f9236d6b26b7476",
+      "proposed_sha256": "f8c05dc2a2b179cfc444e1be3533afb1fd87e87fcf867f65810883fc0d8077ee",
+      "merge_exit": 0,
+      "bytes": 15895
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/reservations.rs",
+      "base_sha256": "125a04873a97fda310038251e257ff4ff0187b0212f0a4bf21ff183b181cffce",
+      "candidate_sha256": "3014a286dc46cbd6ac3ccf7e8d84722e3d7347580b0089d53e381ee2ffe4b9a5",
+      "primary_before_sha256": "6910f68631e1a679aca442ba8afb8cb07c385d6986e5be85264f947cd5b184e4",
+      "proposed_sha256": "f5c16dca9ba10f73cdf82794d7ddbb245b6c17f61a6fcf0d242c4ee3a8f139a2",
+      "merge_exit": 0,
+      "bytes": 85722
+    },
+    {
+      "path": "engine/codex-rs/project-maintenance/src/registry.rs",
+      "base_sha256": "66d674894559a08901b71c3242b535ee4c28d6c64cdeb53d8083ed8834aa756d",
+      "candidate_sha256": "0ef35c961b745700c34bc2bded37f9370c5b4ad4add77f9e2e99f6afac73bbc5",
+      "primary_before_sha256": "c8c4e6cc18f6cac96d4524b8c71be7a8f5756d40c069feec92a2c21048a691e0",
+      "proposed_sha256": "e1ec6ca3e10e27a928e6c41f9714e571a17628a673414eb1c8af9d61ef8e095e",
+      "merge_exit": 0,
+      "bytes": 73285
+    }
+  ],
+  "test_report_sha256": "deba3420a956e4a7cadcbe634faf4c50c2c63d49335ec1604138a4fdcf4b8bce",
+  "test_stdout_sha256": "64f98694b3555d3abdb43b813dbe5d051118cebac4b37f76ce5e50e56fba9086",
+  "test_stderr_sha256": "665622d169f5b7bdd641119474b4134558df45557406a51a7dcef0ab646525a9",
+  "reused_full_validation": {
+    "evidence": "58a-native-source-retirement-verification.json",
+    "isolated_unit10_passed": 210,
+    "actual_current_composite_full_suite": false
+  },
+  "primary_integrated": false,
+  "cleanup": "Raw inputs/logs remain under active run:fw03v:native-613162bb until integration and downstream consumers end."
+}
