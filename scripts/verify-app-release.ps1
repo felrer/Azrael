@@ -37,8 +37,7 @@ if ((Get-Item -LiteralPath $zip).Length -ne $asset.size -or
 if (-not [IO.Path]::IsPathFullyQualified($OutputDirectory)) { throw 'OutputDirectory must be absolute.' }
 $logs = [IO.Path]::GetFullPath($OutputDirectory)
 if (Test-Path -LiteralPath $logs) { throw 'OutputDirectory must be new.' }
-New-Item -ItemType Directory -Path $logs | Out-Null
-if (-not $FixtureRoot) { $FixtureRoot = Join-Path $projectRoot ('artifacts/verification/app-release-' + [guid]::NewGuid().ToString('N')) }
+if (-not $FixtureRoot) { $FixtureRoot = Join-Path $projectRoot ('artifacts/verification/a-' + [guid]::NewGuid().ToString('N').Substring(0, 8)) }
 if (-not [IO.Path]::IsPathFullyQualified($FixtureRoot)) { throw 'FixtureRoot must be absolute.' }
 $fixture = [IO.Path]::GetFullPath($FixtureRoot).TrimEnd('\', '/')
 $fixtureParent = [IO.Path]::GetDirectoryName($fixture)
@@ -48,8 +47,12 @@ if ([IO.Path]::GetFileName($fixtureParent) -ine 'verification' -or [IO.Path]::Ge
 $cleanupProjectRoot = [IO.Path]::GetDirectoryName($fixtureArtifacts)
 $extracted = Join-Path $fixture 'package'
 $installed = Join-Path $fixture 'relocated-install'
-$hostFixture = Join-Path $fixture 'host-acceptance'
-$state = Join-Path $hostFixture 'azrael-state'
+$hostFixture = Join-Path $fixture 'h'
+$state = Join-Path $hostFixture 's'
+# Check the native socket budget before extracting or rewriting the package.
+. (Join-Path $PSScriptRoot 'verification-state.ps1')
+Assert-AzraelVerificationStatePath -StateRoot $state
+New-Item -ItemType Directory -Path $logs | Out-Null
 New-Item -ItemType Directory -Path $fixture | Out-Null
 try {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
