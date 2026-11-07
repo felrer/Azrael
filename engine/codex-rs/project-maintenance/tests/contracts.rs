@@ -1102,6 +1102,9 @@ fn extended_literal_nested_paths_delete_and_audit_only_attribute_changes() {
     assert_eq!(std::fs::metadata(&marked).unwrap().file_attributes() & 3, 3);
     register(&root, "long", "generated/long-tree", json!({}));
     let observed = review(&root, "long");
+    let before: Value = serde_json::from_slice(
+        &std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap(),
+    ).unwrap();
     let result = delete(&root, "long", &observed["token"]);
     assert_eq!(result["status"], "deleted", "{result}");
     assert_eq!(result["deletion"]["remaining"], false);
@@ -1112,6 +1115,18 @@ fn extended_literal_nested_paths_delete_and_audit_only_attribute_changes() {
     assert_eq!(changes[0]["path"], json!(marked));
     assert_eq!(changes[0]["before"].as_u64().unwrap() & 3, 3);
     assert_eq!(changes[0]["after"].as_u64().unwrap() & 3, 0);
+    let durable: Value = serde_json::from_slice(
+        &std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap(),
+    ).unwrap();
+    let saved = durable["decisions"].as_array().unwrap().iter()
+        .find(|entry| entry["decision_id"] == result["decision_id"]).unwrap();
+    assert_eq!(durable["revision"].as_u64().unwrap(), before["revision"].as_u64().unwrap() + 2,
+        "summarized successful detail must not cause a redundant final save");
+    assert!(saved["deletion"].get("attributes").is_none());
+    assert_eq!(saved["deletion"]["attributes_summary"]["count"], changes.len());
+    use sha2::Digest;
+    assert_eq!(saved["deletion"]["attributes_summary"]["sha256"],
+        format!("{:x}", sha2::Sha256::digest(serde_json::to_vec(changes).unwrap())));
 }
 
 #[cfg(windows)]

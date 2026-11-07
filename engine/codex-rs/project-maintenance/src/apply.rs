@@ -315,7 +315,7 @@ pub(crate) fn apply<'a>(
                 ));
                 outcome["status"] = json!("pending");
                 outcome["remaining"] = Value::Null;
-                record(&mut store.state, index, &outcome);
+                record(&mut store.state, index, &outcome)?;
                 publication_started = true;
                 if let Err(error) =
                     crate::timing::phase("apply.intent_save", Some(path), || store.save(auth))
@@ -379,7 +379,7 @@ pub(crate) fn apply<'a>(
                         .ok_or("nested parent disappeared")?["nested_retirement_requires_registration"] =
                         json!(true);
                 }
-                record(&mut store.state, index, &outcome);
+                record(&mut store.state, index, &outcome)?;
                 publication_started = true;
                 if let Err(error) =
                     crate::timing::phase("apply.actual_result_save", Some(path), || {
@@ -436,16 +436,17 @@ pub(crate) fn apply<'a>(
             // The destructive receipt is already durable. Only a changed final
             // observation or group state needs another commit; errors change the
             // outcome too and must never be discarded with this redundant write.
+            let durable_outcome = crate::decision_history::summarize_success(&outcome)?;
             if !destructive
                 || store
                     .state
                     .decisions
                     .iter()
                     .find(|decision| decision["decision_id"] == outcome["decision_id"])
-                    != Some(&outcome)
+                    != Some(&durable_outcome)
                 || group_id.as_ref().map(|id| &store.state.groups[id]) != persisted_group.as_ref()
             {
-                record(&mut store.state, index, &outcome);
+                record(&mut store.state, index, &outcome)?;
                 publication_started = true;
                 if let Err(error) =
                     crate::timing::phase("apply.final_observation_save", Some(path), || {
@@ -534,15 +535,18 @@ fn group_outcome(
     outcome["group_status"] = json!(status);
 }
 
-fn record(state: &mut State, _index: usize, outcome: &Value) {
+fn record(state: &mut State, _index: usize, outcome: &Value) -> Result<(), String> {
+    // The caller still returns the complete per-file report for this operation.
+    // Durable successful history retains the approved count/hash summary.
+    let durable = crate::decision_history::summarize_success(outcome)?;
     if let Some(index) = state
         .decisions
         .iter()
         .position(|decision| decision["decision_id"] == outcome["decision_id"])
     {
-        state.decisions[index] = outcome.clone();
+        state.decisions[index] = durable;
     } else {
-        state.decisions.push(outcome.clone());
+        state.decisions.push(durable);
     }
     if let Some(item) = outcome["id"]
         .as_str()
@@ -561,6 +565,7 @@ fn record(state: &mut State, _index: usize, outcome: &Value) {
             item["logical_bytes"] = json!(0);
         }
     }
+    Ok(())
 }
 fn safe_entries(
     root: &Path,

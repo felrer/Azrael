@@ -4,6 +4,7 @@ mod admission;
 mod apply;
 pub mod cli;
 mod coordination;
+mod decision_history;
 mod disk_budget;
 mod duplicate_claims;
 mod groups;
@@ -320,6 +321,7 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             | "recover_run"
             | "apply"
             | "reconcile_duplicate_groups"
+            | "compact_decision_history"
     );
     let wait = authorize.lock_wait.get();
     // Retry only transaction acquisition. A failed catalog acquisition drops all
@@ -431,6 +433,12 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     let state = &mut store.state;
     let mut refresh_unchanged = false;
     let result = match operation {
+        "review_decision_history" => decision_history::review(state)?,
+        "compact_decision_history" => {
+            let result = decision_history::compact(state, &request)?;
+            refresh_unchanged = result["status"] == "unchanged";
+            result
+        }
         "inventory" => {
             let config = config.as_ref().ok_or("valid project config required")?;
             let (offset, limit) = page(&request)?;
@@ -775,6 +783,7 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
         && matches!(
             operation,
             "register" | "begin_run" | "finish_step" | "validate_step" | "recover_run" | "apply"
+                | "compact_decision_history"
         )
     {
         store.save(authorize)?;

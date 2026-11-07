@@ -16,11 +16,11 @@
 
 기본 선택은 `scripts/maintenance-owner-config.cjs`의 `resolveMaintenanceCommand()`가 소유한다. Windows `2026.0.14` 이후 릴리스는 실제 설치·관리 CLI 수용 후 `<AZRAEL_STATE_ROOT 또는 ~/.azrael-ex>/maintenance-installation.json`에 앱 실행파일 identity를 게시한다. 이 영수증이 있으면 Node/PowerShell은 앱 실행파일과 `maintenance` 접두 인자를 함께 사용한다. 영수증이 없는 기존 설치에서만 아래 standalone pin을 사용하며 손상된 앱 영수증에서 자동 fallback하지 않는다. `-PrepareOnly`는 선택을 바꾸지 않는다. 명령·다른 OS 수용 경계는 [관리 명령 계약](../architecture/project-maintenance.md#maintenance-platform-modules), 설치 절차는 [앱 릴리스](app-release.md#package-and-installation-contract)를 따른다.
 
-상태: `current` (Windows x64). 정리에는 `artifacts/versions/maintenance-owner-ff01-reservation-win-x64-20261102/payload/maintenance_owner.exe`를 사용한다(SHA-256 `c0cf7fa34948cceebbd10db45b0b55ecf0f42c7fae79079da673e8d6ce90c680`). 설치·실측 결과는 [현재 작업 기록](../../work/FF-01-maintenance-contention-timing/05-plan.md), 고정 입력·native 254개 검사·예약 중복 순회 전후 측정·기본 경로 수용은 같은 version의 `verification/`에서 확인한다. Node producer catalog·run claim·시작/종료 기록·cleanup client는 검증된 capability에 따라 최대 600000ms를 기다리며 구형 실행기는 5000ms를 유지한다. 직접 CLI는 미지정 기본 0을 유지하므로 장기 대기가 필요한 호출은 `lock_wait_ms:600000`을 명시한다. 명시적 0과 기존 5000ms 요청을 자동으로 늘리지 않는다. 저장·삭제·권한·CAS·unknown 오류는 재실행하지 않는다. 기존 stdin·OS33·소유권·참조·revision·복구 보호를 유지한다. 기존 Catalog 관측·그룹 순수 계산 최적화에 더해 예약 존재 확인과 직후 읽기의 중복 초기 metadata 순회를 합쳤다. 두 번의 bounded 읽기·내용 비교, 읽기 직전 권한과 중간 경로·마지막 identity 검사는 유지한다. 80항목 최근 기준54.61초 대비 후보 평균48.42초였으며 실제 표본과 변동 한계는 version verification이 소유한다. 삭제 전 최신 보호 검사와 항목별 저장도 유지한다. 앱 내장 도구 교체나 물리 삭제 처리량 개선을 뜻하지 않는다. 실행파일과 최소 검증 근거는 사용하는 설치물로 관리한다.
+상태: `current` (Windows x64). 정리에는 `artifacts/versions/maintenance-owner-json-history-win-x64-20261107-r2/payload/maintenance_owner.exe`를 사용한다(SHA-256 `1dbefa648765820107b3a92ade2cc77ae3788c9c092b11b1f5f4a82a46ac6c01`). 설치·이력 정리 결과는 [현재 작업 기록](../../work/FT-01-periodic-system-freeze/02-plan.md), 고정 입력·최초 전체292개 및 최종 영향49개 검사·동일 실행파일 수용은 같은 version의 `verification/`에서 확인한다. Node producer catalog·run claim·시작/종료 기록·cleanup client는 검증된 capability에 따라 최대600000ms를 기다리며 구형 실행기는5000ms를 유지한다. 직접 CLI는 미지정 기본0을 유지하므로 장기 대기가 필요한 호출은 `lock_wait_ms:600000`을 명시한다. 명시적0과 기존5000ms 요청을 자동으로 늘리지 않는다. 저장·삭제·권한·CAS·unknown 오류는 재실행하지 않는다. 기존 stdin·OS33·소유권·참조·revision·복구 보호, Catalog 관측·그룹 순수 계산·예약 중복 순회 최적화를 유지한다. 이번 버전은 성공한 속성 변경 상세를 요약해 이력 재누적을 줄이며, 실패·미완료 근거와 삭제 전 최신 보호 검사·항목별 durable 저장은 보존한다. 전체 삭제 처리량 개선율이나 앱 내장 도구 교체를 의미하지 않는다. 실행파일과 최소 검증 근거는 사용하는 설치물로 관리한다.
 
 ```powershell
 $projectRoot = 'C:/Users/felre/Desktop/pi-harness-init'
-$ownerExecutable = "$projectRoot/artifacts/versions/maintenance-owner-ff01-reservation-win-x64-20261102/payload/maintenance_owner.exe"
+$ownerExecutable = "$projectRoot/artifacts/versions/maintenance-owner-json-history-win-x64-20261107-r2/payload/maintenance_owner.exe"
 & $ownerExecutable --project-root $projectRoot --request "$projectRoot/정리작업의-요청.json"
 ```
 
@@ -210,6 +210,12 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 
 <a id="registered-group-cleanup"></a>
 ## 등록된 묶음 정리
+
+### 성공한 삭제 상세의 정리
+
+현재 Windows x64 standalone에서 수용했다. 다른 실행기는 `capabilities.operations`에서 `review_decision_history`와 `compact_decision_history` 지원을 확인한 뒤 사용한다. 조회 요청 `{"operation":"review_decision_history"}`는 대상 수·상세 바이트·예상 감소량과 `review_token`을 반환한다. 사용자에게 승인받은 성공 상세 요약 범위만 `{"operation":"compact_decision_history","review_token":"검토에서 받은 정확한 값","reason":"승인된 정리 이유"}`로 적용한다. 동시 기록 변경으로 token이 오래됐으면 다시 조회하고 대상 범위를 확인한다. 원시 manifest를 편집하거나 기존 blob 정리 요청을 이력 정리로 대신 사용하지 않는다.
+
+성공한 항목의 파일별 속성 목록만 개수·SHA-256·원래 바이트 수로 대체한다. 실패·미완료 상세, 모든 원래 이력 행과 identity·이유·결과, 참조·복구 기록은 유지한다. 새 삭제의 즉시 응답은 상세 목록을 유지하지만 durable 성공 이력은 처음부터 요약한다. 실제 크기와 원래 대상/결과의 보존, 명령 exit와 no-op 동작을 확인한다. 관리 상태의 동시 writer를 강제 중지하거나 저장 형식을 자동 전환하지 않는다.
 
 ### 경합 진단과 상태 분할 전환
 

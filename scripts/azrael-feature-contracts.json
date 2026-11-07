@@ -4327,6 +4327,7 @@
         "engine/codex-rs/project-maintenance/src/paths.rs",
         "engine/codex-rs/project-maintenance/src/planning.rs",
         "engine/codex-rs/project-maintenance/src/storage.rs",
+        "engine/codex-rs/project-maintenance/src/decision_history.rs",
         "engine/codex-rs/project-maintenance/src/lock_recovery.rs",
         "engine/codex-rs/project-maintenance/src/lease.rs",
         "engine/codex-rs/project-maintenance/src/reservations.rs",

@@ -282,7 +282,7 @@ pub fn enter(home: &Path, operation: &str) -> Result<Admission, String> {
         }
         if matches!(
             operation,
-            "apply" | "reserve_producers" | "lifecycle.cleanup"
+            "apply" | "reserve_producers" | "lifecycle.cleanup" | "compact_decision_history"
         ) && !p.deletion_enabled()
         {
             return Err("maintenance deletion is disabled; review again after enabling".into());
@@ -365,6 +365,7 @@ mod tests {
         )
         .unwrap();
         assert!(invoke(json!({"operation":"apply","decisions":[]})).is_err());
+        assert!(invoke(json!({"operation":"compact_decision_history"})).is_err());
         write(
             &home,
             json!({"expected_revision":1,"groups":true,"locks":true,"deletion":true}),

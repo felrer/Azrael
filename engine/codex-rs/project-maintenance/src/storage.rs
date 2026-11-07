@@ -615,6 +615,42 @@ mod transaction_tests {
     use super::merge;
     use serde_json::json;
 
+    // History compaction must survive an older writer's unchanged legacy rows,
+    // while a writer changing the same stable receipt must still conflict.
+    #[test]
+    fn compacted_details_survive_unrelated_suspended_writer_and_keep_same_row_cas() {
+        let root = tempfile::tempdir().unwrap();
+        let allow = |_: &std::path::Path, _: crate::AccessMode| Ok(());
+        let auth = crate::Context::new(&allow);
+        let mut writer = super::Store::open(root.path(), &auth, true).unwrap();
+        let legacy = json!({"id":"old","status":"deleted","remaining":false,
+            "deletion":{"status":"deleted","remaining":false,"error":null,
+            "attributes":[{"path":"old/file","before":33,"after":32}]}});
+        let mut stable = legacy.clone();
+        stable["decision_id"] = json!("stable");
+        writer.state.decisions = vec![legacy.clone(), stable.clone()];
+        writer.save(&auth).unwrap();
+        writer.suspend().unwrap();
+        {
+            let other_auth = crate::Context::new(&allow);
+            let mut other = super::Store::open(root.path(), &other_auth, true).unwrap();
+            let review = crate::decision_history::review(&other.state).unwrap();
+            crate::decision_history::compact(&mut other.state,
+                &json!({"review_token":review["review_token"],"reason":"approved detail cleanup"})).unwrap();
+            other.save(&other_auth).unwrap();
+        }
+        writer.state.decisions.push(json!({"decision_id":"new","status":"pending"}));
+        writer.save(&auth).unwrap();
+        assert!(writer.state.decisions[0]["deletion"].get("attributes").is_none());
+        assert!(writer.state.decisions[1]["deletion"].get("attributes").is_none());
+        assert_eq!(writer.state.decisions.last().unwrap()["decision_id"], "new");
+        let mut base = serde_json::to_value(&writer.state).unwrap();
+        base["decisions"][1] = stable;
+        let mut local = base.clone();
+        local["decisions"][1]["reason"] = json!("same row changed");
+        assert!(merge(&base, &local, serde_json::to_value(&writer.state).unwrap()).is_err());
+    }
+
     #[test]
     fn save_reuses_only_exact_local_state_and_keeps_merged_receipts_and_concurrent_records() {
         let root = tempfile::tempdir().unwrap();

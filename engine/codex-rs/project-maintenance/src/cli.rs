@@ -105,11 +105,13 @@ fn request_mode_with_home(
                 | "recover_lifecycle_pending"
                 | "partition_storage"
                 | "compact_storage"
+                | "review_decision_history"
+                | "compact_decision_history"
                 | "reconcile_duplicate_groups"
         )
     ) {
         return Err(
-            "owner runner supports only inventory/register/review/apply/begin_run/run_status/request_status/request_cancel/request_ack/request_recover/request_recover_pending/recover_lock/recover_reservation/recover_refresh_pending/recover_lifecycle_pending/partition_storage/compact_storage/reconcile_duplicate_groups".into(),
+            "owner runner supports only inventory/register/review/apply/begin_run/run_status/request_status/request_cancel/request_ack/request_recover/request_recover_pending/recover_lock/recover_reservation/recover_refresh_pending/recover_lifecycle_pending/partition_storage/compact_storage/review_decision_history/compact_decision_history/reconcile_duplicate_groups".into(),
         );
     }
     let automatic = automatic_envelope(&mut request)?;
@@ -260,7 +262,8 @@ pub fn capabilities() -> Value {
             "inventory", "register", "review", "apply", "begin_run", "run_status",
             "request_status", "request_cancel", "request_ack", "request_recover", "request_recover_pending", "recover_lock",
             "recover_reservation", "recover_refresh_pending", "recover_lifecycle_pending",
-            "partition_storage", "compact_storage", "reconcile_duplicate_groups"
+            "partition_storage", "compact_storage", "reconcile_duplicate_groups",
+            "review_decision_history", "compact_decision_history"
         ],
         "storage_formats": ["legacy", "partitioned-v1"]
     })
@@ -538,7 +541,9 @@ mod tests {
                 "recover_lifecycle_pending",
                 "partition_storage",
                 "compact_storage",
-                "reconcile_duplicate_groups"
+                "reconcile_duplicate_groups",
+                "review_decision_history",
+                "compact_decision_history"
             ])
         );
         assert_eq!(

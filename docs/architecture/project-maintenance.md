@@ -2,6 +2,14 @@
 
 상태: `partial`. 공통 Rust·native handler/권한·가용성 지침과 주요 Windows producer/cleaner의 소스 수용을 확인했다. 설치 앱의 가용성, 다른 OS 실기기와 과거 경로의 물리 이전은 별도다. 상세 검증 상태는 [작업 기록](../../work/BI-01-project-maintenance/01-plan.md)이 소유한다. 기능 보존 ID는 `tool.project-maintenance`다.
 
+## 성공한 삭제의 상세 이력
+
+상태: `current` (Windows x64 standalone). 공통 소스 구현과 실제 수용은 [빌드 비용 검토](../../work/FT-01-periodic-system-freeze/02-plan.md)에 기록한다. Linux/macOS 실기기 및 앱 내장 실행기 교체는 별도다.
+
+현재 삭제 호출의 응답에는 파일별 속성 변경 목록을 유지한다. 영구 이력에는 해당 배열의 schema·개수·직렬화 SHA-256·논리 바이트를 담은 `attributes_summary`를 저장한다. 외부 결과와 deletion 결과 모두 deleted/remaining=false이고 deletion.error가 명시적 null이며 외부 오류가 없는 경우만 요약한다. 실패·차단·미완료·비정상 형식·이미 요약된 기록은 변경하지 않는다. 대상·결정 identity·이유·토큰·실제 결과·알 수 없는 필드는 유지하며 중첩된 다른 감사 snapshot은 재작성하지 않는다.
+
+`review_decision_history`는 최상위 이력의 후보와 현재 revision·순서별 전체 record identity를 token에 결부한다. 명시적 `compact_decision_history`는 해당 token과 이유를 요구하고 기존 exclusive state transaction에서 legacy/stable-ID 기록의 상세만 요약한 뒤 집계 감사 영수증 하나를 저장한다. 행 삭제·순서 변경·저장 형식 이관은 하지 않는다. 일반 suspended writer의 CAS와 legacy 변경 금지 검사는 유지하며 stale review와 동일 record 동시 수정은 실패한다. 변경할 후보가 없으면 revision과 저장을 생략한다. 정리 이전의 source-retirement snapshot은 새 검토가 필요하다. 요약은 사용자 승인에 따른 상세 삭제이며 원래 파일별 목록을 복원할 수 없다.
+
 ## Windows 대량 I/O와 측정 메모리
 
 상태: `current` (소스·Windows x64 native 검증). 근거는 [FW-01 작업](../../work/FW-01-volsnap-io-safety/01-plan.md)이 소유한다. 보존 기능은 `tool.project-maintenance`이며 실사용 설치·VSS 재발 관측과 다른 OS 검증은 별도다.
