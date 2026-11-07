@@ -42,6 +42,7 @@ $changedCases += @('deployment capacity guard')
 $changedCases += @('vsix entry index')
 $changedCases += @('stage environment identity')
 $changedCases += @('release packaging parent')
+$changedCases += @('runtime staging resume')
 $changedCases += @('host copy baseline')
 $changedCases += @('source handoff unavailable')
 # Execute the preparation policy reader independently of package/build inputs.
@@ -580,6 +581,85 @@ function Test-ReleasePackagingParent {
     return @{createdReleaseParent=$true;publishedPackage=$true}
 }
 
+function Test-RuntimeStagingResume {
+    param([string]$Root, [string]$BuildPath)
+    $Root = [IO.Path]::GetFullPath($Root)
+    if (Test-Path -LiteralPath $Root) { throw 'Runtime resume fixture requires a new owned root.' }
+    New-Item -ItemType Directory -Path $Root | Out-Null
+    try {
+        $scripts = Split-Path $BuildPath -Parent
+        $ast = [Management.Automation.Language.Parser]::ParseFile($BuildPath, [ref]$null, [ref]$null)
+        foreach ($name in @('Get-BuildRuntimeSourceIdentity', 'Get-BuildRuntimeOutputs', 'Invoke-BuildRuntimeStaging')) {
+            $definition = $ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name}, $true)
+            . ([scriptblock]::Create($definition.Extent.Text.Replace('$PSScriptRoot', ("'" + $scripts.Replace("'", "''") + "'"))))
+        }
+        $pipelineFile = Join-Path $Root 'pipeline.json'
+        $buildPipelineContext = @{identity=@{sourceSnapshot='frozen-runtime-fixture'}}
+        $buildMetrics = [pscustomobject]@{Stages=[Collections.Generic.List[object]]::new()}
+        function Invoke-BuildCommand {
+            param($Executable, [string[]]$CommandArguments, [string]$LogName, [switch]$CaptureOutput)
+            $errorPath = Join-Path $Root "$LogName.stderr"
+            $output = @(& $Executable @CommandArguments 2> $errorPath)
+            $exit = $LASTEXITCODE
+            $buildMetrics.Stages.Add([pscustomobject]@{Status=$(if ($exit -eq 0) {'completed'} else {'failed'});ExitCode=$exit})
+            if ($exit -ne 0) { throw ([IO.File]::ReadAllText($errorPath)) }
+            if ($CaptureOutput) { return ($output -join "`n") }
+        }
+        function Invoke-BuildCheckpoint([string]$Action, [string]$Name, $Options=@{}) {
+            $request = Join-Path $Root 'request.json'
+            @{file=$pipelineFile;identity=$buildPipelineContext.identity;resume=[bool](Test-Path -LiteralPath $pipelineFile);lockHeld=$true;action=$Action;name=$Name;options=$Options} | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $request -Encoding utf8NoBOM
+            $errorPath = Join-Path $Root 'checkpoint.stderr'
+            $output = & node (Join-Path $scripts 'pipeline-state.cjs') $request 2> $errorPath
+            if ($LASTEXITCODE -ne 0) { throw ([IO.File]::ReadAllText($errorPath)) }
+            return ($output | ConvertFrom-Json)
+        }
+        $null = Invoke-BuildCheckpoint 'start' 'build.package'
+        $null = Invoke-BuildCheckpoint 'finish' 'build.package' @{exitCode=0}
+        $source = Join-Path $Root 'source'
+        New-Item -ItemType Directory -Path $source | Out-Null
+        foreach ($name in @('node.exe', 'node_repl.exe')) { [IO.File]::WriteAllText((Join-Path $source $name), $name) }
+        $helper = Join-Path $scripts 'computer-use-runtime.cjs'
+        $destination = Join-Path $Root 'runtime'
+        $calls = [pscustomobject]@{count=0}
+        $stage = { $calls.count++; Invoke-BuildCommand 'node' @($helper, 'stage', '--runtime-directory', $source, '--destination', $destination) 'stage.log' }
+        foreach ($iteration in 1..2) { Invoke-BuildRuntimeStaging 'build.computer-use-runtime' $helper $destination @{runtime=$source} $stage }
+        Assert-True ($calls.count -eq 1) 'resume restaged an already published runtime'
+        $snapshot = Invoke-BuildCheckpoint 'snapshot' ''
+        Assert-True ($snapshot.stages.'build.computer-use-runtime'[0].outputs.Count -eq 3) 'runtime checkpoint omitted manifest or payload hashes'
+        $sourceFile = Join-Path $source 'node.exe'
+        [IO.File]::WriteAllText($sourceFile, 'changed source')
+        $rejected = $false
+        try { Invoke-BuildRuntimeStaging 'build.computer-use-runtime' $helper $destination @{runtime=$source} $stage } catch { $rejected = $_.Exception.Message -like '*model decision*' }
+        Assert-True $rejected 'changed runtime source reused prior output silently'
+        [IO.File]::WriteAllText($sourceFile, 'node.exe')
+        $published = Join-Path $destination 'node.exe'
+        [IO.File]::WriteAllText($published, 'corrupt output')
+        $rejected = $false
+        try { Invoke-BuildRuntimeStaging 'build.computer-use-runtime' $helper $destination @{runtime=$source} $stage } catch { $rejected = $_.Exception.Message -like '*hash mismatch*' }
+        Assert-True $rejected 'corrupt runtime payload passed resume'
+        [IO.File]::WriteAllText($published, 'node.exe')
+        $extra = Join-Path $destination 'extra.txt'
+        [IO.File]::WriteAllText($extra, 'unrecorded')
+        $rejected = $false
+        try { Invoke-BuildRuntimeStaging 'build.computer-use-runtime' $helper $destination @{runtime=$source} $stage } catch { $rejected = $_.Exception.Message -like '*Unrecorded*' }
+        Assert-True $rejected 'unrecorded runtime output passed resume'
+        Remove-Item -LiteralPath $extra
+        $rejected = $false
+        try { Invoke-BuildRuntimeStaging 'build.window-control-runtime' $helper $destination @{runtime=$source} $stage } catch { $rejected = $_.Exception.Message -like '*lacks a successful matching staging checkpoint*' }
+        Assert-True ($rejected -and $calls.count -eq 1) 'existing runtime without its own checkpoint was adopted or overwritten'
+        $failedDestination = Join-Path $Root 'partial'
+        $rejected = $false
+        try { Invoke-BuildRuntimeStaging 'build.partial-runtime' $helper $failedDestination @{runtime=$source} { New-Item -ItemType Directory -Path $failedDestination | Out-Null; throw 'fixture synchronous failure' } } catch { $rejected = $_.Exception.Message -ceq 'fixture synchronous failure' }
+        $snapshot = Invoke-BuildCheckpoint 'snapshot' ''
+        Assert-True ($rejected -and $snapshot.stages.'build.partial-runtime'[0].status -ceq 'failed' -and $null -eq $snapshot.stages.'build.partial-runtime'[0].exitCode) 'synchronous failure invented an exit code or reusable success'
+        return @{stagingCalls=$calls.count;resumeReused=$true;allOutputsBound=$true;sourceChangeReviewed=$true;corruptAndExtraOutputsRejected=$true;uncheckpointedOutputRejected=$true;partialFailurePreserved=$true}
+    } finally {
+        # This exact new fixture contains only synchronous test-owned writers.
+        Remove-Item -LiteralPath $Root -Recurse
+        Assert-True (-not (Test-Path -LiteralPath $Root)) 'runtime resume fixture cleanup incomplete'
+    }
+}
+
 function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false, [bool]$Exhaustive = $false, [string]$PolicyChangedPath = '', [bool]$ReuseSourcePreflight = $false) {
     if ($Case -and $Name -notin $Case) { return }
     if ($ChangedOnly -and -not $Case -and $Name -notin $changedCases) { return }
@@ -594,6 +674,10 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     }
     if ($Mode -eq 'release-packaging-parent') {
         $details = Test-ReleasePackagingParent (Join-Path $root 'publish') (Join-Path $PSScriptRoot 'build-azrael.ps1')
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
+    }
+    if ($Mode -eq 'runtime-staging-resume') {
+        $details = Test-RuntimeStagingResume (Join-Path $root 'resume') (Join-Path $PSScriptRoot 'build-azrael.ps1')
         $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
     }
     if ($Mode -eq 'host-copy-baseline') {
@@ -1398,6 +1482,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'deployment capacity guard' 'deployment-capacity'
     Invoke-Case 'stage environment identity' 'stage-environment-identity'
     Invoke-Case 'release packaging parent' 'release-packaging-parent'
+    Invoke-Case 'runtime staging resume' 'runtime-staging-resume'
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
     Invoke-Case 'account socket path' 'account-socket-path'
     Invoke-Case 'fixture path selection' 'fixture-path-selection'

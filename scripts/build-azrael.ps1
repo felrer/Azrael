@@ -109,6 +109,46 @@ function Invoke-BuildCheckpoint([string]$Action, [string]$Name, $Options=@{}) {
     return ($result|ConvertFrom-Json)
 }
 $null=Invoke-BuildCheckpoint 'snapshot' ''
+function Get-BuildRuntimeSourceIdentity([System.Collections.IDictionary]$Sources, [string]$Name) {
+    $code = 'const fs=require("node:fs"),crypto=require("node:crypto"),{getDirectoryState}=require(process.argv[1]),sources=JSON.parse(process.argv[2]);(async()=>{const result={};for(const key of Object.keys(sources).sort()){const source=sources[key];if(typeof source==="object"){result[key]={path:source.path,sha256:require(source.helper).sourceFingerprint(source.path)};}else{const stat=fs.statSync(source);result[key]=stat.isDirectory()?await getDirectoryState(source):{path:source,sha256:crypto.createHash("sha256").update(fs.readFileSync(source)).digest("hex")};}}console.log(JSON.stringify(result));})().catch(e=>{console.error(e.message);process.exitCode=1})'
+    $json = Invoke-BuildCommand 'node' @('-e', $code, (Join-Path $PSScriptRoot 'directory-state.cjs'), (ConvertTo-Json -InputObject $Sources -Compress -Depth 5)) "$Name-sources.log" -CaptureOutput
+    return ($json | ConvertFrom-Json -AsHashtable)
+}
+function Get-BuildRuntimeOutputs([string]$Helper, [string]$Destination, [string]$Name) {
+    $code = 'const path=require("node:path"),result=require(process.argv[1]).verifyRuntime(process.argv[2]);console.log(JSON.stringify([path.join(result.directory,"manifest.json"),...result.manifest.files.map(file=>path.join(result.directory,file.path))]))'
+    $json = Invoke-BuildCommand 'node' @('-e', $code, $Helper, $Destination) "$Name-outputs.log" -CaptureOutput
+    return @($json | ConvertFrom-Json)
+}
+function Invoke-BuildRuntimeStaging {
+    param([string]$Name, [string]$Helper, [string]$Destination, [System.Collections.IDictionary]$Sources, [scriptblock]$Stage)
+    $sourceIdentity = Get-BuildRuntimeSourceIdentity $Sources $Name
+    $inputs = @{sources=$sourceIdentity;destination=[IO.Path]::GetFullPath($Destination);frozenSource=$buildPipelineContext.identity.sourceSnapshot;helperSha256=(Get-FileHash -LiteralPath $Helper -Algorithm SHA256).Hash.ToLowerInvariant()}
+    $options = @{inputs=$inputs;dependencies=@('build.package')}
+    if (Test-Path -LiteralPath $Destination) { $options.outputs = @(Get-BuildRuntimeOutputs $Helper $Destination $Name) }
+    $checkpoint = Invoke-BuildCheckpoint 'lookup' $Name $options
+    if ($checkpoint) { return }
+    if (Test-Path -LiteralPath $Destination) { throw "Runtime output lacks a successful matching staging checkpoint; reconcile it through its owner before retrying: $Destination" }
+    $null = Invoke-BuildCheckpoint 'start' $Name @{inputs=$inputs;dependencies=@('build.package')}
+    $script:buildPipelineActive = $Name
+    $commandCountBefore = $buildMetrics.Stages.Count
+    try {
+        & $Stage
+        $after = Get-BuildRuntimeSourceIdentity $Sources $Name
+        if ((ConvertTo-Json -InputObject $sourceIdentity -Compress -Depth 10) -cne (ConvertTo-Json -InputObject $after -Compress -Depth 10)) { throw 'Runtime staging source changed during publication.' }
+        $outputs = @(Get-BuildRuntimeOutputs $Helper $Destination $Name)
+    } catch {
+        $failure = $_
+        $lastCommand = @($buildMetrics.Stages | Select-Object -Skip $commandCountBefore | Where-Object { $_.Status -eq 'failed' -and $null -ne $_.ExitCode } | Select-Object -Last 1)
+        $actualExit = if ($lastCommand.Count) { $lastCommand[0].ExitCode } else { $null }
+        $script:buildPipelineActive = $null
+        $null = Invoke-BuildCheckpoint 'finish' $Name @{exitCode=$actualExit;outcome='failed';error=$failure.Exception.Message}
+        throw $failure
+    }
+    # Once publication starts, an unobserved response must remain unresolved;
+    # an outer catch must not publish a second, invented failure completion.
+    $script:buildPipelineActive = $null
+    $null = Invoke-BuildCheckpoint 'finish' $Name @{exitCode=0;outputs=$outputs}
+}
 $engineInputs=@{sourceRoot=$sourceRoot; retainedSourceRoot=$RetainedSourceRoot; engineDirectory=$EngineDirectory; host=$CodeModeHostPath; target=$engineTarget; skip=[bool]$SkipEngineBuild; rebuild=@($RebuildModule)}
 $ambientEnvironment=[Environment]::GetEnvironmentVariables()
 $buildEnvironment=Get-LogicalBuildEnvironment -Environment $ambientEnvironment -PipelineRoot (Join-Path $projectRoot "artifacts/logs/deploy-$ReleaseName") -SourceFixtureRoot $(if ($buildPipelineContext.ContainsKey('sourceFixtureRoot')) { [string]$buildPipelineContext.sourceFixtureRoot } else { '' })
@@ -287,7 +327,10 @@ if (-not $ComputerUseRuntimeDirectory) {
     $commandDirectory = Split-Path $configuredCommand -Parent
     $ComputerUseRuntimeDirectory = if ((Split-Path $commandDirectory -Leaf) -ieq 'bin') { Split-Path $commandDirectory -Parent } else { $commandDirectory }
 }
-Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'computer-use-runtime.cjs'), 'stage', '--runtime-directory', $ComputerUseRuntimeDirectory, '--destination', (Join-Path $release 'computer-use')) 'computer-use-runtime.log'
+$computerRuntimeHelper = Join-Path $PSScriptRoot 'computer-use-runtime.cjs'
+Invoke-BuildRuntimeStaging -Name 'build.computer-use-runtime' -Helper $computerRuntimeHelper -Destination (Join-Path $release 'computer-use') -Sources @{runtime=[IO.Path]::GetFullPath($ComputerUseRuntimeDirectory)} -Stage {
+    Invoke-BuildCommand 'node' @($computerRuntimeHelper, 'stage', '--runtime-directory', $ComputerUseRuntimeDirectory, '--destination', (Join-Path $release 'computer-use')) 'computer-use-runtime.log'
+}
 $windowSource = Join-Path $projectRoot 'native/window-control'
 $windowSharedCache=$null
 if (-not $WindowControlTargetDirectory) {
@@ -303,7 +346,13 @@ Invoke-BuildCommand 'pwsh' $windowBuildArguments 'window-control-build.log'
 $windowStageArguments = @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'stage', '--source-root', $windowSource, '--executable', (Join-Path $windowTarget 'release/azrael-window-control.exe'), '--provenance', (Join-Path $windowTarget 'release/azrael-window-control-build.json'), '--script-directory', $PSScriptRoot, '--guidance', (Join-Path $projectRoot 'instructions/window-use/common.md'), '--destination', (Join-Path $release 'window-control'))
 if ($VirtualInputRuntimeDirectory) { $windowStageArguments += @('--virtual-input-directory', [IO.Path]::GetFullPath($VirtualInputRuntimeDirectory)) }
 if ($MultiPointerRuntimeDirectory) { $windowStageArguments += @('--multi-pointer-directory', [IO.Path]::GetFullPath($MultiPointerRuntimeDirectory)) }
-Invoke-BuildCommand 'node' $windowStageArguments 'window-control-runtime.log'
+$windowRuntimeHelper = Join-Path $PSScriptRoot 'window-control-runtime.cjs'
+$windowRuntimeSources = @{source=@{path=$windowSource;helper=$windowRuntimeHelper};executable=(Join-Path $windowTarget 'release/azrael-window-control.exe');provenance=(Join-Path $windowTarget 'release/azrael-window-control-build.json');guidance=(Join-Path $projectRoot 'instructions/window-use/common.md')}
+if ($VirtualInputRuntimeDirectory) { $windowRuntimeSources.virtualInput = [IO.Path]::GetFullPath($VirtualInputRuntimeDirectory) }
+if ($MultiPointerRuntimeDirectory) { $windowRuntimeSources.multiPointer = [IO.Path]::GetFullPath($MultiPointerRuntimeDirectory) }
+Invoke-BuildRuntimeStaging -Name 'build.window-control-runtime' -Helper $windowRuntimeHelper -Destination (Join-Path $release 'window-control') -Sources $windowRuntimeSources -Stage {
+    Invoke-BuildCommand 'node' $windowStageArguments 'window-control-runtime.log'
+}
 if ($windowSharedCache) { Complete-WindowControlSharedCache $windowSharedCache }
 } catch {
     if ($script:buildPipelineActive) {
