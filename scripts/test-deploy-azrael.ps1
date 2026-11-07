@@ -41,6 +41,7 @@ $changedCases += @('environment preflight failure', 'registered engine owner sel
 $changedCases += @('deployment capacity guard')
 $changedCases += @('vsix entry index')
 $changedCases += @('stage environment identity')
+$changedCases += @('release packaging parent')
 $changedCases += @('host copy baseline')
 $changedCases += @('source handoff unavailable')
 # Execute the preparation policy reader independently of package/build inputs.
@@ -540,6 +541,13 @@ function Test-StageEnvironmentIdentity {
         . ([scriptblock]::Create($buildEnvironmentAssignment.Extent.Text))
         . ([scriptblock]::Create($buildHashAssignment.Extent.Text))
         Assert-True ($engineInputs.environmentSha256 -ceq $stage.environmentSha256) 'deployment and engine build environment identities differ'
+        $logicalEnvironment = Get-LogicalBuildEnvironment -Environment $ambientEnvironment -PipelineRoot $pipelineRoot -SourceFixtureRoot $script:sourceFixtureRoot
+        $request = @{environment=$ambientEnvironment;ownership=@{pipelineRoot=$pipelineRoot;sourceFixtureRoot=$script:sourceFixtureRoot};projectRoot=$projectRoot} | ConvertTo-Json -Compress -Depth 5
+        $nodeCode = 'const fs=require("node:fs"),r=JSON.parse(fs.readFileSync(0,"utf8"));process.stdout.write(JSON.stringify(require(process.argv[1]).logicalBuildEnvironment(r.environment,r.ownership,r.projectRoot)))'
+        $jsEnvironment = $request | & node -e $nodeCode (Join-Path (Split-Path $DeployPath -Parent) 'verification-reuse-policy.cjs')
+        Assert-True ($LASTEXITCODE -eq 0) 'shared preservation fixture identity failed'
+        $jsEnvironment = $jsEnvironment | ConvertFrom-Json -AsHashtable
+        foreach ($key in $logicalEnvironment.Keys) { Assert-True ($logicalEnvironment[$key] -ceq $jsEnvironment[$key]) 'PowerShell and preservation logical environment contracts differ' }
         Assert-True ($script:environmentPatch.AZRAEL_CATALOG_TEST_ROOT -ceq (Join-Path $script:sourceFixtureRoot 'catalog')) 'logical identity changed actual execution paths'
         $observed += $stage
     }
@@ -556,6 +564,22 @@ function Test-StageEnvironmentIdentity {
     return @{attempts=3;sharedBuildIdentity=$true;genuineEnvironmentChange=$true;changedFixtureDestination=$true;unownedMetadataRejected=$true}
 }
 
+function Test-ReleasePackagingParent {
+    param([string]$Root, [string]$BuildPath)
+    $text = Get-Content -LiteralPath $BuildPath -Raw
+    $start = $text.IndexOf('$releaseParent = Split-Path $release -Parent')
+    $end = $text.IndexOf('Move-Item -LiteralPath $packageStaging -Destination $release', $start)
+    $publish = [scriptblock]::Create($text.Substring($start, $end - $start + 'Move-Item -LiteralPath $packageStaging -Destination $release'.Length))
+    $packageStaging = Join-Path $Root 'staging'
+    $release = Join-Path $Root 'absent/releases/chosen'
+    New-Item -ItemType Directory -Path $packageStaging | Out-Null
+    [IO.File]::WriteAllText((Join-Path $packageStaging 'package.txt'), 'verified package')
+    & $publish
+    Assert-True (([IO.File]::ReadAllText((Join-Path $release 'package.txt'))) -ceq 'verified package') 'package was not published under a previously absent release parent'
+    Assert-True (-not (Test-Path -LiteralPath $packageStaging)) 'package staging was not moved'
+    return @{createdReleaseParent=$true;publishedPackage=$true}
+}
+
 function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false, [bool]$Exhaustive = $false, [string]$PolicyChangedPath = '', [bool]$ReuseSourcePreflight = $false) {
     if ($Case -and $Name -notin $Case) { return }
     if ($ChangedOnly -and -not $Case -and $Name -notin $changedCases) { return }
@@ -566,6 +590,10 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
     if ($Mode -eq 'stage-environment-identity') {
         $details = Test-StageEnvironmentIdentity (Join-Path $PSScriptRoot 'deploy-azrael.ps1') (Join-Path $PSScriptRoot 'build-azrael.ps1') (Join-Path $PSScriptRoot 'build-metrics.ps1')
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
+    }
+    if ($Mode -eq 'release-packaging-parent') {
+        $details = Test-ReleasePackagingParent (Join-Path $root 'publish') (Join-Path $PSScriptRoot 'build-azrael.ps1')
         $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
     }
     if ($Mode -eq 'host-copy-baseline') {
@@ -1369,6 +1397,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'host copy baseline' 'host-copy-baseline'
     Invoke-Case 'deployment capacity guard' 'deployment-capacity'
     Invoke-Case 'stage environment identity' 'stage-environment-identity'
+    Invoke-Case 'release packaging parent' 'release-packaging-parent'
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
     Invoke-Case 'account socket path' 'account-socket-path'
     Invoke-Case 'fixture path selection' 'fixture-path-selection'

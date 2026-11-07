@@ -387,7 +387,7 @@ const path = require('node:path');
     fs.writeFileSync(receipt.receiptPath, original); fs.writeFileSync(receipt.checks[0].errorPath, 'tampered');
     await assert.rejects(gate.verifyReceipt(verifyConfig), /evidence changed/);
   });
-  test('engine preflight shares whole-file checks and rejects changed evidence or environment', async () => {
+  test('engine preflight shares whole-file checks and rejects changed evidence or environment', async t => {
     const { root, manifest, config } = setup();
     const file = 'scripts/test-fixture.cjs', sibling = 'scripts/test-sibling.cjs';
     fs.writeFileSync(path.join(root, file), 'fixture source');
@@ -395,14 +395,29 @@ const path = require('node:path');
     const feature = manifest.features.find(item => item.area === 'engine');
     feature.checks = [{ id: 'engine.fixture.source', executable: 'node', args: ['--test', file, sibling], level: 'source' }];
     fs.writeFileSync(path.join(root, 'scripts/azrael-feature-contracts.json'), JSON.stringify(manifest));
+    const pipelineRoot = path.join(root, 'artifacts/logs/deploy-reuse');
+    const fixtureNames = { AZRAEL_INSTRUCTION_TEST_ROOT: 'instructions', AZRAEL_CATALOG_TEST_ROOT: 'catalog',
+      AZRAEL_MIGRATION_TEST_ROOT: 'migration', AZRAEL_WORKBENCH_TEST_ROOT: 'workbench' };
+    const originalFixtureEnvironment = Object.fromEntries(Object.keys(fixtureNames).map(key => [key, process.env[key]]));
+    t.after(() => {
+      for (const [key, value] of Object.entries(originalFixtureEnvironment)) {
+        if (value === undefined) delete process.env[key]; else process.env[key] = value;
+      }
+    });
+    const fixtureOwnership = { pipelineRoot, sourceFixtureRoot: path.join(pipelineRoot, 'source-fixtures') };
+    for (const [key, name] of Object.entries(fixtureNames)) process.env[key] = path.join(fixtureOwnership.sourceFixtureRoot, name);
     let executions = 0;
-    const sourceConfig = { ...config, area: 'engine', checkPhase: 'source', sourceTestConcurrency: 4, execute: async (...args) => {
+    const sourceConfig = { ...config, deploymentFixtureIdentity: fixtureOwnership, area: 'engine', checkPhase: 'source', sourceTestConcurrency: 4, execute: async (...args) => {
       executions++; return config.execute(...args);
     } };
     const receipt = await gate.runPreservation(sourceConfig);
     assert.equal(receipt.status, 'passed', receipt.error);
     assert.equal(executions, 1);
     assert.deepEqual(receipt.checks[0].args, ['--test', '--test-concurrency=4', file, sibling]);
+    fixtureOwnership.sourceFixtureRoot = path.join(pipelineRoot, 'attempts', 'a'.repeat(32), 'source-fixtures');
+    for (const [key, name] of Object.entries(fixtureNames)) process.env[key] = path.join(fixtureOwnership.sourceFixtureRoot, name);
+    assert.deepEqual(await gate.sourceExecutionIdentity(sourceConfig), receipt.sourceExecution,
+      'fresh deployment fixture paths must preserve receipt execution identity');
     const { bindSourcePreflight } = require('./source-preflight-reuse.cjs');
     const selection = { files: [file, 'scripts/remaining.cjs'], commands: [{ name: 'source', executable: process.execPath,
       args: ['--test', '--test-concurrency=4', file, 'scripts/remaining.cjs'], cwd: root, files: [file, 'scripts/remaining.cjs'] }] };
@@ -420,6 +435,8 @@ const path = require('node:path');
       assert.deepEqual(rejected.selection.commands, [command]);
     }
     assert.deepEqual(bound.environment, gate.checkEnvironment(sourceConfig));
+    assert.equal(bound.environment.AZRAEL_CATALOG_TEST_ROOT, path.join(fixtureOwnership.sourceFixtureRoot, 'catalog'),
+      'handoff must execute with fresh physical fixture paths');
     await bound.validate();
     assert.equal(executions, 1, 'reuse must not execute checks again');
     await assert.rejects(bindSourcePreflight(selection, { ...reuseConfig, projectRoot: path.join(root, 'ui') }, root), /same-project/);
@@ -453,6 +470,16 @@ const path = require('node:path');
       if (oldEnvironment === undefined) delete process.env.AZRAEL_PREFLIGHT_REUSE_TEST;
       else process.env.AZRAEL_PREFLIGHT_REUSE_TEST = oldEnvironment;
     }
+    const catalogRoot = process.env.AZRAEL_CATALOG_TEST_ROOT;
+    try {
+      process.env.AZRAEL_CATALOG_TEST_ROOT = path.join(root, 'different-fixtures');
+      await assert.rejects(bound.validate(), error => error.code === 'VERIFICATION_REVIEW_REQUIRED');
+    } finally { process.env.AZRAEL_CATALOG_TEST_ROOT = catalogRoot; }
+    const logicalEnvironment = require('./verification-reuse-policy.cjs').logicalBuildEnvironment;
+    assert.throws(() => logicalEnvironment(process.env,
+      { pipelineRoot, sourceFixtureRoot: path.join(root, 'outside') }, root), /attempt boundary/);
+    assert.throws(() => logicalEnvironment(process.env,
+      { pipelineRoot: path.dirname(root), sourceFixtureRoot: path.join(path.dirname(root), 'source-fixtures') }, root), /project pipeline boundary/);
     fs.writeFileSync(receipt.checks[0].logPath, 'changed');
     await assert.rejects(bound.validate(), /evidence changed/);
   });

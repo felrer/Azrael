@@ -4,6 +4,31 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 
+// Same bounded fixture-path contract as Get-LogicalBuildEnvironment in
+// build-metrics.ps1. Only identity uses this view; execution keeps real paths.
+function logicalBuildEnvironment(environment, ownership, projectRoot) {
+  const logical = { ...environment };
+  if (!ownership) return logical;
+  const { pipelineRoot, sourceFixtureRoot } = ownership;
+  if (![projectRoot, pipelineRoot, sourceFixtureRoot].every(value => typeof value === 'string' && path.isAbsolute(value))) {
+    throw Error('Deployment fixture identity requires absolute owned paths');
+  }
+  if (path.dirname(path.resolve(pipelineRoot)) !== path.resolve(projectRoot, 'artifacts/logs') ||
+      !path.basename(pipelineRoot).startsWith('deploy-') || path.basename(pipelineRoot).length <= 7) {
+    throw Error('Deployment fixture identity is outside the project pipeline boundary');
+  }
+  const relative = path.relative(path.resolve(pipelineRoot), path.resolve(sourceFixtureRoot)).split(path.sep).join('/');
+  if (!/^(source-fixtures|attempts\/[a-f0-9]{32}\/source-fixtures)$/.test(relative)) {
+    throw Error('Deployment fixture identity is outside the expected pipeline attempt boundary');
+  }
+  const names = { AZRAEL_INSTRUCTION_TEST_ROOT: 'instructions', AZRAEL_CATALOG_TEST_ROOT: 'catalog',
+    AZRAEL_MIGRATION_TEST_ROOT: 'migration', AZRAEL_WORKBENCH_TEST_ROOT: 'workbench' };
+  for (const [key, name] of Object.entries(names)) {
+    if (environment[key] === path.join(sourceFixtureRoot, name)) logical[key] = `<deployment-source-fixtures>/${name}`;
+  }
+  return logical;
+}
+
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
   if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(name => [name, canonical(value[name])]));
@@ -108,4 +133,4 @@ function reportCliError(error) {
   process.exitCode = report ? 3 : 1;
 }
 
-module.exports = { canonical, key, fieldKeys, differences, validateDecisions, loadDecisions, reviewReuse, ReuseReviewRequired, errorReport, reportCliError };
+module.exports = { canonical, key, fieldKeys, differences, validateDecisions, loadDecisions, reviewReuse, ReuseReviewRequired, errorReport, reportCliError, logicalBuildEnvironment };

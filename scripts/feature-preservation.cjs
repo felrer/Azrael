@@ -261,7 +261,7 @@ async function identity(config, manifest, rules, features, execution = execute) 
   if (['engine', 'all'].includes(config.area)) {
     if (!config.engineSourceRoot || !path.isAbsolute(config.engineSourceRoot)) throw Error('Explicit absolute engine source root required');
     input.engineSource = { root: config.engineSourceRoot, sha256: (await snapshotProject(config.engineSourceRoot)).sha256 };
-    const { AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH, ...environment } = checkEnvironment(config);
+    const environment = identityEnvironment(config);
     input.executionEnvironment = hash(canonical(environment));
     input.checkRuntime = await require('./pipeline-preflight.cjs').identity(config, features);
     if (config.checkPhase === 'source') return input;
@@ -317,6 +317,10 @@ function checkEnvironment(config, preparation) {
       ...(preparation.runtimeIdentity ? { AZRAEL_CARGO_PREPARATION_RUNTIME_IDENTITY: preparation.runtimeIdentity } : {}),
     } : {}) };
 }
+function identityEnvironment(config) {
+  const { AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH, ...environment } = checkEnvironment(config);
+  return reusePolicy.logicalBuildEnvironment(environment, config.deploymentFixtureIdentity, config.projectRoot);
+}
 function cargoPreparationDirectory(config, runDirectory) {
   const target = checkEnvironment(config).CARGO_TARGET_DIR;
   if (!target) return path.join(runDirectory, 'cargo-preparation');
@@ -326,7 +330,7 @@ function cargoPreparationDirectory(config, runDirectory) {
   return path.join(physicalPath(target), '.azrael-test-preparation');
 }
 async function sourceExecutionIdentity(config) {
-  const { AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH, ...environment } = checkEnvironment(config);
+  const environment = identityEnvironment(config);
   return { executable: process.execPath, sha256: await fileHash(process.execPath),
     version: process.version, platform: process.platform, arch: process.arch,
     environmentSha256: hash(canonical(environment)) };
@@ -351,7 +355,7 @@ async function sourceCacheRuntime(config, bindProjectTypeScript = false) {
       packageSha256: await fileHash(packagePath),
       state: path.resolve(entry) === typescriptPath ? typescript.state : await getDirectoryState(root) };
   }
-  const { AZRAEL_VERIFICATION_REUSE_DECISIONS_PATH, ...environment } = checkEnvironment(config);
+  const environment = identityEnvironment(config);
   return { node: { executable: process.execPath, sha256: await fileHash(process.execPath), version: process.version,
     platform: process.platform, arch: process.arch }, typescript,
     ...(bindProjectTypeScript ? { projectTypeScript } : {}),

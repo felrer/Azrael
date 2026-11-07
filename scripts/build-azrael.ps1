@@ -268,6 +268,8 @@ Invoke-BuildScript (Join-Path $PSScriptRoot 'package-azrael.ps1') @{
     SourceRoot = $sourceRoot; RetainedSourceRoot = $RetainedSourceRoot; OutputDirectory = $packageStaging
     SourceStatePath = $sourceStatePath; SourceGeneration = $sourceGeneration
 } 'package.log'
+$releaseParent = Split-Path $release -Parent
+if (-not (Test-Path -LiteralPath $releaseParent -PathType Container)) { New-Item -ItemType Directory -Path $releaseParent | Out-Null }
 Move-Item -LiteralPath $packageStaging -Destination $release
 $null=Invoke-BuildCheckpoint 'finish' 'build.package' @{exitCode=0;outputs=@((Join-Path $release 'engine/azrael.exe'),(Join-Path $release 'engine/azrael-bridge.exe'),(Join-Path $release 'engine/azrael-code-mode-host.exe'),(Join-Path $release 'engine/azrael-engine-build.json'),(Join-Path $release 'azrael-ex.vsix'))}
 $script:buildPipelineActive=$null

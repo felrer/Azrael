@@ -626,6 +626,7 @@ try {
     $metrics.forceNativeVerification = [bool]$ForceNativeVerification
     $metrics.changedPaths = @($ChangedPath)
     $sourceConfig = [ordered]@{
+        deploymentFixtureIdentity = @{pipelineRoot=$pipelineRoot;sourceFixtureRoot=$sourceFixtureRoot}
         reuseDecisionsPath = $ReuseDecisionsPath
         projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)
         sourceTestConcurrency = $SourceTestConcurrency
@@ -714,6 +715,7 @@ try {
     # Entry/resume validates the frozen inputs; pre-install validates them again.
     $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $enginePreservationConfig = [ordered]@{
+        deploymentFixtureIdentity = @{pipelineRoot=$pipelineRoot;sourceFixtureRoot=$sourceFixtureRoot}
         reuseDecisionsPath = $ReuseDecisionsPath
         projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)
         sourceTestConcurrency = $SourceTestConcurrency
