@@ -17,7 +17,7 @@ async function fixture(t, delayed = false, occupancyDirectory, workspaceFile, ex
     createServer: () => { const server = new EventEmitter(); server.listen = (_pipe, ready) => { releaseListen = ready; if (!delayed) ready(); }; server.close = () => {}; return server; },
   });
   const native = { registerProvider() { return { dispose() {} }; } };
-  attachApprovalEngine(host, native);
+  const { engine } = attachApprovalEngine(host, native, undefined, extra.engine);
   host.registerApprovalUI(native, envelope => {
     if (envelope.type === 'mcp-request') {cards.push(envelope.request);assert.equal(host.respondApproval(native, envelope.request.id, { action: 'accept', _meta: { persist: 'session' } }), true);}
   });
@@ -25,7 +25,7 @@ async function fixture(t, delayed = false, occupancyDirectory, workspaceFile, ex
   const file = id => path.join(home, 'azrael/computer-use/window-sessions', id + '.json');
   const started = (id = ids[0], turn = 'turn-one', engine = native) => host.observe(engine, { method: 'turn/started', params: { threadId: id, turn: { id: turn } } });
   const message = (id = ids[0], turn = 'turn-one') => ({ nonce: host.nonce, threadId: id, method: 'call', tool: 'status', arguments: {}, _meta: { threadId: id, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: id, turn_id: turn } } });
-  return { host, native, home, file, started, message, calls, approvals, cards, window, settings:require('./use-control-settings.cjs').createSettingsOwner(home), release: () => releaseListen(), panels: () => panels };
+  return { host, native, engine, home, file, started, message, calls, approvals, cards, window, settings:require('./use-control-settings.cjs').createSettingsOwner(home), release: () => releaseListen(), panels: () => panels };
 }
 async function replayResult(f, method, expected, returned = expected) {
   f.host.request(f.native, 'ordinary', 'request', method, { threadId: expected });
@@ -136,16 +136,61 @@ test('saved multi-root workspace owns macros rather than its first folder', asyn
   assert.equal((await tasks.createStore(f.home,workspaceFile).read()).macros[0].id,'team');
   assert.deepEqual((await tasks.createStore(f.home,'C:/private/Workspace').read()).macros,[]);
 });
+// Retain both orders: a later host refactor must not re-register hidden title threads
+// through notifications after exempting only their start response (or vice versa).
+for (const order of ['notification-first', 'response-first']) test('ephemeral title lifecycle bypasses durable Window Use registration: ' + order, async t => {
+  const approvalCalls = [];
+  const f = await fixture(t, false, undefined, undefined, { engine: {
+    async rpc(method) { approvalCalls.push(method); throw Error('ephemeral thread does not support queued submissions'); }
+  } });
+  const thread = { id: ids[0], ephemeral: true };
+  const notification = () => f.host.observe(f.native, { method: 'thread/started', params: { thread } });
+  f.host.request(f.native, 'title', 'start', 'thread/start', { ephemeral: true, threadSource: 'thread_title' });
+  if (order === 'notification-first') notification();
+  const result = { id: 'title:start', result: { thread } };
+  assert.equal(f.host.beforeResult(f.native, result, () => assert.fail('hidden thread response must pass through')), false);
+  if (order === 'response-first') notification();
+  f.started();
+  f.host.observe(f.native, { method: 'turn/completed', params: { threadId: ids[0], turn: { id: 'turn-one', status: 'completed' } } });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(f.host.threads.has(ids[0]), false);
+  await assert.rejects(fs.stat(f.file(ids[0])), { code: 'ENOENT' });
+  assert.deepEqual(approvalCalls, []);
+  assert.equal(f.host.beforeResult(f.native, result, () => assert.fail('duplicate replay')), false);
+  // Ephemeral exclusion belongs to one native connection and ends with closure.
+  const other = { registerProvider() { return { dispose() {} }; } };
+  attachApprovalEngine(f.host, other);
+  f.started(ids[0], 'ordinary-turn', other);
+  await f.host.threads.get(ids[0]).ready;
+  assert.equal(f.host.threads.get(ids[0]).bridge.native, other);
+  f.host.observe(f.native, { method: 'thread/closed', params: { threadId: ids[0] } });
+  assert.equal(f.host.threads.get(ids[0]).bridge.native, other);
+});
+
 test('ordinary start publishes the exact session before replay with no panel and repeats safely', async t => {
   const f = await fixture(t); const { reply, result } = await replayResult(f, 'thread/start', ids[0]);
   assert.equal(await reply, result);
   const record = JSON.parse(await fs.readFile(f.file(ids[0]), 'utf8'));
   assert.deepEqual(Object.keys(record).sort(), ['nonce', 'pipe', 'schema']); assert.equal(record.nonce, f.host.nonce);
   assert.equal(f.panels(), 0); assert.equal(f.host.threads.size, 1);
+  assert.equal(f.engine.calls.filter(call => call.method === 'thread/approval/list').length, 1);
   f.host.observe(f.native, { method: 'thread/started', params: { thread: { id: ids[0] } } });
   const repeated = await replayResult(f, 'thread/resume', ids[0]); assert.equal(await repeated.reply, repeated.result);
   assert.equal(f.host.threads.size, 1); assert.deepEqual(JSON.parse(await fs.readFile(f.file(ids[0]), 'utf8')), record);
   assert.equal(f.host.beforeResult(f.native, result, () => assert.fail('duplicate replay')), false);
+});
+
+test('persistent lifecycle still fails closed when durable approval restoration fails', async t => {
+  const f = await fixture(t, false, undefined, undefined, { engine: {
+    async rpc() { throw Error('approval storage unavailable'); }
+  } });
+  f.host.request(f.native, 'ordinary', 'start', 'thread/start', {});
+  const reply = await new Promise(resolve => {
+    assert.equal(f.host.beforeResult(f.native, { id: 'ordinary:start', result: { thread: { id: ids[0], ephemeral: false } } }, resolve), true);
+  });
+  assert.equal(reply.error.code, 'unclassified');
+  assert.equal(f.host.threads.has(ids[0]), false);
+  await assert.rejects(fs.stat(f.file(ids[0])), { code: 'ENOENT' });
 });
 test('resume mismatch and cross-bridge ownership fail without replacing an existing session', async t => {
   const f = await fixture(t); f.started(); await f.host.threads.get(ids[0]).ready;

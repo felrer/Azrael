@@ -10,6 +10,8 @@ Window Use is a built-in MCP capability with brief host-provided guidance. It ha
 
 ## Control modes and permission lifetime
 
+The host registers persistent conversations for Window Use and restores their durable approvals before publishing a successful start/resume response. Native `thread.ephemeral` metadata excludes hidden helper conversations, including automatic title generation, from rendezvous publication and approval restoration. The exclusion follows the owning engine connection across thread/turn notifications and ends on thread closure or disconnection; it grants no Window Use authority. Persistent conversations retain fail-closed registration and approval restoration. Preservation feature: `ui.window-control`.
+
 Implemented in source: selected-window UI Automation control and separate whole-screen coordinate input. Desktop control is an explicit per-conversation, session-only grant. It includes individual control under that same authority. User Stop, revocation and thread closure revoke it and inherited operations; ordinary turn completion does not. Process recreation cannot recreate it from an old accepted receipt. Installed-runtime and live desktop input acceptance remain separate from source verification.
 
 Security App (시큐리티 앱) is the displayed name for the existing observation-protection list and now also excludes the app from control; whitelist (화이트리스트) remains the app control exception list. Security Apps cannot be controlled through individual or desktop authority, including when whitelisted or previously approved. There is no additional control exception approval. Observation approval never removes this control block or unmasks screenshots. The app whitelist never manufactures a global grant.

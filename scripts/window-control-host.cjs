@@ -49,6 +49,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   const settingsOwner = require('./use-control-settings.cjs').createSettingsOwner(runtime.codexHome);
   const controlGrants = new Map(), desktopEpochs = new Map(), hostInstance = randomUUID();
   const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map(), uiTokens = new Map(), activeUI = new Set(), activeConsents = new Set(), lifecycleRequests = new Map(), cleanupTasks = new Map(), approvalUIs = new Map(), pendingConsents = new Map();
+  const ephemeralThreads = new WeakMap();
   const durableApprovals = require('./window-use-async-approvals.cjs').createLedger({ directory:path.join(runtime.codexHome,'azrael','window-use','approval-owner'),rpc:(thread,method,params)=>{const t=threads.get(thread);if(!t)throw windowError('connection_error','승인 요청의 엔진 연결이 없습니다.');return t.bridge.rpc(method,params);} });
   const approvalReceipts = new Map(), approvalTasks = new Set();
   const trackApproval = task => { approvalTasks.add(task); void task.finally(()=>approvalTasks.delete(task)).catch(()=>{}); return task; };
@@ -602,8 +603,23 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     web.onDidReceiveMessage(message => { void handleUI(message).catch(e => panel?.webview.postMessage({ type: 'error', text: errorPayload(e).message })); });
     panel.onDidDispose(() => { for (const record of activeConsents) if (record.route === 'panel' && record.panelNonce === panelNonce) {if(!record.deferred)record.controller.abort();else record.panelNonce=undefined;} panel = undefined; panelNonce = undefined; }); render(); if(current)void trackApproval(restoreApprovals(current)).catch(()=>{});
   }
+  // Hidden metadata threads have no durable approval ledger or Window Use rendezvous.
+  // Remember the native identity so later turn notifications cannot register them.
+  function rememberEphemeralThread(native, thread) {
+    if (thread?.ephemeral !== true || !UUID.test(thread.id || '') || !bridges.has(native)) return false;
+    let ids = ephemeralThreads.get(native);
+    if (!ids) { ids = new Set(); ephemeralThreads.set(native, ids); }
+    ids.add(thread.id);
+    return true;
+  }
   function observe(native, message) {
     const params = message?.params; const thread = params?.threadId || params?.thread?.id;
+    if (message?.method === 'thread/started') rememberEphemeralThread(native, params?.thread);
+    const hidden = ephemeralThreads.get(native);
+    if (hidden?.has(thread)) {
+      if (['thread/closed','thread/archived','thread/deleted','thread/ended'].includes(message.method)) hidden.delete(thread);
+      return;
+    }
     if (UUID.test(thread || '') && ['thread/started', 'turn/started'].includes(message?.method) && !threads.has(thread)) {
       const bridge = bridges.get(native); if (bridge && !disposed) registerThread(thread, bridge);
     }
@@ -634,6 +650,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     let ready;
     try {
       if (!UUID.test(thread || '') || (record.expectedThread && record.expectedThread !== thread)) throw new Error('Invalid Window Use lifecycle response');
+      if (rememberEphemeralThread(native, message.result.thread)) return false;
       const registered=registerThread(thread, bridge);registered.mode=message.result?.computerUseMode;ready = registered.ready;
     } catch (error) { ready = Promise.reject(error); }
     void ready.then(() => { if (!disposed && bridges.get(native) === bridge) replay(message); }).catch(async error => {
@@ -643,7 +660,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     return true;
   }
   function attach(native, raw) { if (!bridges.has(native)) bridges.set(native, new Bridge(native, raw, () => disconnect(native))); return bridges.get(native); }
-  function disconnect(native) { lifecycleRequests.delete(native); approvalUIs.delete(native); approvalNavigation.delete(native); const bridge = bridges.get(native); if (!bridge) return;
+  function disconnect(native) { lifecycleRequests.delete(native); ephemeralThreads.delete(native); approvalUIs.delete(native); approvalNavigation.delete(native); const bridge = bridges.get(native); if (!bridge) return;
     for(const record of activeConsents)if(record.native===native){record.preserveOnAbort=true;record.controller.abort();}
     bridge.dispose(); bridges.delete(native); for (const [thread, t] of threads) if (t.bridge === bridge) { invalidateUI(thread,{preserveApprovals:true}); approvals.stop(thread); owner.clear(thread); if (current === thread) render(publicState('엔진 연결 끊김')); void serial(() => cleanup(thread,{preserveApprovals:true})); } }
   const policyFile=path.join(runtime.codexHome,'azrael','computer-use','use-settings.json');
