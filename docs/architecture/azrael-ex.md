@@ -188,6 +188,14 @@ A user stop during submission applies to that submission only. The UI retains th
 
 The version-pinned UI transforms reuse native turn creation, interruption, history projection and edit handlers. Source-level asynchronous fixtures verify the affected paths; installed-host acceptance is separate from those checks.
 
+### Local paginated resume loading
+
+Status: `partial` — Windows source checks execute the pinned Webview orchestration and paging functions; installed-host and other-platform acceptance are separate.
+
+Local paginated resume starts metadata and workspace preparation early, then loads the body using the successful resume response's history cursors. It does not independently prefetch body pages before resume. This avoids a second initial body read without treating ordinal pagination cursors as immutable history revisions. The conversation's metadata and existing loading surface remain available while resume is pending; a new body preview waits for resume.
+
+The native timeline/page selection, latest-turn-first item budget, item cursor continuation, notification buffering, current-attempt checks and state merge rules remain unchanged. A writer-conflict failure retains the existing read-only history recovery path. This is a UI request-timing policy, not a cross-resume cache or a migration of stored conversations. It is preserved by `ui.paginated-history` through `scripts/inject-paginated-history.cjs` and its pinned-declaration checks.
+
 ### Native history projection after revert
 
 Status: `partial`: common thread-store implementation; focused Windows native checks verify derived projection repair independently of installed-host acceptance.

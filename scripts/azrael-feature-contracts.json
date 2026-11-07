@@ -3408,6 +3408,7 @@
       "area": "ui",
       "owners": [
         "scripts/inject-paginated-history.cjs",
+        "docs/architecture/azrael-ex.md",
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],

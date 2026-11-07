@@ -50,6 +50,29 @@
   ],
   "bundles": [
     {
+      "id": "paginated-history-source",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/test-paginated-history.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
+      ],
+      "inputs": [
+        "scripts/inject-paginated-history.cjs",
+        "scripts/test-paginated-history.cjs",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/asset-transform-cache.cjs",
+        "extensions/azrael-ex/node_modules/typescript/package.json",
+        "extensions/azrael-ex/node_modules/typescript/lib/typescript.js",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-97d3534ad35f.js"
+      ]
+    },
+    {
       "id": "deployment-manifest-verification",
       "kind": "test",
       "purpose": "retained",
