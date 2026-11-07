@@ -3,6 +3,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { createRequire } = require("node:module");
 const { getDirectoryState } = require("./directory-state.cjs");
 const { getUiSourceState } = require("./ui-source-state.cjs");
 
@@ -17,6 +18,31 @@ function writeJson(file, value) {
   const temporary = `${file}.${process.pid}.${crypto.randomUUID()}.tmp`;
   fs.writeFileSync(temporary, JSON.stringify(value, null, 2) + "\n");
   fs.renameSync(temporary, file);
+}
+function crcToolFiles(toolDirectory) {
+  const root = fs.realpathSync(toolDirectory);
+  const inside = file => {
+    const physical = fs.realpathSync(file);
+    const relative = path.relative(root, physical);
+    if (!relative || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative) || !fs.statSync(physical).isFile()) {
+      throw new Error("ZIP dependency resolves outside the pinned tool directory");
+    }
+    return { file: physical, name: relative.split(path.sep).join("/") };
+  };
+  const yazlPackage = path.join(toolDirectory, "companion/node_modules/azrael-yazl/package.json");
+  inside(yazlPackage);
+  const entry = inside(createRequire(yazlPackage).resolve("buffer-crc32"));
+  // Package exports may hide package.json. Follow the resolved entry's physical
+  // ancestry instead of resolving a different hoisted version's manifest.
+  for (let directory = path.dirname(entry.file); ; directory = path.dirname(directory)) {
+    const manifestPath = path.join(directory, "package.json");
+    if (fs.existsSync(manifestPath)) {
+      const manifest = inside(manifestPath);
+      if (readJson(manifest.file).name === "buffer-crc32") return [manifest, entry];
+    }
+    if (!path.relative(root, directory) || path.dirname(directory) === directory) break;
+  }
+  throw Object.assign(new Error("Resolved buffer-crc32 package manifest is missing"), { code: "ENOENT" });
 }
 async function inputs(config, uiSourceObservation) {
   const scripts = [
@@ -43,11 +69,10 @@ async function inputs(config, uiSourceObservation) {
     "companion/node_modules/@vscode/vsce/out/secretLint.js",
     "companion/package-lock.json",
     "companion/node_modules/azrael-yazl/package.json",
-    "companion/node_modules/azrael-yazl/index.js",
-    "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/package.json",
-    "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/index.js"];
+    "companion/node_modules/azrael-yazl/index.js"];
   const tools = Object.fromEntries(await Promise.all(toolFiles.map(async name =>
     [name, await fileHash(path.join(config.toolDirectory, name))])));
+  for (const { name, file } of crcToolFiles(config.toolDirectory)) tools[name] = await fileHash(file);
   return { schema: 1, config, scripts: hashes, transformRules: getTransformRules(), tools,
     build: await fileHash(path.join(config.release, "build-info.json")), bundle,
     source: await getUiSourceState(config.source, uiSourceObservation),

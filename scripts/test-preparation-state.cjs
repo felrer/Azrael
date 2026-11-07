@@ -13,9 +13,11 @@ const zipToolFiles = ["companion/package-lock.json", "companion/node_modules/azr
   "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/index.js"];
 
 function fixture(t) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-preparation-test-"));
+  const fixtureParent = path.resolve(process.env.AZRAEL_PREPARATION_STATE_TEST_ROOT || os.tmpdir());
+  fs.mkdirSync(fixtureParent, { recursive: true });
+  const root = fs.mkdtempSync(path.join(fixtureParent, "azrael-preparation-test-"));
   t.after(() => {
-    assert.equal(path.dirname(path.resolve(root)), path.resolve(os.tmpdir()));
+    assert.equal(path.dirname(path.resolve(root)), fixtureParent);
     assert.ok(path.basename(root).startsWith("azrael-preparation-test-"));
     fs.rmSync(root, { recursive: true });
     assert.equal(fs.existsSync(root), false);
@@ -35,6 +37,8 @@ function fixture(t) {
     write(path.join(config.toolDirectory, "companion/node_modules", name), "fixture tool");
   }
   for (const name of zipToolFiles) write(path.join(config.toolDirectory, name), "fixture ZIP tool");
+  write(path.join(config.toolDirectory, "companion/node_modules/azrael-yazl/package.json"), JSON.stringify({name:"azrael-yazl",version:"1.0.0",main:"index.js"}));
+  write(path.join(config.toolDirectory, "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/package.json"), JSON.stringify({name:"buffer-crc32",version:"0.2.13",main:"index.js"}));
   const output = path.join(root, "output");
   fs.mkdirSync(output);
   return { root, config, output, write };
@@ -94,13 +98,52 @@ test("resume binds the ZIP writer, CRC implementation and dependency lock", asyn
     assert.ok(initial.inputs.tools[name], name);
     const file = path.join(config.toolDirectory, name);
     const original = fs.readFileSync(file);
-    fs.writeFileSync(file, "changed ZIP tool");
+    fs.writeFileSync(file, name.endsWith("/package.json") ? JSON.stringify({...JSON.parse(original),version:"changed"}) : "changed ZIP tool");
     await assert.rejects(state.initialize(output, config, true), /Preparation inputs changed/, name);
     fs.unlinkSync(file);
-    await assert.rejects(state.initialize(output, config, true), { code: "ENOENT" }, name);
+    await assert.rejects(state.initialize(output, config, true), error => ["ENOENT", "MODULE_NOT_FOUND"].includes(error.code), name);
     fs.writeFileSync(file, original);
   }
   assert.deepEqual(await state.initialize(output, config, true), initial);
+});
+
+test("ZIP fingerprints follow nested package exports before a hoisted CRC decoy", async t => {
+  const { config, output, write } = fixture(t);
+  const nested = path.join(config.toolDirectory, "companion/node_modules/azrael-yazl/node_modules/buffer-crc32");
+  write(path.join(nested, "package.json"), JSON.stringify({name:"buffer-crc32",version:"1.0.0",main:"dist/index.cjs",exports:{".":"./dist/index.cjs"}}));
+  write(path.join(nested, "dist/index.cjs"), "selected nested CRC");
+  fs.unlinkSync(path.join(nested, "index.js"));
+  const hoisted = path.join(config.toolDirectory, "companion/node_modules/buffer-crc32");
+  write(path.join(hoisted, "package.json"), JSON.stringify({name:"buffer-crc32",version:"0.2.13",main:"index.js"}));
+  write(path.join(hoisted, "index.js"), "wrong hoisted CRC");
+  const initial = await state.initialize(output, config, false);
+  const entry = "companion/node_modules/azrael-yazl/node_modules/buffer-crc32/dist/index.cjs";
+  assert.equal(initial.inputs.tools[entry], crypto.createHash("sha256").update("selected nested CRC").digest("hex"));
+  assert.equal(initial.inputs.tools["companion/node_modules/buffer-crc32/index.js"], undefined);
+  fs.writeFileSync(path.join(nested, "dist/index.cjs"), "changed selected CRC");
+  await assert.rejects(state.initialize(output, config, true), /Preparation inputs changed/);
+});
+
+test("ZIP fingerprints support a genuinely hoisted CRC dependency", async t => {
+  const { config, output, write } = fixture(t);
+  const nested = path.join(config.toolDirectory, "companion/node_modules/azrael-yazl/node_modules/buffer-crc32");
+  fs.rmSync(nested, {recursive:true});
+  const hoisted = path.join(config.toolDirectory, "companion/node_modules/buffer-crc32");
+  write(path.join(hoisted, "package.json"), JSON.stringify({name:"buffer-crc32",version:"0.2.13",main:"index.js"}));
+  write(path.join(hoisted, "index.js"), "hoisted CRC");
+  const initial = await state.initialize(output, config, false);
+  assert.equal(initial.inputs.tools["companion/node_modules/buffer-crc32/index.js"], crypto.createHash("sha256").update("hoisted CRC").digest("hex"));
+  assert.deepEqual(await state.initialize(output, config, true), initial);
+});
+
+test("ZIP dependency resolution rejects missing and physically outside pinned tools", async t => {
+  const { root, config, output, write } = fixture(t);
+  fs.rmSync(path.join(config.toolDirectory, "companion/node_modules/azrael-yazl/node_modules/buffer-crc32"), {recursive:true});
+  await assert.rejects(state.initialize(output, config, false), /Cannot find module|outside the pinned tool directory/);
+  const outside = path.join(root, "node_modules/buffer-crc32");
+  write(path.join(outside, "package.json"), JSON.stringify({name:"buffer-crc32",version:"0.2.13",main:"index.js"}));
+  write(path.join(outside, "index.js"), "outside CRC");
+  await assert.rejects(state.initialize(output, config, false), /outside the pinned tool directory/);
 });
 
 test("resume refuses a changed transform rule fingerprint", async t => {
