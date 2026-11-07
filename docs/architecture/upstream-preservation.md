@@ -131,6 +131,7 @@ A new build pins one exact project commit before input preparation. Its tracked 
 The input receipt records the selected commit. Resume and existing immutable-input reuse retain that identity without consulting current HEAD. New arbitrary file overlays are not a production input path: fixes must be committed and select a new input identity. Existing frozen manifests retain their read/verification contract. External engines and runtime/UI inputs remain independently pinned by their existing content receipts; an external engine is not implicitly bound by the project commit. Compilation/dependency caches remain independently owned reusable outputs, outside the committed source inventory.
 
 Running producers continue consuming their original immutable scripts, manifests and sources. Updating the primary checkout does not update a running build. Exact content/provenance and final-package checks remain mandatory after source selection.
+
 #### Deployment manifest details
 
 Status: `current` for new deployment preparation with Windows x64 verification in [the build review](../../work/FT-01-periodic-system-freeze/02-plan.md). Linux/macOS native and full product acceptance remain unverified. Existing frozen schema-1/2 manifests retain their read contract and are never rewritten in place.
