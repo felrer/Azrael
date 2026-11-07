@@ -1989,6 +1989,9 @@
       "area": "ui",
       "owners": [
         "scripts/inject-student-design.cjs",
+        "extensions/azrael-ex/src/studentDesign.ts",
+        "scripts/student-avatar-assets.cjs",
+        "scripts/scientist-avatar-assets.cjs",
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
@@ -2001,6 +2004,12 @@
             "--test",
             "scripts/test-student-design.cjs"
           ],
+          "level": "source"
+        },
+        {
+          "id": "ui.student-design.scientist-assets",
+          "executable": "node",
+          "args": ["scripts/test-scientist-avatar-assets.cjs"],
           "level": "source"
         },
         {

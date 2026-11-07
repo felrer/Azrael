@@ -3,6 +3,7 @@ const { ACCOUNT_SETTINGS_ASSET, injectAccountSettings } = require("./inject-acco
 const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings } = require("./inject-instruction-settings.cjs");
 const { DESIGN_ASSETS, injectStudentDesign } = require("./inject-student-design.cjs");
 const { copyStudentAvatarAssets } = require("./student-avatar-assets.cjs");
+const { copyScientistAvatarAssets } = require("./scientist-avatar-assets.cjs");
 const { SESSION_LINK_ASSETS, injectSessionLinks } = require("./inject-session-links.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -526,7 +527,7 @@ function getTransformRules() {
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs", "inject-question-withdrawal.cjs", "inject-question-queue.cjs",
     "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "astra-speed-toggle.cjs", "inject-account-settings.cjs", "inject-instruction-settings.cjs",
     "inject-max-reasoning.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json",
-    "inject-student-design.cjs", "student-avatar-assets.cjs",
+    "inject-student-design.cjs", "student-avatar-assets.cjs", "scientist-avatar-assets.cjs",
     "inject-maintenance-preferences.cjs", "inject-provider-context.cjs", "provider-context-labels.cjs", "inject-ui-cleanup.cjs", "inject-image-sketch.cjs", "inject-auto-review.cjs", "inject-pets-cleanup.cjs",
     "inject-content-fonts.cjs", "content-fonts.cjs", "inject-scroll-fade.cjs", "scroll-fade.cjs",
     "inject-command-drag-block.cjs", "command-drag-policy.cjs",
@@ -875,6 +876,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   }
   cache.flush();
   report.studentAvatars = copyStudentAvatarAssets(path.join(root, "webview"));
+  report.scientistAvatars = copyScientistAvatarAssets(path.join(root, "webview"));
   report.contentFonts = copyContentFontAssets(root);
   const grammarPath = path.join(root, "syntaxes", "starlark.tmLanguage.json");
   fs.writeFileSync(grammarPath, rewriteValue(fs.readFileSync(grammarPath, "utf8")));
