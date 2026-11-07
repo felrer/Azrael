@@ -27,3 +27,18 @@ test("account state requires a non-negative integer revision and lowercase 32-he
   invalid.profiles[0].id = "A".repeat(32);
   assert.throws(() => parseAccountResponse(envelope(invalid)), /profile/);
 });
+
+test("optional service account state preserves unsupported engines and validates its wire fields", () => {
+  const candidate = state(1);
+  const envelope = () => ({ state: candidate, login: null, usage: null, usageProfileId: null });
+  assert.equal(parseAccountResponse(envelope()).state.serviceAccount, undefined);
+  candidate.serviceAccount = { profileId: PROFILE_ID, revision: 0, state: "ready", reason: null };
+  assert.equal(parseAccountResponse(envelope()).state.serviceAccount?.profileId, PROFILE_ID);
+  for (const invalid of [{ profileId: "invalid" }, { revision: -1 }, { revision: 0.5 },
+    { revision: Number.MAX_SAFE_INTEGER + 1 }, { state: "unknown" }, { reason: {} }]) {
+    const value = { ...envelope(), state: { ...candidate, serviceAccount: { ...candidate.serviceAccount, ...invalid } } };
+    assert.throws(() => parseAccountResponse(value), /service account/);
+  }
+  candidate.serviceAccount = { profileId: null, revision: 1, state: "unconfigured", reason: "Explicitly cleared" };
+  assert.equal(parseAccountResponse(envelope()).state.serviceAccount?.profileId, null);
+});

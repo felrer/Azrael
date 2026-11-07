@@ -49,6 +49,7 @@ export class UsageView implements vscode.Disposable {
   private refreshQueuedForce = false;
   private devin: DevinStatus | undefined;
   private error: string | undefined;
+  private serviceSelectionPending = false;
   private devinError: string | undefined;
   private providerError: string | undefined;
   private devinQuotaEmail: string | null | undefined;
@@ -329,6 +330,15 @@ export class UsageView implements vscode.Disposable {
         return;
       }
       if (message.action === "setAutoSwitch") { await this.setAutoSwitch(message); return; }
+      if (message.action === "openaiServiceSelect") {
+        if (this.serviceSelectionPending || !this.accounts || !this.service.changesEnabled || !this.service.state?.serviceAccount) return;
+        this.serviceSelectionPending = true;
+        this.error = undefined;
+        this.render();
+        try { await this.accounts.handleMessage(message); }
+        finally { this.serviceSelectionPending = false; this.render(); }
+        return;
+      }
       if (message.action === "providerResetUsage") { await this.resetProviderUsage(message); return; }
       if (message.action === "toggleUsage") { await this.toggleUsage(message); return; }
       if (message.action === "consumeResetCredit") { await this.consumeResetCredit(message); return; }
@@ -615,10 +625,15 @@ export class UsageView implements vscode.Disposable {
       const attributes = `data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}"`;
       const switchAction = active ? "" : `<button data-action="openaiSwitch" data-profile="${escapeHtml(profile.id)}">이 계정으로 전환</button>`;
       const warning = entry?.error ? `<p class="error">${entry.data ? "이전 조회 값 · " : ""}사용량 조회 실패 · ${dynamicTextHtml(entry.error)}</p>` : "";
-      const summary = accountSummaryHtml(profile.email ?? "OpenAI 계정", expanded, attributes, openAIQuotaHtml(entry?.data ?? null), active);
-      return `<section class="account-card${expanded ? " expanded" : " collapsed"}">${summary}${warning}${expanded ? `<div class="usage-details"><h3>계정 상세정보</h3>${openAIUsageHtml(entry?.data ?? null, profile.id, ticketState, false)}${this.automaticWindowErrorHtml(profile)}<div class="settings-row">${autoSwitchCheckboxHtml(profile.autoSwitchAllowed, attributes, this.autoSwitchPending.has(ticketKey))}</div><div class="card-actions">${switchAction}${this.automaticWindowHtml(profile)}<button data-action="openaiReauth" data-profile="${escapeHtml(profile.id)}">재인증</button><button class="remove-account" data-action="openaiRemove" data-profile="${escapeHtml(profile.id)}">제거</button></div></div>` : ""}</section>`;
+      const serviceMain = profile.id === state.serviceAccount?.profileId;
+      const summary = accountSummaryHtml(profile.email ?? "OpenAI 계정", expanded, attributes, openAIQuotaHtml(entry?.data ?? null), active, serviceMain);
+      const serviceAction = serviceMain ? "" : `<button data-action="openaiServiceSelect" data-profile="${escapeHtml(profile.id)}" ${state.serviceAccount && this.service.changesEnabled && !this.serviceSelectionPending ? "" : "disabled"} aria-describedby="service-account-status">서비스 메인으로 설정</button>`;
+      return `<section class="account-card${expanded ? " expanded" : " collapsed"}">${summary}${warning}${expanded ? `<div class="usage-details"><h3>계정 상세정보</h3>${openAIUsageHtml(entry?.data ?? null, profile.id, ticketState, false)}${this.automaticWindowErrorHtml(profile)}<div class="settings-row">${autoSwitchCheckboxHtml(profile.autoSwitchAllowed, attributes, this.autoSwitchPending.has(ticketKey))}</div><div class="card-actions">${switchAction}${serviceAction}${this.automaticWindowHtml(profile)}<button data-action="openaiReauth" data-profile="${escapeHtml(profile.id)}">재인증</button><button class="remove-account" data-action="openaiRemove" data-profile="${escapeHtml(profile.id)}">제거</button></div></div>` : ""}</section>`;
     }).join("") ?? "";
     const openAIState = `${state?.pendingProfileId ? `<p class="notice">현재 엔진의 계정 전환 대기 중 <button data-action="openaiCancelSwitch">전환 취소</button></p>` : ""}${state?.loginPending ? '<p class="notice">OpenAI 로그인 대기 중 <button data-action="openaiLoginCancel">로그인 취소</button></p>' : ""}`;
+    const serviceAccount = state?.serviceAccount;
+    const serviceLabels = { unconfigured: "미설정", checking: "확인 중", ready: "사용 가능", reauthRequired: "재인증 필요", unavailable: "사용 불가", policyBlocked: "정책에 의해 차단됨" };
+    const serviceStatus = `<div class="service-account-state"><p id="service-account-status" role="status" aria-live="polite">서비스 메인 · ${this.serviceSelectionPending ? "변경 중…" : serviceAccount ? serviceLabels[serviceAccount.state] : "현재 엔진에서 지원하지 않습니다"}${serviceAccount?.reason ? ` · ${dynamicTextHtml(serviceAccount.reason)}` : ""}</p><p class="muted">서비스 메인은 계정 간 데이터와 사용량 등 공통 서비스에 사용됩니다. 프로젝트의 채팅 계정 전환과는 별개입니다.</p><button data-action="openaiServiceSelect" ${serviceAccount?.profileId && this.service.changesEnabled && !this.serviceSelectionPending ? "" : "disabled"} aria-describedby="service-account-status">서비스 메인 해제</button></div>`;
     const managedGroups = this.providerSnapshot?.providers.filter(provider => provider.authKind === "oauth" && provider.id.toLowerCase() !== "openai").map(provider => {
       const cards = provider.accounts.map(account => {
         const key = providerKey(provider.id, account.id);
@@ -637,7 +652,7 @@ export class UsageView implements vscode.Disposable {
     const devinCard = `<section class="account-card${devinExpanded ? " expanded" : " collapsed"}">${devinSummary}${this.devinError ? `<p class="error">${devinQuota ? "이전 조회 값 · " : ""}${dynamicTextHtml(this.devinError)}</p>` : ""}${devinExpanded || !devin?.loggedIn ? `<div class="usage-details"><p class="muted">Devin CLI 계정은 관리형 Devin 계정과 별도로 사용됩니다.</p>${devinActions}</div>` : ""}</section>`;
     const openAIHeading = providerHeadingHtml("openai", "OpenAI", state?.profiles.length ?? 0, '<button data-action="openaiCapture">현재 계정 저장</button><button data-action="openaiLogin">계정 추가</button>');
     const cost = this.costYear === Number(this.costMonth.slice(0, 4)) && this.costSnapshot ? `${this.costError ? '<p class="muted">이전 조회 값 · 갱신 실패</p>' : ""}${projectUsageHtml(this.costSnapshot, this.costMonth)}` : this.costUnavailableHtml();
-    return `<style>${usageStyles}${projectUsageStyles}</style><main><header><div><h1>계정 및 사용량</h1></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error">${dynamicTextHtml(this.error)}</p>` : ""}${openAIHeading}${openAIState}<div class="provider-group">${openAICards || '<p class="empty-state muted">저장된 OpenAI 계정이 없습니다. 현재 계정을 저장하거나 계정을 추가하세요.</p>'}</div>${managedSection}${providerHeadingHtml("devin-cli", "Devin CLI", devin?.loggedIn ? 1 : 0)}<div class="provider-group">${devinCard}</div><p class="usage-hint muted">게이지를 누르면 계정 상세정보가 펼쳐집니다. 표시된 비율은 남은 사용량입니다.</p>${cost}${this.api ? customApiHtml(this.api) : ""}</main>`;
+    return `<style>${usageStyles}${projectUsageStyles}</style><main><header><div><h1>계정 및 사용량</h1></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error" role="alert">${dynamicTextHtml(this.error)}</p>` : ""}${openAIHeading}${serviceStatus}${openAIState}<div class="provider-group">${openAICards || '<p class="empty-state muted">저장된 OpenAI 계정이 없습니다. 현재 계정을 저장하거나 계정을 추가하세요.</p>'}</div>${managedSection}${providerHeadingHtml("devin-cli", "Devin CLI", devin?.loggedIn ? 1 : 0)}<div class="provider-group">${devinCard}</div><p class="usage-hint muted">게이지를 누르면 계정 상세정보가 펼쳐집니다. 표시된 비율은 남은 사용량입니다.</p>${cost}${this.api ? customApiHtml(this.api) : ""}</main>`;
   }
 }
 

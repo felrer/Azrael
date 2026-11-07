@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const artifactRun=beginArtifactRun(root,{workId:'verify-account-overview-render',owner:'scripts/verify-account-overview-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const artifactRun=beginArtifactRun(root,{workId:process.env.AZRAEL_RENDER_WORK_ID || 'verify-account-overview-render',owner:'scripts/verify-account-overview-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
 const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
 const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
 const logs = artifactRun.logs;
@@ -21,20 +21,21 @@ await mkdir(join(fixture, 'chrome-profile'), { recursive: true });
 await mkdir(logs, { recursive: true });
 const require = createRequire(import.meta.url), originalLoad = Module._load, resetNotices = [];
 Module._load = function(request, parent, main) {
-  if (request === 'vscode') return { window: { showErrorMessage(message) { resetNotices.push(message); }, showInformationMessage(message) { resetNotices.push(message); }, showWarningMessage() {} } };
+  if (request === 'vscode') return { StatusBarAlignment: { Left: 1 }, window: { createStatusBarItem() { return { dispose() {} }; }, showErrorMessage(message) { resetNotices.push(message); }, showInformationMessage(message) { resetNotices.push(message); }, showWarningMessage() {} } };
   return originalLoad.call(this, request, parent, main);
 };
 const { UsageView } = require('../extensions/azrael-ex/dist/src/usageView.js');
+const { AccountView } = require('../extensions/azrael-ex/dist/src/accountView.js');
 const { providerHeadingHtml } = require('../extensions/azrael-ex/dist/src/usagePresentation.js');
 Module._load = originalLoad;
 const { AzraelAccountSettings } = require('./inject-account-settings.cjs');
 const resetAt = Math.floor(Date.now() / 1000) + 5 * 86400 + 18 * 3600;
 const profiles = [
-  { id: 'saved-a', workspaceAccountId: 'internal-workspace-a', userId: 'hidden-user-a', email: 'personal@example.com', autoSwitchAllowed: true },
-  { id: 'saved-b', workspaceAccountId: 'internal-workspace-b', userId: 'hidden-user-b', email: 'work@example.com', autoSwitchAllowed: false },
+  { id: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', workspaceAccountId: 'internal-workspace-a', userId: 'hidden-user-a', email: 'personal@example.com', autoSwitchAllowed: true },
+  { id: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', workspaceAccountId: 'internal-workspace-b', userId: 'hidden-user-b', email: 'work@example.com', autoSwitchAllowed: false },
 ];
 const window = (usedPercent, windowDurationMins) => ({ usedPercent, windowDurationMins, resetsAt: resetAt });
-const usageData = id => ({ accountId: id, rateLimits: { primary: window(id === 'saved-a' ? 10 : 92, 300), secondary: window(70, 10080), planType: null }, rateLimitsByLimitId: null, rateLimitResetCredits: null });
+const usageData = id => ({ accountId: id, rateLimits: { primary: window(id === 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' ? 10 : 92, 300), secondary: window(70, 10080), planType: null }, rateLimitsByLimitId: null, rateLimitResetCredits: null });
 const snapshot = { providers: [
   { id: 'anthropic', label: 'Anthropic', authKind: 'oauth', inferenceConnected: true, accounts: [{ id: 'claude-a', label: 'claude@example.com', selected: true, needsReauth: false, autoSwitchAllowed: true }] },
   { id: 'google', label: 'Google', authKind: 'oauth', inferenceConnected: true, accounts: [{ id: 'gemini-a', label: 'gemini@example.com', selected: true, needsReauth: false }] },
@@ -52,14 +53,23 @@ const projectSnapshot = { currency: 'USD', days: [
 const monthlyModels = dayOneModels.map(value => { const other = dayTwoModels.find(item => item.provider === value.provider && item.model === value.model); return { ...value, amount: value.amount + (other?.amount ?? 0), unpriced: value.unpriced + (other?.unpriced ?? 0) }; });
 let view, panel, surface, subscriber, emitted, updates = 0;
 const actions = [], requests = [];
-let resetOutcome = 'reset', resetCalls = [];
+let resetOutcome = 'reset', resetCalls = [], serviceSelectionFailure = false;
 function createView() {
   view?.dispose();
-  const service = Object.assign(new EventEmitter(), { changesEnabled: true, state: { profiles, activeProfileId: 'saved-a' }, async refresh() { return this.state; }, async projectUsage(year) { requests.push(['projectUsage', year]); return structuredClone(projectSnapshot); }, async devin() { return { enabled: true, loggedIn: true, email: 'cli@example.com' }; } });
+  const service = Object.assign(new EventEmitter(), { changesEnabled: true, state: { profiles, activeProfileId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' }, async refresh() { return this.state; }, async projectUsage(year) { requests.push(['projectUsage', year]); return structuredClone(projectSnapshot); }, async devin() { return { enabled: true, loggedIn: true, email: 'cli@example.com' }; } });
   const usage = { get: id => ({ data: usageData(id) }), dueResetProfiles: () => [], async refresh(id, ws) { requests.push(['openai', id, ws]); } };
   const providers = { enabled: true, snapshot, async refresh() { return snapshot; }, async quota(providerId, accountId) { requests.push([providerId, accountId]); return { providerId, accountId, status: 'ok', source: 'synthetic', observedAt: Date.now(), rows: providerId === 'anthropic' ? [{ label: '5시간', usedPercent: 1, resetsAt: resetAt }, { label: 'Fable', usedPercent: 0, resetsAt: resetAt }] : [{ label: 'Pro', usedPercent: 0, resetsAt: resetAt }] }; }, async resetUsage(providerId, accountId) { resetCalls.push({providerId,accountId}); await new Promise(resolve => setTimeout(resolve, 450)); if(resetOutcome==='failure') throw Error('Synthetic reset transport failure'); return resetOutcome; }, async setAutoSwitch(providerId, accountId, enabled) { actions.push({ providerId, accountId, enabled }); }, dispose() {} };
   const devin = { snapshot: undefined, async refresh() { requests.push(['devin-cli']); this.snapshot = { daily: window(0, 1440), weekly: window(24, 10080) }; }, cancelRefresh() {}, dispose() {} };
-  view = new UsageView(service, usage, devin, providers);
+  service.state.serviceAccount = { profileId: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', revision: 1, state: 'ready', reason: null };
+  service.call = async params => {
+    actions.push(params);
+    assert.equal(params.action, 'serviceSelect');
+    if (serviceSelectionFailure) throw Error('Synthetic service selection failure');
+    service.state.serviceAccount = { profileId: params.profileId ?? null, revision: service.state.serviceAccount.revision + 1, state: params.profileId ? 'ready' : 'unconfigured', reason: null };
+    service.emit('state', service.state);
+    return { state: service.state };
+  };
+  view = new UsageView(service, usage, devin, providers, new AccountView(service));
   view.costMonth = '2024-02';
   let source = '';
   panel = { visible: true, webview: {}, dispose() {} };
@@ -78,6 +88,8 @@ const server = createServer(async (req, res) => {
       if (message.fixtureMount) { view.embedded.set({ postMessage(m) { emitted = m.html; updates++; return true; } }, { clientId: message.clientId }); view.render(); }
       else if (message.fixtureResetSnapshot) view.render();
       else if (message.fixtureResetOutcome) resetOutcome = message.fixtureResetOutcome;
+      else if (message.fixtureServiceSelectionFailure !== undefined) serviceSelectionFailure = message.fixtureServiceSelectionFailure;
+      else if (message.fixtureServiceUnsupported) { delete view.service.state.serviceAccount; view.render(); }
       else { actions.push(message); await view.onMessage(message); }
       res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ html: updates > before ? emitted : null })); return;
     }
@@ -110,6 +122,8 @@ try {
     const prefix=`${surfaceName}-${theme}-${width}`;
     await send('Emulation.setDeviceMetricsOverride',{width,height:1100,deviceScaleFactor:1,mobile:false});
     await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme}]});
+    const fixtureResponse = await fetch(`http://127.0.0.1:${server.address().port}/?surface=${surfaceName}`, { signal: AbortSignal.timeout(5000) });
+    assert.equal(fixtureResponse.status, 200, await fixtureResponse.text());
     await send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/?surface=${surfaceName}`});
     await wait("typeof fixtureNodes==='function'&&fixtureNodes('.account-summary').length===6&&fixturePending===0");
     await evaluate(`document.documentElement.dataset.theme='${theme}';document.documentElement.style.setProperty('--vscode-foreground','${theme==='light'?'#202123':'#eee'}');document.documentElement.style.setProperty('--vscode-editor-background','${theme==='light'?'#fff':'#212121'}');document.documentElement.style.setProperty('--vscode-descriptionForeground','${theme==='light'?'#666':'#aaa'}');document.body.style.background='${theme==='light'?'#fff':'#212121'}'`);
@@ -125,8 +139,22 @@ try {
     const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});await writeFile(join(logs,prefix+'-collapsed.png'),Buffer.from(shot.data,'base64'));summary.screenshots.push(prefix+'-collapsed.png');
     await evaluate("fixtureNode('.account-summary .track').click()");await wait("fixtureNode('.account-summary').getAttribute('aria-expanded')==='true'&&fixturePending===0");
     check(prefix+' gauge expands management without account switch',await evaluate("!!fixtureNode('[data-action=openaiReauth]')&&!!fixtureNode('[data-action=openaiRemove]')")&&!actions.some(a=>['openaiSwitch','providerSelect'].includes(a.action)));
+    check(prefix+' main badge is independent of current login',await evaluate("fixtureNode('.service-main').closest('.account-summary').dataset.profile==='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'&&fixtureNode('.current-login').closest('.account-summary').dataset.profile==='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'"));
+    await evaluate("fixtureNode('[data-action=openaiServiceSelect][data-profile]').focus()");
+    await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',text:'\r',unmodifiedText:'\r',windowsVirtualKeyCode:13});
+    await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await wait('fixturePending===0');
+    check(prefix+' set main preserves chat login',await evaluate("fixtureNode('.service-main').closest('.account-summary').dataset.profile==='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'&&fixtureNode('.current-login').closest('.account-summary').dataset.profile==='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'"));
+    await evaluate("fixtureNode('[data-action=openaiServiceSelect]:not([data-profile])').click()");await wait('fixturePending===0');
+    check(prefix+' explicit clear omits profile and preserves chat login',actions.some(a=>a.action==='serviceSelect'&&!Object.hasOwn(a,'profileId'))&&await evaluate("!fixtureNode('.service-main')&&!!fixtureNode('.current-login')"));
+    await evaluate("fixtureSend({fixtureServiceSelectionFailure:true})");
+    await evaluate("fixtureNode('[data-action=openaiServiceSelect][data-profile]').click()");await wait('fixturePending===0');
+    check(prefix+' failed main selection preserves state and announces error',await evaluate("!fixtureNode('.service-main')&&fixtureNode('[role=alert]').textContent.includes('Synthetic service selection failure')"));
+    await evaluate("fixtureSend({fixtureServiceSelectionFailure:false})");
+    await evaluate("fixtureSend({fixtureServiceUnsupported:true})");
+    check(prefix+' old engine disables main controls with reason',await evaluate("fixtureNodes('[data-action=openaiServiceSelect]').every(e=>e.disabled)&&fixtureNode('#service-account-status').textContent.includes('지원하지')&&!fixtureNode('.service-main')"));
     await evaluate("fixtureNode('.account-summary').focus()");await send('Input.dispatchKeyEvent',{type:'rawKeyDown',key:' ',code:'Space',windowsVirtualKeyCode:32});await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});await wait("fixtureNode('.account-summary').getAttribute('aria-expanded')==='false'&&fixturePending===0");
     check(prefix+' keyboard collapses management',true);
+    if (process.env.AZRAEL_RENDER_SERVICE_ACCOUNT_ONLY === '1') continue;
     await evaluate("fixtureNode('.provider-account .account-summary').click()");await wait("!!fixtureNode('[data-action=setAutoSwitch][data-provider=anthropic]')&&fixturePending===0");
     await evaluate("fixtureNode('[data-action=setAutoSwitch][data-provider=anthropic]').click()");await wait('fixturePending===0');
     check(prefix+' auto switch carries provider account identity',actions.some(a=>a.action==='setAutoSwitch'&&a.providerId==='anthropic'&&a.accountId==='claude-a'&&a.enabled===false));

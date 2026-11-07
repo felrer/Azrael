@@ -5,7 +5,7 @@ export const ACCOUNT_UPDATED_METHOD = "azrael/account/updated";
 
 export type AccountAction =
   | "list" | "captureCurrent" | "loginStart" | "loginCancel"
-  | "remove" | "switch" | "cancelSwitch" | "usage" | "consumeResetCredit"
+  | "remove" | "switch" | "serviceSelect" | "cancelSwitch" | "usage" | "consumeResetCredit"
   | "autoSwitchEnable" | "autoSwitchDisable"
   | "autoWindowStatus" | "autoWindowEnable" | "autoWindowDisable" | "autoWindowTick";
 
@@ -27,6 +27,13 @@ export interface AccountProfile {
   autoSwitchAllowed?: boolean;
 }
 
+export interface ServiceAccountState {
+  profileId: string | null;
+  revision: number;
+  state: "unconfigured" | "checking" | "ready" | "reauthRequired" | "unavailable" | "policyBlocked";
+  reason: string | null;
+}
+
 export interface AccountState {
   instanceId: string;
   revision: number;
@@ -39,6 +46,7 @@ export interface AccountState {
   hasActiveTurns: boolean;
   loginPending: boolean;
   lastError: string | null;
+  serviceAccount?: ServiceAccountState;
 }
 
 export function accountStateChanged(current: AccountState | undefined, candidate: AccountState): boolean {
@@ -143,6 +151,15 @@ export function parseAccountResponse(value: unknown): AccountResponse {
   }
   if (value.usageProfileId !== null && value.usageProfileId !== undefined && !isProfileId(value.usageProfileId)) {
     throw new Error("invalid usage profile identity");
+  }
+  if (state.serviceAccount !== undefined) {
+    const service = state.serviceAccount;
+    if (!isRecord(service) || (service.profileId !== null && !isProfileId(service.profileId))
+      || !Number.isSafeInteger(service.revision) || (service.revision as number) < 0
+      || !["unconfigured", "checking", "ready", "reauthRequired", "unavailable", "policyBlocked"].includes(String(service.state))
+      || (service.reason !== null && typeof service.reason !== "string")) {
+      throw new Error("invalid service account state");
+    }
   }
   if (value.resetCreditOutcome !== undefined && !["reset", "nothingToReset", "noCredit", "alreadyRedeemed"].includes(String(value.resetCreditOutcome))) {
     throw new Error("invalid reset credit outcome");

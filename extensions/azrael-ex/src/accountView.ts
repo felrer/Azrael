@@ -5,7 +5,7 @@ import { accountWarning, SwitchCompletionTracker } from "./accountPresentation";
 
 export const OPENAI_ACCOUNT_ACTIONS = new Set([
   "openaiRefresh", "openaiSwitch", "openaiCancelSwitch", "openaiLogin",
-  "openaiLoginCancel", "openaiReauth", "openaiCapture", "openaiRemove",
+  "openaiLoginCancel", "openaiReauth", "openaiCapture", "openaiRemove", "openaiServiceSelect",
 ]);
 
 /** Owns native OpenAI account actions and the status item. The unified UsageView owns the only webview. */
@@ -58,6 +58,10 @@ export class AccountView implements vscode.Disposable {
     if (profileId !== undefined && !isProfileId(profileId)) return true;
     if (profileId !== undefined && !this.service.state?.profiles.some(profile => profile.id === profileId)) return true;
     switch (message.action) {
+      case "openaiServiceSelect":
+        if (!this.service.changesEnabled || this.service.state?.serviceAccount === undefined) break;
+        await this.service.call({ action: "serviceSelect", ...(profileId === undefined ? {} : { profileId }) });
+        break;
       case "openaiRefresh": await this.refreshAll(); break;
       case "openaiSwitch": if (profileId) await this.perform("switch", profileId); break;
       case "openaiCancelSwitch": await this.perform("cancelSwitch"); break;
