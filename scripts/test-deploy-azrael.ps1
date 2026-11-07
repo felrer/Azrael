@@ -40,6 +40,7 @@ $pwsh = (Get-Process -Id $PID).Path
 $changedCases += @('environment preflight failure', 'registered engine owner selection', 'account socket path', 'fixture path selection', 'short fixture install')
 $changedCases += @('deployment capacity guard')
 $changedCases += @('vsix entry index')
+$changedCases += @('stage environment identity')
 $changedCases += @('host copy baseline')
 $changedCases += @('source handoff unavailable')
 # Execute the preparation policy reader independently of package/build inputs.
@@ -506,6 +507,55 @@ function Test-HostCopyBaseline([string]$FixtureRoot, [string]$CheckPath, [string
     [pscustomobject]@{Scenarios=$scenarios.Count;Passed=$scenarios.Count;HashCallsPerScenario=3}
 }
 
+function Test-StageEnvironmentIdentity {
+    param([string]$DeployPath, [string]$BuildPath, [string]$MetricsPath)
+    . $MetricsPath
+    $deployAst = [Management.Automation.Language.Parser]::ParseFile($DeployPath, [ref]$null, [ref]$null)
+    foreach ($name in @('ConvertTo-StageInput', 'Get-StageInputs')) {
+        $definition = $deployAst.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name}, $true)
+        . ([scriptblock]::Create($definition.Extent.Text))
+    }
+    $buildAst = [Management.Automation.Language.Parser]::ParseFile($BuildPath, [ref]$null, [ref]$null)
+    $buildEnvironmentAssignment = $buildAst.Find({param($node) $node -is [Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -ceq '$buildEnvironment'}, $true)
+    $buildHashAssignment = $buildAst.Find({param($node) $node -is [Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -ceq '$engineInputs.environmentSha256'}, $true)
+    $projectRoot = Split-Path (Split-Path $DeployPath -Parent) -Parent
+    $ReleaseName = 'environment-identity-fixture'
+    $pipelineRoot = Join-Path $projectRoot "artifacts/logs/deploy-$ReleaseName"
+    $script:toolIdentities = @{}
+    $script:inputSnapshot = 'fixed-source'
+    $executable = (Get-Process -Id $PID).Path
+    $fixtureNames = @{AZRAEL_INSTRUCTION_TEST_ROOT='instructions';AZRAEL_CATALOG_TEST_ROOT='catalog';AZRAEL_MIGRATION_TEST_ROOT='migration';AZRAEL_WORKBENCH_TEST_ROOT='workbench'}
+    $observed = @()
+    foreach ($attempt in @('', ('attempts/' + ('a' * 32)), ('attempts/' + ('b' * 32)))) {
+        $logs = if ($attempt) { Join-Path $pipelineRoot $attempt } else { $pipelineRoot }
+        $script:sourceFixtureRoot = Join-Path $logs 'source-fixtures'
+        $script:environmentPatch = @{AZRAEL_ENV_IDENTITY_REGRESSION_VALUE='real-one'}
+        foreach ($key in $fixtureNames.Keys) { $script:environmentPatch[$key] = Join-Path $script:sourceFixtureRoot $fixtureNames[$key] }
+        $stage = Get-StageInputs $executable @('--log-directory', (Join-Path $logs 'stage'))
+        $ambientEnvironment = @{}
+        foreach ($entry in [Environment]::GetEnvironmentVariables().GetEnumerator()) { $ambientEnvironment[$entry.Key] = [string]$entry.Value }
+        foreach ($entry in $script:environmentPatch.GetEnumerator()) { $ambientEnvironment[$entry.Key] = $entry.Value }
+        $buildPipelineContext = @{sourceFixtureRoot=$script:sourceFixtureRoot}
+        $engineInputs = @{}
+        . ([scriptblock]::Create($buildEnvironmentAssignment.Extent.Text))
+        . ([scriptblock]::Create($buildHashAssignment.Extent.Text))
+        Assert-True ($engineInputs.environmentSha256 -ceq $stage.environmentSha256) 'deployment and engine build environment identities differ'
+        Assert-True ($script:environmentPatch.AZRAEL_CATALOG_TEST_ROOT -ceq (Join-Path $script:sourceFixtureRoot 'catalog')) 'logical identity changed actual execution paths'
+        $observed += $stage
+    }
+    Assert-True (@($observed.environmentSha256 | Select-Object -Unique).Count -eq 1) 'attempt-owned fixture paths changed review identity'
+    Assert-True (($observed[0].arguments -join '|') -ceq ($observed[2].arguments -join '|')) 'attempt log arguments changed logical identity'
+    $script:environmentPatch.AZRAEL_ENV_IDENTITY_REGRESSION_VALUE = 'real-two'
+    Assert-True ((Get-StageInputs $executable @()).environmentSha256 -cne $observed[0].environmentSha256) 'genuine environment change was hidden'
+    $script:environmentPatch.AZRAEL_ENV_IDENTITY_REGRESSION_VALUE = 'real-one'
+    $script:environmentPatch.AZRAEL_CATALOG_TEST_ROOT = Join-Path $pipelineRoot 'different-fixtures/catalog'
+    Assert-True ((Get-StageInputs $executable @()).environmentSha256 -cne $observed[0].environmentSha256) 'different fixture destination was hidden'
+    $rejected = $false
+    try { Get-LogicalBuildEnvironment -Environment $ambientEnvironment -PipelineRoot $pipelineRoot -SourceFixtureRoot (Join-Path $pipelineRoot '../outside/source-fixtures') | Out-Null } catch { $rejected = $true }
+    Assert-True $rejected 'unowned fixture metadata was accepted'
+    return @{attempts=3;sharedBuildIdentity=$true;genuineEnvironmentChange=$true;changedFixtureDestination=$true;unownedMetadataRejected=$true}
+}
+
 function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false, [bool]$Exhaustive = $false, [string]$PolicyChangedPath = '', [bool]$ReuseSourcePreflight = $false) {
     if ($Case -and $Name -notin $Case) { return }
     if ($ChangedOnly -and -not $Case -and $Name -notin $changedCases) { return }
@@ -514,6 +564,10 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
+    if ($Mode -eq 'stage-environment-identity') {
+        $details = Test-StageEnvironmentIdentity (Join-Path $PSScriptRoot 'deploy-azrael.ps1') (Join-Path $PSScriptRoot 'build-azrael.ps1') (Join-Path $PSScriptRoot 'build-metrics.ps1')
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
+    }
     if ($Mode -eq 'host-copy-baseline') {
         $details = Test-HostCopyBaseline (Join-Path $root 'copy-baseline') (Join-Path $PSScriptRoot 'check-independent-vscode.ps1')
         $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
@@ -778,6 +832,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         return
     }
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Destination $scripts
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'build-metrics.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'pipeline-state.cjs') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'engine-source-handoff.cjs') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'verification-reuse-policy.cjs') -Destination $scripts
@@ -1313,6 +1368,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'vsix entry index' 'vsix-entry-index'
     Invoke-Case 'host copy baseline' 'host-copy-baseline'
     Invoke-Case 'deployment capacity guard' 'deployment-capacity'
+    Invoke-Case 'stage environment identity' 'stage-environment-identity'
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
     Invoke-Case 'account socket path' 'account-socket-path'
     Invoke-Case 'fixture path selection' 'fixture-path-selection'

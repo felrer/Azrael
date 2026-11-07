@@ -110,9 +110,8 @@ function Invoke-BuildCheckpoint([string]$Action, [string]$Name, $Options=@{}) {
 }
 $null=Invoke-BuildCheckpoint 'snapshot' ''
 $engineInputs=@{sourceRoot=$sourceRoot; retainedSourceRoot=$RetainedSourceRoot; engineDirectory=$EngineDirectory; host=$CodeModeHostPath; target=$engineTarget; skip=[bool]$SkipEngineBuild; rebuild=@($RebuildModule)}
-$buildEnvironment=[ordered]@{}
 $ambientEnvironment=[Environment]::GetEnvironmentVariables()
-foreach ($key in @($ambientEnvironment.Keys | Sort-Object)) { $buildEnvironment[$key]=[string]$ambientEnvironment[$key] }
+$buildEnvironment=Get-LogicalBuildEnvironment -Environment $ambientEnvironment -PipelineRoot (Join-Path $projectRoot "artifacts/logs/deploy-$ReleaseName") -SourceFixtureRoot $(if ($buildPipelineContext.ContainsKey('sourceFixtureRoot')) { [string]$buildPipelineContext.sourceFixtureRoot } else { '' })
 $engineInputs.environmentSha256=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $buildEnvironment -Compress)))).ToLowerInvariant()
 $engineInputs.tools=@{}
 foreach ($tool in @('node.exe','python.exe','cargo.exe','rustc.exe')) {

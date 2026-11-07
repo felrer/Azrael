@@ -1,5 +1,29 @@
 # Shared by the release build and bounded wrapper validation. Dot-sourcing has
 # no side effects; callers supply a metrics context and log directory.
+function Get-LogicalBuildEnvironment {
+    param([System.Collections.IDictionary]$Environment, [string]$PipelineRoot, [string]$SourceFixtureRoot)
+    if ($SourceFixtureRoot) {
+        if (-not [IO.Path]::IsPathFullyQualified($PipelineRoot) -or -not [IO.Path]::IsPathFullyQualified($SourceFixtureRoot)) { throw 'Deployment fixture identity requires absolute owned paths.' }
+        $relative = [IO.Path]::GetRelativePath([IO.Path]::GetFullPath($PipelineRoot), [IO.Path]::GetFullPath($SourceFixtureRoot)).Replace('\', '/')
+        if ($relative -cnotmatch '^(source-fixtures|attempts/[a-f0-9]{32}/source-fixtures)$') { throw 'Deployment fixture identity is outside the expected pipeline attempt boundary.' }
+    }
+    $fixtureNames = @{
+        AZRAEL_INSTRUCTION_TEST_ROOT = 'instructions'
+        AZRAEL_CATALOG_TEST_ROOT = 'catalog'
+        AZRAEL_MIGRATION_TEST_ROOT = 'migration'
+        AZRAEL_WORKBENCH_TEST_ROOT = 'workbench'
+    }
+    $logical = [ordered]@{}
+    foreach ($key in @($Environment.Keys | Sort-Object)) {
+        $value = [string]$Environment[$key]
+        if ($SourceFixtureRoot -and $fixtureNames.ContainsKey($key) -and $value -ceq (Join-Path $SourceFixtureRoot $fixtureNames[$key])) {
+            $value = '<deployment-source-fixtures>/' + $fixtureNames[$key]
+        }
+        $logical[$key] = $value
+    }
+    return $logical
+}
+
 function New-BuildMetrics {
     param([Parameter(Mandatory)][string]$Path)
     $metrics = [pscustomobject]@{

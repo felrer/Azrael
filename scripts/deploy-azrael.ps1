@@ -136,6 +136,8 @@ if ($Resume) { $logs = Join-Path $pipelineRoot "attempts/$attemptId"; New-Item -
 $timer = [Diagnostics.Stopwatch]::StartNew()
 $children = [Collections.Generic.List[object]]::new()
 $script:environmentPatch = @{}
+$script:sourceFixtureRoot = ''
+. (Join-Path $PSScriptRoot 'build-metrics.ps1')
 $script:toolIdentities = @{}
 $metrics = [ordered]@{ schema = 1; releaseName = $ReleaseName; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'running'; verifyOnly = [bool]$VerifyOnly; releaseDirectory = $release; packageDirectory = $package; fixtureRoot = $fixture; stages = @(); inputChecks = @(); engineTargetDirectory = $EngineTargetDirectory; wallTimeMs = 0
     verificationPolicy = [ordered]@{ scope = $(if ($FullRegression) { 'full' } else { 'changed' }); engineVerificationProfile = $EngineVerificationProfile; sourceReuse = $true; nativeReuse = -not [bool]$ForceNativeVerification; forceNativeVerification = [bool]$ForceNativeVerification; cargoVerificationCacheProjectRoot = $(if ($CargoVerificationCacheProjectRoot) { $CargoVerificationCacheProjectRoot } else { $project }) }
@@ -258,8 +260,7 @@ function Get-StageInputs([string]$Executable, [string[]]$Arguments) {
     $effectiveEnvironment = @{}
     foreach ($entry in [Environment]::GetEnvironmentVariables().GetEnumerator()) { $effectiveEnvironment[$entry.Key]=[string]$entry.Value }
     foreach ($entry in $script:environmentPatch.GetEnumerator()) { $effectiveEnvironment[$entry.Key]=[string]$entry.Value }
-    $orderedEnvironment=[ordered]@{}
-    foreach ($key in @($effectiveEnvironment.Keys | Sort-Object)) { $orderedEnvironment[$key]=$effectiveEnvironment[$key] }
+    $orderedEnvironment=Get-LogicalBuildEnvironment -Environment $effectiveEnvironment -PipelineRoot $pipelineRoot -SourceFixtureRoot $script:sourceFixtureRoot
     $environmentJson=ConvertTo-Json -InputObject $orderedEnvironment -Compress -Depth 5
     $environmentSha256=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($environmentJson))).ToLowerInvariant()
     $toolFiles=@($Executable)
@@ -611,6 +612,9 @@ try {
         $script:environmentPatch[$selection.key] = $parent
     }
     $metrics.sourceFixtureRoot = $sourceFixtureRoot
+    $pipelineContext = Get-Content -LiteralPath $pipelineContextPath -Raw | ConvertFrom-Json -AsHashtable
+    $pipelineContext.sourceFixtureRoot = $sourceFixtureRoot
+    $pipelineContext | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $pipelineContextPath -Encoding utf8NoBOM
     # Resolve selected tests' external fixtures before any expensive producer.
     $fixtureArgsPath = Join-Path $logs 'source-fixture-arguments.json'
     $fixtureLogicalArgs = @($sourceTestArgs | Select-Object -Skip 1) + @('--check-fixtures')
