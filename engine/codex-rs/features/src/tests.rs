@@ -30,6 +30,21 @@ fn sleep_tool_config_rejects_unknown_mode() {
 }
 
 #[test]
+fn reasoning_effort_overrides_are_stable_by_default_and_can_be_disabled() {
+    assert!(matches!(
+        Feature::ReasoningEffortOverride.stage(),
+        Stage::Stable
+    ));
+    let mut features = Features::with_defaults();
+    assert!(features.enabled(Feature::ReasoningEffortOverride));
+    features.apply_map(&BTreeMap::from([(
+        "reasoning_effort_override".to_string(),
+        false,
+    )]));
+    assert!(!features.enabled(Feature::ReasoningEffortOverride));
+}
+
+#[test]
 fn under_development_features_are_disabled_by_default() {
     for spec in crate::FEATURES {
         // Instant interrupts are enabled by default while retaining their development stage.

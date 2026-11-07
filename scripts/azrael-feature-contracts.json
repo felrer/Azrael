@@ -4887,6 +4887,25 @@
       "id": "engine.selected-upstream",
       "area": "engine",
       "owners": [
+        "engine/codex-rs/core/tests/suite/reasoning_effort_override.rs",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__astra_active_environment_selection.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__astra_async_question_and_answer.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__astra_code_mode_call_timing.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__astra_disabled_executor_skills.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__astra_input_interrupts_response.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__astra_input_yields_code_mode_cell.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__astra_kickoff_remote_compaction_windows.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__astra_plugin_refresh.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__astra_settings_release_check_tool_shapes.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__code_mode_catalog_messages.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__code_mode_catalog_messages_ranked_search.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__code_mode_settled_helpers__code_mode_settled_helpers.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__mcp_resource_messages__mcp_resource_messages.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__multi_agent_catalog_parameters.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__skill_catalog_dedup__dedup_before_budgeting.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__strict_3p_cache__strict_3p_mcp_catalog_cache.snap",
+        "engine/codex-rs/core/tests/suite/snapshots/all__suite__scenarios__compaction__remote_slash_compact.snap",
+        "engine/codex-rs/features/src/tests.rs",
         "engine/codex-rs/secrets/src/lib.rs",
         "engine/codex-rs/secrets/src/local.rs",
         "engine/codex-rs/secrets/src/local_cache_tests.rs",
@@ -5026,6 +5045,13 @@
             "scripts/test-codex-upstream-review.cjs"
           ],
           "level": "source"
+        },
+        {
+          "id": "engine.selected-upstream.reasoning-effort-default",
+          "executable": "node",
+          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "reasoning-effort-default"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.auth-decrypted-cache",
