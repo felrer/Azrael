@@ -4887,6 +4887,10 @@
       "id": "engine.selected-upstream",
       "area": "engine",
       "owners": [
+        "engine/codex-rs/secrets/src/lib.rs",
+        "engine/codex-rs/secrets/src/local.rs",
+        "engine/codex-rs/secrets/src/local_cache_tests.rs",
+        "engine/codex-rs/login/src/auth/storage_policy_tests.rs",
         "scripts/codex-upstream-review.cjs",
         "scripts/codex-upstream-review.json",
         "scripts/test-codex-upstream-review.cjs",
@@ -5022,6 +5026,13 @@
             "scripts/test-codex-upstream-review.cjs"
           ],
           "level": "source"
+        },
+        {
+          "id": "engine.selected-upstream.auth-decrypted-cache",
+          "executable": "node",
+          "args": ["scripts/check-selected-upstream-native.cjs", "{engineSourceRoot}", "auth-decrypted-cache"],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
         },
         {
           "id": "engine.selected-upstream.catalog-retention",

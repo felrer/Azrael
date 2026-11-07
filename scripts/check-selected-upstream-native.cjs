@@ -7,6 +7,11 @@ const { runCargoTest } = require("./cargo-verification.cjs");
 // Each filter executes product behavior. Platform-only cases remain explicit;
 // a Windows result does not accept Seatbelt, native macOS aliases or bubblewrap.
 const suites = {
+  "auth-decrypted-cache": [
+    ["codex-secrets", "--lib", "local::"],
+    ["codex-secrets", "--lib", "tests::manager_round_trips_local_backend"],
+    ["codex-login", "--lib", "auth::storage::tests::policy"],
+  ],
   "catalog-retention": [
     ["codex-models-manager", "--lib", ""],
     ["codex-model-provider", "--lib", "shared_state::tests::"],

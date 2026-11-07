@@ -34,6 +34,8 @@ Visible account surfaces refresh quota summaries for every displayed identity, i
 
 ## OpenAI profiles
 
+The native encrypted secret store keeps at most one decrypted snapshot per `CodexAuth` and `ManagedSecrets` namespace, alongside the existing MCP and per-backend Gateway OAuth caches. Every load checks current file contents and the keyring passphrase before reuse; a missing file, changed key, keyring error or changed ciphertext cannot authorize a cached credential. Writes invalidate the matching snapshot. Home paths and namespaces remain isolated. This cache does not change backend selection, strict keyring policy, account identity, profile leases or plaintext-fallback rules. Preservation: `engine.selected-upstream` (`auth-decrypted-cache`).
+
 Profiles distinguish the login identity and workspace account; email alone is not identity. Outside the native secure credential store only IDs and display metadata are stored.
 
 Saved profile plan metadata is a login-time claim, not proof of a current subscription. Successful native usage queries persist an observed plan only after checking the profile's workspace and user identity; absent plans and failed requests do not infer a subscription. Account-summary presentation is defined above; plan confirmation metadata is not required for displaying an observed quota.

@@ -13,7 +13,7 @@ const wrapperHashes = Object.freeze({
   'check-executor-completion': 'fbba5203634989dcdd30802d2f58af11418b8f32d9b8613ef05cbf7f80a28c09',
   'check-deletion-approval-native': '139f05599adda7215de9fd9c67a986803fc08a7b081dc9fc3184441ac8631829',
   'check-mcp-lazy-startup': '58cd264045141212a0ddad17f4d36c89e18401c687edbb7f23ed43c407844a86',
-  'check-selected-upstream-native': 'a7fa615e86f518362907b887f1fac221d16a2cf7f6c5568127f943f4a8fdd91a',
+  'check-selected-upstream-native': '787dc0adea39b7a45076f81928203dbe2829ea59a2a94888f88b31b9a805d756',
   'check-usage-window': 'b87b8e4c67236e297b003584c353448b7acc2a7a5ce36aec107b3ab0af173fbd',
   'check-api-context': '29a883f035865ade22a579c238e33d7c33e7931795115f949f0f597a08af6d37',
   'check-model-harness-profiles': 'c4f2c63c2034e2ee134431573739132a16d550a7a1e097a7bac256b01b3a24fa',
@@ -70,6 +70,7 @@ function reviewedRecipes(wrapper, tail, platform) {
       const needsHost = ['core-integration', 'code-mode-trace'].includes(scope);
       if (extra.length || (needsHost ? !runtime : tail.length !== 1)) break;
       const choices = {
+        'auth-decrypted-cache': [['codex-secrets', '--lib', 'local::'], ['codex-secrets', '--lib', 'tests::manager_round_trips_local_backend'], ['codex-login', '--lib', 'auth::storage::tests::policy']],
         'catalog-retention': [['codex-models-manager', '--lib', ''], ['codex-model-provider', '--lib', 'shared_state::tests::'], ['codex-protocol', '--lib', 'error::'], ['codex-prompts', '--lib', 'model_instructions'], ['codex-core', '--lib', 'model_resolution_preserves_startup_overrides_and_instruction_provenance']],
         'analytics-bound': [['codex-analytics', '--lib', ''], ['codex-app-server', '--lib', 'outgoing_message::tests']],
         'code-mode-trace': [['codex-code-mode', '--lib', ''], ['codex-core', '--test', 'code_mode_tracing', 'stdio_callbacks_preserve_context_across_overlapping_yielded_cells']],
