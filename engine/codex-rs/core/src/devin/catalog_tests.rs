@@ -1,4 +1,8 @@
 use super::*;
+use codex_protocol::context_policy::AutoCompactSource;
+use codex_protocol::context_policy::ModelAutoCompact;
+use codex_protocol::context_policy::ProviderAutoCompact;
+use codex_protocol::context_policy::resolve_context_policy;
 use codex_protocol::openai_models::ConfigShellToolType;
 use codex_protocol::openai_models::InputModality;
 use codex_protocol::openai_models::ModelVisibility;
@@ -143,7 +147,7 @@ fn groups_effort_variants_and_keeps_exact_hidden_aliases() {
 }
 
 #[test]
-fn accepts_optional_limits_and_omits_only_unknown_context_variants() {
+fn accepts_optional_limits_and_keeps_unknown_context_variants_selectable() {
     let models = models_from_catalog(
         REALISTIC_OPTIONAL_LIMITS_CATALOG.as_bytes(),
         &HashSet::new(),
@@ -155,6 +159,7 @@ fn accepts_optional_limits_and_omits_only_unknown_context_variants() {
             .map(|model| (model.slug.as_str(), model.context_window))
             .collect::<Vec<_>>(),
         vec![
+            ("devin/adaptive", Some(272_000)),
             ("devin/fusion-swe-2", Some(1_000_000)),
             ("devin/swe-2-medium", Some(262_000)),
         ]
@@ -164,25 +169,109 @@ fn accepts_optional_limits_and_omits_only_unknown_context_variants() {
     let path = snapshot_path(codex_home.path());
     std::fs::create_dir_all(path.parent().expect("snapshot parent")).expect("create parent");
     std::fs::write(&path, REALISTIC_OPTIONAL_LIMITS_CATALOG).expect("write realistic catalog");
-    assert!(
+    assert_eq!(
         resolve_with_executable(
             codex_home.path(),
             "devin/adaptive",
             None,
             codex_home.path().join("devin-test"),
         )
-        .is_err(),
-        "unknown-context variants must not be selectable",
+        .expect("unknown-context variant should resolve")
+        .model_id,
+        "adaptive",
     );
+    let inferred = &models[0];
+    assert_eq!(inferred.visibility, ModelVisibility::List);
+    assert_eq!(inferred.max_context_window, Some(272_000));
+    assert_eq!(inferred.auto_compact_token_limit, None);
+    assert_eq!(inferred.auto_compact_token_limit(), Some(258_400));
+    // Catalog metadata must remain connected to the shared policy resolver so
+    // later catalog edits cannot replace inherited or exact-model overrides.
+    let mut entries = std::collections::BTreeMap::new();
+    let policy = resolve_context_policy(inferred, &entries, None, false);
+    assert_eq!(policy.auto_compact_token_limit, Some(258_400));
+    assert_eq!(policy.auto_compact_source, AutoCompactSource::Default);
+    let mut provider = ProviderAutoCompact {
+        token_limit: Some(240_000),
+        ..Default::default()
+    };
+    entries.insert("devin".to_string(), provider.clone());
+    let policy = resolve_context_policy(inferred, &entries, Some(210_000), false);
+    assert_eq!(policy.auto_compact_token_limit, Some(240_000));
+    assert_eq!(policy.auto_compact_source, AutoCompactSource::Provider);
+    provider.models.insert(
+        inferred.slug.clone(),
+        ModelAutoCompact {
+            token_limit: Some(230_000),
+            ..Default::default()
+        },
+    );
+    entries.insert("devin".to_string(), provider);
+    let policy = resolve_context_policy(inferred, &entries, Some(210_000), false);
+    assert_eq!(policy.auto_compact_token_limit, Some(230_000));
+    assert_eq!(policy.auto_compact_source, AutoCompactSource::Model);
+    assert!(
+        inferred
+            .description
+            .as_deref()
+            .unwrap()
+            .contains("assuming 272000")
+    );
+    assert!(models[1..].iter().all(|model| model.description.is_none()));
+}
+
+#[test]
+fn groups_inferred_and_matching_reported_context_and_resolves_aliases() {
+    // Future grouping changes must use the same effective limit as discovery
+    // and resolution, including a reported limit that matches the default.
+    let catalog = CATALOG
+        .replace(",\"max_context_tokens\":200000", "")
+        .replace(
+            "\"label\":\"SWE-2 High\"",
+            "\"label\":\"SWE-2 High\",\"max_context_tokens\":272000",
+        );
+    let models = models_from_catalog(catalog.as_bytes(), &HashSet::new()).unwrap();
+    let group = &models[0];
+    assert_eq!(group.slug, "devin/@group/swe-2/default/272000");
+    assert_eq!(group.visibility, ModelVisibility::List);
+    assert_eq!(group.context_window, Some(272_000));
+    assert!(
+        group
+            .description
+            .as_deref()
+            .unwrap()
+            .contains("assuming 272000")
+    );
+    let parsed = parse_catalog(catalog.as_bytes(), MAX_CATALOG_BYTES).unwrap();
+    assert_eq!(
+        resolve_model(&parsed, &group.slug, None).unwrap(),
+        "swe-2-medium"
+    );
+    assert_eq!(
+        resolve_model(&parsed, &group.slug, Some(&ReasoningEffort::Max)).unwrap(),
+        "swe-2-max"
+    );
+    for model in &models[1..] {
+        assert_eq!(model.visibility, ModelVisibility::Hide);
+        assert_eq!(model.context_window, Some(272_000));
+        assert_eq!(
+            resolve_model(&parsed, &model.slug, None).unwrap(),
+            model.slug.strip_prefix("devin/").unwrap()
+        );
+    }
 }
 
 #[test]
 fn rejects_explicit_non_positive_context_limit() {
-    let invalid = REALISTIC_OPTIONAL_LIMITS_CATALOG
-        .replace("\"max_context_tokens\":262000", "\"max_context_tokens\":0");
-    let error = models_from_catalog(invalid.as_bytes(), &HashSet::new())
-        .expect_err("zero context must fail");
-    assert!(error.to_string().contains("invalid context limit"));
+    for limit in [0, -1] {
+        let invalid = REALISTIC_OPTIONAL_LIMITS_CATALOG.replace(
+            "\"max_context_tokens\":262000",
+            &format!("\"max_context_tokens\":{limit}"),
+        );
+        let error = models_from_catalog(invalid.as_bytes(), &HashSet::new())
+            .expect_err("non-positive context must fail");
+        assert!(error.to_string().contains("invalid context limit"));
+    }
 }
 
 #[test]

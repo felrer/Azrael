@@ -15,7 +15,7 @@ const guardedCargoWrappers = new Set([
   "check-mcp-lazy-startup",
   "check-window-approval-native", "check-question-withdrawal-native", "check-shared-engine-native", "check-startup-performance-native",
   "check-parent-requests", "check-api-context", "check-root-resume-reasoning", "check-model-harness-profiles",
-  "check-task-work-time-native", "check-response-tps-native", "check-thread-auto-compaction",
+  "check-task-work-time-native", "check-response-tps-native", "check-thread-auto-compaction", "check-devin-compaction",
   "check-capacity-recovery", "check-task-profile-skills", "check-project-maintenance", "check-error-classification-native",
   "check-task-recovery-native", "check-usage-window",
   "check-deletion-approval-native",

@@ -1546,8 +1546,12 @@ async fn run_auto_compact(
         return Ok(false);
     }
     let turn_context = &step_context.turn;
-    if crate::devin::catalog::is_devin(&step_context.settings.model_info.slug) {
-        return Err(CodexErr::InvalidRequest("Native compaction is unavailable for helper providers; start a new thread if the context limit is reached".to_string()));
+    if crate::devin::catalog::is_devin(&step_context.settings.model_info.slug)
+        && !crate::devin::native_runtime::enabled()
+    {
+        return Err(CodexErr::InvalidRequest(
+            "Devin compaction requires the native helper runtime".to_string(),
+        ));
     }
     if matches!(phase, CompactionPhase::PreTurn)
         && crate::guardian::is_basic_session_source(&turn_context.session_source)
@@ -1568,6 +1572,7 @@ async fn run_auto_compact(
     );
     if turn_context.config.features.enabled(Feature::TokenBudget)
         && !crate::managed_catalog::is_managed(&step_context.settings.model_info.slug)
+        && !crate::devin::catalog::is_devin(&step_context.settings.model_info.slug)
     {
         // Compaction is the reset request, so force a new context window
         // instead of consuming a pending `new_context` tool request.
@@ -1580,7 +1585,13 @@ async fn run_auto_compact(
         return Ok(true);
     }
 
-    match turn_context.provider.capabilities().remote_compaction {
+    let remote_compaction =
+        if crate::devin::catalog::is_devin(&step_context.settings.model_info.slug) {
+            RemoteCompactionSupport::Unsupported
+        } else {
+            turn_context.provider.capabilities().remote_compaction
+        };
+    match remote_compaction {
         RemoteCompactionSupport::V2 => {
             emit_compact_metric(
                 &sess.services.session_telemetry,

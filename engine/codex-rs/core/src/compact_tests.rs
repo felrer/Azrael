@@ -23,6 +23,9 @@ use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
 
+#[path = "compact_devin_tests.rs"]
+mod devin;
+
 #[test_case(true; "metadata enabled")]
 #[test_case(false; "metadata disabled after capture")]
 #[tokio::test]

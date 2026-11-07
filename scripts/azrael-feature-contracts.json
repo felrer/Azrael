@@ -3738,6 +3738,14 @@
       "id": "engine.provider-context",
       "area": "engine",
       "owners": [
+        "scripts/tests/check-devin-compaction.test.cjs",
+        "scripts/check-devin-compaction.cjs",
+        "engine/codex-rs/core/src/devin/catalog_mapping.rs",
+        "engine/codex-rs/core/src/devin/catalog_tests.rs",
+        "engine/codex-rs/core/src/compact.rs",
+        "engine/codex-rs/core/src/compact_tests.rs",
+        "engine/codex-rs/core/src/compact_devin_tests.rs",
+        "engine/codex-rs/core/src/tasks/compact.rs",
         "engine/codex-rs/protocol/src/context_policy.rs",
         "engine/codex-rs/protocol/src/protocol.rs",
         "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
@@ -3772,6 +3780,22 @@
       ],
       "contract": "docs/architecture/context-policy.md",
       "checks": [
+        {
+          "id": "engine.provider-context.devin-compaction-runner",
+          "executable": "node",
+          "args": ["--test", "scripts/tests/check-devin-compaction.test.cjs"],
+          "level": "source"
+        },
+        {
+          "id": "engine.provider-context.devin-compaction",
+          "executable": "node",
+          "args": [
+            "scripts/check-devin-compaction.cjs",
+            "{engineSourceRoot}"
+          ],
+          "level": "native",
+          "cargoPreflight": "selected-tests-v2"
+        },
         {
           "id": "engine.provider-context.thread-auto-compaction",
           "executable": "node",

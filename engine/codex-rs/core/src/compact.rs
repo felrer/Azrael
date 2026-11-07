@@ -264,6 +264,14 @@ async fn run_compact_task_inner_impl(
     world_state: Arc<WorldState>,
     compaction_metadata: CompactionTurnMetadata,
 ) -> CodexResult<String> {
+    let cancellation_token = if crate::devin::catalog::is_devin(&turn_context.model_info().slug) {
+        sess.active_turn_context_and_cancellation_token()
+            .await
+            .filter(|(active, _)| active.sub_id == turn_context.sub_id)
+            .map(|(_, token)| token)
+    } else {
+        None
+    };
     let compaction_item = TurnItem::ContextCompaction(ContextCompactionItem::new());
     sess.emit_turn_item_started(&turn_context, &compaction_item)
         .await;
@@ -293,7 +301,10 @@ async fn run_compact_task_inner_impl(
             .executed_tool_calls
             .attach_to_compaction_prompt(&mut turn_input);
         let turn_input_len = turn_input.len();
-        let profile = crate::session::step_context::resolve_harness_profile(&turn_context.config, &turn_context.model_info().slug)?;
+        let profile = crate::session::step_context::resolve_harness_profile(
+            &turn_context.config,
+            &turn_context.model_info().slug,
+        )?;
         let base_instructions = if turn_input
             .iter()
             .any(BaseInstructionsFragment::matches_item)
@@ -303,7 +314,12 @@ async fn run_compact_task_inner_impl(
                 provenance: None,
             }
         } else {
-            sess.get_harness_base_instructions(&profile, &turn_context.config, &turn_context.model_info().slug).await
+            sess.get_harness_base_instructions(
+                &profile,
+                &turn_context.config,
+                &turn_context.model_info().slug,
+            )
+            .await
         };
         let prompt = Prompt {
             input: turn_input,
@@ -322,6 +338,7 @@ async fn run_compact_task_inner_impl(
             &responses_metadata,
             &prompt,
             compaction_metadata.phase(),
+            cancellation_token.as_ref(),
         )
         .await;
 
@@ -376,13 +393,14 @@ async fn run_compact_task_inner_impl(
 
     let history_snapshot = sess.clone_history().await;
     let history_items = history_snapshot.annotated_items();
-    let summary_suffix = if matches!(compaction_metadata.phase(), CompactionPhase::PostTurn) {
+    let devin = crate::devin::catalog::is_devin(&turn_context.model_info().slug);
+    let summary_suffix = if devin
+        || matches!(compaction_metadata.phase(), CompactionPhase::PostTurn)
+    {
         get_last_assistant_message_from_turn(compaction_response.output.iter())
             .filter(|summary| !summary.trim().is_empty())
             .ok_or_else(|| {
-                CodexErr::Stream(
-                    "Post-turn compaction completed without an assistant summary".to_string(),
-                )
+                CodexErr::Stream("Compaction completed without an assistant summary".to_string())
             })?
     } else {
         get_last_assistant_message_from_turn(history_snapshot.raw_items()).unwrap_or_default()
@@ -396,6 +414,12 @@ async fn run_compact_task_inner_impl(
         // belongs to this compaction turn.
         summary_item.set_turn_id_if_missing(&turn_context.sub_id);
     }
+    if cancellation_token
+        .as_ref()
+        .is_some_and(|token| token.is_cancelled())
+    {
+        return Err(CodexErr::TurnAborted);
+    }
     let (window_number, window_ids) = sess.advance_auto_compact_window().await;
 
     let (new_history, world_state_baseline) = build_compaction_replacement_history(
@@ -405,6 +429,12 @@ async fn run_compact_task_inner_impl(
         new_history,
     )
     .await;
+    if cancellation_token
+        .as_ref()
+        .is_some_and(|token| token.is_cancelled())
+    {
+        return Err(CodexErr::TurnAborted);
+    }
     sess.replace_compacted_history(
         new_history,
         replacement_step_context.to_turn_context_item(),
@@ -789,6 +819,7 @@ async fn drain_to_completed(
     responses_metadata: &CodexResponsesMetadata,
     prompt: &Prompt,
     phase: CompactionPhase,
+    cancellation_token: Option<&tokio_util::sync::CancellationToken>,
 ) -> CodexResult<CompactionResponse> {
     sess.record_input_context_policy(turn_context, turn_context.model_info(), prompt)
         .await;
@@ -807,11 +838,11 @@ async fn drain_to_completed(
         )
         .await?
     } else if crate::devin::catalog::is_devin(&turn_context.model_info().slug) {
-        crate::devin::runtime::stream(
+        crate::devin::native_runtime::stream(
             Arc::clone(sess),
             Arc::clone(turn_context),
             prompt.clone(),
-            tokio_util::sync::CancellationToken::new(),
+            cancellation_token.cloned().unwrap_or_default(),
             turn_context.reasoning_effort(),
         )
         .await?
@@ -858,7 +889,12 @@ async fn drain_to_completed(
                 usage_metadata,
                 ..
             }) => {
-                if !matches!(phase, CompactionPhase::PostTurn) {
+                // Devin summary output remains isolated until it is validated and
+                // committed as a compaction checkpoint. Failed/empty summaries
+                // must not append ordinary assistant items to live history.
+                if !crate::devin::catalog::is_devin(&turn_context.model_info().slug)
+                    && !matches!(phase, CompactionPhase::PostTurn)
+                {
                     for item in std::mem::take(&mut output) {
                         sess.record_annotated_conversation_items(
                             turn_context,
@@ -891,6 +927,15 @@ async fn drain_to_completed(
                 .await;
                 sess.update_token_usage_info(turn_context, token_usage.as_ref())
                     .await?;
+                // Completed usage is still accounted for when the summary is invalid.
+                if crate::devin::catalog::is_devin(&turn_context.model_info().slug)
+                    && get_last_assistant_message_from_turn(output.iter())
+                        .is_none_or(|summary| summary.trim().is_empty())
+                {
+                    return Err(CodexErr::Stream(
+                        "Devin compaction completed without an assistant summary".to_string(),
+                    ));
+                }
                 return Ok(CompactionResponse {
                     response_id,
                     output,

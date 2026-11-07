@@ -12,9 +12,12 @@ use codex_protocol::openai_models::ReasoningEffortPreset;
 use codex_protocol::openai_models::TruncationPolicyConfig;
 use serde::Deserialize;
 use std::collections::HashSet;
+use std::sync::Mutex;
+use std::sync::OnceLock;
 use tracing::warn;
 
 const DEVIN_PREFIX: &str = "devin/";
+const DEFAULT_CONTEXT_TOKENS: i64 = 272_000;
 pub(super) const GROUP_PREFIX: &str = "devin/@group/";
 
 #[derive(Debug, Deserialize)]
@@ -35,6 +38,38 @@ struct DevinVariant {
     model_uid: String,
     label: String,
     max_context_tokens: Option<i64>,
+}
+
+impl DevinVariant {
+    fn effective_context_tokens(&self) -> i64 {
+        self.max_context_tokens.unwrap_or(DEFAULT_CONTEXT_TOKENS)
+    }
+}
+
+fn first_context_warning(warned: &Mutex<HashSet<String>>, model_uid: &str) -> bool {
+    warned
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .insert(model_uid.to_string())
+}
+
+fn warn_inferred_context(catalog: &DevinCatalog) {
+    static WARNED_MODELS: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
+    let warned = WARNED_MODELS.get_or_init(|| Mutex::new(HashSet::new()));
+    for variant in catalog.families.iter().flat_map(|family| &family.variants) {
+        if variant.max_context_tokens.is_none() && first_context_warning(warned, &variant.model_uid)
+        {
+            warn!(
+                model_uid = %variant.model_uid,
+                context_tokens = DEFAULT_CONTEXT_TOKENS,
+                "Devin model context limit is unknown; using an inferred default"
+            );
+        }
+    }
+}
+
+fn inferred_context_description() -> String {
+    format!("Context limit not reported by Devin; assuming {DEFAULT_CONTEXT_TOKENS} tokens.")
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -92,6 +127,8 @@ pub(super) fn parse_catalog(bytes: &[u8], max_bytes: usize) -> Result<DevinCatal
             ));
         }
     }
+    // Only validated catalogs consume the process-wide warning allowance.
+    warn_inferred_context(&catalog);
     Ok(catalog)
 }
 
@@ -110,14 +147,7 @@ pub(super) fn models_from_catalog(
 
     for family in &catalog.families {
         for variant in &family.variants {
-            let Some(max_context_tokens) = variant.max_context_tokens else {
-                warn!(
-                    model_uid = %variant.model_uid,
-                    "omitting Devin model without a known context limit"
-                );
-                index += 1;
-                continue;
-            };
+            let max_context_tokens = variant.effective_context_tokens();
             if let Some(group) = groups.iter().find(|group| {
                 group
                     .members
@@ -176,9 +206,8 @@ pub(super) fn resolve_model(
         .iter()
         .flat_map(|family| family.variants.iter())
         .find(|variant| {
-            variant.max_context_tokens.is_some()
-                && (exact_model_key(&variant.model_uid) == key
-                    || legacy_model_key(&variant.model_uid) == key)
+            exact_model_key(&variant.model_uid) == key
+                || legacy_model_key(&variant.model_uid) == key
         })
     {
         return Ok(variant.model_uid.clone());
@@ -208,10 +237,7 @@ fn groups(catalog: &DevinCatalog) -> Vec<Group<'_>> {
     for family in &catalog.families {
         let mut buckets: Vec<Group<'_>> = Vec::new();
         for variant in &family.variants {
-            let Some(max_context_tokens) = variant.max_context_tokens else {
-                index += 1;
-                continue;
-            };
+            let max_context_tokens = variant.effective_context_tokens();
             let Some((effort, tier_label)) = effort_and_tier(family, variant) else {
                 index += 1;
                 continue;
@@ -353,6 +379,13 @@ fn group_model_info(group: &Group<'_>, exact_keys: &HashSet<String>) -> Result<M
         ModelVisibility::List,
     );
     info.default_reasoning_level = Some(first.effort.clone());
+    if group
+        .members
+        .iter()
+        .any(|member| member.variant.max_context_tokens.is_none())
+    {
+        info.description = Some(inferred_context_description());
+    }
     let mut supported_reasoning_levels = group
         .members
         .iter()
@@ -387,6 +420,11 @@ fn exact_models(
             max_context_tokens,
             ModelVisibility::Hide,
         ));
+    }
+    if variant.max_context_tokens.is_none() {
+        for model in &mut models {
+            model.description = Some(inferred_context_description());
+        }
     }
     Ok(models)
 }
@@ -557,4 +595,27 @@ fn escape_component(value: &str) -> String {
         }
     }
     escaped
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn context_warning_gate_is_once_per_model_across_threads() {
+        let warned = Mutex::new(HashSet::new());
+        std::thread::scope(|scope| {
+            let handles: Vec<_> = (0..8)
+                .map(|_| scope.spawn(|| first_context_warning(&warned, "inferred-model")))
+                .collect();
+            let warnings = handles
+                .into_iter()
+                .map(|handle| handle.join().unwrap())
+                .filter(|first| *first)
+                .count();
+            assert_eq!(warnings, 1);
+        });
+        assert!(!first_context_warning(&warned, "inferred-model"));
+        assert!(first_context_warning(&warned, "another-model"));
+    }
 }

@@ -58,7 +58,7 @@ Engine unit tests that read the catalog must run without the live `AZRAEL_DEVIN_
 ## Limits
 
 - Text appears per request after the helper finishes, not token by token.
-- Images, audio, structured output, hosted web search and foreign encrypted payloads fail explicitly; context overflow fails instead of compacting.
+- Images, audio, structured output, hosted web search and foreign encrypted payloads fail explicitly; native-helper conversations support local automatic/manual summary compaction. Missing model context metadata uses a disclosed 272,000-token Azrael estimate (default auto compaction at 258,400); provider/model settings retain precedence. A failed summary keeps the original conversation and reports the failure.
 - Credential rotation, account/model/cwd changes and signed full-history forks cannot reuse a continuation; start a new thread.
 - The vendored transport is a pinned unofficial Connect-RPC adapter; provider changes can require a reviewed transport update. Notices and local modifications are in [`UPSTREAM.md`](../../providers/devin/UPSTREAM.md).
 - Native rollout and SQLite are the only history; failed-turn tool results are never deleted or replayed.

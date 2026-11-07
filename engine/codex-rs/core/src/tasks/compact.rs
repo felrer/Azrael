@@ -50,7 +50,13 @@ impl SessionTask for CompactTask {
                 .build_world_state_for_step(&step_context, /*new_window*/ true)
                 .await?,
         );
-        if ctx.config.features.enabled(Feature::TokenBudget) {
+        let devin = crate::devin::catalog::is_devin(&ctx.model_info().slug);
+        if devin && !crate::devin::native_runtime::enabled() {
+            return Err(codex_protocol::error::CodexErr::InvalidRequest(
+                "Devin compaction requires the native helper runtime".to_string(),
+            ));
+        }
+        if ctx.config.features.enabled(Feature::TokenBudget) && !devin {
             crate::compact_token_budget::run_manual_compact_task(
                 session,
                 step_context,
@@ -62,7 +68,12 @@ impl SessionTask for CompactTask {
 
         crate::session::prepare_provider_handoff(&session, &ctx, &cancellation_token).await?;
 
-        let result = match ctx.provider.capabilities().remote_compaction {
+        let remote_compaction = if devin {
+            RemoteCompactionSupport::Unsupported
+        } else {
+            ctx.provider.capabilities().remote_compaction
+        };
+        let result = match remote_compaction {
             RemoteCompactionSupport::V2 => {
                 emit_compact_metric(
                     &session.services.session_telemetry,

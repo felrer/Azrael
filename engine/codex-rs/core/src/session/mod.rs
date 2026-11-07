@@ -2831,7 +2831,7 @@ impl Session {
             .map(|task| Arc::clone(&task.turn_context))
     }
 
-    async fn active_turn_context_and_cancellation_token(
+    pub(crate) async fn active_turn_context_and_cancellation_token(
         &self,
     ) -> Option<(Arc<TurnContext>, CancellationToken)> {
         let active = self.active_turn.lock().await;
