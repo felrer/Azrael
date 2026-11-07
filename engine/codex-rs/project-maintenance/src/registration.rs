@@ -64,16 +64,27 @@ pub(crate) fn register<'a>(
         return Err("registration cancelled before measurement".into());
     }
     let before = store.state.clone();
-    // Capture declared junction identities before observing member roots.
+    // Replacement registration must not inherit declarations omitted from the
+    // new request. Keep only approvals belonging to unaffected item scopes.
     for item in request["group"]["members"]
         .as_array()
         .into_iter()
         .flatten()
         .chain(request.get("item").into_iter())
     {
-        if item.get("verified_junctions").is_some() {
-            paths::configure_junctions(root, item, true, auth)?;
-        }
+        let path = paths::resolve(root, Path::new(string(item, "path")?))?;
+        auth.junctions
+            .borrow_mut()
+            .retain(|entry, _| !paths::within(entry, &path));
+    }
+    // Capture declared leaf link identities before observing member roots.
+    for item in request["group"]["members"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .chain(request.get("item").into_iter())
+    {
+        paths::configure_links(root, item, true, auth)?;
     }
     let mut lease =
         reservations::ReservationSet::acquire_registration(root, request, &store.state, auth)?;

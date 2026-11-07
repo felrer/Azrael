@@ -313,20 +313,36 @@ pub(crate) fn check(root: &Path, path: &Path, auth: Auth<'_>) -> Result<(), Stri
     checked_metadata(root, path, auth).map(|_| ())
 }
 
-/// Exact nested fixture junctions are explicit item metadata. The registration
-/// boundary captures identity; later operations only load and verify that pin.
-pub(crate) fn configure_junctions(
+/// Only explicitly declared leaf links can bypass the default reparse rejection.
+/// Registration captures identity; later operations only load and verify that pin.
+pub(crate) fn configure_links(
     root: &Path,
     item: &Value,
     capture: bool,
     auth: Auth<'_>,
+) -> Result<(), String> {
+    for field in ["verified_junctions", "verified_file_symlinks"] {
+        configure_declared_links(root, item, field, capture, auth)?;
+    }
+    Ok(())
+}
+
+pub(crate) fn configure_declared_links(
+    root: &Path,
+    item: &Value,
+    field: &str,
+    capture: bool,
+    auth: Auth<'_>,
 ) -> Result<Value, String> {
-    let Some(specs) = item.get("verified_junctions") else {
+    let kind = match field {
+        "verified_junctions" => "junction",
+        "verified_file_symlinks" => "file_symlink",
+        _ => return Err("unknown verified link declaration".into()),
+    };
+    let Some(specs) = item.get(field) else {
         return Ok(json!([]));
     };
-    let specs = specs
-        .as_array()
-        .ok_or("verified_junctions must be an array")?;
+    let specs = specs.as_array().ok_or("verified links must be an array")?;
     if specs.len() > 1024 || item["generated"] != true || item["protection_known"] != true {
         return Err(
             "verified junctions require confirmed generated ownership and protection".into(),
@@ -340,8 +356,8 @@ pub(crate) fn configure_junctions(
         let relative_path = Path::new(crate::string(spec, "path")?);
         relative(relative_path)?;
         let path = resolve(&base, relative_path)?;
-        if path == base || spec["kind"] != "junction" || !seen.insert(path.clone()) {
-            return Err("junction approval requires a unique nested junction entry".into());
+        if path == base || spec["kind"] != kind || !seen.insert(path.clone()) {
+            return Err("link approval requires a unique nested entry of the declared kind".into());
         }
         let target = Path::new(crate::string(spec, "target")?);
         if !target.is_absolute() || reserved(root, &path) {
@@ -350,12 +366,20 @@ pub(crate) fn configure_junctions(
                     .into(),
             );
         }
+        if kind == "file_symlink" {
+            // Validate components as well as lexical containment: a target such
+            // as owned/../external must never become a contained exception.
+            resolve(&base, target)?;
+            if reserved(root, target) {
+                return Err("file symlink target must be inside the same owned item".into());
+            }
+        }
         let mut pinned = spec.clone();
         if capture {
             // Do not authorize the link while checking its parent: an approved
             // junction can never become an ancestor traversal exception.
             plain_junction_parent(root, &path, auth)?;
-            let identity = junction_identity(&path, target, auth)?;
+            let identity = link_identity(&path, target, kind, auth)?;
             if spec
                 .get("identity")
                 .is_some_and(|expected| expected != &identity)
@@ -367,7 +391,7 @@ pub(crate) fn configure_junctions(
             return Err("registered junction identity missing".into());
         }
         if let Some(old) = auth.junctions.borrow().get(&path) {
-            if !capture && old != &pinned {
+            if old["kind"] != pinned["kind"] || (!capture && old != &pinned) {
                 return Err("conflicting junction approval".into());
             }
         }
@@ -391,7 +415,7 @@ fn registered_junction_metadata_accepts_1024_entries_and_rejects_excess() {
     })).collect::<Vec<_>>();
     let mut item = json!({"path":"generated/owned","owner":"test","generated":true,"protection_known":true,"verified_junctions":specs});
     assert_eq!(
-        configure_junctions(root.path(), &item, false, &context)
+        configure_declared_links(root.path(), &item, "verified_junctions", false, &context)
             .unwrap()
             .as_array()
             .unwrap()
@@ -405,17 +429,20 @@ fn registered_junction_metadata_accepts_1024_entries_and_rejects_excess() {
             "path":"excess","kind":"junction","target":root.path().join("target"),
             "identity":{"pin":"registered-fixture","created":0}
         }));
-    assert!(configure_junctions(root.path(), &item, false, &context).is_err());
+    assert!(
+        configure_declared_links(root.path(), &item, "verified_junctions", false, &context)
+            .is_err()
+    );
     assert_eq!(context.junctions.borrow().len(), 1024);
 }
 
 #[cfg(not(windows))]
-fn junction_identity(_: &Path, _: &Path, _: Auth<'_>) -> Result<Value, String> {
-    Err("verified directory junctions are Windows-only".into())
+fn link_identity(_: &Path, _: &Path, _: &str, _: Auth<'_>) -> Result<Value, String> {
+    Err("verified junctions and file symlinks are Windows-only".into())
 }
 
 #[cfg(windows)]
-fn junction_identity(path: &Path, target: &Path, auth: Auth<'_>) -> Result<Value, String> {
+fn link_identity(path: &Path, target: &Path, kind: &str, auth: Auth<'_>) -> Result<Value, String> {
     use std::os::windows::fs::{MetadataExt, OpenOptionsExt};
     use std::os::windows::io::AsRawHandle;
     use windows_sys::Win32::Storage::FileSystem::{
@@ -432,16 +459,18 @@ fn junction_identity(path: &Path, target: &Path, auth: Auth<'_>) -> Result<Value
     }
     let target_metadata =
         checked_metadata(target, target, auth)?.ok_or("junction target missing")?;
-    if !target_metadata.is_dir() {
-        return Err("junction target must be a physical directory".into());
+    let file_symlink = kind == "file_symlink";
+    if (file_symlink && !target_metadata.is_file()) || (!file_symlink && !target_metadata.is_dir())
+    {
+        return Err("approved link target has the wrong physical type".into());
     }
     auth(path, AccessMode::Read)?;
     let metadata = fs::symlink_metadata(path).map_err(|e| e.to_string())?;
-    if metadata.file_attributes() & 0x10 == 0
+    if (metadata.file_attributes() & 0x10 != 0) == file_symlink
         || metadata.file_attributes() & 0x400 == 0
         || metadata.file_attributes() & 4 != 0
     {
-        return Err("approved entry is not a non-System directory junction".into());
+        return Err("approved entry has the wrong link type or protected attributes".into());
     }
     let file = fs::OpenOptions::new()
         .access_mode(FILE_READ_ATTRIBUTES)
@@ -473,36 +502,81 @@ fn junction_identity(path: &Path, target: &Path, auth: Auth<'_>) -> Result<Value
         }
     }
     let length = returned as usize;
-    if length < 16
+    let header = if file_symlink { 20usize } else { 16usize };
+    let tag = if file_symlink { 0xa000000c } else { 0xa0000003 };
+    if length < header
         || length > raw.len()
-        || u32::from_le_bytes(raw[..4].try_into().map_err(|_| "invalid junction tag")?)
-            != 0xa0000003
+        || u32::from_le_bytes(raw[..4].try_into().map_err(|_| "invalid junction tag")?) != tag
         || id.VolumeSerialNumber == 0
         || id.FileId.Identifier == [0; 16]
     {
-        return Err("approved entry is not a verified mount-point junction".into());
+        return Err("approved entry has the wrong reparse tag or missing identity".into());
     }
     let offset = u16::from_le_bytes([raw[8], raw[9]]) as usize;
     let name_length = u16::from_le_bytes([raw[10], raw[11]]) as usize;
-    let end = 16usize
+    let end = header
         .checked_add(offset)
         .and_then(|v| v.checked_add(name_length))
         .ok_or("invalid junction target length")?;
-    if name_length % 2 != 0 || end > length {
+    if name_length == 0 || offset % 2 != 0 || name_length % 2 != 0 || end > length {
         return Err("invalid junction target buffer".into());
     }
-    let words = raw[16 + offset..end]
+    let words = raw[header + offset..end]
         .chunks_exact(2)
         .map(|v| u16::from_le_bytes([v[0], v[1]]))
         .collect::<Vec<_>>();
     let actual = String::from_utf16(&words).map_err(|e| e.to_string())?;
-    let actual = actual
-        .strip_prefix(r"\??\UNC\")
-        .map(|tail| format!(r"\\{tail}"))
-        .or_else(|| actual.strip_prefix(r"\??\").map(str::to_owned))
-        .ok_or("junction target is not an absolute DOS path")?;
-    let actual = Path::new(&actual);
-    if !within(actual, target) || !within(target, actual) {
+    let relative_symlink = file_symlink
+        && u32::from_le_bytes(
+            raw[16..20]
+                .try_into()
+                .map_err(|_| "invalid symlink flags")?,
+        ) == 1;
+    if file_symlink && !relative_symlink && raw[16..20] != [0, 0, 0, 0] {
+        return Err("unsupported file symlink flags".into());
+    }
+    let actual = if relative_symlink {
+        let relative = Path::new(&actual);
+        if relative.is_absolute()
+            || relative
+                .components()
+                .any(|part| matches!(part, Component::Prefix(_) | Component::RootDir))
+        {
+            return Err("relative file symlink contains an absolute target".into());
+        }
+        let mut resolved = path
+            .parent()
+            .ok_or("file symlink parent missing")?
+            .to_path_buf();
+        let mut parts = relative.components().peekable();
+        while let Some(part) = parts.next() {
+            match part {
+                Component::Normal(name) => resolved.push(name),
+                Component::CurDir => {}
+                Component::ParentDir if resolved.pop() => {}
+                _ => return Err("file symlink target escapes physical root".into()),
+            }
+            // Reject a chain even when lexical `..` would hide its intermediate
+            // link. Never resolve a file target through another reparse entry.
+            if parts.peek().is_some() {
+                let metadata = checked_metadata(&resolved, &resolved, auth)?
+                    .ok_or("file symlink target ancestor missing")?;
+                if !metadata.is_dir() || reparse(&metadata) || metadata.file_type().is_symlink() {
+                    return Err("file symlink target ancestor must be a physical directory".into());
+                }
+            }
+        }
+        resolved
+    } else {
+        PathBuf::from(
+            actual
+                .strip_prefix(r"\??\UNC\")
+                .map(|tail| format!(r"\\{tail}"))
+                .or_else(|| actual.strip_prefix(r"\??\").map(str::to_owned))
+                .ok_or("link target is not an absolute DOS path")?,
+        )
+    };
+    if !within(&actual, target) || !within(target, &actual) {
         return Err("junction target changed".into());
     }
     // Include entry identity and exact tag/payload, independently of target data.
@@ -530,8 +604,12 @@ fn validate_junction(root: &Path, path: &Path, auth: Auth<'_>) -> Result<(), Str
         .cloned()
         .ok_or("unapproved junction")?;
     plain_junction_parent(root, path, auth)?;
-    if junction_identity(path, Path::new(crate::string(&spec, "target")?), auth)?
-        != spec["identity"]
+    if link_identity(
+        path,
+        Path::new(crate::string(&spec, "target")?),
+        crate::string(&spec, "kind")?,
+        auth,
+    )? != spec["identity"]
     {
         return Err("approved junction identity changed".into());
     }
@@ -1417,7 +1495,7 @@ pub(crate) fn delete_verified(
     #[cfg(windows)]
     {
         let junctions = auth.junctions.borrow().iter().filter(|(entry, _)| within(entry, path))
-            .map(|(entry, spec)| json!({"path":entry,"target":spec["target"],"identity":spec["identity"]})).collect::<Vec<_>>();
+            .map(|(entry, spec)| json!({"path":entry,"kind":spec["kind"],"target":spec["target"],"identity":spec["identity"]})).collect::<Vec<_>>();
         let mut worker = auth.windows_delete.borrow_mut();
         if worker.is_none() {
             *worker = Some(crate::windows_delete::Worker::new()?);
@@ -1456,7 +1534,7 @@ pub(crate) fn normalization_preflight(approved: &[PathBuf]) -> Result<(), String
         // authorization callback; the final deletion boundary rechecks pins.
         for entry in approved {
             let metadata = fs::symlink_metadata(entry).map_err(|e| e.to_string())?;
-            if metadata.is_file() {
+            if metadata.is_file() && !reparse(&metadata) && !metadata.file_type().is_symlink() {
                 files.push((entry, metadata.file_attributes() & 3 != 0));
             }
         }

@@ -254,7 +254,7 @@ pub(crate) fn scopes(
 pub(crate) fn run(root: &Path, request: &Value, auth: Auth<'_>) -> Result<Value, String> {
     let snapshot = crate::storage::Store::open(root, auth, false).map_err(String::from)?;
     for item in snapshot.state.items.values() {
-        paths::configure_junctions(root, item, false, auth)?;
+        paths::configure_links(root, item, false, auth)?;
     }
     let selected = scopes(root, request, &snapshot.state, auth)?;
     if selected.is_empty() {

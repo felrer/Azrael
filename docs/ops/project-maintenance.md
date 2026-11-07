@@ -170,6 +170,8 @@ node scripts/project-maintenance.cjs plan --area queue
 
 항목의 `verified_junctions` 예시는 `[{"path":"temporary/fixture/link","kind":"junction","target":"C:/선택한프로젝트/실제대상"}]`다. 정확한 소유 생성물만 지정하며 등록이 고정한 identity는 임의로 만들거나 수정하지 않는다. 새 링크·바뀐 대상·부재 경로 재등장은 새 검토가 필요하다. 기존 소유자 등록 요청의 전체 구성원을 유지한다.
 
+Windows 파일 심볼릭 링크는 항목에 `verified_file_symlinks:[{"path":"vendor/bubblewrap/LICENSE","kind":"file_symlink","target":"C:/선택한프로젝트/소유항목/vendor/bubblewrap/COPYING"}]`를 명시한다. `path`는 해당 항목의 엄격한 하위 상대 경로이고 `target`은 같은 항목 안의 존재하는 물리 일반 파일이다. 실제 링크는 `COPYING` 같은 상대 텍스트나 절대 경로를 사용할 수 있다. 등록에서 file ID·생성 시각·원시 symlink 데이터를 고정하고 검토/적용에서 재검증한다. 링크를 따라 대상 내용을 읽거나 링크 속성을 정규화하지 않고 링크 자체만 제거한다. 대상 파일은 일반 선택 구성원으로 별도 삭제한다. 체인·외부 대상·디렉터리 symlink·System 링크·루트/상위 예외는 허용하지 않는다. 새 코드의 지원이며 현재 선택된 실행기에 자동 반영되지 않으므로 [작업 검증 범위](../../work/GE-01-file-symlink-cleanup/01-plan.md)를 확인한다.
+
 Windows의 내부 정션만 폐기할 때는 `artifact-lifecycle.ps1`의 `Remove-ArtifactInternalJunction`을 사용한다. 호출 소유자는 기존 maintenance→catalog custody에서 동일 작업 경계의 소유·생산자/독자 종료·참조 해제를 확인하고 `CheckAuthority`로 최신 권한을 재검증해야 한다. 정확한 경계·링크·물리 대상 identity, mount-point 종류와 대상 경로를 고정한다. 이 전용 경로는 System 속성이 있는 정션도 속성 변경 없이 `Directory.Delete(path, false)`로 연결만 제거하며, 물리 대상의 제한된 전후 관측으로 내용 보존을 확인한다. 일반 System 파일·디렉터리의 삭제 보호와 native bulk 경로는 바꾸지 않는다. 링크 교체·외부 대상·관측 한도 초과·권한 불확실성은 중단한다.
 
 생성 도구나 모델은 생성 근거를 확인한 항목을 `project_inventory`의 `register`로 등록한다. 항목에는 ID·경로·종류·소유자·생성 여부·사용/보호 확인 여부·참조를 명시한다. 확인 가능한 생성 시각·소스·버전·도구/캐시 형식·보존 사유도 함께 기록한다. 알 수 없는 값은 확인되지 않은 상태로 둔다.

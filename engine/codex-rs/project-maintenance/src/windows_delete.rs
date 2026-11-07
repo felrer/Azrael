@@ -372,7 +372,7 @@ public static class MaintenanceJunctionNative {
                 AssertAncestors(literal);
                 int attributes=(int)System.IO.File.GetAttributes(literal);
                 if((attributes & 4)!=0) throw new InvalidOperationException("System attributes protected");
-                // Include hidden/system entries, and never enumerate a junction.
+                // Include hidden/system entries, and never enumerate an approved link.
                 if((attributes & 16)!=0 && !junctions.Contains(literal)) {
                     foreach(string child in System.IO.Directory.EnumerateFileSystemEntries(literal)) pending.Push(ExtendedLiteral(child));
                 }
@@ -426,7 +426,7 @@ public static class MaintenanceJunctionNative {
         public void DeleteApproved() {
             var ordered=new List<string>();
             foreach(string literal in approved.Keys) {
-                // Approved junctions are verified and unlinked separately.
+                // Approved reparse links are verified and unlinked separately.
                 if(!junctions.Contains(literal)) ordered.Add(literal);
             }
             // Every child has a longer literal path than its parent. Never
@@ -497,7 +497,45 @@ public static class MaintenanceJunctionNative {
         // never enumerates or recursively removes the linked directory.
         if(!RemoveDirectoryW(path)) throw new Win32Exception(Marshal.GetLastWin32Error());
     }
+    public static void AssertFileSymlink(string path, string target, string expectedPin, ulong created) {
+        AssertAncestors(target,LiteralRoot(target),null);
+        int attributes=(int)System.IO.File.GetAttributes(target);
+        if((attributes & (4|16|1024))!=0) throw new InvalidOperationException("Physical regular file target required");
+        using(var h=CreateFileW(path,0x00010080,7,IntPtr.Zero,3,0x02200000,IntPtr.Zero)) {
+            if(h.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
+            var info=Marshal.AllocHGlobal(40);
+            try {
+                if(!GetFileInformationByHandleEx(h,0,info,40)) throw new Win32Exception(Marshal.GetLastWin32Error());
+                int linkAttributes=Marshal.ReadInt32(info,32);
+                if((linkAttributes & (4|16))!=0 || (linkAttributes & 1024)==0 || unchecked((ulong)Marshal.ReadInt64(info))!=created)
+                    throw new InvalidOperationException("Approved file symbolic link changed");
+                var raw=new byte[16384]; uint n;
+                if(!DeviceIoControl(h,0x900a8,IntPtr.Zero,0,raw,16384,out n,IntPtr.Zero)) throw new Win32Exception(Marshal.GetLastWin32Error());
+                if(n<20 || BitConverter.ToUInt32(raw,0)!=0xa000000c) throw new InvalidOperationException("File symbolic link required");
+                int offset=BitConverter.ToUInt16(raw,8), length=BitConverter.ToUInt16(raw,10);
+                uint flags=BitConverter.ToUInt32(raw,16);
+                if((flags & ~1u)!=0 || length==0 || (offset & 1)!=0 || (length & 1)!=0 || 20+offset+length>n)
+                    throw new InvalidOperationException("Invalid symbolic link payload");
+                string actual=System.Text.Encoding.Unicode.GetString(raw,20+offset,length);
+                if((flags & 1)!=0) {
+                    // Resolve relative text lexically, never through the link.
+                    string plain=path.StartsWith(@"\\?\UNC\",StringComparison.OrdinalIgnoreCase) ? @"\\"+path.Substring(8) : path.Substring(4);
+                    actual=System.IO.Path.GetFullPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(plain),actual));
+                } else if(actual.StartsWith(@"\??\")) actual=@"\\?\"+actual.Substring(4);
+                if(!String.Equals(ExtendedLiteral(actual),target,StringComparison.OrdinalIgnoreCase) || Pin(path,0xa000000c)!=expectedPin)
+                    throw new InvalidOperationException("Approved file symbolic link target or identity changed");
+            } finally {Marshal.FreeHGlobal(info);}
+        }
+    }
+    public static void UnlinkFileSymlink(string path, string target, string expectedPin, ulong created) {
+        AssertFileSymlink(path,target,expectedPin,created);
+        // DeleteFileW removes only the file symbolic link, with no normalization.
+        if(!DeleteFileW(path)) throw new Win32Exception(Marshal.GetLastWin32Error());
+    }
     public static string Pin(string path) {
+        return Pin(path,0xa0000003);
+    }
+    public static string Pin(string path, uint tag) {
         using(var h=CreateFileW(path,128,7,IntPtr.Zero,3,0x02200000,IntPtr.Zero)) {
             if(h.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
             var info=Marshal.AllocHGlobal(24);
@@ -506,7 +544,7 @@ public static class MaintenanceJunctionNative {
                 var id=new byte[16]; Marshal.Copy(IntPtr.Add(info,8),id,0,16);
                 var raw=new byte[16384]; uint n;
                 if(!DeviceIoControl(h,0x900a8,IntPtr.Zero,0,raw,16384,out n,IntPtr.Zero)) throw new Win32Exception(Marshal.GetLastWin32Error());
-                if(n<16 || BitConverter.ToUInt32(raw,0)!=0xa0000003) throw new InvalidOperationException("Mount-point junction required");
+                if(n<16 || BitConverter.ToUInt32(raw,0)!=tag) throw new InvalidOperationException("Approved reparse tag changed");
                 using(var sha=SHA256.Create()) {
                     var digest=BitConverter.ToString(sha.ComputeHash(raw,0,(int)n)).Replace("-", "").ToLowerInvariant();
                     return unchecked((ulong)Marshal.ReadInt64(info)).ToString()+":"+String.Join(",",id)+":"+digest;
@@ -529,6 +567,12 @@ function Assert-Ancestors($literal) {
 function Assert-Junction($literal) {
     $spec=$junctions[$literal]
     $entry=Get-Item -LiteralPath $literal -Force -ErrorAction Stop
+    if($spec.kind -eq 'file_symlink') {
+        if($entry.LinkType -ne 'SymbolicLink' -or ([int]$entry.Attributes -band (4 -bor 16)) -ne 0) {throw 'Approved file symbolic link changed'}
+        [MaintenanceJunctionNative]::AssertFileSymlink($literal, (Extended-Literal ([string]$spec.target)), [string]$spec.identity.pin, [uint64]$spec.identity.created)
+        return
+    }
+    if($spec.kind -and $spec.kind -ne 'junction') {throw 'Unknown reparse approval kind'}
     if($entry.LinkType -ne 'Junction' -or ([int]$entry.Attributes -band 4) -ne 0 -or
        (Extended-Literal ([string]$entry.Target)) -ne (Extended-Literal ([string]$spec.target)) -or
        [MaintenanceJunctionNative]::Pin($literal) -cne [string]$spec.identity.pin) {throw 'Approved junction changed'}
@@ -563,7 +607,12 @@ try {
     foreach($literal in $junctions.Keys) {
         Assert-Ancestors $literal
         Assert-Junction $literal
-        [MaintenanceJunctionNative]::Unlink($literal, [string]$junctions[$literal].identity.pin)
+        $spec=$junctions[$literal]
+        if($spec.kind -eq 'file_symlink') {
+            [MaintenanceJunctionNative]::UnlinkFileSymlink($literal, (Extended-Literal ([string]$spec.target)), [string]$spec.identity.pin, [uint64]$spec.identity.created)
+        } else {
+            [MaintenanceJunctionNative]::Unlink($literal, [string]$spec.identity.pin)
+        }
     }
     # Ordinary exact-path removal starts only after all approved links are gone.
     $junctions.Clear()

@@ -334,7 +334,7 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             authorize.junctions.borrow_mut().clear();
             let store = storage::Store::open(&root, authorize, mutate)?;
             for item in store.state.items.values() {
-                paths::configure_junctions(&root, item, false, authorize)?;
+                paths::configure_links(&root, item, false, authorize)?;
             }
             if mutate {
                 store.authorize_save(authorize)?;
@@ -1238,8 +1238,10 @@ fn prepare_registered_item(
         return Err("references must be an explicit array of nonempty reference strings".into());
     }
     let path = paths::resolve(root, Path::new(string(&item, "path")?))?;
-    if item.get("verified_junctions").is_some() {
-        item["verified_junctions"] = paths::configure_junctions(root, &item, true, authorize)?;
+    for field in ["verified_junctions", "verified_file_symlinks"] {
+        if item.get(field).is_some() {
+            item[field] = paths::configure_declared_links(root, &item, field, true, authorize)?;
+        }
     }
     let absent = if let Some(old) = previous {
         let old_path = Path::new(string(old, "path")?);

@@ -4398,6 +4398,7 @@
         "scripts/test-clean-engine-caches.ps1",
         "scripts/test-deploy-azrael.ps1",
         "engine/codex-rs/project-maintenance/src/registry.rs",
+        "engine/codex-rs/project-maintenance/tests/verified_file_symlinks.rs",
         "engine/codex-rs/project-maintenance/tests/registry.rs",
         "scripts/verify-composer-emoticon-render.mjs",
         "scripts/test-project.cjs",

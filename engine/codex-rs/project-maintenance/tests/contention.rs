@@ -119,6 +119,7 @@ fn transient_commit_contention(catalog: bool, wait_ms: Option<u64>) {
         .join("artifacts/maintenance/lifecycles/catalog.lock");
     let injected = Cell::new(false);
     let holder = RefCell::new(None);
+    let retained_lock = RefCell::new(None);
     let authorize = |path: &Path, mode| {
         let boundary = if catalog {
             path == catalog_path && mode == AccessMode::Write
@@ -134,10 +135,16 @@ fn transient_commit_contention(catalog: bool, wait_ms: Option<u64>) {
                 .unwrap();
             if file.try_lock().is_ok() {
                 injected.set(true);
-                *holder.borrow_mut() = Some(std::thread::spawn(move || {
-                    std::thread::sleep(Duration::from_millis(120));
-                    drop(file);
-                }));
+                if wait_ms.is_some() {
+                    *holder.borrow_mut() = Some(std::thread::spawn(move || {
+                        std::thread::sleep(Duration::from_millis(120));
+                        drop(file);
+                    }));
+                } else {
+                    // Keep abort's reacquisition blocked until dispatch returns;
+                    // a timer could expire while a slow abort is still running.
+                    *retained_lock.borrow_mut() = Some(file);
+                }
             }
         }
         Ok(())
@@ -150,6 +157,7 @@ fn transient_commit_contention(catalog: bool, wait_ms: Option<u64>) {
         request["lock_wait_ms"] = json!(wait);
     }
     let result = dispatch(root.path(), request, &authorize);
+    drop(retained_lock.into_inner());
     if let Some(thread) = holder.into_inner() {
         thread.join().unwrap();
     }
