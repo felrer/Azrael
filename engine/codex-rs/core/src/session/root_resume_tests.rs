@@ -30,6 +30,7 @@ use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
+use futures::FutureExt;
 use pretty_assertions::assert_eq;
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::AtomicUsize;
@@ -237,6 +238,58 @@ async fn parked_root_does_not_sample_and_deadline_dispatches_once() {
     assert_eq!(requests.requests().len(), 1);
 }
 
+#[tokio::test]
+async fn root_resume_account_wait_exits_on_cancel_close_or_recovery_failure() {
+    for outcome in ["cancel", "close", "recovery"] {
+        let server = start_mock_server().await;
+        let home = tempfile::tempdir().unwrap();
+        let (session, turn, _events) =
+            make_persistent_session_and_context_with_time_provider_and_rx(
+                home.path(),
+                InitialHistory::New,
+                Arc::new(FakeClock::new()),
+                format!("{}/v1", server.uri()),
+            )
+            .await
+            .unwrap();
+        park_root(&session, &turn, 60_000).await;
+        let waiting = session.root_resume_record().unwrap();
+        let admission = session.execution_admission().await;
+        let switch = admission.begin_switch().unwrap();
+        let mut dispatch = session.dispatch_root_resume(
+            waiting.id.clone(),
+            waiting.revision,
+            RootResumeWakeReason::Deadline,
+        );
+        assert!(dispatch.as_mut().now_or_never().is_none());
+        match outcome {
+            "cancel" => session
+                .cancel_root_reservation(&waiting.id, waiting.revision)
+                .await
+                .unwrap(),
+            "close" => session.close_root_resume_runtime().await,
+            "recovery" => admission.block_new_work(),
+            _ => unreachable!(),
+        }
+        assert!(
+            tokio::time::timeout(Duration::from_secs(10), dispatch)
+                .await
+                .unwrap()
+                .is_err()
+        );
+        assert_eq!(
+            session.root_resume_record().unwrap().state,
+            match outcome {
+                "cancel" => RootResumeState::Cancelled,
+                "close" => RootResumeState::Waiting,
+                _ => RootResumeState::Blocked,
+            }
+        );
+        assert!(session.active_turn.lock().await.is_none());
+        drop(switch);
+    }
+}
+
 async fn set_reasoning_effort(
     session: &Session,
     effort: codex_protocol::openai_models::ReasoningEffort,
@@ -291,10 +344,21 @@ async fn automatic_root_resume_preserves_reasoning_and_manual_uses_current_setti
         );
         set_reasoning_effort(&session, ReasoningEffort::Low).await;
         let waiting = session.root_resume_record().unwrap();
-        session
-            .dispatch_root_resume(waiting.id, waiting.revision, wake.clone())
-            .await
-            .unwrap();
+        let admission = session.execution_admission().await;
+        let switch = admission.begin_switch().unwrap();
+        let mut dispatch = session.dispatch_root_resume(waiting.id, waiting.revision, wake.clone());
+        assert!(dispatch.as_mut().now_or_never().is_none());
+        assert_eq!(
+            session.root_resume_record().unwrap().state,
+            RootResumeState::Waiting
+        );
+        assert!(requests.requests().is_empty());
+        let commit = switch
+            .try_commit()
+            .expect("resume wait must not pin account");
+        drop(commit);
+        drop(switch);
+        dispatch.await.unwrap();
         wait_for_state(&session, RootResumeState::Resumed).await;
         tokio::time::timeout(Duration::from_secs(10), async {
             while requests.requests().is_empty() {

@@ -38,6 +38,7 @@ struct RootResumeControl {
     record: StdMutex<Option<RootResumeReservation>>,
     deferred_turn: StdMutex<Option<String>>,
     parked: Notify,
+    reservation_changed: Notify,
     timer: StdMutex<Option<CancellationToken>>,
     terminal_turns: StdMutex<HashSet<String>>,
     terminal_activity: Arc<Notify>,
@@ -108,6 +109,9 @@ impl Session {
             .record
             .lock()
             .unwrap_or_else(|error| panic!("root resume record: {error}")) = record;
+        self.root_resume_control()
+            .reservation_changed
+            .notify_waiters();
     }
 
     pub(crate) fn has_root_resume_reservation(&self) -> bool {
@@ -599,6 +603,7 @@ impl Session {
         let control = self.root_resume_control();
         let _guard = Arc::clone(&control.gate).lock_owned().await;
         control.closed.store(true, Ordering::Release);
+        control.reservation_changed.notify_waiters();
         self.stop_root_resume_timer();
     }
 
@@ -746,6 +751,43 @@ impl Session {
         });
     }
 
+    async fn wait_root_resume_admission(
+        &self,
+        id: &str,
+        revision: i64,
+    ) -> std::io::Result<tokio::sync::OwnedRwLockReadGuard<()>> {
+        let control = self.root_resume_control();
+        let admission = self.execution_admission().await;
+        // Subscribe before checking admission so a completed switch cannot be missed.
+        let mut changes = admission.subscribe_changes();
+        loop {
+            let changed = control.reservation_changed.notified();
+            tokio::pin!(changed);
+            changed.as_mut().enable();
+            if control.closed.load(Ordering::Acquire)
+                || !self
+                    .root_resume_record()
+                    .is_some_and(|record| record.id == id && record.revision == revision)
+            {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::Interrupted,
+                    "root reservation changed or runtime closed",
+                ));
+            }
+            match admission.admit_request().await {
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {}
+                result => return result,
+            }
+            // Neither the root submission gate nor an account lease is held here.
+            tokio::select! {
+                _ = &mut changed => {},
+                result = changes.changed() => {
+                    result.map_err(|_| std::io::Error::other("account admission closed"))?;
+                }
+            }
+        }
+    }
+
     fn dispatch_root_resume(
         self: &Arc<Self>,
         id: String,
@@ -763,7 +805,7 @@ impl Session {
             let result = async {
                 // Account switching must not hold the root gate hostage to an admission wait.
                 let phase = RootResumePhase::new(timing.as_ref(), "execution_admission");
-                let admission = session.execution_admission().await.admit_request().await;
+                let admission = session.wait_root_resume_admission(&id, revision).await;
                 phase.finish(admission.is_ok());
                 let control = session.root_resume_control();
                 let phase = RootResumePhase::new(timing.as_ref(), "submission_gate");
