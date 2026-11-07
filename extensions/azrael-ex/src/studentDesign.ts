@@ -10,7 +10,7 @@ interface PhotoSet { id: string; name: string; photos: Student[] }
 type ChatFont = "gyeonggi-consolas" | "openai";
 interface State { enabled: boolean; decisions: Record<string, PhotoId | null>; chatFont: ChatFont; selectedPhotoSetId: string; customPhotoSets: PhotoSet[] }
 interface Mount { clientId: string; disposal?: vscode.Disposable }
-interface Options { manifest?: unknown; randomInt?: (max: number) => number }
+interface Options { manifest?: unknown; scientistManifest?: unknown; randomInt?: (max: number) => number }
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const validId = (v: unknown): v is string => typeof v === "string" && v.length > 0 && v.length <= 512;
 
@@ -18,7 +18,9 @@ const validId = (v: unknown): v is string => typeof v === "string" && v.length >
 export class StudentDesignService implements vscode.Disposable {
   private state: State = { enabled: false, decisions: {}, chatFont: "gyeonggi-consolas", selectedPhotoSetId: "blue-archive", customPhotoSets: [] };
   private readonly students: Student[] = [];
+  private readonly scientists: Student[] = [];
   private readonly assetRoot: vscode.Uri;
+  private readonly scientistRoot: vscode.Uri;
   private readonly customRoot: vscode.Uri;
   private readonly mounts = new Map<vscode.Webview, Mount>();
   private readonly pick: (max: number) => number;
@@ -32,6 +34,9 @@ export class StudentDesignService implements vscode.Disposable {
     const integrated = vscode.Uri.joinPath(context.extensionUri, "webview", "assets", "azrael-students");
     this.assetRoot = fs.existsSync(vscode.Uri.joinPath(integrated, "manifest.json").fsPath)
       ? integrated : vscode.Uri.joinPath(context.extensionUri, "media", "student-avatars");
+    const integratedScientists = vscode.Uri.joinPath(context.extensionUri, "webview", "assets", "azrael-scientists");
+    this.scientistRoot = fs.existsSync(vscode.Uri.joinPath(integratedScientists, "manifest.json").fsPath)
+      ? integratedScientists : vscode.Uri.joinPath(context.extensionUri, "media", "scientist-avatars");
     try {
       const manifest: unknown = options.manifest ?? JSON.parse(fs.readFileSync(vscode.Uri.joinPath(this.assetRoot, "manifest.json").fsPath, "utf8"));
       if (!record(manifest) || manifest.schemaVersion !== 1 || !Array.isArray(manifest.students) || !manifest.students.length) throw new Error("Invalid student roster.");
@@ -43,15 +48,26 @@ export class StudentDesignService implements vscode.Disposable {
         ids.add(student.id as number);
       }
       this.students = manifest.students.map(student => ({ ...student, photoSetId: "blue-archive" })) as Student[];
+      const scientistManifest: unknown = options.scientistManifest ?? JSON.parse(fs.readFileSync(vscode.Uri.joinPath(this.scientistRoot, "manifest.json").fsPath, "utf8"));
+      if (!record(scientistManifest) || scientistManifest.schemaVersion !== 1 || !Array.isArray(scientistManifest.photos) || !scientistManifest.photos.length) throw new Error("Invalid scientist roster.");
+      const scientistIds = new Set<string>();
+      for (const photo of scientistManifest.photos) {
+        if (!record(photo) || typeof photo.id !== "string" || !/^scientists:[a-z0-9]+(?:-[a-z0-9]+)*$/.test(photo.id) || scientistIds.has(photo.id)
+          || ![photo.nameKo, photo.nameEn, photo.school].every(v => typeof v === "string" && v.trim().length > 0)
+          || photo.asset !== `${photo.id.slice("scientists:".length)}.jpg`
+          || typeof photo.assetSHA256 !== "string" || !/^[a-f0-9]{64}$/.test(photo.assetSHA256)) throw new Error("Invalid scientist roster.");
+        scientistIds.add(photo.id);
+      }
+      this.scientists = scientistManifest.photos.map(photo => ({ ...photo, photoSetId: "scientists" })) as Student[];
       const stored: unknown = context.globalState.get(key);
       if (stored !== undefined) {
         if (!record(stored) || typeof stored.enabled !== "boolean" || !record(stored.decisions)) throw new Error("Invalid saved student design settings.");
         if (stored.chatFont !== undefined && stored.chatFont !== "gyeonggi-consolas" && stored.chatFont !== "openai") throw new Error("Invalid saved chat font.");
         const customPhotoSets = this.restoreSets(stored.customPhotoSets);
-        const photoIds = new Set<PhotoId>([...ids, ...customPhotoSets.flatMap(set => set.photos.map(photo => photo.id))]);
+        const photoIds = new Set<PhotoId>([...ids, ...scientistIds, ...customPhotoSets.flatMap(set => set.photos.map(photo => photo.id))]);
         if (!Object.entries(stored.decisions).every(([id, photo]) => validId(id) && (photo === null || photoIds.has(photo as PhotoId)))) throw new Error("Invalid saved student design settings.");
         const selectedPhotoSetId = stored.selectedPhotoSetId ?? "blue-archive";
-        if (selectedPhotoSetId !== "blue-archive" && !customPhotoSets.some(set => set.id === selectedPhotoSetId)) throw new Error("Invalid saved photo set.");
+        if (selectedPhotoSetId !== "blue-archive" && selectedPhotoSetId !== "scientists" && !customPhotoSets.some(set => set.id === selectedPhotoSetId)) throw new Error("Invalid saved photo set.");
         this.state = { enabled: stored.enabled, decisions: { ...stored.decisions } as State["decisions"], chatFont: stored.chatFont === "openai" ? "openai" : "gyeonggi-consolas", selectedPhotoSetId: selectedPhotoSetId as string, customPhotoSets };
       }
     } catch (error) { this.error = error instanceof Error ? error.message : "Student design is unavailable."; }
@@ -65,7 +81,7 @@ export class StudentDesignService implements vscode.Disposable {
       const roots = webview.options.localResourceRoots ?? [this.context.extensionUri];
       // Parent roots already authorize their descendants. Updating options unnecessarily
       // reloads the settings webview and resets its active route.
-      const missing = [this.assetRoot, this.customRoot].filter(root => !roots.some(uri => uri.scheme === root.scheme && uri.authority === root.authority
+      const missing = [this.assetRoot, this.scientistRoot, this.customRoot].filter(root => !roots.some(uri => uri.scheme === root.scheme && uri.authority === root.authority
         && (uri.path === root.path || root.path.startsWith(uri.path.replace(/\/+$/, "") + "/"))));
       if (missing.length) webview.options = { ...webview.options, localResourceRoots: [...roots, ...missing] };
       const mount: Mount = { clientId };
@@ -133,7 +149,7 @@ export class StudentDesignService implements vscode.Disposable {
     });
   }
 
-  private photoSets(): PhotoSet[] { return [{ id: "blue-archive", name: "Students", photos: this.students }, ...this.state.customPhotoSets]; }
+  private photoSets(): PhotoSet[] { return [{ id: "blue-archive", name: "Students", photos: this.students }, { id: "scientists", name: "Scientists", photos: this.scientists }, ...this.state.customPhotoSets]; }
   private activePhotos(): Student[] { return this.photoSets().find(set => set.id === this.state.selectedPhotoSetId)?.photos ?? []; }
 
   private restoreSets(value: unknown): PhotoSet[] {
@@ -242,7 +258,7 @@ export class StudentDesignService implements vscode.Disposable {
       const delivered = await webview.postMessage({ type: "azrael-design-state", clientId: mount.clientId,
         enabled: this.state.enabled, chatFont: this.state.chatFont, selectedPhotoSetId: this.state.selectedPhotoSetId, photoSets: this.photoSets().map(({ id, name, photos }) => ({ id, name, count: photos.length })),
         students: this.photoSets().flatMap(set => set.photos.map(({ id, nameKo, nameEn, asset, photoSetId }) => ({ id, nameKo, nameEn, photoSetId,
-          url: webview.asWebviewUri(vscode.Uri.joinPath(photoSetId === "blue-archive" ? this.assetRoot : this.customRoot, asset)).toString() }))), assignments, ...(error ? { error } : {}) });
+          url: webview.asWebviewUri(vscode.Uri.joinPath(photoSetId === "blue-archive" ? this.assetRoot : photoSetId === "scientists" ? this.scientistRoot : this.customRoot, asset)).toString() }))), assignments, ...(error ? { error } : {}) });
       if (!delivered && this.mounts.get(webview) === mount) this.remove(webview);
     } catch { if (this.mounts.get(webview) === mount) this.remove(webview); }
   }
