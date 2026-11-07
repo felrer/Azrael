@@ -15,6 +15,7 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
     return [
       [process.execPath, ["scripts/test-artifact-run.cjs", path.join(runRoot, "temporary/helper")]],
       [process.execPath, ["scripts/test-deployment-workspace.cjs", path.join(runRoot, "temporary/workspace")]],
+      [process.execPath, ["scripts/test-committed-project-inputs.cjs", path.join(runRoot, "temporary/committed-project")]],
       [process.execPath, ["scripts/test-packaging-workspace.cjs", path.join(runRoot, "temporary/package-inputs")]],
       [process.execPath, ["scripts/test-artifact-check-ownership.cjs", path.join(runRoot, "temporary/checks")]],
       [process.execPath, ["scripts/test-artifact-render-ownership.cjs", "--output-root=" + path.join(runRoot, "temporary/renderers")]],
@@ -22,7 +23,7 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
     ];
   }
   if (stage === "source") return [
-    [process.execPath, ["--test", "scripts/test-artifact-lifecycle.cjs", "scripts/test-build-platform.cjs"]],
+    [process.execPath, ["--test", "scripts/test-artifact-lifecycle.cjs", "scripts/test-build-platform.cjs", "scripts/test-committed-build-context.cjs"]],
     [process.execPath, ["scripts/test-platform-packaging.cjs"]],
   ];
   if (stage !== "windows" || platform !== "win32") throw new Error("Windows cleanup checks require --stage windows on Windows");

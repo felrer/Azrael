@@ -4448,6 +4448,11 @@
         "scripts/verification-schedule.cjs",
         "scripts/test-verification-schedule.cjs",
         "scripts/test-cargo-scheduling.cjs",
+        "scripts/committed-project-inputs.cjs",
+        "scripts/freeze-platform-inputs.cjs",
+        "scripts/committed-build-context.cjs",
+        "scripts/test-committed-project-inputs.cjs",
+        "scripts/test-committed-build-context.cjs",
         "scripts/capture-project-inputs.cjs",
         "scripts/test-capture-project-inputs.cjs",
         "scripts/deployment-workspace.cjs",
@@ -4561,6 +4566,7 @@
             "files": [
               "scripts/test-artifact-lifecycle.cjs",
               "scripts/test-build-platform.cjs",
+              "scripts/test-committed-build-context.cjs",
               "scripts/test-platform-packaging.cjs"
             ]
           }
@@ -4597,6 +4603,7 @@
             "files": [
               "scripts/test-artifact-run.cjs",
               "scripts/test-deployment-workspace.cjs",
+              "scripts/test-committed-project-inputs.cjs",
               "scripts/test-packaging-workspace.cjs",
               "scripts/test-artifact-check-ownership.cjs",
               "scripts/test-artifact-render-ownership.cjs",

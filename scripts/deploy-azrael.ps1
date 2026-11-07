@@ -60,6 +60,10 @@ if ($ReuseDecisionsPath) {
 if ($ExhaustiveRegression) { $FullRegression = $true }
 $UiSourcePath = [IO.Path]::GetFullPath($UiSourcePath)
 $project = [IO.Path]::GetFullPath((Split-Path $PSScriptRoot -Parent))
+$committedContextJson = & node (Join-Path $PSScriptRoot 'committed-build-context.cjs') $project
+if ($LASTEXITCODE -ne 0) { throw 'A verified commit-bound workspace is required before deployment.' }
+$committedContext = $committedContextJson | ConvertFrom-Json
+if ([IO.Path]::GetFullPath($SourceRoot) -ine (Join-Path $project 'engine')) { throw 'SourceRoot must be the prepared workspace engine.' }
 function Resolve-DeploymentModuleCacheOwner([string]$Project, [string]$ManifestPath, [string]$ManifestSha256, [string]$ExplicitOwner) {
     if (-not $ManifestPath -and -not $ManifestSha256) { return $ExplicitOwner }
     if (-not $ManifestPath -or -not $ManifestSha256) { throw 'DeploymentWorkspaceManifest and DeploymentWorkspaceSha256 must be supplied together.' }
@@ -208,7 +212,7 @@ function Invoke-PipelineState {
     param([string]$Action, [string]$Name, $Options = @{})
     if (-not $pipelineLease -or $pipelineLease.SafeFileHandle.IsClosed) { throw 'Pipeline operation requires its exclusive deployment lease.' }
     $request = Join-Path $logs 'pipeline-request.json'
-    @{file=$pipelineFile; identity=@{project=$project; platform='windows-x64'; releaseName=$ReleaseName; sourceSnapshot=$script:inputSnapshot}; resume=[bool](Test-Path -LiteralPath $pipelineFile); lockHeld=$true; reuseDecisionsPath=$ReuseDecisionsPath; action=$Action; name=$Name; options=$Options} | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath $request -Encoding utf8NoBOM
+    @{file=$pipelineFile; identity=@{project=$project; platform='windows-x64'; releaseName=$ReleaseName; sourceSnapshot=$script:inputSnapshot;sourceCommit=$committedContext.sourceCommit}; resume=[bool](Test-Path -LiteralPath $pipelineFile); lockHeld=$true; reuseDecisionsPath=$ReuseDecisionsPath; action=$Action; name=$Name; options=$Options} | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath $request -Encoding utf8NoBOM
     $errorPath=Join-Path $logs 'pipeline-review-error.json'
     $result = & node (Join-Path $PSScriptRoot 'pipeline-state.cjs') $request 2> $errorPath
     if ($LASTEXITCODE -ne 0) {
@@ -234,7 +238,7 @@ function ConvertTo-StageInput($Value) {
     if ($Value -is [System.Collections.IDictionary]) {
         $normalized = @{}
         foreach ($entry in $Value.GetEnumerator()) {
-            if ($entry.Key -notin @('outputDirectory','temporaryDirectory','logDirectory','reuseDecisionsPath')) { $normalized[$entry.Key] = ConvertTo-StageInput $entry.Value }
+            if ($entry.Key -notin @('outputDirectory','temporaryDirectory','logDirectory','reuseDecisionsPath','sourceStatePath','sourceGeneration')) { $normalized[$entry.Key] = ConvertTo-StageInput $entry.Value }
         }
         return $normalized
     }
@@ -252,6 +256,15 @@ function Get-StageInputs([string]$Executable, [string[]]$Arguments) {
         if ($argument -eq '-Resume') { continue }
         if ($argument -eq '-ReuseDecisionsPath') { $index++; continue }
         if ($argument -eq '--args-sha256') { $index++; continue }
+        if ($argument -in @('-SourceStatePath','-SourceGeneration')) { $index++; continue }
+        # Observation handoffs are fresh per attempt, not different build inputs.
+        # Only the exact paths/token allocated by this deployment are normalized.
+        if ($argument -eq '-SourceStateHandoffPath' -and $Arguments[$index + 1] -ceq $sourceHandoffPath) {
+            $logical.Add($argument); $logical.Add('<attempt-source-handoff-path>'); $index++; continue
+        }
+        if ($argument -eq '-SourceStateHandoffToken' -and $Arguments[$index + 1] -ceq $sourceHandoffToken) {
+            $logical.Add($argument); $logical.Add('<attempt-source-handoff-token>'); $index++; continue
+        }
         if ($argument -like '*.json' -and (Test-Path -LiteralPath $argument -PathType Leaf)) {
             try { $logical.Add((ConvertTo-StageInput (Get-Content -LiteralPath $argument -Raw | ConvertFrom-Json -AsHashtable))); continue } catch { }
         }
@@ -512,6 +525,7 @@ function Get-FocusedEngineFeatureIds {
 }
 try {
     $script:inputSnapshot = Get-ProjectSnapshot 'initial'
+    if ($script:inputSnapshot -cne $committedContext.projectSha256) { throw 'Prepared source differs from its committed input receipt.' }
     $pipelineSnapshot = Invoke-PipelineState 'snapshot' ''
     $script:packageFullyVerified = $false
     $metrics.projectInputSha256 = $inputSnapshot
@@ -562,7 +576,7 @@ try {
     $buildArgs += @('-SourceStateHandoffPath', $sourceHandoffPath, '-SourceStateHandoffToken', $sourceHandoffToken)
     if ($ReuseDecisionsPath) { $buildArgs += @('-ReuseDecisionsPath', $ReuseDecisionsPath) }
     $pipelineContextPath=Join-Path $logs 'pipeline-context.json'
-    @{file=$pipelineFile;identity=@{project=$project;platform='windows-x64';releaseName=$ReleaseName;sourceSnapshot=$script:inputSnapshot}} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $pipelineContextPath -Encoding utf8NoBOM
+    @{file=$pipelineFile;identity=@{project=$project;platform='windows-x64';releaseName=$ReleaseName;sourceSnapshot=$script:inputSnapshot;sourceCommit=$committedContext.sourceCommit}} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $pipelineContextPath -Encoding utf8NoBOM
     $buildArgs += @('-PipelineContextPath',$pipelineContextPath)
     if ($Resume) { $buildArgs += '-Resume' }
     if ($RetainedSourceRoot) { $buildArgs += @('-RetainedSourceRoot', $RetainedSourceRoot) }

@@ -365,23 +365,23 @@ Compact inputs are per consumer run; a stopped creator cannot be reused as an ac
 
 ### Script corrections on a verified baseline
 
-For a writable build after a reviewed script-only correction, use the same active caller's `sourceInputs` from `reuseDeploymentInputs`:
+Commit the complete functional change before preparing a new build. `prepareDeploymentWorkspace` resolves `sourceCommit` (a full commit SHA), or HEAD once when omitted, before input preparation. It materializes only committed Git objects, including committed `.gitignore` and lockfiles; staged/unstaged/untracked files and later commits are excluded. The returned manifest and working `control/committed-source.json` bind `sourceCommit` and the complete source fingerprint. Windows build/deploy require that prepared context and the workspace's `engine` path; do not run a new build directly against a mutable checkout.
 
 ```js
 const { prepareDeploymentWorkspace, verifyDeploymentWorkspace } = require("./scripts/deployment-workspace.cjs");
-const derived = await prepareDeploymentWorkspace({
-  sourceInputs, inputRoot: freshDeltaInputRoot, workingRoot: freshWorkingRoot,
-  reportPath: derivedReportPath,
-  projectOverrides: [{ source: reviewedScriptPath, destinationRelative: "scripts/example.cjs", sha256: reviewedSha256 }]
+const prepared = await prepareDeploymentWorkspace({
+  projectRoot, artifactProjectRoot, inputRoot, workingRoot,
+  owner, runLifecycleId, reportPath, sourceCommit,
+  engineSourceRoot: require("node:path").join(projectRoot, "engine")
 });
-await verifyDeploymentWorkspace(derived); // repeat after the consumer finishes
+await verifyDeploymentWorkspace(prepared);
 ```
 
-The schema-2 `script-delta` stores only overridden files, keeps the verified baseline and manifest referenced, and creates one independent writable checkout. `immutableProjectRoot` is deliberately null; use `workingRoot` for script consumers and `immutableEngineRoot` for the unchanged retained engine. Do not pass the delta manifest to a consumer that requires a complete immutable project directory. Only existing selected top-level `scripts/` files can be replaced; additions, removals, native/engine or lockfile changes require the full preparation path. A later correction must explicitly select a complete baseline and its full reviewed override set, rather than silently chaining deltas. Existing provenance, actual tests and exact-package/host acceptance still apply. This changes preparation behavior, not a measured performance guarantee.
+Create the caller run and its output ownership through the existing lifecycle owner first. A separately imported engine must supply `engineSourceSha256`, matching its audited source snapshot; tracked embedded engine files come from the project commit. Other external UI/runtime receipts keep their current identity checks. Keep shared Cargo/module caches under their existing owner instead of copying them as source. Prepared working copies still require complete verification before consumption and after use.
 
-When the exact result object from `reuseDeploymentInputs` is passed directly to script-delta preparation in the same process, preparation consumes its private verified snapshot once instead of immediately repeating that full baseline scan. Manifest, ownership, references and root identities are still checked at entry, and full verification after copying remains mandatory. Serialized or copied result objects cannot carry this optimization and use the normal full entry verification. This handoff is not a persistent verification receipt or a way to bypass final verification.
+Portable `build-platform.cjs` accepts `--source-commit`; a new invocation pins HEAD once if omitted. `--resume` retains the selected commit from its existing pipeline state and validates frozen inputs without comparing the mutable original checkout. A separate Git engine requires `--engine-commit`; a separately imported engine requires `--engine-source-sha256`. External inputs retain their frozen inventory and existing checks.
 
-Working-source materialization from an already verified immutable baseline uses standard filesystem copies of the measured file list, plus native Git object/index transfer. It does not repeat live-source ancestor/identity audits, stream content through application hashes, or hash the copied tree immediately afterwards. Initial capture of the changing checkout still uses `captureProject`. The `workingCopy` report records `mode: "standard-copy"`, `contentVerified: false`, and the expected `sourceSha256`; copy completion is not content acceptance. `workingProjectSha256` and script-delta `projectCopy.sha256` remain expected source identities. Consumers must run `verifyDeploymentWorkspace` before using the working tree, as the build/deployment entry already does. The final source, engine, package and host gates remain in force.
+Existing schema-2 script-delta manifests remain readable/verifiable for their already-frozen consumers. New `sourceInputs`/`projectOverrides` preparation is rejected; commit a correction and create new input identity instead. Resume of an active older build continues with its original immutable producer, rather than replacing that producer mid-run. Updates to the primary checkout do not modify running build inputs.
 
 ## Prepare, verify and install
 

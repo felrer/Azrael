@@ -4,7 +4,8 @@ const { acquire } = require("./maintenance-lock-owner.cjs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { spawnSync } = require("node:child_process");
-const { captureProject, copyVerifiedProject, copyVerifiedTree } = require("./capture-project-inputs.cjs");
+const { copyVerifiedProject, copyVerifiedTree } = require("./capture-project-inputs.cjs");
+const { selectCommittedProject, materializeCommittedProject } = require("./committed-project-inputs.cjs");
 const { snapshotProject } = require("./deployment-input-snapshot.cjs");
 const { copyTree, inventoryTree, hash } = require("./freeze-platform-inputs.cjs");
 const lifecycle = require("./artifact-lifecycle.cjs");
@@ -88,12 +89,10 @@ function engineValidationTools(project) {
   return ["engine-provenance.py", "import-engine-source.py", "azrael-platforms.json", "engine-native-materialization.py"]
     .map(name => { const file = path.join(project, "scripts", name); return [name, fs.existsSync(file) ? hash(file) : null]; });
 }
-async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = projectRoot, inputRoot, workingRoot, owner, runLifecycleId, reportPath, engineSourceRoot, projectOverrides = [], sourceInputs, pythonExecutable = process.platform === "win32" ? "python" : "python3" }) {
-  if (sourceInputs) {
-    if (projectRoot && projectRoot !== sourceInputs.sourceRoot || engineSourceRoot && engineSourceRoot !== sourceInputs.immutableEngineRoot) throw Error("Derived input cannot change its selected baseline source or engine");
-    return prepareDerivedDeploymentWorkspace({ artifactProjectRoot: artifactProjectRoot ?? sourceInputs.artifactProjectRoot, inputRoot, workingRoot,
-      owner: owner ?? sourceInputs.owner, runLifecycleId: runLifecycleId ?? sourceInputs.runLifecycleId, reportPath, projectOverrides, sourceInputs });
-  }
+async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = projectRoot, inputRoot, workingRoot, owner, runLifecycleId, reportPath, engineSourceRoot, projectOverrides = [], sourceInputs, sourceCommit, engineSourceSha256, pythonExecutable = process.platform === "win32" ? "python" : "python3" }) {
+  if (sourceInputs) throw Error("New script-delta preparation requires committed inputs; select a new sourceCommit instead");
+  if (!Array.isArray(projectOverrides) || projectOverrides.length) throw Error("New project overrides are not commit-bound; select a sourceCommit instead");
+  const committed = selectCommittedProject(projectRoot, sourceCommit);
   const started = performance.now();
   const timings = {};
   projectRoot = fs.realpathSync(projectRoot);
@@ -112,21 +111,9 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
   for (const root of [inputRoot, workingRoot]) if (records.some(record => record.members.some(member => overlaps(root, member.path)))) throw Error("Deployment root already claimed");
   exactRepository(projectRoot);
   const sourceSnapshotStarted = performance.now();
-  const source = await snapshotProject(projectRoot);
+  const source = committed;
   timings.sourceSnapshotMs = performance.now() - sourceSnapshotStarted;
-  if (!Array.isArray(projectOverrides)) throw Error("Explicit project override array required");
-  const overridePaths = new Set();
-  const overrides = projectOverrides.map(override => {
-    const relative = override?.destinationRelative;
-    if (typeof relative !== "string" || !relative || path.isAbsolute(relative) || path.win32.isAbsolute(relative) || /[\0:]/.test(relative) || relative.split(/[\\/]/).some(part => !part || /[. ]$/.test(part) || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part) || [".", "..", ".git", "artifacts", "engine", "control"].includes(part.toLowerCase()))) throw Error("Safe relative project override destination required");
-    const normalized = relative.split(/[\\/]/).join(path.sep);
-    const identity = process.platform === "win32" ? normalized.toLowerCase() : normalized;
-    if (overridePaths.has(identity)) throw Error("Duplicate project override destination");
-    overridePaths.add(identity);
-    const sourcePath = checked(artifactProjectRoot, override.source);
-    if (!fs.lstatSync(sourcePath).isFile() || !/^[a-f0-9]{64}$/.test(override.sha256 || "") || hash(sourcePath) !== override.sha256) throw Error("Exact regular override file and SHA256 required");
-    return { source: sourcePath, destinationRelative: normalized, sha256: override.sha256 };
-  });
+  const overrides = [];
   const topLevels = new Set(["control"]);
   for (const tree of source.inventory) for (const entry of tree.entries) {
     const relative = path.relative(projectRoot, path.join(tree.root, entry.path));
@@ -135,23 +122,18 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
     topLevels.add(top);
   }
   for (const override of overrides) topLevels.add(override.destinationRelative.split(path.sep)[0]);
-  let embeddedEngine = false, engineBaseline, engineSourceIdentity, engineTools;
+  let embeddedEngine = false, engineSourceIdentity;
   if (engineSourceRoot !== undefined) {
     if (!path.isAbsolute(engineSourceRoot)) throw Error("Absolute imported engine root required");
     engineSourceRoot = fs.realpathSync(engineSourceRoot);
     embeddedEngine = topLevels.has("engine") && engineSourceRoot === fs.realpathSync(path.join(projectRoot, "engine"));
     if (topLevels.has("engine") && !embeddedEngine) throw Error("Imported engine conflicts with selected project source");
     if ([inputRoot, workingRoot].some(root => overlaps(root, engineSourceRoot))) throw Error("Engine source overlaps deployment roots");
-    if (fs.existsSync(path.join(engineSourceRoot, ".git")) || !fs.existsSync(path.join(engineSourceRoot, "SOURCE.json"))) throw Error("Imported SOURCE.json engine without Git metadata required");
-    // Reject an invalid imported inventory before claiming/copying two full trees.
-    // The frozen and working copies are still independently checked below.
-    const enginePreflightStarted = performance.now();
-    engineSourceIdentity = rootIdentity(engineSourceRoot);
-    engineTools = engineValidationTools(projectRoot);
-    engineBaseline = engineSnapshot(projectRoot, engineSourceRoot, pythonExecutable);
-    if (JSON.stringify(engineValidationTools(projectRoot)) !== JSON.stringify(engineTools)) throw Error("Engine validation tools changed during preflight");
-    if (JSON.stringify(rootIdentity(engineSourceRoot)) !== JSON.stringify(engineSourceIdentity)) throw Error("Engine source root changed during preflight");
-    timings.enginePreflightMs = performance.now() - enginePreflightStarted;
+    if (!embeddedEngine) {
+      if (fs.existsSync(path.join(engineSourceRoot, ".git")) || !fs.existsSync(path.join(engineSourceRoot, "SOURCE.json"))) throw Error("Imported SOURCE.json engine without Git metadata required");
+      if (!/^[a-f0-9]{64}$/.test(engineSourceSha256 || "")) throw Error("Pinned engineSourceSha256 required for separately imported engine");
+      engineSourceIdentity = rootIdentity(engineSourceRoot);
+    }
     topLevels.add("engine");
   }
   const suffix = crypto.createHash("sha256").update(inputRoot).digest("hex").slice(0, 24);
@@ -178,21 +160,10 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
   } finally { claim.release(); }
   const immutableProjectRoot = path.join(inputRoot, "project");
   const gitStarted = performance.now();
-  prepareGit(projectRoot, immutableProjectRoot, source);
+  const project = await materializeCommittedProject(committed, immutableProjectRoot);
   const immutableGitPreparationMs = performance.now() - gitStarted;
-  const project = await captureProject(projectRoot, immutableProjectRoot);
-  for (const override of overrides) {
-    const destination = checked(immutableProjectRoot, path.join(immutableProjectRoot, override.destinationRelative));
-    if (hash(override.source) !== override.sha256) throw Error("Override source changed before copy");
-    copyTree(override.source, destination, []);
-    if (hash(destination) !== override.sha256 || hash(override.source) !== override.sha256) throw Error("Override source changed while copying");
-    const repository = git(path.dirname(destination), "rev-parse", "--show-toplevel");
-    git(repository, "add", "--force", "--", path.relative(repository, destination));
-  }
-  const immutableSnapshotStarted = performance.now();
-  // captureProject already independently hashes its complete frozen output.
-  const immutableProject = overrides.length ? await snapshotProject(immutableProjectRoot) : project.frozenSnapshot;
-  timings.immutableSnapshotMs = performance.now() - immutableSnapshotStarted;
+  const immutableProject = project.frozenSnapshot;
+  timings.immutableSnapshotMs = 0;
   const workingGitStarted = performance.now();
   prepareGit(immutableProjectRoot, workingRoot, immutableProject, path.join(workingRoot, "control"));
   // Source selection excludes only independently audited imported engine/control data.
@@ -210,22 +181,25 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
   const workingEngineRoot = engineSourceRoot ? path.join(workingRoot, "engine") : null;
   if (engineSourceRoot) {
     const engineFreezeStarted = performance.now();
-    // The preflight is already the before-copy observation. Keep its wider
-    // interval rather than rereading the whole engine immediately before copy.
-    if (JSON.stringify(rootIdentity(engineSourceRoot)) !== JSON.stringify(engineSourceIdentity)) throw Error("Engine source root changed while freezing source");
-    const before = JSON.stringify(engineValidationTools(immutableProjectRoot)) === JSON.stringify(engineTools)
-      ? engineBaseline : engineSnapshot(immutableProjectRoot, engineSourceRoot, pythonExecutable);
-    if (!embeddedEngine) copyTree(engineSourceRoot, immutableEngineRoot);
-    engine = engineSnapshot(immutableProjectRoot, immutableEngineRoot, pythonExecutable);
-    if (JSON.stringify(before) !== JSON.stringify(engine) || JSON.stringify(before) !== JSON.stringify(engineSnapshot(immutableProjectRoot, engineSourceRoot, pythonExecutable))) throw Error("Engine changed while freezing source");
-    if (JSON.stringify(rootIdentity(engineSourceRoot)) !== JSON.stringify(engineSourceIdentity)) throw Error("Engine source root changed while freezing source");
-    if (!embeddedEngine) await copyVerifiedTree(immutableEngineRoot, workingEngineRoot);
+    if (embeddedEngine) {
+      engine = engineSnapshot(immutableProjectRoot, immutableEngineRoot, pythonExecutable);
+    } else {
+      if (JSON.stringify(rootIdentity(engineSourceRoot)) !== JSON.stringify(engineSourceIdentity)) throw Error("Engine source root changed while freezing source");
+      const before = engineSnapshot(immutableProjectRoot, engineSourceRoot, pythonExecutable);
+      if (before.sourceSha256 !== engineSourceSha256) throw Error("Imported engine does not match pinned engineSourceSha256");
+      copyTree(engineSourceRoot, immutableEngineRoot);
+      engine = engineSnapshot(immutableProjectRoot, immutableEngineRoot, pythonExecutable);
+      if (JSON.stringify(before) !== JSON.stringify(engine) || JSON.stringify(before) !== JSON.stringify(engineSnapshot(immutableProjectRoot, engineSourceRoot, pythonExecutable))) throw Error("Engine changed while freezing source");
+      if (JSON.stringify(rootIdentity(engineSourceRoot)) !== JSON.stringify(engineSourceIdentity)) throw Error("Engine source root changed while freezing source");
+      await copyVerifiedTree(immutableEngineRoot, workingEngineRoot);
+    }
     timings.engineFreezeMs = performance.now() - engineFreezeStarted;
   }
+  fs.writeFileSync(path.join(workingRoot, "control/committed-source.json"), JSON.stringify({ schema: 1, sourceCommit: committed.commit, projectSha256: immutableProject.sha256 }) + "\n", { flag: "wx" });
   const inventoryStarted = performance.now();
   const immutableInventory = inventoryTree(inputRoot);
   timings.immutableInventoryMs = performance.now() - inventoryStarted;
-  const manifest = { schema: 1, projectRoot, artifactProjectRoot, moduleCacheProjectRoot: artifactProjectRoot, inputRoot, immutableProjectRoot, workingRoot, owner, runLifecycleId, inputLifecycleId, workingLifecycleId, pythonExecutable,
+  const manifest = { schema: 1, sourceCommit: committed.commit, engineSourceSha256: engineSourceSha256 ?? null, projectRoot, artifactProjectRoot, moduleCacheProjectRoot: artifactProjectRoot, inputRoot, immutableProjectRoot, workingRoot, owner, runLifecycleId, inputLifecycleId, workingLifecycleId, pythonExecutable,
     project, baselineProjectSha256: project.sha256, projectOverrides: overrides, projectSha256: immutableProject.sha256, workingProjectSha256: immutableProject.sha256, workingCopy: workingProject, engine: engine ?? null, embeddedEngine, immutableEngineRoot, workingEngineRoot,
     immutableInventory, rootIdentities: { input: rootIdentity(inputRoot), working: rootIdentity(workingRoot), moduleCacheOwner: rootIdentity(artifactProjectRoot) },
     retainedControlEvidence: { path: path.join(workingRoot, ".git"), text: fs.readFileSync(path.join(workingRoot, ".git"), "utf8"), sha256: hash(path.join(workingRoot, ".git")),
@@ -252,6 +226,14 @@ async function verifyDeploymentWorkspace(context) {
   if (!fs.lstatSync(sentinel).isFile() || fs.readFileSync(sentinel, "utf8") !== manifest.retainedControlEvidence.text || hash(sentinel) !== manifest.retainedControlEvidence.sha256) throw Error("Retained Git control evidence changed");
   if (fs.realpathSync(git(workingRoot, "rev-parse", "--absolute-git-dir")) !== fs.realpathSync(path.join(workingRoot, "control/git"))) throw Error("Working Git metadata escaped owned control directory");
   exactRepository(manifest.immutableProjectRoot); exactRepository(workingRoot);
+  if (manifest.sourceCommit !== undefined) {
+    if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(manifest.sourceCommit) || context.sourceCommit !== manifest.sourceCommit ||
+        git(manifest.immutableProjectRoot, "rev-parse", "HEAD") !== manifest.sourceCommit || git(workingRoot, "rev-parse", "HEAD") !== manifest.sourceCommit) throw Error("Deployment sourceCommit binding changed");
+    const committedReceipt = path.join(workingRoot, "control/committed-source.json");
+    const receiptStat = fs.lstatSync(committedReceipt);
+    if (!receiptStat.isFile() || receiptStat.isSymbolicLink() || receiptStat.nlink !== 1 ||
+        fs.readFileSync(committedReceipt, "utf8") !== JSON.stringify({ schema: 1, sourceCommit: manifest.sourceCommit, projectSha256: manifest.projectSha256 }) + "\n") throw Error("Deployment committed source control receipt changed");
+  }
   const immutable = await snapshotProject(manifest.immutableProjectRoot), compiled = await snapshotProject(workingRoot);
   if (immutable.sha256 !== manifest.projectSha256 || compiled.sha256 !== manifest.projectSha256) throw Error("Compiled project source differs from immutable inputs");
   if (manifest.engine && (JSON.stringify(engineSnapshot(manifest.immutableProjectRoot, manifest.immutableEngineRoot, manifest.pythonExecutable)) !== JSON.stringify(manifest.engine) || JSON.stringify(engineSnapshot(manifest.immutableProjectRoot, manifest.workingEngineRoot, manifest.pythonExecutable)) !== JSON.stringify(manifest.engine))) throw Error("Compiled engine source differs from immutable inputs");
@@ -309,6 +291,7 @@ async function verifyFrozenSelection(selection) {
     if (fs.lstatSync(path.join(inputRoot, file.path)).nlink !== 1 || /(^|\/)\.git\/objects\/info\/(alternates|http-alternates)$/.test(file.path)) throw Error("Linked or alternate immutable input rejected");
   }
   exactRepository(manifest.immutableProjectRoot);
+  if (manifest.sourceCommit !== undefined && git(manifest.immutableProjectRoot, "rev-parse", "HEAD") !== manifest.sourceCommit) throw Error("Immutable deployment sourceCommit binding changed");
   const snapshot = await snapshotProject(manifest.immutableProjectRoot);
   if (snapshot.sha256 !== selection.expectedProjectSha256) throw Error("Immutable project source differs from selected inputs");
   if (manifest.engine && JSON.stringify(engineSnapshot(manifest.immutableProjectRoot, manifest.immutableEngineRoot, manifest.pythonExecutable)) !== JSON.stringify(manifest.engine)) throw Error("Immutable engine source differs from selected inputs");
@@ -337,7 +320,7 @@ async function reuseDeploymentInputs(options) {
   const verifiedStarted = performance.now();
   const snapshot = await verifyFrozenSelection(selection);
   reuseOwners(selection, lifecycle.catalog(artifactProjectRoot));
-  const reference = { schema: 1, readOnly: true, artifactProjectRoot, moduleCacheProjectRoot: verifyModuleCacheOwner(manifest),
+  const reference = { schema: 1, sourceCommit: manifest.sourceCommit, readOnly: true, artifactProjectRoot, moduleCacheProjectRoot: verifyModuleCacheOwner(manifest),
     moduleCacheOwnerOrigin: manifest.moduleCacheOwnerOrigin ?? (manifest.moduleCacheProjectRoot ? 'artifact-project-root' : 'legacy-artifact-project-root'), owner: selection.owner, runLifecycleId: selection.runLifecycleId,
     sourceRoot: manifest.immutableProjectRoot, immutableProjectRoot: manifest.immutableProjectRoot, inputRoot, inputLifecycleId: manifest.inputLifecycleId,
     inputManifestPath: selection.inputManifestPath, inputManifestSha256: selection.inputManifestSha256, expectedProjectSha256: selection.expectedProjectSha256, ...manifestOwnership,
@@ -356,12 +339,12 @@ async function verifyReusedDeploymentSelection(context, consumeHandoff = false) 
   if (!fs.lstatSync(reportPath).isFile() || hash(reportPath) !== context.manifestSha256) throw Error("Reused deployment reference manifest changed");
   const reference = JSON.parse(fs.readFileSync(reportPath, "utf8"));
   verifyModuleCacheOwner(reference, context);
-  for (const name of ["artifactProjectRoot", "owner", "runLifecycleId", "inputManifestPath", "inputManifestSha256", "expectedProjectSha256", "sourceRoot", "immutableProjectRoot", "immutableEngineRoot", "projectSha256", "readOnly", "inputRoot", "inputLifecycleId", "inputManifestLifecycleId", "inputManifestMemberPath", "inputManifestReportsPath"])
+  for (const name of ["sourceCommit", "artifactProjectRoot", "owner", "runLifecycleId", "inputManifestPath", "inputManifestSha256", "expectedProjectSha256", "sourceRoot", "immutableProjectRoot", "immutableEngineRoot", "projectSha256", "readOnly", "inputRoot", "inputLifecycleId", "inputManifestLifecycleId", "inputManifestMemberPath", "inputManifestReportsPath"])
     if (reference[name] !== context[name]) throw Error("Reused deployment reference selection mismatch");
   if (JSON.stringify(reference.engine) !== JSON.stringify(context.engine) || JSON.stringify(reference.rootIdentities) !== JSON.stringify(context.rootIdentities)) throw Error("Reused deployment reference identity mismatch");
   if (reference.schema !== 1 || reference.readOnly !== true || reference.copiedFileCount !== 0 || reference.copiedBytes !== 0) throw Error("Read-only deployment reference required");
   const selection = reuseSelection({ ...reference, reportPath });
-  if (reference.immutableProjectRoot !== reference.sourceRoot || reference.projectSha256 !== selection.expectedProjectSha256 || reference.immutableEngineRoot !== selection.manifest.immutableEngineRoot || JSON.stringify(reference.engine) !== JSON.stringify(selection.manifest.engine)) throw Error("Reused deployment input binding mismatch");
+  if (reference.sourceCommit !== selection.manifest.sourceCommit || reference.immutableProjectRoot !== reference.sourceRoot || reference.projectSha256 !== selection.expectedProjectSha256 || reference.immutableEngineRoot !== selection.manifest.immutableEngineRoot || JSON.stringify(reference.engine) !== JSON.stringify(selection.manifest.engine)) throw Error("Reused deployment input binding mismatch");
   const { manifestOwner, manifestMember, reports } = reuseOwners(selection, lifecycle.catalog(selection.artifactProjectRoot), false);
   if (reference.inputManifestLifecycleId !== manifestOwner.id || reference.inputManifestMemberPath !== manifestMember.path || reference.inputManifestReportsPath !== reports.path) throw Error("Original manifest owner identity changed");
   if (reference.inputLifecycleId !== selection.manifest.inputLifecycleId || reference.sourceRoot !== selection.manifest.immutableProjectRoot ||
@@ -405,93 +388,6 @@ function derivedProjectSha256(snapshot, overrides) {
     entry.sha256 = override.sha256;
   }
   return crypto.createHash('sha256').update(JSON.stringify(entries)).digest('hex');
-}
-async function prepareDerivedDeploymentWorkspace(options) {
-  const { artifactProjectRoot, owner, runLifecycleId, sourceInputs } = options;
-  if (artifactProjectRoot !== sourceInputs.artifactProjectRoot || owner !== sourceInputs.owner || runLifecycleId !== sourceInputs.runLifecycleId) throw Error("Derived input must use its active baseline consumer");
-  const inputRoot = checked(artifactProjectRoot, options.inputRoot), workingRoot = checked(artifactProjectRoot, options.workingRoot), reportPath = checked(artifactProjectRoot, options.reportPath);
-  const overrides = scriptOverrides(artifactProjectRoot, sourceInputs, options.projectOverrides);
-  for (const output of [inputRoot, workingRoot]) {
-    if (!inside(path.join(artifactProjectRoot, 'artifacts'), output) || overlaps(output, path.join(artifactProjectRoot, 'artifacts/maintenance')) ||
-        overlaps(output, sourceInputs.inputRoot) || overlaps(output, sourceInputs.sourceRoot) || fs.existsSync(output)) throw Error("Fresh disjoint generated derived roots required");
-  }
-  if (overlaps(inputRoot, workingRoot) || inside(inputRoot, reportPath) || inside(workingRoot, reportPath) || fs.existsSync(reportPath)) throw Error("Fresh disjoint derived report required");
-  const { selection, snapshot } = await verifyReusedDeploymentSelection(sourceInputs, true);
-  const expectedProjectSha256 = derivedProjectSha256(snapshot, overrides);
-  const topLevels = new Set(['control']);
-  for (const entry of snapshot.inventory[0].entries) {
-    const top = entry.path.split(/[\\/]/)[0];
-    if (['.git', 'artifacts', 'control'].includes(top)) throw Error("Reserved derived source selected");
-    topLevels.add(top);
-  }
-  if (sourceInputs.engine) topLevels.add('engine');
-  const suffix = crypto.createHash('sha256').update(inputRoot).digest('hex').slice(0, 24);
-  const inputLifecycleId = `input:${suffix}`, workingLifecycleId = `workspace:${suffix}`;
-  const member = (file, role) => ({ path: file, role, generated: true, protection_known: true });
-  let inputRecord, workingRecord, runRecord;
-  const claim = acquire(path.join(artifactProjectRoot, 'artifacts/maintenance/lifecycles/.run-claim.lock'), { operation: 'deployment-input.derive', waitMs: 5000 });
-  try {
-    lifecycle.withCatalogLock(artifactProjectRoot, () => {
-      const records = lifecycle.catalog(artifactProjectRoot), { caller, manifestOwner, manifestMember } = reuseOwners(selection, records);
-      for (const output of [inputRoot, workingRoot]) if (fs.existsSync(output) || records.some(record => record.members.some(member => overlaps(output, member.path)))) throw Error("Derived root already claimed");
-      if (records.some(record => record.id !== runLifecycleId && record.members.some(member => overlaps(member.path, reportPath))) ||
-          !caller.members.some(member => member.role === 'reports' && inside(member.path, reportPath))) throw Error("Caller-owned derived reports required");
-      const callerReportMember = lifecycle.projectMembers(caller.members).find(member => inside(member.path, reportPath));
-      const references = [
-        { id: sourceInputs.inputLifecycleId, member_paths: [sourceInputs.inputRoot], kind: 'dependency', reason: 'Derived scripts require unchanged immutable baseline' },
-        { id: manifestOwner.id, member_paths: [manifestMember.path], kind: 'dependency', reason: 'Original baseline manifest and verification evidence' },
-        { id: caller.id, member_paths: [callerReportMember.path], kind: 'dependency', reason: 'Derived manifest and baseline reference remain necessary' }];
-      inputRecord = lifecycle.recordLifecycle(artifactProjectRoot, { id: inputLifecycleId, kind: 'work', owner, state: 'pending', membership_complete: false, members: [member(inputRoot, 'immutable-script-delta')], references, expected_revision: 0 });
-      workingRecord = lifecycle.recordLifecycle(artifactProjectRoot, { id: workingLifecycleId, kind: 'run', owner, state: 'pending', membership_complete: false,
-        members: [...topLevels].sort().map(top => member(path.join(workingRoot, top), 'working-source')),
-        references: [{ id: inputLifecycleId, member_paths: [inputRoot], kind: 'dependency', reason: 'Working source consumes baseline plus script delta' }], expected_revision: 0 });
-      runRecord = addArtifactRunReferences(artifactProjectRoot, runLifecycleId, { owner, expected_revision: caller.revision, references: [
-        { id: inputLifecycleId, kind: 'execution', reason: 'Preparing compact immutable script delta' },
-        { id: workingLifecycleId, kind: 'execution', reason: 'Preparing independent derived working source' }] });
-    });
-  } finally { claim.release(); }
-  try {
-    const frozenOverrides = overrides.map(override => {
-      const source = path.join(inputRoot, 'overrides', override.destinationRelative);
-      copyTree(override.source, source, []); fs.chmodSync(source, override.mode);
-      if (hash(source) !== override.sha256) throw Error("Script override changed while freezing");
-      return { ...override, source };
-    });
-    prepareGit(sourceInputs.sourceRoot, workingRoot, snapshot, path.join(workingRoot, 'control'));
-    const excludePath = path.resolve(workingRoot, git(workingRoot, 'rev-parse', '--git-path', 'info/exclude'));
-    fs.appendFileSync(excludePath, '\n/control/\n' + (sourceInputs.engine && !selection.manifest.embeddedEngine ? '/engine/\n' : ''));
-    const project = await copyVerifiedProject(sourceInputs.sourceRoot, workingRoot, snapshot);
-    for (const override of frozenOverrides) {
-      const destination = checked(workingRoot, path.join(workingRoot, override.destinationRelative));
-      fs.copyFileSync(override.source, destination);
-      git(workingRoot, 'add', '--force', '--', override.destinationRelative);
-    }
-    if (sourceInputs.engine && !selection.manifest.embeddedEngine) await copyVerifiedTree(sourceInputs.immutableEngineRoot, path.join(workingRoot, 'engine'));
-    await verifyReusedDeploymentInputs(sourceInputs);
-    const sentinel = path.join(workingRoot, '.git');
-    const manifest = { schema: 2, inputKind: 'script-delta', artifactProjectRoot, moduleCacheProjectRoot: verifyModuleCacheOwner(sourceInputs),
-      moduleCacheOwnerOrigin: sourceInputs.moduleCacheOwnerOrigin ?? (sourceInputs.moduleCacheProjectRoot ? 'artifact-project-root' : 'legacy-artifact-project-root'), owner, runLifecycleId, inputRoot, workingRoot, inputLifecycleId, workingLifecycleId,
-      sourceInputs, projectOverrides: frozenOverrides, baselineProjectSha256: sourceInputs.projectSha256, projectSha256: expectedProjectSha256,
-      immutableProjectRoot: null, immutableEngineRoot: sourceInputs.immutableEngineRoot, workingEngineRoot: sourceInputs.engine ? path.join(workingRoot, 'engine') : null,
-      engine: sourceInputs.engine, pythonExecutable: selection.manifest.pythonExecutable,
-      projectCopy: { fileCount: project.fileCount, bytes: project.bytes, sha256: project.sourceSha256, mode: project.mode, contentVerified: false }, workingCopy: project,
-      immutableInventory: inventoryTree(inputRoot), rootIdentities: { input: rootIdentity(inputRoot), working: rootIdentity(workingRoot), moduleCacheOwner: rootIdentity(artifactProjectRoot) },
-      retainedControlEvidence: { path: sentinel, text: fs.readFileSync(sentinel, 'utf8'), sha256: hash(sentinel) } };
-    fs.writeFileSync(reportPath, JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' });
-    const manifestSha256 = hash(reportPath);
-    inputRecord = lifecycle.closeLifecycle(artifactProjectRoot, inputLifecycleId, { owner, expected_revision: inputRecord.revision, producer_stopped_verified: true, outcome: 'success', exit_code: 0,
-      reason: 'Compact script delta frozen and working copy completed; consumer verifies working content', evidence_ref: reportPath, evidence_sha256: manifestSha256 });
-    return { ...manifest, reportPath, manifestSha256, inputRecord, workingRecord, runRecord };
-  } catch (error) {
-    const evidence_ref = reportPath + '.failure.json';
-    fs.writeFileSync(evidence_ref, JSON.stringify({ status: 'failed', error: error.message, producerStopped: true }) + '\n', { flag: 'wx' });
-    const evidence = { owner, producer_stopped_verified: true, outcome: 'failure', exit_code: 1, reason: 'Derived preparation settled with failure', evidence_ref, evidence_sha256: hash(evidence_ref) };
-    for (const record of [inputRecord, workingRecord]) {
-      try { lifecycle.closeLifecycle(artifactProjectRoot, record.id, { ...evidence, expected_revision: record.revision }); }
-      catch (closeError) { (error.lifecycleCloseErrors ??= []).push(closeError.message); }
-    }
-    throw error;
-  }
 }
 async function verifyDerivedDeploymentWorkspace(context, manifest) {
   const { artifactProjectRoot, inputRoot, workingRoot, reportPath, manifestSha256 } = context;

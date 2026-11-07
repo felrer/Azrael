@@ -122,6 +122,16 @@ Routine deployment also forwards changed paths to the source-check selector in b
 
 ### Pipeline state and retry
 
+#### Committed build inputs
+
+Status: `current` for committed source selection, with focused Windows x64 verification in [the build review](../../work/FT-01-periodic-system-freeze/02-plan.md). Native Linux/macOS and full product acceptance remain unverified for this change.
+
+A new build pins one exact project commit before input preparation. Its tracked Git object bytes define the source, including the committed `.gitignore`, lockfiles and embedded engine. Staged, unstaged and untracked contents are excluded; later commits belong to another build. Nested repositories use the gitlink commit recorded by their parent, never the current nested HEAD. Missing committed objects fail before compilation rather than falling back to working files or fetching a moving branch.
+
+The input receipt records the selected commit. Resume and existing immutable-input reuse retain that identity without consulting current HEAD. New arbitrary file overlays are not a production input path: fixes must be committed and select a new input identity. Existing frozen manifests retain their read/verification contract. External engines and runtime/UI inputs remain independently pinned by their existing content receipts; an external engine is not implicitly bound by the project commit. Compilation/dependency caches remain independently owned reusable outputs, outside the committed source inventory.
+
+Running producers continue consuming their original immutable scripts, manifests and sources. Updating the primary checkout does not update a running build. Exact content/provenance and final-package checks remain mandatory after source selection.
+
 Checkpoint readers and writers share the existing short exclusive update lock, including readiness polling and initial/snapshot reads. A reader closes its state-file handle before releasing that lock so Windows atomic replacement cannot overlap an open destination. Lock admission keeps its bounded deadline and does not reclaim stale ownership. JSON parsing, successful-stage matching, atomic publication and the caller's long-lived writer lease remain mandatory; polling does not suppress malformed state or retry a failed writer.
 
 `scripts/pipeline-state.cjs` owns the shared stage-state format used by Windows deployment and portable build, preparation, package and installation owners. Explicit resume selects the same work identity. Matching successful stages reuse automatically. Changed input keys or successful dependency execution identities produce a candidate-bound review request; an explicit model decision selects reuse or rerun. Reviewed reuse preserves the original stage ID, input identity, outputs and actual exit code, and records the decision separately. Required output paths and bytes must still match. A known failed stage can start a new attempt. Running or unknown execution remains unresolved, and cannot become success or authorize a duplicate producer through resume.

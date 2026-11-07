@@ -38,6 +38,10 @@ if ($ReuseDecisionsPath) {
     if ($LASTEXITCODE -ne 0) { throw 'Invalid ReuseDecisionsPath; supply an absolute regular schema-1 decision file.' }
 }
 $projectRoot = Split-Path $PSScriptRoot -Parent
+$committedContextJson = & node (Join-Path $PSScriptRoot 'committed-build-context.cjs') $projectRoot
+if ($LASTEXITCODE -ne 0) { throw 'A verified commit-bound workspace is required before building.' }
+$committedContext = $committedContextJson | ConvertFrom-Json
+if ([IO.Path]::GetFullPath($SourceRoot) -ine (Join-Path $projectRoot 'engine')) { throw 'SourceRoot must be the prepared workspace engine.' }
 $artifactRoot = Join-Path $projectRoot 'artifacts'
 $release = Join-Path $artifactRoot "releases/$ReleaseName"
 $logDirectory = Join-Path $artifactRoot "logs/$ReleaseName"
@@ -92,8 +96,10 @@ $buildPipelineContext = if ($PipelineContextPath) { Get-Content -LiteralPath $Pi
     $snapshotPath=Join-Path $logDirectory 'build-inputs.json'
     $snapshot = & node (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') $projectRoot $snapshotPath
     if ($LASTEXITCODE -ne 0) { throw 'Build input fingerprint failed.' }
-    @{file=(Join-Path $projectRoot "artifacts/logs/deploy-$ReleaseName/pipeline-state.json"); identity=@{project=[IO.Path]::GetFullPath($projectRoot); platform='windows-x64'; releaseName=$ReleaseName; sourceSnapshot=($snapshot|ConvertFrom-Json).sha256}}
+    if (($snapshot | ConvertFrom-Json).sha256 -cne $committedContext.projectSha256) { throw 'Prepared source differs from its committed input receipt.' }
+    @{file=(Join-Path $projectRoot "artifacts/logs/deploy-$ReleaseName/pipeline-state.json"); identity=@{project=[IO.Path]::GetFullPath($projectRoot); platform='windows-x64'; releaseName=$ReleaseName; sourceSnapshot=($snapshot|ConvertFrom-Json).sha256;sourceCommit=$committedContext.sourceCommit}}
 }
+if ($buildPipelineContext.identity.sourceCommit -cne $committedContext.sourceCommit -or $buildPipelineContext.identity.sourceSnapshot -cne $committedContext.projectSha256) { throw 'Build pipeline differs from committed workspace identity.' }
 $script:buildPipelineActive = $null
 function Invoke-BuildCheckpoint([string]$Action, [string]$Name, $Options=@{}) {
     if (-not $buildLease -or $buildLease.SafeFileHandle.IsClosed) { throw 'Build checkpoint requires its exclusive owner lease.' }

@@ -2,7 +2,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
-const { snapshotProject } = require("./deployment-input-snapshot.cjs");
 const hash = file => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 function contained(root, file) {
   const relative = path.relative(root, file);
@@ -65,49 +64,11 @@ function inventoryTree(root) {
   visit(root);
   return { sha256: crypto.createHash("sha256").update(JSON.stringify({ files: records, directories, links })).digest("hex"), files: records, directories, links };
 }
-async function freezeProject(root, destination) {
-  root = path.resolve(root);
-  const before = await snapshotProject(root);
-  const selected = before.inventory.flatMap(tree => tree.entries.filter(entry => entry.sha256 !== "deleted").map(entry => path.join(tree.root, entry.path)));
-  const physicalRoot = fs.realpathSync(root);
-  const parents = new Set([root]);
-  for (const file of selected) {
-    if (!contained(root, path.resolve(file)) || !contained(physicalRoot, fs.realpathSync(file))) {
-      throw new Error(`Selected project input escapes the project root: ${file}`);
-    }
-    for (let parent = path.dirname(file); contained(root, parent); parent = path.dirname(parent)) {
-      parents.add(parent);
-      if (parent === root) break;
-    }
-  }
-  function selectedMetadata() {
-    return [...new Set([...selected, ...parents])].sort().map(file => {
-      const stat = fs.lstatSync(file);
-      return { path: path.relative(root, file), mode: stat.mode & 0o777,
-        kind: stat.isSymbolicLink() ? "symlink" : stat.isDirectory() ? "directory" : stat.isFile() ? "file" : "unsupported",
-        ...(stat.isSymbolicLink() ? { target: safeLink(file, root).target } : {}) };
-    });
-  }
-  const metadata = selectedMetadata();
-  fs.mkdirSync(destination, { recursive: true });
-  for (const tree of before.inventory) {
-    for (const entry of tree.entries) {
-      if (entry.sha256 === "deleted") continue;
-      const source = path.join(tree.root, entry.path);
-      const stat = fs.lstatSync(source);
-      if (!stat.isFile() && !stat.isSymbolicLink()) continue;
-      const relative = path.relative(root, source);
-      copyTree(source, path.join(destination, relative), [], path.resolve(root));
-      if (stat.isFile() && hash(path.join(destination, relative)) !== entry.sha256) throw new Error(`Frozen project content mismatch: ${source}`);
-    }
-  }
-  if (JSON.stringify(selectedMetadata()) !== JSON.stringify(metadata)) throw new Error("Project filesystem identity changed while freezing inputs");
-  if ((await snapshotProject(root)).sha256 !== before.sha256) throw new Error("Project changed while freezing inputs; start a new build.");
-  for (const record of metadata.filter(record => record.kind === "directory")) {
-    const copied = path.join(destination, record.path);
-    if (fs.existsSync(copied)) fs.chmodSync(copied, record.mode);
-  }
-  inventoryTree(destination); // Validate copied link targets after the complete inventory has been copied.
-  return { ...before, filesystemSha256: crypto.createHash("sha256").update(JSON.stringify(metadata)).digest("hex") };
+async function freezeProject(root, destination, { sourceCommit, selection } = {}) {
+  const committed = require("./committed-project-inputs.cjs");
+  selection ||= committed.selectCommittedProject(root, sourceCommit);
+  if (path.resolve(root) !== selection.root || (sourceCommit && sourceCommit !== selection.commit)) throw new Error("Frozen project selection differs from its pinned commit");
+  return committed.materializeCommittedProject(selection, destination);
 }
+
 module.exports = { hash, copyTree, inventoryTree, freezeProject };

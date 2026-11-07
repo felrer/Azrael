@@ -176,22 +176,36 @@ test("Unix executable modes are preserved and permission mutations change input 
     assert.notEqual(inventoryTree(frozen).sha256, fileMutation);
   } finally { fs.rmSync(root, { recursive: true }); }
 });
-test("frozen Git input binds uncommitted bytes and remains stable after live edits", async () => {
+test("frozen Git input uses committed bytes and excludes concurrent edits", async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-freeze-"));
   try {
     const source = path.join(root, "source"), frozen = path.join(root, "frozen"); fs.mkdirSync(source);
     const git = args => { const result = spawnSync("git", ["-C", source, ...args]); assert.equal(result.status, 0, result.stderr.toString()); };
     git(["init", "--quiet"]);
-    fs.writeFileSync(path.join(source, "package-lock.json"), "selected uncommitted lock\n");
+    fs.writeFileSync(path.join(source, "package-lock.json"), "committed lock\n");
     fs.mkdirSync(path.join(source, "providers/devin"), { recursive: true });
     fs.writeFileSync(path.join(source, "providers/devin/mapping.mjs"), "export const selected = true;\n");
+    git(["add", "."]);
+    git(["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "selected"]);
+    fs.writeFileSync(path.join(source, "package-lock.json"), "uncommitted lock\n");
+    fs.mkdirSync(path.join(source, "old-profile"));
+    fs.writeFileSync(path.join(source, "old-profile/state.json"), "{}");
     const receipt = await freezeProject(source, frozen);
     assert.equal(receipt.fileCount, 2);
+    assert.match(receipt.sourceCommit, /^[a-f0-9]{40,64}$/);
+    assert.equal(fs.readFileSync(path.join(frozen, "package-lock.json"), "utf8"), "committed lock\n");
+    assert.equal(fs.existsSync(path.join(frozen, "old-profile")), false);
     assert.equal(fs.readFileSync(path.join(frozen, "providers/devin/mapping.mjs"), "utf8"), "export const selected = true;\n");
     const before = inventoryTree(frozen).sha256;
     fs.writeFileSync(path.join(source, "package-lock.json"), "later task\n");
     assert.equal(inventoryTree(frozen).sha256, before);
     assert.notEqual(hash(path.join(source, "package-lock.json")), hash(path.join(frozen, "package-lock.json")));
+    git(["add", "package-lock.json"]);
+    git(["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "later"]);
+    const retried = path.join(root, "retried");
+    const retryReceipt = await freezeProject(source, retried, { selection: null, sourceCommit: receipt.sourceCommit });
+    assert.equal(retryReceipt.sourceCommit, receipt.sourceCommit);
+    assert.equal(fs.readFileSync(path.join(retried, "package-lock.json"), "utf8"), "committed lock\n");
   } finally { fs.rmSync(root, { recursive: true }); }
 });
 test("nested Git inventories retain project-relative ownership", async () => {
@@ -205,11 +219,12 @@ test("nested Git inventories retain project-relative ownership", async () => {
     git(nested, ["add", "tracked.txt"]);
     git(nested, ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "nested fixture"]);
     git(source, ["add", "nested"]);
+    git(source, ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "parent"]);
     fs.writeFileSync(path.join(nested, "uncommitted.txt"), "selected nested uncommitted bytes");
     const receipt = await freezeProject(source, frozen);
     assert.equal(receipt.inventory.length, 2);
     assert.equal(fs.readFileSync(path.join(frozen, "nested/tracked.txt"), "utf8"), "nested source bytes");
-    assert.equal(fs.readFileSync(path.join(frozen, "nested/uncommitted.txt"), "utf8"), "selected nested uncommitted bytes");
+    assert.equal(fs.existsSync(path.join(frozen, "nested/uncommitted.txt")), false);
     assert.equal(fs.existsSync(path.join(frozen, "tracked.txt")), false);
   } finally { fs.rmSync(root, { recursive: true }); }
 });

@@ -234,7 +234,7 @@ fs.appendFileSync(path.join(a,'preservation-invocation.jsonl'),JSON.stringify({a
 function same(actual,expected,label){if(actual!==expected)throw Error(label+' forwarding mismatch');}
 same(config.projectRoot,root,'project root');
 same(config.uiRoot,path.join(a,'pristine UI'),'preservation UI root');
-same(config.engineSourceRoot,path.join(a,'engine source 한글'),'engine source');
+same(config.engineSourceRoot,path.join(root,'engine'),'engine source');
 fs.mkdirSync(config.outputDirectory,{recursive:true});
 const receiptPath=path.join(config.outputDirectory,'receipt.json');
 const executionSummary={unit:'invocation-group',kinds:{source:{executed:config.checkPhase==='source'?1:0},native:{executed:config.checkPhase==='source'?0:1}}};
@@ -944,6 +944,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         return
     }
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Destination $scripts
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'committed-build-context.cjs') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'build-metrics.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'pipeline-state.cjs') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'engine-source-handoff.cjs') -Destination $scripts
@@ -1041,7 +1042,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Write-Utf8 (Join-Path $scripts 'prepare-independent-vscode.ps1') $prepareStub
     Write-Utf8 (Join-Path $scripts 'check-independent-vscode.ps1') $checkStub
     Write-Utf8 (Join-Path $scripts 'install-azrael.ps1') $installStub
-    Write-Utf8 (Join-Path $root '.gitignore') "artifacts/`n"
+    Write-Utf8 (Join-Path $root '.gitignore') "artifacts/`ncontrol/`n"
     Write-Utf8 (Join-Path $root 'input.txt') 'original'
     & git -c core.longpaths=true -C $root init --quiet
     Assert-True ($LASTEXITCODE -eq 0) 'fixture git init failed'
@@ -1051,6 +1052,10 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Assert-True ($LASTEXITCODE -eq 0) 'fixture git add failed'
     & git -c core.longpaths=true -c user.name=Fixture -c user.email=fixture@example.invalid -C $root commit --quiet -m fixture
     Assert-True ($LASTEXITCODE -eq 0) 'fixture HEAD commit failed'
+    New-Item -ItemType Directory -Path (Join-Path $root 'control') | Out-Null
+    $receiptScript = 'const fs=require("node:fs"),p=require("node:path"),cp=require("node:child_process"); const root=process.argv[1]; require(process.argv[2]).snapshotProject(root).then(s=>fs.writeFileSync(p.join(root,"control/committed-source.json"),JSON.stringify({schema:1,sourceCommit:cp.execFileSync("git",["-C",root,"rev-parse","HEAD"],{encoding:"utf8"}).trim(),projectSha256:s.sha256}))).catch(e=>{console.error(e);process.exitCode=1});'
+    & node -e $receiptScript $root (Join-Path $scripts 'deployment-input-snapshot.cjs')
+    Assert-True ($LASTEXITCODE -eq 0) 'fixture committed receipt failed'
     if($Mode -eq 'input-snapshot-fail'){
         Remove-Item -LiteralPath (Join-Path $root 'input.txt')
         New-Item -ItemType Directory -Path (Join-Path $root 'input.txt') | Out-Null
@@ -1066,6 +1071,10 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         $vendorHead=(& git -c core.longpaths=true -C $vendor rev-parse HEAD).Trim()
         & git -c core.longpaths=true -C $root update-index --add --cacheinfo "160000,$vendorHead,modules/vendor"
         Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink registration failed'
+        & git -c user.name=Fixture -c user.email=fixture@example.invalid -C $root commit --quiet -m gitlink
+        Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink commit failed'
+        & node -e $receiptScript $root (Join-Path $scripts 'deployment-input-snapshot.cjs')
+        Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink receipt failed'
     }
     @{sourceHandoffUnavailable=($Name -eq 'source handoff unavailable');mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;shortTemporary=$shortTemporary;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success');retainTemporaryReference=($Name -eq 'full install');resumeFailure=($Name -eq 'resume after prepare failure')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
     # A newer-looking deployment/tool directory must never influence explicit selection.
@@ -1081,7 +1090,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     # The deployment process computes its account socket before launching the
     # mocked command, so it also inherits the registered short temporary owner.
     foreach($temporaryName in @('TEMP','TMP','TMPDIR')){$info.Environment[$temporaryName]=$shortTemporary}
-    $argsList = @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $scripts 'deploy-azrael.ps1'),'-ReleaseName','chosen','-SourceRoot',(Join-Path $a 'engine source 한글'),'-UiSourcePath',(Join-Path $a 'pristine UI'),'-OriginalExtensionPath',(Join-Path $a 'original Codex'),'-OriginalAudioPath',(Join-Path $a 'original audio'),'-StateRoot',(Join-Path $a 'install state'),'-SourceCodexHome',(Join-Path $a 'source codex'),'-WorkspacePath',(Join-Path $a 'workspace'),'-ExtensionsDir',(Join-Path $a 'profile extensions'),'-UserDataDir',(Join-Path $a 'user data'),'-CodePath','code fixture.cmd')
+    $argsList = @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $scripts 'deploy-azrael.ps1'),'-ReleaseName','chosen','-SourceRoot',(Join-Path $root 'engine'),'-UiSourcePath',(Join-Path $a 'pristine UI'),'-OriginalExtensionPath',(Join-Path $a 'original Codex'),'-OriginalAudioPath',(Join-Path $a 'original audio'),'-StateRoot',(Join-Path $a 'install state'),'-SourceCodexHome',(Join-Path $a 'source codex'),'-WorkspacePath',(Join-Path $a 'workspace'),'-ExtensionsDir',(Join-Path $a 'profile extensions'),'-UserDataDir',(Join-Path $a 'user data'),'-CodePath','code fixture.cmd')
     if(-not $FullBuild){$argsList += @('-SkipEngineBuild','-EngineDirectory',(Join-Path $a 'explicit engine'))}
     else{$argsList += @('-CodeModeHostPath',(Join-Path $a 'code mode host.exe'),'-VirtualInputRuntimeDirectory',(Join-Path $a 'official virtual input runtime'),'-MultiPointerRuntimeDirectory',(Join-Path $a 'official multi pointer runtime'),'-ComputerUseRuntimeDirectory',(Join-Path $a 'official computer runtime'),'-ComputerUsePluginDirectory',(Join-Path $a 'official computer plugin'))}
     $target=if($TargetKind -eq 'relative'){'relative-cache'}else{Join-Path $a 'engine cache 한글'}
@@ -1140,11 +1149,14 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         } finally { $activeLease.Dispose() }
         $scenario=Get-Content (Join-Path $a 'scenario.json') -Raw|ConvertFrom-Json
         $scenario.mode='success'
+        # The successful build is reused, so this attempt has no fresh observation handoff.
+        $scenario.sourceHandoffUnavailable=$true
         $scenario|ConvertTo-Json|Set-Content (Join-Path $a 'scenario.json')
         $resumed=[Diagnostics.Process]::Start($info)
         $resumeOut=$resumed.StandardOutput.ReadToEndAsync();$resumeErr=$resumed.StandardError.ReadToEndAsync()
         try {
-            if(-not $resumed.WaitForExit(45000)){$resumed.Kill($true);$resumed.WaitForExit();throw 'Resumed fixture timed out'}
+            # Includes native owner cleanup after all mocked product stages finish.
+            if(-not $resumed.WaitForExit(120000)){$resumed.Kill($true);$resumed.WaitForExit();throw 'Resumed fixture timed out'}
             $resumeExit=$resumed.ExitCode
         } finally {
             Write-Utf8 (Join-Path $logs 'resume.stdout.log') $resumeOut.GetAwaiter().GetResult()

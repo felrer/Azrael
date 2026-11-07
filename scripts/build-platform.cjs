@@ -50,7 +50,7 @@ function parse(argv) {
     const key = argv[i];
     if (key === "--plan") { result.plan = true; continue; }
     if (key === "--resume") { if (result.resume) throw new Error("Duplicate --resume"); result.resume = true; continue; }
-    if (!/^--(?:project-root|cache-project-root|engine-source|ui-root|account-ui-root|code-mode-host|node|bun|npm-cli|rg|output|target-directory|target|host-version|reuse-decisions-path)$/.test(key) || !argv[i + 1] || argv[i + 1].startsWith("--")) throw new Error(`Invalid build argument: ${key}`);
+    if (!/^--(?:project-root|source-commit|cache-project-root|engine-source|engine-commit|engine-source-sha256|ui-root|account-ui-root|code-mode-host|node|bun|npm-cli|rg|output|target-directory|target|host-version|reuse-decisions-path)$/.test(key) || !argv[i + 1] || argv[i + 1].startsWith("--")) throw new Error(`Invalid build argument: ${key}`);
     if (result[key.slice(2)] !== undefined) throw new Error(`Duplicate build argument: ${key}`);
     result[key.slice(2)] = argv[++i];
   }
@@ -103,6 +103,8 @@ function hostPreparationArgs(s, frozenProject, input, companion, descriptor) {
 async function build(options) {
   const plan = buildPlan(options), s = plan.settings, root = s["project-root"], identity = plan.platform;
   if (s.plan) return plan;
+  const committed = require("./committed-project-inputs.cjs");
+  const initialSelection = s.resume ? null : committed.selectCommittedProject(root, s["source-commit"]);
   const input = s.output + ".inputs";
   const work = s.output + ".work";
   if (!s.resume && (fs.existsSync(input) || fs.existsSync(work))) throw new Error("Task input/work path already exists; choose a new output identity");
@@ -110,7 +112,17 @@ async function build(options) {
   fs.mkdirSync(path.dirname(s.output), { recursive: true });
   const lease = require("./maintenance-lock-owner.cjs").acquire(s.output + ".pipeline.lock", { operation: "portable-build" });
   try {
+  const previousIdentity = s.resume ? JSON.parse(fs.readFileSync(stateFile, "utf8")).identity : null;
+  const sourceCommit = previousIdentity?.sourceCommit || s["source-commit"];
+  if (s.resume && !previousIdentity?.sourceCommit) throw new Error("Resume requires the original commit-bound producer and frozen input identity");
+  if (s.resume && s["source-commit"] && s["source-commit"] !== sourceCommit) throw new Error("Resume cannot change the selected source commit");
+  const projectSelection = initialSelection;
+  const pinnedCommit = sourceCommit || projectSelection.commit;
+  const embeddedEngine = path.resolve(s["engine-source"]) === path.join(fs.realpathSync(root), "engine");
+  if (!embeddedEngine && !s["engine-commit"] && !/^[a-f0-9]{64}$/.test(s["engine-source-sha256"] || "")) throw new Error("External engine requires --engine-commit or --engine-source-sha256");
+  const engineSelection = !s.resume && !embeddedEngine && s["engine-commit"] ? committed.selectCommittedProject(s["engine-source"], s["engine-commit"]) : null;
   const { resume, plan: ignoredPlan, "reuse-decisions-path": reuseDecisionsPath, ...settingsIdentity } = s;
+  settingsIdentity["source-commit"] = pinnedCommit;
   let pipeline;
   const logs = path.join(root, "artifacts/logs/multi-platform/build", path.basename(s.output));
   const lifecycleRecord = { id: `version:${path.basename(s.output)}`, kind: "version", owner: "azrael-release",
@@ -118,7 +130,7 @@ async function build(options) {
     members: [{ path: s.output, role: "release" }, { path: input, role: "inputs" }, { path: work, role: "work" }, { path: logs, role: "logs" }, { path: stateFile, role: "pipeline-state" }, { path: stateFile + ".update-lock", role: "pipeline-update-lock" }, { path: stateFile + ".tmp", role: "pipeline-state-work" }, { path: s.output + ".pipeline.lock", role: "pipeline-lock" }] };
   lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "pending" });
   try {
-  pipeline = require("./pipeline-state.cjs").openPipelineState({ file: stateFile, identity: { settings: settingsIdentity, platform: identity, producerSha256:hash(__filename),stateHelperSha256:hash(path.join(__dirname,"pipeline-state.cjs")) }, resume: !!s.resume, lockHeld: true, reuseDecisionsPath });
+  pipeline = require("./pipeline-state.cjs").openPipelineState({ file: stateFile, identity: { settings: settingsIdentity, sourceCommit: pinnedCommit, platform: identity, producerSha256:hash(__filename),stateHelperSha256:hash(path.join(__dirname,"pipeline-state.cjs")) }, resume: !!s.resume, lockHeld: true, reuseDecisionsPath });
   fs.mkdirSync(logs, { recursive: true });
   let previousCommand = null;
   let currentToolchain = null;
@@ -159,22 +171,24 @@ async function build(options) {
   run(python, ["-B", "-c", 'import sys; assert sys.version_info >= (3, 11), "Native producer requires Python 3.11 or newer (tomllib and hashlib.file_digest)"; import tomllib, hashlib; assert callable(hashlib.file_digest); print(sys.version)'], root, "python-prerequisites");
   const provenance = path.join(root, "scripts/engine-provenance.py");
   const originalSnapshot = path.join(logs, "engine-original.json");
-  run(python, ["-B", provenance, "snapshot", "--root", s["engine-source"], "--target", identity.target, "--file", originalSnapshot], root, "validate-original-engine");
+
   const frozenState = pipeline.lookup("freeze-inputs", { inputs: { input } });
   let projectReceipt;
   if (frozenState) {
     if (inventoryTree(input).sha256 !== frozenState.data.sha256) throw new Error("Frozen inputs changed; select a new output identity");
     projectReceipt = frozenState.data.projectReceipt;
-    if ((await require("./deployment-input-snapshot.cjs").snapshotProject(root)).sha256 !== projectReceipt.sha256) throw new Error("Selected project source changed from frozen inputs; select a new output identity");
+    if (projectReceipt.sourceCommit !== pinnedCommit) throw new Error("Frozen project commit differs from pipeline identity");
   } else {
   pipeline.start("freeze-inputs", { inputs: { input } });
-  projectReceipt = await freezeProject(root, path.join(input, "project"));
-  copyTree(s["engine-source"], path.join(input, "engine"));
-  // Git engines need their own Git metadata for the unchanged existing fingerprint contract.
-  const gitMetadata = path.join(s["engine-source"], ".git");
-  if (!fs.existsSync(path.join(input, "engine/SOURCE.json"))) {
-    if (!fs.statSync(gitMetadata).isDirectory()) throw new Error("Git engine snapshots require a standalone Git checkout; imported SOURCE.json is preferred");
-    fs.cpSync(gitMetadata, path.join(input, "engine/.git"), { recursive: true });
+  projectReceipt = await freezeProject(root, path.join(input, "project"), { selection: projectSelection, sourceCommit: pinnedCommit });
+  const selectedEngine = embeddedEngine ? path.join(input, "project/engine") : s["engine-source"];
+  if (s["engine-commit"] && !embeddedEngine) await freezeProject(selectedEngine, path.join(input, "engine"), { selection: engineSelection, sourceCommit: s["engine-commit"] });
+  else {
+    const pinnedProvenance = path.join(input, "project/scripts/engine-provenance.py");
+    run(python, ["-B", pinnedProvenance, "snapshot", "--root", selectedEngine, "--target", identity.target, "--file", originalSnapshot], path.join(input, "project"), "validate-original-engine");
+    const before = JSON.parse(fs.readFileSync(originalSnapshot, "utf8"));
+    if (!embeddedEngine && before.sourceSha256 !== s["engine-source-sha256"]) throw new Error("External engine source does not match its selected SHA256");
+    copyTree(selectedEngine, path.join(input, "engine"));
   }
   copyTree(s["ui-root"], path.join(input, "ui"), []);
   if (s["account-ui-root"]) copyTree(s["account-ui-root"], path.join(input, "account-ui"), []);
@@ -192,7 +206,8 @@ async function build(options) {
   const frozenProject = path.join(input, "project"), frozenEngine = path.join(input, "engine"), frozenProvenance = path.join(frozenProject, "scripts/engine-provenance.py");
   const sourceSnapshot = path.join(logs, "engine-frozen.json");
   run(python, ["-B", frozenProvenance, "snapshot", "--root", frozenEngine, "--target", identity.target, "--file", sourceSnapshot], root, "verify-frozen-engine");
-  if (fs.readFileSync(originalSnapshot, "utf8") !== fs.readFileSync(sourceSnapshot, "utf8")) throw new Error("Engine changed from frozen inputs; select a new output identity");
+  if (fs.existsSync(originalSnapshot) && fs.readFileSync(originalSnapshot, "utf8") !== fs.readFileSync(sourceSnapshot, "utf8")) throw new Error("Engine changed from frozen inputs; select a new output identity");
+  if (!embeddedEngine && s["engine-source-sha256"] && JSON.parse(fs.readFileSync(sourceSnapshot, "utf8")).sourceSha256 !== s["engine-source-sha256"]) throw new Error("Frozen external engine source identity differs");
   const receipt = inventoryTree(input);
   write(path.join(logs, "immutable-inputs.json"), { schema: 1, platform: identity, inputDirectory: input, project: projectReceipt, ...receipt });
   if (!fs.existsSync(work)) { fs.mkdirSync(work); copyTree(frozenProject, path.join(work, "project"), []); copyTree(frozenEngine, path.join(work, "engine"), []); }
