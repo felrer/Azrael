@@ -151,6 +151,647 @@
           "summary": "124 selected tests passed, seven invocations exit 0; source and Code Mode fixture unchanged. No package or installed-host acceptance."
         }
       }
+    },
+    "pr:55994": {
+      "id": "pr:55994",
+      "kind": "pr",
+      "number": 55994,
+      "title": "Add a Windows proxy authentication tunnel helper",
+      "url": "https://github.com/openai/codex/pull/55994",
+      "mergeCommit": "d5bc4161b658cff3f2176aa422a52b3a06928214",
+      "commits": [
+        "d5bc4161b658cff3f2176aa422a52b3a06928214"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "Windows 인증 프록시를 사용할 때 필요한 helper이며 현재 범위에서는 사용자 결정으로 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56000": {
+      "id": "pr:56000",
+      "kind": "pr",
+      "number": 56000,
+      "title": "Retry proxy CONNECT challenges with Windows authentication",
+      "url": "https://github.com/openai/codex/pull/56000",
+      "mergeCommit": "f496b09bd141af0a6ec1a7ebf3e5fc557ac795dc",
+      "commits": [
+        "f496b09bd141af0a6ec1a7ebf3e5fc557ac795dc"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "Windows CONNECT 인증 재시도 기능이며 #55994와 함께 현재 범위에서 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56007": {
+      "id": "pr:56007",
+      "kind": "pr",
+      "number": 56007,
+      "title": "Pause Tokio time in the reused Guardian session test",
+      "url": "https://github.com/openai/codex/pull/56007",
+      "mergeCommit": "bc45d61a9a0c5382d5ee342c1bf5c740f9ef1b77",
+      "commits": [
+        "bc45d61a9a0c5382d5ee342c1bf5c740f9ef1b77"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "Guardian 테스트 시간 제어 수정. 이번 제품 변경 범위에서 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56008": {
+      "id": "pr:56008",
+      "kind": "pr",
+      "number": 56008,
+      "title": "Add a critical-path timing recorder for direct tool calls",
+      "url": "https://github.com/openai/codex/pull/56008",
+      "mergeCommit": "082900149cc7c0985e15a1d1ce0330a9e81e53b1",
+      "commits": [
+        "082900149cc7c0985e15a1d1ce0330a9e81e53b1"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "독립 timing 라이브러리 추가이며 현재 런타임 통합은 별도. 사용자 결정으로 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56011": {
+      "id": "pr:56011",
+      "kind": "pr",
+      "number": 56011,
+      "title": "Keep rollout trace terminal sessions distinct when process IDs are reused",
+      "url": "https://github.com/openai/codex/pull/56011",
+      "mergeCommit": "deede7201da27a178c39befa6b4959bb7d451645",
+      "commits": [
+        "deede7201da27a178c39befa6b4959bb7d451645"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "터미널 추적 기록의 정확성 개선이나 사용자 결정으로 이번 이식에서 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56018": {
+      "id": "pr:56018",
+      "kind": "pr",
+      "number": 56018,
+      "title": "Avoid nested CLI startup in the MCP OAuth persistence test",
+      "url": "https://github.com/openai/codex/pull/56018",
+      "mergeCommit": "aafd81a7ad3be2d8ddc3439056841af306cbddcc",
+      "commits": [
+        "aafd81a7ad3be2d8ddc3439056841af306cbddcc"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "MCP OAuth 테스트 개선만 포함. 사용자 결정으로 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56020": {
+      "id": "pr:56020",
+      "kind": "pr",
+      "number": 56020,
+      "title": "Allow thread sampling after failed or interrupted turns",
+      "url": "https://github.com/openai/codex/pull/56020",
+      "mergeCommit": "6f34d3d40816dac9d7a6ca94c3e3974b3f40c532",
+      "commits": [
+        "6f34d3d40816dac9d7a6ca94c3e3974b3f40c532"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "현재 활성 app-server에는 thread/sample API와 VS Code 호출 경로가 없음. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56021": {
+      "id": "pr:56021",
+      "kind": "pr",
+      "number": 56021,
+      "title": "Keep slash command prefixes in editable composer text",
+      "url": "https://github.com/openai/codex/pull/56021",
+      "mergeCommit": "233119375db96d7b71acc5b17138c41114385167",
+      "commits": [
+        "233119375db96d7b71acc5b17138c41114385167"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "TUI 전용이고 현재 동등 동작이 있음. 추가 이식 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56023": {
+      "id": "pr:56023",
+      "kind": "pr",
+      "number": 56023,
+      "title": "Group Bedrock API key entry with other AWS sign-in methods",
+      "url": "https://github.com/openai/codex/pull/56023",
+      "mergeCommit": "d6a5c9d17e8240a5dbd83cae1a3df23ed5aafcea",
+      "commits": [
+        "d6a5c9d17e8240a5dbd83cae1a3df23ed5aafcea"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "TUI Bedrock 온보딩 메뉴 변경으로 현재 VS Code 화면과 별도. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56024": {
+      "id": "pr:56024",
+      "kind": "pr",
+      "number": 56024,
+      "title": "Limit decoded HTTP/3 response headers in the TCP tunnel",
+      "url": "https://github.com/openai/codex/pull/56024",
+      "mergeCommit": "e8bb1b664170a123af4b844a47e6c6e992b52fe2",
+      "commits": [
+        "e8bb1b664170a123af4b844a47e6c6e992b52fe2"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "별도 tcp-tunnel 경로 수정이며 일반 app-server 경로에서 사용 근거 없음. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56031": {
+      "id": "pr:56031",
+      "kind": "pr",
+      "number": 56031,
+      "title": "Support client Responses API metadata in `thread/sample`",
+      "url": "https://github.com/openai/codex/pull/56031",
+      "mergeCommit": "943c70d8d203c61404744939eb64a1261acd5d97",
+      "commits": [
+        "943c70d8d203c61404744939eb64a1261acd5d97"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "thread/sample metadata 전용이며 현재 API/호출 경로가 없음. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56032": {
+      "id": "pr:56032",
+      "kind": "pr",
+      "number": 56032,
+      "title": "Fix entrypoint lookup in package debug-symbol smoke tests",
+      "url": "https://github.com/openai/codex/pull/56032",
+      "mergeCommit": "004c13292f3ef05e51e2e90e5a2dc6b13b651916",
+      "commits": [
+        "004c13292f3ef05e51e2e90e5a2dc6b13b651916"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "Codex 패키지 심볼 검사 수정으로 현재 Azrael 빌드 검사 경로와 다름. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56033": {
+      "id": "pr:56033",
+      "kind": "pr",
+      "number": 56033,
+      "title": "Enable the Bedrock setup wizard by default",
+      "url": "https://github.com/openai/codex/pull/56033",
+      "mergeCommit": "8440e76ae6d4875a6f01398e09bd27734da741e7",
+      "commits": [
+        "8440e76ae6d4875a6f01398e09bd27734da741e7"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "TUI Bedrock 마법사 기본값 변경으로 현재 VS Code 기능과 별도. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56036": {
+      "id": "pr:56036",
+      "kind": "pr",
+      "number": 56036,
+      "title": "Add request-scoped OAuth credentials and session lifecycle APIs",
+      "url": "https://github.com/openai/codex/pull/56036",
+      "mergeCommit": "09ec2451bf9a6750a19f334e9bd0fd9ebe6494b5",
+      "commits": [
+        "09ec2451bf9a6750a19f334e9bd0fd9ebe6494b5"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "Gateway OAuth API 개선이며 별도 managed-provider 계정 경로와 직접 대응하지 않음. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56037": {
+      "id": "pr:56037",
+      "kind": "pr",
+      "number": 56037,
+      "title": "Add a channel-backed cloud app-server client",
+      "url": "https://github.com/openai/codex/pull/56037",
+      "mergeCommit": "45179176e52ab890a3cf5ce47e8ab585e7295f7e",
+      "commits": [
+        "45179176e52ab890a3cf5ce47e8ab585e7295f7e"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "신규 cloud backend이며 현재 bridge는 로컬 daemon을 사용. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56044": {
+      "id": "pr:56044",
+      "kind": "pr",
+      "number": 56044,
+      "title": "Enable executor cleanup hooks with V2 capability discovery",
+      "url": "https://github.com/openai/codex/pull/56044",
+      "mergeCommit": "0769c6aeeb1a81cec715e496d2486ece6fcef21b",
+      "commits": [
+        "0769c6aeeb1a81cec715e496d2486ece6fcef21b"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "V2 discovery hook 수정이며 현재 core 소비 경로가 확인되지 않음. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56055": {
+      "id": "pr:56055",
+      "kind": "pr",
+      "number": 56055,
+      "title": "Require managed configuration from the configured server",
+      "url": "https://github.com/openai/codex/pull/56055",
+      "mergeCommit": "342ed69a174c206c1de52a59491b131e0753cfa5",
+      "commits": [
+        "342ed69a174c206c1de52a59491b131e0753cfa5"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "기업 설정 서버 강제 정책 기능으로 현재 도입 요구 없음. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56081": {
+      "id": "pr:56081",
+      "kind": "pr",
+      "number": 56081,
+      "title": "Cache decrypted Codex auth and managed secrets",
+      "url": "https://github.com/openai/codex/pull/56081",
+      "mergeCommit": "b4ad33d1a3c10c9652dd57f7afd7a949f8f26895",
+      "commits": [
+        "b4ad33d1a3c10c9652dd57f7afd7a949f8f26895"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "사용자가 승인한 유일한 이식: CodexAuth/ManagedSecrets 복호화 캐시 확장.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "verified",
+        "localCommits": [
+          "b70d55beb5d996112660780d72cb4bdeb1661ea5"
+        ],
+        "featureIds": [
+          "engine.selected-upstream"
+        ],
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/verification-05-accepted.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "6de288dbde40536cacf48b014f3a82861fed0252daf297ca608e5b3596ddac94"
+          }
+        ],
+        "verification": {
+          "evidence": {
+            "path": "work/DO-01-codex-version-comparison/verification-05-accepted.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "6de288dbde40536cacf48b014f3a82861fed0252daf297ca608e5b3596ddac94"
+          },
+          "platform": "windows-x64",
+          "scope": "native",
+          "exitCode": 0,
+          "sourceIdentity": "44e0e68f9169dea70b70042a98db719909876ca9b69c96cf739f5cba0a9ea756",
+          "summary": "17 scoped native tests passed (encrypted cache/store 8, login storage policy 9) on a registered baseline plus four PR files only. Full secrets initial fixture failure and transient login linker failure retained. Live checkout/installed product and other OS remain unverified."
+        }
+      }
+    },
+    "pr:56090": {
+      "id": "pr:56090",
+      "kind": "pr",
+      "number": 56090,
+      "title": "Honor server approval reviewer defaults on fresh TUI startup",
+      "url": "https://github.com/openai/codex/pull/56090",
+      "mergeCommit": "47a1f6bb77baa8ba237757196a62cadf97dc854b",
+      "commits": [
+        "47a1f6bb77baa8ba237757196a62cadf97dc854b"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "TUI 시작 시 reviewer 기본값 처리로 현재 VS Code 경로와 별도. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
+    },
+    "pr:56091": {
+      "id": "pr:56091",
+      "kind": "pr",
+      "number": 56091,
+      "title": "Keep TUI preferences editable when execution settings are invalid",
+      "url": "https://github.com/openai/codex/pull/56091",
+      "mergeCommit": "c2d5ea52e1b7ab11ee2d71dc44ea1ef00f9c8eb3",
+      "commits": [
+        "c2d5ea52e1b7ab11ee2d71dc44ea1ef00f9c8eb3"
+      ],
+      "decision": {
+        "status": "excluded",
+        "reason": "TUI 설정 패널 저장 경로 수정으로 현재 VS Code 설정 UI와 별도. 제외.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decisions-05.json",
+            "gitCommit": "b70d55beb5d996112660780d72cb4bdeb1661ea5",
+            "sha256": "a3e0612ea2711760728684f9dcc8e28c162a5ee2eae744709cd6b9fd7c49e102"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "none",
+        "localCommits": [],
+        "featureIds": [],
+        "evidence": [],
+        "verification": null
+      }
     }
   },
   "ranges": []
