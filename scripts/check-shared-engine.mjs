@@ -711,7 +711,7 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     managementBridges.push(rejoinedBridge);
     const ownConfig = await newA.peer.request('config/read', { includeLayers: false });
     const ownAccount = (await rejoinedBridge.peer.request('azrael/account', { action: 'list' })).state;
-    async function assertOwnWindowDefaults() {
+    async function assertOwnWindowDefaults(projectHasActiveTurns = false) {
       const [windowConfig, companionConfig, account, loaded] = await Promise.all([
         newA.peer.request('config/read', { includeLayers: false }),
         rejoinedBridge.peer.request('config/read', { includeLayers: false }),
@@ -723,7 +723,7 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
       for (const key of ['instanceId', 'codexHome', 'activeProfileId', 'pendingProfileId', 'currentAccount']) {
         assert.deepEqual(account.state[key], ownAccount[key], 'session_route_changed_window_account_' + key);
       }
-      assert.equal(account.state.hasActiveTurns, false, 'companion_account_state_followed_other_session_processor');
+      assert.equal(account.state.hasActiveTurns, projectHasActiveTurns, 'companion_account_state_lost_project_activity');
       assert(loaded.data.includes(ownThread), 'session_route_lost_window_own_thread');
       assert(!loaded.data.includes(threadA), 'session_route_rebound_window_default_processor');
       const ownRead = await newA.peer.request('thread/read', { threadId: ownThread, includeTurns: true });
@@ -752,7 +752,7 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
       assert(!pa.peer.observed.some(message => message.method === 'turn/completed' && message.params?.threadId === ownThread),
         'own_thread_notification_leaked_to_original_window');
     }
-    await assertOwnWindowDefaults();
+    await assertOwnWindowDefaults(extended);
     record('busy_same_project_window_resumes_live_original_session_and_keeps_own_thread_defaults_and_companion');
     await closeInput(pa.child, 'reload proxy A');
     assert(live(a.host.pid)); assert.equal((await daemon()).pid, daemonPid);
@@ -783,7 +783,7 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     }
     const retained = await newA.peer.request('thread/read', { threadId: threadA, includeTurns: true });
     assert.equal(retained.thread.id, threadA, 'rejoined_thread_not_readable_through_session_route');
-    await assertOwnWindowDefaults();
+    await assertOwnWindowDefaults(extended);
     record('busy_same_project_window_rejoins_original_thread_after_host_death_without_turn_submission');
     if (extended) {
       const held = await newA.peer.event('item/tool/call', threadA, true);
