@@ -50,6 +50,48 @@
   ],
   "bundles": [
     {
+      "id": "deployment-manifest-verification",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": [
+        "node",
+        "scripts/check-artifact-lifecycle.cjs",
+        "--stage",
+        "writers",
+        "--test-file",
+        "scripts/test-deployment-workspace.cjs",
+        "--test-file",
+        "scripts/test-committed-project-inputs.cjs",
+        "--test-file",
+        "scripts/test-packaging-workspace.cjs"
+      ],
+      "inputs": [
+        "scripts/deployment-manifest.cjs",
+        "scripts/deployment-workspace.cjs",
+        "scripts/test-deployment-workspace.cjs",
+        "scripts/committed-project-inputs.cjs",
+        "scripts/test-committed-project-inputs.cjs",
+        "scripts/packaging-workspace.cjs",
+        "scripts/test-packaging-workspace.cjs",
+        "scripts/check-artifact-lifecycle.cjs",
+        "scripts/artifact-run.cjs",
+        "scripts/artifact-lifecycle.cjs",
+        "scripts/maintenance-lock-owner.cjs",
+        "scripts/maintenance-owner-config.cjs",
+        "scripts/capture-project-inputs.cjs",
+        "scripts/deployment-input-snapshot.cjs",
+        "scripts/freeze-platform-inputs.cjs",
+        "scripts/engine-provenance.py",
+        "scripts/import-engine-source.py",
+        "scripts/engine-native-materialization.py",
+        "scripts/azrael-platforms.json"
+      ],
+      "env": {},
+      "depends_on": [],
+      "guards": []
+    },
+    {
       "id": "agent-image-attachments-native",
       "kind": "test",
       "purpose": "retained",

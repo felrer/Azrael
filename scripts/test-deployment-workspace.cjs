@@ -14,6 +14,7 @@ freezeTools.inventoryTree = (root, ...args) => {
   return inventoryTree(root, ...args);
 };
 const { serializeDeploymentManifest, prepareDeploymentWorkspace, verifyDeploymentWorkspace, reuseDeploymentInputs, verifyReusedDeploymentInputs, resolveDeploymentModuleCacheOwner } = require("./deployment-workspace.cjs");
+const { writeDeploymentManifest, readDeploymentManifest } = require("./deployment-manifest.cjs");
 freezeTools.inventoryTree = inventoryTree;
 function checkManifestSerialization() {
   const manifest = { schema: 1, path: "C:\\입력\\source", inventory: [{ path: "file", size: 7, deleted: false }], optional: null };
@@ -67,6 +68,64 @@ function stopProof(run) {
     evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence_ref)).digest("hex"),
     reason: "In-process preparation settled with no outstanding owned children" };
 }
+function checkManifestDetails(reportPath, original) {
+  // Future callers must hydrate all evidence instead of treating the small index
+  // as the original manifest or forgetting required sidecars.
+  const logical = { ...original, evidence: { unicode: "입".repeat(6 * 1024 * 1024), optional: null, selected: [false, 0, ""] } };
+  writeDeploymentManifest(reportPath, logical);
+  const indexBytes = fs.readFileSync(reportPath);
+  const index = JSON.parse(indexBytes);
+  assert.equal(index.schema, 3);
+  assert.equal(index.storageFormat, "deployment-details-v1");
+  assert(indexBytes.length < 4096, "main manifest stays compact independently of full evidence size");
+  assert.equal(index.details.directory, path.basename(reportPath) + ".details");
+  assert.equal(index.details.chunkBytes, 8 * 1024 * 1024);
+  assert(index.details.bytes > 16 * 1024 * 1024);
+  assert.equal(index.details.chunkCount, Math.ceil(index.details.bytes / index.details.chunkBytes));
+  assert.deepEqual(index.summary, { sourceCommit: original.sourceCommit, projectSha256: original.projectSha256,
+    projectFileCount: original.project.fileCount, projectBytes: original.project.bytes, immutableSha256: original.immutableInventory.sha256 });
+  const detailsRoot = path.join(path.dirname(reportPath), index.details.directory);
+  const names = fs.readdirSync(detailsRoot).sort();
+  assert.deepEqual(names, Array.from({ length: index.details.chunkCount }, (_, i) => `part-${String(i).padStart(8, "0")}.bin`));
+  const content = Buffer.concat(names.map((name, i) => {
+    const bytes = fs.readFileSync(path.join(detailsRoot, name));
+    assert.equal(bytes.length, Math.min(index.details.chunkBytes, index.details.bytes - i * index.details.chunkBytes));
+    return bytes;
+  }));
+  assert.equal(content.length, index.details.bytes);
+  assert.equal(createHash("sha256").update(content).digest("hex"), index.details.sha256);
+  assert.deepEqual(JSON.parse(content), logical, "chunks preserve every logical value including UTF-8 crossing part boundaries");
+  assert.deepEqual(readDeploymentManifest(reportPath), logical);
+  const firstPart = path.join(detailsRoot, names[0]);
+  const originalPart = fs.readFileSync(firstPart);
+  const missingPart = reportPath + ".missing-part";
+  fs.renameSync(firstPart, missingPart);
+  try { assert.throws(() => readDeploymentManifest(reportPath), undefined, "missing required part rejected"); }
+  finally { fs.renameSync(missingPart, firstPart); }
+  const modifiedPart = Buffer.from(originalPart); modifiedPart[0] ^= 1;
+  fs.writeFileSync(firstPart, modifiedPart);
+  try { assert.throws(() => readDeploymentManifest(reportPath), undefined, "changed bytes rejected before JSON hydration"); }
+  finally { fs.writeFileSync(firstPart, originalPart); }
+  const extraPart = path.join(detailsRoot, "unexpected.bin");
+  fs.writeFileSync(extraPart, "unexpected evidence");
+  try { assert.throws(() => readDeploymentManifest(reportPath), undefined, "unlisted evidence rejected"); }
+  finally { fs.unlinkSync(extraPart); }
+  const linkedPart = reportPath + ".linked-part";
+  fs.linkSync(firstPart, linkedPart);
+  try { assert.throws(() => readDeploymentManifest(reportPath), undefined, "linked part rejected"); }
+  finally { fs.unlinkSync(linkedPart); }
+  for (const changed of [
+    { directory: "../" + index.details.directory },
+    { chunkCount: index.details.chunkCount + 1 },
+    { bytes: index.details.bytes + 1 },
+    { sha256: "0".repeat(64) }
+  ]) {
+    fs.writeFileSync(reportPath, JSON.stringify({ ...index, details: { ...index.details, ...changed } }));
+    try { assert.throws(() => readDeploymentManifest(reportPath), undefined, `invalid details metadata rejected: ${Object.keys(changed)[0]}`); }
+    finally { fs.writeFileSync(reportPath, indexBytes); }
+  }
+  assert.deepEqual(readDeploymentManifest(reportPath), logical, "all corruption fixtures restored");
+}
 async function main() {
   const checks = [];
   const paths = setup("paths");
@@ -81,6 +140,17 @@ async function main() {
   ]) await assert.rejects(prepareDeploymentWorkspace({ ...paths.options, ...override }));
   assert(!fs.existsSync(paths.options.inputRoot));
   assert(!fs.existsSync(paths.options.workingRoot));
+  for (const suffix of ["", ".details"]) {
+    const collision = paths.options.reportPath + suffix;
+    fs.mkdirSync(path.dirname(collision), { recursive: true });
+    fs.writeFileSync(collision, "pre-existing report evidence");
+    try {
+      await assert.rejects(prepareDeploymentWorkspace(paths.options));
+      assert(!fs.existsSync(paths.options.inputRoot), "manifest collision rejected before immutable copy");
+      assert(!fs.existsSync(paths.options.workingRoot), "manifest collision rejected before working copy");
+      assert.equal(fs.readFileSync(collision, "utf8"), "pre-existing report evidence");
+    } finally { fs.unlinkSync(collision); }
+  }
   const claimed = path.join(paths.projectRoot, "artifacts/workspaces/claimed");
   recordLifecycle(paths.projectRoot, { id: "prior-workspace", kind: "run", owner: "prior", state: "pending", membership_complete: false,
     members: [{ path: path.join(claimed, "scripts"), role: "source" }], expected_revision: 0 });
@@ -104,6 +174,15 @@ async function main() {
   git(normal.projectRoot, "commit", "--quiet", "-m", "nested source");
   const context = await prepareDeploymentWorkspace(normal.options);
   assert.equal((await verifyDeploymentWorkspace(context)).status, "verified");
+  checkManifestDetails(path.join(normal.run.reports, "large-details.json"), readDeploymentManifest(context.reportPath));
+  const contextIndex = JSON.parse(fs.readFileSync(context.reportPath, "utf8"));
+  const contextPart = path.join(path.dirname(context.reportPath), contextIndex.details.directory, "part-00000000.bin");
+  const contextPartBytes = fs.readFileSync(contextPart);
+  fs.appendFileSync(contextPart, " ");
+  try { await assert.rejects(verifyDeploymentWorkspace(context)); }
+  finally { fs.writeFileSync(contextPart, contextPartBytes); }
+  assert.equal((await verifyDeploymentWorkspace(context)).status, "verified");
+  checks.push("full >16 MiB UTF-8 manifest roundtrip, compact index, canonical 8 MiB parts; missing, modified, extra, linked, escaping, count, size and SHA evidence rejected; public verification authenticates sidecars");
   await assert.rejects(verifyDeploymentWorkspace({ ...context, sourceCommit: "0".repeat(context.sourceCommit.length) }), /sourceCommit binding changed/);
   const committedControl = path.join(context.workingRoot, "control/committed-source.json");
   const committedControlBytes = fs.readFileSync(committedControl);
@@ -117,11 +196,11 @@ async function main() {
   await assert.rejects(verifyDeploymentWorkspace(context), /sourceCommit binding changed/);
   git(context.workingRoot, "update-ref", "HEAD", selectedHead);
   assert.equal(context.moduleCacheProjectRoot, normal.projectRoot);
-  assert.equal(JSON.parse(fs.readFileSync(context.reportPath, 'utf8')).moduleCacheProjectRoot, normal.projectRoot);
+  assert.equal(readDeploymentManifest(context.reportPath).moduleCacheProjectRoot, normal.projectRoot);
   await assert.rejects(verifyDeploymentWorkspace({ ...context, moduleCacheProjectRoot: context.workingRoot }), /module cache owner changed/);
   const secondWorkspace = await prepareDeploymentWorkspace({ ...normal.options, artifactProjectRoot: normal.projectRoot, projectRoot: context.immutableProjectRoot,
     inputRoot: path.join(normal.projectRoot, 'artifacts/inputs/second'), workingRoot: path.join(normal.projectRoot, 'artifacts/workspaces/second'),
-    reportPath: path.join(normal.run.reports, 'second.json') });
+    reportPath: path.join(normal.run.reports, 'nested', 'second.json') });
   assert.notEqual(secondWorkspace.projectRoot, normal.projectRoot, 'frozen source identity remains distinct from stable cache owner');
   assert.equal(secondWorkspace.moduleCacheProjectRoot, context.moduleCacheProjectRoot, 'independent disposable workspaces retain the explicit stable owner');
   assert.equal((await verifyDeploymentWorkspace(secondWorkspace)).moduleCacheProjectRoot, normal.projectRoot);
@@ -133,7 +212,7 @@ async function main() {
   await assert.rejects(resolveDeploymentModuleCacheOwner({ ...launchOptions, manifestSha256: '0'.repeat(64) }), /manifest changed/);
   await assert.rejects(resolveDeploymentModuleCacheOwner({ ...launchOptions, projectRoot: context.workingRoot }), /differs from selected working root/);
   const currentManifestBytes = fs.readFileSync(secondWorkspace.reportPath);
-  const legacyManifest = JSON.parse(currentManifestBytes);
+  const legacyManifest = readDeploymentManifest(secondWorkspace.reportPath);
   delete legacyManifest.moduleCacheProjectRoot;
   delete legacyManifest.rootIdentities.moduleCacheOwner;
   fs.writeFileSync(secondWorkspace.reportPath, JSON.stringify(legacyManifest));
@@ -244,6 +323,17 @@ async function main() {
   assert.deepEqual(catalog(reusable.projectRoot).map(record => record.id), beforeIds, "reuse creates no input/workspace producer records");
   assert.equal(consumers[0].record.revision, firstReuse.runRecord.revision);
   assert(consumers[0].record.references.some(ref => ref.id === callerDependency.id));
+  const frozenIndex = JSON.parse(originalManifest);
+  const frozenPart = path.join(path.dirname(frozen.reportPath), frozenIndex.details.directory, "part-00000000.bin");
+  const frozenPartBytes = fs.readFileSync(frozenPart);
+  fs.appendFileSync(frozenPart, " ");
+  try {
+    await assert.rejects(verifyReusedDeploymentInputs(firstReuse));
+    const corruptReuseReport = path.join(consumers[0].reports, "corrupt-sidecar-reuse.json");
+    await assert.rejects(reuseDeploymentInputs({ ...reuseOptions(consumers[0]), reportPath: corruptReuseReport }));
+    assert(!fs.existsSync(corruptReuseReport), "corrupt source sidecar never publishes a reusable reference");
+  } finally { fs.writeFileSync(frozenPart, frozenPartBytes); }
+  assert.equal((await verifyReusedDeploymentInputs(firstReuse)).status, "verified");
   await assert.rejects(verifyReusedDeploymentInputs({ ...firstReuse, immutableProjectRoot: reusable.projectRoot }), /selection mismatch/);
   await assert.rejects(verifyReusedDeploymentInputs({ ...firstReuse, expectedProjectSha256: "0".repeat(64) }), /selection mismatch/);
   await assert.rejects(verifyReusedDeploymentInputs({ ...firstReuse, sourceRoot: reusable.projectRoot }), /selection mismatch/);
@@ -331,7 +421,7 @@ async function main() {
   assert.equal((await verifyReusedDeploymentInputs(firstReuse)).status, "verified", "reference identity verification survives truthful caller closure");
   assert.equal(inventoryTree(frozen.inputRoot).sha256, originalInventory);
   assert.deepEqual(fs.readFileSync(frozen.reportPath), originalManifest);
-  checks.push("two read-only callers reuse frozen inputs without copying or new producers; absent old working copy and later checkout ignored; hashes, ownership, root identity, tampering, truthful failure closure and scoped cleanup protections enforced");
+  checks.push("two read-only callers reuse frozen inputs without copying or new producers; required sidecars authenticated during reuse and later verification; absent old working copy and later checkout ignored; hashes, ownership, root identity, tampering, truthful failure closure and scoped cleanup protections enforced");
   const preparationFailure = setup("preparation-failure");
   const initialRevision = preparationFailure.run.record.revision;
   const mkdir = fs.mkdirSync;

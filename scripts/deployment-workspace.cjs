@@ -10,18 +10,13 @@ const { snapshotProject } = require("./deployment-input-snapshot.cjs");
 const { copyTree, inventoryTree, hash } = require("./freeze-platform-inputs.cjs");
 const lifecycle = require("./artifact-lifecycle.cjs");
 const { addArtifactRunReferences } = require("./artifact-run.cjs");
+const { serializeDeploymentManifest, preflightDeploymentManifest, writeDeploymentManifest, readDeploymentManifest } = require("./deployment-manifest.cjs");
 // Only an exact, live result can hand its private verified snapshot to the
 // immediately following derived preparation. Serialized receipts are evidence,
 // not capabilities, and final verification never consumes this handoff.
 const verifiedReuseHandoffs = new WeakMap();
 const inside = (root, file) => { const rel = path.relative(root, file); return rel === "" || (rel !== ".." && !rel.startsWith(".." + path.sep) && !path.isAbsolute(rel)); };
 const overlaps = (a, b) => inside(a, b) || inside(b, a);
-function serializeDeploymentManifest(manifest) {
-  // Lifecycle close reads this exact evidence through the native registry bound.
-  const bytes = Buffer.from(JSON.stringify(manifest) + "\n");
-  if (bytes.length > 16 * 1024 * 1024) throw Error(`Deployment manifest evidence exceeds 16 MiB registry bound: ${bytes.length} bytes`);
-  return bytes;
-}
 function checked(root, value) {
   if (typeof value !== "string" || !path.isAbsolute(value) || value.includes("\0") || value.split(/[\\/]/).includes("..")) throw Error("Absolute deployment path without traversal required");
   const result = path.resolve(value);
@@ -108,6 +103,7 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
   if (!runRecord || runRecord.owner !== owner || runRecord.kind !== "run" || runRecord.producer || runRecord.state !== "pending") throw Error("Active caller run with exact owner required");
   if (!runRecord.members.some(member => member.role === "reports" && inside(member.path, reportPath))) throw Error("Report path must be owned by caller reports");
   if (fs.existsSync(reportPath)) throw Error("Fresh deployment report required");
+  timings.manifestPreflight = preflightDeploymentManifest(reportPath, committed);
   for (const root of [inputRoot, workingRoot]) if (records.some(record => record.members.some(member => overlaps(root, member.path)))) throw Error("Deployment root already claimed");
   exactRepository(projectRoot);
   const sourceSnapshotStarted = performance.now();
@@ -206,7 +202,7 @@ async function prepareDeploymentWorkspace({ projectRoot, artifactProjectRoot = p
       reason: "Lifecycle member guards exclude .git; retain this small structural gitfile until a supported control-file retirement owner exists" },
     timings: { ...timings, immutableGitPreparationMs, workingGitPreparationMs, preparationMs: performance.now() - started } };
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-  fs.writeFileSync(reportPath, serializeDeploymentManifest(manifest), { flag: "wx" });
+  writeDeploymentManifest(reportPath, manifest);
   const manifestSha256 = hash(reportPath);
   inputRecord = lifecycle.closeLifecycle(artifactProjectRoot, inputLifecycleId, { owner, expected_revision: inputRecord.revision, producer_stopped_verified: true, outcome: "success", exit_code: 0,
     reason: "Immutable deployment input preparation completed", evidence_ref: reportPath, evidence_sha256: manifestSha256 });
@@ -216,7 +212,7 @@ async function verifyDeploymentWorkspace(context) {
   const { artifactProjectRoot, inputRoot, workingRoot, reportPath, manifestSha256 } = context;
   checked(artifactProjectRoot, inputRoot); checked(artifactProjectRoot, workingRoot); checked(artifactProjectRoot, reportPath);
   if (hash(reportPath) !== manifestSha256) throw Error("Deployment input manifest changed");
-  const manifest = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  const manifest = readDeploymentManifest(reportPath, manifestSha256);
   const moduleCacheProjectRoot = verifyModuleCacheOwner(manifest, context);
   if (manifest.schema === 2 && manifest.inputKind === "script-delta") return verifyDerivedDeploymentWorkspace(context, manifest);
   if (manifest.schema !== 1) throw Error("Unsupported deployment input manifest");
@@ -237,6 +233,8 @@ async function verifyDeploymentWorkspace(context) {
   const immutable = await snapshotProject(manifest.immutableProjectRoot), compiled = await snapshotProject(workingRoot);
   if (immutable.sha256 !== manifest.projectSha256 || compiled.sha256 !== manifest.projectSha256) throw Error("Compiled project source differs from immutable inputs");
   if (manifest.engine && (JSON.stringify(engineSnapshot(manifest.immutableProjectRoot, manifest.immutableEngineRoot, manifest.pythonExecutable)) !== JSON.stringify(manifest.engine) || JSON.stringify(engineSnapshot(manifest.immutableProjectRoot, manifest.workingEngineRoot, manifest.pythonExecutable)) !== JSON.stringify(manifest.engine))) throw Error("Compiled engine source differs from immutable inputs");
+  readDeploymentManifest(reportPath, manifestSha256);
+  if (hash(reportPath) !== manifestSha256) throw Error("Deployment input manifest changed during verification");
   return { status: "verified", moduleCacheProjectRoot, projectSha256: immutable.sha256, engine: manifest.engine, inputLifecycleId: manifest.inputLifecycleId, workingLifecycleId: manifest.workingLifecycleId };
 }
 function reuseSelection(options) {
@@ -251,7 +249,7 @@ function reuseSelection(options) {
   const reportPath = checked(artifactProjectRoot, options.reportPath);
   const inputManifestPath = checked(artifactProjectRoot, options.inputManifestPath);
   if (!fs.lstatSync(inputManifestPath).isFile() || hash(inputManifestPath) !== options.inputManifestSha256) throw Error("Original deployment input manifest changed");
-  const manifest = JSON.parse(fs.readFileSync(inputManifestPath, "utf8"));
+  const manifest = readDeploymentManifest(inputManifestPath, options.inputManifestSha256);
   if (manifest.schema !== 1 || manifest.artifactProjectRoot !== artifactProjectRoot || manifest.projectSha256 !== options.expectedProjectSha256) throw Error("Original deployment input selection mismatch");
   verifyModuleCacheOwner(manifest);
   const inputRoot = checked(artifactProjectRoot, manifest.inputRoot);
@@ -296,6 +294,7 @@ async function verifyFrozenSelection(selection) {
   if (snapshot.sha256 !== selection.expectedProjectSha256) throw Error("Immutable project source differs from selected inputs");
   if (manifest.engine && JSON.stringify(engineSnapshot(manifest.immutableProjectRoot, manifest.immutableEngineRoot, manifest.pythonExecutable)) !== JSON.stringify(manifest.engine)) throw Error("Immutable engine source differs from selected inputs");
   if (inventoryTree(inputRoot).sha256 !== before.sha256 || JSON.stringify(rootIdentity(manifest.immutableProjectRoot)) !== JSON.stringify(sourceIdentity) || JSON.stringify(rootIdentity(inputRoot)) !== JSON.stringify(manifest.rootIdentities.input) || hash(selection.inputManifestPath) !== selection.inputManifestSha256) throw Error("Immutable deployment inputs changed during verification");
+  readDeploymentManifest(selection.inputManifestPath, selection.inputManifestSha256);
   return snapshot;
 }
 async function reuseDeploymentInputs(options) {
@@ -337,7 +336,7 @@ async function verifyReusedDeploymentSelection(context, consumeHandoff = false) 
   if (consumeHandoff) verifiedReuseHandoffs.delete(context);
   const reportPath = checked(context.artifactProjectRoot, context.reportPath);
   if (!fs.lstatSync(reportPath).isFile() || hash(reportPath) !== context.manifestSha256) throw Error("Reused deployment reference manifest changed");
-  const reference = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  const reference = readDeploymentManifest(reportPath, context.manifestSha256);
   verifyModuleCacheOwner(reference, context);
   for (const name of ["sourceCommit", "artifactProjectRoot", "owner", "runLifecycleId", "inputManifestPath", "inputManifestSha256", "expectedProjectSha256", "sourceRoot", "immutableProjectRoot", "immutableEngineRoot", "projectSha256", "readOnly", "inputRoot", "inputLifecycleId", "inputManifestLifecycleId", "inputManifestMemberPath", "inputManifestReportsPath"])
     if (reference[name] !== context[name]) throw Error("Reused deployment reference selection mismatch");
@@ -354,6 +353,7 @@ async function verifyReusedDeploymentSelection(context, consumeHandoff = false) 
     ? handoff.snapshot : await verifyFrozenSelection(selection);
   // Verification proves identity and contents; execution/dependency leases belong to the consumer.
   reuseOwners(selection, lifecycle.catalog(selection.artifactProjectRoot), false);
+  readDeploymentManifest(selection.inputManifestPath, selection.inputManifestSha256);
   if (hash(reportPath) !== context.manifestSha256 || JSON.stringify(rootIdentity(reference.sourceRoot)) !== JSON.stringify(reference.rootIdentities.source)) throw Error("Reused deployment reference changed during verification");
   return { selection, reference, snapshot };
 }
@@ -426,7 +426,7 @@ async function resolveDeploymentModuleCacheOwner({ manifestPath, manifestSha256,
     checked(path.parse(value).root, value);
   }
   if (hash(manifestPath) !== manifestSha256) throw Error('Deployment input manifest changed');
-  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const manifest = readDeploymentManifest(manifestPath, manifestSha256);
   if (manifest.readOnly || typeof manifest.workingRoot !== 'string') throw Error('Writable deployment workspace required');
   if (fs.realpathSync(manifest.workingRoot) !== fs.realpathSync(projectRoot)) throw Error('Deployment execution project differs from selected working root');
   const verified = await verifyDeploymentWorkspace({ ...manifest, reportPath: manifestPath, manifestSha256 });

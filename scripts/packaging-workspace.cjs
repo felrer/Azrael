@@ -14,7 +14,7 @@ const digest = value => crypto.createHash("sha256").update(JSON.stringify(value)
 const MINIMUM = ["scripts/prepare-app-release.ps1", "scripts/package-app-release.py", "scripts/install-app-release.ps1", "scripts/azrael-app-release.json", "scripts/packaging-workspace.cjs", "LICENSE", "engine/LICENSE", "engine/NOTICE"];
 // Reviewed verifier closure, including the worker runtime entry. Literal local
 // imports are checked against this boundary; dynamic imports fail closed.
-const MODULES = ["packaging-workspace", "deployment-workspace", "deployment-control-retirement", "deployment-control-retirement-native", "lifecycle-empty-publication-recovery", "artifact-lifecycle", "artifact-observations", "artifact-run", "maintenance-lock-owner", "maintenance-preferences", "maintenance-owner-config", "maintenance-lock-worker", "freeze-platform-inputs", "capture-project-inputs", "deployment-input-snapshot"].map(n => `scripts/${n}.cjs`);
+const MODULES = ["packaging-workspace", "deployment-workspace", "deployment-manifest", "committed-project-inputs", "deployment-control-retirement", "deployment-control-retirement-native", "lifecycle-empty-publication-recovery", "artifact-lifecycle", "artifact-observations", "artifact-run", "maintenance-lock-owner", "maintenance-preferences", "maintenance-owner-config", "maintenance-lock-worker", "freeze-platform-inputs", "capture-project-inputs", "deployment-input-snapshot"].map(n => `scripts/${n}.cjs`);
 const ALLOWED = new Set([...MINIMUM, ...MODULES]);
 function checked(root, value) {
   if (typeof value !== "string" || !path.isAbsolute(value) || value.includes("\0") || value.split(/[\\/]/).includes("..")) throw Error("Absolute contained packaging path required");

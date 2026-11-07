@@ -49,8 +49,8 @@ async function main() {
   const projectRoot = path.join(fixture, "project"); repository(projectRoot);
   fs.mkdirSync(path.join(projectRoot, "scripts"));
   // The fixture baseline contains the actual consumer/verifier source closure.
-  for (const name of ["prepare-app-release.ps1", "package-app-release.py", "install-app-release.ps1", "azrael-app-release.json", "engine-provenance.py", "import-engine-source.py", "azrael-platforms.json",
-    ...["packaging-workspace", "deployment-workspace", "deployment-control-retirement", "deployment-control-retirement-native", "lifecycle-empty-publication-recovery", "artifact-lifecycle", "artifact-observations", "artifact-run", "maintenance-lock-owner", "maintenance-preferences", "maintenance-owner-config", "maintenance-lock-worker", "freeze-platform-inputs", "capture-project-inputs", "deployment-input-snapshot"].map(n => n + ".cjs")]) fs.copyFileSync(path.join(__dirname, name), path.join(projectRoot, "scripts", name));
+  for (const name of ["prepare-app-release.ps1", "package-app-release.py", "install-app-release.ps1", "azrael-app-release.json", "engine-provenance.py", "import-engine-source.py", "engine-native-materialization.py", "azrael-platforms.json",
+    ...["packaging-workspace", "deployment-workspace", "deployment-manifest", "committed-project-inputs", "deployment-control-retirement", "deployment-control-retirement-native", "lifecycle-empty-publication-recovery", "artifact-lifecycle", "artifact-observations", "artifact-run", "maintenance-lock-owner", "maintenance-preferences", "maintenance-owner-config", "maintenance-lock-worker", "freeze-platform-inputs", "capture-project-inputs", "deployment-input-snapshot"].map(n => n + ".cjs")]) fs.copyFileSync(path.join(__dirname, name), path.join(projectRoot, "scripts", name));
   bootstrapFixtureMaintenance(projectRoot);
   const configuration = JSON.parse(fs.readFileSync(path.join(projectRoot, "scripts/azrael-app-release.json"), "utf8")); configuration.version = "2026.0.0";
   fs.writeFileSync(path.join(projectRoot, "scripts/azrael-app-release.json"), JSON.stringify(configuration));
@@ -63,9 +63,10 @@ async function main() {
   git(engineSource, "add", "."); git(engineSource, "commit", "--quiet", "-m", "engine source"); git(engineSource, "remote", "add", "origin", "https://github.com/openai/codex.git"); git(engineSource, "tag", "rust-v0.159.3");
   const engine = path.join(projectRoot, "engine");
   execute(python, ["-B", path.join(__dirname, "import-engine-source.py"), "--source", engineSource, "--destination", engine, "--allow-source-advance"]);
+  const engineSourceSha256 = JSON.parse(execute(python, ["-B", "-c", "import importlib.util,json,sys; s=importlib.util.spec_from_file_location('deployment_engine_provenance',sys.argv[1]); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(json.dumps(m.snapshot(sys.argv[2]),sort_keys=True))", path.join(projectRoot, "scripts/engine-provenance.py"), engine])).sourceSha256;
   const run = beginArtifactRun(projectRoot, { owner: "packaging-workspace-test", workId: "packaging", runId: "controller", requireStopEvidence: true });
   process.removeListener("exit", run.onExit);
-  const frozen = await prepareDeploymentWorkspace({ projectRoot, inputRoot: path.join(projectRoot, "artifacts/inputs/full"), workingRoot: path.join(projectRoot, "artifacts/workspaces/full"), owner: run.owner, runLifecycleId: run.lifecycleId, reportPath: path.join(run.reports, "full.json"), engineSourceRoot: engine, pythonExecutable: python });
+  const frozen = await prepareDeploymentWorkspace({ projectRoot, inputRoot: path.join(projectRoot, "artifacts/inputs/full"), workingRoot: path.join(projectRoot, "artifacts/workspaces/full"), owner: run.owner, runLifecycleId: run.lifecycleId, reportPath: path.join(run.reports, "full.json"), engineSourceRoot: engine, engineSourceSha256, pythonExecutable: python });
   const reused = await reuseDeploymentInputs({ artifactProjectRoot: projectRoot, owner: run.owner, runLifecycleId: run.lifecycleId, reportPath: path.join(run.reports, "reuse.json"), inputManifestPath: frozen.reportPath, inputManifestSha256: frozen.manifestSha256, expectedProjectSha256: frozen.projectSha256 });
   const baselineBefore = inventoryTree(frozen.inputRoot).sha256;
   const options = { sourceInputs: reused, inputRoot: path.join(projectRoot, "artifacts/inputs/compact"), reportPath: path.join(run.reports, "compact.json") };

@@ -324,6 +324,8 @@ Cargo 검증 호출자는 선택적으로 `AZRAEL_CARGO_CACHE_SCOPE`를 지정�
 
 ### 생성물 소유와 삭제 검토
 
+신규 배포 manifest의 상세 분할 저장과 인증된 복원은 [배포 manifest 계약](upstream-preservation.md#deployment-manifest-details)을 따른다. 분할 파일은 원본 manifest와 같은 reports 소유 경계에 두며 원본 보고서 member를 보호하는 재사용 참조가 함께 보호한다. 분할 목록만 독립적으로 제거하거나 실행 중인 이전 manifest를 재작성하지 않는다.
+
 생성물의 기본 소유 단위는 작업/실행, 버전, 공유 캐시다. 각 파일은 한 소유 단위에 속하며 다른 작업의 사용은 명시적 소비 참조로 표현한다. 신규 프로젝트와 단계적 이전의 기본 구조는 `artifacts/tasks/<work-id>/runs/<run-id>/{inputs,temporary,outputs,logs,reports}`, `artifacts/versions/<product-version+unique-build-id>/{payload,verification}`, `artifacts/shared/<cache-kind>/<content-key>`다. 동일 제품 버전도 빌드 ID로 구별한다. 원시 로그는 생성 실행에 두고, 보존할 버전에 필요한 검증 근거만 독립적으로 읽을 수 있게 버전 소유로 승격하고 참조를 전환한다. [수명주기와 마이그레이션 playbook](../playbooks/artifact-lifecycle.md)이 도입 절차를 소유한다.
 
 Windows 배포의 신규 입력 준비는 `deployment-workspace.cjs`가 기존 capture/snapshot과 독립 Git 메타데이터를 재사용한다. `artifacts/inputs/<id>`의 불변 입력은 별도 그룹이며 실행은 이를 참조한다. `artifacts/workspaces/<id>`는 컨테이너이고 소스 최상위 항목과 `control/`만 작업 그룹이 소유한다. 하위 `artifacts/`의 버전·캐시·검증 산출물은 각 생성자가 소유한다. 컴파일 전후에 불변 전체 inventory와 두 소스 snapshot을 비교한다. 패키지는 선택적인 `RetainedSourceRoot`를 받아 빌드 영수증과 보존 소스를 복사 전후에 검증하고, 최종 `build-info.engineSourceRoot`에 보존 경로를 기록한다. 컴파일과 native 검사는 가변 작업 사본을 사용하며 preflight와 최종 검사 입력 경로를 동일하게 유지한다. Windows의 루트 `.git` gitfile은 내용과 물리 위치를 검증하는 보호된 제어 근거로 남기며 컨테이너 전체 삭제를 주장하지 않는다. 엔진은 출처 영수증이 있는 imported snapshot만 지원하고, 모호한 Git 엔진 입력은 거절한다.
