@@ -470,6 +470,25 @@ test("selected set scopes preview while existing avatar assignments retain all p
   assert(treeNodes(savingMenu).filter(n => n.type === h.native.AzraelPhotoMenu.RadioItem).every(n => n.props.disabled));
 });
 
+test("Scientists builtin label follows locale in trigger and menu without renaming custom sets or saved IDs", () => {
+  const base = { ...loadedDesignState(), selectedPhotoSetId: "scientists", photoSets: [
+    { id: "blue-archive", name: "Students" }, { id: "scientists", name: "Scientists" }, { id: "custom", name: "Scientists" },
+  ] };
+  const h = settingsHarness(base);
+  for (const [locale, expected] of [["ko-KR", "과학자"], ["en-US", "Scientists"], ["ko_KR", "과학자"], ["KO", "과학자"]]) {
+    const tree = h.setLocale(locale), menu = settingsControls(h, tree).imageSet;
+    const trigger = findNode(menu, n => n.props?.["data-azrael-photo-set-trigger"]);
+    assert.equal(findNode(trigger, n => n.type === "span").props.children, expected);
+    const items = treeNodes(menu).filter(n => n.type === h.native.AzraelPhotoMenu.RadioItem);
+    assert.deepEqual(items.map(n => n.props.value), ["blue-archive", "scientists", "custom"]);
+    assert.deepEqual(items.map(n => findNode(n, child => child.type === "span").props.children), ["Students", expected, "Scientists"]);
+  }
+  assert.equal(base.selectedPhotoSetId, "scientists");
+  assert.equal(base.photoSets[1].name, "Scientists");
+  assert.deepEqual(h.calls, []);
+  assert.deepEqual(base.assignments, { existing: "a" });
+});
+
 test("font choice uses native segmented control, translated labels and saving lock", () => {
   const h = settingsHarness(loadedDesignState());
   let choice = settingsControls(h, h.render()).font;

@@ -30,7 +30,7 @@ const moduleSource=`import {nLt,$At,XAt,Pc as AzraelPhotoMenu,Fc as initAzraelPh
 import {ti as kt,ri as initNativePage,W3 as AzraelSettingsCard,G3 as initAzraelSettingsCard,Q3 as AzraelSettingsRow,t6 as initAzraelSettingsRow} from '/assets/app-initial-c014f9ee4429.js';
 import {l9 as AzraelSwitch,d9 as initAzraelSwitch,ZIt as pe,$It as initNativeButton,Wp as AzraelFontChoice,Gp as initAzraelFontChoice} from '/assets/app-initial-7a199c66e670.js';
 const Q=nLt(),$=$At(),ReactDOM=XAt();
-const s=()=>({locale:'en'});
+const s=()=>({locale:window.fixtureLocale??'en'});
 ${azraelSettingsText.toString()}
 ${pickStudentPreview.toString()}
 ${createDesignStore.toString()}
@@ -42,7 +42,7 @@ const azraelDesignStore=createDesignStore(bridge,'fixture');window.actualStore=a
 function useAzraelDesignState(){return Q.useSyncExternalStore(azraelDesignStore.subscribe,azraelDesignStore.getSnapshot)}
 ${AzraelDesignSettings.toString()}
 function Fixture(){initNativePage();initNativeButton();return $.jsx(AzraelDesignSettings,{})}
-window.reactRoot=ReactDOM.createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;
+window.reactRoot=ReactDOM.createRoot(document.getElementById('root'));window.renderFixture=()=>reactRoot.render($.jsx(Fixture,{}));renderFixture();window.fixtureReady=true;
 `;
 const httpRequests=[];
 const server=createServer(async(req,res)=>{httpRequests.push(req.url);try{
@@ -98,16 +98,22 @@ try{
   const previousScientist=await evaluate("document.querySelector('img').alt");await click('Draw again');
   await wait("document.querySelector('img')?.complete && document.querySelector('img')?.naturalWidth===256");
   check(theme+' scientist draw excludes previous',await evaluate("document.querySelector('img').alt")!==previousScientist);
+  await evaluate("window.fixtureLocale='ko-KR';renderFixture()");
+  await wait("document.querySelector('[data-azrael-photo-set-trigger]').textContent==='과학자'");
+  check(theme+' scientist trigger translated',await evaluate("actualStore.getSnapshot().selectedPhotoSetId==='scientists'"));
   summary[theme]=await evaluate("({background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.querySelector('h1')).color,overflow:document.documentElement.scrollWidth>innerWidth})");check(theme+' page has no horizontal overflow',!summary[theme].overflow);
   await writeFile(join(logs,theme+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   await evaluate("document.querySelector('[data-azrael-photo-set-trigger]').focus()");
   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
   await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
   await wait("!!document.querySelector('[role=menuitemradio]')");
+  check(theme+' scientist menu translated',await evaluate("[...document.querySelectorAll('[role=menuitemradio]')].some(item=>item.textContent==='과학자')"));
   await writeFile(join(logs,theme+'-menu.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
   await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
   await wait("!document.querySelector('[role=menuitemradio]')");
+  await evaluate("window.fixtureLocale='en-US';renderFixture()");
+  await wait("document.querySelector('[data-azrael-photo-set-trigger]').textContent==='Scientists'");
  }
  check('themes differ',summary.light.color!==summary.dark.color);
  await click('Add image set');await wait("document.querySelector('img')?.alt==='Imported Cat'");check('import selects new set',await evaluate("actualStore.getSnapshot().selectedPhotoSetId==='imported'"));

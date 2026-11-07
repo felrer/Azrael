@@ -77,6 +77,7 @@ function AzraelDesignSettings() {
   initAzraelPhotoMenu();
   const locale = s().locale;
   const t = (english, korean) => azraelSettingsText(locale, english, korean);
+  const photoSetName = set => set?.id === "scientists" ? t("Scientists", "과학자") : set?.name ?? t("Loading…", "불러오는 중…");
   const state = useAzraelDesignState();
   const [previewId, setPreviewId] = Q.useState(null);
   const [failedId, setFailedId] = Q.useState(null);
@@ -115,14 +116,14 @@ function AzraelDesignSettings() {
             (0, $.jsx)(AzraelPhotoMenu.Trigger, { disabled: busy || !state.photoSets.length, children:
               (0, $.jsxs)(pe, { ...ariaProps, color: "secondary", size: "default", disabled: busy || !state.photoSets.length,
                 className: "max-w-full min-w-0", "data-azrael-photo-set-trigger": true, children: [
-                  (0, $.jsx)("span", { className: "min-w-0 truncate", children: state.photoSets.find(set => set.id === state.selectedPhotoSetId)?.name ?? t("Loading…", "불러오는 중…") }),
+                  (0, $.jsx)("span", { className: "min-w-0 truncate", children: photoSetName(state.photoSets.find(set => set.id === state.selectedPhotoSetId)) }),
                   (0, $.jsx)("svg", { width: 16, height: 16, viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: 1.5,
                     className: "shrink-0", "aria-hidden": true, children: (0, $.jsx)("path", { d: "m4 6 4 4 4-4", strokeLinecap: "round", strokeLinejoin: "round" }) })
                 ] }) }),
             (0, $.jsx)(AzraelPhotoMenu.Content, { align: "end", maxHeight: 320, children:
               (0, $.jsx)(AzraelPhotoMenu.RadioGroup, { value: state.selectedPhotoSetId, onChange: value => azraelDesignStore.setPhotoSet(value), children:
                 state.photoSets.map(set => (0, $.jsx)(AzraelPhotoMenu.RadioItem, { value: set.id, disabled: busy, indicatorVariant: "checkmark",
-                  children: (0, $.jsx)("span", { className: "min-w-0 truncate", children: set.name }) }, set.id)) }) })
+                  children: (0, $.jsx)("span", { className: "min-w-0 truncate", children: photoSetName(set) }) }, set.id)) }) })
           ] })
         }) }),
         (0, $.jsxs)("div", { className: "flex flex-wrap items-center gap-3", children: [
