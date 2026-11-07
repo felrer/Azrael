@@ -830,6 +830,15 @@ test("failed producer retains its whole pending identity and append-only members
 
 test("build producer records all planned members before first output creation fails", async t => {
   const { root, at } = fixture(t);
+  // The build selector requires a committed project before it can reach the output collision.
+  const git = (...args) => {
+    const result = require("node:child_process").spawnSync("git", ["-C", root, ...args], { encoding: "utf8", windowsHide: true });
+    assert.equal(result.status, 0, result.error?.message || result.stderr);
+  };
+  git("init", "--quiet");
+  const hooks = path.join(root, ".git", "empty-hooks"); fs.mkdirSync(hooks);
+  git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "-c", "core.hooksPath=" + hooks,
+    "commit", "--allow-empty", "--quiet", "-m", "Committed build fixture");
   fs.mkdirSync(at("logs/multi-platform"), { recursive: true });
   fs.writeFileSync(at("logs/multi-platform/build"), "directory collision prevents any process execution");
   fs.mkdirSync(at("cache/cargo"), { recursive: true });
