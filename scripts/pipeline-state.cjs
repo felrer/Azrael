@@ -18,18 +18,30 @@ function measure(file) {
 }
 
 // The caller holds its existing long-lived exclusive owner lease. The short
-// metadata update lock below only serializes authorized parent/child writes;
+// metadata update lock below serializes authorized parent/child reads and writes;
 // neither lock permits stale-owner recovery here. The state file, its sibling
 // update-lock and atomic temporary files belong to the caller's output owner.
+function withPipelineStateLock(file, operation) {
+  const lock = `${file}.update-lock`;
+  let descriptor;
+  const deadline = Date.now() + 5000;
+  while (descriptor === undefined) {
+    try { descriptor = fs.openSync(lock, 'wx'); }
+    catch (error) {
+      if (error.code !== 'EEXIST' || Date.now() >= deadline) throw Error(`Pipeline state update lock is unavailable; preserve unresolved ownership: ${lock}`, {cause: error});
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10);
+    }
+  }
+  try { return operation(); }
+  finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
+}
 function openPipelineState({file, identity, resume = false, lockHeld = false, reuseDecisionsPath}) {
   if (!lockHeld) throw Error('Pipeline state requires the caller\'s exclusive owner lease.');
   file = path.resolve(file);
   const decisions = loadDecisions(reuseDecisionsPath);
-  const exists = fs.existsSync(file);
-  if (exists && !resume) throw Error('Pipeline state already exists; explicit resume is required.');
-  if (!exists && resume) throw Error('Resume requires an existing pipeline state.');
-  let state = exists ? JSON.parse(fs.readFileSync(file, 'utf8')) : {schema: 1, identity: canonical(identity), stages: {}};
-  if (state.schema !== 1 || key(state.identity) !== key(identity)) throw Error('Pipeline identity changed; select a new frozen work identity.');
+  if (resume && !fs.existsSync(file)) throw Error('Resume requires an existing pipeline state.');
+  if (!resume) fs.mkdirSync(path.dirname(file), {recursive: true});
+  let state;
   const save = () => {
     fs.mkdirSync(path.dirname(file), {recursive: true});
     const temporary = `${file}.tmp`;
@@ -42,7 +54,14 @@ function openPipelineState({file, identity, resume = false, lockHeld = false, re
       fs.renameSync(temporary, file);
     } finally { if (created && fs.existsSync(temporary)) fs.unlinkSync(temporary); }
   };
-  if (!exists) save();
+  withPipelineStateLock(file, () => {
+    const exists = fs.existsSync(file);
+    if (exists && !resume) throw Error('Pipeline state already exists; explicit resume is required.');
+    if (!exists && resume) throw Error('Resume requires an existing pipeline state.');
+    state = exists ? JSON.parse(fs.readFileSync(file, 'utf8')) : {schema: 1, identity: canonical(identity), stages: {}};
+    if (state.schema !== 1 || key(state.identity) !== key(identity)) throw Error('Pipeline identity changed; select a new frozen work identity.');
+    if (!exists) save();
+  });
   const refresh = () => {
     state = JSON.parse(fs.readFileSync(file, 'utf8'));
     if (state.schema !== 1 || key(state.identity) !== key(identity)) throw Error('Pipeline identity changed during observation.');
@@ -51,20 +70,10 @@ function openPipelineState({file, identity, resume = false, lockHeld = false, re
     // A deployment parent and its build child share the long-lived work lease.
     // Serialize their short metadata updates and reload after acquisition so
     // neither can overwrite a concurrently completed independent stage.
-    const lock = `${file}.update-lock`;
-    let descriptor;
-    const deadline = Date.now() + 5000;
-    while (descriptor === undefined) {
-      try { descriptor = fs.openSync(lock, 'wx'); }
-      catch (error) {
-        if (error.code !== 'EEXIST' || Date.now() >= deadline) throw Error(`Pipeline state update lock is unavailable; preserve unresolved ownership: ${lock}`, {cause: error});
-        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10);
-      }
-    }
-    try {
+    return withPipelineStateLock(file, () => {
       refresh();
       return operation();
-    } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
+    });
   }
   function current(name) { return state.stages[name]?.at(-1); }
   function recoveryEvidence(request) {
@@ -183,7 +192,7 @@ function openPipelineState({file, identity, resume = false, lockHeld = false, re
       save(); return structuredClone(record);
       });
     },
-    get snapshot() { refresh(); return structuredClone(state); },
+    get snapshot() { return update(() => structuredClone(state)); },
   };
 }
 module.exports = {openPipelineState};

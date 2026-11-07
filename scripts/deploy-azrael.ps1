@@ -397,6 +397,37 @@ function Invoke-Stage {
     $child = Start-OwnedCommand $Name $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot $Script)) + $Arguments)
     Wait-OwnedCommands @($child)
 }
+function Read-DeploymentCheckpoint {
+    param([string]$Path)
+    # Use the writer's exclusive-create lock: Windows replacement can fail even
+    # when a destination reader grants delete sharing.
+    $lockPath = "$Path.update-lock"
+    $lock = $null
+    $deadline = [DateTime]::UtcNow.AddSeconds(5)
+    while ($null -eq $lock) {
+        try { $lock = [System.IO.FileStream]::new($lockPath, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::ReadWrite, ([System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete)) }
+        catch [System.IO.IOException] {
+            $code = $_.Exception.HResult -band 0xffff
+            if ($code -notin @(80, 183) -or [DateTime]::UtcNow -ge $deadline) {
+                throw [System.IO.IOException]::new("Pipeline state update lock is unavailable; preserve unresolved ownership: $lockPath", $_.Exception)
+            }
+            Start-Sleep -Milliseconds 10
+        }
+    }
+    try {
+        $stream = [System.IO.FileStream]::new($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, ([System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete))
+        $reader = $null
+        try {
+            $reader = [System.IO.StreamReader]::new($stream)
+            $reader.ReadToEnd() | ConvertFrom-Json
+        } finally {
+            if ($null -ne $reader) { $reader.Dispose() } else { $stream.Dispose() }
+        }
+    } finally {
+        $lock.Dispose()
+        [System.IO.File]::Delete($lockPath)
+    }
+}
 function Wait-BuildEngineReady($Build) {
     # The build publishes this stage only after provenance and real engine/host
     # IPC pass. Heavy source regression can then overlap packaging without
@@ -407,7 +438,7 @@ function Wait-BuildEngineReady($Build) {
             if ($Build.Record.exitCode -ne 0) { throw "Build failed with exit code $($Build.Record.exitCode). See $($Build.Record.stderr)." }
             return
         }
-        $checkpoint=Get-Content -LiteralPath $pipelineFile -Raw | ConvertFrom-Json
+        $checkpoint=Read-DeploymentCheckpoint $pipelineFile
         if ($checkpoint.stages.PSObject.Properties['build.engine-ready']) {
             $ready=@($checkpoint.stages.'build.engine-ready')[-1]
             if ($ready.status -eq 'succeeded' -and $ready.data.processId -eq $Build.Process.Id) { return }

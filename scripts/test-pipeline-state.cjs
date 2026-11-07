@@ -146,6 +146,25 @@ function check(root) {
   buildChild.finish('build-child', {exitCode: 0});
   assert.equal(pipeline.snapshot.stages['parent-observation'][0].exitCode, 0);
   assert.equal(pipeline.snapshot.stages['build-child'][0].exitCode, 0);
+  // Later reader entry points must not bypass the atomic publisher's lock.
+  const observationLock = `${file}.update-lock`;
+  fs.writeFileSync(observationLock, 'occupied owner', {flag: 'wx'});
+  try {
+    assert.throws(() => pipeline.snapshot, /update lock is unavailable/);
+    assert.throws(() => open(true), /update lock is unavailable/);
+    assert.equal(fs.readFileSync(observationLock, 'utf8'), 'occupied owner');
+  } finally { fs.unlinkSync(observationLock); }
+  const intactState = fs.readFileSync(file, 'utf8');
+  fs.writeFileSync(file, '{invalid');
+  assert.throws(() => pipeline.snapshot, SyntaxError);
+  assert.equal(fs.existsSync(observationLock), false);
+  assert.throws(() => open(true), SyntaxError);
+  assert.equal(fs.existsSync(observationLock), false);
+  fs.unlinkSync(file);
+  assert.throws(() => pipeline.snapshot, /ENOENT/);
+  assert.equal(fs.existsSync(observationLock), false);
+  assert.throws(() => open(true), /Resume requires/);
+  fs.writeFileSync(file, intactState);
   fs.writeFileSync(`${file}.tmp`, 'unresolved prior atomic write', {flag: 'wx'});
   assert.throws(() => pipeline.start('stale-temp'), /EEXIST/);
   assert.equal(fs.readFileSync(`${file}.tmp`, 'utf8'), 'unresolved prior atomic write');
