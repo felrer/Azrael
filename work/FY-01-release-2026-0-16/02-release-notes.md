@@ -1,6 +1,10 @@
-﻿# Azrael 2026.0.16 — Windows x64
+# Azrael 2026.0.16 — Windows x64 (pre-release candidate)
 
-Verified local build: `win016-ez01-paint-r8-20261102`. This release packages the existing 2026.0.16 engine and integrated VS Code host; it does not include the later 2026.0.17 or 2026.0.18 work.
+Existing local build: `win016-ez01-paint-r8-20261102`. This release packages the existing 2026.0.16 engine and integrated VS Code host; it does not include the later 2026.0.17 or 2026.0.18 work.
+
+## Verification status
+
+Normal startup acceptance did not pass in the publication environment. Engine endpoint discovery succeeded directly but took 37.4 and 37.3 seconds, exceeding this host's 10-second discovery timeout. Host checks failed on VS Code 1.145.2 and 1.138.0. This candidate is not certified for normal operation and may fail to connect at startup. Archive integrity, relocation preparation and isolated VSIX installation passed; these do not establish working host startup.
 
 ## Installation
 
@@ -17,4 +21,3 @@ Download `Azrael-2026.0.16-windows-x64.zip`, verify it against `SHA256SUMS.txt`,
 ## Provenance
 
 The GitHub tag identifies existing repository commit `e9bbdc4441abbf1975a6c8019240a96c5e88b4eb`; it is not a claim that all binary source bytes are represented by that commit. `release-manifest.json` records the exact build fingerprint and binary hashes. The original verified host VSIX SHA-256 is `31f709fe57d95083f04395903fb624a6c4fee8f213ad583b3b957c781d52f7da`.
-
