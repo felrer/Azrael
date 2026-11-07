@@ -792,6 +792,58 @@
         "evidence": [],
         "verification": null
       }
+    },
+    "pr:56163": {
+      "id": "pr:56163",
+      "kind": "pr",
+      "number": 56163,
+      "title": "Enable reasoning effort overrides by default",
+      "url": "https://github.com/openai/codex/pull/56163",
+      "mergeCommit": "2f3fb111be71d277c80bd5b96d9019748b921f5a",
+      "commits": [
+        "2f3fb111be71d277c80bd5b96d9019748b921f5a"
+      ],
+      "decision": {
+        "status": "selected",
+        "reason": "User explicitly approved backporting #56163 to Azrael; stable and default-on reasoning effort overrides preserve explicit disable and existing capability gates.",
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/review-decision-06.json",
+            "gitCommit": "d8089553f2c3444a73842ee30959f757b87a89e7",
+            "sha256": "ac0608e4bcbe20bab7412d2893d679b2b3c5a62579321f34cd26f83bff428dcf"
+          }
+        ],
+        "dependsOn": [],
+        "retryWhen": null
+      },
+      "implementation": {
+        "status": "verified",
+        "localCommits": [
+          "d8089553f2c3444a73842ee30959f757b87a89e7"
+        ],
+        "featureIds": [
+          "engine.selected-upstream"
+        ],
+        "evidence": [
+          {
+            "path": "work/DO-01-codex-version-comparison/verification-06.json",
+            "gitCommit": "d8089553f2c3444a73842ee30959f757b87a89e7",
+            "sha256": "37f3b0150fbee06263b1702854b56d8ec1d5ba30155db42fa5661ca5d343dc74"
+          }
+        ],
+        "verification": {
+          "evidence": {
+            "path": "work/DO-01-codex-version-comparison/verification-06.json",
+            "gitCommit": "d8089553f2c3444a73842ee30959f757b87a89e7",
+            "sha256": "37f3b0150fbee06263b1702854b56d8ec1d5ba30155db42fa5661ca5d343dc74"
+          },
+          "platform": "windows-x64",
+          "scope": "native",
+          "exitCode": 0,
+          "sourceIdentity": "1650fc1e6d39583eec7a4d5bb3b96c119571a32181a417669b66914dc4a77e5c",
+          "summary": "44 codex-features lib tests passed on registered baseline plus this selective backport and prior #56081. Covers stable/default-on and explicit disable. Core integration/snapshot execution, live model requests, installed product and other OS are not verified."
+        }
+      }
     }
   },
   "ranges": []
