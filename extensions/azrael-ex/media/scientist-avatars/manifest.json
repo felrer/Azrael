@@ -1,0 +1,1205 @@
+{
+    "schemaVersion":  1,
+    "photos":  [
+                   {
+                       "id":  "scientists:albert-einstein",
+                       "nameKo":  "알베르트 아인슈타인",
+                       "nameEn":  "Albert Einstein",
+                       "school":  "물리학",
+                       "asset":  "albert-einstein.jpg",
+                       "assetSHA256":  "217a712ab29160072e99466fbe978aff75069a210df2ec6724fa390a91b8cf65"
+                   },
+                   {
+                       "id":  "scientists:marie-curie",
+                       "nameKo":  "마리 퀴리",
+                       "nameEn":  "Marie Curie",
+                       "school":  "화학·물리학",
+                       "asset":  "marie-curie.jpg",
+                       "assetSHA256":  "dea57cc5bb207396d3b6f3a974e6af43d6b6f239d997becd31f32776116bb114"
+                   },
+                   {
+                       "id":  "scientists:alan-turing",
+                       "nameKo":  "앨런 튜링",
+                       "nameEn":  "Alan Turing",
+                       "school":  "컴퓨터과학",
+                       "asset":  "alan-turing.jpg",
+                       "assetSHA256":  "c293f185b4f75abfde672ad49ce20b485bb22b29b3f20a04b7e1c19923525d61"
+                   },
+                   {
+                       "id":  "scientists:isaac-newton",
+                       "nameKo":  "아이작 뉴턴",
+                       "nameEn":  "Isaac Newton",
+                       "school":  "물리학·수학",
+                       "asset":  "isaac-newton.jpg",
+                       "assetSHA256":  "0d3aabdae65c3326c25c7b3f059cb6c5c14ea49594486a1e13cff8724e7cff9a"
+                   },
+                   {
+                       "id":  "scientists:charles-darwin",
+                       "nameKo":  "찰스 다윈",
+                       "nameEn":  "Charles Darwin",
+                       "school":  "생물학",
+                       "asset":  "charles-darwin.jpg",
+                       "assetSHA256":  "84f95cd16c98bc6d46c2e9c7effd27f137fc1e8f2ba8bee1c863540c2a14e37f"
+                   },
+                   {
+                       "id":  "scientists:michael-faraday",
+                       "nameKo":  "마이클 패러데이",
+                       "nameEn":  "Michael Faraday",
+                       "school":  "물리학",
+                       "asset":  "michael-faraday.jpg",
+                       "assetSHA256":  "0b9d8225222f859fdfba594f9d7e65b545be45e2791134e773f9984afb307143"
+                   },
+                   {
+                       "id":  "scientists:james-clerk-maxwell",
+                       "nameKo":  "제임스 클러크 맥스웰",
+                       "nameEn":  "James Clerk Maxwell",
+                       "school":  "물리학",
+                       "asset":  "james-clerk-maxwell.jpg",
+                       "assetSHA256":  "e2c23a1952251a475703bbd10ae8c099b70b62a515ef1ad2313ebbf729d01b34"
+                   },
+                   {
+                       "id":  "scientists:max-planck",
+                       "nameKo":  "막스 플랑크",
+                       "nameEn":  "Max Planck",
+                       "school":  "물리학",
+                       "asset":  "max-planck.jpg",
+                       "assetSHA256":  "0f89c5e6d32c98a0c979750deb8cff0ed7eb0112baf07dab3b74fdc33f5bf17f"
+                   },
+                   {
+                       "id":  "scientists:niels-bohr",
+                       "nameKo":  "닐스 보어",
+                       "nameEn":  "Niels Bohr",
+                       "school":  "물리학",
+                       "asset":  "niels-bohr.jpg",
+                       "assetSHA256":  "a9838fb7d08119f484e91abcbcdce21ce50269d8891d0a28e6af4213e0fb79fe"
+                   },
+                   {
+                       "id":  "scientists:richard-feynman",
+                       "nameKo":  "리처드 파인만",
+                       "nameEn":  "Richard Feynman",
+                       "school":  "물리학",
+                       "asset":  "richard-feynman.jpg",
+                       "assetSHA256":  "9bada82d62bf333108bbb59edac8c41b05bc780ad22f6aec45cc3434078439f0"
+                   },
+                   {
+                       "id":  "scientists:ada-lovelace",
+                       "nameKo":  "에이다 러브레이스",
+                       "nameEn":  "Ada Lovelace",
+                       "school":  "수학·컴퓨터과학",
+                       "asset":  "ada-lovelace.jpg",
+                       "assetSHA256":  "bfa06d69e639c084bfb9eb3d10f4a793cd4a14070882a43746589d972c4d7158"
+                   },
+                   {
+                       "id":  "scientists:claude-shannon",
+                       "nameKo":  "클로드 섀넌",
+                       "nameEn":  "Claude Shannon",
+                       "school":  "수학·정보이론",
+                       "asset":  "claude-shannon.jpg",
+                       "assetSHA256":  "2ec42541afa589faf2c0a697bbaa52ff2fa23ff72e1180441fdb6934b5ce69f7"
+                   },
+                   {
+                       "id":  "scientists:emmy-noether",
+                       "nameKo":  "에미 뇌터",
+                       "nameEn":  "Emmy Noether",
+                       "school":  "수학",
+                       "asset":  "emmy-noether.jpg",
+                       "assetSHA256":  "91e70b717b42e53be13d789b0cf36001840d63fdf3fe6b8a4518e6c1cc811c23"
+                   },
+                   {
+                       "id":  "scientists:srinivasa-ramanujan",
+                       "nameKo":  "스리니바사 라마누잔",
+                       "nameEn":  "Srinivasa Ramanujan",
+                       "school":  "수학",
+                       "asset":  "srinivasa-ramanujan.jpg",
+                       "assetSHA256":  "95970945e3160fc751b1a795801ee57504fdf6c316590492dc527899d7f0aee9"
+                   },
+                   {
+                       "id":  "scientists:rosalind-franklin",
+                       "nameKo":  "로절린드 프랭클린",
+                       "nameEn":  "Rosalind Franklin",
+                       "school":  "화학·생물학",
+                       "asset":  "rosalind-franklin.jpg",
+                       "assetSHA256":  "a5b1b0df713758c8ced19c900293fc6fdc3595767aae86f73ba670b4107a13ad"
+                   },
+                   {
+                       "id":  "scientists:barbara-mcclintock",
+                       "nameKo":  "바버라 매클린톡",
+                       "nameEn":  "Barbara McClintock",
+                       "school":  "유전학",
+                       "asset":  "barbara-mcclintock.jpg",
+                       "assetSHA256":  "73be00afd80190b7ad00576fa9482b7c9b7010fd6809c89f49e5bf1f05589560"
+                   },
+                   {
+                       "id":  "scientists:chien-shiung-wu",
+                       "nameKo":  "우젠슝",
+                       "nameEn":  "Chien-Shiung Wu",
+                       "school":  "물리학",
+                       "asset":  "chien-shiung-wu.jpg",
+                       "assetSHA256":  "a7a6808a206343c11f683e2e2146b3c34f52c5c7335b2ab3e1a21d28a05efced"
+                   },
+                   {
+                       "id":  "scientists:katherine-johnson",
+                       "nameKo":  "캐서린 존슨",
+                       "nameEn":  "Katherine Johnson",
+                       "school":  "수학·우주항공",
+                       "asset":  "katherine-johnson.jpg",
+                       "assetSHA256":  "860774a23ce2e26f008439f69c0ae06e873ece70a6ee876909d26052076a9df5"
+                   },
+                   {
+                       "id":  "scientists:vera-rubin",
+                       "nameKo":  "베라 루빈",
+                       "nameEn":  "Vera Rubin",
+                       "school":  "천문학",
+                       "asset":  "vera-rubin.jpg",
+                       "assetSHA256":  "ef4e0256dcfc463a1d34bea972693293de5c6b9b51a2ee411ff3eb56951e2983"
+                   },
+                   {
+                       "id":  "scientists:carl-sagan",
+                       "nameKo":  "칼 세이건",
+                       "nameEn":  "Carl Sagan",
+                       "school":  "천문학",
+                       "asset":  "carl-sagan.jpg",
+                       "assetSHA256":  "3b8e2d69935b96756d9c3dae707e53a1293b35d172dd7f3897f9b5cb374c0277"
+                   },
+                   {
+                       "id":  "scientists:galileo-galilei",
+                       "nameKo":  "갈릴레오 갈릴레이",
+                       "nameEn":  "Galileo Galilei",
+                       "school":  "물리학·천문학",
+                       "asset":  "galileo-galilei.jpg",
+                       "assetSHA256":  "c7c1c538716b6a5621227f532b2fcf01d0382c2fda42ffba58a690a3ca1b6abd"
+                   },
+                   {
+                       "id":  "scientists:johannes-kepler",
+                       "nameKo":  "요하네스 케플러",
+                       "nameEn":  "Johannes Kepler",
+                       "school":  "천문학·수학",
+                       "asset":  "johannes-kepler.jpg",
+                       "assetSHA256":  "cbd20e79a388caf683d58a4cda8ccc3c7aa384262c8b3c462e93c4eca10de2d2"
+                   },
+                   {
+                       "id":  "scientists:nicolaus-copernicus",
+                       "nameKo":  "니콜라우스 코페르니쿠스",
+                       "nameEn":  "Nicolaus Copernicus",
+                       "school":  "천문학",
+                       "asset":  "nicolaus-copernicus.jpg",
+                       "assetSHA256":  "b3c2cfa4e039cf8647d258f3e4e8d5f108ec4f4bdacfc542624a8f25f136f3b6"
+                   },
+                   {
+                       "id":  "scientists:nikola-tesla",
+                       "nameKo":  "니콜라 테슬라",
+                       "nameEn":  "Nikola Tesla",
+                       "school":  "전기공학",
+                       "asset":  "nikola-tesla.jpg",
+                       "assetSHA256":  "7d8416efdb97f4f1a1f6124aed52a3889054cfc53f6d3e6f91190729b51b2597"
+                   },
+                   {
+                       "id":  "scientists:stephen-hawking",
+                       "nameKo":  "스티븐 호킹",
+                       "nameEn":  "Stephen Hawking",
+                       "school":  "물리학",
+                       "asset":  "stephen-hawking.jpg",
+                       "assetSHA256":  "96f2ac49cfdeff31b0111d66cad0350df1e5b2ff0273c571a96e0a46474c7d4f"
+                   },
+                   {
+                       "id":  "scientists:enrico-fermi",
+                       "nameKo":  "엔리코 페르미",
+                       "nameEn":  "Enrico Fermi",
+                       "school":  "물리학",
+                       "asset":  "enrico-fermi.jpg",
+                       "assetSHA256":  "4756f09292b3203a61c33d98af003e00dca0392beda1734bce5056819b67b913"
+                   },
+                   {
+                       "id":  "scientists:paul-dirac",
+                       "nameKo":  "폴 디랙",
+                       "nameEn":  "Paul Dirac",
+                       "school":  "물리학",
+                       "asset":  "paul-dirac.jpg",
+                       "assetSHA256":  "e78dbc7cb04edc26eee0221dfd6e2c5cb07627027d8cf6443f5c8d31894cbb33"
+                   },
+                   {
+                       "id":  "scientists:erwin-schrodinger",
+                       "nameKo":  "에르빈 슈뢰딩거",
+                       "nameEn":  "Erwin Schrödinger",
+                       "school":  "물리학",
+                       "asset":  "erwin-schrodinger.jpg",
+                       "assetSHA256":  "110cf873a341c39a743ff0eca893d29bc51b5f54746b34e634f7f50438a5ef56"
+                   },
+                   {
+                       "id":  "scientists:werner-heisenberg",
+                       "nameKo":  "베르너 하이젠베르크",
+                       "nameEn":  "Werner Heisenberg",
+                       "school":  "물리학",
+                       "asset":  "werner-heisenberg.jpg",
+                       "assetSHA256":  "9f45c18caec4e2c9b6627107f911b85f0a32ae937a98c21b0425709f83168481"
+                   },
+                   {
+                       "id":  "scientists:ludwig-boltzmann",
+                       "nameKo":  "루트비히 볼츠만",
+                       "nameEn":  "Ludwig Boltzmann",
+                       "school":  "물리학",
+                       "asset":  "ludwig-boltzmann.jpg",
+                       "assetSHA256":  "c4a4cfc7388fefd7ed8a519a9d397a7846d87f112dc28164b54f1157361a6f0b"
+                   },
+                   {
+                       "id":  "scientists:leonhard-euler",
+                       "nameKo":  "레온하르트 오일러",
+                       "nameEn":  "Leonhard Euler",
+                       "school":  "수학",
+                       "asset":  "leonhard-euler.jpg",
+                       "assetSHA256":  "586a7af700a9645ef27ffebe2af1e0b3a68a69b4f808f73835deeb3be8d7df00"
+                   },
+                   {
+                       "id":  "scientists:carl-friedrich-gauss",
+                       "nameKo":  "카를 프리드리히 가우스",
+                       "nameEn":  "Carl Friedrich Gauss",
+                       "school":  "수학",
+                       "asset":  "carl-friedrich-gauss.jpg",
+                       "assetSHA256":  "2718ed20cfbba326c81ac348bf513f4ef8968859b3457c4986edf3fb9594bd90"
+                   },
+                   {
+                       "id":  "scientists:david-hilbert",
+                       "nameKo":  "다비트 힐베르트",
+                       "nameEn":  "David Hilbert",
+                       "school":  "수학",
+                       "asset":  "david-hilbert.jpg",
+                       "assetSHA256":  "d63f70270a1dc4962f609f94d93755a06b8fbe4c9b871e06cc6c2ebc4916dcb7"
+                   },
+                   {
+                       "id":  "scientists:henri-poincare",
+                       "nameKo":  "앙리 푸앵카레",
+                       "nameEn":  "Henri Poincaré",
+                       "school":  "수학",
+                       "asset":  "henri-poincare.jpg",
+                       "assetSHA256":  "54032f14feb7c646c83ed188de1d9f0a5ee3d844f6d52d845bdf314d919d3981"
+                   },
+                   {
+                       "id":  "scientists:andrey-kolmogorov",
+                       "nameKo":  "안드레이 콜모고로프",
+                       "nameEn":  "Andrey Kolmogorov",
+                       "school":  "수학",
+                       "asset":  "andrey-kolmogorov.jpg",
+                       "assetSHA256":  "1b7b24d963b4471ac0cc79fc8ca71061a11a1d10e46a80bf060fbf60122e9601"
+                   },
+                   {
+                       "id":  "scientists:grace-hopper",
+                       "nameKo":  "그레이스 호퍼",
+                       "nameEn":  "Grace Hopper",
+                       "school":  "컴퓨터과학",
+                       "asset":  "grace-hopper.jpg",
+                       "assetSHA256":  "3a86767d20a4b2aa46923e0289baacf728170f78f03c1d15a1b144d694fda46f"
+                   },
+                   {
+                       "id":  "scientists:edsger-dijkstra",
+                       "nameKo":  "에츠허르 데이크스트라",
+                       "nameEn":  "Edsger Dijkstra",
+                       "school":  "컴퓨터과학",
+                       "asset":  "edsger-dijkstra.jpg",
+                       "assetSHA256":  "28cfec13f14c373ae4323a77bdf51a3e652f55c11072b832df43b98adac79ae6"
+                   },
+                   {
+                       "id":  "scientists:john-von-neumann",
+                       "nameKo":  "존 폰 노이만",
+                       "nameEn":  "John von Neumann",
+                       "school":  "수학·컴퓨터과학",
+                       "asset":  "john-von-neumann.jpg",
+                       "assetSHA256":  "07d0548de7143cae10adcda5dd1dd566300058f9894bb80bce581e58a0fbee07"
+                   },
+                   {
+                       "id":  "scientists:charles-babbage",
+                       "nameKo":  "찰스 배비지",
+                       "nameEn":  "Charles Babbage",
+                       "school":  "수학·컴퓨터과학",
+                       "asset":  "charles-babbage.jpg",
+                       "assetSHA256":  "0c05143df4fb55a3fe2eeb10fede201e78ac1ef4cbe0974367e54ec0176704c6"
+                   },
+                   {
+                       "id":  "scientists:dmitri-mendeleev",
+                       "nameKo":  "드미트리 멘델레예프",
+                       "nameEn":  "Dmitri Mendeleev",
+                       "school":  "화학",
+                       "asset":  "dmitri-mendeleev.jpg",
+                       "assetSHA256":  "6de227da93d04aa9c1fd5820602e237e5e1fa1a460e1a12d2ffdf32f091ac733"
+                   },
+                   {
+                       "id":  "scientists:antoine-lavoisier",
+                       "nameKo":  "앙투안 라부아지에",
+                       "nameEn":  "Antoine Lavoisier",
+                       "school":  "화학",
+                       "asset":  "antoine-lavoisier.jpg",
+                       "assetSHA256":  "b53fab788972bfbe79fdce7f316103844aa847455a9c0c56f4c4ce6fe0bec1ca"
+                   },
+                   {
+                       "id":  "scientists:louis-pasteur",
+                       "nameKo":  "루이 파스퇴르",
+                       "nameEn":  "Louis Pasteur",
+                       "school":  "화학·미생물학",
+                       "asset":  "louis-pasteur.jpg",
+                       "assetSHA256":  "0204d27863750188a1afaa18a96314cdf3e7ab324b26afe4a9f2ccb72d934df5"
+                   },
+                   {
+                       "id":  "scientists:gregor-mendel",
+                       "nameKo":  "그레고어 멘델",
+                       "nameEn":  "Gregor Mendel",
+                       "school":  "유전학",
+                       "asset":  "gregor-mendel.jpg",
+                       "assetSHA256":  "2f08a3b6025e2914ba076cdec40549c00a0a2f1feb3a7994677b97959cf65c4b"
+                   },
+                   {
+                       "id":  "scientists:alexander-fleming",
+                       "nameKo":  "알렉산더 플레밍",
+                       "nameEn":  "Alexander Fleming",
+                       "school":  "미생물학",
+                       "asset":  "alexander-fleming.jpg",
+                       "assetSHA256":  "32ce8ca566c733c7c637f806b2de397296f9d3db207e7086d59eccf1b29c3bb3"
+                   },
+                   {
+                       "id":  "scientists:dorothy-hodgkin",
+                       "nameKo":  "도로시 호지킨",
+                       "nameEn":  "Dorothy Hodgkin",
+                       "school":  "화학",
+                       "asset":  "dorothy-hodgkin.jpg",
+                       "assetSHA256":  "21bbb89e2209d31f0ac9108a3fc5927e2fb7ecf63f6d2504bd1577d9f24e2969"
+                   },
+                   {
+                       "id":  "scientists:lise-meitner",
+                       "nameKo":  "리제 마이트너",
+                       "nameEn":  "Lise Meitner",
+                       "school":  "물리학",
+                       "asset":  "lise-meitner.jpg",
+                       "assetSHA256":  "5c6978f342e3ec7f08fcfd5c6306df980081467ae217be7e391fde897df69521"
+                   },
+                   {
+                       "id":  "scientists:maria-goeppert-mayer",
+                       "nameKo":  "마리아 괴퍼트 메이어",
+                       "nameEn":  "Maria Goeppert Mayer",
+                       "school":  "물리학",
+                       "asset":  "maria-goeppert-mayer.jpg",
+                       "assetSHA256":  "6ec333d166d3aeee3f2a7f9ecc6fdf76b6864a04de50f50ea6f84a1fd5353c37"
+                   },
+                   {
+                       "id":  "scientists:subrahmanyan-chandrasekhar",
+                       "nameKo":  "수브라마니안 찬드라세카르",
+                       "nameEn":  "Subrahmanyan Chandrasekhar",
+                       "school":  "천체물리학",
+                       "asset":  "subrahmanyan-chandrasekhar.jpg",
+                       "assetSHA256":  "038734c70b2f163c1851adfd550a95db7b918a2ba4bd9ca80ddb51a6d02ea067"
+                   },
+                   {
+                       "id":  "scientists:satyendra-nath-bose",
+                       "nameKo":  "사티엔드라 나트 보스",
+                       "nameEn":  "Satyendra Nath Bose",
+                       "school":  "물리학",
+                       "asset":  "satyendra-nath-bose.jpg",
+                       "assetSHA256":  "841290cef1ea38c1404061d83f3345f0eadf52a423fd634b087b6dbdf095be42"
+                   },
+                   {
+                       "id":  "scientists:cv-raman",
+                       "nameKo":  "찬드라세카라 벵카타 라만",
+                       "nameEn":  "C. V. Raman",
+                       "school":  "물리학",
+                       "asset":  "cv-raman.jpg",
+                       "assetSHA256":  "e58d4bb0bd9416cfa888454cb37147d63301007487b2839c55f9698c6308b6ec"
+                   },
+                   {
+                       "id":  "scientists:ernest-rutherford",
+                       "nameKo":  "어니스트 러더퍼드",
+                       "nameEn":  "Ernest Rutherford",
+                       "school":  "핵물리학",
+                       "asset":  "ernest-rutherford.jpg",
+                       "assetSHA256":  "fec3104def57549c1bf456187847da3a451c506db3fc5e39efc57bacd195a1b6"
+                   },
+                   {
+                       "id":  "scientists:james-chadwick",
+                       "nameKo":  "제임스 채드윅",
+                       "nameEn":  "James Chadwick",
+                       "school":  "핵물리학",
+                       "asset":  "james-chadwick.jpg",
+                       "assetSHA256":  "c3116d7e98035982d0201c8484199427431d9d9a667b320e61b341992844f444"
+                   },
+                   {
+                       "id":  "scientists:j-j-thomson",
+                       "nameKo":  "조지프 존 톰슨",
+                       "nameEn":  "J. J. Thomson",
+                       "school":  "전자물리학",
+                       "asset":  "j-j-thomson.jpg",
+                       "assetSHA256":  "b36efb1ac3e8e789cfd4bf5e244f0e177ec0ea9821201259f3b81aeb9c4bd7e3"
+                   },
+                   {
+                       "id":  "scientists:william-thomson-1st-baron-kelvin",
+                       "nameKo":  "윌리엄 톰슨(켈빈)",
+                       "nameEn":  "William Thomson, 1st Baron Kelvin",
+                       "school":  "열역학",
+                       "asset":  "william-thomson-1st-baron-kelvin.jpg",
+                       "assetSHA256":  "0596b47e83087b3ccf848da4085bfb49865dfcd30380fa39f999221faf1921de"
+                   },
+                   {
+                       "id":  "scientists:james-prescott-joule",
+                       "nameKo":  "제임스 프레스콧 줄",
+                       "nameEn":  "James Prescott Joule",
+                       "school":  "열역학",
+                       "asset":  "james-prescott-joule.jpg",
+                       "assetSHA256":  "cf95592b8d4e07cd2328f0977fc849a16c3b58d7b1510a785908c3eb0814a8ad"
+                   },
+                   {
+                       "id":  "scientists:andre-marie-ampere",
+                       "nameKo":  "앙드레마리 앙페르",
+                       "nameEn":  "André-Marie Ampère",
+                       "school":  "전자기학",
+                       "asset":  "andre-marie-ampere.jpg",
+                       "assetSHA256":  "0e3988d7382b181c0dc47199a5e3417ed22ed8e0915562301f3cc58461aaac27"
+                   },
+                   {
+                       "id":  "scientists:georg-ohm",
+                       "nameKo":  "게오르크 옴",
+                       "nameEn":  "Georg Ohm",
+                       "school":  "전자기학",
+                       "asset":  "georg-ohm.jpg",
+                       "assetSHA256":  "d86622fef7d73489035dad280d7d0eea0cea4c224af49e2720c28f63d6249634"
+                   },
+                   {
+                       "id":  "scientists:heinrich-hertz",
+                       "nameKo":  "하인리히 헤르츠",
+                       "nameEn":  "Heinrich Hertz",
+                       "school":  "전자기학",
+                       "asset":  "heinrich-hertz.jpg",
+                       "assetSHA256":  "dc1d3d06f6f2d681ba79a4489bbdc5155ded83fc9c0ddd30691d3072b20e7373"
+                   },
+                   {
+                       "id":  "scientists:christian-doppler",
+                       "nameKo":  "크리스티안 도플러",
+                       "nameEn":  "Christian Doppler",
+                       "school":  "물리학",
+                       "asset":  "christian-doppler.jpg",
+                       "assetSHA256":  "fa38b00e110eaa0bf4a3445a036a8b85544019f0fff92d5e75c187665591029b"
+                   },
+                   {
+                       "id":  "scientists:hans-christian-orsted",
+                       "nameKo":  "한스 크리스티안 외르스테드",
+                       "nameEn":  "Hans Christian Ørsted",
+                       "school":  "전자기학",
+                       "asset":  "hans-christian-orsted.jpg",
+                       "assetSHA256":  "b9a01f5969428cef1ea3673e25ade71cae8f9314d64721bbe9f526d10c0c8480"
+                   },
+                   {
+                       "id":  "scientists:christiaan-huygens",
+                       "nameKo":  "크리스티안 하위헌스",
+                       "nameEn":  "Christiaan Huygens",
+                       "school":  "광학·역학",
+                       "asset":  "christiaan-huygens.jpg",
+                       "assetSHA256":  "360a3713febc500b4e1e1e2efae4c739078199b5e777e14a4c6018cd46e60b08"
+                   },
+                   {
+                       "id":  "scientists:john-bardeen",
+                       "nameKo":  "존 바딘",
+                       "nameEn":  "John Bardeen",
+                       "school":  "고체물리학",
+                       "asset":  "john-bardeen.jpg",
+                       "assetSHA256":  "cabb29b15bf264ea26218d64dd31786653b4f52d8448ca42686e05692f9ae2c1"
+                   },
+                   {
+                       "id":  "scientists:robert-boyle",
+                       "nameKo":  "로버트 보일",
+                       "nameEn":  "Robert Boyle",
+                       "school":  "화학·물리학",
+                       "asset":  "robert-boyle.jpg",
+                       "assetSHA256":  "0e509aa696c48dbd6f73f1af99178b551f973d87a22dc0b78c981afbc31e4987"
+                   },
+                   {
+                       "id":  "scientists:evangelista-torricelli",
+                       "nameKo":  "에반젤리스타 토리첼리",
+                       "nameEn":  "Evangelista Torricelli",
+                       "school":  "물리학",
+                       "asset":  "evangelista-torricelli.jpg",
+                       "assetSHA256":  "95ad44ebd42131e0127c442a60affc788bb086d4c8eabe6e95f7934889b4a7d3"
+                   },
+                   {
+                       "id":  "scientists:blaise-pascal",
+                       "nameKo":  "블레즈 파스칼",
+                       "nameEn":  "Blaise Pascal",
+                       "school":  "수학·물리학",
+                       "asset":  "blaise-pascal.jpg",
+                       "assetSHA256":  "10532da10efdb4adb80771af348be9450bae833551ca54eaf51185bd73ad855d"
+                   },
+                   {
+                       "id":  "scientists:daniel-bernoulli",
+                       "nameKo":  "다니엘 베르누이",
+                       "nameEn":  "Daniel Bernoulli",
+                       "school":  "수학·유체역학",
+                       "asset":  "daniel-bernoulli.jpg",
+                       "assetSHA256":  "7b8d87cfc3f01144bf04d71875c645452bdff2de5aa527464e17b15303c978ad"
+                   },
+                   {
+                       "id":  "scientists:thomas-young",
+                       "nameKo":  "토머스 영",
+                       "nameEn":  "Thomas Young",
+                       "school":  "광학",
+                       "asset":  "thomas-young.jpg",
+                       "assetSHA256":  "57a12c6130784fb39ddd8c6dbbf12396b4051e725130f3e138bfb624dc61ba88"
+                   },
+                   {
+                       "id":  "scientists:augustin-jean-fresnel",
+                       "nameKo":  "오귀스탱장 프레넬",
+                       "nameEn":  "Augustin-Jean Fresnel",
+                       "school":  "광학",
+                       "asset":  "augustin-jean-fresnel.jpg",
+                       "assetSHA256":  "934ff0400edf5e578bc201c10b42481e103055d8d54e24f21d37c89433076835"
+                   },
+                   {
+                       "id":  "scientists:leon-foucault",
+                       "nameKo":  "레옹 푸코",
+                       "nameEn":  "Léon Foucault",
+                       "school":  "물리학",
+                       "asset":  "leon-foucault.jpg",
+                       "assetSHA256":  "0afb6be87f39fe01bef1fcda9f5e876f21ac222bbfb520e570da49669316ac8f"
+                   },
+                   {
+                       "id":  "scientists:alessandro-volta",
+                       "nameKo":  "알레산드로 볼타",
+                       "nameEn":  "Alessandro Volta",
+                       "school":  "전기학",
+                       "asset":  "alessandro-volta.jpg",
+                       "assetSHA256":  "f3d22116b5cdb757e52da0d1140779a39ab7a9a3de75cac4a164f7ec0fe814fc"
+                   },
+                   {
+                       "id":  "scientists:edwin-hubble",
+                       "nameKo":  "에드윈 허블",
+                       "nameEn":  "Edwin Hubble",
+                       "school":  "천문학",
+                       "asset":  "edwin-hubble.jpg",
+                       "assetSHA256":  "f027fbf78c058096a907c0bd1a99bace6be9834032dfafed56b370f51e7fc391"
+                   },
+                   {
+                       "id":  "scientists:henrietta-swan-leavitt",
+                       "nameKo":  "헨리에타 스완 리빗",
+                       "nameEn":  "Henrietta Swan Leavitt",
+                       "school":  "천문학",
+                       "asset":  "henrietta-swan-leavitt.jpg",
+                       "assetSHA256":  "fce4e4b58e65278f00c2988d929a08b01ad5f63fe2cc0879b1d8b87ad1105bd4"
+                   },
+                   {
+                       "id":  "scientists:cecilia-payne-gaposchkin",
+                       "nameKo":  "세실리아 페인 가포슈킨",
+                       "nameEn":  "Cecilia Payne-Gaposchkin",
+                       "school":  "천체물리학",
+                       "asset":  "cecilia-payne-gaposchkin.jpg",
+                       "assetSHA256":  "1c1f30167ffc8561725292a5f158a94214f6893de45569b10b0b662eb75a22bb"
+                   },
+                   {
+                       "id":  "scientists:annie-jump-cannon",
+                       "nameKo":  "애니 점프 캐넌",
+                       "nameEn":  "Annie Jump Cannon",
+                       "school":  "천문학",
+                       "asset":  "annie-jump-cannon.jpg",
+                       "assetSHA256":  "1e6d6f7bc9b0598c5c1a4d02fb2356fa3ed792a5296116995dd08bdeb43c3b2e"
+                   },
+                   {
+                       "id":  "scientists:william-herschel",
+                       "nameKo":  "윌리엄 허셜",
+                       "nameEn":  "William Herschel",
+                       "school":  "천문학",
+                       "asset":  "william-herschel.jpg",
+                       "assetSHA256":  "a5555ee0183c3ca5635d911927a09a4c1840d92b0f84868970593e31fe9b3eea"
+                   },
+                   {
+                       "id":  "scientists:caroline-herschel",
+                       "nameKo":  "캐럴라인 허셜",
+                       "nameEn":  "Caroline Herschel",
+                       "school":  "천문학",
+                       "asset":  "caroline-herschel.jpg",
+                       "assetSHA256":  "630a19bb89a61e43e9a9db91a8d9203f37ba3cf62c5459d11ae73e4d916c75d6"
+                   },
+                   {
+                       "id":  "scientists:edmond-halley",
+                       "nameKo":  "에드먼드 핼리",
+                       "nameEn":  "Edmond Halley",
+                       "school":  "천문학",
+                       "asset":  "edmond-halley.jpg",
+                       "assetSHA256":  "eeefeefa214890528737f8788b8bacfcbc0b3db98e3f16bea2ca56cf3840e9f5"
+                   },
+                   {
+                       "id":  "scientists:tycho-brahe",
+                       "nameKo":  "튀코 브라헤",
+                       "nameEn":  "Tycho Brahe",
+                       "school":  "천문학",
+                       "asset":  "tycho-brahe.jpg",
+                       "assetSHA256":  "06aaab38ed5b88cc769642eb1263f6957a9de014da67706b488e61ea12d415e1"
+                   },
+                   {
+                       "id":  "scientists:georges-lemaitre",
+                       "nameKo":  "조르주 르메트르",
+                       "nameEn":  "Georges Lemaître",
+                       "school":  "우주론",
+                       "asset":  "georges-lemaitre.jpg",
+                       "assetSHA256":  "353faa44fd5cf7aa06301d2125f7957d387b95aeefce30de6398b0b8edee4699"
+                   },
+                   {
+                       "id":  "scientists:arthur-eddington",
+                       "nameKo":  "아서 에딩턴",
+                       "nameEn":  "Arthur Eddington",
+                       "school":  "천체물리학",
+                       "asset":  "arthur-eddington.jpg",
+                       "assetSHA256":  "52173fda23e74c56028d11fe8ef5692d4b2833a08a7556ab272c6ad0797e4267"
+                   },
+                   {
+                       "id":  "scientists:max-born",
+                       "nameKo":  "막스 보른",
+                       "nameEn":  "Max Born",
+                       "school":  "양자역학",
+                       "asset":  "max-born.jpg",
+                       "assetSHA256":  "da2a98df0ccf0fd68bf6d65ebc2f9dfb66bef49c16ab8cbe6ad34b0e887ec20d"
+                   },
+                   {
+                       "id":  "scientists:wolfgang-pauli",
+                       "nameKo":  "볼프강 파울리",
+                       "nameEn":  "Wolfgang Pauli",
+                       "school":  "양자역학",
+                       "asset":  "wolfgang-pauli.jpg",
+                       "assetSHA256":  "4062eb970bcc7a958fd5eff5ea9dbc447dd8539dd7ef5913aa8d9e949c2cc258"
+                   },
+                   {
+                       "id":  "scientists:louis-de-broglie",
+                       "nameKo":  "루이 드브로이",
+                       "nameEn":  "Louis de Broglie",
+                       "school":  "양자역학",
+                       "asset":  "louis-de-broglie.jpg",
+                       "assetSHA256":  "488adc21f9c58c8c5eae8fa992b9d727b9be881b8cdb0a7bd9de2ceb7479c02a"
+                   },
+                   {
+                       "id":  "scientists:abdus-salam",
+                       "nameKo":  "압두스 살람",
+                       "nameEn":  "Abdus Salam",
+                       "school":  "입자물리학",
+                       "asset":  "abdus-salam.jpg",
+                       "assetSHA256":  "bc95a4050effac8264546d8ca0174550207212671421e741f72333a8a2cfc6c0"
+                   },
+                   {
+                       "id":  "scientists:chen-ning-yang",
+                       "nameKo":  "양전닝",
+                       "nameEn":  "Chen-Ning Yang",
+                       "school":  "입자물리학",
+                       "asset":  "chen-ning-yang.jpg",
+                       "assetSHA256":  "5e24bb4beb623187e3085d010a1e2446cf0c8bf75f0ce20fad01816f46e54e4d"
+                   },
+                   {
+                       "id":  "scientists:tsung-dao-lee",
+                       "nameKo":  "리정다오",
+                       "nameEn":  "Tsung-Dao Lee",
+                       "school":  "입자물리학",
+                       "asset":  "tsung-dao-lee.jpg",
+                       "assetSHA256":  "8d096d754d798bb8bcc832e85b620a85b556f26c1a38bae3d0a76286d86e9db5"
+                   },
+                   {
+                       "id":  "scientists:hideki-yukawa",
+                       "nameKo":  "유카와 히데키",
+                       "nameEn":  "Hideki Yukawa",
+                       "school":  "입자물리학",
+                       "asset":  "hideki-yukawa.jpg",
+                       "assetSHA256":  "a8e038c1c6e13b638ccb9f04ce6db8e1a481ef56b8e811a023c2e399aaea8bee"
+                   },
+                   {
+                       "id":  "scientists:sin-itiro-tomonaga",
+                       "nameKo":  "도모나가 신이치로",
+                       "nameEn":  "Sin-Itiro Tomonaga",
+                       "school":  "양자전기역학",
+                       "asset":  "sin-itiro-tomonaga.jpg",
+                       "assetSHA256":  "1625b94b3a2580c40bf58781bdb30c00aa5a2d07ba1cad29e1b5f1cbcc820602"
+                   },
+                   {
+                       "id":  "scientists:yoichiro-nambu",
+                       "nameKo":  "난부 요이치로",
+                       "nameEn":  "Yoichiro Nambu",
+                       "school":  "입자물리학",
+                       "asset":  "yoichiro-nambu.jpg",
+                       "assetSHA256":  "9bd8fc2f765d9a34a13717502f9c61f96f440dfbbaff908aa35ff8c113bbc683"
+                   },
+                   {
+                       "id":  "scientists:murray-gell-mann",
+                       "nameKo":  "머리 겔만",
+                       "nameEn":  "Murray Gell-Mann",
+                       "school":  "입자물리학",
+                       "asset":  "murray-gell-mann.jpg",
+                       "assetSHA256":  "21a7d65cfd6928e0c9be6f5ade92e7f2abcb895eec53523932058b2deff0cf96"
+                   },
+                   {
+                       "id":  "scientists:gottfried-wilhelm-leibniz",
+                       "nameKo":  "고트프리트 빌헬름 라이프니츠",
+                       "nameEn":  "Gottfried Wilhelm Leibniz",
+                       "school":  "수학",
+                       "asset":  "gottfried-wilhelm-leibniz.jpg",
+                       "assetSHA256":  "900e367b5b86ca024689b588646458310f08eea003fac1d86d91730ac9368e2e"
+                   },
+                   {
+                       "id":  "scientists:pierre-de-fermat",
+                       "nameKo":  "피에르 드 페르마",
+                       "nameEn":  "Pierre de Fermat",
+                       "school":  "수학",
+                       "asset":  "pierre-de-fermat.jpg",
+                       "assetSHA256":  "28e863dfeca79e79b2d9e2feae6292825d60a1da6fdbc94b0252f566bc0208ec"
+                   },
+                   {
+                       "id":  "scientists:rene-descartes",
+                       "nameKo":  "르네 데카르트",
+                       "nameEn":  "René Descartes",
+                       "school":  "수학",
+                       "asset":  "rene-descartes.jpg",
+                       "assetSHA256":  "e3aebec615a83bed5b5f6b3b730962e240b9bd11ff5658bb99c2732504e69ec5"
+                   },
+                   {
+                       "id":  "scientists:joseph-louis-lagrange",
+                       "nameKo":  "조제프루이 라그랑주",
+                       "nameEn":  "Joseph-Louis Lagrange",
+                       "school":  "수학·역학",
+                       "asset":  "joseph-louis-lagrange.jpg",
+                       "assetSHA256":  "59479b15c3a6f176b3c9cecdee488c58fcb5101e479a50c0568249c4dd459baa"
+                   },
+                   {
+                       "id":  "scientists:pierre-simon-laplace",
+                       "nameKo":  "피에르시몽 라플라스",
+                       "nameEn":  "Pierre-Simon Laplace",
+                       "school":  "수학·천문학",
+                       "asset":  "pierre-simon-laplace.jpg",
+                       "assetSHA256":  "5cf3d8eb3b60439d27eb66cb6e97c1e8c5825b47e2366129a9a1fbb586ade196"
+                   },
+                   {
+                       "id":  "scientists:augustin-louis-cauchy",
+                       "nameKo":  "오귀스탱루이 코시",
+                       "nameEn":  "Augustin-Louis Cauchy",
+                       "school":  "수학",
+                       "asset":  "augustin-louis-cauchy.jpg",
+                       "assetSHA256":  "3055945e49dc54eefff7367ef3a6f168cdea2c3dd74f1f101efac5bcfb12f59f"
+                   },
+                   {
+                       "id":  "scientists:bernhard-riemann",
+                       "nameKo":  "베른하르트 리만",
+                       "nameEn":  "Bernhard Riemann",
+                       "school":  "수학",
+                       "asset":  "bernhard-riemann.jpg",
+                       "assetSHA256":  "f3248375f99f0ec0b11ad25166ef83b6dd45174a3192e5ac3d7095dd6cf1bef0"
+                   },
+                   {
+                       "id":  "scientists:georg-cantor",
+                       "nameKo":  "게오르크 칸토어",
+                       "nameEn":  "Georg Cantor",
+                       "school":  "수학",
+                       "asset":  "georg-cantor.jpg",
+                       "assetSHA256":  "8a5a04a547e0be1067f3f18bb3712fb6a5d985ea0f8f0f76acb2812b54243651"
+                   },
+                   {
+                       "id":  "scientists:sophie-germain",
+                       "nameKo":  "소피 제르맹",
+                       "nameEn":  "Sophie Germain",
+                       "school":  "수학",
+                       "asset":  "sophie-germain.jpg",
+                       "assetSHA256":  "b3a2f86bc081424102af53f28415e52f2c07fb12ed50e0285e92e445dbded020"
+                   },
+                   {
+                       "id":  "scientists:sofia-kovalevskaya",
+                       "nameKo":  "소피야 코발렙스카야",
+                       "nameEn":  "Sofia Kovalevskaya",
+                       "school":  "수학",
+                       "asset":  "sofia-kovalevskaya.jpg",
+                       "assetSHA256":  "cf67435b16c47535781e1489cfddb7ec762caac9141aadbb3b332b3906b15605"
+                   },
+                   {
+                       "id":  "scientists:maryam-mirzakhani",
+                       "nameKo":  "마리암 미르자하니",
+                       "nameEn":  "Maryam Mirzakhani",
+                       "school":  "수학",
+                       "asset":  "maryam-mirzakhani.jpg",
+                       "assetSHA256":  "b221b80e21a4a82933e04c7f9fc68b01214bd2a3ff7790217dc42ac974e64d39"
+                   },
+                   {
+                       "id":  "scientists:paul-erdos",
+                       "nameKo":  "에르되시 팔",
+                       "nameEn":  "Paul Erdős",
+                       "school":  "수학",
+                       "asset":  "paul-erdos.jpg",
+                       "assetSHA256":  "d348d5f56af37ba8bf10aa2b37092b9eaae94818752e6e8dce2afebe063c70f0"
+                   },
+                   {
+                       "id":  "scientists:alonzo-church",
+                       "nameKo":  "알론조 처치",
+                       "nameEn":  "Alonzo Church",
+                       "school":  "수리논리학",
+                       "asset":  "alonzo-church.jpg",
+                       "assetSHA256":  "b87f18722d37c71f028a111c4f4b438ac081e9d64999573796ec0fa935112197"
+                   },
+                   {
+                       "id":  "scientists:kurt-godel",
+                       "nameKo":  "쿠르트 괴델",
+                       "nameEn":  "Kurt Gödel",
+                       "school":  "수리논리학",
+                       "asset":  "kurt-godel.jpg",
+                       "assetSHA256":  "1d879a0efbef1c3a0bbc9ec6294dc851e74e1cb3994ce66484cdec7d17b57cd0"
+                   },
+                   {
+                       "id":  "scientists:george-boole",
+                       "nameKo":  "조지 불",
+                       "nameEn":  "George Boole",
+                       "school":  "수학·논리학",
+                       "asset":  "george-boole.jpg",
+                       "assetSHA256":  "0d6270483b2dec24c4ae10243aca91baa67f57505b08eb9a58ed107f6831b9c7"
+                   },
+                   {
+                       "id":  "scientists:john-nash",
+                       "nameKo":  "존 내시",
+                       "nameEn":  "John Nash",
+                       "school":  "수학·게임이론",
+                       "asset":  "john-nash.jpg",
+                       "assetSHA256":  "3c28a6e4348e543a1d852b78cabd6376b83011437e9e72efbfb8038c94fa2d4a"
+                   },
+                   {
+                       "id":  "scientists:benoit-mandelbrot",
+                       "nameKo":  "브누아 망델브로",
+                       "nameEn":  "Benoit Mandelbrot",
+                       "school":  "수학",
+                       "asset":  "benoit-mandelbrot.jpg",
+                       "assetSHA256":  "72ab277ce63956f4468567f503cc913aa933130491d10d1f1e4a2800ad382fb1"
+                   },
+                   {
+                       "id":  "scientists:norbert-wiener",
+                       "nameKo":  "노버트 위너",
+                       "nameEn":  "Norbert Wiener",
+                       "school":  "수학·제어이론",
+                       "asset":  "norbert-wiener.jpg",
+                       "assetSHA256":  "75ac077060f61bc3feaf103544b2b9255c83943b9594592d9a383a824208199a"
+                   },
+                   {
+                       "id":  "scientists:george-polya",
+                       "nameKo":  "조지 폴리어",
+                       "nameEn":  "George Pólya",
+                       "school":  "수학",
+                       "asset":  "george-polya.jpg",
+                       "assetSHA256":  "65c8d4fa92e405257ee047d88fca6aeb5566e3b3a43b410d7ad7424dd38a888e"
+                   },
+                   {
+                       "id":  "scientists:donald-knuth",
+                       "nameKo":  "도널드 커누스",
+                       "nameEn":  "Donald Knuth",
+                       "school":  "컴퓨터과학",
+                       "asset":  "donald-knuth.jpg",
+                       "assetSHA256":  "62ecc208361e1722653906e8606b5e6314c403affb8a7cdf81d1b25e10da9b8d"
+                   },
+                   {
+                       "id":  "scientists:dennis-ritchie",
+                       "nameKo":  "데니스 리치",
+                       "nameEn":  "Dennis Ritchie",
+                       "school":  "컴퓨터과학",
+                       "asset":  "dennis-ritchie.jpg",
+                       "assetSHA256":  "86b6290c9ed37bf0c04a106e1764edd4c6975436e908e99a73ce99a4013fa361"
+                   },
+                   {
+                       "id":  "scientists:ken-thompson",
+                       "nameKo":  "켄 톰프슨",
+                       "nameEn":  "Ken Thompson",
+                       "school":  "컴퓨터과학",
+                       "asset":  "ken-thompson.jpg",
+                       "assetSHA256":  "d323d87c588737f90c8343103cd8a4e8e71cdb06d5b65b6fca241aad421f0cff"
+                   },
+                   {
+                       "id":  "scientists:barbara-liskov",
+                       "nameKo":  "바버라 리스코프",
+                       "nameEn":  "Barbara Liskov",
+                       "school":  "컴퓨터과학",
+                       "asset":  "barbara-liskov.jpg",
+                       "assetSHA256":  "1d8a85417bc8a54d9841f74136a852884fb3941fbec649d45acdf4225e340802"
+                   },
+                   {
+                       "id":  "scientists:margaret-hamilton",
+                       "nameKo":  "마거릿 해밀턴",
+                       "nameEn":  "Margaret Hamilton",
+                       "school":  "소프트웨어공학",
+                       "asset":  "margaret-hamilton.jpg",
+                       "assetSHA256":  "884fa87e087ea5d8a21d1f93d17b093ccad754ed641c19a8496fad62124009db"
+                   },
+                   {
+                       "id":  "scientists:radia-perlman",
+                       "nameKo":  "라디아 펄먼",
+                       "nameEn":  "Radia Perlman",
+                       "school":  "컴퓨터 네트워크",
+                       "asset":  "radia-perlman.jpg",
+                       "assetSHA256":  "5782dc61154324d5d97c3ab1a8f59c3beced6317ff1afd3bfe52d5927c377c86"
+                   },
+                   {
+                       "id":  "scientists:frances-allen",
+                       "nameKo":  "프랜시스 앨런",
+                       "nameEn":  "Frances Allen",
+                       "school":  "컴퓨터과학",
+                       "asset":  "frances-allen.jpg",
+                       "assetSHA256":  "6c927bf628b976957e670439dd58c9de6a16ac4eab1a4d81669bc4a3c5d06674"
+                   },
+                   {
+                       "id":  "scientists:john-mccarthy",
+                       "nameKo":  "존 매카시",
+                       "nameEn":  "John McCarthy",
+                       "school":  "인공지능",
+                       "asset":  "john-mccarthy.jpg",
+                       "assetSHA256":  "be768605e16a248f34fe32541438d33a9011fc203ac6d07cbb55cb72d095a30e"
+                   },
+                   {
+                       "id":  "scientists:marvin-minsky",
+                       "nameKo":  "마빈 민스키",
+                       "nameEn":  "Marvin Minsky",
+                       "school":  "인공지능",
+                       "asset":  "marvin-minsky.jpg",
+                       "assetSHA256":  "b2f40333515d09ef4af3e3d6844e2151cc0c7ce703742338bd0445c5f9290de4"
+                   },
+                   {
+                       "id":  "scientists:douglas-engelbart",
+                       "nameKo":  "더글러스 엥겔바트",
+                       "nameEn":  "Douglas Engelbart",
+                       "school":  "컴퓨터과학",
+                       "asset":  "douglas-engelbart.jpg",
+                       "assetSHA256":  "e4326dc11e003da59a902d4baa6434bf6087d50ccac77864ab68cb5cbf408ad4"
+                   },
+                   {
+                       "id":  "scientists:john-backus",
+                       "nameKo":  "존 배커스",
+                       "nameEn":  "John Backus",
+                       "school":  "컴퓨터과학",
+                       "asset":  "john-backus.jpg",
+                       "assetSHA256":  "36e87c9bb4aea9aa90549c429af4dbfb6041520073ed01c6862e402e9c7db707"
+                   },
+                   {
+                       "id":  "scientists:linus-pauling",
+                       "nameKo":  "라이너스 폴링",
+                       "nameEn":  "Linus Pauling",
+                       "school":  "화학",
+                       "asset":  "linus-pauling.jpg",
+                       "assetSHA256":  "674e2ff159cccff32bfc780d6a69f5cdf66764a77184c094a7d38d355d4518fe"
+                   },
+                   {
+                       "id":  "scientists:robert-bunsen",
+                       "nameKo":  "로베르트 분젠",
+                       "nameEn":  "Robert Bunsen",
+                       "school":  "화학",
+                       "asset":  "robert-bunsen.jpg",
+                       "assetSHA256":  "cb1e26b00c02caf364bc3d723f754fc89904f2f8b7caf8f89e5998fee19bf930"
+                   },
+                   {
+                       "id":  "scientists:alfred-nobel",
+                       "nameKo":  "알프레드 노벨",
+                       "nameEn":  "Alfred Nobel",
+                       "school":  "화학",
+                       "asset":  "alfred-nobel.jpg",
+                       "assetSHA256":  "3b02e2ac1c454df47beba7a3e54b6da93215e14588c6c3b0ecc272a445c1ffc5"
+                   },
+                   {
+                       "id":  "scientists:svante-arrhenius",
+                       "nameKo":  "스반테 아레니우스",
+                       "nameEn":  "Svante Arrhenius",
+                       "school":  "물리화학",
+                       "asset":  "svante-arrhenius.jpg",
+                       "assetSHA256":  "d297f86faa753f2db3b744e35d072deb97131d0adb186028b21283b148fe47cf"
+                   },
+                   {
+                       "id":  "scientists:jacobus-henricus-van-t-hoff",
+                       "nameKo":  "야코뷔스 헨리퀴스 반트호프",
+                       "nameEn":  "Jacobus Henricus van \u0027t Hoff",
+                       "school":  "물리화학",
+                       "asset":  "jacobus-henricus-van-t-hoff.jpg",
+                       "assetSHA256":  "89f28e284550aa5a124915ecf5f3e2112008340588db1b17326097f2c70642ca"
+                   },
+                   {
+                       "id":  "scientists:irving-langmuir",
+                       "nameKo":  "어빙 랭뮤어",
+                       "nameEn":  "Irving Langmuir",
+                       "school":  "표면화학",
+                       "asset":  "irving-langmuir.jpg",
+                       "assetSHA256":  "a4b1f43e7951423e11584044155446c42248dafbd93e9b8af09788df02c1359b"
+                   },
+                   {
+                       "id":  "scientists:gilbert-n-lewis",
+                       "nameKo":  "길버트 뉴턴 루이스",
+                       "nameEn":  "Gilbert N. Lewis",
+                       "school":  "화학",
+                       "asset":  "gilbert-n-lewis.jpg",
+                       "assetSHA256":  "9227737d516990418e5c4f631041d5df632129ba87ca5d6f6c2acb75f587fcef"
+                   },
+                   {
+                       "id":  "scientists:glenn-t-seaborg",
+                       "nameKo":  "글렌 시보그",
+                       "nameEn":  "Glenn T. Seaborg",
+                       "school":  "핵화학",
+                       "asset":  "glenn-t-seaborg.jpg",
+                       "assetSHA256":  "eca48484c76a13995e568467902de424bc96d86ce1d0c363f8b78da098f9a10c"
+                   },
+                   {
+                       "id":  "scientists:ahmed-zewail",
+                       "nameKo":  "아메드 즈웨일",
+                       "nameEn":  "Ahmed Zewail",
+                       "school":  "화학",
+                       "asset":  "ahmed-zewail.jpg",
+                       "assetSHA256":  "857fe8983157a5125f75a95f716afe2fbb3fe1b7f90059e887edcd1321209de3"
+                   },
+                   {
+                       "id":  "scientists:gertrude-b-elion",
+                       "nameKo":  "거트루드 엘리언",
+                       "nameEn":  "Gertrude B. Elion",
+                       "school":  "약리학",
+                       "asset":  "gertrude-b-elion.jpg",
+                       "assetSHA256":  "230fbcdb50547c233c14b78f8c1aa98e53c56793cb80f08fb08ac2e0ef076e26"
+                   },
+                   {
+                       "id":  "scientists:rita-levi-montalcini",
+                       "nameKo":  "리타 레비몬탈치니",
+                       "nameEn":  "Rita Levi-Montalcini",
+                       "school":  "신경생물학",
+                       "asset":  "rita-levi-montalcini.jpg",
+                       "assetSHA256":  "eecdbb7677357d25b35470662e3aa039dcf2e5c7fe07b700e1caa3fa51c5bd25"
+                   },
+                   {
+                       "id":  "scientists:tu-youyou",
+                       "nameKo":  "투유유",
+                       "nameEn":  "Tu Youyou",
+                       "school":  "약학",
+                       "asset":  "tu-youyou.jpg",
+                       "assetSHA256":  "03540d571c6780bad0f98993ce8b8844c2c09f43a2117b3b76766b89573c5d36"
+                   },
+                   {
+                       "id":  "scientists:katalin-kariko",
+                       "nameKo":  "커털린 커리코",
+                       "nameEn":  "Katalin Karikó",
+                       "school":  "생화학",
+                       "asset":  "katalin-kariko.jpg",
+                       "assetSHA256":  "a292233192eab96c028310fc01ad3f75414acb6b96af05405525b27ac9397fad"
+                   },
+                   {
+                       "id":  "scientists:jennifer-doudna",
+                       "nameKo":  "제니퍼 다우드나",
+                       "nameEn":  "Jennifer Doudna",
+                       "school":  "생화학",
+                       "asset":  "jennifer-doudna.jpg",
+                       "assetSHA256":  "4320e224e8b6db08ff74a9abe81cbe588bc2dc5890ccbeb7f2b77ff544719f4a"
+                   },
+                   {
+                       "id":  "scientists:emmanuelle-charpentier",
+                       "nameKo":  "에마뉘엘 샤르팡티에",
+                       "nameEn":  "Emmanuelle Charpentier",
+                       "school":  "미생물학",
+                       "asset":  "emmanuelle-charpentier.jpg",
+                       "assetSHA256":  "0af3921239e003c8f7adb43f9b864bfddf9b47cc6849dff027be405ee48f25b7"
+                   },
+                   {
+                       "id":  "scientists:alfred-russel-wallace",
+                       "nameKo":  "앨프리드 러셀 월리스",
+                       "nameEn":  "Alfred Russel Wallace",
+                       "school":  "진화생물학",
+                       "asset":  "alfred-russel-wallace.jpg",
+                       "assetSHA256":  "be04276ce33bf6c095bff3c9437ca05dadb02c05c13a5cf2c0df95948add4611"
+                   },
+                   {
+                       "id":  "scientists:carl-linnaeus",
+                       "nameKo":  "칼 폰 린네",
+                       "nameEn":  "Carl Linnaeus",
+                       "school":  "생물분류학",
+                       "asset":  "carl-linnaeus.jpg",
+                       "assetSHA256":  "49ec8a6f3cfb78cd4ac2c2a5b7e3baa95e4f9308ac3ceb1e285d85f3eae6d758"
+                   },
+                   {
+                       "id":  "scientists:rachel-carson",
+                       "nameKo":  "레이철 카슨",
+                       "nameEn":  "Rachel Carson",
+                       "school":  "해양생물학",
+                       "asset":  "rachel-carson.jpg",
+                       "assetSHA256":  "e357212baaa84b964e4b5eb3b69c6473b6e681cb76f69426b6493a00ef99a2a2"
+                   },
+                   {
+                       "id":  "scientists:jane-goodall",
+                       "nameKo":  "제인 구달",
+                       "nameEn":  "Jane Goodall",
+                       "school":  "영장류학",
+                       "asset":  "jane-goodall.jpg",
+                       "assetSHA256":  "66b2308b91a61d7436c02e490e7cb1749c9bdbb87cef9f5d39e9fd43bd499ad7"
+                   },
+                   {
+                       "id":  "scientists:alexander-von-humboldt",
+                       "nameKo":  "알렉산더 폰 훔볼트",
+                       "nameEn":  "Alexander von Humboldt",
+                       "school":  "자연과학",
+                       "asset":  "alexander-von-humboldt.jpg",
+                       "assetSHA256":  "3b0254a536ddcbaf29a2279074b7a0e69c5acd955f1e3693c3239228dc6c095f"
+                   },
+                   {
+                       "id":  "scientists:santiago-ramon-y-cajal",
+                       "nameKo":  "산티아고 라몬 이 카할",
+                       "nameEn":  "Santiago Ramón y Cajal",
+                       "school":  "신경과학",
+                       "asset":  "santiago-ramon-y-cajal.jpg",
+                       "assetSHA256":  "74e289f02fe5a503e11a48acb805478914b09779e43b43243afd3c53046676fb"
+                   },
+                   {
+                       "id":  "scientists:camillo-golgi",
+                       "nameKo":  "카밀로 골지",
+                       "nameEn":  "Camillo Golgi",
+                       "school":  "신경과학",
+                       "asset":  "camillo-golgi.jpg",
+                       "assetSHA256":  "0fd0978f62d8a576bfc4da365a70b3e8c0a936f0b5dc3ab5a686117d50133c17"
+                   },
+                   {
+                       "id":  "scientists:robert-koch",
+                       "nameKo":  "로베르트 코흐",
+                       "nameEn":  "Robert Koch",
+                       "school":  "미생물학",
+                       "asset":  "robert-koch.jpg",
+                       "assetSHA256":  "0b65c8d9b1889ac1c4c15cf2262aa4af099b824a6a5048e61bd771e397f24574"
+                   },
+                   {
+                       "id":  "scientists:joseph-lister",
+                       "nameKo":  "조지프 리스터",
+                       "nameEn":  "Joseph Lister",
+                       "school":  "의학",
+                       "asset":  "joseph-lister.jpg",
+                       "assetSHA256":  "110b9aec382be7d25ebfa84af36947280d9fb6c1ed5b9206f51fc4669b3544f8"
+                   },
+                   {
+                       "id":  "scientists:edward-jenner",
+                       "nameKo":  "에드워드 제너",
+                       "nameEn":  "Edward Jenner",
+                       "school":  "의학",
+                       "asset":  "edward-jenner.jpg",
+                       "assetSHA256":  "5bb6e1e78c8fe6050a4b51113e0c7f69e1ee7e18a27c0bfda8229d26976d5424"
+                   },
+                   {
+                       "id":  "scientists:florence-nightingale",
+                       "nameKo":  "플로렌스 나이팅게일",
+                       "nameEn":  "Florence Nightingale",
+                       "school":  "간호학·통계학",
+                       "asset":  "florence-nightingale.jpg",
+                       "assetSHA256":  "f94a9eed6c6945fce57d869fae455908d04f45e0c70905d2baba8425b36380e2"
+                   },
+                   {
+                       "id":  "scientists:george-washington-carver",
+                       "nameKo":  "조지 워싱턴 카버",
+                       "nameEn":  "George Washington Carver",
+                       "school":  "농학",
+                       "asset":  "george-washington-carver.jpg",
+                       "assetSHA256":  "353feb7d19768e074b90084e5e4f24bad6ac0be4a117beb871b321799b815242"
+                   },
+                   {
+                       "id":  "scientists:percy-lavon-julian",
+                       "nameKo":  "퍼시 라본 줄리언",
+                       "nameEn":  "Percy Lavon Julian",
+                       "school":  "화학",
+                       "asset":  "percy-lavon-julian.jpg",
+                       "assetSHA256":  "45c7968c78c921ad8a98ce39a7d4b50d7364261a0a083cddcb124c60a8a0a9f2"
+                   },
+                   {
+                       "id":  "scientists:ernest-everett-just",
+                       "nameKo":  "어니스트 에버렛 저스트",
+                       "nameEn":  "Ernest Everett Just",
+                       "school":  "세포생물학",
+                       "asset":  "ernest-everett-just.jpg",
+                       "assetSHA256":  "be78eb4ed3763b150c2b2fd8e4f53d90e265c79f323196fe6ce9623ad3aa9221"
+                   },
+                   {
+                       "id":  "scientists:wangari-maathai",
+                       "nameKo":  "왕가리 마타이",
+                       "nameEn":  "Wangari Maathai",
+                       "school":  "환경과학",
+                       "asset":  "wangari-maathai.jpg",
+                       "assetSHA256":  "7f747becea6eda1775174de9aa5dbce6996046c43ac2904e55491f152d7286f7"
+                   }
+               ]
+}
