@@ -102,6 +102,16 @@ Native root coordination guidance combines with shared instructions, project rul
 
 Supported models from other providers and user-registered APIs can also run as subagents. Each subagent has its own thread and account binding.
 
+#### Cost and time: a single-task pilot
+
+The same read-only source-investigation task was run once per condition. Both Azrael conditions used **extension 2026.0.19 / engine 0.162.0**; Codex used **extension 26.1021.22027 / engine 0.164.0-alpha.11.1**. The parent was GPT-6.1 Sol/medium throughout.
+
+![Parent and child API-equivalent costs and total investigation time for Codex, Azrael with Luna/xhigh children, and Azrael with Sol/medium children, including measured versions](docs/images/collaboration-cost-en.svg)
+
+In this pilot, Azrael's Luna/xhigh condition cost **49.2% less** and took **57.5% longer** than Codex. Its Sol/medium condition took **14.0% less time** and cost **24.9% more** than Codex. These are observations from one run each: child models, reasoning efforts, role instructions and child counts differed, so this does not isolate the effect of the harness or its collaboration guidance.
+
+Costs are API-equivalent estimates, not ChatGPT subscription charges. Time covers investigation start through final completion and excludes setup, approval waits and cleanup. See the [original pilot](work/GC-01-collaboration-cost-pilot/report.md), [Sol-condition report and verification](work/GC-01-collaboration-cost-pilot/sol-result-report.md), or [download the PNG](docs/images/collaboration-cost-en.png).
+
 #### Three ways a subagent talks to the root
 
 Routine updates batch related evidence. Decisions blocking the next action are requested immediately. Three channels keep those purposes distinct.

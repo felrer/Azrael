@@ -268,6 +268,16 @@ root는 요구사항·의존관계·공유 계약을 정리하고, 작업을 배
 | **결정 요청** (`request_parent`) | 직속 부모의 결정이나 조율이 지금 필요할 때 | 대기 중인 루트를 깨우거나, 실행 중인 루트의 다음 안전한 처리 시점에 합류합니다. 루트는 `resolved`, `cancelled`, `deferred` 중 하나로 답합니다. | 자식은 독립 작업을 계속하고, 막힌 동작만 멈춘 채 `await_parent_response`로 답을 기다립니다. |
 | **최종 보고** | 배정이 성공, 실패, 부분 결과로 끝났을 때 | 종료 상태가 됩니다. 이 자식을 `all_terminal`로 기다리던 루트가 재개됩니다. | 범위, 종료 코드, 로그, 미검증 항목을 담은 보고 한 번이 반복적인 상태 확인을 대신합니다. |
 
+### 비용과 시간: 같은 조사 과제를 1회씩 비교
+
+읽기 전용 소스 조사 과제를 조건별로 한 번씩 실행했습니다. Azrael 두 조건은 모두 **확장 2026.0.19 / 엔진 0.162.0**, Codex는 **확장 26.1021.22027 / 엔진 0.164.0-alpha.11.1**입니다. 부모 모델은 모두 GPT-6.1 Sol/medium으로 유지했습니다.
+
+![측정 버전과 함께 비교한 Codex, Luna/xhigh 자식을 사용한 Azrael, Sol/medium 자식을 사용한 Azrael의 부모·자식 API 환산 비용과 전체 조사 시간](docs/images/collaboration-cost-ko.svg)
+
+이번 측정에서 Azrael의 Luna/xhigh 조건은 Codex보다 **비용이 49.2% 낮고 시간은 57.5% 길었습니다.** Sol/medium 조건은 Codex보다 **시간이 14.0% 짧고 비용은 24.9% 높았습니다.** 각 조건 1회이며 자식 모델·추론 강도·역할 지침·자식 수가 달라, 하네스나 협력 지침만의 효과를 입증하지는 않습니다.
+
+비용은 실제 ChatGPT 구독 청구액이 아닌 API 환산 추정치입니다. 시간은 조사 시작부터 최종 완료까지이며 준비·승인 대기·정리는 제외했습니다. [최초 측정](work/GC-01-collaboration-cost-pilot/report.md), [Sol 조건 보고서·검증](work/GC-01-collaboration-cost-pilot/sol-result-report.md), [공유용 PNG](docs/images/collaboration-cost-ko.png)에서 상세 수치와 근거를 볼 수 있습니다.
+
 ### 기다리는 동안에는 추론도 멈춥니다
 
 root가 다음 단계로 넘어가려면 빌드나 subagent의 결과가 필요한 순간이 있습니다. `defer_root`는 이 의존 지점에서 **재개 조건을 저장하고 모델 호출을 멈춥니다.**
