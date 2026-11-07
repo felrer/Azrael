@@ -2,6 +2,8 @@
   "schema_version": 1,
   "project_id": "azrael",
   "managed_roots": [
+    "artifacts/ex02i",
+    "artifacts/ex02w",
     "artifacts/tasks",
     "artifacts/dt",
     "artifacts/dt-525c529d",
