@@ -42,7 +42,10 @@ function resolveMaintenanceCommand(projectRoot = path.resolve(__dirname, ".."), 
   if (override) {
     const mode = env.AZRAEL_MAINTENANCE_OWNER_MODE || "standalone";
     if (!["standalone", "azrael-maintenance"].includes(mode)) throw Error("Unknown maintenance owner override mode");
-    return { executable: plainFile(override), args: mode === "azrael-maintenance" ? ["maintenance"] : [] };
+    const wait = env.AZRAEL_MAINTENANCE_LOCK_WAIT_MS;
+    if (wait !== undefined && !/^[0-9]+$/.test(wait)) throw Error("Invalid maintenance lock wait capability");
+    return { executable: plainFile(override), args: mode === "azrael-maintenance" ? ["maintenance"] : [],
+      ...waitCapability(wait === undefined ? undefined : Number(wait)) };
   }
   if (typeof projectRoot !== "string" || !path.isAbsolute(projectRoot) || projectRoot.includes("\0") || projectRoot.split(/[\\/]/).includes("..")) throw Error("Absolute maintenance owner project root without traversal required");
   const installed = installationPath(undefined, { env });
