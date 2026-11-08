@@ -270,15 +270,17 @@ root는 요구사항·의존관계·공유 계약을 정리하고, 작업을 배
 
 ### 비용과 시간: 같은 조사 과제를 1회씩 비교
 
-읽기 전용 소스 조사 과제를 네 조건에서 한 번씩 실행했습니다. Azrael 세 조건은 모두 **확장 2026.0.19 / 엔진 0.162.0**, Codex는 **확장 26.1021.22027 / 엔진 0.164.0-alpha.11.1**입니다. 부모 모델은 모두 GPT-6.1 Sol/medium으로 유지했습니다. 부모 단독 조건은 같은 영어 과제에 위임 금지 지시를 적용하고 실제 자식 생성 0건을 확인했습니다.
+읽기 전용 소스 조사 과제를 다섯 조건에서 한 번씩 실행했습니다. Azrael 세 조건은 모두 **확장 2026.0.19 / 엔진 0.162.0**, Codex 두 조건은 모두 **확장 26.1021.22027 / 엔진 0.164.0-alpha.11.1**입니다. 부모 모델은 모두 GPT-6.1 Sol/medium으로 유지했습니다. 두 제품의 부모 단독 조건은 같은 영어 과제와 동일한 위임 금지 지시를 사용하고 실제 자식 생성 0건을 확인했습니다.
 
-![측정 버전과 함께 비교한 Codex, Luna/xhigh 자식·Sol/medium 자식·부모 단독 Azrael 네 조건의 부모·자식 API 환산 비용과 전체 조사 시간](docs/images/collaboration-cost-ko.svg)
+![측정 버전과 함께 비교한 Codex 협업·부모 단독 및 Azrael Luna 자식·Sol 자식·부모 단독 다섯 조건의 부모·자식 API 환산 비용과 전체 조사 시간](docs/images/collaboration-cost-ko.svg)
 
-이번 측정에서 Azrael의 Luna/xhigh 조건은 Codex보다 **비용이 49.2% 낮고 시간은 57.5% 길었습니다.** Sol/medium 자식 조건은 Codex보다 **시간이 14.0% 짧고 비용은 24.9% 높았습니다.** 부모 단독 조건은 **269.871초, 부모 $0.4153304 / 자식 $0**로, Sol 자식 조건보다 **비용이 62.8% 낮고 시간은 2.3%(6.260초) 짧았습니다.**
+이번 측정에서 Azrael의 Luna/xhigh 조건은 Codex 협업 조건보다 **비용이 49.2% 낮고 시간은 57.5% 길었습니다.** Azrael의 Sol/medium 자식 조건은 Codex 협업 조건보다 **시간이 14.0% 짧고 비용은 24.9% 높았습니다.** Azrael 부모 단독은 **269.871초, 부모 $0.4153304 / 자식 $0**로, Azrael Sol 자식 조건보다 **비용이 62.8% 낮고 시간은 2.3%(6.260초) 짧았습니다.**
 
-각 조건 1회이며 자식 모델·추론 강도·역할 지침·자식 수·실행 시각·캐시 상태가 다릅니다. 답변 품질도 정량 비교하지 않았으므로, 하네스나 협력 지침만의 효과 또는 서브에이전트 사용의 일반적 우열을 입증하지는 않습니다.
+Codex 부모 단독은 **236.200초, 부모 $0.3618328 / 자식 $0**로, Codex 협업 조건보다 **비용이 59.6% 낮고 시간은 26.4% 짧았습니다.** 부모 단독끼리 비교하면 이번 1회에서 Codex는 Azrael보다 **비용이 12.9% 낮고 시간은 12.5%(33.671초) 짧았습니다.**
 
-비용은 실제 ChatGPT 구독 청구액이 아닌 API 환산 추정치입니다. 시간은 조사 시작부터 최종 완료까지이며 준비·승인 대기·정리는 제외했습니다. [최초 측정](work/GC-01-collaboration-cost-pilot/report.md), [Sol 조건 보고서·검증](work/GC-01-collaboration-cost-pilot/sol-result-report.md), [부모 단독 조건 보고서·검증](work/GC-01-collaboration-cost-pilot/solo-result-report.md), [공유용 PNG](docs/images/collaboration-cost-ko.png)에서 상세 수치와 근거를 볼 수 있습니다.
+각 조건 1회이며 자식 모델·추론 강도·제품/역할 지침·자식 수·실행 시각·캐시 상태가 다릅니다. 답변 품질도 정량 비교하지 않았으므로, 하네스나 협력 지침만의 효과 또는 서브에이전트 사용의 일반적 우열을 입증하지는 않습니다.
+
+비용은 실제 ChatGPT 구독 청구액이 아닌 API 환산 추정치입니다. 시간은 조사 시작부터 최종 완료까지이며 준비·승인 대기·정리는 제외했습니다. [최초 측정](work/GC-01-collaboration-cost-pilot/report.md), [Sol 자식 조건](work/GC-01-collaboration-cost-pilot/sol-result-report.md), [Azrael 부모 단독](work/GC-01-collaboration-cost-pilot/solo-result-report.md), [Codex 부모 단독 보고서·검증](work/GC-01-collaboration-cost-pilot/codex-solo-report.md), [공유용 PNG](docs/images/collaboration-cost-ko.png)에서 상세 수치와 근거를 볼 수 있습니다.
 
 ### 기다리는 동안에는 추론도 멈춥니다
 
