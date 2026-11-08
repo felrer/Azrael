@@ -2,16 +2,12 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][string]$HostVsixPath,
-    [string]$OriginalExtensionPath = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.vscode/extensions/openai.chatgpt-26.1007.21434-win32-x64'),
-    [string]$UiSourcePath,
-    [string]$OriginalAudioPath = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.vscode/extensions/openai.codex-audio-26.1007.21434'),
     [string]$StateRoot = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.azrael-ex'),
     [switch]$UseFreshState,
     [string]$CodePath = 'code.cmd',
     [string]$FixtureRoot,
     [string]$ParentLifecycleId,
-    [string]$TypeScriptPath,
-    [switch]$VerifyStandalone
+    [switch]$VerifyInstructions
 )
 
 Set-StrictMode -Version Latest
@@ -38,21 +34,6 @@ function Resolve-File {
     $resolved.Path
 }
 
-function Resolve-Directory {
-    param([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][string]$Name)
-    if (-not [IO.Path]::IsPathFullyQualified($Path)) { throw "$Name must be absolute." }
-    $resolved = Resolve-Path -LiteralPath $Path -ErrorAction Stop
-    if (-not (Test-Path -LiteralPath $resolved.Path -PathType Container)) { throw "$Name must be a directory: $Path" }
-    $resolved.Path
-}
-
-. (Join-Path $PSScriptRoot 'directory-state.ps1')
-
-function Get-DirectoryState {
-    param([Parameter(Mandatory)][string]$Path)
-    Get-AzraelDirectoryState -Path $Path
-}
-
 function Find-InstalledExtension {
     param([Parameter(Mandatory)][string]$ExtensionsDir, [Parameter(Mandatory)][string]$Id, [Parameter(Mandatory)][string]$Version)
     $matches = foreach ($directory in @(Get-ChildItem -LiteralPath $ExtensionsDir -Directory)) {
@@ -68,19 +49,6 @@ function Find-InstalledExtension {
 
 $hostVsix = Resolve-File -Path $HostVsixPath -Name 'HostVsixPath'
 $hostVsixSha256 = (Get-FileHash -LiteralPath $hostVsix -Algorithm SHA256).Hash.ToLowerInvariant()
-$originalSource = Resolve-Directory -Path $OriginalExtensionPath -Name 'OriginalExtensionPath'
-$audioSource = Resolve-Directory -Path $OriginalAudioPath -Name 'OriginalAudioPath'
-$uiSource = if ($UiSourcePath) { Resolve-Directory -Path $UiSourcePath -Name 'UiSourcePath' } else { $originalSource }
-$originalManifest = Get-Content -LiteralPath (Join-Path $originalSource 'package.json') -Raw | ConvertFrom-Json
-$audioManifest = Get-Content -LiteralPath (Join-Path $audioSource 'package.json') -Raw | ConvertFrom-Json
-$originalVersion = [string]$originalManifest.version
-$audioVersion = [string]$audioManifest.version
-if ("$($originalManifest.publisher).$($originalManifest.name)" -cne 'openai.chatgpt' -or
-    $originalVersion -notmatch '^\d+\.\d+\.\d+$' -or
-    @($originalManifest.extensionPack).Count -ne 1 -or [string]$originalManifest.extensionPack[0] -cne 'openai.codex-audio' -or
-    "$($audioManifest.publisher).$($audioManifest.name)" -cne 'openai.codex-audio' -or $audioVersion -cne $originalVersion) {
-    throw 'Selected official Codex and audio must have matching versions and the expected extension-pack entry.'
-}
 $fixturePrefix = $fixture + [IO.Path]::DirectorySeparatorChar
 if ($UseFreshState -and -not $state.StartsWith($fixturePrefix, [StringComparison]::OrdinalIgnoreCase)) {
     throw 'UseFreshState requires StateRoot to be inside the new FixtureRoot.'
@@ -104,38 +72,21 @@ if (-not $parentLifecycle) { $null = Register-ArtifactLifecycle -ProjectRoot $pr
 $lifecycleSucceeded = $false
 $logPath = Join-Path $logDirectory "same-window-$stamp.log"
 $resultPath = Join-Path $fixture 'host-result.json'
-$standaloneResultPath = Join-Path $fixture 'standalone-host-result.json'
 $summaryPath = Join-Path $fixture 'check-result.json'
 $userData = Join-Path $fixture 'user-data'
-$standaloneUserData = Join-Path $fixture 'standalone-user-data'
-$coexistenceUserData = Join-Path $fixture 'coexistence-user-data'
 $fixtureOrdinaryHome = Join-Path $fixture 'original-state'
 $extensions = Join-Path $fixture 'extensions'
 $workspace = Join-Path $fixture 'workspace'
-New-Item -ItemType Directory -Path $logDirectory, (Join-Path $userData 'User'), `
-    (Join-Path $standaloneUserData 'User'), (Join-Path $coexistenceUserData 'User'), $fixtureOrdinaryHome, $extensions, $workspace -Force | Out-Null
+New-Item -ItemType Directory -Path $logDirectory, (Join-Path $userData 'User'), $fixtureOrdinaryHome, $extensions, $workspace -Force | Out-Null
 
 $exitCodes = [ordered]@{ initialInventory = $null; hostInstall = $null; finalInventory = $null; host = $null }
-if ($VerifyStandalone) { $exitCodes.standaloneHost = $null }
-$sourceBefore = Get-DirectoryState -Path $originalSource
-$originalFixture = Join-Path $extensions (Split-Path $originalSource -Leaf)
-$fixtureOriginalExpected = [ordered]@{ path = $originalFixture; sha256 = $sourceBefore.sha256; fileCount = $sourceBefore.fileCount; bytes = $sourceBefore.bytes }
-$audioFixture = Join-Path $extensions (Split-Path $audioSource -Leaf)
 $runtimeConfigOverride = $null
 try {
-    & robocopy.exe $originalSource $originalFixture /E /MT:8 /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
-    if ($LASTEXITCODE -gt 7) { throw "Pristine original fixture copy failed with exit code $LASTEXITCODE." }
-    $global:LASTEXITCODE = 0
-    & robocopy.exe $audioSource $audioFixture /E /MT:8 /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
-    if ($LASTEXITCODE -gt 7) { throw "Official audio dependency fixture copy failed with exit code $LASTEXITCODE." }
-    $global:LASTEXITCODE = 0
-
     $initial = @(& $code --user-data-dir $userData --extensions-dir $extensions --list-extensions --show-versions 2>&1)
     $exitCodes.initialInventory = $LASTEXITCODE
     @($initial) | Set-Content -LiteralPath $logPath -Encoding utf8NoBOM
-    if ($exitCodes.initialInventory -ne 0 -or $initial -notcontains "openai.chatgpt@$originalVersion" -or
-        $initial -notcontains "openai.codex-audio@$audioVersion") {
-        throw "Initial fixture inventory did not contain selected official Codex and audio dependency (exit $($exitCodes.initialInventory))."
+    if ($exitCodes.initialInventory -ne 0 -or @($initial | Where-Object { $_ -match '^openai\.(chatgpt|codex-audio)@' -or $_ -match '^azrael-ex-local\.azrael@' }).Count) {
+        throw "Initial fixture inventory was not an empty host profile (exit $($exitCodes.initialInventory))."
     }
 
     $hostInstall = @(& $code --user-data-dir $userData --extensions-dir $extensions --install-extension $hostVsix 2>&1)
@@ -146,9 +97,7 @@ try {
     $inventory = @(& $code --user-data-dir $userData --extensions-dir $extensions --list-extensions --show-versions 2>&1)
     $exitCodes.finalInventory = $LASTEXITCODE
     @($inventory) | Add-Content -LiteralPath $logPath -Encoding utf8NoBOM
-    if ($inventory -notcontains "openai.chatgpt@$originalVersion" -or $inventory -notcontains "openai.codex-audio@$audioVersion") {
-        throw "Final fixture inventory omitted selected official Codex or audio dependency (exit $($exitCodes.finalInventory))."
-    }
+    if (@($inventory | Where-Object { $_ -match '^openai\.(chatgpt|codex-audio)@' }).Count) { throw 'Standalone fixture unexpectedly contained official Codex or audio.' }
     if (@($inventory | Where-Object { $_ -match '^azrael-ex-local\.azrael-ex@' }).Count -ne 0) { throw 'Final fixture inventory contained the retired companion extension.' }
     if ($exitCodes.finalInventory -ne 0) { throw "Final fixture inventory failed with exit code $($exitCodes.finalInventory)." }
     $hostInventory = @($inventory | Where-Object { $_ -match '^azrael-ex-local\.azrael@((0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))$' })
@@ -227,25 +176,9 @@ exports.deactivate = function () {};
         $env:SAME_WINDOW_EXPECTED_STATE_ROOT = $state
         $env:SAME_WINDOW_EXPECTED_ORDINARY_HOME = $fixtureOrdinaryHome
         $env:SAME_WINDOW_EXPECTED_HOST_VERSION = $hostVersion
-        $env:SAME_WINDOW_EXPECTED_ORIGINAL_VERSION = $originalVersion
-        # Only the test runner is a development extension. The original and
-        # integrated host activate as installed, without proposed-API elevation.
-        if ($VerifyStandalone) {
-        $env:SAME_WINDOW_CHECK_MODE = 'standalone'
-        # The generated test workspace is owned by this fixture. Test normal trusted
-        # activation without changing trust settings in any user profile.
-        $standaloneOutput = @(& $code --disable-updates --disable-workspace-trust --user-data-dir $standaloneUserData --extensions-dir $extensions --new-window --wait --skip-welcome --skip-release-notes `
-            --disable-extension 'openai.chatgpt' --extensionDevelopmentPath $runner $workspace 2>&1)
-        $exitCodes.standaloneHost = $LASTEXITCODE
-        @($standaloneOutput) | Add-Content -LiteralPath $logPath -Encoding utf8NoBOM
-        if ($exitCodes.standaloneHost -ne 0) { throw "Standalone integrated-host check failed with exit code $($exitCodes.standaloneHost)." }
-        if (-not (Test-Path -LiteralPath $standaloneResultPath -PathType Leaf)) { throw 'Standalone host result was not written.' }
-        $standaloneResult = Get-Content -LiteralPath $standaloneResultPath -Raw | ConvertFrom-Json -AsHashtable
-        if ($standaloneResult['passed'] -ne $true) { throw "Standalone host result failed: $($standaloneResult['error'])" }
-        }
-
-        $env:SAME_WINDOW_CHECK_MODE = 'coexistence'
-        $hostOutput = @(& $code --disable-updates --disable-workspace-trust --user-data-dir $coexistenceUserData --extensions-dir $extensions --new-window --wait --skip-welcome --skip-release-notes `
+        $env:SAME_WINDOW_VERIFY_INSTRUCTIONS = if ($VerifyInstructions) { '1' } else { '0' }
+        # Only the test runner is a development extension; Azrael is installed normally.
+        $hostOutput = @(& $code --disable-updates --disable-workspace-trust --user-data-dir $userData --extensions-dir $extensions --new-window --wait --skip-welcome --skip-release-notes `
             --extensionDevelopmentPath $runner $workspace 2>&1)
         $exitCodes.host = $LASTEXITCODE
         @($hostOutput) | Add-Content -LiteralPath $logPath -Encoding utf8NoBOM
@@ -254,8 +187,7 @@ exports.deactivate = function () {};
         Remove-Item Env:SAME_WINDOW_EXPECTED_STATE_ROOT -ErrorAction SilentlyContinue
         Remove-Item Env:SAME_WINDOW_EXPECTED_ORDINARY_HOME -ErrorAction SilentlyContinue
         Remove-Item Env:SAME_WINDOW_EXPECTED_HOST_VERSION -ErrorAction SilentlyContinue
-        Remove-Item Env:SAME_WINDOW_EXPECTED_ORIGINAL_VERSION -ErrorAction SilentlyContinue
-        Remove-Item Env:SAME_WINDOW_CHECK_MODE -ErrorAction SilentlyContinue
+        Remove-Item Env:SAME_WINDOW_VERIFY_INSTRUCTIONS -ErrorAction SilentlyContinue
         Remove-Item Env:CODEX_HOME -ErrorAction SilentlyContinue
         foreach ($entry in $savedEnvironment.GetEnumerator()) { Set-Item -LiteralPath "Env:$($entry.Key)" -Value $entry.Value }
     }
@@ -266,21 +198,13 @@ exports.deactivate = function () {};
     $hostResult = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json -AsHashtable
     if ($hostResult['passed'] -ne $true) { throw "Same-window host result failed: $($hostResult['error'])" }
 
-    $sourceAfter = Get-DirectoryState -Path $originalSource
-    $fixtureOriginalAfter = Get-DirectoryState -Path $originalFixture
-    if ($sourceAfter.sha256 -cne $sourceBefore.sha256 -or $sourceAfter.fileCount -ne $sourceBefore.fileCount -or $sourceAfter.bytes -ne $sourceBefore.bytes -or
-        $fixtureOriginalAfter.sha256 -cne $fixtureOriginalExpected.sha256 -or $fixtureOriginalAfter.fileCount -ne $fixtureOriginalExpected.fileCount -or $fixtureOriginalAfter.bytes -ne $fixtureOriginalExpected.bytes) {
-        throw 'Original Codex source changed or validation fixture differs from the source snapshot.'
-    }
+    if ($hostResult.mode -cne 'standalone' -or $hostResult.instructionsVerified -isnot [bool] -or $hostResult.instructionsVerified -ne [bool]$VerifyInstructions) { throw 'Host result mode or Instructions scope mismatch.' }
     $summary = [ordered]@{
-        passed = $true; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; standaloneHostResult = $(if ($VerifyStandalone) { $standaloneResultPath } else { $null }); hostResult = $resultPath; log = $logPath
-        standaloneVerified = [bool]$VerifyStandalone
+        passed = $true; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; hostResult = $resultPath; log = $logPath
+        hostMode = 'standalone'; standaloneVerified = $true; instructionsVerified = [bool]$VerifyInstructions
         exitCodes = $exitCodes; inventory = $inventory; useFreshState = [bool]$UseFreshState
-        uiSourcePath = $uiSource; officialVersions = [ordered]@{ codex = $originalVersion; audio = $audioVersion }
         hostPackage = [ordered]@{ vsix = $hostVsix; sha256 = $hostVsixSha256; version = $hostVersion; installedPath = $installedHost }
         runtimeConfigOverride = $runtimeConfigOverride
-        originalSource = [ordered]@{ before = $sourceBefore; after = $sourceAfter; unchanged = $true }
-        originalFixture = [ordered]@{ expected = $fixtureOriginalExpected; after = $fixtureOriginalAfter; matchesSource = $true }
         loginPerformed = $false; modelRequestPerformed = $false; newThreadPerformed = $false; testObjectMutationPerformed = $false
     }
     $summary | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $summaryPath -Encoding utf8NoBOM
@@ -292,9 +216,8 @@ exports.deactivate = function () {};
     if (-not (Test-Path -LiteralPath $logPath -PathType Leaf)) { $failure.Exception.ToString() | Set-Content -LiteralPath $logPath -Encoding utf8NoBOM }
     $failureResult = [ordered]@{
         passed = $false; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; log = $logPath; exitCodes = $exitCodes; useFreshState = [bool]$UseFreshState
-        standaloneVerified = $false
+        hostMode = 'standalone'; standaloneVerified = $false; instructionsVerified = $false
         hostPackage = [ordered]@{ vsix = $hostVsix; sha256 = $hostVsixSha256 }; runtimeConfigOverride = $runtimeConfigOverride
-        uiSourcePath = $uiSource; officialVersions = [ordered]@{ codex = $originalVersion; audio = $audioVersion }
         error = $failure.Exception.Message; loginPerformed = $false; modelRequestPerformed = $false; newThreadPerformed = $false; testObjectMutationPerformed = $false
     }
     $failureResult | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $summaryPath -Encoding utf8NoBOM
@@ -304,7 +227,7 @@ exports.deactivate = function () {};
 finally {
     $producerStopped = $false
     try {
-        $ownedProcesses = @(Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object { $_.CommandLine -and ($_.CommandLine.Contains($userData) -or $_.CommandLine.Contains($standaloneUserData) -or $_.CommandLine.Contains($coexistenceUserData)) })
+        $ownedProcesses = @(Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object { $_.CommandLine -and $_.CommandLine.Contains($userData) })
         $producerStopped = $ownedProcesses.Count -eq 0
     } catch { $producerStopped = $false }
     $stateResult = if (-not $producerStopped) { 'pending' } elseif ($lifecycleSucceeded) { 'complete' } else { 'failed' }

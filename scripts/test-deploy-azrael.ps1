@@ -43,7 +43,8 @@ $changedCases += @('vsix entry index')
 $changedCases += @('stage environment identity')
 $changedCases += @('release packaging parent')
 $changedCases += @('runtime staging resume')
-$changedCases += @('host copy baseline')
+$changedCases += @('standalone host acceptance')
+$changedCases += @('instructions selection')
 $changedCases += @('source handoff unavailable')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
@@ -336,7 +337,7 @@ $featureIds=if($ChangedOnlyTests){@()}else{@($scenario.uiFeatureIds)}
 if($scenario.mode -eq 'prepare-mutation'){'changed' | Set-Content (Join-Path $root 'input.txt')}
 '@
 $checkStub = @'
-param([string]$HostVsixPath,[string]$FixtureRoot,[string]$ParentLifecycleId,[string]$StateRoot,[switch]$UseFreshState,[string]$TypeScriptPath,[string]$UiSourcePath,[string]$OriginalExtensionPath,[string]$OriginalAudioPath,[string]$CodePath,[switch]$VerifyStandalone)
+param([string]$HostVsixPath,[string]$FixtureRoot,[string]$ParentLifecycleId,[string]$StateRoot,[switch]$UseFreshState,[string]$TypeScriptPath,[string]$UiSourcePath,[string]$CodePath,[switch]$VerifyInstructions)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
@@ -353,12 +354,11 @@ if(-not (Test-Path (Join-Path $a 'source-end.json'))){throw 'acceptance started 
 if($scenario.mode -like 'account-*'){
  foreach($marker in @('native-end.json','prepare-end.json','account-passed.json')){if(-not (Test-Path (Join-Path $a $marker))){throw "acceptance prerequisite missing: $marker"}}
 }
-@{HostVsixPath=$HostVsixPath;FixtureRoot=$FixtureRoot;ParentLifecycleId=$ParentLifecycleId;StateRoot=$StateRoot;UseFreshState=[bool]$UseFreshState;TypeScriptPath=$TypeScriptPath;UiSourcePath=$UiSourcePath;OriginalExtensionPath=$OriginalExtensionPath;OriginalAudioPath=$OriginalAudioPath;CodePath=$CodePath;VerifyStandalone=[bool]$VerifyStandalone} | ConvertTo-Json | Set-Content (Join-Path $a 'check-invocation.json')
+@{HostVsixPath=$HostVsixPath;FixtureRoot=$FixtureRoot;ParentLifecycleId=$ParentLifecycleId;StateRoot=$StateRoot;UseFreshState=[bool]$UseFreshState;TypeScriptPath=$TypeScriptPath;UiSourcePath=$UiSourcePath;CodePath=$CodePath;VerifyInstructions=[bool]$VerifyInstructions} | ConvertTo-Json | Set-Content (Join-Path $a 'check-invocation.json')
 New-Item -ItemType Directory -Path $FixtureRoot | Out-Null
 if($scenario.mode -eq 'acceptance-command-fail'){[Console]::Error.WriteLine('causal acceptance failure');exit 31}
 if($scenario.mode -eq 'missing-acceptance'){exit 0}
 $exitCodes=[ordered]@{initialInventory=0;hostInstall=0;finalInventory=0;host=0}
-if($VerifyStandalone){$exitCodes.standaloneHost=0}
 if($scenario.mode -eq 'failed-stage'){$exitCodes[$scenario.stage]=5}
 if($scenario.mode -eq 'missing-stage'){$exitCodes.Remove('host')}
 if($scenario.mode -eq 'null-stage'){$exitCodes.host=$null}
@@ -368,7 +368,11 @@ $identity=@{vsix=$HostVsixPath;sha256=(Get-FileHash -LiteralPath $HostVsixPath).
 if($scenario.mode -eq 'acceptance-hash'){$identity.sha256='bad'}
 if($scenario.mode -eq 'acceptance-version'){$identity.version='2.0.0'}
 if($scenario.mode -eq 'acceptance-path'){$identity.vsix=Join-Path $a 'latest/azrael-host.vsix'}
-@{passed=$passed;exitCodes=$exitCodes;hostPackage=$identity;useFreshState=[bool]$UseFreshState;standaloneVerified=[bool]$VerifyStandalone} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $FixtureRoot 'check-result.json')
+$acceptance=@{passed=$passed;exitCodes=$exitCodes;hostPackage=$identity;useFreshState=[bool]$UseFreshState;hostMode='standalone';standaloneVerified=$true;instructionsVerified=[bool]$VerifyInstructions}
+if($scenario.mode -eq 'wrong-host-mode'){$acceptance.hostMode='coexistence'}
+if($scenario.mode -eq 'wrong-instructions-scope'){$acceptance.instructionsVerified=-not [bool]$VerifyInstructions}
+if($scenario.mode -eq 'false-standalone'){$acceptance.standaloneVerified=$false}
+$acceptance | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $FixtureRoot 'check-result.json')
 if($scenario.mode -eq 'package-mutation'){'changed' | Add-Content -LiteralPath $HostVsixPath}
 if($scenario.mode -eq 'check-mutation'){'changed' | Set-Content (Join-Path $root 'input.txt')}
 if($scenario.mode -eq 'check-addition'){'new' | Set-Content (Join-Path $root 'new.txt')}
@@ -457,56 +461,61 @@ function Test-VsixEntryIndex([string]$FixtureRoot, [string]$PreparationPath) {
     [pscustomobject]@{Scenarios=$scenarios.Count;Passed=$scenarios.Count}
 }
 
-function Test-HostCopyBaseline([string]$FixtureRoot, [string]$CheckPath, [string]$StateScript = (Join-Path (Split-Path $CheckPath -Parent) 'directory-state.ps1')) {
-    $tokens = $null; $parseErrors = $null
-    $ast = [Management.Automation.Language.Parser]::ParseFile($CheckPath, [ref]$tokens, [ref]$parseErrors)
-    if ($parseErrors.Count) { throw 'Host check script syntax failed.' }
-    $assignments = @{}
-    foreach ($name in @('sourceBefore', 'fixtureOriginalExpected', 'sourceAfter', 'fixtureOriginalAfter', 'summary')) {
-        $assignments[$name] = $ast.Find({param($n) $n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left -is [Management.Automation.Language.VariableExpressionAst] -and $n.Left.VariablePath.UserPath -eq $name}, $true)
-        if (-not $assignments[$name]) { throw "Host preservation assignment missing: $name" }
+function Test-InstructionsVerificationSelection([string]$DeployPath) {
+    $ast = [Management.Automation.Language.Parser]::ParseFile($DeployPath, [ref]$null, [ref]$null)
+    $selection = $ast.Find({param($n) $n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left.Extent.Text -eq '$instructionsRequired'}, $true)
+    $instructionOwners = @('extensions/azrael-ex/src/instructionView.ts')
+    $cases = @(@{paths=@('docs/README.md');expected=$false},@{paths=@('extensions/azrael-ex/src/instructionView.ts');expected=$true},@{paths=@('instructions/task-memory/a.md');expected=$true},@{paths=@('extensions\azrael-ex\src\instructionView.ts');expected=$true},@{paths=@();expected=$false},@{paths=@();explicit=$true;expected=$true},@{paths=@();full=$true;expected=$true})
+    foreach ($case in $cases) {
+        # Default deployment derives policyPaths from Git without ChangedPath.
+        $ChangedPath = $null; $policyPaths = $case.paths
+        $VerifyInstructions = [bool]$case['explicit']; $FullRegression = [bool]$case['full']
+        . ([scriptblock]::Create($selection.Extent.Text))
+        Assert-True ($instructionsRequired -eq $case.expected) 'Instructions selection lost derived paths or explicit scope'
     }
-    $statements = @($assignments.sourceAfter.Parent.Statements)
-    $index = [array]::IndexOf($statements, $assignments.sourceAfter)
-    $finalCheck = [scriptblock]::Create(($statements[$index..($index+2)].Extent.Text -join "`n"))
-    $summaryTable = $assignments.summary.Right.Find({param($n) $n -is [Management.Automation.Language.HashtableAst]}, $true)
-    $reportExpressions = @{}
-    foreach ($pair in $summaryTable.KeyValuePairs) { if ($pair.Item1.Value -in @('originalSource', 'originalFixture')) { $reportExpressions[$pair.Item1.Value] = [scriptblock]::Create($pair.Item2.Extent.Text) } }
-    . $StateScript
-    $reads = [Collections.Generic.List[string]]::new()
-    function Get-DirectoryState([string]$Path) { $reads.Add($Path); Get-AzraelDirectoryState -Path $Path }
-    $scenarios = @('normal', 'source-change', 'fixture-change', 'fixture-add', 'fixture-delete')
-    foreach ($scenario in $scenarios) {
-        $reads.Clear()
-        $originalSource = Join-Path $FixtureRoot "$scenario/source"
-        $originalFixture = Join-Path $FixtureRoot "$scenario/fixture"
-        New-Item -ItemType Directory -Path $originalSource, $originalFixture | Out-Null
-        foreach ($directory in @($originalSource, $originalFixture)) {
-            [IO.File]::WriteAllText((Join-Path $directory 'a.txt'), 'alpha')
-            [IO.File]::WriteAllText((Join-Path $directory 'b.txt'), 'beta')
-        }
-        . ([scriptblock]::Create($assignments.sourceBefore.Extent.Text))
-        . ([scriptblock]::Create($assignments.fixtureOriginalExpected.Extent.Text))
-        switch ($scenario) {
-            'source-change' { [IO.File]::WriteAllText((Join-Path $originalSource 'a.txt'), 'gamma') }
-            'fixture-change' { [IO.File]::WriteAllText((Join-Path $originalFixture 'a.txt'), 'gamma') }
-            'fixture-add' { [IO.File]::WriteAllText((Join-Path $originalFixture 'extra.txt'), 'x') }
-            'fixture-delete' { Remove-Item -LiteralPath (Join-Path $originalFixture 'b.txt') }
-        }
-        $failure = $null
-        try { . $finalCheck } catch { $failure = $_.Exception.Message }
-        if ($reads.Count -ne 3 -or @($reads | Where-Object { $_ -ceq $originalSource }).Count -ne 2 -or @($reads | Where-Object { $_ -ceq $originalFixture }).Count -ne 1) { throw 'Host preservation must measure source twice and fixture once.' }
-        if ($scenario -ne 'normal') {
-            if ($failure -cne 'Original Codex source changed or validation fixture differs from the source snapshot.') { throw "Preservation missed ${scenario}: $failure" }
-            continue
-        }
-        if ($failure) { throw $failure }
-        $sourceReport = . $reportExpressions.originalSource
-        $fixtureReport = . $reportExpressions.originalFixture
-        if (-not $sourceReport.unchanged -or $sourceReport.before.path -cne $originalSource -or $sourceReport.after.sha256 -cne $sourceBefore.sha256) { throw 'Source observation report differs.' }
-        if (-not $fixtureReport.matchesSource -or $fixtureReport.expected.path -cne $originalFixture -or $fixtureReport.expected.sha256 -cne $sourceBefore.sha256 -or $fixtureReport.after.sha256 -cne $fixtureReport.expected.sha256 -or $fixtureReport.Contains('before') -or $fixtureReport.Contains('unchanged')) { throw 'Fixture expectations must be distinct from observations.' }
+    return @{Passed=$cases.Count;Failed=0}
+}
+
+function Test-StandaloneHostAcceptance([string]$FixtureRoot) {
+    New-Item -ItemType Directory -Path $FixtureRoot | Out-Null
+    $cliScript = Join-Path $FixtureRoot 'code-fixture.cjs'
+    $cli = Join-Path $FixtureRoot 'code-fixture.cmd'
+    @'
+const fs=require('node:fs'),path=require('node:path');
+const args=process.argv.slice(2),value=k=>args[args.indexOf(k)+1],root=__dirname;
+fs.appendFileSync(path.join(root,'calls.jsonl'),JSON.stringify({args,instructions:process.env.SAME_WINDOW_VERIFY_INSTRUCTIONS})+'\n');
+const extensions=value('--extensions-dir');
+if(args.includes('--install-extension')){
+ const host=path.join(extensions,'azrael-fixture'); fs.mkdirSync(path.join(host,'out'),{recursive:true});
+ fs.writeFileSync(path.join(host,'package.json'),JSON.stringify({publisher:'azrael-ex-local',name:'azrael',version:'1.2.3'}));
+ fs.writeFileSync(path.join(host,'out/azrael-runtime.json'),JSON.stringify({codexHome:path.join(root,'packaged-state'),engine:'fixture-engine',bridge:'fixture-bridge'}));
+}else if(args.includes('--list-extensions')){
+ if(fs.existsSync(path.join(extensions,'azrael-fixture')))console.log('azrael-ex-local.azrael@1.2.3');
+}else{
+ if(!args.includes('--new-window')||args.includes('--disable-extension'))throw Error('Unexpected host launch');
+ if(fs.readdirSync(extensions).some(n=>n.includes('openai')))throw Error('Official extension copied');
+ const fixture=process.env.SAME_WINDOW_CHECK_ROOT;
+ fs.writeFileSync(path.join(fixture,'host-result.json'),JSON.stringify({passed:true,mode:'standalone',instructionsVerified:process.env.SAME_WINDOW_VERIFY_INSTRUCTIONS==='1'}));
+}
+'@ | Set-Content -LiteralPath $cliScript -Encoding utf8NoBOM
+    ('@"{0}" "{1}" %*' -f (Get-Command node -CommandType Application).Source, $cliScript) | Set-Content -LiteralPath $cli -Encoding ascii
+    $vsix = Join-Path $FixtureRoot 'host.vsix'
+    'fixture package bytes' | Set-Content -LiteralPath $vsix
+    foreach ($verifyInstructions in @($false,$true)) {
+        $fixture = Join-Path $FixtureRoot $(if($verifyInstructions){'i'}else{'n'})
+        $arguments = @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $PSScriptRoot 'check-independent-vscode.ps1'),'-HostVsixPath',$vsix,'-FixtureRoot',$fixture,'-StateRoot',(Join-Path $fixture 's'),'-UseFreshState','-CodePath',$cli,'-ParentLifecycleId',$lifecycleId)
+        if($verifyInstructions){$arguments += '-VerifyInstructions'}
+        & $pwsh @arguments *> (Join-Path $FixtureRoot "check-$verifyInstructions.log")
+        Assert-True ($LASTEXITCODE -eq 0) "Standalone checker failed; see $FixtureRoot/check-$verifyInstructions.log"
+        $result = Get-Content -LiteralPath (Join-Path $fixture 'check-result.json') -Raw | ConvertFrom-Json
+        Assert-True ($result.passed -and $result.hostMode -ceq 'standalone' -and $result.standaloneVerified -and $result.instructionsVerified -eq $verifyInstructions) 'Standalone result scope mismatch'
+        Assert-True (@($result.exitCodes.PSObject.Properties).Count -eq 4 -and $result.exitCodes.host -eq 0) 'Standalone stage receipt mismatch'
+        Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $fixture 'extensions') -Directory).Count -eq 1) 'Checker prepared extra extensions'
+        Assert-True (-not (Test-Path (Join-Path $fixture 'coexistence-user-data')) -and -not (Test-Path (Join-Path $fixture 'standalone-user-data'))) 'Checker prepared redundant profiles'
     }
-    [pscustomobject]@{Scenarios=$scenarios.Count;Passed=$scenarios.Count;HashCallsPerScenario=3}
+    $calls = @(Get-Content -LiteralPath (Join-Path $FixtureRoot 'calls.jsonl') | ConvertFrom-Json)
+    Assert-True ($calls.Count -eq 8 -and @($calls | Where-Object { '--new-window' -in $_.args }).Count -eq 2) 'Checker must launch exactly one host per invocation'
+    return @{invocations=2;cliCalls=8;hostLaunches=2;officialExtensions=0;instructionsModes=@($false,$true)}
 }
 
 function Test-StageEnvironmentIdentity {
@@ -668,6 +677,10 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
+    if ($Mode -eq 'instructions-selection') {
+        $details = Test-InstructionsVerificationSelection (Join-Path $PSScriptRoot 'deploy-azrael.ps1')
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
+    }
     if ($Mode -eq 'stage-environment-identity') {
         $details = Test-StageEnvironmentIdentity (Join-Path $PSScriptRoot 'deploy-azrael.ps1') (Join-Path $PSScriptRoot 'build-azrael.ps1') (Join-Path $PSScriptRoot 'build-metrics.ps1')
         $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
@@ -680,8 +693,8 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         $details = Test-RuntimeStagingResume (Join-Path $root 'resume') (Join-Path $PSScriptRoot 'build-azrael.ps1')
         $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
     }
-    if ($Mode -eq 'host-copy-baseline') {
-        $details = Test-HostCopyBaseline (Join-Path $root 'copy-baseline') (Join-Path $PSScriptRoot 'check-independent-vscode.ps1')
+    if ($Mode -eq 'standalone-host-acceptance') {
+        $details = Test-StandaloneHostAcceptance (Join-Path $shortTemporary 'h')
         $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null;details=$details});return
     }
     if ($Mode -eq 'vsix-entry-index') {
@@ -1036,7 +1049,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
  console.log('{}');
 })().catch(error=>{console.error(error);process.exitCode=9;});
 '@
-    @{features=@(@{id='engine.fixture';area='engine';owners=@('engine/codex-rs/core/src/session/mod.rs')})} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $scripts 'azrael-feature-contracts.json') -Encoding utf8NoBOM
+    @{features=@(@{id='engine.fixture';area='engine';owners=@('engine/codex-rs/core/src/session/mod.rs')},@{id='ui.instruction-settings';area='ui';owners=@('extensions/azrael-ex/src/instructionView.ts')})} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $scripts 'azrael-feature-contracts.json') -Encoding utf8NoBOM
     Write-Utf8 (Join-Path $scripts 'build-azrael.ps1') $buildStub
     Write-Utf8 (Join-Path $scripts 'check-accounts.mjs') $accountControlsStub
     Write-Utf8 (Join-Path $scripts 'prepare-independent-vscode.ps1') $prepareStub
@@ -1090,7 +1103,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     # The deployment process computes its account socket before launching the
     # mocked command, so it also inherits the registered short temporary owner.
     foreach($temporaryName in @('TEMP','TMP','TMPDIR')){$info.Environment[$temporaryName]=$shortTemporary}
-    $argsList = @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $scripts 'deploy-azrael.ps1'),'-ReleaseName','chosen','-SourceRoot',(Join-Path $root 'engine'),'-UiSourcePath',(Join-Path $a 'pristine UI'),'-OriginalExtensionPath',(Join-Path $a 'original Codex'),'-OriginalAudioPath',(Join-Path $a 'original audio'),'-StateRoot',(Join-Path $a 'install state'),'-SourceCodexHome',(Join-Path $a 'source codex'),'-WorkspacePath',(Join-Path $a 'workspace'),'-ExtensionsDir',(Join-Path $a 'profile extensions'),'-UserDataDir',(Join-Path $a 'user data'),'-CodePath','code fixture.cmd')
+    $argsList = @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $scripts 'deploy-azrael.ps1'),'-ReleaseName','chosen','-SourceRoot',(Join-Path $root 'engine'),'-UiSourcePath',(Join-Path $a 'pristine UI'),'-StateRoot',(Join-Path $a 'install state'),'-SourceCodexHome',(Join-Path $a 'source codex'),'-WorkspacePath',(Join-Path $a 'workspace'),'-ExtensionsDir',(Join-Path $a 'profile extensions'),'-UserDataDir',(Join-Path $a 'user data'),'-CodePath','code fixture.cmd')
     if(-not $FullBuild){$argsList += @('-SkipEngineBuild','-EngineDirectory',(Join-Path $a 'explicit engine'))}
     else{$argsList += @('-CodeModeHostPath',(Join-Path $a 'code mode host.exe'),'-VirtualInputRuntimeDirectory',(Join-Path $a 'official virtual input runtime'),'-MultiPointerRuntimeDirectory',(Join-Path $a 'official multi pointer runtime'),'-ComputerUseRuntimeDirectory',(Join-Path $a 'official computer runtime'),'-ComputerUsePluginDirectory',(Join-Path $a 'official computer plugin'))}
     $target=if($TargetKind -eq 'relative'){'relative-cache'}else{Join-Path $a 'engine cache 한글'}
@@ -1403,8 +1416,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         $expectedTool=if($ModuleCache){Join-Path $a 'cache/modules/companion/pinned/companion/node_modules/typescript/lib/typescript.js'}else{Join-Path $a 'build/chosen/companion/node_modules/typescript/lib/typescript.js'}
         Assert-True ($prepare.TypeScriptPath -ceq $expectedTool) 'wrong pinned TypeScript'
         Assert-True (-not $check.TypeScriptPath -and $check.UseFreshState -eq $true) 'acceptance must use fresh state without historical build tools'
-        if($Name -eq 'explicit policy verify only'){Assert-True (-not $check.VerifyStandalone) 'unrelated declared changes must not launch standalone host'}
-        if($Name -in @('host changes verify only','runtime changes verify only','account source verify only') -or $FullRegression -or $Exhaustive -or -not $PolicyChangedPath){Assert-True ($check.VerifyStandalone) 'host changes, exhaustive or unknown scope require standalone activation'}
+        Assert-True ($check.VerifyInstructions -eq ($FullRegression -or $Exhaustive -or $PolicyChangedPath -eq 'extensions/azrael-ex/src/instructionView.ts')) 'Instructions must be scoped to related or full verification'
         Assert-True ($check.HostVsixPath -ceq (Join-Path $prepare.OutputDirectory 'azrael-host.vsix')) 'acceptance used a different package'
         $expectedFixtureState = Join-Path $check.FixtureRoot $(if ($Name -eq 'short fixture install') { 's' } else { 'state' })
         Assert-True ($check.StateRoot -ceq $expectedFixtureState) 'fixture state was not isolated with the selected short/default child'
@@ -1416,7 +1428,6 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
         Assert-True ($prepare.SourceExtensionPath -ceq (Join-Path $a 'pristine UI')) 'prepare UI pin lost'
         Assert-True ($prepare.SkipCodexEnvironmentSnapshot -is [bool] -and $prepare.SkipCodexEnvironmentSnapshot -eq $SkipSnapshot) 'prepare snapshot policy was not forwarded exactly'
         Assert-True ([string]::IsNullOrEmpty($check.UiSourcePath)) 'final acceptance must use the prepared package without the preparation UI source'
-        Assert-True ($check.OriginalExtensionPath -ceq (Join-Path $a 'original Codex') -and $check.OriginalAudioPath -ceq (Join-Path $a 'original audio')) 'original extension preservation paths lost'
         if($installed){
             $install=Get-Content (Join-Path $a 'install-invocation.json') -Raw | ConvertFrom-Json
             Assert-True ($install.PreparedPackageDirectory -ceq $prepare.OutputDirectory -and $install.ReleaseDirectory -ceq $prepare.ReleaseDirectory -and $install.NoLaunch -eq $true) 'installer did not receive exact release/package and NoLaunch'
@@ -1490,7 +1501,8 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
 }
     Invoke-Case 'vsix entry index' 'vsix-entry-index'
-    Invoke-Case 'host copy baseline' 'host-copy-baseline'
+    Invoke-Case 'standalone host acceptance' 'standalone-host-acceptance'
+    Invoke-Case 'instructions selection' 'instructions-selection'
     Invoke-Case 'deployment capacity guard' 'deployment-capacity'
     Invoke-Case 'stage environment identity' 'stage-environment-identity'
     Invoke-Case 'release packaging parent' 'release-packaging-parent'
@@ -1516,6 +1528,7 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'exhaustive regression verify only' 'success' $true -Exhaustive $true
     Invoke-Case 'related integration verify only' 'success' $true -PolicyChangedPath 'engine/codex-rs/core/src/session/mod.rs'
     Invoke-Case 'explicit policy verify only' 'success' $true -PolicyChangedPath 'docs/README.md'
+    Invoke-Case 'instructions changes verify only' 'success' $true -PolicyChangedPath 'extensions/azrael-ex/src/instructionView.ts'
     Invoke-Case 'host changes verify only' 'success' $true -PolicyChangedPath 'scripts/integrated-azrael-entry.cjs'
     Invoke-Case 'runtime changes verify only' 'success' $true -PolicyChangedPath 'scripts/shared-engine-host.cjs'
     Invoke-Case 'account source verify only' 'success' $true -PolicyChangedPath 'extensions/azrael-ex/src/extension.ts'
@@ -1535,8 +1548,8 @@ const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
     Invoke-Case 'account-success' 'account-success' $false '' $true
     foreach($mode in @('account-command-fail','account-missing-report','account-status','account-route','account-engine','account-bridge','account-model-request','account-credit-request','account-string-count')){Invoke-Case $mode $mode $false '' $true}
     foreach($mode in @('install-nonthrow-exit','install-no-result','install-failed-receipt','install-wrong-receipt-package','install-wrong-receipt-version')){Invoke-Case $mode $mode}
-    foreach($mode in @('source-fail','build-fail','command-error','prepare-fail','acceptance-command-fail','install-fail','build-mutation','prepare-mutation','check-mutation','check-addition','check-deletion','submodule-mutation','prepared-hash','prepared-version','wrong-package','missing-acceptance','missing-stage','null-stage','passed-false','passed-string','acceptance-hash','acceptance-version','acceptance-path','package-mutation')){Invoke-Case $mode $mode}
-    foreach($stage in @('initialInventory','hostInstall','finalInventory','standaloneHost','host')){Invoke-Case "stage-$stage" 'failed-stage' $false $stage}
+    foreach($mode in @('source-fail','build-fail','command-error','prepare-fail','acceptance-command-fail','install-fail','build-mutation','prepare-mutation','check-mutation','check-addition','check-deletion','submodule-mutation','prepared-hash','prepared-version','wrong-package','missing-acceptance','missing-stage','null-stage','wrong-host-mode','wrong-instructions-scope','false-standalone','passed-false','passed-string','acceptance-hash','acceptance-version','acceptance-path','package-mutation')){Invoke-Case $mode $mode}
+    foreach($stage in @('initialInventory','hostInstall','finalInventory','host')){Invoke-Case "stage-$stage" 'failed-stage' $false $stage}
     Assert-True ($results.Count -gt 0) 'No regression cases matched Case.'
     $results | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $resultPath -Encoding utf8NoBOM
     $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $lifecycleId -Kind run -Owner 'test-deploy-azrael' -State complete -MembershipComplete $true -Members $lifecycleMembers

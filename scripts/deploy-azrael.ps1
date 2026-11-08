@@ -25,8 +25,6 @@ param(
     [string]$CompanionVsixPath,
     [string]$TypeScriptPath,
     [string]$UiSourcePath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/upstream-ui/26.1007.21434'),
-    [string]$OriginalExtensionPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.chatgpt-26.1007.21434-win32-x64'),
-    [string]$OriginalAudioPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.codex-audio-26.1007.21434'),
     [string]$CodePath = 'code.cmd',
     [string]$StateRoot = (Join-Path $env:USERPROFILE '.azrael-ex'),
     [string]$SourceCodexHome = (Join-Path $env:USERPROFILE '.codex'),
@@ -37,7 +35,7 @@ param(
     [switch]$VerifyOnly,
     [switch]$Resume,
     [string]$ReuseDecisionsPath,
-    [switch]$VerifyStandaloneHost,
+    [switch]$VerifyInstructions,
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$FullRegression,
     [ValidateSet('cache-lifetime')][string]$EngineVerificationProfile,
@@ -813,17 +811,16 @@ try {
     if ([IO.Path]::GetFullPath($prepared.ReleaseDirectory) -ine $release -or [IO.Path]::GetFullPath($prepared.HostVsix) -ine (Join-Path $package 'azrael-host.vsix')) { throw 'Preparation returned a different release or package path.' }
     $script:preparedHash = (Get-FileHash -LiteralPath $preparedPath).Hash
     Assert-Package
-    # Unknown impact and exhaustive runs retain both activation modes.
-    $standaloneOwners = @('scripts/integrated-azrael-entry.cjs','scripts/namespace-azrael-host.cjs','scripts/prepare-independent-vscode.ps1','scripts/check-independent-vscode.ps1','scripts/independent-vscode-host-check.cjs','scripts/install-app-release.ps1','scripts/install-azrael.ps1','scripts/package-app-release.py','scripts/ordinary-runtime.cjs','scripts/shared-engine-host.cjs','scripts/devin-native-host.cjs','scripts/provider-accounts-host.cjs','scripts/platform-runtime.cjs','scripts/azrael-platforms.json','scripts/azrael-app-release.json')
-    $standaloneRequired = $VerifyStandaloneHost -or $FullRegression -or $ExhaustiveRegression -or -not $ChangedPath -or @($ChangedPath | Where-Object { $p = $_ -replace '\\','/'; $p -in $standaloneOwners -or $p.StartsWith('extensions/azrael-ex/', [StringComparison]::Ordinal) }).Count -gt 0
-    $acceptanceArgs = @('-HostVsixPath', $prepared.HostVsix, '-FixtureRoot', $fixture, '-StateRoot', $fixtureStateRoot, '-UseFreshState', '-ParentLifecycleId', $fixtureLifecycleId, '-OriginalExtensionPath', $OriginalExtensionPath, '-OriginalAudioPath', $OriginalAudioPath, '-CodePath', $CodePath)
-    if ($standaloneRequired) { $acceptanceArgs += '-VerifyStandalone' }
+    # Instructions mounting is feature-specific; host activation always runs once.
+    $instructionOwners = @((Get-Content -LiteralPath (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object id -eq 'ui.instruction-settings' | ForEach-Object owners)
+    $instructionsRequired = $VerifyInstructions -or $FullRegression -or @($policyPaths | Where-Object { $p = $_ -replace '\\','/'; $p -in $instructionOwners -or $p.StartsWith('instructions/', [StringComparison]::Ordinal) }).Count -gt 0
+    $acceptanceArgs = @('-HostVsixPath', $prepared.HostVsix, '-FixtureRoot', $fixture, '-StateRoot', $fixtureStateRoot, '-UseFreshState', '-ParentLifecycleId', $fixtureLifecycleId, '-CodePath', $CodePath)
+    if ($instructionsRequired) { $acceptanceArgs += '-VerifyInstructions' }
     Invoke-Stage 'acceptance' 'check-independent-vscode.ps1' $acceptanceArgs
     $acceptancePath = Join-Path $fixture 'check-result.json'
     $acceptance = Get-Content -LiteralPath $acceptancePath -Raw | ConvertFrom-Json
     $stages = @('initialInventory', 'hostInstall', 'finalInventory', 'host')
-    if ($standaloneRequired) { $stages += 'standaloneHost' }
-    if ($acceptance.passed -isnot [bool] -or $acceptance.passed -cne $true -or @($acceptance.exitCodes.PSObject.Properties).Count -ne $stages.Count -or $acceptance.standaloneVerified -isnot [bool] -or $acceptance.standaloneVerified -ne [bool]$standaloneRequired) { throw 'Host acceptance did not pass the selected stages.' }
+    if ($acceptance.passed -isnot [bool] -or $acceptance.passed -cne $true -or @($acceptance.exitCodes.PSObject.Properties).Count -ne $stages.Count -or $acceptance.standaloneVerified -isnot [bool] -or $acceptance.standaloneVerified -ne $true -or $acceptance.hostMode -cne 'standalone' -or $acceptance.instructionsVerified -isnot [bool] -or $acceptance.instructionsVerified -ne [bool]$instructionsRequired) { throw 'Host acceptance did not pass the selected stages.' }
     foreach ($stage in $stages) {
         $value = $acceptance.exitCodes.PSObject.Properties[$stage]
         if ($null -eq $value -or $null -eq $value.Value -or $value.Value -isnot [long] -and $value.Value -isnot [int] -or $value.Value -ne 0) { throw "Host acceptance stage failed or missing: $stage" }

@@ -1,6 +1,6 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param([string]$FixtureRoot, [switch]$SubtreeOnly, [switch]$InternalJunctionOnly)
+param([string]$FixtureRoot, [switch]$SubtreeOnly, [switch]$InternalJunctionOnly, [switch]$HostResultsOnly)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
 $testRoot = Join-Path $project ('artifacts/logs/storage-cleanup-20261006/verification-fixtures-' + [guid]::NewGuid().ToString('N'))
@@ -175,6 +175,25 @@ function Test-InternalJunctionRemoval {
     Assert (-not (Get-ArtifactCleanupRemaining $link) -and [IO.File]::ReadAllText($sentinel) -ceq 'target content must survive') 'Internal junction target was removed or changed.'
 }
 try {
+    & {
+        $ast = [Management.Automation.Language.Parser]::ParseFile($cleaner, [ref]$null, [ref]$null)
+        $definition = $ast.Find({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Get-HostVerificationStages'}, $true)
+        . ([scriptblock]::Create($definition.Extent.Text))
+        foreach ($case in @(@{result=@{};count=6},@{result=@{standaloneVerified=$false};count=4},@{result=@{standaloneVerified=$true};count=5},@{result=@{hostMode='standalone';standaloneVerified=$true};count=4})) {
+            Assert (@(Get-HostVerificationStages $case.result $false).Count -eq $case.count) 'Host receipt stage selection changed.'
+        }
+        $failed = @{hostMode='standalone';standaloneVerified=$false}
+        $rejected = $false
+        try { Get-HostVerificationStages $failed $false | Out-Null } catch { $rejected = $true }
+        Assert $rejected 'Failed standalone receipt passed undiagnosed cleanup.'
+        Assert (@(Get-HostVerificationStages $failed $true).Count -eq 4) 'Diagnosed standalone failure cannot be cleaned.'
+        foreach ($invalid in @(@{hostMode='coexistence';standaloneVerified=$true},@{hostMode='standalone';standaloneVerified='true'})) {
+            $rejected = $false
+            try { Get-HostVerificationStages $invalid $false | Out-Null } catch { $rejected = $true }
+            Assert $rejected 'Malformed standalone receipt accepted.'
+        }
+    }
+    if ($HostResultsOnly) { [pscustomobject]@{Passed=$passed;Failed=0;Selection='HostResultsOnly'}; return }
     if ($InternalJunctionOnly) { Test-InternalJunctionRemoval; [pscustomobject]@{Passed=$passed;Failed=0;Selection='InternalJunctionOnly'}; return }
     if (-not $SubtreeOnly) { Test-InternalJunctionRemoval }
     Test-SubtreeCleanup
@@ -213,7 +232,7 @@ try {
     Assert ((Test-Path -LiteralPath (Join-Path $archive 'check-result.json')) -and (Test-Path -LiteralPath (Join-Path $archive 'host-result.json')) -and (Test-Path -LiteralPath (Join-Path $archive 'report.json'))) 'Compact evidence missing.'
     Assert (@(Get-ChildItem -LiteralPath $archive -Recurse -File).Count -eq 3) 'Private or payload data archived.'
     Assert (-not (Test-Path -LiteralPath (Join-Path $testRoot 'artifacts/logs/fixture-completed spaces 한글'))) 'Associated fixture log was orphaned.'
-    foreach($mode in @('coexistence','standalone','incomplete','invalid-mode')){
+    foreach($mode in @('coexistence','standalone','standalone-single','incomplete','invalid-mode','invalid-single')){
         $selectedFixture=New-Fixture "selected-$mode"
         $codes=@{initialInventory=0;hostInstall=0;finalInventory=0;host=0}
         $standalone=$mode -eq 'standalone'
@@ -221,9 +240,11 @@ try {
         if($mode -eq 'incomplete'){$codes.Remove('host')}
         $proof=@{passed=$true;exitCodes=$codes;standaloneVerified=$standalone}
         if($mode -eq 'invalid-mode'){$proof.standaloneVerified='false'}
+        if($mode -in @('standalone-single','invalid-single')){$proof.hostMode='standalone';$proof.standaloneVerified=$true}
+        if($mode -eq 'invalid-single'){$proof.hostMode='coexistence'}
         Write-Json (Join-Path $selectedFixture 'check-result.json') $proof
         $selectedReport=Run-Clean $selectedFixture
-        if($mode -in @('coexistence','standalone')){
+        if($mode -in @('coexistence','standalone','standalone-single')){
             Assert ($selectedReport.candidates[0].status -eq 'deleted' -and -not(Test-Path -LiteralPath $selectedFixture)) "Selected mode cleanup failed: $mode"
         }else{Assert ($selectedReport.candidates[0].status -eq 'retained' -and (Test-Path -LiteralPath $selectedFixture)) "Invalid selected mode must remain protected: $mode"}
     }

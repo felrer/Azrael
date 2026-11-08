@@ -245,14 +245,12 @@ function observeEmbeddedStartupConnect(accountServiceModulePath) {
 exports.run = async function run() {
   const root = process.env.SAME_WINDOW_CHECK_ROOT;
   assert(root && path.isAbsolute(root), "SAME_WINDOW_CHECK_ROOT is missing");
-  const mode = process.env.SAME_WINDOW_CHECK_MODE;
-  assert(mode === "standalone" || mode === "coexistence", "SAME_WINDOW_CHECK_MODE is invalid");
-  const standalone = mode === "standalone";
-  const resultPath = path.join(root, standalone ? "standalone-host-result.json" : "host-result.json");
+  const mode = "standalone";
+  const resultPath = path.join(root, "host-result.json");
+  const verifyInstructions = process.env.SAME_WINDOW_VERIFY_INSTRUCTIONS === "1";
   const expectedState = process.env.SAME_WINDOW_EXPECTED_STATE_ROOT;
   const expectedOrdinaryHome = process.env.SAME_WINDOW_EXPECTED_ORDINARY_HOME;
   const expectedHostVersion = process.env.SAME_WINDOW_EXPECTED_HOST_VERSION;
-  const expectedOriginalVersion = process.env.SAME_WINDOW_EXPECTED_ORIGINAL_VERSION;
   const diagnostics = {};
   const assertFixtureEnvironment = () => {
     assert(expectedState && path.isAbsolute(expectedState), "SAME_WINDOW_EXPECTED_STATE_ROOT is missing");
@@ -273,7 +271,7 @@ exports.run = async function run() {
       assert(inside(root, explicitUserData), "SAME_WINDOW_CHECK_USER_DATA_DIR must be contained in the fixture");
       assert(inside(await fs.realpath(root), await fs.realpath(explicitUserData)), "SAME_WINDOW_CHECK_USER_DATA_DIR resolves outside the fixture");
     }
-    diagnostics.userData = explicitUserData ?? path.join(root, standalone ? "standalone-user-data" : "coexistence-user-data");
+    diagnostics.userData = explicitUserData ?? path.join(root, "user-data");
     assert(vscode.env.remoteName === undefined, `host unexpectedly ran remotely: ${vscode.env.remoteName}`);
     assertFixtureEnvironment();
 
@@ -282,13 +280,9 @@ exports.run = async function run() {
     diagnostics.discoveredExtensions = vscode.extensions.all.map((extension) => extension.id).sort();
     diagnostics.expectedExtensions = { original: !!original, host: !!host };
     assert(host, "integrated azrael host was not discovered");
-    if (standalone) assert(!original || !original.isActive, "disabled original extension was active in standalone mode");
-    else assert(original, "original extension was not discovered in coexistence mode");
-    assert(expectedOriginalVersion && /^\d+\.\d+\.\d+$/.test(expectedOriginalVersion), "expected original version was not supplied");
-    if (original) assert(original.packageJSON.version === expectedOriginalVersion, `original version was ${original.packageJSON.version}`);
+    assert(!original && !vscode.extensions.getExtension("openai.codex-audio"), "standalone fixture contained official Codex or audio");
     assert(expectedHostVersion && host.packageJSON.version === expectedHostVersion, `host version was ${host.packageJSON.version}`);
-    if (original) assert(!samePath(original.extensionPath, host.extensionPath), "original and host resolved to one directory");
-    diagnostics.paths = { original: original?.extensionPath, host: host.extensionPath };
+    diagnostics.paths = { host: host.extensionPath };
 
     const accountModulePath = extensionHostModulePath(path.join(host.extensionPath, "account-ui", "dist", "src", "extension.js"));
     const accountServiceModulePath = extensionHostModulePath(path.join(host.extensionPath, "account-ui", "dist", "src", "accountService.js"));
@@ -313,20 +307,9 @@ exports.run = async function run() {
     assert(startupConnectResult.errorStateEvents.length === 0, "embedded startup emitted a terminal account error state");
     assert(host.isActive, "integrated host did not remain active");
     assertFixtureEnvironment();
-    if (standalone) assert(!original || !original.isActive, "host activation activated the disabled original extension");
-    else {
-      await original.activate();
-      assert(original.isActive, "original extension did not remain active in coexistence mode");
-      assertFixtureEnvironment();
-    }
-
     const registered = new Set(await vscode.commands.getCommands(true));
     for (const command of ["azrael.openSidebar", ...ACCOUNT_COMMANDS]) {
       assert(registered.has(command), `required command was not registered: ${command}`);
-    }
-    if (!standalone) {
-      assert(registered.has("chatgpt.openSidebar"), "original sidebar command was not registered");
-      await vscode.commands.executeCommand("chatgpt.openSidebar");
     }
     await vscode.commands.executeCommand("azrael.openSidebar");
     const profileLogs = path.join(diagnostics.userData, "logs");
@@ -341,7 +324,7 @@ exports.run = async function run() {
       return false;
     }, 125_000, "packaged Azrael renderer readiness");
     diagnostics.rendererReady = true;
-    await verifyEmbeddedInstructions(diagnostics);
+    if (verifyInstructions) await verifyEmbeddedInstructions(diagnostics);
     await verifyEmbeddedWorkbench(diagnostics);
     await vscode.commands.executeCommand("azrael.manageAccounts");
     const accountsWebview = await waitFor(
@@ -358,13 +341,10 @@ exports.run = async function run() {
     const rootResumeWebview = await waitFor(
       () => findWebview("루트 재개 예약", "azrael.rootResume"), 30_000, "integrated root resume Webview");
 
-    const originalIds = original ? contributionIds(original.packageJSON) : undefined;
     const hostIds = contributionIds(host.packageJSON);
     for (const kind of ["commands", "configuration", "views", "customEditors"]) {
       assert(hostIds[kind].length > 0, `host exposed no ${kind} contributions`);
-      if (originalIds) assert(hostIds[kind].every((id) => !originalIds[kind].includes(id)), `host shared ${kind} contribution IDs with original`);
     }
-    if (originalIds) assert(originalIds.configuration.every((id) => id.startsWith("chatgpt.")), "original configuration namespace changed");
     assert(hostIds.configuration.every((id) => id.startsWith("azrael.")), "host configuration namespace was not independent");
 
     const runtimePath = path.join(host.extensionPath, "out", "azrael-runtime.cjs");
@@ -406,8 +386,6 @@ exports.run = async function run() {
     assert(runtimeModules.some((entry) => entry.sameRuntime && samePath(entry.key, runtimePath)) &&
       runtimeModules.every((entry) => entry.sameRuntime),
       "integrated account UI did not use the host's cached runtime instance");
-    assert(!original || runtimeModules.every((entry) => !entry.key.toLowerCase().startsWith(original.extensionPath.toLowerCase() + path.sep)),
-      "integrated account UI resolved a runtime below the original extension");
     assert(Object.keys(require.cache).some((key) => samePath(key, accountModulePath)),
       "host wrapper did not load the embedded account UI module");
 
@@ -435,12 +413,10 @@ exports.run = async function run() {
       passed: true,
       rootResume: { listVerified: true, reservationCount: rootResume.reservations.length },
       extensions: {
-        original: original
-          ? { id: ORIGINAL_ID, version: original.packageJSON.version, active: original.isActive, disabledForRun: standalone }
-          : { id: ORIGINAL_ID, discovered: false, active: false, disabledForRun: standalone },
+        original: { id: ORIGINAL_ID, discovered: false, active: false },
         host: { id: HOST_ID, version: host.packageJSON.version, active: host.isActive },
       },
-      openSidebarCommandsCalled: standalone ? ["azrael.openSidebar"] : ["chatgpt.openSidebar", "azrael.openSidebar"],
+      openSidebarCommandsCalled: ["azrael.openSidebar"],
       contributions: hostIds,
       runtime: { engine: runtime.engine, bridge: runtime.bridge, codexHome: runtime.codexHome, socket: runtime.socket, instanceId: state.instanceId,
         sharedEngine: runtime.sharedEngine, sharedEngineProtocol: runtime.sharedEngineProtocol, engineSha256: runtime.engineSha256,
@@ -448,6 +424,7 @@ exports.run = async function run() {
       ordinaryCodexHome: expectedOrdinaryHome,
       integratedAccountUiUsesHostRuntime: true,
       embeddedStartupConnect: startupConnectResult,
+      instructionsVerified: verifyInstructions,
       embeddedInstructions: diagnostics.embeddedInstructions,
       webviews: { accounts: accountsWebview.input.viewType, usage: usageWebview.input.viewType, rootResume: rootResumeWebview.input.viewType },
       accountCount: state.profiles.length,

@@ -4,12 +4,8 @@ param(
     [Parameter(Mandatory)][string]$ManifestPath,
     [Parameter(Mandatory)][string]$OutputDirectory,
     [string]$CodePath = 'code.cmd',
-    [string]$OriginalExtensionPath,
-    [string]$OriginalAudioPath,
-    [string]$UiSourcePath,
-    [string]$TypeScriptPath,
     [string]$FixtureRoot,
-    [switch]$VerifyStandalone
+    [switch]$VerifyInstructions
 )
 
 Set-StrictMode -Version Latest
@@ -23,11 +19,6 @@ if ($manifest.schemaVersion -ne 1 -or $manifest.product -cne 'Azrael' -or
     $manifest.releaseVersion -cnotmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' -or
     $manifest.hostVersion -cne $manifest.releaseVersion -or @($manifest.assets).Count -ne 1) {
     throw 'Unsupported app release manifest.'
-}
-if (-not $TypeScriptPath) {
-    if ($manifest.sourceBuild -cnotmatch '^[A-Za-z0-9][A-Za-z0-9_-]*$') { throw 'Invalid source build name.' }
-    $sourceBuild = Get-Content -LiteralPath (Join-Path $projectRoot "artifacts/releases/$($manifest.sourceBuild)/build-info.json") -Raw | ConvertFrom-Json
-    $TypeScriptPath = (Resolve-Path -LiteralPath $sourceBuild.moduleBuild.typeScriptPath).Path
 }
 $asset = $manifest.assets[0]
 if ($asset.name -cne "Azrael-$($manifest.releaseVersion)-windows-x64.zip" -or $asset.sha256 -cnotmatch '^[a-f0-9]{64}$') { throw 'Invalid app release asset.' }
@@ -68,15 +59,11 @@ try {
         UseFreshState = $true
         CodePath = $CodePath
     }
-    if ($VerifyStandalone) { $arguments.VerifyStandalone = $true }
-    foreach ($name in @('OriginalExtensionPath', 'OriginalAudioPath')) {
-        $value = Get-Variable -Name $name -ValueOnly
-        if ($value) { $arguments[$name] = $value }
-    }
+    if ($VerifyInstructions) { $arguments.VerifyInstructions = $true }
     & (Join-Path $PSScriptRoot 'check-independent-vscode.ps1') @arguments *> (Join-Path $logs 'host-acceptance.log')
     if ($LASTEXITCODE -ne 0) { throw 'Isolated host acceptance failed. See host-acceptance.log.' }
     $summary = Get-Content -LiteralPath (Join-Path $hostFixture 'check-result.json') -Raw | ConvertFrom-Json
-    if ($summary.passed -ne $true -or $summary.hostPackage.version -cne $manifest.releaseVersion) { throw 'Host acceptance did not certify the requested version.' }
+    if ($summary.passed -ne $true -or $summary.hostPackage.version -cne $manifest.releaseVersion -or $summary.hostMode -cne 'standalone' -or $summary.standaloneVerified -cne $true -or $summary.instructionsVerified -isnot [bool] -or $summary.instructionsVerified -ne [bool]$VerifyInstructions) { throw 'Host acceptance did not certify the requested version.' }
     $summary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'host-acceptance.json') -Encoding utf8NoBOM
     $installer | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'relocation.json') -Encoding utf8NoBOM
     if ((Get-FileHash -LiteralPath $manifestFile -Algorithm SHA256).Hash.ToLowerInvariant() -cne $manifestHash -or

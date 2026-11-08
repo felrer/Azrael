@@ -80,6 +80,20 @@ function Archive-Evidence([string]$Path) {
     if (-not $saved.Count) { throw 'No compact result evidence to preserve.' }
     return $saved
 }
+function Get-HostVerificationStages($Result, [bool]$IncludeDiagnosed) {
+    if ($Result.ContainsKey('hostMode')) {
+        if ($Result.hostMode -cne 'standalone' -or $Result.standaloneVerified -isnot [bool]) { throw 'Invalid standalone host evidence.' }
+        if (-not $IncludeDiagnosed -and -not $Result.standaloneVerified) { throw 'Failed standalone host fixture; retain until diagnosis.' }
+        return @('initialInventory','hostInstall','finalInventory','host')
+    }
+    if ($Result.ContainsKey('standaloneVerified')) {
+        if ($Result.standaloneVerified -isnot [bool]) { throw 'Invalid host mode evidence.' }
+        $stages = @('initialInventory','hostInstall','finalInventory','host')
+        if ($Result.standaloneVerified) { $stages += 'standaloneHost' }
+        return $stages
+    }
+    return @('initialInventory','hostInstall','finalInventory','namespace','standaloneHost','host')
+}
 $report = [ordered]@{ projectRoot = $null; apply = [bool]$Apply; includeDiagnosedFixtures = [bool]$IncludeDiagnosedFixtures; status = 'preview'; candidates = @(); errors = @() }
 try {
     $project = Normalize-Path $ProjectRoot
@@ -170,12 +184,7 @@ try {
             $accountPath = Join-Path $target 'verification.json'
             if (Test-Path -LiteralPath $resultPath) {
                 $result = Read-Json $resultPath
-                $stages = @('initialInventory','hostInstall','finalInventory','namespace','standaloneHost','host')
-                if ($result.ContainsKey('standaloneVerified')) {
-                    if ($result.standaloneVerified -isnot [bool]) { throw 'Invalid host mode evidence.' }
-                    $stages = @('initialInventory','hostInstall','finalInventory','host')
-                    if ($result.standaloneVerified) { $stages += 'standaloneHost' }
-                }
+                $stages = @(Get-HostVerificationStages $result ([bool]$IncludeDiagnosedFixtures))
                 if (-not $IncludeDiagnosedFixtures -and ($result.passed -isnot [bool] -or -not $result.passed -or -not $result.exitCodes -or @($stages | Where-Object { -not $result.exitCodes.ContainsKey($_) -or $result.exitCodes[$_] -isnot [long] -and $result.exitCodes[$_] -isnot [int] -or $result.exitCodes[$_] -ne 0 }).Count -or $result.exitCodes.Count -ne $stages.Count)) { throw 'Failed or incomplete host fixture; retain until diagnosis.' }
             } elseif (Test-Path -LiteralPath $accountPath) {
                 $result = Read-Json $accountPath
