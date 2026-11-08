@@ -241,7 +241,7 @@ test('every registered selected-tests-v2 check has a reviewed recipe and valid s
   const selected = manifest.features.flatMap(x => x.checks).filter(x => x.cargoPreflight === 'selected-tests-v2');
   assert.ok(selected.length > 0, 'registered Cargo checks must exercise the current recipe contract');
   for (const value of selected) {
-    const result = recipesForCheck(value.args[0] === 'scripts/check-task-memory.cjs'
+    const result = recipesForCheck(['scripts/check-task-memory.cjs', 'scripts/check-agent-image-attachments.cjs', 'scripts/check-find-names.cjs'].includes(value.args[0])
       ? { ...config, engineSourceRoot: path.join(projectRoot, 'engine') } : config, value);
     assert.deepEqual(result.gaps, [], value.id);
     for (const recipe of result.cargoPreparations) {
@@ -284,4 +284,23 @@ test('session handoff preparation keeps routing and forwarded limits without cor
     'azrael_session_handoff::tests::scope_does_not_grant_account_or_other_session_authority',
   ]);
   assert.ok(result.cargoPreparations.every(x => x.args.includes('--lib') && x.args.includes('--locked') && x.args.includes('--offline')));
+});
+
+test('registered image, find-names and Devin recipes preserve scopes and ignored test gates', () => {
+  const bound = { ...config, engineSourceRoot: path.join(projectRoot, 'engine') };
+  const derived = (name, tail = []) => ({ ...check(name), args: ['scripts/' + name + '.cjs', ...tail] });
+  const image = recipesForCheck(bound, derived('check-agent-image-attachments'));
+  assert.deepEqual(image.gaps, []);
+  assert.deepEqual(image.cargoPreparations.map(r => [r.args[2], r.args[6]]), [['codex-protocol','inter_agent'],['codex-thread-store','image_snapshot'],['codex-core','image_attachments'],['codex-core','agent_image_label'],['codex-core','tool_message_transport'],['codex-core','devin_recipient_requires_plaintext']]);
+  const names = recipesForCheck(bound, derived('check-find-names')).cargoPreparations;
+  assert.deepEqual(names.map(r => r.args[6]), ['find_names','reviewer_tool_policy','api_tool_free_model_closes_catalog_and_native_dispatch_registry','find_names_with_packaged_helper','find_names_missing_runtime']);
+  assert.deepEqual(names.map(r => r.args.includes('--ignored')), [false,false,false,true,true]);
+  const devin = recipesForCheck(config, check('check-devin-compaction')).cargoPreparations;
+  assert.deepEqual(devin.map(r => r.args[6]), ['devin::catalog::','compact::tests','auto_compaction','reconstruct_history_','compaction_persists_resume_metadata_and_companion_records','native_devin_compaction_commits_only_completed_nonempty_summary']);
+  assert.deepEqual(devin.map(r => r.args.includes('--ignored')), [false,false,false,false,false,true]);
+  for (const name of ['check-agent-image-attachments','check-find-names']) {
+    assert.equal(recipesForCheck(config, derived(name)).gaps.length, 1);
+    assert.equal(recipesForCheck(bound, derived(name, ['unknown'])).gaps.length, 1);
+  }
+  assert.equal(recipesForCheck(config, check('check-devin-compaction', ['unknown'])).gaps.length, 1);
 });

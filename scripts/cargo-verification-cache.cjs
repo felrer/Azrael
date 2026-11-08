@@ -31,6 +31,9 @@ const sourceOnlyHelpers = {
   // Reviewed variants have identical preparation/selection/execution gates;
   // later variants only register additional guarded wrappers.
   'scripts/cargo-verification.cjs': [
+    // Reviewed delta adds only check-devin-compaction to guarded wrappers;
+    // selected command construction, environment and nonzero test gates are unchanged.
+    '9a220873a1503575eccde9f78d55f63896d816a3227a186520fccd3c07013295',
     // Single Cargo invocation; actual nonzero passing libtest counts required.
     '693c71ca462a95b430d5b5effa7cf70620c38361c364328c28d9b72ccdcbe7c1',
     '9aac0bceeb7858cfa5222ba52b32b6b3bc02cd1417e38f1433b559bc6de0f552',

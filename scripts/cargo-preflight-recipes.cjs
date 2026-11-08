@@ -9,6 +9,9 @@ const { createHash } = require('node:crypto');
 // otherwise cache eligibility reports a gap rather than silently using stale commands.
 // Normalize checkout line endings, but preserve all other source bytes.
 const wrapperHashes = Object.freeze({
+  'check-agent-image-attachments': '882d37200bbcd734ba557965b3caee1a35790b383e4335e87a2967b2d3373c2f',
+  'check-find-names': '069e33fb0d0162298f46bd71052669dce96c7913e33f9b2c05c2d50491af6c96',
+  'check-devin-compaction': 'e5e9113405e0ec7875ab871975c4598e17b20a60e9485ec54f83742235be5c4a',
   'check-role-profiles-native': '74d340d26d6801f63c260c772f1afaba8ed0506d18abf5be353432184bd0b0bc',
   'check-executor-completion': 'fbba5203634989dcdd30802d2f58af11418b8f32d9b8613ef05cbf7f80a28c09',
   'check-deletion-approval-native': '139f05599adda7215de9fd9c67a986803fc08a7b081dc9fc3184441ac8631829',
@@ -49,6 +52,23 @@ function reviewedRecipes(wrapper, tail, platform) {
     return Object.hasOwn(choices, name) ? choices[name] : undefined;
   };
   switch (wrapper) {
+    case 'check-agent-image-attachments': {
+      const groups = { protocol: [['codex-protocol', 'inter_agent']], storage: [['codex-thread-store', 'image_snapshot']],
+        core: ['image_attachments', 'agent_image_label', 'tool_message_transport', 'devin_recipient_requires_plaintext'].map(filter => ['codex-core', filter]) };
+      const selected = scoped({ ...groups, all: [...groups.protocol, ...groups.storage, ...groups.core] }, 'all');
+      args = selected?.map(([crate, filter]) => ['test', '-p', crate, '--lib', '--locked', '--offline', filter, '--', '--test-threads=1']);
+      break;
+    }
+    case 'check-find-names':
+      isolateHostEnvironment = false;
+      if (!tail.length) args = ['find_names', 'reviewer_tool_policy', 'api_tool_free_model_closes_catalog_and_native_dispatch_registry', 'find_names_with_packaged_helper', 'find_names_missing_runtime']
+        .map((filter, index) => ['test', '-p', 'codex-core', '--lib', '--locked', '--offline', filter, '--', '--test-threads=1', ...(index >= 3 ? ['--ignored'] : [])]);
+      break;
+    case 'check-devin-compaction':
+      isolateHostEnvironment = false;
+      if (!tail.length) args = ['devin::catalog::', 'compact::tests', 'auto_compaction', 'reconstruct_history_', 'compaction_persists_resume_metadata_and_companion_records', 'native_devin_compaction_commits_only_completed_nonempty_summary']
+        .map((filter, index) => ['test', '-p', 'codex-core', '--lib', '--locked', '--offline', filter, '--', ...(index === 5 ? ['--ignored'] : []), '--test-threads=1']);
+      break;
     case 'check-role-profiles-native':
       if (!tail.length) args = ['role_profile', 'spawn_agent_fork',
         'multi_agent_v2_spawn_fork_turns_all_applies_agent_type_override',
@@ -229,10 +249,11 @@ function recipesForCheck(config, check) {
   if (!/^scripts\/check-[a-z-]+\.cjs$/.test(argv[0] || '')) return fail('unsupported wrapper path');
   const wrapper = path.basename(argv[0], '.cjs');
   if (!Object.hasOwn(wrapperHashes, wrapper)) return fail('no reviewed Cargo recipe for wrapper');
-  if (wrapper === 'check-task-memory') {
+  const derivesSource = ['check-task-memory', 'check-agent-image-attachments', 'check-find-names'].includes(wrapper);
+  if (derivesSource) {
     if (typeof config.engineSourceRoot !== 'string' || !path.isAbsolute(config.engineSourceRoot) ||
         path.resolve(config.engineSourceRoot) !== path.resolve(config.projectRoot, 'engine')) {
-      return fail('task-memory wrapper does not derive the configured engine source root');
+      return fail(wrapper + ' wrapper does not derive the configured engine source root');
     }
   } else if (argv[1] !== '{engineSourceRoot}' && argv[1] !== config.engineSourceRoot) return fail('wrapper does not select the configured engine source root');
   if (wrapper === 'check-selected-upstream-native' && ['core-integration', 'code-mode-trace'].includes(argv[2]) &&
@@ -241,7 +262,7 @@ function recipesForCheck(config, check) {
   try { source = fs.readFileSync(path.join(config.projectRoot, argv[0]), 'utf8'); }
   catch (error) { return fail(`cannot read wrapper: ${error.code || error.message}`); }
   if (createHash('sha256').update(source.replace(/\r\n/g, '\n')).digest('hex') !== wrapperHashes[wrapper]) return fail('wrapper source changed; review its recipe and update the recorded source hash');
-  const recipes = reviewedRecipes(wrapper, argv.slice(wrapper === 'check-task-memory' ? 1 : 2), process.platform);
+  const recipes = reviewedRecipes(wrapper, argv.slice(derivesSource ? 1 : 2), process.platform);
   if (!recipes?.length) return fail('unsupported wrapper scope or arguments');
   return { cargoPreparations: recipes.map((recipe, index) => ({ checkId: check.id, ...recipe,
     ...(wrapper === 'check-task-profile-skills' && index === recipes.length - 1
