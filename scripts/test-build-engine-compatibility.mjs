@@ -65,7 +65,7 @@ test('every local probe and evidence helper dependency remains bound in the iden
   assert.deepEqual([...owners.keys()].filter(file => !COMPATIBILITY_SOURCES.includes(file)), []);
 });
 
-test('actual build and deploy recipes forward full checks for rebuilt bundles and explicit full verification', { skip: process.platform !== 'win32' }, async t => {
+test('actual build and deploy recipes forward full checks for rebuilt bundles and forced native verification', { skip: process.platform !== 'win32' }, async t => {
   const build = path.resolve(import.meta.dirname, 'build-azrael.ps1').replaceAll("'", "''");
   const deploy = path.resolve(import.meta.dirname, 'deploy-azrael.ps1').replaceAll("'", "''");
   const script = `$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; $tokens=$null;$errors=$null
@@ -78,7 +78,7 @@ test('actual build and deploy recipes forward full checks for rebuilt bundles an
   $ast=[Management.Automation.Language.Parser]::ParseFile('${deploy}',[ref]$tokens,[ref]$errors);if($errors){throw $errors}
   $forward=$ast.Find({param($n) $n -is [Management.Automation.Language.IfStatementAst] -and $n.Extent.Text -like "*buildArgs += '-ForceEngineCompatibility'*"},$true)
   if(-not $forward){throw 'Deployment forwarding missing'}
-  foreach($case in @(@($false,$false),@($true,$false),@($false,$true))){$FullRegression=$case[0];$ForceNativeVerification=$case[1];$buildArgs=@();Invoke-Expression $forward.Extent.Text;if(($buildArgs -contains '-ForceEngineCompatibility') -ne ($FullRegression -or $ForceNativeVerification)){throw 'Deployment full request lost'}}`;
+  foreach($ForceNativeVerification in @($false,$true)){$buildArgs=@();Invoke-Expression $forward.Extent.Text;if(($buildArgs -contains '-ForceEngineCompatibility') -ne $ForceNativeVerification){throw 'Deployment full request lost'}}`;
   const f = await fixture(t), filename = path.join(f.root, 'recipes.ps1');
   await fs.writeFile(filename, script);
   const result = await promisify(execFile)('pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', '-File', filename], { windowsHide: true });
